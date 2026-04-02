@@ -1,8 +1,16 @@
-import { useEffect, useRef } from "react";
-import { Deck } from "@deck.gl/core";
+import { useEffect, useRef, useState } from "react";
+import type { Layer } from "@deck.gl/core";
+import { Map, useControl } from "react-map-gl/maplibre";
+import { MapboxOverlay } from "@deck.gl/mapbox";
 import { BASEMAP } from "@deck.gl/carto";
-import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import {
+  loadLayerConfigs,
+  loadParquetBatches,
+  loadArrowBatches,
+  createGeoArrowLayer,
+} from "@/layers";
+import type { LayerConfig } from "@/layers";
 
 const INITIAL_VIEW_STATE = {
   longitude: 5.0,
@@ -12,57 +20,60 @@ const INITIAL_VIEW_STATE = {
   bearing: 0,
 };
 
+function DeckGLOverlay(props: { layers: Layer[] }) {
+  const overlay = useControl(() => new MapboxOverlay({ interleaved: true }));
+  overlay.setProps({ layers: props.layers });
+  return null;
+}
+
 export function MapView() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<maplibregl.Map | null>(null);
-  const deckRef = useRef<Deck | null>(null);
+  const layersRef = useRef<globalThis.Map<string, Layer>>(new globalThis.Map());
+  const [layers, setLayers] = useState<Layer[]>([]);
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const map = new maplibregl.Map({
-      container,
-      style: BASEMAP.POSITRON,
-      interactive: false,
-      center: [INITIAL_VIEW_STATE.longitude, INITIAL_VIEW_STATE.latitude],
-      zoom: INITIAL_VIEW_STATE.zoom,
-      bearing: INITIAL_VIEW_STATE.bearing,
-      pitch: INITIAL_VIEW_STATE.pitch,
-    });
-    mapRef.current = map;
-
-    const deck = new Deck({
-      parent: container,
-      initialViewState: INITIAL_VIEW_STATE,
-      controller: {
-        dragRotate: false,
-        touchRotate: false,
-      },
-      layers: [],
-      onViewStateChange: ({ viewState: newViewState }) => {
-        const vs = {
-          ...newViewState,
-          pitch: 0,
-          bearing: 0,
-        };
-        map.jumpTo({
-          center: [vs.longitude, vs.latitude],
-          zoom: vs.zoom,
-          bearing: vs.bearing,
-          pitch: vs.pitch,
-        });
-      },
-    });
-    deckRef.current = deck;
-
-    return () => {
-      deck.finalize();
-      map.remove();
-    };
+    loadAndRenderLayers();
   }, []);
 
+  async function loadAndRenderLayers() {
+    try {
+      const configs = await loadLayerConfigs();
+      for (const config of configs) {
+        if (config.format === "parquet") {
+          await loadParquetLayer(config);
+        } else if (config.format === "geoarrow") {
+          await loadArrowLayer(config);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load layers:", err);
+    }
+  }
+
+  async function loadParquetLayer(config: LayerConfig) {
+    await loadParquetBatches(config.source, (batchIndex, table) => {
+      const layer = createGeoArrowLayer(config, table, batchIndex);
+      layersRef.current.set(config.id, layer);
+      setLayers(Array.from(layersRef.current.values()));
+    });
+  }
+
+  async function loadArrowLayer(config: LayerConfig) {
+    await loadArrowBatches(config.source, (batchIndex, table) => {
+      const layer = createGeoArrowLayer(config, table, batchIndex);
+      layersRef.current.set(config.id, layer);
+      setLayers(Array.from(layersRef.current.values()));
+    });
+  }
+
   return (
-    <div ref={containerRef} className="w-full h-full relative" />
+    <Map
+      initialViewState={INITIAL_VIEW_STATE}
+      style={{ width: "100%", height: "100%" }}
+      mapStyle={BASEMAP.POSITRON}
+      dragRotate={false}
+      pitchWithRotate={false}
+    >
+      <DeckGLOverlay layers={layers} />
+    </Map>
   );
 }

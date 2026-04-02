@@ -16,12 +16,12 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 
 ## Stage 2: Layer Configuration & GeoArrow/Parquet Support
 
-- [ ] Define `layers.json` schema with uniform syntax (id, name, source url, style)
-- [ ] Create a layer configuration loader that reads `layers.json`
-- [ ] Install geoarrow/deck.gl-layers dependencies
-- [ ] Implement GeoArrow/Parquet layer rendering for points, lines, and (multi)polygons
-- [ ] Implement batch loading for GeoArrow/Parquet files with a new deck.gl child layer per batch
-- [ ] Add example entries to `layers.json` for testing
+- [x] Define `layers.json` schema with uniform syntax (id, name, source url, style)
+- [x] Create a layer configuration loader that reads `layers.json`
+- [x] Install geoarrow/deck.gl-layers dependencies
+- [x] Implement GeoArrow/Parquet layer rendering for points, lines, and (multi)polygons
+- [x] Implement batch loading for GeoArrow/Parquet files with a new deck.gl child layer per batch
+- [x] Add example entries to `layers.json` for testing
 
 ## Stage 3: Additional Format Support
 

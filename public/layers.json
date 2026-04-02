@@ -1,0 +1,32 @@
+{
+  "layers": [
+    {
+      "id": "gemeente",
+      "name": "Gemeenten",
+      "source": "/cbs_wijken_limburg.arrow",
+      "format": "geoarrow",
+      "geometryType": "polygon",
+      "style": {
+        "color": [0, 128, 255, 150],
+        "opacity": 0.8,
+        "filled": true,
+        "stroked": true,
+        "lineWidth": 1
+      }
+    },
+    {
+      "id": "example-polygons",
+      "name": "Example Polygons",
+      "source": "https://raw.githubusercontent.com/opengeospatial/geoparquet/main/examples/example.parquet",
+      "format": "parquet",
+      "geometryType": "polygon",
+      "style": {
+        "color": [255, 69, 0, 150],
+        "opacity": 0.8,
+        "filled": true,
+        "stroked": true,
+        "lineWidth": 1
+      }
+    }
+  ]
+}
