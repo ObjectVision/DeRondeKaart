@@ -6,13 +6,13 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 
 ## Stage 1: Project Scaffolding & Base Map
 
-- [ ] Initialize Vite project with React and TypeScript
-- [ ] Install and configure Tailwind CSS
-- [ ] Install and configure shadcn/ui
-- [ ] Install standalone deck.gl and CARTO basemap dependencies
-- [ ] Render a basic deck.gl map with a CARTO basemap
-- [ ] Disable map tilting and rotation via deck.gl controller settings
-- [ ] Verify the app builds and runs with `npm run dev`
+- [x] Initialize Vite project with React and TypeScript
+- [x] Install and configure Tailwind CSS
+- [x] Install and configure shadcn/ui
+- [x] Install standalone deck.gl and CARTO basemap dependencies
+- [x] Render a basic deck.gl map with a CARTO basemap
+- [x] Disable map tilting and rotation via deck.gl controller settings
+- [x] Verify the app builds and runs with `npm run dev`
 
 ## Stage 2: Layer Configuration & GeoArrow/Parquet Support
 
