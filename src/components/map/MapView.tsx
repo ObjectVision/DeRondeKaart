@@ -1,16 +1,22 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import type { Layer } from "@deck.gl/core";
 import { Map, useControl } from "react-map-gl/maplibre";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { BASEMAP } from "@deck.gl/carto";
+import maplibregl from "maplibre-gl";
+import { cogProtocol } from "@geomatico/maplibre-cog-protocol";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
   loadLayerConfigs,
   loadParquetBatches,
   loadArrowBatches,
   createGeoArrowLayer,
+  createMVTLayer,
 } from "@/layers";
 import type { LayerConfig } from "@/layers";
+
+// Register COG protocol once
+maplibregl.addProtocol("cog", cogProtocol);
 
 const INITIAL_VIEW_STATE = {
   longitude: 5.0,
@@ -29,10 +35,12 @@ function DeckGLOverlay(props: { layers: Layer[] }) {
 export function MapView() {
   const layersRef = useRef<globalThis.Map<string, Layer>>(new globalThis.Map());
   const [layers, setLayers] = useState<Layer[]>([]);
+  const mapRef = useRef<maplibregl.Map | null>(null);
 
-  useEffect(() => {
+  function handleMapLoad(e: maplibregl.MapLibreEvent) {
+    mapRef.current = e.target;
     loadAndRenderLayers();
-  }, []);
+  }
 
   async function loadAndRenderLayers() {
     try {
@@ -42,6 +50,10 @@ export function MapView() {
           await loadParquetLayer(config);
         } else if (config.format === "geoarrow") {
           await loadArrowLayer(config);
+        } else if (config.format === "mvt") {
+          loadMVTLayer(config);
+        } else if (config.format === "cog") {
+          loadCOGLayer(config);
         }
       }
     } catch (err) {
@@ -65,6 +77,35 @@ export function MapView() {
     });
   }
 
+  function loadMVTLayer(config: LayerConfig) {
+    const layer = createMVTLayer(config);
+    layersRef.current.set(config.id, layer);
+    setLayers(Array.from(layersRef.current.values()));
+  }
+
+  function loadCOGLayer(config: LayerConfig) {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const sourceId = `cog-source-${config.id}`;
+    const layerId = `cog-layer-${config.id}`;
+
+    map.addSource(sourceId, {
+      type: "raster",
+      url: `cog://${config.source}`,
+      tileSize: 256,
+    });
+
+    map.addLayer({
+      id: layerId,
+      source: sourceId,
+      type: "raster",
+      paint: {
+        "raster-opacity": config.style.opacity ?? 1,
+      },
+    });
+  }
+
   return (
     <Map
       initialViewState={INITIAL_VIEW_STATE}
@@ -72,6 +113,7 @@ export function MapView() {
       mapStyle={BASEMAP.POSITRON}
       dragRotate={false}
       pitchWithRotate={false}
+      onLoad={handleMapLoad}
     >
       <DeckGLOverlay layers={layers} />
     </Map>

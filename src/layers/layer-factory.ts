@@ -1,5 +1,6 @@
 import type { Layer, Color } from "@deck.gl/core";
 import { Table } from "apache-arrow";
+import { MVTLayer } from "@deck.gl/geo-layers";
 import {
   GeoArrowScatterplotLayer,
   GeoArrowPathLayer,
@@ -63,6 +64,26 @@ export function createGeoArrowLayer(
         `Unknown geometry type "${geometryType}" for layer "${config.id}"`,
       );
   }
+}
+
+export function createMVTLayer(config: LayerConfig): Layer {
+  const { style } = config;
+
+  return new MVTLayer({
+    id: config.id,
+    data: config.source,
+    minZoom: 0,
+    maxZoom: 14,
+    getFillColor: toColor(style.color, [0, 128, 255, 100]),
+    getLineColor: toColor(style.color, [0, 128, 255, 200]),
+    getLineWidth: style.lineWidth ?? 1,
+    lineWidthUnits: "pixels",
+    getPointRadius: style.radius ?? 5,
+    pointRadiusUnits: "pixels",
+    filled: style.filled ?? true,
+    stroked: style.stroked ?? true,
+    opacity: style.opacity ?? 1,
+  });
 }
 
 /**

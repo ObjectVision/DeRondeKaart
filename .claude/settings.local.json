@@ -4,7 +4,14 @@
       "Bash(npm install:*)",
       "Bash(npm run:*)",
       "Bash(npx tsc:*)",
-      "Bash(npm ls:*)"
+      "Bash(npm ls:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:deck.gl)",
+      "WebFetch(domain:kylebarron.dev)",
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:maplibre.org)",
+      "Bash(node -e \"const m = require\\('@geomatico/maplibre-cog-protocol'\\); console.log\\(Object.keys\\(m\\)\\)\")"
     ]
   }
 }

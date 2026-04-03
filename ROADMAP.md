@@ -25,10 +25,10 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 
 ## Stage 3: Additional Format Support
 
-- [ ] Install and implement Mapbox Vector Tiles support via deck.gl MVTLayer
-- [ ] Install and implement Cloud Optimized GeoTIFF (COG) support via deck.gl-raster
-- [ ] Add MVT and COG example entries to `layers.json`
-- [ ] Verify all four formats render correctly on the map
+- [x] Install and implement Mapbox Vector Tiles support via deck.gl MVTLayer
+- [x] Install and implement Cloud Optimized GeoTIFF (COG) support via MapLibre COG protocol
+- [x] Add MVT and COG example entries to `layers.json`
+- [x] Verify all four formats render correctly on the map
 
 ## Stage 4: UI Components — Legend & Map Controls
 

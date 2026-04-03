@@ -27,6 +27,28 @@
         "stroked": true,
         "lineWidth": 1
       }
+    },
+    {
+      "id": "example-mvt",
+      "name": "OpenMapTiles",
+      "source": "https://demotiles.maplibre.org/tiles/{z}/{x}/{y}.pbf",
+      "format": "mvt",
+      "style": {
+        "color": [50, 150, 50, 120],
+        "opacity": 0.6,
+        "filled": true,
+        "stroked": true,
+        "lineWidth": 1
+      }
+    },
+    {
+      "id": "example-cog",
+      "name": "Example COG",
+      "source": "https://maplibre.org/maplibre-gl-js/docs/assets/cog.tif",
+      "format": "cog",
+      "style": {
+        "opacity": 0.8
+      }
     }
   ]
 }
