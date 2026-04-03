@@ -15,7 +15,7 @@ supported fileformats
 - geoarrow and parquet through [deck.gl](https://github.com/geoarrow/deck.gl-layers#readme) for points, lines and (multi)polygons
 - Mapbox Vector Tiles through https://deck.gl/docs/api-reference/geo-layers/mvt-layer
 - Basemap through deck.gl https://deck.gl/docs/api-reference/carto/basemap
-- cloud optimized geotif (COG) through https://github.com/developmentseed/deck.gl-raster
+- cloud optimized geotif (COG) through https://www.npmjs.com/package/@developmentseed/deck.gl-geotiff
 
 features
 - legend, location: bottom left

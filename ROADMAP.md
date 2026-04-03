@@ -32,12 +32,12 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 
 ## Stage 4: UI Components — Legend & Map Controls
 
-- [ ] Build legend component (bottom left position)
-- [ ] Implement layer toggle (show/hide) from legend for GeoArrow, Parquet, and MVT layers
-- [ ] Implement layer toggle for COG layers (if supported)
-- [ ] Build map controls component (bottom right position): zoom in, zoom out
-- [ ] Implement search tool in map controls
-- [ ] Style all UI components with Tailwind CSS and shadcn/ui
+- [x] Build legend component (bottom left position)
+- [x] Implement layer toggle (show/hide) from legend for GeoArrow, Parquet, and MVT layers
+- [x] Implement layer toggle for COG layers (if supported)
+- [x] Build map controls component (bottom right position): zoom in, zoom out
+- [x] Implement search tool in map controls
+- [x] Style all UI components with Tailwind CSS and shadcn/ui
 
 ## Stage 5: Dual Map Comparison with Slider
 
