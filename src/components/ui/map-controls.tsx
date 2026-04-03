@@ -34,7 +34,7 @@ export function MapControls({ onZoomIn, onZoomOut }: MapControlsProps) {
   }
 
   return (
-    <div className="absolute bottom-4 right-4 z-10 flex flex-col items-end gap-2">
+    <div className="absolute bottom-4 right-4 z-30 flex flex-col items-end gap-2">
       {searchOpen && (
         <form
           onSubmit={handleSearch}

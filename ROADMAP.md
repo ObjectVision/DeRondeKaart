@@ -41,13 +41,13 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 
 ## Stage 5: Dual Map Comparison with Slider
 
-- [ ] Introduce Map A and Map B state containers
-- [ ] Set default state: Map A visible, no layers loaded
-- [ ] Implement central slider divider component
-- [ ] Render Map A layers on the left side of the slider
-- [ ] Render Map B layers on the right side of the slider
-- [ ] Auto-trigger comparison mode when both Map A and Map B have layers
-- [ ] Synchronize viewport (pan, zoom) between Map A and Map B
+- [x] Introduce Map A and Map B state containers
+- [x] Set default state: Map A visible, no layers loaded
+- [x] Implement central slider divider component
+- [x] Render Map A layers on the left side of the slider
+- [x] Render Map B layers on the right side of the slider
+- [x] Auto-trigger comparison mode when both Map A and Map B have layers
+- [x] Synchronize viewport (pan, zoom) between Map A and Map B
 
 ## Stage 6: URL Parameterization & Embed Support
 

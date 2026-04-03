@@ -1,9 +1,13 @@
-import type { LayerEntry } from "@/components/map/MapView";
+import type { LayerEntry } from "@/hooks/use-map-layers";
 
 interface LegendProps {
-  entries: LayerEntry[];
-  hiddenIds: Set<string>;
-  onToggle: (layerId: string) => void;
+  entriesA: LayerEntry[];
+  entriesB: LayerEntry[];
+  hiddenIdsA: Set<string>;
+  hiddenIdsB: Set<string>;
+  onToggleA: (layerId: string) => void;
+  onToggleB: (layerId: string) => void;
+  comparisonMode: boolean;
 }
 
 function colorToCSS(
@@ -16,15 +20,27 @@ function colorToCSS(
     : `rgb(${r}, ${g}, ${b})`;
 }
 
-export function Legend({ entries, hiddenIds, onToggle }: LegendProps) {
+function LayerList({
+  label,
+  entries,
+  hiddenIds,
+  onToggle,
+}: {
+  label?: string;
+  entries: LayerEntry[];
+  hiddenIds: Set<string>;
+  onToggle: (layerId: string) => void;
+}) {
   if (entries.length === 0) return null;
 
   return (
-    <div className="absolute bottom-4 left-4 z-10 rounded-lg bg-white/90 p-3 shadow-md backdrop-blur-sm">
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-        Layers
-      </h3>
-      <ul className="flex flex-col gap-1.5">
+    <div>
+      {label && (
+        <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+          {label}
+        </h4>
+      )}
+      <ul className="flex flex-col gap-1">
         {entries.map(({ config }) => {
           const isVisible = !hiddenIds.has(config.id);
           return (
@@ -53,6 +69,48 @@ export function Legend({ entries, hiddenIds, onToggle }: LegendProps) {
           );
         })}
       </ul>
+    </div>
+  );
+}
+
+export function Legend({
+  entriesA,
+  entriesB,
+  hiddenIdsA,
+  hiddenIdsB,
+  onToggleA,
+  onToggleB,
+  comparisonMode,
+}: LegendProps) {
+  if (entriesA.length === 0 && entriesB.length === 0) return null;
+
+  return (
+    <div className="absolute bottom-4 left-4 z-30 rounded-lg bg-white/90 p-3 shadow-md backdrop-blur-sm">
+      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        Layers
+      </h3>
+      {comparisonMode ? (
+        <div className="flex flex-col gap-2">
+          <LayerList
+            label="Map A"
+            entries={entriesA}
+            hiddenIds={hiddenIdsA}
+            onToggle={onToggleA}
+          />
+          <LayerList
+            label="Map B"
+            entries={entriesB}
+            hiddenIds={hiddenIdsB}
+            onToggle={onToggleB}
+          />
+        </div>
+      ) : (
+        <LayerList
+          entries={entriesA}
+          hiddenIds={hiddenIdsA}
+          onToggle={onToggleA}
+        />
+      )}
     </div>
   );
 }
