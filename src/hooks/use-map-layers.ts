@@ -70,6 +70,50 @@ export function useMapLayers() {
     }
   }
 
+  function removeLayer(layerId: string, mapRef: React.RefObject<MapRef | null>) {
+    // Remove from entries
+    setLayerEntries((prev) => prev.filter((e) => e.config.id !== layerId));
+
+    // Remove deck.gl layer
+    deckLayersRef.current.delete(layerId);
+    syncDeckLayers();
+
+    // Remove hidden state
+    setHiddenIds((prev) => {
+      const next = new Set(prev);
+      next.delete(layerId);
+      return next;
+    });
+
+    // Remove COG layer from MapLibre
+    const map = mapRef.current?.getMap();
+    const cogLayerId = `cog-layer-${layerId}`;
+    const cogSourceId = `cog-source-${layerId}`;
+    if (map?.getLayer(cogLayerId)) {
+      map.removeLayer(cogLayerId);
+    }
+    if (map?.getSource(cogSourceId)) {
+      map.removeSource(cogSourceId);
+    }
+  }
+
+  function hideLayer(layerId: string, mapRef: React.RefObject<MapRef | null>) {
+    setHiddenIds((prev) => {
+      if (prev.has(layerId)) return prev;
+      const next = new Set(prev);
+      next.add(layerId);
+
+      // Hide COG layer via MapLibre
+      const map = mapRef.current?.getMap();
+      const cogLayerId = `cog-layer-${layerId}`;
+      if (map?.getLayer(cogLayerId)) {
+        map.setLayoutProperty(cogLayerId, "visibility", "none");
+      }
+
+      return next;
+    });
+  }
+
   const toggleLayer = useCallback(
     (layerId: string, mapRef: React.RefObject<MapRef | null>) => {
       setHiddenIds((prev) => {
@@ -110,6 +154,8 @@ export function useMapLayers() {
     hiddenIds,
     visibleDeckLayers,
     addLayer,
+    removeLayer,
+    hideLayer,
     toggleLayer,
   };
 }

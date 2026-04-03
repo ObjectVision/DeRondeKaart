@@ -3,6 +3,7 @@ import type { ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { MapView, INITIAL_VIEW_STATE } from "@/components/map/MapView";
 import type { MapViewHandle } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
+import { useUrlCommands } from "@/hooks/use-url-commands";
 import { Legend } from "@/components/ui/legend";
 import { MapControls } from "@/components/ui/map-controls";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
@@ -12,9 +13,17 @@ function App() {
   const mapBLayers = useMapLayers();
   const mapARef = useRef<MapViewHandle>(null);
   const mapBRef = useRef<MapViewHandle>(null);
+  const [mapAReady, setMapAReady] = useState(false);
 
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
   const [sliderPosition, setSliderPosition] = useState(50);
+
+  // Process URL commands for layer management (only after Map A is ready)
+  useUrlCommands({
+    mapA: { layers: mapALayers, mapRef: mapARef },
+    mapB: { layers: mapBLayers, mapRef: mapBRef },
+    ready: mapAReady,
+  });
 
   const hasMapALayers = mapALayers.layerEntries.length > 0;
   const hasMapBLayers = mapBLayers.layerEntries.length > 0;
@@ -68,6 +77,7 @@ function App() {
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
           onMove={handleMove}
+          onLoad={() => setMapAReady(true)}
         />
       </div>
 

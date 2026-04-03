@@ -51,13 +51,13 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 
 ## Stage 6: URL Parameterization & Embed Support
 
-- [ ] Define URL parameter schema for layer commands
-- [ ] Implement "add layer to Map A / Map B" via URL params
-- [ ] Implement "remove layer from Map A / Map B" via URL params
-- [ ] Implement "hide layer in Map A / Map B" via URL params
-- [ ] Implement "refresh" command via URL params
-- [ ] Ensure URL param changes update the map without a full reload
-- [ ] Test embedding in an iframe to verify embed compatibility
+- [x] Define URL parameter schema for layer commands
+- [x] Implement "add layer to Map A / Map B" via URL params
+- [x] Implement "remove layer from Map A / Map B" via URL params
+- [x] Implement "hide layer in Map A / Map B" via URL params
+- [x] Implement "refresh" command via URL params
+- [x] Ensure URL param changes update the map without a full reload
+- [x] Test embedding in an iframe to verify embed compatibility
 
 ## Stage 7: Polish & Optimization
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from "react";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import type { Layer } from "@deck.gl/core";
 import { Map, useControl } from "react-map-gl/maplibre";
 import type { MapRef, ViewStateChangeEvent } from "react-map-gl/maplibre";
@@ -7,8 +7,6 @@ import { BASEMAP } from "@deck.gl/carto";
 import maplibregl from "maplibre-gl";
 import { cogProtocol } from "@geomatico/maplibre-cog-protocol";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { loadLayerConfigs } from "@/layers";
-import type { LayerConfig } from "@/layers";
 import type { useMapLayers } from "@/hooks/use-map-layers";
 
 // Register COG protocol once
@@ -34,34 +32,17 @@ export interface MapViewHandle {
 
 interface MapViewProps {
   layers: ReturnType<typeof useMapLayers>;
-  layerConfigs?: LayerConfig[];
   style?: React.CSSProperties;
   viewState?: Record<string, unknown>;
   onMove?: (evt: ViewStateChangeEvent) => void;
+  onLoad?: () => void;
 }
 
 export const MapView = forwardRef<MapViewHandle, MapViewProps>(
-  function MapView({ layers, layerConfigs, style, viewState, onMove }, ref) {
+  function MapView({ layers, style, viewState, onMove, onLoad }, ref) {
     const mapRef = useRef<MapRef>(null);
 
     useImperativeHandle(ref, () => ({ mapRef }), []);
-
-    const handleMapLoad = useCallback(async () => {
-      if (!layerConfigs) {
-        try {
-          const configs = await loadLayerConfigs();
-          for (const config of configs) {
-            await layers.addLayer(config, mapRef);
-          }
-        } catch (err) {
-          console.error("Failed to load layers:", err);
-        }
-      } else {
-        for (const config of layerConfigs) {
-          await layers.addLayer(config, mapRef);
-        }
-      }
-    }, [layerConfigs, layers]);
 
     useEffect(() => {
       function onFlyTo(e: Event) {
@@ -74,7 +55,6 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
 
     const mapProps: Record<string, unknown> = {};
     if (viewState) {
-      // Controlled mode for synced viewports
       Object.assign(mapProps, viewState);
     } else {
       mapProps.initialViewState = INITIAL_VIEW_STATE;
@@ -88,7 +68,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         mapStyle={BASEMAP.POSITRON}
         dragRotate={false}
         pitchWithRotate={false}
-        onLoad={handleMapLoad}
+        onLoad={onLoad}
         onMove={onMove}
       >
         <DeckGLOverlay layers={layers.visibleDeckLayers} />
