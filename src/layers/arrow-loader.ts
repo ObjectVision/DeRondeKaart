@@ -17,11 +17,15 @@ export async function loadArrowBatches(
   const buffer = await response.arrayBuffer();
   const arrowTable = tableFromIPC(new Uint8Array(buffer));
 
-  for (let i = 0; i < arrowTable.batches.length; i++) {
-    const partialTable = new Table(arrowTable.batches.slice(0, i + 1));
-    onBatch(i, partialTable);
-    // Yield to allow React to flush the state update and render
-    await new Promise((r) => setTimeout(r, 0));
+  const batchCount = arrowTable.batches.length;
+  if (batchCount <= 1) {
+    onBatch(0, arrowTable);
+  } else {
+    for (let i = 0; i < batchCount; i++) {
+      const partialTable = new Table(arrowTable.batches.slice(0, i + 1));
+      onBatch(i, partialTable);
+      await new Promise((r) => setTimeout(r, 0));
+    }
   }
 
   return arrowTable;

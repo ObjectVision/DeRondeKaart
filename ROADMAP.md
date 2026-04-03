@@ -61,7 +61,7 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 
 ## Stage 7: Polish & Optimization
 
-- [ ] Review and optimize batch loading performance
-- [ ] Ensure responsive layout for various embed sizes (dashboards, Power BI)
-- [ ] Add error handling for failed layer loads and invalid configurations
-- [ ] Final review of all features against CLAUDE.md specification
+- [x] Review and optimize batch loading performance
+- [x] Ensure responsive layout for various embed sizes (dashboards, Power BI)
+- [x] Add error handling for failed layer loads and invalid configurations
+- [x] Final review of all features against CLAUDE.md specification

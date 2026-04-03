@@ -35,12 +35,17 @@ export async function loadParquetBatches(
   const wasmTable = readGeoParquet(new Uint8Array(buffer));
   const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
 
-  // Emit each record batch individually for incremental rendering
-  for (let i = 0; i < arrowTable.batches.length; i++) {
-    const partialTable = new Table(arrowTable.batches.slice(0, i + 1));
-    onBatch(i, partialTable);
-    // Yield to allow React to flush the state update and render
-    await new Promise((r) => setTimeout(r, 0));
+  const batchCount = arrowTable.batches.length;
+  if (batchCount <= 1) {
+    // Single batch — emit directly without copying
+    onBatch(0, arrowTable);
+  } else {
+    // Multiple batches — emit incrementally, reuse schema
+    for (let i = 0; i < batchCount; i++) {
+      const partialTable = new Table(arrowTable.batches.slice(0, i + 1));
+      onBatch(i, partialTable);
+      await new Promise((r) => setTimeout(r, 0));
+    }
   }
 
   return arrowTable;

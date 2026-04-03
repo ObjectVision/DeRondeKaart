@@ -21,8 +21,8 @@ interface LayerCommand {
   layer?: string;
 }
 
-function parseCommands(search: string): LayerCommand[] {
-  const params = new URLSearchParams(search);
+function parseCommands(paramString: string): LayerCommand[] {
+  const params = new URLSearchParams(paramString);
   const commands: LayerCommand[] = [];
 
   const cmdValues = params.getAll("cmd");
@@ -49,6 +49,7 @@ function parseCommands(search: string): LayerCommand[] {
 
 export function useUrlCommands({ mapA, mapB, ready }: UseUrlCommandsOptions) {
   const configsRef = useRef<LayerConfig[] | null>(null);
+  const processedInitialHash = useRef(false);
 
   const getConfigs = useCallback(async () => {
     if (!configsRef.current) {
@@ -72,7 +73,7 @@ export function useUrlCommands({ mapA, mapB, ready }: UseUrlCommandsOptions) {
           ? getLayerConfigById(configs, command.layer)
           : undefined;
 
-        if (!config && command.cmd !== "refresh") {
+        if (!config) {
           console.warn(`Layer "${command.layer}" not found in layers.json`);
           continue;
         }
@@ -95,32 +96,36 @@ export function useUrlCommands({ mapA, mapB, ready }: UseUrlCommandsOptions) {
     [getConfigs, mapA, mapB],
   );
 
-  // Process URL params once the map is ready
+  const processHash = useCallback(() => {
+    const hash = window.location.hash.slice(1); // remove leading #
+    if (!hash) return;
+
+    const commands = parseCommands(hash);
+    if (commands.length > 0) {
+      processCommands(commands);
+      // Clear the hash after processing (without reload or hashchange event)
+      window.history.replaceState({}, "", window.location.pathname + window.location.search);
+    }
+  }, [processCommands]);
+
+  // Process hash params on mount (once ready) and on hashchange
   useEffect(() => {
     if (!ready) return;
 
-    function handleUrl() {
-      const search = window.location.search;
-      if (!search) return;
-
-      const commands = parseCommands(search);
-      if (commands.length > 0) {
-        processCommands(commands);
-        // Clear the URL params after processing (without reload)
-        window.history.replaceState({}, "", window.location.pathname);
-      }
+    // Process initial hash on first ready
+    if (!processedInitialHash.current) {
+      processedInitialHash.current = true;
+      processHash();
     }
 
-    // Initial processing
-    handleUrl();
+    // Listen for hash changes (iframe src changes, programmatic navigation)
+    function handleHashChange() {
+      processHash();
+    }
 
-    // Listen for popstate (back/forward navigation)
-    window.addEventListener("popstate", handleUrl);
-
-    return () => {
-      window.removeEventListener("popstate", handleUrl);
-    };
-  }, [ready, processCommands]);
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, [ready, processHash]);
 
   // Listen for postMessage from parent iframe
   useEffect(() => {

@@ -85,7 +85,7 @@ export function Legend({
   if (entriesA.length === 0 && entriesB.length === 0) return null;
 
   return (
-    <div className="absolute bottom-4 left-4 z-30 rounded-lg bg-white/90 p-3 shadow-md backdrop-blur-sm">
+    <div className="absolute bottom-2 left-2 z-30 max-h-[50vh] overflow-y-auto rounded-lg bg-white/90 p-2 shadow-md backdrop-blur-sm sm:bottom-4 sm:left-4 sm:p-3">
       <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
         Layers
       </h3>

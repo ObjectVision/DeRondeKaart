@@ -31,42 +31,48 @@ export function useMapLayers() {
       return [...prev, { config, visible: true }];
     });
 
-    if (config.format === "parquet") {
-      await loadParquetBatches(config.source, (batchIndex, table) => {
-        const layer = createGeoArrowLayer(config, table, batchIndex);
+    try {
+      if (config.format === "parquet") {
+        await loadParquetBatches(config.source, (batchIndex, table) => {
+          const layer = createGeoArrowLayer(config, table, batchIndex);
+          deckLayersRef.current.set(config.id, layer);
+          syncDeckLayers();
+        });
+      } else if (config.format === "geoarrow") {
+        await loadArrowBatches(config.source, (batchIndex, table) => {
+          const layer = createGeoArrowLayer(config, table, batchIndex);
+          deckLayersRef.current.set(config.id, layer);
+          syncDeckLayers();
+        });
+      } else if (config.format === "mvt") {
+        const layer = createMVTLayer(config);
         deckLayersRef.current.set(config.id, layer);
         syncDeckLayers();
-      });
-    } else if (config.format === "geoarrow") {
-      await loadArrowBatches(config.source, (batchIndex, table) => {
-        const layer = createGeoArrowLayer(config, table, batchIndex);
-        deckLayersRef.current.set(config.id, layer);
-        syncDeckLayers();
-      });
-    } else if (config.format === "mvt") {
-      const layer = createMVTLayer(config);
-      deckLayersRef.current.set(config.id, layer);
-      syncDeckLayers();
-    } else if (config.format === "cog") {
-      const map = mapRef.current?.getMap();
-      if (!map) return;
+      } else if (config.format === "cog") {
+        const map = mapRef.current?.getMap();
+        if (!map) return;
 
-      const sourceId = `cog-source-${config.id}`;
-      const layerId = `cog-layer-${config.id}`;
+        const sourceId = `cog-source-${config.id}`;
+        const layerId = `cog-layer-${config.id}`;
 
-      if (!map.getSource(sourceId)) {
-        map.addSource(sourceId, {
-          type: "raster",
-          url: `cog://${config.source}`,
-          tileSize: 256,
-        });
-        map.addLayer({
-          id: layerId,
-          source: sourceId,
-          type: "raster",
-          paint: { "raster-opacity": config.style.opacity ?? 1 },
-        });
+        if (!map.getSource(sourceId)) {
+          map.addSource(sourceId, {
+            type: "raster",
+            url: `cog://${config.source}`,
+            tileSize: 256,
+          });
+          map.addLayer({
+            id: layerId,
+            source: sourceId,
+            type: "raster",
+            paint: { "raster-opacity": config.style.opacity ?? 1 },
+          });
+        }
       }
+    } catch (err) {
+      console.error(`Failed to load layer "${config.id}":`, err);
+      // Remove the entry so it doesn't appear in the legend as broken
+      setLayerEntries((prev) => prev.filter((e) => e.config.id !== config.id));
     }
   }
 
