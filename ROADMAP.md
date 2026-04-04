@@ -65,3 +65,27 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 - [x] Ensure responsive layout for various embed sizes (dashboards, Power BI)
 - [x] Add error handling for failed layer loads and invalid configurations
 - [x] Final review of all features against CLAUDE.md specification
+
+## Stage 8: GeoStyler Style Specification
+
+- [ ] Define GeoStyler-based style types (rules, filters, symbolizers for Fill, Line, Mark)
+- [ ] Update `LayerConfig` and `layers.json` schema to use GeoStyler `rules` syntax
+- [ ] Implement GeoStyler rule interpreter for GeoArrow/Parquet layers (attribute-based conditional styling)
+- [ ] Implement GeoStyler rule interpreter for MVT layers (attribute-based conditional styling)
+- [ ] Support fallback/default symbolizer when no filter matches
+- [ ] Update example `layers.json` entries with GeoStyler rule-based styles
+- [ ] Verify styled layers render correctly with conditional colors per feature class
+
+## Stage 9: Legend — GeoStyler Class Visualization
+
+- [ ] Update legend to display individual rule classes per layer (name + color swatch from symbolizer)
+- [ ] Implement per-class toggle: clicking a class hides/shows features matching that rule's filter
+- [ ] Show legend classes for both Map A and Map B in comparison mode
+- [ ] Handle COG layers in legend (no rule classes, keep simple layer-level toggle)
+- [ ] Ensure legend updates dynamically when layers are added/removed via URL commands
+
+## Stage 10: Final Integration & Testing
+
+- [ ] Verify GeoStyler styles work across all vector formats (GeoArrow, Parquet, MVT)
+- [ ] Update `test-embed.html` to test class-level toggling via postMessage
+- [ ] Final review of legend and styling against STYLE.md specification

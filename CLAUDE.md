@@ -18,7 +18,7 @@ supported fileformats
 - cloud optimized geotif (COG) through https://www.npmjs.com/package/@developmentseed/deck.gl-geotiff
 
 features
-- legend, location: bottom left
+- legend, location: bottom left, visual representation of STYLE.md spec
 - for fileformats: geoarrow, parquet, Mapbox Vector Tiles and if possible the COG format classes should be toggleble from the legend by clicking
 - mapcontrols: search-tool, zoom-in, zoom-out, location: bottom right
 - comparison of two maps A and B with central slider (left of the slider shows map A with loaded layers, right of the slider shows map B with loaded layers)
@@ -38,3 +38,4 @@ layer configuration
 - layers will be configured for use on the server by editing a layers.json file
 - a uniform syntax for each layer in the layers.json file given the four available supported fileformats
 - each layer definition has at least the following components: id, name, source url (ie. https://path/to/points.parquet), style
+- style follows the specification in STYLE.md
