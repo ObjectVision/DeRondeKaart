@@ -2,16 +2,31 @@
   "layers": [
     {
       "id": "gemeente",
-      "name": "Gemeenten",
+      "name": "Wijken Limburg",
       "source": "/cbs_wijken_limburg.arrow",
       "format": "geoarrow",
       "geometryType": "polygon",
+      "geostyler": {
+        "name": "Wijken Limburg",
+        "rules": [
+          {
+            "name": "Maastricht",
+            "filter": ["==", "WK_CODE", "WK093500"],
+            "symbolizers": [{ "kind": "Fill", "color": "#e41a1c", "outlineColor": "#333333", "outlineWidth": 1 }]
+          },
+          {
+            "name": "Heerlen",
+            "filter": ["==", "WK_CODE", "WK088200"],
+            "symbolizers": [{ "kind": "Fill", "color": "#377eb8", "outlineColor": "#333333", "outlineWidth": 1 }]
+          },
+          {
+            "name": "Overig",
+            "symbolizers": [{ "kind": "Fill", "color": "#4daf4a", "outlineColor": "#999999", "outlineWidth": 0.5 }]
+          }
+        ]
+      },
       "style": {
-        "color": [0, 128, 255, 150],
-        "opacity": 0.8,
-        "filled": true,
-        "stroked": true,
-        "lineWidth": 1
+        "opacity": 0.8
       }
     },
     {

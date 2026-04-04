@@ -68,12 +68,12 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 
 ## Stage 8: GeoStyler Style Specification
 
-- [ ] Define GeoStyler-based style types (rules, filters, symbolizers for Fill, Line, Mark)
-- [ ] Update `LayerConfig` and `layers.json` schema to use GeoStyler `rules` syntax
-- [ ] Implement GeoStyler rule interpreter for GeoArrow/Parquet layers (attribute-based conditional styling)
-- [ ] Implement GeoStyler rule interpreter for MVT layers (attribute-based conditional styling)
-- [ ] Support fallback/default symbolizer when no filter matches
-- [ ] Update example `layers.json` entries with GeoStyler rule-based styles
+- [x] Define GeoStyler-based style types (rules, filters, symbolizers for Fill, Line, Mark)
+- [x] Update `LayerConfig` and `layers.json` schema to use GeoStyler `rules` syntax
+- [x] Implement GeoStyler rule interpreter for GeoArrow/Parquet layers (attribute-based conditional styling)
+- [x] Implement GeoStyler rule interpreter for MVT layers (attribute-based conditional styling)
+- [x] Support fallback/default symbolizer when no filter matches
+- [x] Update example `layers.json` entries with GeoStyler rule-based styles
 - [ ] Verify styled layers render correctly with conditional colors per feature class
 
 ## Stage 9: Legend — GeoStyler Class Visualization
