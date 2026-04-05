@@ -74,7 +74,7 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 - [x] Implement GeoStyler rule interpreter for MVT layers (attribute-based conditional styling)
 - [x] Support fallback/default symbolizer when no filter matches
 - [x] Update example `layers.json` entries with GeoStyler rule-based styles
-- [ ] Verify styled layers render correctly with conditional colors per feature class
+- [x] Verify styled layers render correctly with conditional colors per feature class
 
 ## Stage 9: Legend — GeoStyler Class Visualization
 
@@ -86,6 +86,19 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 
 ## Stage 10: Final Integration & Testing
 
-- [ ] Verify GeoStyler styles work across all vector formats (GeoArrow, Parquet, MVT)
-- [ ] Update `test-embed.html` to test class-level toggling via postMessage
-- [ ] Final review of legend and styling against STYLE.md specification
+- [x] Verify GeoStyler styles work across all vector formats (GeoArrow, Parquet, MVT)
+- [x] Update `test-embed.html` to test class-level toggling via postMessage
+- [x] Final review of legend and styling against STYLE.md specification
+
+## Stage 11: FeatureInfo
+
+- [x] Add `FeatureInfoConfig` type and `featureinfo` field to `LayerConfig`
+- [x] Update config loader to pass through `featureinfo` field
+- [x] Create template resolution and rendering utility
+- [x] Enable `pickable: true` on all GeoArrow/Parquet deck.gl layers
+- [x] Add `onClick` prop to MapView component
+- [x] Implement unified pick hook for deck.gl + MapLibre feature picking
+- [x] Build FeatureInfo popup component (tabbed layers, scrollable features, HTML templates)
+- [x] Wire FeatureInfo into App for both Map A and Map B
+- [x] Add example `featureinfo` configs to layers.json for testing
+- [ ] Verify featureinfo works for GeoArrow, Parquet, and MVT layers

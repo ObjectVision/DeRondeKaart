@@ -62,6 +62,13 @@ export interface LayerStyle {
   stroked?: boolean;
 }
 
+export interface FeatureInfoConfig {
+  /** Inline HTML template string with [[ param ]] placeholders */
+  template?: string;
+  /** Path to an .html file containing the template */
+  templateUrl?: string;
+}
+
 export interface LayerConfig {
   id: string;
   name: string;
@@ -74,6 +81,8 @@ export interface LayerConfig {
   geostyler?: GeoStylerStyle;
   /** Legacy flat style (used as fallback, required for COG) */
   style: LayerStyle;
+  /** HTML template for feature click popups */
+  featureinfo?: FeatureInfoConfig;
 }
 
 export interface LayersFile {

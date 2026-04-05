@@ -39,3 +39,12 @@ layer configuration
 - a uniform syntax for each layer in the layers.json file given the four available supported fileformats
 - each layer definition has at least the following components: id, name, source url (ie. https://path/to/points.parquet), style
 - style follows the specification in STYLE.md
+
+featureinfo
+- an intersecting click on features in map A or map B triggers featureinfo
+- featureinfo is specified for a given layer using html templating
+- the html template can be either inlined in layers.json or inside a layer definition a reference can be made to a .html file containing the template
+- template parameters have form: [[ parameter ]]
+- featureinfo is shown in a rectangular window in line with the style of the legend
+- if more than one feature is clicked of the same layer, the rectangular box is scrollable
+- if features of multiple layers are clicked, each layer has it's own page inside the featureinfo window

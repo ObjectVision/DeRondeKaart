@@ -3,8 +3,10 @@ import type { ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { MapView, INITIAL_VIEW_STATE } from "@/components/map/MapView";
 import type { MapViewHandle } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
+import { useFeaturePick } from "@/hooks/use-feature-pick";
 import { useUrlCommands } from "@/hooks/use-url-commands";
 import { Legend } from "@/components/ui/legend";
+import { FeatureInfo } from "@/components/ui/feature-info";
 import { MapControls } from "@/components/ui/map-controls";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 
@@ -17,6 +19,10 @@ function App() {
 
   const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
   const [sliderPosition, setSliderPosition] = useState(50);
+
+  // Feature picking for each map
+  const pickA = useFeaturePick(mapALayers.layerEntries, mapARef);
+  const pickB = useFeaturePick(mapBLayers.layerEntries, mapBRef);
 
   // Process URL commands for layer management (only after Map A is ready)
   useUrlCommands({
@@ -91,6 +97,7 @@ function App() {
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
           onMove={handleMove}
+          onClick={pickA.handleClick}
           onLoad={() => setMapAReady(true)}
         />
       </div>
@@ -107,6 +114,7 @@ function App() {
             style={{ width: "100%", height: "100%" }}
             viewState={viewState}
             onMove={handleMove}
+            onClick={pickB.handleClick}
           />
         </div>
       )}
@@ -133,6 +141,22 @@ function App() {
         onToggleRuleB={handleToggleRuleB}
         comparisonMode={comparisonMode}
       />
+
+      {/* FeatureInfo popups */}
+      {pickA.result && (
+        <FeatureInfo
+          result={pickA.result}
+          layerEntries={mapALayers.layerEntries}
+          onClose={pickA.clear}
+        />
+      )}
+      {pickB.result && (
+        <FeatureInfo
+          result={pickB.result}
+          layerEntries={mapBLayers.layerEntries}
+          onClose={pickB.clear}
+        />
+      )}
 
       {/* Map controls — bottom right */}
       <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />

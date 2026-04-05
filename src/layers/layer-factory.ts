@@ -95,6 +95,7 @@ export function createGeoArrowLayers(
       return [new GeoArrowScatterplotLayer({
         id: baseId,
         data: table,
+        pickable: true,
         getFillColor: toColor(style.color, [0, 128, 255, 200]),
         getRadius: style.radius ?? 5,
         radiusUnits: "pixels",
@@ -105,6 +106,7 @@ export function createGeoArrowLayers(
       return [new GeoArrowPathLayer({
         id: baseId,
         data: table,
+        pickable: true,
         getColor: toColor(style.color, [0, 128, 255, 200]),
         getWidth: style.lineWidth ?? 2,
         widthUnits: "pixels",
@@ -115,6 +117,7 @@ export function createGeoArrowLayers(
       return [new GeoArrowPolygonLayer({
         id: baseId,
         data: table,
+        pickable: true,
         getFillColor: toColor(style.color, [0, 128, 255, 100]),
         getLineColor: toColor(style.color, [0, 128, 255, 200]),
         getLineWidth: style.lineWidth ?? 1,
@@ -147,6 +150,7 @@ function createRuleGeoArrowLayer(
       return new GeoArrowScatterplotLayer({
         id: layerId,
         data: table,
+        pickable: true,
         getFillColor: buildArrowRuleColorAccessor(geostyler, rule, getMarkColorFromRule),
         getRadius: getMarkRadiusFromRule(rule),
         radiusUnits: "pixels",
@@ -157,6 +161,7 @@ function createRuleGeoArrowLayer(
       return new GeoArrowPathLayer({
         id: layerId,
         data: table,
+        pickable: true,
         getColor: buildArrowRuleColorAccessor(geostyler, rule, getLineColorFromRule),
         getWidth: getLineWidthFromRule(rule),
         widthUnits: "pixels",
@@ -167,6 +172,7 @@ function createRuleGeoArrowLayer(
       return new GeoArrowPolygonLayer({
         id: layerId,
         data: table,
+        pickable: true,
         getFillColor: buildArrowRuleColorAccessor(geostyler, rule, getFillColorFromRule),
         getLineColor: buildArrowRuleColorAccessor(geostyler, rule, getOutlineColorFromRule),
         getLineWidth: getOutlineWidthFromRule(rule),

@@ -3,4 +3,5 @@ export { loadParquetBatches } from "./parquet-loader";
 export { loadArrowBatches } from "./arrow-loader";
 export { createGeoArrowLayers } from "./layer-factory";
 export { buildMvtLayerDefs } from "./mvt-style";
-export type { LayerConfig, LayerFormat, LayerStyle, GeometryType, LayersFile, GeoStylerStyle, GeoStylerRule } from "./types";
+export { resolveTemplate, renderTemplate } from "./featureinfo-template";
+export type { LayerConfig, LayerFormat, LayerStyle, GeometryType, LayersFile, GeoStylerStyle, GeoStylerRule, FeatureInfoConfig } from "./types";

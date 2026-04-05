@@ -1,7 +1,7 @@
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import type { Layer } from "@deck.gl/core";
 import { Map, useControl } from "react-map-gl/maplibre";
-import type { MapRef, ViewStateChangeEvent } from "react-map-gl/maplibre";
+import type { MapRef, ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { BASEMAP } from "@deck.gl/carto";
 import maplibregl from "maplibre-gl";
@@ -57,11 +57,12 @@ interface MapViewProps {
   style?: React.CSSProperties;
   viewState?: Record<string, unknown>;
   onMove?: (evt: ViewStateChangeEvent) => void;
+  onClick?: (evt: MapLayerMouseEvent) => void;
   onLoad?: () => void;
 }
 
 export const MapView = forwardRef<MapViewHandle, MapViewProps>(
-  function MapView({ layers, style, viewState, onMove, onLoad }, ref) {
+  function MapView({ layers, style, viewState, onMove, onClick, onLoad }, ref) {
     const mapRef = useRef<MapRef>(null);
     const overlayRef = useRef<MapboxOverlay | null>(null);
 
@@ -93,6 +94,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         pitchWithRotate={false}
         onLoad={onLoad}
         onMove={onMove}
+        onClick={onClick}
       >
         <DeckGLOverlay layers={layers} overlayRef={overlayRef} />
       </Map>

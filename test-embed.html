@@ -23,7 +23,7 @@
     button.refresh { border-color: #93c5fd; color: #1e40af; }
     button.refresh:hover { background: #eff6ff; }
     iframe { flex: 1; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; }
-    .log { font-size: 12px; color: #6b7280; padding: 4px 0; }
+    .log { font-size: 12px; color: #6b7280; padding: 4px 0; max-height: 40px; overflow-y: auto; }
   </style>
 </head>
 <body>
@@ -36,13 +36,15 @@
         <button class="add" onclick="send('add','a','gemeente')">+ Gemeenten</button>
         <button class="add" onclick="send('add','a','example-polygons')">+ Example Polygons</button>
         <button class="add" onclick="send('add','a','example-mvt')">+ OpenMapTiles</button>
+        <button class="add" onclick="send('add','a','WZW5')">+ WZW5</button>
         <button class="add" onclick="send('add','a','example-cog')">+ Example COG</button>
         <button class="remove" onclick="send('remove','a','gemeente')">- Gemeenten</button>
         <button class="remove" onclick="send('remove','a','example-polygons')">- Example Polygons</button>
         <button class="remove" onclick="send('remove','a','example-mvt')">- OpenMapTiles</button>
+        <button class="remove" onclick="send('remove','a','WZW5')">- WZW5</button>
         <button class="remove" onclick="send('remove','a','example-cog')">- Example COG</button>
         <button class="hide" onclick="send('hide','a','gemeente')">Hide Gemeenten</button>
-        <button class="hide" onclick="send('hide','a','example-polygons')">Hide Example Polygons</button>
+        <button class="hide" onclick="send('hide','a','WZW5')">Hide WZW5</button>
       </div>
     </div>
 
@@ -52,13 +54,15 @@
         <button class="add" onclick="send('add','b','gemeente')">+ Gemeenten</button>
         <button class="add" onclick="send('add','b','example-polygons')">+ Example Polygons</button>
         <button class="add" onclick="send('add','b','example-mvt')">+ OpenMapTiles</button>
+        <button class="add" onclick="send('add','b','WZW5')">+ WZW5</button>
         <button class="add" onclick="send('add','b','example-cog')">+ Example COG</button>
         <button class="remove" onclick="send('remove','b','gemeente')">- Gemeenten</button>
         <button class="remove" onclick="send('remove','b','example-polygons')">- Example Polygons</button>
         <button class="remove" onclick="send('remove','b','example-mvt')">- OpenMapTiles</button>
+        <button class="remove" onclick="send('remove','b','WZW5')">- WZW5</button>
         <button class="remove" onclick="send('remove','b','example-cog')">- Example COG</button>
         <button class="hide" onclick="send('hide','b','gemeente')">Hide Gemeenten</button>
-        <button class="hide" onclick="send('hide','b','example-polygons')">Hide Example Polygons</button>
+        <button class="hide" onclick="send('hide','b','WZW5')">Hide WZW5</button>
       </div>
     </div>
 
@@ -83,7 +87,6 @@
       if (map) command.map = map;
       if (layer) command.layer = layer;
 
-      // Method 1: postMessage (preferred, no reload)
       iframe.contentWindow.postMessage(
         { type: 'map-command', commands: [command] },
         '*'

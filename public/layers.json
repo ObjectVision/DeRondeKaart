@@ -27,6 +27,9 @@
       },
       "style": {
         "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ WK_NAAM ]]</b><br/>Code: [[ WK_CODE ]]</div>"
       }
     },
     {
@@ -160,6 +163,9 @@
       },
       "style": {
         "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Class: [[ Class ]]</b></div>"
       }
     },
     {
