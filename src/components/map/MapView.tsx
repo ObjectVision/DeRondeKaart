@@ -7,7 +7,6 @@ import { BASEMAP } from "@deck.gl/carto";
 import maplibregl from "maplibre-gl";
 import { cogProtocol } from "@geomatico/maplibre-cog-protocol";
 import "maplibre-gl/dist/maplibre-gl.css";
-import type { useMapLayers } from "@/hooks/use-map-layers";
 
 // Register COG protocol once
 maplibregl.addProtocol("cog", cogProtocol);
@@ -20,18 +19,41 @@ export const INITIAL_VIEW_STATE = {
   bearing: 0,
 };
 
-function DeckGLOverlay(props: { layers: Layer[] }) {
+function DeckGLOverlay(
+  props: { layers: Layer[]; overlayRef: React.RefObject<MapboxOverlay | null> },
+) {
   const overlay = useControl(() => new MapboxOverlay({ interleaved: true }));
+  props.overlayRef.current = overlay;
   overlay.setProps({ layers: props.layers });
   return null;
 }
 
 export interface MapViewHandle {
   mapRef: React.RefObject<MapRef | null>;
+  overlayRef: React.RefObject<MapboxOverlay | null>;
+}
+
+/** Read current layers from a MapboxOverlay */
+export function getDeckLayers(overlayRef: React.RefObject<MapboxOverlay | null>): Layer[] {
+  if (!overlayRef.current) return [];
+  return ((overlayRef.current as any).props?.layers ?? []) as Layer[];
+}
+
+/** Clone a specific layer with new props and push the updated array to the overlay */
+export function updateDeckLayer(
+  overlayRef: React.RefObject<MapboxOverlay | null>,
+  layerId: string,
+  newProps: Record<string, unknown>,
+) {
+  if (!overlayRef.current) return;
+  const updatedLayers = getDeckLayers(overlayRef).map((layer: Layer) =>
+    layer.id === layerId ? layer.clone(newProps) : layer,
+  );
+  overlayRef.current.setProps({ layers: updatedLayers });
 }
 
 interface MapViewProps {
-  layers: ReturnType<typeof useMapLayers>;
+  layers: Layer[];
   style?: React.CSSProperties;
   viewState?: Record<string, unknown>;
   onMove?: (evt: ViewStateChangeEvent) => void;
@@ -41,8 +63,9 @@ interface MapViewProps {
 export const MapView = forwardRef<MapViewHandle, MapViewProps>(
   function MapView({ layers, style, viewState, onMove, onLoad }, ref) {
     const mapRef = useRef<MapRef>(null);
+    const overlayRef = useRef<MapboxOverlay | null>(null);
 
-    useImperativeHandle(ref, () => ({ mapRef }), []);
+    useImperativeHandle(ref, () => ({ mapRef, overlayRef }), []);
 
     useEffect(() => {
       function onFlyTo(e: Event) {
@@ -71,7 +94,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         onLoad={onLoad}
         onMove={onMove}
       >
-        <DeckGLOverlay layers={layers.visibleDeckLayers} />
+        <DeckGLOverlay layers={layers} overlayRef={overlayRef} />
       </Map>
     );
   },

@@ -52,6 +52,20 @@ function App() {
     [mapBLayers],
   );
 
+  const handleToggleRuleA = useCallback(
+    (layerId: string, ruleName: string) => {
+      mapALayers.toggleRule(layerId, ruleName);
+    },
+    [mapALayers],
+  );
+
+  const handleToggleRuleB = useCallback(
+    (layerId: string, ruleName: string) => {
+      mapBLayers.toggleRule(layerId, ruleName);
+    },
+    [mapBLayers],
+  );
+
   const handleZoomIn = useCallback(() => {
     setViewState((prev) => ({ ...prev, zoom: prev.zoom + 1 }));
   }, []);
@@ -73,7 +87,7 @@ function App() {
       >
         <MapView
           ref={mapARef}
-          layers={mapALayers}
+          layers={mapALayers.deckLayers}
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
           onMove={handleMove}
@@ -89,7 +103,7 @@ function App() {
         >
           <MapView
             ref={mapBRef}
-            layers={mapBLayers}
+            layers={mapBLayers.deckLayers}
             style={{ width: "100%", height: "100%" }}
             viewState={viewState}
             onMove={handleMove}
@@ -111,8 +125,12 @@ function App() {
         entriesB={mapBLayers.layerEntries}
         hiddenIdsA={mapALayers.hiddenIds}
         hiddenIdsB={mapBLayers.hiddenIds}
+        hiddenRulesA={mapALayers.hiddenRules}
+        hiddenRulesB={mapBLayers.hiddenRules}
         onToggleA={handleToggleA}
         onToggleB={handleToggleB}
+        onToggleRuleA={handleToggleRuleA}
+        onToggleRuleB={handleToggleRuleB}
         comparisonMode={comparisonMode}
       />
 

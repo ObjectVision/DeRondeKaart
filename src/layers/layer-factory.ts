@@ -6,7 +6,7 @@ import {
   GeoArrowPathLayer,
   GeoArrowPolygonLayer,
 } from "@geoarrow/deck.gl-layers";
-import type { LayerConfig, GeoStylerStyle } from "./types";
+import type { LayerConfig, GeoStylerStyle, GeoStylerRule } from "./types";
 import {
   matchRule,
   getFillColorFromRule,
@@ -28,26 +28,25 @@ function toColor(
 }
 
 /**
- * Build an accessor function that evaluates GeoStyler rules per feature.
- * For GeoArrow layers, the accessor receives (object, {index, data, target}) —
- * we need to read attribute values from the Arrow batch.
+ * Build an accessor function that only returns color for features matching a
+ * specific rule, and TRANSPARENT for everything else.
  */
-function buildArrowColorAccessor(
+const TRANSPARENT: Color = [0, 0, 0, 0];
+
+function buildArrowRuleColorAccessor(
   style: GeoStylerStyle,
-  extractor: (rule: ReturnType<typeof matchRule>) => Color,
-  fallback: Color,
+  rule: GeoStylerRule,
+  extractor: (rule: GeoStylerRule) => Color,
 ) {
   // Pre-extract all field names referenced in filters
   const filterFields = new Set<string>();
-  for (const rule of style.rules) {
-    if (rule.filter) {
-      extractFilterFields(rule.filter).forEach((f) => filterFields.add(f));
+  for (const r of style.rules) {
+    if (r.filter) {
+      extractFilterFields(r.filter).forEach((f) => filterFields.add(f));
     }
   }
   const fields = Array.from(filterFields);
 
-  // GeoArrow layers call the accessor with a single argument:
-  // { index, data: { data: RecordBatch, ... }, target }
   return (info: { index: number; data: { data: { getChild: (name: string) => { get: (i: number) => unknown } | null } } }) => {
     const batch = info.data.data;
     const props: Record<string, unknown> = {};
@@ -58,7 +57,8 @@ function buildArrowColorAccessor(
     }
 
     const matched = matchRule(style, props);
-    return matched ? extractor(matched) : fallback;
+    if (!matched || matched.name !== rule.name) return TRANSPARENT;
+    return extractor(matched);
   };
 }
 
@@ -71,45 +71,50 @@ function extractFilterFields(filter: unknown[]): string[] {
   return [filter[1] as string];
 }
 
-export function createGeoArrowLayer(
+/**
+ * Create deck.gl layers for a GeoArrow/Parquet source.
+ * Returns one layer per GeoStyler rule (child layers), or a single layer if no geostyler.
+ */
+export function createGeoArrowLayers(
   config: LayerConfig,
   table: Table,
   batchIndex: number,
-): Layer {
-  const layerId = `${config.id}-batch-${batchIndex}`;
+): Layer[] {
+  const baseId = `${config.id}-batch-${batchIndex}`;
   const { style, geostyler } = config;
   const geometryType = config.geometryType ?? detectGeometryType(table);
 
-  // If GeoStyler rules are defined, use conditional styling
   if (geostyler && geostyler.rules.length > 0) {
-    return createStyledGeoArrowLayer(layerId, config, table, geometryType, geostyler);
+    return geostyler.rules.map((rule) =>
+      createRuleGeoArrowLayer(`${baseId}-${rule.name}`, config, table, geometryType, geostyler, rule),
+    );
   }
 
-  // Fallback to legacy flat style
+  // Single layer for legacy flat style
   switch (geometryType) {
     case "point":
-      return new GeoArrowScatterplotLayer({
-        id: layerId,
+      return [new GeoArrowScatterplotLayer({
+        id: baseId,
         data: table,
         getFillColor: toColor(style.color, [0, 128, 255, 200]),
         getRadius: style.radius ?? 5,
         radiusUnits: "pixels",
         opacity: style.opacity ?? 1,
-      });
+      })];
 
     case "line":
-      return new GeoArrowPathLayer({
-        id: layerId,
+      return [new GeoArrowPathLayer({
+        id: baseId,
         data: table,
         getColor: toColor(style.color, [0, 128, 255, 200]),
         getWidth: style.lineWidth ?? 2,
         widthUnits: "pixels",
         opacity: style.opacity ?? 1,
-      });
+      })];
 
     case "polygon":
-      return new GeoArrowPolygonLayer({
-        id: layerId,
+      return [new GeoArrowPolygonLayer({
+        id: baseId,
         data: table,
         getFillColor: toColor(style.color, [0, 128, 255, 100]),
         getLineColor: toColor(style.color, [0, 128, 255, 200]),
@@ -118,7 +123,7 @@ export function createGeoArrowLayer(
         filled: style.filled ?? true,
         stroked: style.stroked ?? true,
         opacity: style.opacity ?? 1,
-      });
+      })];
 
     default:
       throw new Error(
@@ -127,12 +132,14 @@ export function createGeoArrowLayer(
   }
 }
 
-function createStyledGeoArrowLayer(
+/** Create a single GeoArrow layer for one specific GeoStyler rule */
+function createRuleGeoArrowLayer(
   layerId: string,
   config: LayerConfig,
   table: Table,
   geometryType: string,
   geostyler: GeoStylerStyle,
+  rule: GeoStylerRule,
 ): Layer {
   const opacity = getOpacityFromStyle(geostyler);
 
@@ -141,13 +148,8 @@ function createStyledGeoArrowLayer(
       return new GeoArrowScatterplotLayer({
         id: layerId,
         data: table,
-        getFillColor: buildArrowColorAccessor(geostyler, (r) =>
-          r ? getMarkColorFromRule(r) : [0, 128, 255, 200],
-          [0, 128, 255, 200],
-        ),
-        getRadius: geostyler.rules[0]
-          ? getMarkRadiusFromRule(geostyler.rules[0])
-          : 5,
+        getFillColor: buildArrowRuleColorAccessor(geostyler, rule, getMarkColorFromRule),
+        getRadius: getMarkRadiusFromRule(rule),
         radiusUnits: "pixels",
         opacity,
       } as any);
@@ -156,13 +158,8 @@ function createStyledGeoArrowLayer(
       return new GeoArrowPathLayer({
         id: layerId,
         data: table,
-        getColor: buildArrowColorAccessor(geostyler, (r) =>
-          r ? getLineColorFromRule(r) : [0, 128, 255, 200],
-          [0, 128, 255, 200],
-        ),
-        getWidth: geostyler.rules[0]
-          ? getLineWidthFromRule(geostyler.rules[0])
-          : 2,
+        getColor: buildArrowRuleColorAccessor(geostyler, rule, getLineColorFromRule),
+        getWidth: getLineWidthFromRule(rule),
         widthUnits: "pixels",
         opacity,
       } as any);
@@ -171,17 +168,9 @@ function createStyledGeoArrowLayer(
       return new GeoArrowPolygonLayer({
         id: layerId,
         data: table,
-        getFillColor: buildArrowColorAccessor(geostyler, (r) =>
-          r ? getFillColorFromRule(r) : [0, 128, 255, 100],
-          [0, 128, 255, 100],
-        ),
-        getLineColor: buildArrowColorAccessor(geostyler, (r) =>
-          r ? getOutlineColorFromRule(r) : [0, 0, 0, 200],
-          [0, 0, 0, 200],
-        ),
-        getLineWidth: geostyler.rules[0]
-          ? getOutlineWidthFromRule(geostyler.rules[0])
-          : 1,
+        getFillColor: buildArrowRuleColorAccessor(geostyler, rule, getFillColorFromRule),
+        getLineColor: buildArrowRuleColorAccessor(geostyler, rule, getOutlineColorFromRule),
+        getLineWidth: getOutlineWidthFromRule(rule),
         lineWidthUnits: "pixels",
         filled: true,
         stroked: true,
@@ -195,16 +184,20 @@ function createStyledGeoArrowLayer(
   }
 }
 
-export function createMVTLayer(config: LayerConfig): Layer {
+/**
+ * Create deck.gl layers for an MVT source.
+ * Returns one layer per GeoStyler rule (child layers), or a single layer if no geostyler.
+ */
+export function createMVTLayers(config: LayerConfig): Layer[] {
   const { style, geostyler } = config;
 
-  // If GeoStyler rules are defined, use conditional styling
   if (geostyler && geostyler.rules.length > 0) {
-    return createStyledMVTLayer(config, geostyler);
+    return geostyler.rules.map((rule) =>
+      createRuleMVTLayer(config, geostyler, rule),
+    );
   }
 
-  // Fallback to legacy flat style
-  return new MVTLayer({
+  return [new MVTLayer({
     id: config.id,
     data: config.source,
     minZoom: 0,
@@ -218,35 +211,39 @@ export function createMVTLayer(config: LayerConfig): Layer {
     filled: style.filled ?? true,
     stroked: style.stroked ?? true,
     opacity: style.opacity ?? 1,
-  });
+  })];
 }
 
-function createStyledMVTLayer(
+/** Create a single MVT layer for one specific GeoStyler rule */
+function createRuleMVTLayer(
   config: LayerConfig,
   geostyler: GeoStylerStyle,
+  rule: GeoStylerRule,
 ): Layer {
   const opacity = getOpacityFromStyle(geostyler);
 
   return new MVTLayer({
-    id: config.id,
+    id: `${config.id}-${rule.name}`,
     data: config.source,
     minZoom: 0,
     maxZoom: 14,
     getFillColor: (feature: { properties: Record<string, unknown> }) => {
       const matched = matchRule(geostyler, feature.properties);
-      return matched ? getFillColorFromRule(matched) : [0, 128, 255, 100];
+      if (!matched || matched.name !== rule.name) return TRANSPARENT;
+      return getFillColorFromRule(matched);
     },
     getLineColor: (feature: { properties: Record<string, unknown> }) => {
       const matched = matchRule(geostyler, feature.properties);
-      return matched ? getOutlineColorFromRule(matched) : [0, 0, 0, 200];
+      if (!matched || matched.name !== rule.name) return TRANSPARENT;
+      return getOutlineColorFromRule(matched);
     },
     getLineWidth: (feature: { properties: Record<string, unknown> }) => {
       const matched = matchRule(geostyler, feature.properties);
-      return matched ? getOutlineWidthFromRule(matched) : 1;
+      return matched && matched.name === rule.name ? getOutlineWidthFromRule(matched) : 0;
     },
     getPointRadius: (feature: { properties: Record<string, unknown> }) => {
       const matched = matchRule(geostyler, feature.properties);
-      return matched ? getMarkRadiusFromRule(matched) : 5;
+      return matched && matched.name === rule.name ? getMarkRadiusFromRule(matched) : 0;
     },
     lineWidthUnits: "pixels" as const,
     pointRadiusUnits: "pixels" as const,

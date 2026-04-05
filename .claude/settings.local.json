@@ -12,7 +12,8 @@
       "WebFetch(domain:www.npmjs.com)",
       "WebFetch(domain:maplibre.org)",
       "Bash(node -e \"const m = require\\('@geomatico/maplibre-cog-protocol'\\); console.log\\(Object.keys\\(m\\)\\)\")",
-      "Bash(node -e ':*)"
+      "Bash(node -e ':*)",
+      "Bash(npx vite:*)"
     ]
   }
 }

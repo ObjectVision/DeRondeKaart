@@ -78,11 +78,11 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 
 ## Stage 9: Legend — GeoStyler Class Visualization
 
-- [ ] Update legend to display individual rule classes per layer (name + color swatch from symbolizer)
-- [ ] Implement per-class toggle: clicking a class hides/shows features matching that rule's filter
-- [ ] Show legend classes for both Map A and Map B in comparison mode
-- [ ] Handle COG layers in legend (no rule classes, keep simple layer-level toggle)
-- [ ] Ensure legend updates dynamically when layers are added/removed via URL commands
+- [x] Update legend to display individual rule classes per layer (name + color swatch from symbolizer)
+- [x] Implement per-class toggle: clicking a class hides/shows features matching that rule's filter
+- [x] Show legend classes for both Map A and Map B in comparison mode
+- [x] Handle COG layers in legend (no rule classes, keep simple layer-level toggle)
+- [x] Ensure legend updates dynamically when layers are added/removed via URL commands
 
 ## Stage 10: Final Integration & Testing
 
