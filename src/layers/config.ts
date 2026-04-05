@@ -27,6 +27,7 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     source: layer.source as string,
     format: layer.format as LayerFormat,
     geometryType: (layer.geometryType as LayerConfig["geometryType"]) ?? undefined,
+    sourceLayer: (layer.sourceLayer as string) ?? undefined,
     geostyler: (layer.geostyler as LayerConfig["geostyler"]) ?? undefined,
     style: (layer.style as LayerConfig["style"]) ?? {},
   };

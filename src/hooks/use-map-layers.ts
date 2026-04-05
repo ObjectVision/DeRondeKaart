@@ -5,7 +5,7 @@ import {
   loadParquetBatches,
   loadArrowBatches,
   createGeoArrowLayers,
-  createMVTLayers,
+  buildMvtLayerDefs,
 } from "@/layers";
 import type { LayerConfig } from "@/layers";
 
@@ -21,7 +21,7 @@ export function useMapLayers() {
   const [hiddenRules, setHiddenRules] = useState<globalThis.Map<string, Set<string>>>(new globalThis.Map());
   const layerEntriesRef = useRef<LayerEntry[]>([]);
 
-  function addLayers(newLayers: Layer[]) {
+  function addDeckLayers(newLayers: Layer[]) {
     setDeckLayers((prev) => [...prev, ...newLayers]);
   }
 
@@ -43,36 +43,17 @@ export function useMapLayers() {
       if (config.format === "parquet") {
         await loadParquetBatches(config.source, (batchIndex, table) => {
           const layers = createGeoArrowLayers(config, table, batchIndex);
-          addLayers(layers);
+          addDeckLayers(layers);
         });
       } else if (config.format === "geoarrow") {
         await loadArrowBatches(config.source, (batchIndex, table) => {
           const layers = createGeoArrowLayers(config, table, batchIndex);
-          addLayers(layers);
+          addDeckLayers(layers);
         });
       } else if (config.format === "mvt") {
-        const layers = createMVTLayers(config);
-        addLayers(layers);
+        addMvtLayer(config, mapRef);
       } else if (config.format === "cog") {
-        const map = mapRef.current?.getMap();
-        if (!map) return;
-
-        const sourceId = `cog-source-${config.id}`;
-        const layerId = `cog-layer-${config.id}`;
-
-        if (!map.getSource(sourceId)) {
-          map.addSource(sourceId, {
-            type: "raster",
-            url: `cog://${config.source}`,
-            tileSize: 256,
-          });
-          map.addLayer({
-            id: layerId,
-            source: sourceId,
-            type: "raster",
-            paint: { "raster-opacity": config.style.opacity ?? 1 },
-          });
-        }
+        addCogLayer(config, mapRef);
       }
     } catch (err) {
       console.error(`Failed to load layer "${config.id}":`, err);
@@ -80,10 +61,74 @@ export function useMapLayers() {
     }
   }
 
+  function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+
+    const sourceId = `mvt-source-${config.id}`;
+
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, {
+        type: "vector",
+        tiles: [config.source],
+        minzoom: 0,
+        maxzoom: 14,
+      });
+    }
+
+    const defs = buildMvtLayerDefs(config);
+    for (const def of defs) {
+      if (map.getLayer(def.id)) continue;
+
+      const layerSpec: Record<string, unknown> = {
+        id: def.id,
+        source: sourceId,
+        type: def.type,
+        paint: def.paint,
+        layout: def.layout,
+      };
+
+      // Use sourceLayer from config if specified
+      if (config.sourceLayer) {
+        layerSpec["source-layer"] = config.sourceLayer;
+      }
+
+      if (def.filter) {
+        layerSpec.filter = def.filter;
+      }
+
+      map.addLayer(layerSpec as any);
+    }
+  }
+
+  function addCogLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+
+    const sourceId = `cog-source-${config.id}`;
+    const layerId = `cog-layer-${config.id}`;
+
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, {
+        type: "raster",
+        url: `cog://${config.source}`,
+        tileSize: 256,
+      });
+      map.addLayer({
+        id: layerId,
+        source: sourceId,
+        type: "raster",
+        paint: { "raster-opacity": config.style.opacity ?? 1 },
+      });
+    }
+  }
+
   function removeLayer(layerId: string, mapRef: React.RefObject<MapRef | null>) {
+    const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
+
     updateLayerEntries((prev) => prev.filter((e) => e.config.id !== layerId));
 
-    // Remove all deck layers belonging to this config id
+    // Remove deck.gl layers (geoarrow/parquet)
     setDeckLayers((prev) => prev.filter((l) => !layerBelongsTo(l.id, layerId)));
 
     setHiddenIds((prev) => {
@@ -98,11 +143,23 @@ export function useMapLayers() {
       return next;
     });
 
+    // Remove native MapLibre layers and sources
     const map = mapRef.current?.getMap();
-    const cogLayerId = `cog-layer-${layerId}`;
-    const cogSourceId = `cog-source-${layerId}`;
-    if (map?.getLayer(cogLayerId)) map.removeLayer(cogLayerId);
-    if (map?.getSource(cogSourceId)) map.removeSource(cogSourceId);
+    if (!map || !entry) return;
+
+    if (entry.config.format === "mvt") {
+      const defs = buildMvtLayerDefs(entry.config);
+      for (const def of defs) {
+        if (map.getLayer(def.id)) map.removeLayer(def.id);
+      }
+      const sourceId = `mvt-source-${layerId}`;
+      if (map.getSource(sourceId)) map.removeSource(sourceId);
+    } else if (entry.config.format === "cog") {
+      const cogLayerId = `cog-layer-${layerId}`;
+      const cogSourceId = `cog-source-${layerId}`;
+      if (map.getLayer(cogLayerId)) map.removeLayer(cogLayerId);
+      if (map.getSource(cogSourceId)) map.removeSource(cogSourceId);
+    }
   }
 
   function hideLayer(layerId: string, mapRef: React.RefObject<MapRef | null>) {
@@ -113,18 +170,17 @@ export function useMapLayers() {
       return next;
     });
 
-    // Clone all child deck layers for this config to visible: false
+    // deck.gl layers (geoarrow/parquet)
     setDeckLayers((prev) =>
       prev.map((l) =>
         layerBelongsTo(l.id, layerId) ? l.clone({ visible: false }) : l,
       ),
     );
 
-    // COG layers are native MapLibre layers
-    const map = mapRef.current?.getMap();
-    const cogLayerId = `cog-layer-${layerId}`;
-    if (map?.getLayer(cogLayerId)) {
-      map.setLayoutProperty(cogLayerId, "visibility", "none");
+    // Native MapLibre layers (MVT/COG)
+    const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
+    if (entry) {
+      setNativeLayerVisibility(layerId, entry.config, mapRef, "none");
     }
   }
 
@@ -139,25 +195,22 @@ export function useMapLayers() {
           next.add(layerId);
         }
 
-        // Clone all child deck layers for this config
+        // deck.gl layers (geoarrow/parquet)
         setDeckLayers((prevLayers) =>
           prevLayers.map((l) =>
             layerBelongsTo(l.id, layerId) ? l.clone({ visible: willBeVisible }) : l,
           ),
         );
 
-        // COG layers
+        // Native MapLibre layers (MVT/COG)
         const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
-        if (entry?.config.format === "cog") {
-          const map = mapRef.current?.getMap();
-          const cogLayerId = `cog-layer-${layerId}`;
-          if (map?.getLayer(cogLayerId)) {
-            map.setLayoutProperty(
-              cogLayerId,
-              "visibility",
-              willBeVisible ? "visible" : "none",
-            );
-          }
+        if (entry) {
+          setNativeLayerVisibility(
+            layerId,
+            entry.config,
+            mapRef,
+            willBeVisible ? "visible" : "none",
+          );
         }
 
         return next;
@@ -167,7 +220,7 @@ export function useMapLayers() {
   );
 
   const toggleRule = useCallback(
-    (layerId: string, ruleName: string) => {
+    (layerId: string, ruleName: string, mapRef: React.RefObject<MapRef | null>) => {
       setHiddenRules((prev) => {
         const next = new globalThis.Map(prev);
         const layerRules = new Set(next.get(layerId) ?? []);
@@ -185,8 +238,7 @@ export function useMapLayers() {
           next.set(layerId, layerRules);
         }
 
-        // Find the specific child layer for this rule and clone with visible toggle
-        // Child layer IDs follow the pattern: {configId}-batch-{n}-{ruleName} or {configId}-{ruleName}
+        // deck.gl layers (geoarrow/parquet): find child layer by rule name suffix
         setDeckLayers((prevLayers) =>
           prevLayers.map((l) => {
             if (l.id.endsWith(`-${ruleName}`) && layerBelongsTo(l.id, layerId)) {
@@ -195,6 +247,16 @@ export function useMapLayers() {
             return l;
           }),
         );
+
+        // Native MapLibre layers (MVT): toggle the specific rule's layer
+        const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
+        if (entry?.config.format === "mvt") {
+          const map = mapRef.current?.getMap();
+          const mvtLayerId = `mvt-layer-${layerId}-${ruleName}`;
+          if (map?.getLayer(mvtLayerId)) {
+            map.setLayoutProperty(mvtLayerId, "visibility", willBeVisible ? "visible" : "none");
+          }
+        }
 
         return next;
       });
@@ -215,13 +277,33 @@ export function useMapLayers() {
   };
 }
 
+/** Set visibility on all native MapLibre layers belonging to a config */
+function setNativeLayerVisibility(
+  configId: string,
+  config: LayerConfig,
+  mapRef: React.RefObject<MapRef | null>,
+  visibility: "visible" | "none",
+) {
+  const map = mapRef.current?.getMap();
+  if (!map) return;
+
+  if (config.format === "cog") {
+    const cogLayerId = `cog-layer-${configId}`;
+    if (map.getLayer(cogLayerId)) {
+      map.setLayoutProperty(cogLayerId, "visibility", visibility);
+    }
+  } else if (config.format === "mvt") {
+    const defs = buildMvtLayerDefs(config);
+    for (const def of defs) {
+      if (map.getLayer(def.id)) {
+        map.setLayoutProperty(def.id, "visibility", visibility);
+      }
+    }
+  }
+}
+
 /**
  * Check if a deck layer ID belongs to a given config ID.
- * Layer IDs follow patterns like:
- *   "{configId}-batch-{n}" (flat style)
- *   "{configId}-batch-{n}-{ruleName}" (geostyler child)
- *   "{configId}" (MVT flat style)
- *   "{configId}-{ruleName}" (MVT geostyler child)
  */
 function layerBelongsTo(deckLayerId: string, configId: string): boolean {
   return deckLayerId === configId || deckLayerId.startsWith(configId + "-");

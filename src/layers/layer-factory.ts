@@ -1,6 +1,5 @@
 import type { Layer, Color } from "@deck.gl/core";
 import { Table } from "apache-arrow";
-import { MVTLayer } from "@deck.gl/geo-layers";
 import {
   GeoArrowScatterplotLayer,
   GeoArrowPathLayer,
@@ -8,7 +7,6 @@ import {
 } from "@geoarrow/deck.gl-layers";
 import type { LayerConfig, GeoStylerStyle, GeoStylerRule } from "./types";
 import {
-  matchRule,
   getFillColorFromRule,
   getOutlineColorFromRule,
   getOutlineWidthFromRule,
@@ -17,6 +15,7 @@ import {
   getMarkColorFromRule,
   getMarkRadiusFromRule,
   getOpacityFromStyle,
+  matchRule,
 } from "./geostyler";
 
 function toColor(
@@ -182,75 +181,6 @@ function createRuleGeoArrowLayer(
         `Unknown geometry type "${geometryType}" for layer "${config.id}"`,
       );
   }
-}
-
-/**
- * Create deck.gl layers for an MVT source.
- * Returns one layer per GeoStyler rule (child layers), or a single layer if no geostyler.
- */
-export function createMVTLayers(config: LayerConfig): Layer[] {
-  const { style, geostyler } = config;
-
-  if (geostyler && geostyler.rules.length > 0) {
-    return geostyler.rules.map((rule) =>
-      createRuleMVTLayer(config, geostyler, rule),
-    );
-  }
-
-  return [new MVTLayer({
-    id: config.id,
-    data: config.source,
-    minZoom: 0,
-    maxZoom: 14,
-    getFillColor: toColor(style.color, [0, 128, 255, 100]),
-    getLineColor: toColor(style.color, [0, 128, 255, 200]),
-    getLineWidth: style.lineWidth ?? 1,
-    lineWidthUnits: "pixels",
-    getPointRadius: style.radius ?? 5,
-    pointRadiusUnits: "pixels",
-    filled: style.filled ?? true,
-    stroked: style.stroked ?? true,
-    opacity: style.opacity ?? 1,
-  })];
-}
-
-/** Create a single MVT layer for one specific GeoStyler rule */
-function createRuleMVTLayer(
-  config: LayerConfig,
-  geostyler: GeoStylerStyle,
-  rule: GeoStylerRule,
-): Layer {
-  const opacity = getOpacityFromStyle(geostyler);
-
-  return new MVTLayer({
-    id: `${config.id}-${rule.name}`,
-    data: config.source,
-    minZoom: 0,
-    maxZoom: 14,
-    getFillColor: (feature: { properties: Record<string, unknown> }) => {
-      const matched = matchRule(geostyler, feature.properties);
-      if (!matched || matched.name !== rule.name) return TRANSPARENT;
-      return getFillColorFromRule(matched);
-    },
-    getLineColor: (feature: { properties: Record<string, unknown> }) => {
-      const matched = matchRule(geostyler, feature.properties);
-      if (!matched || matched.name !== rule.name) return TRANSPARENT;
-      return getOutlineColorFromRule(matched);
-    },
-    getLineWidth: (feature: { properties: Record<string, unknown> }) => {
-      const matched = matchRule(geostyler, feature.properties);
-      return matched && matched.name === rule.name ? getOutlineWidthFromRule(matched) : 0;
-    },
-    getPointRadius: (feature: { properties: Record<string, unknown> }) => {
-      const matched = matchRule(geostyler, feature.properties);
-      return matched && matched.name === rule.name ? getMarkRadiusFromRule(matched) : 0;
-    },
-    lineWidthUnits: "pixels" as const,
-    pointRadiusUnits: "pixels" as const,
-    filled: true,
-    stroked: true,
-    opacity,
-  });
 }
 
 /**

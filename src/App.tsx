@@ -54,14 +54,14 @@ function App() {
 
   const handleToggleRuleA = useCallback(
     (layerId: string, ruleName: string) => {
-      mapALayers.toggleRule(layerId, ruleName);
+      mapALayers.toggleRule(layerId, ruleName, mapARef.current?.mapRef ?? { current: null });
     },
     [mapALayers],
   );
 
   const handleToggleRuleB = useCallback(
     (layerId: string, ruleName: string) => {
-      mapBLayers.toggleRule(layerId, ruleName);
+      mapBLayers.toggleRule(layerId, ruleName, mapBRef.current?.mapRef ?? { current: null });
     },
     [mapBLayers],
   );

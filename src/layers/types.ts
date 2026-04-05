@@ -68,6 +68,8 @@ export interface LayerConfig {
   source: string;
   format: LayerFormat;
   geometryType?: GeometryType;
+  /** For MVT: the source layer name within the tileset to render */
+  sourceLayer?: string;
   /** GeoStyler rule-based style (preferred) */
   geostyler?: GeoStylerStyle;
   /** Legacy flat style (used as fallback, required for COG) */
