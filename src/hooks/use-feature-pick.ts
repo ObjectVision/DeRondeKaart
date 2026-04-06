@@ -74,8 +74,14 @@ export function useFeaturePick(
             };
 
             const existing = featuresByLayer.get(entry.config.id) ?? [];
-            existing.push(feature);
-            featuresByLayer.set(entry.config.id, existing);
+            // Deduplicate — same feature is picked from multiple rule layers
+            const isDuplicate = existing.some(
+              (p) => JSON.stringify(p.properties) === JSON.stringify(feature.properties),
+            );
+            if (!isDuplicate) {
+              existing.push(feature);
+              featuresByLayer.set(entry.config.id, existing);
+            }
           }
         }
       }
