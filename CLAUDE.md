@@ -48,3 +48,10 @@ featureinfo
 - featureinfo is shown in a rectangular window in line with the style of the legend
 - if more than one feature is clicked of the same layer, the rectangular box is scrollable
 - if features of multiple layers are clicked, each layer has it's own page inside the featureinfo window
+
+small screen behavior
+- make all three subwindows: legend, featureinfo, navigation (search, +, -) drag-expandable or collapsible
+- the current size of the window should be made persistent for the current session
+- two available windows should automatically deal with collapsing: legend and navigation tools (search, +, -)
+- collapse navigation tools first to a single icon based on current window size, clicking the icon will reinstate view of the navigation tools before collapse
+- collapse legend secondary first to a single icon based on current window size, clicking the icon will reinstate view of the legend before collapse

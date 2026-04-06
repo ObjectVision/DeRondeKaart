@@ -119,9 +119,9 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 
 ### Part B: Nginx Server Configuration
 
-- [ ] Create nginx site config for the host server as a reverse proxy to the Docker container
-- [ ] Configure a static file location block to serve map data files (`.parquet`, `.arrow`, `.pbf`) with correct MIME types and CORS headers
-- [ ] Add caching headers for static map data (long `Cache-Control` for immutable tile/data files)
-- [ ] Enable gzip/brotli compression for applicable responses
-- [ ] Add SSL/TLS placeholder configuration (certbot/Let's Encrypt ready)
-- [ ] Document deployment steps and file placement in a `deploy/README.md`
+- [x] Create nginx site config for the host server as a reverse proxy to the Docker container
+- [x] Configure a static file location block to serve map data files (`.parquet`, `.arrow`, `.pbf`) with correct MIME types and CORS headers
+- [x] Add caching headers for static map data (long `Cache-Control` for immutable tile/data files)
+- [x] Enable gzip/brotli compression for applicable responses
+- [x] Add SSL/TLS placeholder configuration (certbot/Let's Encrypt ready)
+- [x] Document deployment steps and file placement in a `deploy/README.md`
