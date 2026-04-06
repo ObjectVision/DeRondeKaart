@@ -1,0 +1,9 @@
+services:
+  mapapp:
+    build: .
+    ports:
+      - "${MAP_PORT:-8080}:80"
+    volumes:
+      # Mount your instance-specific layers.json into the container
+      - ./deploy/layers.example.json:/etc/mapapp/layers.json:ro
+    restart: unless-stopped

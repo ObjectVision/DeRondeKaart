@@ -1,0 +1,18 @@
+{
+  "layers": [
+    {
+      "id": "example",
+      "name": "Example Layer",
+      "source": "https://your-server.com/data/layer.parquet",
+      "format": "parquet",
+      "geometryType": "polygon",
+      "style": {
+        "color": [0, 128, 255, 150],
+        "opacity": 0.8,
+        "filled": true,
+        "stroked": true,
+        "lineWidth": 1
+      }
+    }
+  ]
+}

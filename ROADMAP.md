@@ -101,4 +101,27 @@ Implementation stages for the embeddable webmap application. Each stage builds o
 - [x] Build FeatureInfo popup component (tabbed layers, scrollable features, HTML templates)
 - [x] Wire FeatureInfo into App for both Map A and Map B
 - [x] Add example `featureinfo` configs to layers.json for testing
-- [ ] Verify featureinfo works for GeoArrow, Parquet, and MVT layers
+- [x] Verify featureinfo works for GeoArrow, Parquet, and MVT layers
+
+## Stage 12: Docker & Nginx Deployment
+
+### Part A: Docker Container
+
+- [x] Create multi-stage `Dockerfile` (Node build stage → nginx runtime stage)
+- [x] Build the app **without** `public/layers.json` baked in — the production `layers.json` is mounted at runtime
+- [x] Add `.dockerignore` to exclude `node_modules`, `dist`, `.git`, etc.
+- [x] Add nginx config inside the container to serve the Vite `dist/` output as static files
+- [x] Configure SPA fallback (all routes → `index.html`) for client-side routing
+- [x] Mount `layers.json` into the container via a bind mount or volume (allows different configs per instance)
+- [x] Add `docker-compose.yml` with example bind mount for `layers.json` and configurable port
+- [x] Verify `npm run dev` still works locally with `public/layers.json` for development
+- [ ] Verify container builds and serves the app correctly with an externally mounted `layers.json`
+
+### Part B: Nginx Server Configuration
+
+- [ ] Create nginx site config for the host server as a reverse proxy to the Docker container
+- [ ] Configure a static file location block to serve map data files (`.parquet`, `.arrow`, `.pbf`) with correct MIME types and CORS headers
+- [ ] Add caching headers for static map data (long `Cache-Control` for immutable tile/data files)
+- [ ] Enable gzip/brotli compression for applicable responses
+- [ ] Add SSL/TLS placeholder configuration (certbot/Let's Encrypt ready)
+- [ ] Document deployment steps and file placement in a `deploy/README.md`
