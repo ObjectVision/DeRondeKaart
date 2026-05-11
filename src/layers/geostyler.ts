@@ -3,7 +3,6 @@ import type {
   GeoStylerFilter,
   GeoStylerRule,
   GeoStylerStyle,
-  GeoStylerSymbolizer,
   FillSymbolizer,
   LineSymbolizer,
   MarkSymbolizer,

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { FeatureInfoResult, PickedFeature } from "@/hooks/use-feature-pick";
+import type { FeatureInfoResult } from "@/hooks/use-feature-pick";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { resolveTemplate, renderTemplate } from "@/layers";
 
