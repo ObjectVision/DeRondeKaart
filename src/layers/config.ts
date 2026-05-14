@@ -1,6 +1,6 @@
 import type { LayerConfig, LayersFile, LayerFormat } from "./types";
 
-const VALID_FORMATS: LayerFormat[] = ["geoarrow", "parquet", "mvt", "cog"];
+const VALID_FORMATS: LayerFormat[] = ["geoarrow", "geoparquet", "parquet", "mvt", "cog"];
 
 let cachedConfig: LayerConfig[] | null = null;
 

@@ -1,4 +1,4 @@
-export type LayerFormat = "geoarrow" | "parquet" | "mvt" | "cog";
+export type LayerFormat = "geoarrow" | "geoparquet" | "parquet" | "mvt" | "cog";
 
 export type GeometryType = "point" | "line" | "polygon";
 

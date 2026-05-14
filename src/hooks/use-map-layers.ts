@@ -3,6 +3,7 @@ import type { Layer } from "@deck.gl/core";
 import type { MapRef } from "react-map-gl/maplibre";
 import {
   loadParquetBatches,
+  loadGeoParquetBatches,
   loadArrowBatches,
   createGeoArrowLayers,
   buildMvtLayerDefs,
@@ -42,6 +43,11 @@ export function useMapLayers() {
     try {
       if (config.format === "parquet") {
         await loadParquetBatches(config.source, (batchIndex, table) => {
+          const layers = createGeoArrowLayers(config, table, batchIndex);
+          addDeckLayers(layers);
+        });
+      } else if (config.format === "geoparquet") {
+        await loadGeoParquetBatches(config.source, (batchIndex, table) => {
           const layers = createGeoArrowLayers(config, table, batchIndex);
           addDeckLayers(layers);
         });

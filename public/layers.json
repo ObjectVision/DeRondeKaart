@@ -3,7 +3,7 @@
     {
       "id": "gemeente",
       "name": "Wijken Limburg",
-      "source": "/cbs_wijken_limburg.arrow",
+      "source": "https://data.woonzorglimburg.nl/arrow/cbs_wijken_limburg.arrow",
       "format": "geoarrow",
       "geometryType": "polygon",
       "geostyler": {
@@ -35,8 +35,8 @@
     {
       "id": "example-polygons",
       "name": "Example Polygons",
-      "source": "https://raw.githubusercontent.com/opengeospatial/geoparquet/main/examples/example.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/parquet/testfile.parquet",
+      "format": "geoparquet",
       "geometryType": "polygon",
       "style": {
         "color": [255, 69, 0, 150],
@@ -44,6 +44,38 @@
         "filled": true,
         "stroked": true,
         "lineWidth": 1
+      }
+    },
+    {
+      "id": "wijken-limburg-parquet",
+      "name": "Wijken Limburg (GeoArrow Parquet)",
+      "source": "https://data.woonzorglimburg.nl/parquet/cbs_wijken_limburg.parquet",
+      "format": "parquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Wijken Limburg",
+        "rules": [
+          {
+            "name": "Maastricht",
+            "filter": ["==", "WK_CODE", "WK093500"],
+            "symbolizers": [{ "kind": "Fill", "color": "#e41a1c", "outlineColor": "#333333", "outlineWidth": 1 }]
+          },
+          {
+            "name": "Heerlen",
+            "filter": ["==", "WK_CODE", "WK088200"],
+            "symbolizers": [{ "kind": "Fill", "color": "#377eb8", "outlineColor": "#333333", "outlineWidth": 1 }]
+          },
+          {
+            "name": "Overig",
+            "symbolizers": [{ "kind": "Fill", "color": "#984ea3", "outlineColor": "#999999", "outlineWidth": 0.5 }]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ WK_NAAM ]]</b><br/>Code: [[ WK_CODE ]]</div>"
       }
     },
     {

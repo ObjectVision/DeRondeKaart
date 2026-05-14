@@ -56,7 +56,7 @@ export function useFeaturePick(
             // Match deck layer ID to a config entry
             const entry = infoEntries.find(
               (e) =>
-                (e.config.format === "geoarrow" || e.config.format === "parquet") &&
+                (e.config.format === "geoarrow" || e.config.format === "parquet" || e.config.format === "geoparquet") &&
                 deckLayerId.startsWith(e.config.id),
             );
             if (!entry) continue;
