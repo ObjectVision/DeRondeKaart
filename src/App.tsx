@@ -34,6 +34,17 @@ function App() {
   const hasMapALayers = mapALayers.layerEntries.length > 0;
   const hasMapBLayers = mapBLayers.layerEntries.length > 0;
   const comparisonMode = hasMapALayers && hasMapBLayers;
+  // Mount Map B as soon as B has any layers of its own — otherwise imperative
+  // layer adds (MVT/COG) silently no-op against a null ref and deck.gl layers
+  // sit in state with no map to render in. See repo issue #1.
+  const showMapB = hasMapBLayers;
+
+  // Once Map B's MapLibre style is loaded, replay any imperative MVT/COG
+  // entries that addLayer attempted before the map existed. Idempotent.
+  const handleMapBLoad = useCallback(() => {
+    const ref = mapBRef.current?.mapRef;
+    if (ref) mapBLayers.syncImperativeLayers(ref);
+  }, [mapBLayers]);
 
   const handleMove = useCallback((evt: ViewStateChangeEvent) => {
     setViewState((prev) => ({
@@ -102,11 +113,16 @@ function App() {
         />
       </div>
 
-      {/* Map B — only rendered in comparison mode, clipped right */}
-      {comparisonMode && (
+      {/* Map B — mounted whenever B has its own layers. Only clipped in
+          comparison mode; otherwise renders full-width on top of A. */}
+      {showMapB && (
         <div
           className="absolute inset-0"
-          style={{ clipPath: `inset(0 0 0 ${sliderPosition}%)` }}
+          style={
+            comparisonMode
+              ? { clipPath: `inset(0 0 0 ${sliderPosition}%)` }
+              : undefined
+          }
         >
           <MapView
             ref={mapBRef}
@@ -115,6 +131,7 @@ function App() {
             viewState={viewState}
             onMove={handleMove}
             onClick={pickB.handleClick}
+            onLoad={handleMapBLoad}
           />
         </div>
       )}
