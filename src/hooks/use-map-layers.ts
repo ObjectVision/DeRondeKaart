@@ -270,6 +270,25 @@ export function useMapLayers() {
     [],
   );
 
+  /**
+   * Re-apply imperative MVT/COG entries to a map. Used when a map mounts
+   * after addLayer was already called (e.g. Map B becoming ready after the
+   * first layer was added to it). Safe to call repeatedly — the MVT/COG
+   * helpers skip sources/layers that already exist.
+   */
+  const syncImperativeLayers = useCallback(
+    (mapRef: React.RefObject<MapRef | null>) => {
+      for (const entry of layerEntriesRef.current) {
+        if (entry.config.format === "mvt") {
+          addMvtLayer(entry.config, mapRef);
+        } else if (entry.config.format === "cog") {
+          addCogLayer(entry.config, mapRef);
+        }
+      }
+    },
+    [],
+  );
+
   return {
     layerEntries,
     deckLayers,
@@ -280,6 +299,7 @@ export function useMapLayers() {
     hideLayer,
     toggleLayer,
     toggleRule,
+    syncImperativeLayers,
   };
 }
 
