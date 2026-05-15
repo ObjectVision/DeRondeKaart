@@ -7,6 +7,40 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
+## Prerequisites
+
+- Node.js 20+ and npm
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+## Running locally
+
+Start the Vite dev server with HMR:
+
+```bash
+npm run dev
+```
+
+The app is served at http://localhost:5173 by default.
+
+## Production build
+
+Type-check and bundle the app into `dist/`:
+
+```bash
+npm run build
+```
+
+Preview the production build locally:
+
+```bash
+npm run preview
+```
+
 ## React Compiler
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
