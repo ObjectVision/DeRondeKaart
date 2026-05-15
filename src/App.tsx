@@ -9,6 +9,7 @@ import { Legend } from "@/components/ui/legend";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { MapControls } from "@/components/ui/map-controls";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
+import { MapPills } from "@/components/ui/map-pills";
 
 function App() {
   const mapALayers = useMapLayers();
@@ -177,6 +178,9 @@ function App() {
 
       {/* Map controls — bottom right */}
       <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+
+      {/* Kaart A/B identification pills — top left/right */}
+      <MapPills activeA={hasMapALayers} activeB={hasMapBLayers} />
     </div>
   );
 }
