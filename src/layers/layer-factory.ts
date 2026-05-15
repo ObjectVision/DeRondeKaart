@@ -78,6 +78,7 @@ export function createGeoArrowLayers(
   config: LayerConfig,
   table: Table,
   batchIndex: number,
+  beforeId?: string,
 ): Layer[] {
   const baseId = `${config.id}-batch-${batchIndex}`;
   const { style, geostyler } = config;
@@ -85,7 +86,7 @@ export function createGeoArrowLayers(
 
   if (geostyler && geostyler.rules.length > 0) {
     return geostyler.rules.map((rule) =>
-      createRuleGeoArrowLayer(`${baseId}-${rule.name}`, config, table, geometryType, geostyler, rule),
+      createRuleGeoArrowLayer(`${baseId}-${rule.name}`, config, table, geometryType, geostyler, rule, beforeId),
     );
   }
 
@@ -100,6 +101,7 @@ export function createGeoArrowLayers(
         getRadius: style.radius ?? 5,
         radiusUnits: "pixels",
         opacity: style.opacity ?? 1,
+        beforeId,
       })];
 
     case "line":
@@ -111,6 +113,7 @@ export function createGeoArrowLayers(
         getWidth: style.lineWidth ?? 2,
         widthUnits: "pixels",
         opacity: style.opacity ?? 1,
+        beforeId,
       })];
 
     case "polygon":
@@ -125,6 +128,7 @@ export function createGeoArrowLayers(
         filled: style.filled ?? true,
         stroked: style.stroked ?? true,
         opacity: style.opacity ?? 1,
+        beforeId,
       })];
 
     default:
@@ -142,6 +146,7 @@ function createRuleGeoArrowLayer(
   geometryType: string,
   geostyler: GeoStylerStyle,
   rule: GeoStylerRule,
+  beforeId?: string,
 ): Layer {
   const opacity = getOpacityFromStyle(geostyler);
 
@@ -155,6 +160,7 @@ function createRuleGeoArrowLayer(
         getRadius: getMarkRadiusFromRule(rule),
         radiusUnits: "pixels",
         opacity,
+        beforeId,
       } as any);
 
     case "line":
@@ -166,6 +172,7 @@ function createRuleGeoArrowLayer(
         getWidth: getLineWidthFromRule(rule),
         widthUnits: "pixels",
         opacity,
+        beforeId,
       } as any);
 
     case "polygon":
@@ -180,6 +187,7 @@ function createRuleGeoArrowLayer(
         filled: true,
         stroked: true,
         opacity,
+        beforeId,
       } as any);
 
     default:
