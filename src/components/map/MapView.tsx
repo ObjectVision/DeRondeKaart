@@ -3,7 +3,6 @@ import type { Layer } from "@deck.gl/core";
 import { Map, useControl } from "react-map-gl/maplibre";
 import type { MapRef, ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
 import { MapboxOverlay } from "@deck.gl/mapbox";
-import { BASEMAP } from "@deck.gl/carto";
 import maplibregl from "maplibre-gl";
 import { cogProtocol } from "@geomatico/maplibre-cog-protocol";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -89,7 +88,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         ref={mapRef}
         {...mapProps}
         style={style ?? { width: "100%", height: "100%" }}
-        mapStyle={BASEMAP.POSITRON}
+        mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
         dragRotate={false}
         pitchWithRotate={false}
         onLoad={onLoad}
