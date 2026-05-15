@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback } from "react";
 import type { Layer } from "@deck.gl/core";
 import type { MapRef } from "react-map-gl/maplibre";
+import { bringLabelsToTop, getFirstLabelId } from "@/components/map/MapView";
 import {
   loadParquetBatches,
   loadGeoParquetBatches,
@@ -40,20 +41,29 @@ export function useMapLayers() {
       return [...prev, { config, visible: true }];
     });
 
+    // Read once at dispatch time — the deck.gl `beforeId` is captured by each
+    // Layer at construction. If labels haven't loaded yet beforeId is undefined
+    // and the user layer goes on top; labels added afterwards naturally land
+    // above it, which is also correct.
+    const beforeId = (() => {
+      const map = mapRef.current?.getMap();
+      return map ? getFirstLabelId(map) : undefined;
+    });
+
     try {
       if (config.format === "parquet") {
         await loadParquetBatches(config.source, (batchIndex, table) => {
-          const layers = createGeoArrowLayers(config, table, batchIndex);
+          const layers = createGeoArrowLayers(config, table, batchIndex, beforeId());
           addDeckLayers(layers);
         });
       } else if (config.format === "geoparquet") {
         await loadGeoParquetBatches(config.source, (batchIndex, table) => {
-          const layers = createGeoArrowLayers(config, table, batchIndex);
+          const layers = createGeoArrowLayers(config, table, batchIndex, beforeId());
           addDeckLayers(layers);
         });
       } else if (config.format === "geoarrow") {
         await loadArrowBatches(config.source, (batchIndex, table) => {
-          const layers = createGeoArrowLayers(config, table, batchIndex);
+          const layers = createGeoArrowLayers(config, table, batchIndex, beforeId());
           addDeckLayers(layers);
         });
       } else if (config.format === "mvt") {
@@ -71,6 +81,7 @@ export function useMapLayers() {
     const map = mapRef.current?.getMap();
     if (!map) return;
 
+    const beforeId = getFirstLabelId(map);
     const sourceId = `mvt-source-${config.id}`;
 
     if (!map.getSource(sourceId)) {
@@ -103,14 +114,17 @@ export function useMapLayers() {
         layerSpec.filter = def.filter;
       }
 
-      map.addLayer(layerSpec as any);
+      map.addLayer(layerSpec as any, beforeId);
     }
+
+    bringLabelsToTop(map);
   }
 
   function addCogLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
     const map = mapRef.current?.getMap();
     if (!map) return;
 
+    const beforeId = getFirstLabelId(map);
     const sourceId = `cog-source-${config.id}`;
     const layerId = `cog-layer-${config.id}`;
 
@@ -120,13 +134,18 @@ export function useMapLayers() {
         url: `cog://${config.source}`,
         tileSize: 256,
       });
-      map.addLayer({
-        id: layerId,
-        source: sourceId,
-        type: "raster",
-        paint: { "raster-opacity": config.style.opacity ?? 1 },
-      });
+      map.addLayer(
+        {
+          id: layerId,
+          source: sourceId,
+          type: "raster",
+          paint: { "raster-opacity": config.style.opacity ?? 1 },
+        },
+        beforeId,
+      );
     }
+
+    bringLabelsToTop(map);
   }
 
   function removeLayer(layerId: string, mapRef: React.RefObject<MapRef | null>) {

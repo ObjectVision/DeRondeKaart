@@ -4,6 +4,7 @@ import { Map, useControl } from "react-map-gl/maplibre";
 import type { MapRef, ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import maplibregl from "maplibre-gl";
+import type { Map as MapLibreMap, LayerSpecification } from "maplibre-gl";
 import { cogProtocol } from "@geomatico/maplibre-cog-protocol";
 import "maplibre-gl/dist/maplibre-gl.css";
 
@@ -17,6 +18,56 @@ export const INITIAL_VIEW_STATE = {
   pitch: 0,
   bearing: 0,
 };
+
+/** URL of the no-labels Positron basemap rendered as the background style. */
+const BASE_STYLE_URL = "/positron-no-labels.json";
+/** URL of the labels-only style; its layers are appended on top of user data. */
+const LABELS_STYLE_URL = "/positron-labels.json";
+
+/** Hidden tag we attach to a map after labels have been added, listing their ids. */
+type LabelTaggedMap = MapLibreMap & { __labelLayerIds?: string[] };
+
+/** Fetch positron-labels.json and add its symbol layers on top of the current style. Idempotent. */
+async function loadLabelLayers(map: MapLibreMap) {
+  const tagged = map as LabelTaggedMap;
+  if (tagged.__labelLayerIds) return;
+  const resp = await fetch(LABELS_STYLE_URL);
+  if (!resp.ok) {
+    console.warn(`Failed to load labels style: ${resp.statusText}`);
+    return;
+  }
+  const style = (await resp.json()) as { layers: LayerSpecification[] };
+  const ids: string[] = [];
+  for (const layer of style.layers) {
+    if (map.getLayer(layer.id)) continue;
+    map.addLayer(layer);
+    ids.push(layer.id);
+  }
+  tagged.__labelLayerIds = ids;
+}
+
+/**
+ * Move every label layer back to the top of the maplibre layer stack. Called
+ * as a safety net when a user-data insertion path can't pass `beforeId`.
+ * No-op until labels have been loaded.
+ */
+export function bringLabelsToTop(map: MapLibreMap) {
+  const ids = (map as LabelTaggedMap).__labelLayerIds;
+  if (!ids) return;
+  for (const id of ids) {
+    if (map.getLayer(id)) map.moveLayer(id);
+  }
+}
+
+/**
+ * Return the id of the first (lowest) label layer if labels have been loaded.
+ * Pass this as `beforeId` when inserting user data layers so they sit below
+ * the label stack deterministically — surviving deck.gl's deferred inserts.
+ */
+export function getFirstLabelId(map: MapLibreMap): string | undefined {
+  const ids = (map as LabelTaggedMap).__labelLayerIds;
+  return ids && ids.length > 0 ? ids[0] : undefined;
+}
 
 function DeckGLOverlay(
   props: { layers: Layer[]; overlayRef: React.RefObject<MapboxOverlay | null> },
@@ -76,6 +127,19 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       return () => window.removeEventListener("map:flyto", onFlyTo);
     }, []);
 
+    // Whenever the deck.gl layer set changes the interleaved overlay re-syncs
+    // them into the maplibre style at the top — push labels back above them.
+    useEffect(() => {
+      const map = mapRef.current?.getMap();
+      if (map) bringLabelsToTop(map);
+    }, [layers]);
+
+    function handleLoad() {
+      const map = mapRef.current?.getMap();
+      if (map) loadLabelLayers(map).then(() => bringLabelsToTop(map));
+      onLoad?.();
+    }
+
     const mapProps: Record<string, unknown> = {};
     if (viewState) {
       Object.assign(mapProps, viewState);
@@ -88,10 +152,10 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         ref={mapRef}
         {...mapProps}
         style={style ?? { width: "100%", height: "100%" }}
-        mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+        mapStyle={BASE_STYLE_URL}
         dragRotate={false}
         pitchWithRotate={false}
-        onLoad={onLoad}
+        onLoad={handleLoad}
         onMove={onMove}
         onClick={onClick}
       >
