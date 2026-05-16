@@ -79,6 +79,21 @@
       }
     },
     {
+      "id": "vrz-limburg",
+      "name": "VRZ Limburg 2026",
+      "source": "https://data.woonzorglimburg.nl/parquet/vrz_limburg_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "point",
+      "style": {
+        "color": [220, 38, 38, 200],
+        "opacity": 0.9,
+        "radius": 4
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>Type: [[ type ]]<br/>Bedden: [[ bedden ]]<br/>[[ postcode ]] [[ plaats ]]</div>"
+      }
+    },
+    {
       "id": "example-mvt",
       "name": "OpenMapTiles",
       "source": "https://demotiles.maplibre.org/tiles/{z}/{x}/{y}.pbf",
