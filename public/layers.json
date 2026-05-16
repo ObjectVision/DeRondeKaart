@@ -94,6 +94,35 @@
       }
     },
     {
+      "id": "huisarts",
+      "name": "Huisartsen",
+      "source": "https://data.woonzorglimburg.nl/parquet/vrz_limburg_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "point",
+      "geostyler": {
+        "name": "Huisartsen",
+        "rules": [
+          {
+            "name": "Huisarts",
+            "filter": ["==", "type", 8],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#2f9a52",
+                "radius": 5,
+                "strokeColor": "#ffffff",
+                "strokeWidth": 1
+              }
+            ]
+          }
+        ]
+      },
+      "style": { "opacity": 1 },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
+      }
+    },
+    {
       "id": "example-mvt",
       "name": "OpenMapTiles",
       "source": "https://demotiles.maplibre.org/tiles/{z}/{x}/{y}.pbf",

@@ -19,10 +19,10 @@ export const INITIAL_VIEW_STATE = {
   bearing: 0,
 };
 
-/** URL of the no-labels Positron basemap rendered as the background style. */
-const BASE_STYLE_URL = "/positron-no-labels.json";
-/** URL of the labels-only style; its layers are appended on top of user data. */
-const LABELS_STYLE_URL = "/positron-labels.json";
+/** URL of the Positron basemap (no labels, roads, or water) rendered as the background style. */
+const BASE_STYLE_URL = "/positron-base.json";
+/** URL of the Positron overlay (labels, roads, water); its layers are appended on top of user data. */
+const LABELS_STYLE_URL = "/positron-overlay.json";
 
 /** Hidden tag we attach to a map after labels have been added, listing their ids. */
 type LabelTaggedMap = MapLibreMap & { __labelLayerIds?: string[] };
