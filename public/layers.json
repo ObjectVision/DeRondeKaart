@@ -96,7 +96,7 @@
     {
       "id": "huisarts",
       "name": "Huisartsen",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_limburg_2026.parquet",
+      "source": "https://data.woonzorglimburg.nl/parquet/huisarts_2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
       "geostyler": {
@@ -104,7 +104,6 @@
         "rules": [
           {
             "name": "Huisarts",
-            "filter": ["==", "type", 8],
             "symbolizers": [
               {
                 "kind": "Mark",
