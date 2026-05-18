@@ -95,28 +95,15 @@
     },
     {
       "id": "huisarts",
-      "name": "Huisartsen",
+      "name": "huisarts",
       "source": "https://data.woonzorglimburg.nl/parquet/huisarts_2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
-      "geostyler": {
-        "name": "Huisartsen",
-        "rules": [
-          {
-            "name": "Huisarts",
-            "symbolizers": [
-              {
-                "kind": "Mark",
-                "color": "#2f9a52",
-                "radius": 5,
-                "strokeColor": "#ffffff",
-                "strokeWidth": 1
-              }
-            ]
-          }
-        ]
+      "style": {
+        "color": [255, 69, 0, 150],
+        "opacity": 0.8,
+        "lineWidth": 1
       },
-      "style": { "opacity": 1 },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
       }
