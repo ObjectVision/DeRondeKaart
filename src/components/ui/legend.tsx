@@ -149,7 +149,9 @@ export function Legend({
   onToggleRuleB,
   comparisonMode,
 }: LegendProps) {
-  if (entriesA.length === 0 && entriesB.length === 0) return null;
+  const visibleA = entriesA.filter((e) => !e.config.excludeFromLegend);
+  const visibleB = entriesB.filter((e) => !e.config.excludeFromLegend);
+  if (visibleA.length === 0 && visibleB.length === 0) return null;
 
   return (
     <div className="absolute bottom-2 left-2 z-30 max-h-[50vh] overflow-y-auto rounded-lg bg-white/90 p-2 shadow-md backdrop-blur-sm sm:bottom-4 sm:left-4 sm:p-3">
@@ -160,7 +162,7 @@ export function Legend({
         <div className="flex flex-col gap-2">
           <LayerList
             label="Map A"
-            entries={entriesA}
+            entries={visibleA}
             hiddenIds={hiddenIdsA}
             hiddenRules={hiddenRulesA}
             onToggle={onToggleA}
@@ -168,7 +170,7 @@ export function Legend({
           />
           <LayerList
             label="Map B"
-            entries={entriesB}
+            entries={visibleB}
             hiddenIds={hiddenIdsB}
             hiddenRules={hiddenRulesB}
             onToggle={onToggleB}
@@ -177,7 +179,7 @@ export function Legend({
         </div>
       ) : (
         <LayerList
-          entries={entriesA}
+          entries={visibleA}
           hiddenIds={hiddenIdsA}
           hiddenRules={hiddenRulesA}
           onToggle={onToggleA}
