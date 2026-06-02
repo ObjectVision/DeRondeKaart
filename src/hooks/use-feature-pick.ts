@@ -30,9 +30,12 @@ export function useFeaturePick(
     (event: MapLayerMouseEvent) => {
       const featuresByLayer = new Map<string, PickedFeature[]>();
 
-      // Only pick from layers that have featureinfo configured
+      // Only pick from layers that have featureinfo configured and aren't excluded from picking
       const infoEntries = layerEntries.filter(
-        (e) => e.config.featureinfo && e.config.format !== "cog",
+        (e) =>
+          e.config.featureinfo &&
+          e.config.format !== "cog" &&
+          !e.config.excludeFromPicking,
       );
       if (infoEntries.length === 0) {
         setResult(null);

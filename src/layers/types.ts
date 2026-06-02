@@ -83,6 +83,10 @@ export interface LayerConfig {
   style: LayerStyle;
   /** HTML template for feature click popups */
   featureinfo?: FeatureInfoConfig;
+  /** If true, the layer is rendered on the map but hidden from the legend */
+  excludeFromLegend?: boolean;
+  /** If true, the layer is rendered on the map but excluded from feature picking — clicks produce no popup for it */
+  excludeFromPicking?: boolean;
 }
 
 export interface LayersFile {
