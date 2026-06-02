@@ -291,6 +291,47 @@
       }
     },
     {
+      "id": "studiegebied_limburg",
+      "name": "Studiegebied Noord- en Midden-Limburg",
+      "source": "https://data.woonzorglimburg.nl/parquet/studyarea_NoordMiddenLimburg.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "excludeFromComparison": true,
+      "excludeFromLegend": true,
+      "excludeFromPicking": true,
+      "geostyler": {
+        "name": "Studiegebied",
+        "rules": [
+          {
+            "name": "1",
+            "filter": ["==", "id", 2],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#00000000",
+                "outlineColor": "#0000FF",
+                "outlineWidth": 1.5
+              }
+            ]
+          },
+          {
+            "name": "2",
+            "filter": ["==", "id", 1],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#00000033",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 1
+      }
+    },
+    {
       "id": "example-cog",
       "name": "Example COG",
       "source": "https://maplibre.org/maplibre-gl-js/docs/assets/cog.tif",
