@@ -31,6 +31,9 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     geostyler: (layer.geostyler as LayerConfig["geostyler"]) ?? undefined,
     style: (layer.style as LayerConfig["style"]) ?? {},
     featureinfo: (layer.featureinfo as LayerConfig["featureinfo"]) ?? undefined,
+    excludeFromLegend: (layer.excludeFromLegend as boolean) ?? undefined,
+    excludeFromPicking: (layer.excludeFromPicking as boolean) ?? undefined,
+    excludeFromComparison: (layer.excludeFromComparison as boolean) ?? undefined,
   };
 }
 
