@@ -308,6 +308,26 @@ export function useMapLayers() {
     [],
   );
 
+  /**
+   * Retroactively set the beforeId on every existing deck.gl layer to the
+   * first label id. Called once labels finish loading on a map. Without this,
+   * any deck.gl layer constructed before labels were loaded (e.g. the first
+   * layer added to Map B) has beforeId=undefined and deck.gl's resolveLayers
+   * permanently keeps it at the top of the style — above labels.
+   */
+  const applyLabelBeforeId = useCallback(
+    (mapRef: React.RefObject<MapRef | null>) => {
+      const map = mapRef.current?.getMap();
+      if (!map) return;
+      const beforeId = getFirstLabelId(map);
+      if (!beforeId) return;
+      setDeckLayers((prev) =>
+        prev.map((l) => l.clone({ beforeId } as Record<string, unknown>)),
+      );
+    },
+    [],
+  );
+
   return {
     layerEntries,
     deckLayers,
@@ -319,6 +339,7 @@ export function useMapLayers() {
     toggleLayer,
     toggleRule,
     syncImperativeLayers,
+    applyLabelBeforeId,
   };
 }
 

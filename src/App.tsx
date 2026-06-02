@@ -98,6 +98,16 @@ function App() {
     [mapBLayers],
   );
 
+  const handleMapALabelsReady = useCallback(() => {
+    const ref = mapARef.current?.mapRef;
+    if (ref) mapALayers.applyLabelBeforeId(ref);
+  }, [mapALayers]);
+
+  const handleMapBLabelsReady = useCallback(() => {
+    const ref = mapBRef.current?.mapRef;
+    if (ref) mapBLayers.applyLabelBeforeId(ref);
+  }, [mapBLayers]);
+
   const handleZoomIn = useCallback(() => {
     setViewState((prev) => ({ ...prev, zoom: prev.zoom + 1 }));
   }, []);
@@ -125,6 +135,7 @@ function App() {
           onMove={handleMove}
           onClick={pickA.handleClick}
           onLoad={() => setMapAReady(true)}
+          onLabelsReady={handleMapALabelsReady}
         />
       </div>
 
@@ -147,6 +158,7 @@ function App() {
             onMove={handleMove}
             onClick={pickB.handleClick}
             onLoad={handleMapBLoad}
+            onLabelsReady={handleMapBLabelsReady}
           />
         </div>
       )}
