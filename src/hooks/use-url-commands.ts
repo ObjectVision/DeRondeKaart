@@ -9,10 +9,16 @@ interface MapSide {
   mapRef: React.RefObject<{ mapRef: React.RefObject<MapRef | null> } | null>;
 }
 
+export interface ViewUpdate {
+  zoom?: number;
+  center?: [number, number]; // [longitude, latitude]
+}
+
 interface UseUrlCommandsOptions {
   mapA: MapSide;
   mapB: MapSide;
   ready: boolean;
+  applyView: (view: ViewUpdate) => void;
 }
 
 interface LayerCommand {
@@ -21,8 +27,43 @@ interface LayerCommand {
   layer?: string;
 }
 
-function parseCommands(paramString: string): LayerCommand[] {
-  const params = new URLSearchParams(paramString);
+function parseView(params: URLSearchParams): ViewUpdate {
+  const out: ViewUpdate = {};
+
+  const zoomRaw = params.get("zoom");
+  if (zoomRaw !== null) {
+    const z = Number(zoomRaw);
+    if (Number.isFinite(z)) out.zoom = Math.max(0, Math.min(22, z));
+    else console.warn(`Invalid zoom value: "${zoomRaw}"`);
+  }
+
+  const centerRaw = params.get("center");
+  if (centerRaw !== null) {
+    const parts = centerRaw.split(",");
+    if (parts.length === 2) {
+      const lng = Number(parts[0]);
+      const lat = Number(parts[1]);
+      if (
+        Number.isFinite(lng) &&
+        Number.isFinite(lat) &&
+        lng >= -180 &&
+        lng <= 180 &&
+        lat >= -85.05112878 &&
+        lat <= 85.05112878
+      ) {
+        out.center = [lng, lat];
+      } else {
+        console.warn(`Invalid center value: "${centerRaw}"`);
+      }
+    } else {
+      console.warn(`center must be "lng,lat", got: "${centerRaw}"`);
+    }
+  }
+
+  return out;
+}
+
+function parseCommands(params: URLSearchParams): LayerCommand[] {
   const commands: LayerCommand[] = [];
 
   const cmdValues = params.getAll("cmd");
@@ -47,7 +88,7 @@ function parseCommands(paramString: string): LayerCommand[] {
   return commands;
 }
 
-export function useUrlCommands({ mapA, mapB, ready }: UseUrlCommandsOptions) {
+export function useUrlCommands({ mapA, mapB, ready, applyView }: UseUrlCommandsOptions) {
   const configsRef = useRef<LayerConfig[] | null>(null);
   const processedInitialHash = useRef(false);
 
@@ -100,13 +141,18 @@ export function useUrlCommands({ mapA, mapB, ready }: UseUrlCommandsOptions) {
     const hash = window.location.hash.slice(1); // remove leading #
     if (!hash) return;
 
-    const commands = parseCommands(hash);
-    if (commands.length > 0) {
-      processCommands(commands);
+    const params = new URLSearchParams(hash);
+    const commands = parseCommands(params);
+    const view = parseView(params);
+    const hasView = view.zoom !== undefined || view.center !== undefined;
+
+    if (commands.length > 0 || hasView) {
+      if (hasView) applyView(view);
+      if (commands.length > 0) processCommands(commands);
       // Clear the hash after processing (without reload or hashchange event)
       window.history.replaceState({}, "", window.location.pathname + window.location.search);
     }
-  }, [processCommands]);
+  }, [processCommands, applyView]);
 
   // Process hash params on mount (once ready) and on hashchange
   useEffect(() => {
@@ -133,7 +179,14 @@ export function useUrlCommands({ mapA, mapB, ready }: UseUrlCommandsOptions) {
       if (!event.data || typeof event.data !== "object") return;
       if (event.data.type !== "map-command") return;
 
-      const { commands } = event.data as { type: string; commands: LayerCommand[] };
+      const { commands, view } = event.data as {
+        type: string;
+        commands?: LayerCommand[];
+        view?: ViewUpdate;
+      };
+      if (view && (view.zoom !== undefined || view.center !== undefined)) {
+        applyView(view);
+      }
       if (Array.isArray(commands)) {
         processCommands(commands);
       }
@@ -141,5 +194,5 @@ export function useUrlCommands({ mapA, mapB, ready }: UseUrlCommandsOptions) {
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [processCommands]);
+  }, [processCommands, applyView]);
 }

@@ -87,6 +87,8 @@ export interface LayerConfig {
   excludeFromLegend?: boolean;
   /** If true, the layer is rendered on the map but excluded from feature picking — clicks produce no popup for it */
   excludeFromPicking?: boolean;
+  /** If true, presence of this layer on BOTH maps suppresses comparison mode (slider hides, Map B is not rendered) */
+  excludeFromComparison?: boolean;
 }
 
 export interface LayersFile {
