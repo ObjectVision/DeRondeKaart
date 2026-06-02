@@ -22,6 +22,8 @@
     button.hide:hover { background: #fffbeb; }
     button.refresh { border-color: #93c5fd; color: #1e40af; }
     button.refresh:hover { background: #eff6ff; }
+    button.view { border-color: #c4b5fd; color: #5b21b6; }
+    button.view:hover { background: #f5f3ff; }
     iframe { flex: 1; border: 1px solid #d1d5db; border-radius: 8px; background: #fff; }
     .log { font-size: 12px; color: #6b7280; padding: 4px 0; max-height: 40px; overflow-y: auto; }
   </style>
@@ -79,6 +81,21 @@
     </div>
 
     <div class="group">
+      <h2>View</h2>
+      <div class="buttons">
+        <button class="view" onclick="sendView({ zoom: 6 })">Zoom 6</button>
+        <button class="view" onclick="sendView({ zoom: 8 })">Zoom 8</button>
+        <button class="view" onclick="sendView({ zoom: 10 })">Zoom 10</button>
+        <button class="view" onclick="sendView({ zoom: 12 })">Zoom 12</button>
+        <button class="view" onclick="sendView({ center: [5.7, 51.0] })">Center Limburg</button>
+        <button class="view" onclick="sendView({ center: [4.9, 52.37] })">Center Amsterdam</button>
+        <button class="view" onclick="sendView({ center: [5.0, 52.0] })">Center NL</button>
+        <button class="view" onclick="sendView({ zoom: 9, center: [5.7, 51.0] })">Limburg @ 9</button>
+        <button class="view" onclick="sendView({ zoom: 11, center: [5.69, 50.85] })">Maastricht @ 11</button>
+      </div>
+    </div>
+
+    <div class="group">
       <h2>Global</h2>
       <div class="buttons">
         <button class="refresh" onclick="send('refresh')">Refresh</button>
@@ -105,6 +122,15 @@
       );
 
       log.textContent = `Sent: ${JSON.stringify(command)}`;
+    }
+
+    function sendView(view) {
+      iframe.contentWindow.postMessage(
+        { type: 'map-command', view },
+        '*'
+      );
+
+      log.textContent = `Sent view: ${JSON.stringify(view)}`;
     }
   </script>
 </body>

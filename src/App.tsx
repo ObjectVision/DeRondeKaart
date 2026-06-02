@@ -4,7 +4,7 @@ import { MapView, INITIAL_VIEW_STATE } from "@/components/map/MapView";
 import type { MapViewHandle } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
 import { useFeaturePick } from "@/hooks/use-feature-pick";
-import { useUrlCommands } from "@/hooks/use-url-commands";
+import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
 import { Legend } from "@/components/ui/legend";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { MapControls } from "@/components/ui/map-controls";
@@ -25,20 +25,34 @@ function App() {
   const pickA = useFeaturePick(mapALayers.layerEntries, mapARef);
   const pickB = useFeaturePick(mapBLayers.layerEntries, mapBRef);
 
+  const applyView = useCallback((view: ViewUpdate) => {
+    setViewState((s) => ({
+      ...s,
+      ...(view.zoom !== undefined ? { zoom: view.zoom } : {}),
+      ...(view.center ? { longitude: view.center[0], latitude: view.center[1] } : {}),
+    }));
+  }, []);
+
   // Process URL commands for layer management (only after Map A is ready)
   useUrlCommands({
     mapA: { layers: mapALayers, mapRef: mapARef },
     mapB: { layers: mapBLayers, mapRef: mapBRef },
     ready: mapAReady,
+    applyView,
   });
 
   const hasMapALayers = mapALayers.layerEntries.length > 0;
   const hasMapBLayers = mapBLayers.layerEntries.length > 0;
-  const comparisonMode = hasMapALayers && hasMapBLayers;
-  // Mount Map B as soon as B has any layers of its own — otherwise imperative
-  // layer adds (MVT/COG) silently no-op against a null ref and deck.gl layers
-  // sit in state with no map to render in. See repo issue #1.
-  const showMapB = hasMapBLayers;
+
+  // Comparison requires Map B to contain at least one non-flagged layer.
+  const hasComparableLayerOnB = mapBLayers.layerEntries.some(
+    (e) => !e.config.excludeFromComparison,
+  );
+
+  const comparisonMode = hasMapALayers && hasMapBLayers && hasComparableLayerOnB;
+  // Mount Map B only when it has a comparable layer — flagged-only B has nothing
+  // meaningful to compare and is hidden alongside the slider.
+  const showMapB = hasMapBLayers && hasComparableLayerOnB;
 
   // Once Map B's MapLibre style is loaded, replay any imperative MVT/COG
   // entries that addLayer attempted before the map existed. Idempotent.
@@ -180,7 +194,7 @@ function App() {
       <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
 
       {/* Kaart A/B identification pills — top left/right */}
-      <MapPills activeA={hasMapALayers} activeB={hasMapBLayers} />
+      <MapPills activeA={hasMapALayers} activeB={showMapB} />
     </div>
   );
 }
