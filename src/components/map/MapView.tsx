@@ -46,14 +46,25 @@ async function loadLabelLayers(map: MapLibreMap) {
   tagged.__labelLayerIds = ids;
 }
 
+function labelsAreAtTop(map: MapLibreMap): boolean {
+  const ids = (map as LabelTaggedMap).__labelLayerIds;
+  if (!ids || ids.length === 0) return true;
+  const styleLayers = map.getStyle().layers ?? [];
+  if (styleLayers.length < ids.length) return false;
+  const labelSet = new Set(ids);
+  return styleLayers.slice(-ids.length).every((l) => labelSet.has(l.id));
+}
+
 /**
  * Move every label layer back to the top of the maplibre layer stack. Called
  * as a safety net when a user-data insertion path can't pass `beforeId`.
- * No-op until labels have been loaded.
+ * No-op until labels have been loaded, and no-op when already at the top
+ * (safe to call from high-frequency listeners like `styledata`).
  */
 export function bringLabelsToTop(map: MapLibreMap) {
   const ids = (map as LabelTaggedMap).__labelLayerIds;
   if (!ids) return;
+  if (labelsAreAtTop(map)) return;
   for (const id of ids) {
     if (map.getLayer(id)) map.moveLayer(id);
   }
@@ -109,10 +120,11 @@ interface MapViewProps {
   onMove?: (evt: ViewStateChangeEvent) => void;
   onClick?: (evt: MapLayerMouseEvent) => void;
   onLoad?: () => void;
+  onLabelsReady?: (map: MapLibreMap) => void;
 }
 
 export const MapView = forwardRef<MapViewHandle, MapViewProps>(
-  function MapView({ layers, style, viewState, onMove, onClick, onLoad }, ref) {
+  function MapView({ layers, style, viewState, onMove, onClick, onLoad, onLabelsReady }, ref) {
     const mapRef = useRef<MapRef>(null);
     const overlayRef = useRef<MapboxOverlay | null>(null);
 
@@ -136,7 +148,12 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
 
     function handleLoad() {
       const map = mapRef.current?.getMap();
-      if (map) loadLabelLayers(map).then(() => bringLabelsToTop(map));
+      if (map) {
+        loadLabelLayers(map).then(() => {
+          bringLabelsToTop(map);
+          onLabelsReady?.(map);
+        });
+      }
       onLoad?.();
     }
 
