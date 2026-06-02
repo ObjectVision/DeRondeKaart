@@ -41,6 +41,85 @@ Preview the production build locally:
 npm run preview
 ```
 
+## URL parameters
+
+The map is driven by URL hash parameters (everything after `#`). Hash params are processed on load and whenever the hash changes — embeds can mutate the iframe's `src` to push new commands without reloading. The hash is cleared after processing.
+
+The same commands can also be sent via `postMessage` to the iframe (see `test-embed.html`); the parameter names match the URL form.
+
+### Layer commands
+
+Layer commands come as three index-aligned, repeating parameters:
+
+| Param | Required for | Values |
+|---|---|---|
+| `cmd` | all | `add`, `remove`, `hide`, `refresh` |
+| `map` | add/remove/hide | `a` or `b` (defaults to `a` if omitted) |
+| `layer` | add/remove/hide | a layer `id` from `public/layers.json` |
+
+The Nth `cmd` pairs with the Nth `map` and Nth `layer`. Commands are applied in order.
+
+**Examples**
+
+Add the Wijken layer to map A on load:
+
+```
+http://localhost:5173/#cmd=add&map=a&layer=gemeente
+```
+
+Add a layer to each side — comparison mode activates automatically:
+
+```
+http://localhost:5173/#cmd=add&map=a&layer=gemeente&cmd=add&map=b&layer=wijken-limburg-parquet
+```
+
+Remove a layer:
+
+```
+http://localhost:5173/#cmd=remove&map=a&layer=gemeente
+```
+
+Hide a layer (keeps it loaded but invisible — toggle from the legend to re-show):
+
+```
+http://localhost:5173/#cmd=hide&map=a&layer=gemeente
+```
+
+Force a full page reload (no `map`/`layer` needed):
+
+```
+http://localhost:5173/#cmd=refresh
+```
+
+### View commands
+
+`zoom` and `center` set the camera. They can be combined with each other and with layer commands.
+
+| Param | Format | Range |
+|---|---|---|
+| `zoom` | number | `0`–`22` |
+| `center` | `lng,lat` | lng `-180`–`180`, lat `-85.05`–`85.05` |
+
+**Examples**
+
+Zoom to 10:
+
+```
+http://localhost:5173/#zoom=10
+```
+
+Center on Maastricht:
+
+```
+http://localhost:5173/#center=5.69,50.85
+```
+
+Add a layer and frame Limburg in one URL:
+
+```
+http://localhost:5173/#cmd=add&map=a&layer=gemeente&zoom=9&center=5.7,51.0
+```
+
 ## React Compiler
 
 The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
