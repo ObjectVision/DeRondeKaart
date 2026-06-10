@@ -291,6 +291,128 @@
       }
     },
     {
+      "id": "veerkracht_limburg",
+      "name": "Veerkracht",
+      "source": "https://data.woonzorglimburg.nl/parquet/veerkracht_limburg_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "afname problemen",
+            "filter": ["==", "COMBI1824", 1],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#697bd4",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0
+              }
+            ]
+          },
+          {
+            "name": "geen afname problemen",
+            "filter": ["==", "COMBI1824", 2],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c0c4de",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 1
+              }
+            ]
+          },
+          {
+            "name": "kwetsbare bewoners ongeveer gelijk",
+            "filter": ["==", "COMBI1824", 3],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#e1e1e1",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "weinig veerkracht, beperkte problemen",
+            "filter": ["==", "COMBI1824", 4],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffbebe",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "weinig veerkracht, vrij veel problemen",
+            "filter": ["==", "COMBI1824", 5],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ff0000",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "weinig veerkracht, veel problemen",
+            "filter": ["==", "COMBI1824", 6],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#b30000",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "enige veerkracht",
+            "filter": ["==", "COMBI1824", 7],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#e8ffa9",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "veerkracht",
+            "filter": ["==", "COMBI1824", 8],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#91d0a1",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>COMBI1824: [[ COMBI1824 ]]</b></div>"
+      }
+    },
+    {
       "id": "studiegebied_limburg",
       "name": "Studiegebied Noord- en Midden-Limburg",
       "source": "https://data.woonzorglimburg.nl/parquet/studyarea_NoordMiddenLimburg.parquet",
