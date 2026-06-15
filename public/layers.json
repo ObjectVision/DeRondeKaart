@@ -1283,8 +1283,8 @@
       }
     },
     {
-      "id": "beschermd wonen en/of MO",
-      "name": "verstandelijke handicap",
+      "id": "BW_MO",
+      "name": "beschermd wonen en/of maatschappelijke opvang",
       "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
       "format": "parquet",
       "geometryType": "point",
