@@ -516,12 +516,39 @@
         "rules": [
           {
             "name": "1",
+            "filter": ["==", "id", 1],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFFF",
+                "opacity": 0.8,
+                "outlineColor": "#183A59",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "3",
+            "filter": ["==", "id", 3],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFFF",
+                "opacity": 0.1,
+                "outlineColor": "#183A59",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2",
             "filter": ["==", "id", 2],
             "symbolizers": [
               {
                 "kind": "Fill",
                 "color": "#00000000",
-                "outlineColor": "#0000FF",
+                "outlineColor": "#183A59",
+                "outlineOpacity": 1.0,
                 "outlineWidth": 2
               }
             ]
