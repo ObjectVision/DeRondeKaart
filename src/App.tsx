@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import type { ViewStateChangeEvent } from "react-map-gl/maplibre";
-import { MapView, INITIAL_VIEW_STATE } from "@/components/map/MapView";
-import type { MapViewHandle } from "@/components/map/MapView";
+import { MapView } from "@/components/map/MapView";
+import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
 import { useFeaturePick } from "@/hooks/use-feature-pick";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
@@ -11,14 +11,14 @@ import { MapControls } from "@/components/ui/map-controls";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 import { MapPills } from "@/components/ui/map-pills";
 
-function App() {
+function App({ initialViewState }: { initialViewState: ViewState }) {
   const mapALayers = useMapLayers();
   const mapBLayers = useMapLayers();
   const mapARef = useRef<MapViewHandle>(null);
   const mapBRef = useRef<MapViewHandle>(null);
   const [mapAReady, setMapAReady] = useState(false);
 
-  const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
+  const [viewState, setViewState] = useState(initialViewState);
   const [sliderPosition, setSliderPosition] = useState(50);
 
   // Feature picking for each map
