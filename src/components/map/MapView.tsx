@@ -27,7 +27,11 @@ const BASE_STYLE_URL = "/positron-base.json";
 const LABELS_STYLE_URL = "/positron-overlay.json";
 
 /** Hidden tag we attach to a map after labels have been added, listing their ids. */
-type LabelTaggedMap = MapLibreMap & { __labelLayerIds?: string[] };
+type LabelTaggedMap = MapLibreMap & {
+  __labelLayerIds?: string[];
+  /** Deck layer ids of the always-on-top study-area layer, kept above labels. */
+  __studyareaLayerIds?: string[];
+};
 
 /** Fetch positron-labels.json and add its symbol layers on top of the current style. Idempotent. */
 async function loadLabelLayers(map: MapLibreMap) {
@@ -67,6 +71,20 @@ export function bringLabelsToTop(map: MapLibreMap) {
   const ids = (map as LabelTaggedMap).__labelLayerIds;
   if (!ids) return;
   if (labelsAreAtTop(map)) return;
+  for (const id of ids) {
+    if (map.getLayer(id)) map.moveLayer(id);
+  }
+}
+
+/**
+ * Move the study-area layers back to the very top of the maplibre stack — above
+ * the labels. Must be called immediately AFTER `bringLabelsToTop`, since that
+ * moves labels above all interleaved deck layers (including the study area).
+ * No-op until the study area is registered. Safe to call repeatedly.
+ */
+export function bringStudyareaToTop(map: MapLibreMap) {
+  const ids = (map as LabelTaggedMap).__studyareaLayerIds;
+  if (!ids || ids.length === 0) return;
   for (const id of ids) {
     if (map.getLayer(id)) map.moveLayer(id);
   }
@@ -117,6 +135,8 @@ export function updateDeckLayer(
 
 interface MapViewProps {
   layers: Layer[];
+  /** Always-on-top layers (e.g. the study area), pinned above the basemap labels. */
+  topLayers?: Layer[];
   style?: React.CSSProperties;
   viewState?: Record<string, unknown>;
   onMove?: (evt: ViewStateChangeEvent) => void;
@@ -126,7 +146,7 @@ interface MapViewProps {
 }
 
 export const MapView = forwardRef<MapViewHandle, MapViewProps>(
-  function MapView({ layers, style, viewState, onMove, onClick, onLoad, onLabelsReady }, ref) {
+  function MapView({ layers, topLayers, style, viewState, onMove, onClick, onLoad, onLabelsReady }, ref) {
     const mapRef = useRef<MapRef>(null);
     const overlayRef = useRef<MapboxOverlay | null>(null);
 
@@ -142,17 +162,24 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
     }, []);
 
     // Whenever the deck.gl layer set changes the interleaved overlay re-syncs
-    // them into the maplibre style at the top — push labels back above them.
+    // them into the maplibre style at the top — push labels back above them,
+    // then re-pin the study area above the labels. Also keep the map's record
+    // of which deck ids are the study-area layers in sync with topLayers.
     useEffect(() => {
       const map = mapRef.current?.getMap();
-      if (map) bringLabelsToTop(map);
-    }, [layers]);
+      if (!map) return;
+      (map as LabelTaggedMap).__studyareaLayerIds = (topLayers ?? []).map((l) => l.id);
+      bringLabelsToTop(map);
+      bringStudyareaToTop(map);
+    }, [layers, topLayers]);
 
     function handleLoad() {
       const map = mapRef.current?.getMap();
       if (map) {
+        (map as LabelTaggedMap).__studyareaLayerIds = (topLayers ?? []).map((l) => l.id);
         loadLabelLayers(map).then(() => {
           bringLabelsToTop(map);
+          bringStudyareaToTop(map);
           onLabelsReady?.(map);
         });
       }
@@ -178,7 +205,10 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         onMove={onMove}
         onClick={onClick}
       >
-        <DeckGLOverlay layers={layers} overlayRef={overlayRef} />
+        <DeckGLOverlay
+          layers={topLayers && topLayers.length > 0 ? [...layers, ...topLayers] : layers}
+          overlayRef={overlayRef}
+        />
       </Map>
     );
   },

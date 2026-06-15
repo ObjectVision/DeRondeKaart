@@ -8,7 +8,10 @@ async function bootstrap() {
   const mapConfig = await loadMapConfig()
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <App initialViewState={toInitialViewState(mapConfig)} />
+      <App
+        initialViewState={toInitialViewState(mapConfig)}
+        studyAreaId={mapConfig.studyarea}
+      />
     </StrictMode>,
   )
 }

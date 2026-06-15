@@ -6,6 +6,11 @@ export interface MapConfig {
   center: [number, number];
   /** Initial zoom level. */
   zoom: number;
+  /**
+   * Optional id (from layers.json) of a layer that is always loaded and pinned
+   * on top of every other layer — including the basemap labels — on both maps.
+   */
+  studyarea?: string;
 }
 
 /** Fallback view, matching the hardcoded INITIAL_VIEW_STATE in MapView.tsx. */
@@ -60,9 +65,17 @@ export async function loadMapConfig(): Promise<MapConfig> {
     console.warn(`map.json: invalid "zoom" ${JSON.stringify(data.zoom)}; using default`);
   }
 
+  let studyarea: string | undefined;
+  if (typeof data.studyarea === "string" && data.studyarea.length > 0) {
+    studyarea = data.studyarea;
+  } else if (data.studyarea !== undefined) {
+    console.warn(`map.json: invalid "studyarea" ${JSON.stringify(data.studyarea)}; ignoring`);
+  }
+
   return {
     center: center ?? DEFAULT_MAP_CONFIG.center,
     zoom: zoom ?? DEFAULT_MAP_CONFIG.zoom,
+    studyarea,
   };
 }
 

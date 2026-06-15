@@ -3,6 +3,7 @@ import type { ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { MapView } from "@/components/map/MapView";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
+import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
 import { useFeaturePick } from "@/hooks/use-feature-pick";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
 import { Legend } from "@/components/ui/legend";
@@ -11,9 +12,20 @@ import { MapControls } from "@/components/ui/map-controls";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 import { MapPills } from "@/components/ui/map-pills";
 
-function App({ initialViewState }: { initialViewState: ViewState }) {
+function App({
+  initialViewState,
+  studyAreaId,
+}: {
+  initialViewState: ViewState;
+  studyAreaId?: string;
+}) {
   const mapALayers = useMapLayers();
   const mapBLayers = useMapLayers();
+
+  // Always-on study area, pinned above everything (incl. labels) on both maps.
+  // Separate instances — Layer objects must not be shared across two Deck overlays.
+  const studyLayersA = useStudyAreaLayer(studyAreaId);
+  const studyLayersB = useStudyAreaLayer(studyAreaId);
   const mapARef = useRef<MapViewHandle>(null);
   const mapBRef = useRef<MapViewHandle>(null);
   const [mapAReady, setMapAReady] = useState(false);
@@ -130,6 +142,7 @@ function App({ initialViewState }: { initialViewState: ViewState }) {
         <MapView
           ref={mapARef}
           layers={mapALayers.deckLayers}
+          topLayers={studyLayersA}
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
           onMove={handleMove}
@@ -153,6 +166,7 @@ function App({ initialViewState }: { initialViewState: ViewState }) {
           <MapView
             ref={mapBRef}
             layers={mapBLayers.deckLayers}
+            topLayers={studyLayersB}
             style={{ width: "100%", height: "100%" }}
             viewState={viewState}
             onMove={handleMove}
