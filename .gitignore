@@ -62,3 +62,4 @@ data/vrz_locaties_limburg/parquet/ov_2026.parquet
 data/vrz_locaties_limburg/parquet/supermarkt_2026.parquet
 data/vrz_locaties_limburg/parquet/tandarts_2026.parquet
 data/vrz_locaties_limburg/parquet/ziekenhuis_2026.parquet
+data/.vscode/settings.json
