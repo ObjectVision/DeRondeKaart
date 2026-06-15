@@ -520,8 +520,8 @@
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#FFFFFF",
-                "opacity": 0.8,
+                "color": "#EBECF0",
+                "opacity": 0.5,
                 "outlineColor": "#183A59",
                 "outlineWidth": 0
               }
@@ -533,7 +533,7 @@
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#FFFFFF",
+                "color": "#EBECF0",
                 "opacity": 0.1,
                 "outlineColor": "#183A59",
                 "outlineWidth": 0
@@ -547,7 +547,7 @@
               {
                 "kind": "Fill",
                 "color": "#00000000",
-                "outlineColor": "#183A59",
+                "outlineColor": "#00498D",
                 "outlineOpacity": 1.0,
                 "outlineWidth": 2
               }
