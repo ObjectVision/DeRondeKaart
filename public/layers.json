@@ -413,6 +413,328 @@
       }
     },
     {
+      "id": "focus_limburg",
+      "name": "Focus",
+      "source": "https://data.woonzorglimburg.nl/parquet/veerkracht_limburg_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "weinig problemen, zeer weinig kwetsbaar",
+            "filter": ["==", "FOCUS24", 1],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#0a697f",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0
+              }
+            ]
+          },
+          {
+            "name": "weinig problemen, weinig kwetsbaar",
+            "filter": ["==", "FOCUS24", 2],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#7fc37e",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 1
+              }
+            ]
+          },
+          {
+            "name": "weinig problemen, veel kwetsbaar",
+            "filter": ["==", "FOCUS24", 3],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c7ffc7",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "bovengemiddelde problemen, zeer weinig kwetsbaar",
+            "filter": ["==", "FOCUS24", 4],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8faadc",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "bovengemiddelde problemen, weinig kwetsbaar",
+            "filter": ["==", "FOCUS24", 5],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffdca0",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "bovengemiddelde problemen, veel kwetsbaar",
+            "filter": ["==", "FOCUS24", 6],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#df874c",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "veel problemen, zeer weinig kwetsbaar",
+            "filter": ["==", "FOCUS24", 7],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#7d2dbb",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "veel problemen, weinig kwetsbaar",
+            "filter": ["==", "FOCUS24", 8],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#df8aa8",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "veel problemen, veel kwetsbaar",
+            "filter": ["==", "FOCUS24", 9],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ff0000",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "zeer veel problemen, zeer veel kwetsbaar",
+            "filter": ["==", "FOCUS24", 10],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c00000",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.7
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>FOCUS24: [[ FOCUS24 ]]</b></div>"
+      }
+    },
+    {
+      "id": "Sociaal_dominante_klasse",
+      "name": "Sociaal dominante klasse",
+      "source": "https://data.woonzorglimburg.nl/parquet/SDKLimburg2026.parquet",
+      "format": "parquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "werkende bovenlaag",
+            "filter": ["==", "data", 0],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1229DE",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "jonge kansrijken",
+            "filter": ["==", "data", 1],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A7FF74",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "rentenierende bovenlaag",
+            "filter": ["==", "data", 2],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8304A7",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "werkende middengroep",
+            "filter": ["==", "data", 3],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#02A883",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "laagopgeleid gepensioneerd",
+            "filter": ["==", "data", 4],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F4B1E0",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "onzekere werkenden",
+            "filter": ["==", "data", 5],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFB62B",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "precariaat",
+            "filter": ["==", "data", 6],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#BD0100",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "gemend bovenlaag",
+            "filter": ["==", "data", 7],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#002471",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "gemengd middengroep",
+            "filter": ["==", "data", 8],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#66CDA6",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "jonge kansrijken en onzekere werkenden",
+            "filter": ["==", "data", 9],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#BDD39B",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "onzekere werkenden en precariaat",
+            "filter": ["==", "data", 10],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#DC6E20",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "gemengde welvaart",
+            "filter": ["==", "data", 11],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#488F57",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>SDK: [[ data ]]</b></div>"
+      }
+    },
+    {
       "id": "loopafstand_ov",
       "name": "Loopafstand OV",
       "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_ov_2026_test.parquet",
@@ -598,6 +920,366 @@
       },
       "style": {
         "opacity": 1
+      }
+    },
+    {
+      "id": "verpleging_en_verzorging",
+      "name": "verpleging en verzorging",
+      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
+      "format": "parquet",
+      "geometryType": "point",
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "10 - 29 personen",
+            "filter": ["&&", [">=", "vvt", 10], ["<", "vvt", 30]],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#a310a8",
+                "radius": 6,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "30 - 59 personen",
+            "filter": ["&&", [">=", "vvt", 30], ["<", "vvt", 60]],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#a310a8",
+                "radius": 9,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "60 of meer personen",
+            "filter": [">=", "vvt", 60],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#a310a8",
+                "radius": 12,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      }
+    },
+    {
+      "id": "geestelijke_gezondheidszorg_B",
+      "name": "geestelijke gezondheidszorg B",
+      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
+      "format": "parquet",
+      "geometryType": "point",
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "10 - 19 personen",
+            "filter": ["&&", [">=", "ggzb", 10], ["<", "ggzb", 20]],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#73DFFF",
+                "radius": 6,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "20 - 49 personen",
+            "filter": ["&&", [">=", "ggzb", 20], ["<", "ggzb", 50]],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#73DFFF",
+                "radius": 8,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "50 of meer personen",
+            "filter": [">=", "ggzb", 50],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#73DFFF",
+                "radius": 12,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      }
+    },
+    {
+      "id": "geestelijke_gezondheidszorg_W",
+      "name": "geestelijke gezondheidszorg W",
+      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
+      "format": "parquet",
+      "geometryType": "point",
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "10 - 19 personen",
+            "filter": ["&&", [">=", "ggzw", 10], ["<", "ggzw", 20]],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#004DAD",
+                "radius": 6,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "20 - 49 personen",
+            "filter": ["&&", [">=", "ggzw", 20], ["<", "ggzw", 50]],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#004DAD",
+                "radius": 8,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "50 of meer personen",
+            "filter": [">=", "ggzw", 50],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#004DAD",
+                "radius": 12,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      }
+    },
+    {
+      "id": "licht_verstandelijke_beperking",
+      "name": "licht verstandelijke beperking",
+      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
+      "format": "parquet",
+      "geometryType": "point",
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "10 of meer personen",
+            "filter": [">=", "lvg", 10],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#FFFF0D",
+                "radius": 8,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      }
+    },
+    {
+      "id": "verstandelijke_handicap",
+      "name": "verstandelijke handicap",
+      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
+      "format": "parquet",
+      "geometryType": "point",
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "10 - 14 personen",
+            "filter": ["&&", [">=", "vg", 10], ["<", "vg", 15]],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#FFAA00",
+                "radius": 6,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "15 - 29 personen",
+            "filter": ["&&", [">=", "vg", 15], ["<", "vg", 30]],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#FFAA00",
+                "radius": 8,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "30 of meer personen",
+            "filter": [">=", "vg", 30],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#FFAA00",
+                "radius": 12,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      }
+    },
+    {
+      "id": "lichamelijke_handicap",
+      "name": "lichamelijke handicap",
+      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
+      "format": "parquet",
+      "geometryType": "point",
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "10 - 29 personen",
+            "filter": ["&&", [">=", "lg", 10], ["<=", "lg", 29]],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#DE0033",
+                "radius": 6,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "30 - 59 personen",
+            "filter": ["&&", [">=", "lg", 30], ["<=", "lg", 59]],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#DE0033",
+                "radius": 8,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "60 of meer personen",
+            "filter": [">=", "lg", 60],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#DE0033",
+                "radius": 12,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      }
+    },
+    {
+      "id": "zintuigelijke_handicap",
+      "name": "zintuigelijke handicap",
+      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
+      "format": "parquet",
+      "geometryType": "point",
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "10 of meer geregistreerd",
+            "filter": [">=", "zg", 10],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#808080",
+                "radius": 8,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
       }
     },
     {
