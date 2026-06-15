@@ -1283,6 +1283,66 @@
       }
     },
     {
+      "id": "beschermd wonen en/of MO",
+      "name": "verstandelijke handicap",
+      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
+      "format": "parquet",
+      "geometryType": "point",
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "10 personen",
+            "filter": ["==", "bw", 10],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#39AA00",
+                "radius": 6,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "11 - 25 personen",
+            "filter": ["&&", [">=", "bw", 11], ["<", "bw", 25]],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#39AA00",
+                "radius": 8,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "25 of meer personen",
+            "filter": [">=", "bw", 25],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#39AA00",
+                "radius": 12,
+                "strokeColor": "white",
+                "strokeWidth": 2,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      }
+    },
+    {
       "id": "example-cog",
       "name": "Example COG",
       "source": "https://maplibre.org/maplibre-gl-js/docs/assets/cog.tif",
