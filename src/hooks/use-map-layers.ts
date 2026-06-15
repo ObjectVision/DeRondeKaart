@@ -1,7 +1,7 @@
 import { useRef, useState, useCallback } from "react";
 import type { Layer } from "@deck.gl/core";
 import type { MapRef } from "react-map-gl/maplibre";
-import { bringLabelsToTop, getFirstLabelId } from "@/components/map/MapView";
+import { bringLabelsToTop, bringStudyareaToTop, getFirstLabelId } from "@/components/map/MapView";
 import {
   loadParquetBatches,
   loadGeoParquetBatches,
@@ -118,6 +118,7 @@ export function useMapLayers() {
     }
 
     bringLabelsToTop(map);
+    bringStudyareaToTop(map);
   }
 
   function addCogLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
@@ -146,6 +147,7 @@ export function useMapLayers() {
     }
 
     bringLabelsToTop(map);
+    bringStudyareaToTop(map);
   }
 
   function removeLayer(layerId: string, mapRef: React.RefObject<MapRef | null>) {
