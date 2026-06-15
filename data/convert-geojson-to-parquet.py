@@ -65,10 +65,28 @@ import sys
 from pathlib import Path
 
 import geopandas as gpd
+from shapely.geometry.polygon import orient
 
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_INPUT = HERE / "ov.geojson"
+
+
+def normalize_winding(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Orient (multi)polygon rings to RFC 7946 (exterior CCW, holes CW).
+
+    deck.gl's GeoArrow polygon tessellation produces sliver/bridge artefacts for
+    inverse-mask donut polygons whose rings have non-standard winding. shapely's
+    ``orient(sign=1.0)`` fixes Polygon and MultiPolygon; other geometry types
+    (points/lines) pass through unchanged.
+    """
+    gdf = gdf.copy()
+    gdf.geometry = gdf.geometry.apply(
+        lambda g: orient(g, sign=1.0)
+        if g is not None and g.geom_type in ("Polygon", "MultiPolygon")
+        else g
+    )
+    return gdf
 
 # Rows per Parquet row group = streaming batch size for the web reader.
 # See the module docstring for why 20,000 is a good web default.
@@ -87,6 +105,10 @@ def convert(input_path: Path, output_path: Path, batch_size: int) -> None:
     elif gdf.crs.to_epsg() != 4326:
         print(f"  Reprojecting from {gdf.crs} to EPSG:4326")
         gdf = gdf.to_crs(epsg=4326)
+
+    # Normalize ring winding so deck.gl tessellates donut/mask polygons without
+    # bridge-sliver artefacts (see normalize_winding docstring).
+    gdf = normalize_winding(gdf)
 
     row_groups = max(1, -(-len(gdf) // batch_size))  # ceil division
     print(
