@@ -19,6 +19,8 @@ export const INITIAL_VIEW_STATE = {
   bearing: 0,
 };
 
+export type ViewState = typeof INITIAL_VIEW_STATE;
+
 /** URL of the Positron basemap (no labels, roads, or water) rendered as the background style. */
 const BASE_STYLE_URL = "/positron-base.json";
 /** URL of the Positron overlay (labels, roads, water); its layers are appended on top of user data. */
