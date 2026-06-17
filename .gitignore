@@ -63,3 +63,7 @@ data/vrz_locaties_limburg/parquet/supermarkt_2026.parquet
 data/vrz_locaties_limburg/parquet/tandarts_2026.parquet
 data/vrz_locaties_limburg/parquet/ziekenhuis_2026.parquet
 data/.vscode/settings.json
+data/loopafstand_ov_old.parquet
+data/ov.geojson
+data/ov.parquet
+data/__pycache__/convert-geojson-to-parquet.cpython-312.pyc
