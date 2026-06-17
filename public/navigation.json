@@ -152,9 +152,9 @@
     "color": "#F2994A",
     "expanded": false,
     "children": [
-        { "id": "cbsgemeente2026", "icon": "local_pharmacy", "color": "#8C54D6", "label": "gemeente", "a": false, "b": false },
-        { "id": "cbswijk2026", "icon": "local_hospital", "color": "#8C54D6", "label": "wijk", "a": false, "b": false },
-        { "id": "cbsbuurt2026", "icon": "local_grocery_store", "color": "#8C54D6", "label": "buurt", "a": false, "b": false }
+        { "id": "cbsgemeente2026", "icon": "border_all", "color": "#F2994A", "label": "gemeente", "a": false, "b": false },
+        { "id": "cbswijk2026", "icon": "border_all", "color": "#F2994A", "label": "wijk", "a": false, "b": false },
+        { "id": "cbsbuurt2026", "icon": "border_all", "color": "#F2994A", "label": "buurt", "a": false, "b": false }
     ]
   }
 ]
