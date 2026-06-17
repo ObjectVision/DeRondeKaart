@@ -13,6 +13,17 @@ interface SelectedLeaf {
 
 const BUTTON_GAP = 8; // gap-2
 
+/** Convert a #rgb or #rrggbb hex color to an rgba() string with the given alpha. */
+function withAlpha(hex: string, alpha: number): string {
+  let h = hex.replace("#", "");
+  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
+  if (h.length !== 6) return hex; // not a hex we can parse — return as-is
+  const r = parseInt(h.slice(0, 2), 16);
+  const g = parseInt(h.slice(2, 4), 16);
+  const b = parseInt(h.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 export function NavigationPanel({ nav }: { nav: NavigationApi }) {
   const [tree, setTree] = useState<NavNode[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
@@ -90,16 +101,15 @@ export function NavigationPanel({ nav }: { nav: NavigationApi }) {
 
   function renderCategoryButton(node: NavNode, index: number) {
     const isActive = activeCategory === index;
+    const accent = node.color ?? "#F97316"; // default orange
     return (
       <Button
         key={node.label}
         variant="ghost"
         size="icon"
         aria-expanded={isActive}
-        className={
-          "h-auto w-auto flex-shrink-0 cursor-pointer flex-col gap-1 whitespace-nowrap rounded-xl px-3 py-2 shadow-md backdrop-blur-sm " +
-          (isActive ? "bg-orange-100 hover:bg-orange-100" : "bg-white/95 hover:bg-white")
-        }
+        className="h-auto w-auto flex-shrink-0 cursor-pointer flex-col gap-1 whitespace-nowrap rounded-xl bg-white/95 px-3 py-2 shadow-md backdrop-blur-sm hover:bg-white"
+        style={isActive ? { backgroundColor: withAlpha(accent, 0.08) } : undefined}
         onClick={() => {
           setActiveCategory(isActive ? null : index);
           setSelected(null);

@@ -837,7 +837,7 @@
         "name": "Studiegebied",
         "rules": [
           {
-            "name": "1",
+            "name": "outer",
             "filter": ["==", "id", 1],
             "symbolizers": [
               {
@@ -850,20 +850,7 @@
             ]
           },
           {
-            "name": "3",
-            "filter": ["==", "id", 3],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#EBECF0",
-                "opacity": 0.1,
-                "outlineColor": "#183A59",
-                "outlineWidth": 0
-              }
-            ]
-          },
-          {
-            "name": "2",
+            "name": "Noord-Limburg",
             "filter": ["==", "id", 2],
             "symbolizers": [
               {
@@ -874,45 +861,44 @@
                 "outlineWidth": 2
               }
             ]
-          }
-        ]
-      },
-      "style": {
-        "opacity": 1
-      }
-    },
-    {
-      "id": "studiegebied_limburg_full",
-      "name": "Studiegebied Noord- en Midden-Limburg",
-      "source": "https://data.woonzorglimburg.nl/parquet/studyarea_NoordMiddenLimburg.parquet",
-      "format": "geoparquet",
-      "geometryType": "polygon",
-      "excludeFromComparison": true,
-      "excludeFromLegend": true,
-      "excludeFromPicking": true,
-      "geostyler": {
-        "name": "Studiegebied",
-        "rules": [
+          },
           {
-            "name": "1",
-            "filter": ["==", "id", 2],
+            "name": "Roermond",
+            "filter": ["==", "id", 3],
             "symbolizers": [
               {
                 "kind": "Fill",
                 "color": "#00000000",
-                "outlineColor": "#0000FF",
-                "outlineWidth": 1.5
+                "outlineColor": "#00498D",
+                "outlineOpacity": 1.0,
+                "outlineWidth": 2
               }
             ]
           },
           {
-            "name": "2",
-            "filter": ["==", "id", 1],
+            "name": "Midden-Limburg",
+            "filter": ["==", "id", 4],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#00000033",
-                "outlineWidth": 0
+                "color": "#d7e5e5",
+                "opacity": 0.1,
+                "outlineColor": "#00498D",
+                "outlineOpacity": 1.0,
+                "outlineWidth": 2
+              }
+            ]
+          },
+          {
+            "name": "Zuid-Limburg",
+            "filter": ["==", "id", 5],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#00000000",
+                "outlineColor": "#00498D",
+                "outlineOpacity": 1.0,
+                "outlineWidth": 2
               }
             ]
           }
