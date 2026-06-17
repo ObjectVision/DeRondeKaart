@@ -6,7 +6,9 @@ import { useMapLayers } from "@/hooks/use-map-layers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
 import { useFeaturePick } from "@/hooks/use-feature-pick";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
+import { useNavigation } from "@/hooks/use-navigation";
 import { Legend } from "@/components/ui/legend";
+import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { MapControls } from "@/components/ui/map-controls";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
@@ -36,6 +38,9 @@ function App({
   // Feature picking for each map
   const pickA = useFeaturePick(mapALayers.layerEntries, mapARef);
   const pickB = useFeaturePick(mapBLayers.layerEntries, mapBRef);
+
+  // Navigation menu: add/remove layers against the shared per-map state
+  const nav = useNavigation({ mapALayers, mapBLayers, mapARef, mapBRef });
 
   const applyView = useCallback((view: ViewUpdate) => {
     setViewState((s) => ({
@@ -184,6 +189,9 @@ function App({
           onPositionChange={setSliderPosition}
         />
       )}
+
+      {/* Navigation menu — top center */}
+      <NavigationPanel nav={nav} />
 
       {/* Legend — bottom left */}
       <Legend

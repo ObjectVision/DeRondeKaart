@@ -1,0 +1,149 @@
+[
+  {
+    "label": "woonzorganalyse",
+    "icon": "diversity_1",
+    "color": "#EB5BA6",
+    "expanded": false,
+    "children": [
+    {
+        "label": "woonzorganalyse woningvoorraad",
+        "icon": "diversity_1",
+        "color": "#EB5BA6",
+        "expanded": false,
+        "children": [
+        { "id": "", "label": "", "a": false, "b": false }
+        ]
+    },
+    {
+        "label": "woonzorganalyse kwetsbare ouderen",
+        "icon": "elderly",
+        "color": "#EB5BA6",
+        "expanded": false,
+        "children": [
+        { "id": "", "label": "", "a": false, "b": false }
+        ]
+    },
+    {
+        "label": "woonzorganalyse aandachtsgroepen",
+        "icon": "diversity_1",
+        "color": "#EB5BA6",
+        "expanded": false,
+        "children": [
+        { "id": "", "label": "", "a": false, "b": false }
+        ]
+    },
+    {
+        "label": "woonzorglocaties en concentraties",
+        "icon": "location_on",
+        "color": "#E0457B",
+        "expanded": false,
+        "children": [
+        { "id": "verpleging_en_verzorging", "label": "Verpleging en verzorging", "a": false, "b": false },
+        { "id": "geestelijke_gezondheidszorg_B", "label": "Geestelijke gezondheidszorg B", "a": false, "b": false },
+        { "id": "geestelijke_gezondheidszorg_W", "label": "Geestelijke gezondheidszorg W", "a": false, "b": false },
+        { "id": "licht_verstandelijke_beperking", "label": "Licht verstandelijke beperking", "a": false, "b": false },
+        { "id": "verstandelijke_handicap", "label": "Verstandelijke handicap", "a": false, "b": false },
+        { "id": "lichamelijke_handicap", "label": "Lichamelijke handicap", "a": false, "b": false },
+        { "id": "zintuigelijke_handicap", "label": "Zintuigelijke handicap", "a": false, "b": false },
+        { "id": "BW_MO", "label": "Beschermd wonen/MO", "a": false, "b": false }
+        ]
+    },
+    {
+        "label": "complexanalyse",
+        "icon": "grid_view",
+        "color": "#5B8DEF",
+        "expanded": false,
+        "children": [
+        { "id": "", "label": "", "a": false, "b": false }
+        ]
+    },
+    {
+        "label": "woonzorgwijzer",
+        "icon": "explore",
+        "color": "#6B7280",
+        "expanded": false,
+        "children": [
+        { "id": "", "label": "", "a": false, "b": false }
+        ]
+    },
+    {
+        "label": "veerkrachtanalyse",
+        "icon": "monitor_heart",
+        "color": "#3DB6B0",
+        "expanded": false,
+        "children": [
+        { "id": "veerkracht_limburg", "label": "Veerkracht tov NL", "a": false, "b": false },
+        { "id": "focus_limburg", "label": "Focus tov NL", "a": false, "b": false }
+        ]
+    }
+  ]
+  },
+  {
+    "label": "bevolking",
+    "icon": "groups",
+    "color": "#7C5CFC",
+    "expanded": false,
+    "children": [
+        {
+            "label": "sociaal economisch",
+            "icon": "trending_up",
+            "color": "#22A06B",
+            "expanded": false,
+            "children": [
+            { "id": "Sociaal_dominante_klasse", "label": "Sociaal dominante klasse", "a": false, "b": false }
+            ]
+        }
+    ]
+  },
+  {
+    "label": "woningvoorraad",
+    "icon": "home_work",
+    "color": "#F2994A",
+    "expanded": false,
+    "children": [
+        {
+            "label": "specificatie bezit woningcorporaties",
+            "icon": "apartment",
+            "color": "#2D6CDF",
+            "expanded": false,
+            "children": [
+            { "id": "", "label": "", "a": false, "b": false }
+            ]
+        }
+    ]
+  },
+  {
+    "label": "omgeving",
+    "icon": "nature_people",
+    "color": "#4FB477",
+    "expanded": false,
+    "children": [
+        {
+            "label": "voorzieningen",
+            "icon": "storefront",
+            "color": "#8C54D6",
+            "expanded": false,
+            "children": [
+                {
+                    "label": "locaties",
+                    "icon": "storefront",
+                    "color": "#8C54D6",
+                    "expanded": false,
+                    "children": [
+                    { "id": "apotheek", "icon": "local_pharmacy", "color": "#8C54D6", "label": "Apotheek", "a": false, "b": false },
+                    { "id": "huisarts", "icon": "local_hospital", "color": "#8C54D6", "label": "Huisarts", "a": false, "b": false, "meta": "/data/meta/huisarts.html" },
+                    { "id": "supermarkt", "icon": "local_grocery_store", "color": "#8C54D6", "label": "Supermarkt", "a": false, "b": false },
+                    { "id": "fysiotherapeut", "icon": "assist_walker", "color": "#8C54D6", "label": "Fysiotherapeut", "a": false, "b": false }
+                    ]
+                },
+                {
+                    "label": "loopafstanden",
+                    "icon": "storefront",
+                    "color": "#8C54D6",
+                    "expanded": false
+                }
+            ]
+        }
+    ]
+  }
+]
