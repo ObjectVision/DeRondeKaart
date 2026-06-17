@@ -145,5 +145,11 @@
             ]
         }
     ]
+  },
+  {
+    "label": "gebiedsindelingen",
+    "icon": "border_all",
+    "color": "#F2994A",
+    "expanded": false
   }
 ]
