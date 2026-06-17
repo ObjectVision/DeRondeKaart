@@ -1336,6 +1336,45 @@
       "style": {
         "opacity": 0.8
       }
+    },
+    {
+      "id": "cbsgemeente2026",
+      "name": "CBS Gemeente 2026",
+      "source": "https://data.woonzorglimburg.nl/parquet/cbsgemeente2026.parquet",
+      "format": "parquet",
+      "geometryType": "polygon",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ statnaam]]</b></div>"
+      }
+    },
+    {
+      "id": "cbsbuurt2026",
+      "name": "CBS Buurt 2026",
+      "source": "https://data.woonzorglimburg.nl/parquet/cbsbuurt2026.parquet",
+      "format": "parquet",
+      "geometryType": "polygon",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ statnaam]]</b></div>"
+      }
+    },
+    {
+      "id": "cbswijk2026",
+      "name": "CBS Wijk 2026",
+      "source": "https://data.woonzorglimburg.nl/parquet/cbswijk2026.parquet",
+      "format": "parquet",
+      "geometryType": "polygon",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ statnaam]]</b></div>"
+      }
     }
   ]
 }
