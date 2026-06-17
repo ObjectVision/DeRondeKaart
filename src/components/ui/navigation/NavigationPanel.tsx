@@ -11,9 +11,6 @@ interface SelectedLeaf {
   path: string[];
 }
 
-// Button geometry, kept in sync with the className below so we can compute how
-// many buttons fit in the available width.
-const BUTTON_SIZE = 56; // size-14
 const BUTTON_GAP = 8; // gap-2
 
 export function NavigationPanel({ nav }: { nav: NavigationApi }) {
@@ -23,8 +20,10 @@ export function NavigationPanel({ nav }: { nav: NavigationApi }) {
   const [selected, setSelected] = useState<SelectedLeaf | null>(null);
   const [overflowOpen, setOverflowOpen] = useState(false);
 
-  // How many category buttons fit in the row at the current width.
+  // How many category buttons fit in the row at the current width. Buttons size
+  // to their label width, so we measure off-screen renders of every button.
   const rowRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
   const [visibleCount, setVisibleCount] = useState(Infinity);
 
   useEffect(() => {
@@ -33,31 +32,50 @@ export function NavigationPanel({ nav }: { nav: NavigationApi }) {
       .catch((err) => console.error("Failed to load navigation.json:", err));
   }, []);
 
-  // Measure the row and compute how many buttons fit. Reserve one slot for the
-  // overflow ("…") button whenever not everything fits.
+  // Measure each button's actual width (from the hidden mirror row) and the
+  // available width, then compute how many fit. Reserve room for the overflow
+  // ("…") button whenever not everything fits.
   useLayoutEffect(() => {
-    const el = rowRef.current;
-    if (!el || tree.length === 0) return;
+    const row = rowRef.current;
+    const mirror = measureRef.current;
+    if (!row || !mirror || tree.length === 0) return;
 
     function measure() {
-      const width = el!.clientWidth;
-      const perButton = BUTTON_SIZE + BUTTON_GAP;
-      // How many fit if all are shown (no overflow button needed).
-      const fitAll = Math.floor((width + BUTTON_GAP) / perButton);
-      if (fitAll >= tree.length) {
+      const avail = row!.clientWidth;
+      // Mirror holds: [overflow button, ...category buttons] in source order.
+      const children = Array.from(mirror!.children) as HTMLElement[];
+      const overflowWidth = children[0]?.offsetWidth ?? 0;
+      const widths = children.slice(1).map((c) => c.offsetWidth);
+
+      // First check whether everything fits with no overflow button.
+      let total = 0;
+      for (let i = 0; i < widths.length; i++) {
+        total += widths[i] + (i > 0 ? BUTTON_GAP : 0);
+      }
+      if (total <= avail) {
         setVisibleCount(tree.length);
         return;
       }
-      // Need an overflow button — reserve a slot for it.
-      const fitWithOverflow = Math.max(0, Math.floor((width + BUTTON_GAP) / perButton) - 1);
-      setVisibleCount(fitWithOverflow);
+
+      // Otherwise fit as many as possible while leaving room for the overflow
+      // button at the end.
+      let used = overflowWidth + BUTTON_GAP;
+      let count = 0;
+      for (let i = 0; i < widths.length; i++) {
+        const add = widths[i] + (count > 0 ? BUTTON_GAP : 0);
+        if (used + add > avail) break;
+        used += add;
+        count++;
+      }
+      setVisibleCount(count);
     }
 
     measure();
     const ro = new ResizeObserver(measure);
-    ro.observe(el);
+    ro.observe(row);
+    ro.observe(mirror);
     return () => ro.disconnect();
-  }, [tree.length]);
+  }, [tree]);
 
   if (tree.length === 0) return null;
 
@@ -79,7 +97,7 @@ export function NavigationPanel({ nav }: { nav: NavigationApi }) {
         size="icon"
         aria-expanded={isActive}
         className={
-          "size-14 flex-shrink-0 cursor-pointer rounded-xl shadow-md backdrop-blur-sm " +
+          "h-auto w-auto flex-shrink-0 cursor-pointer flex-col gap-1 whitespace-nowrap rounded-xl px-3 py-2 shadow-md backdrop-blur-sm " +
           (isActive ? "bg-orange-100 hover:bg-orange-100" : "bg-white/95 hover:bg-white")
         }
         onClick={() => {
@@ -90,6 +108,28 @@ export function NavigationPanel({ nav }: { nav: NavigationApi }) {
         title={node.label}
       >
         <NavIcon name={node.icon} color={node.color} size={32} />
+        <span className="text-center text-sm font-semibold text-gray-900">
+          {node.label}
+        </span>
+      </Button>
+    );
+  }
+
+  function renderOverflowButton() {
+    return (
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-expanded={overflowOpen}
+        className={
+          "h-auto w-auto flex-shrink-0 cursor-pointer flex-col gap-1 whitespace-nowrap rounded-xl px-3 py-2 shadow-md backdrop-blur-sm " +
+          (overflowOpen ? "bg-gray-100 hover:bg-gray-100" : "bg-white/95 hover:bg-white")
+        }
+        onClick={() => setOverflowOpen((v) => !v)}
+        title="Meer categorieën"
+      >
+        <Icon name="more_horiz" size={32} className="text-gray-500" />
+        <span className="text-center text-sm font-semibold text-gray-900">Meer</span>
       </Button>
     );
   }
@@ -112,24 +152,20 @@ export function NavigationPanel({ nav }: { nav: NavigationApi }) {
       {/* Category icon row — never wider than the input; extras collapse into a
           "…" overflow button. */}
       <div className="relative">
-        <div ref={rowRef} className="flex items-center gap-2 overflow-hidden">
+        <div ref={rowRef} className="flex items-stretch gap-2 overflow-hidden">
           {visible.map((node) => renderCategoryButton(node, tree.indexOf(node)))}
+          {overflow.length > 0 && renderOverflowButton()}
+        </div>
 
-          {overflow.length > 0 && (
-            <Button
-              variant="ghost"
-              size="icon"
-              aria-expanded={overflowOpen}
-              className={
-                "size-14 flex-shrink-0 cursor-pointer rounded-xl shadow-md backdrop-blur-sm " +
-                (overflowOpen ? "bg-gray-100 hover:bg-gray-100" : "bg-white/95 hover:bg-white")
-              }
-              onClick={() => setOverflowOpen((v) => !v)}
-              title="Meer categorieën"
-            >
-              <Icon name="more_horiz" size={32} className="text-gray-500" />
-            </Button>
-          )}
+        {/* Hidden mirror used only for measuring intrinsic button widths.
+            Order: overflow button first, then every category button. */}
+        <div
+          ref={measureRef}
+          aria-hidden
+          className="pointer-events-none invisible absolute left-0 top-0 flex items-stretch gap-2"
+        >
+          {renderOverflowButton()}
+          {tree.map((node) => renderCategoryButton(node, tree.indexOf(node)))}
         </div>
 
         {/* Overflow popover */}
