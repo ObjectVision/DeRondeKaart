@@ -50,7 +50,7 @@ export function FeatureInfo({ result, layerEntries, onClose }: FeatureInfoProps)
   const template = templates.get(activeTab);
 
   return (
-    <div className="absolute top-2 right-2 z-30 max-w-sm max-h-[50vh] flex flex-col rounded-lg bg-white/90 shadow-md backdrop-blur-sm sm:top-4 sm:right-4">
+    <div className="max-w-sm max-h-[50vh] flex flex-col rounded-lg bg-white/90 shadow-md backdrop-blur-sm">
       {/* Header */}
       <div className="flex items-center justify-between px-3 pt-2 pb-1">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
