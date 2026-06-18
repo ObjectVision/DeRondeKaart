@@ -11,6 +11,7 @@ async function bootstrap() {
       <App
         initialViewState={toInitialViewState(mapConfig)}
         studyAreaId={mapConfig.studyarea}
+        streetviewEnabled={mapConfig.streetview ?? false}
       />
     </StrictMode>,
   )
