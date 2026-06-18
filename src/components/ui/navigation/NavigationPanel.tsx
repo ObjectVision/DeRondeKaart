@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { NavIcon, Icon } from "@/components/ui/nav-icon";
 import { NavTree } from "./NavTree";
 import { LeafDetail } from "./LeafDetail";
+import { MapControls } from "@/components/ui/map-controls";
 import { loadNavigation, type NavLeaf, type NavNode } from "@/layers/navigation";
 import type { NavigationApi } from "@/hooks/use-navigation";
 
@@ -24,7 +25,15 @@ function withAlpha(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-export function NavigationPanel({ nav }: { nav: NavigationApi }) {
+export function NavigationPanel({
+  nav,
+  onZoomIn,
+  onZoomOut,
+}: {
+  nav: NavigationApi;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+}) {
   const [tree, setTree] = useState<NavNode[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [query, setQuery] = useState("");
@@ -159,9 +168,14 @@ export function NavigationPanel({ nav }: { nav: NavigationApi }) {
         <Icon name="send" size={28} className="flex-shrink-0 text-gray-300" />
       </div>
 
-      {/* Category icon row — never wider than the input; extras collapse into a
-          "…" overflow button. */}
-      <div className="relative">
+      {/* Navigation controls (search, +, -) left of the category icon row;
+          their combined height matches the icon buttons via items-stretch. */}
+      <div className="flex items-stretch gap-2">
+        <MapControls onZoomIn={onZoomIn} onZoomOut={onZoomOut} />
+
+        {/* Category icon row — never wider than the input; extras collapse into a
+            "…" overflow button. */}
+        <div className="relative min-w-0 flex-1">
         <div ref={rowRef} className="flex items-stretch gap-2 overflow-hidden">
           {visible.map((node) => renderCategoryButton(node, tree.indexOf(node)))}
           {overflow.length > 0 && renderOverflowButton()}
@@ -184,6 +198,7 @@ export function NavigationPanel({ nav }: { nav: NavigationApi }) {
             {overflow.map((node) => renderCategoryButton(node, tree.indexOf(node)))}
           </div>
         )}
+        </div>
       </div>
 
       {/* Tree popover */}
