@@ -11,7 +11,6 @@ import { Legend } from "@/components/ui/legend";
 import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
-import { MapControls } from "@/components/ui/map-controls";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 import { MapPills } from "@/components/ui/map-pills";
 
@@ -215,8 +214,8 @@ function App({
         />
       )}
 
-      {/* Navigation menu — top center */}
-      <NavigationPanel nav={nav} />
+      {/* Navigation menu — top center (includes map controls: search, +, -) */}
+      <NavigationPanel nav={nav} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
 
       {/* Legend + FeatureInfo — bottom left, side by side with icon-button gap */}
       <div className="absolute bottom-2 left-2 z-30 flex items-end gap-2 sm:bottom-4 sm:left-4">
@@ -259,9 +258,6 @@ function App({
           />
         )}
       </div>
-
-      {/* Map controls — bottom right */}
-      <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
 
       {/* Kaart A/B identification pills — top left/right */}
       <MapPills activeA={hasMapALayers} activeB={showMapB} />
