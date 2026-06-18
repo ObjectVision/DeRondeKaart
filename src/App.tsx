@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from "react";
-import type { ViewStateChangeEvent } from "react-map-gl/maplibre";
+import type { ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
 import { MapView } from "@/components/map/MapView";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
@@ -10,6 +10,7 @@ import { useNavigation } from "@/hooks/use-navigation";
 import { Legend } from "@/components/ui/legend";
 import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
 import { FeatureInfo } from "@/components/ui/feature-info";
+import { StreetView } from "@/components/ui/street-view";
 import { MapControls } from "@/components/ui/map-controls";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 import { MapPills } from "@/components/ui/map-pills";
@@ -38,6 +39,30 @@ function App({
   // Feature picking for each map
   const pickA = useFeaturePick(mapALayers.layerEntries, mapARef);
   const pickB = useFeaturePick(mapBLayers.layerEntries, mapBRef);
+
+  // Shared Street View panel — reflects the most recent click on either map
+  const [streetView, setStreetView] = useState<{ lng: number; lat: number } | null>(
+    null,
+  );
+  const handleMapClick = useCallback((e: MapLayerMouseEvent) => {
+    setStreetView({ lng: e.lngLat.lng, lat: e.lngLat.lat });
+  }, []);
+
+  // Compose feature picking with Street View capture so both run per click
+  const onClickA = useCallback(
+    (e: MapLayerMouseEvent) => {
+      pickA.handleClick(e);
+      handleMapClick(e);
+    },
+    [pickA.handleClick, handleMapClick],
+  );
+  const onClickB = useCallback(
+    (e: MapLayerMouseEvent) => {
+      pickB.handleClick(e);
+      handleMapClick(e);
+    },
+    [pickB.handleClick, handleMapClick],
+  );
 
   // Navigation menu: add/remove layers against the shared per-map state
   const nav = useNavigation({ mapALayers, mapBLayers, mapARef, mapBRef });
@@ -151,7 +176,7 @@ function App({
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
           onMove={handleMove}
-          onClick={pickA.handleClick}
+          onClick={onClickA}
           onLoad={() => setMapAReady(true)}
           onLabelsReady={handleMapALabelsReady}
         />
@@ -175,7 +200,7 @@ function App({
             style={{ width: "100%", height: "100%" }}
             viewState={viewState}
             onMove={handleMove}
-            onClick={pickB.handleClick}
+            onClick={onClickB}
             onLoad={handleMapBLoad}
             onLabelsReady={handleMapBLabelsReady}
           />
@@ -222,6 +247,15 @@ function App({
             result={pickB.result}
             layerEntries={mapBLayers.layerEntries}
             onClose={pickB.clear}
+          />
+        )}
+
+        {/* Street View — to the right of FeatureInfo, shared across maps */}
+        {streetView && (
+          <StreetView
+            lng={streetView.lng}
+            lat={streetView.lat}
+            onClose={() => setStreetView(null)}
           />
         )}
       </div>
