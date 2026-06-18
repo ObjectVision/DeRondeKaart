@@ -100,7 +100,7 @@
       "format": "parquet",
       "geometryType": "point",
       "style": {
-        "color": [255, 69, 0, 150],
+        "color": [136,86,167, 150],
         "opacity": 0.8,
         "lineWidth": 1
       },
@@ -130,7 +130,7 @@
       "format": "geoparquet",
       "geometryType": "point",
       "style": {
-        "color": [255, 69, 0, 150],
+        "color": [49,163,84, 150],
         "opacity": 0.8,
         "lineWidth": 1
       },
@@ -145,7 +145,7 @@
       "format": "geoparquet",
       "geometryType": "point",
       "style": {
-        "color": [255, 69, 0, 150],
+        "color": [127,205,187, 150],
         "opacity": 0.8,
         "lineWidth": 1
       },
@@ -160,7 +160,7 @@
       "format": "geoparquet",
       "geometryType": "point",
       "style": {
-        "color": [255, 69, 0, 150],
+        "color": [240,59,32, 150],
         "opacity": 0.8,
         "lineWidth": 1
       },
