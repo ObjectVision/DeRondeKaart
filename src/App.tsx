@@ -193,36 +193,38 @@ function App({
       {/* Navigation menu — top center */}
       <NavigationPanel nav={nav} />
 
-      {/* Legend — bottom left */}
-      <Legend
-        entriesA={mapALayers.layerEntries}
-        entriesB={mapBLayers.layerEntries}
-        hiddenIdsA={mapALayers.hiddenIds}
-        hiddenIdsB={mapBLayers.hiddenIds}
-        hiddenRulesA={mapALayers.hiddenRules}
-        hiddenRulesB={mapBLayers.hiddenRules}
-        onToggleA={handleToggleA}
-        onToggleB={handleToggleB}
-        onToggleRuleA={handleToggleRuleA}
-        onToggleRuleB={handleToggleRuleB}
-        comparisonMode={comparisonMode}
-      />
+      {/* Legend + FeatureInfo — bottom left, side by side with icon-button gap */}
+      <div className="absolute bottom-2 left-2 z-30 flex items-end gap-2 sm:bottom-4 sm:left-4">
+        <Legend
+          entriesA={mapALayers.layerEntries}
+          entriesB={mapBLayers.layerEntries}
+          hiddenIdsA={mapALayers.hiddenIds}
+          hiddenIdsB={mapBLayers.hiddenIds}
+          hiddenRulesA={mapALayers.hiddenRules}
+          hiddenRulesB={mapBLayers.hiddenRules}
+          onToggleA={handleToggleA}
+          onToggleB={handleToggleB}
+          onToggleRuleA={handleToggleRuleA}
+          onToggleRuleB={handleToggleRuleB}
+          comparisonMode={comparisonMode}
+        />
 
-      {/* FeatureInfo popups */}
-      {pickA.result && (
-        <FeatureInfo
-          result={pickA.result}
-          layerEntries={mapALayers.layerEntries}
-          onClose={pickA.clear}
-        />
-      )}
-      {pickB.result && (
-        <FeatureInfo
-          result={pickB.result}
-          layerEntries={mapBLayers.layerEntries}
-          onClose={pickB.clear}
-        />
-      )}
+        {/* FeatureInfo popups */}
+        {pickA.result && (
+          <FeatureInfo
+            result={pickA.result}
+            layerEntries={mapALayers.layerEntries}
+            onClose={pickA.clear}
+          />
+        )}
+        {pickB.result && (
+          <FeatureInfo
+            result={pickB.result}
+            layerEntries={mapBLayers.layerEntries}
+            onClose={pickB.clear}
+          />
+        )}
+      </div>
 
       {/* Map controls — bottom right */}
       <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
