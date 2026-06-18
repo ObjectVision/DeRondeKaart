@@ -54,7 +54,7 @@ export function FeatureInfo({ result, layerEntries, onClose }: FeatureInfoProps)
       {/* Header */}
       <div className="flex items-center justify-between px-3 pt-2 pb-1">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Feature Info
+          Details
         </h3>
         <button
           onClick={onClose}
