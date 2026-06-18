@@ -11,12 +11,18 @@ export interface MapConfig {
    * on top of every other layer — including the basemap labels — on both maps.
    */
   studyarea?: string;
+  /**
+   * Whether a Google Street View panel opens on map click. Defaults to `false`
+   * when omitted; set to `true` in map.json to enable it.
+   */
+  streetview?: boolean;
 }
 
 /** Fallback view, matching the hardcoded INITIAL_VIEW_STATE in MapView.tsx. */
 export const DEFAULT_MAP_CONFIG: MapConfig = {
   center: [5.0, 52.0],
   zoom: 7,
+  streetview: false,
 };
 
 const MIN_LAT = -85.05112878;
@@ -72,10 +78,18 @@ export async function loadMapConfig(): Promise<MapConfig> {
     console.warn(`map.json: invalid "studyarea" ${JSON.stringify(data.studyarea)}; ignoring`);
   }
 
+  let streetview = DEFAULT_MAP_CONFIG.streetview;
+  if (typeof data.streetview === "boolean") {
+    streetview = data.streetview;
+  } else if (data.streetview !== undefined) {
+    console.warn(`map.json: invalid "streetview" ${JSON.stringify(data.streetview)}; using default`);
+  }
+
   return {
     center: center ?? DEFAULT_MAP_CONFIG.center,
     zoom: zoom ?? DEFAULT_MAP_CONFIG.zoom,
     studyarea,
+    streetview,
   };
 }
 

@@ -17,9 +17,11 @@ import { MapPills } from "@/components/ui/map-pills";
 function App({
   initialViewState,
   studyAreaId,
+  streetviewEnabled = false,
 }: {
   initialViewState: ViewState;
   studyAreaId?: string;
+  streetviewEnabled?: boolean;
 }) {
   const mapALayers = useMapLayers();
   const mapBLayers = useMapLayers();
@@ -43,9 +45,13 @@ function App({
   const [streetView, setStreetView] = useState<{ lng: number; lat: number } | null>(
     null,
   );
-  const handleMapClick = useCallback((e: MapLayerMouseEvent) => {
-    setStreetView({ lng: e.lngLat.lng, lat: e.lngLat.lat });
-  }, []);
+  const handleMapClick = useCallback(
+    (e: MapLayerMouseEvent) => {
+      if (!streetviewEnabled) return;
+      setStreetView({ lng: e.lngLat.lng, lat: e.lngLat.lat });
+    },
+    [streetviewEnabled],
+  );
 
   // Compose feature picking with Street View capture so both run per click
   const onClickA = useCallback(
@@ -250,7 +256,7 @@ function App({
         )}
 
         {/* Street View — to the right of FeatureInfo, shared across maps */}
-        {streetView && (
+        {streetviewEnabled && streetView && (
           <StreetView
             lng={streetView.lng}
             lat={streetView.lat}
