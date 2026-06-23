@@ -3,6 +3,7 @@ import initGeoParquet, {
   readGeoParquet,
 } from "@geoarrow/geoparquet-wasm/esm";
 import initParquet, { readParquet, readParquetStream } from "parquet-wasm";
+import { loadTableCached } from "./table-cache";
 
 let geoParquetWasmInitialized = false;
 let parquetWasmInitialized = false;
@@ -44,7 +45,14 @@ function emitBatches(arrowTable: Table, onBatch: BatchCallback) {
  * Loads a GeoParquet file (WKB-encoded geometry) and converts geometries to
  * native GeoArrow encoding via @geoarrow/geoparquet-wasm.
  */
-export async function loadGeoParquetBatches(
+export function loadGeoParquetBatches(
+  url: string,
+  onBatch: BatchCallback,
+): Promise<Table> {
+  return loadTableCached(url, (cb) => loadGeoParquetBatchesUncached(url, cb), onBatch);
+}
+
+async function loadGeoParquetBatchesUncached(
   url: string,
   onBatch: BatchCallback,
 ): Promise<Table> {
@@ -79,7 +87,14 @@ export async function loadGeoParquetBatches(
  * stream errors surface through the normal promise/stream reject path, so this
  * fallback is reliably reached.
  */
-export async function loadParquetBatches(
+export function loadParquetBatches(
+  url: string,
+  onBatch: BatchCallback,
+): Promise<Table> {
+  return loadTableCached(url, (cb) => loadParquetBatchesUncached(url, cb), onBatch);
+}
+
+async function loadParquetBatchesUncached(
   url: string,
   onBatch: BatchCallback,
 ): Promise<Table> {

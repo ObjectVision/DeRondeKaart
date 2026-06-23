@@ -1,11 +1,20 @@
 import { tableFromIPC, Table } from "apache-arrow";
 import type { BatchCallback } from "./parquet-loader";
+import { loadTableCached } from "./table-cache";
 
 /**
  * Loads an Arrow IPC file (.arrows / .arrow / .feather).
  * Calls onBatch per record batch for incremental rendering.
+ * URL-cached so the same file is fetched + parsed once.
  */
-export async function loadArrowBatches(
+export function loadArrowBatches(
+  url: string,
+  onBatch: BatchCallback,
+): Promise<Table> {
+  return loadTableCached(url, (cb) => loadArrowBatchesUncached(url, cb), onBatch);
+}
+
+async function loadArrowBatchesUncached(
   url: string,
   onBatch: BatchCallback,
 ): Promise<Table> {
