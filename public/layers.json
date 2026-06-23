@@ -564,7 +564,7 @@
       "id": "Sociaal_dominante_klasse",
       "name": "Sociaal dominante klasse",
       "source": "https://data.woonzorglimburg.nl/parquet/SDKLimburg2026.parquet",
-      "format": "parquet",
+      "format": "geoparquet",
       "geometryType": "polygon",
       "geostyler": {
         "name": "",
