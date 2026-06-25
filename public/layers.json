@@ -169,6 +169,21 @@
       }
     },
     {
+      "id": "ov",
+      "name": "openbaar vervoer",
+      "source": "https://data.woonzorglimburg.nl/parquet/ov_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "point",
+      "style": {
+        "color": [44, 127, 184, 150],
+        "opacity": 0.8,
+        "lineWidth": 1
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
+      }
+    },
+    {
       "id": "apotheek",
       "name": "apotheek",
       "source": "https://data.woonzorglimburg.nl/parquet/apotheek_2026.parquet",
@@ -430,6 +445,166 @@
       "featureinfo": {
         "template": "<div><b>Loopafstand huisarts klasse: [[ data ]]</b></div>"
       }
+    },
+    {
+      "id": "loopafstand_apotheek",
+      "name": "loopafstand apotheek",
+      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_apotheek_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "loopafstand in meter",
+        "rules": [
+          { "name": "minder dan 500", "filter": ["==", "data", 0], "symbolizers": [{ "kind": "Fill", "color": "#61BE7B", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "500 tot 750", "filter": ["==", "data", 1], "symbolizers": [{ "kind": "Fill", "color": "#A0D392", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "750 tot 1000", "filter": ["==", "data", 2], "symbolizers": [{ "kind": "Fill", "color": "#FDEAB6", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1000 tot 1250", "filter": ["==", "data", 3], "symbolizers": [{ "kind": "Fill", "color": "#F8D8AF", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1250 tot 1500", "filter": ["==", "data", 4], "symbolizers": [{ "kind": "Fill", "color": "#FFAF92", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "meer dan 1500", "filter": ["==", "data", 5], "symbolizers": [{ "kind": "Fill", "color": "#FF6024", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] }
+        ]
+      },
+      "style": { "opacity": 0.8 },
+      "featureinfo": { "template": "<div><b>Loopafstand apotheek klasse: [[ data ]]</b></div>" }
+    },
+    {
+      "id": "loopafstand_dagbesteding",
+      "name": "loopafstand dagbesteding",
+      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_dagbesteding_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "loopafstand in meter",
+        "rules": [
+          { "name": "minder dan 500", "filter": ["==", "data", 0], "symbolizers": [{ "kind": "Fill", "color": "#61BE7B", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "500 tot 750", "filter": ["==", "data", 1], "symbolizers": [{ "kind": "Fill", "color": "#A0D392", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "750 tot 1000", "filter": ["==", "data", 2], "symbolizers": [{ "kind": "Fill", "color": "#FDEAB6", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1000 tot 1250", "filter": ["==", "data", 3], "symbolizers": [{ "kind": "Fill", "color": "#F8D8AF", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1250 tot 1500", "filter": ["==", "data", 4], "symbolizers": [{ "kind": "Fill", "color": "#FFAF92", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "meer dan 1500", "filter": ["==", "data", 5], "symbolizers": [{ "kind": "Fill", "color": "#FF6024", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] }
+        ]
+      },
+      "style": { "opacity": 0.8 },
+      "featureinfo": { "template": "<div><b>Loopafstand dagbesteding klasse: [[ data ]]</b></div>" }
+    },
+    {
+      "id": "loopafstand_fysiotherapeut",
+      "name": "loopafstand fysiotherapeut",
+      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_fysiotherapeut_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "loopafstand in meter",
+        "rules": [
+          { "name": "minder dan 500", "filter": ["==", "data", 0], "symbolizers": [{ "kind": "Fill", "color": "#61BE7B", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "500 tot 750", "filter": ["==", "data", 1], "symbolizers": [{ "kind": "Fill", "color": "#A0D392", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "750 tot 1000", "filter": ["==", "data", 2], "symbolizers": [{ "kind": "Fill", "color": "#FDEAB6", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1000 tot 1250", "filter": ["==", "data", 3], "symbolizers": [{ "kind": "Fill", "color": "#F8D8AF", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1250 tot 1500", "filter": ["==", "data", 4], "symbolizers": [{ "kind": "Fill", "color": "#FFAF92", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "meer dan 1500", "filter": ["==", "data", 5], "symbolizers": [{ "kind": "Fill", "color": "#FF6024", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] }
+        ]
+      },
+      "style": { "opacity": 0.8 },
+      "featureinfo": { "template": "<div><b>Loopafstand fysiotherapeut klasse: [[ data ]]</b></div>" }
+    },
+    {
+      "id": "loopafstand_gezondheidscentrum",
+      "name": "loopafstand gezondheidscentrum",
+      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_gezondheidscentrum_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "loopafstand in meter",
+        "rules": [
+          { "name": "minder dan 500", "filter": ["==", "data", 0], "symbolizers": [{ "kind": "Fill", "color": "#61BE7B", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "500 tot 750", "filter": ["==", "data", 1], "symbolizers": [{ "kind": "Fill", "color": "#A0D392", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "750 tot 1000", "filter": ["==", "data", 2], "symbolizers": [{ "kind": "Fill", "color": "#FDEAB6", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1000 tot 1250", "filter": ["==", "data", 3], "symbolizers": [{ "kind": "Fill", "color": "#F8D8AF", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1250 tot 1500", "filter": ["==", "data", 4], "symbolizers": [{ "kind": "Fill", "color": "#FFAF92", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "meer dan 1500", "filter": ["==", "data", 5], "symbolizers": [{ "kind": "Fill", "color": "#FF6024", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] }
+        ]
+      },
+      "style": { "opacity": 0.8 },
+      "featureinfo": { "template": "<div><b>Loopafstand gezondheidscentrum klasse: [[ data ]]</b></div>" }
+    },
+    {
+      "id": "loopafstand_ontmoeting",
+      "name": "loopafstand ontmoeting",
+      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_ontmoeting_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "loopafstand in meter",
+        "rules": [
+          { "name": "minder dan 500", "filter": ["==", "data", 0], "symbolizers": [{ "kind": "Fill", "color": "#61BE7B", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "500 tot 750", "filter": ["==", "data", 1], "symbolizers": [{ "kind": "Fill", "color": "#A0D392", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "750 tot 1000", "filter": ["==", "data", 2], "symbolizers": [{ "kind": "Fill", "color": "#FDEAB6", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1000 tot 1250", "filter": ["==", "data", 3], "symbolizers": [{ "kind": "Fill", "color": "#F8D8AF", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1250 tot 1500", "filter": ["==", "data", 4], "symbolizers": [{ "kind": "Fill", "color": "#FFAF92", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "meer dan 1500", "filter": ["==", "data", 5], "symbolizers": [{ "kind": "Fill", "color": "#FF6024", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] }
+        ]
+      },
+      "style": { "opacity": 0.8 },
+      "featureinfo": { "template": "<div><b>Loopafstand ontmoeting klasse: [[ data ]]</b></div>" }
+    },
+    {
+      "id": "loopafstand_ov",
+      "name": "loopafstand ov",
+      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_ov_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "loopafstand in meter",
+        "rules": [
+          { "name": "minder dan 500", "filter": ["==", "data", 0], "symbolizers": [{ "kind": "Fill", "color": "#61BE7B", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "500 tot 750", "filter": ["==", "data", 1], "symbolizers": [{ "kind": "Fill", "color": "#A0D392", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "750 tot 1000", "filter": ["==", "data", 2], "symbolizers": [{ "kind": "Fill", "color": "#FDEAB6", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1000 tot 1250", "filter": ["==", "data", 3], "symbolizers": [{ "kind": "Fill", "color": "#F8D8AF", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1250 tot 1500", "filter": ["==", "data", 4], "symbolizers": [{ "kind": "Fill", "color": "#FFAF92", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "meer dan 1500", "filter": ["==", "data", 5], "symbolizers": [{ "kind": "Fill", "color": "#FF6024", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] }
+        ]
+      },
+      "style": { "opacity": 0.8 },
+      "featureinfo": { "template": "<div><b>Loopafstand ov klasse: [[ data ]]</b></div>" }
+    },
+    {
+      "id": "loopafstand_supermarkt",
+      "name": "loopafstand supermarkt",
+      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_supermarkt_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "loopafstand in meter",
+        "rules": [
+          { "name": "minder dan 500", "filter": ["==", "data", 0], "symbolizers": [{ "kind": "Fill", "color": "#61BE7B", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "500 tot 750", "filter": ["==", "data", 1], "symbolizers": [{ "kind": "Fill", "color": "#A0D392", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "750 tot 1000", "filter": ["==", "data", 2], "symbolizers": [{ "kind": "Fill", "color": "#FDEAB6", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1000 tot 1250", "filter": ["==", "data", 3], "symbolizers": [{ "kind": "Fill", "color": "#F8D8AF", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1250 tot 1500", "filter": ["==", "data", 4], "symbolizers": [{ "kind": "Fill", "color": "#FFAF92", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "meer dan 1500", "filter": ["==", "data", 5], "symbolizers": [{ "kind": "Fill", "color": "#FF6024", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] }
+        ]
+      },
+      "style": { "opacity": 0.8 },
+      "featureinfo": { "template": "<div><b>Loopafstand supermarkt klasse: [[ data ]]</b></div>" }
+    },
+    {
+      "id": "loopafstand_ziekenhuis",
+      "name": "loopafstand ziekenhuis",
+      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_ziekenhuis_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "loopafstand in meter",
+        "rules": [
+          { "name": "minder dan 500", "filter": ["==", "data", 0], "symbolizers": [{ "kind": "Fill", "color": "#61BE7B", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "500 tot 750", "filter": ["==", "data", 1], "symbolizers": [{ "kind": "Fill", "color": "#A0D392", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "750 tot 1000", "filter": ["==", "data", 2], "symbolizers": [{ "kind": "Fill", "color": "#FDEAB6", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1000 tot 1250", "filter": ["==", "data", 3], "symbolizers": [{ "kind": "Fill", "color": "#F8D8AF", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "1250 tot 1500", "filter": ["==", "data", 4], "symbolizers": [{ "kind": "Fill", "color": "#FFAF92", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] },
+          { "name": "meer dan 1500", "filter": ["==", "data", 5], "symbolizers": [{ "kind": "Fill", "color": "#FF6024", "outlineColor": "black", "outlineWidth": 0, "outlineOpacity": 0.2 }] }
+        ]
+      },
+      "style": { "opacity": 0.8 },
+      "featureinfo": { "template": "<div><b>Loopafstand ziekenhuis klasse: [[ data ]]</b></div>" }
     },
     {
       "id": "veerkracht_limburg",
