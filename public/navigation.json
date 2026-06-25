@@ -140,7 +140,10 @@
                     "label": "loopafstanden",
                     "icon": "storefront",
                     "color": "#8C54D6",
-                    "expanded": false
+                    "expanded": false,
+                    "children": [
+                    { "id": "loopafstand_huisarts", "icon": "local_hospital", "color": "#8C54D6", "label": "Huisarts", "a": false, "b": false, "meta": "/data/meta/huisarts.html" }
+                    ]
                 }
             ]
         }
