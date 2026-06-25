@@ -122,13 +122,13 @@
             "label": "voorzieningen",
             "icon": "storefront",
             "color": "#8C54D6",
-            "expanded": false,
+            "expanded": true,
             "children": [
                 {
                     "label": "locaties",
                     "icon": "storefront",
                     "color": "#8C54D6",
-                    "expanded": false,
+                    "expanded": true,
                     "children": [
                     { "id": "apotheek", "icon": "local_pharmacy", "color": "#8C54D6", "label": "Apotheek", "a": false, "b": false },
                     { "id": "huisarts", "icon": "local_hospital", "color": "#8C54D6", "label": "Huisarts", "a": false, "b": false, "meta": "/data/meta/huisarts.html" },
@@ -140,7 +140,7 @@
                     "label": "loopafstanden",
                     "icon": "storefront",
                     "color": "#8C54D6",
-                    "expanded": false,
+                    "expanded": true,
                     "children": [
                     { "id": "loopafstand_huisarts", "icon": "local_hospital", "color": "#8C54D6", "label": "Huisarts", "a": false, "b": false, "meta": "/data/meta/huisarts.html" }
                     ]
