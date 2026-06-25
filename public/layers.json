@@ -124,6 +124,51 @@
       }
     },
     {
+      "id": "dagbesteding",
+      "name": "dagbesteding",
+      "source": "https://data.woonzorglimburg.nl/parquet/dagbesteding_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "point",
+      "style": {
+        "color": [136, 86, 167, 150],
+        "opacity": 0.8,
+        "lineWidth": 1
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
+      }
+    },
+    {
+      "id": "ontmoeting",
+      "name": "ontmoeting",
+      "source": "https://data.woonzorglimburg.nl/parquet/ontmoeting_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "point",
+      "style": {
+        "color": [43, 140, 190, 150],
+        "opacity": 0.8,
+        "lineWidth": 1
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
+      }
+    },
+    {
+      "id": "tandarts",
+      "name": "tandarts",
+      "source": "https://data.woonzorglimburg.nl/parquet/tandarts_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "point",
+      "style": {
+        "color": [253, 141, 60, 150],
+        "opacity": 0.8,
+        "lineWidth": 1
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
+      }
+    },
+    {
       "id": "apotheek",
       "name": "apotheek",
       "source": "https://data.woonzorglimburg.nl/parquet/apotheek_2026.parquet",
