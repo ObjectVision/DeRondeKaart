@@ -338,9 +338,9 @@
     {
       "id": "loopafstand_huisarts",
       "name": "loopafstand huisarts",
-      "source": "https://woonzorgwijzer.files.mapgallery.io/woonzorgwijzer5/v1/public/layers/loopafstand_pand_huisarts_v1/{z}/{x}/{y}.pbf",
-      "format": "mvt",
-      "sourceLayer": "afstand",
+      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_huisarts_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
       "geostyler": {
         "name": "loopafstand in meter",
         "rules": [
