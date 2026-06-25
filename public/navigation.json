@@ -133,7 +133,10 @@
                     { "id": "apotheek", "icon": "local_pharmacy", "color": "#8C54D6", "label": "Apotheek", "a": false, "b": false },
                     { "id": "huisarts", "icon": "local_hospital", "color": "#8C54D6", "label": "Huisarts", "a": false, "b": false, "meta": "/data/meta/huisarts.html" },
                     { "id": "supermarkt", "icon": "local_grocery_store", "color": "#8C54D6", "label": "Supermarkt", "a": false, "b": false },
-                    { "id": "fysiotherapeut", "icon": "assist_walker", "color": "#8C54D6", "label": "Fysiotherapeut", "a": false, "b": false }
+                    { "id": "fysiotherapeut", "icon": "assist_walker", "color": "#8C54D6", "label": "Fysiotherapeut", "a": false, "b": false },
+                    { "id": "dagbesteding", "icon": "groups", "color": "#8C54D6", "label": "Dagbesteding", "a": false, "b": false },
+                    { "id": "ontmoeting", "icon": "diversity_3", "color": "#8C54D6", "label": "Ontmoeting", "a": false, "b": false },
+                    { "id": "tandarts", "icon": "dentistry", "color": "#8C54D6", "label": "Tandarts", "a": false, "b": false }
                     ]
                 },
                 {
