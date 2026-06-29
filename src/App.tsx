@@ -5,6 +5,7 @@ import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
 import { useClickMarkerLayers } from "@/hooks/use-click-marker-layer";
+import { resolveMarkerPoint } from "@/lib/marker-snap";
 import { DEFAULT_CLICK_MARKER, type ClickMarkerConfig } from "@/config/map-config";
 import { useFeaturePick } from "@/hooks/use-feature-pick";
 import { useHoverCursor } from "@/hooks/use-hover-cursor";
@@ -16,7 +17,6 @@ import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 import { MapPills } from "@/components/ui/map-pills";
-import { Icon } from "@/components/ui/nav-icon";
 
 function App({
   initialViewState,
@@ -59,11 +59,15 @@ function App({
   const [clickMarker, setClickMarker] = useState<{ lng: number; lat: number } | null>(
     null,
   );
+  // Drop the marker (and optional Street View) at a click. When the click hit a
+  // point feature, `snapped` carries that feature's location so the marker lands
+  // exactly on the point; otherwise we use the raw cursor lngLat.
   const handleMapClick = useCallback(
-    (e: MapLayerMouseEvent) => {
-      setClickMarker({ lng: e.lngLat.lng, lat: e.lngLat.lat });
+    (e: MapLayerMouseEvent, snapped: { lng: number; lat: number } | null) => {
+      const point = snapped ?? { lng: e.lngLat.lng, lat: e.lngLat.lat };
+      setClickMarker(point);
       if (!streetviewEnabled) return;
-      setStreetView({ lng: e.lngLat.lng, lat: e.lngLat.lat });
+      setStreetView(point);
     },
     [streetviewEnabled],
   );
@@ -77,16 +81,16 @@ function App({
   const onClickA = useCallback(
     (e: MapLayerMouseEvent) => {
       pickA.handleClick(e);
-      handleMapClick(e);
+      handleMapClick(e, resolveMarkerPoint(e, mapARef, mapALayers.layerEntries));
     },
-    [pickA.handleClick, handleMapClick],
+    [pickA.handleClick, handleMapClick, mapALayers.layerEntries],
   );
   const onClickB = useCallback(
     (e: MapLayerMouseEvent) => {
       pickB.handleClick(e);
-      handleMapClick(e);
+      handleMapClick(e, resolveMarkerPoint(e, mapBRef, mapBLayers.layerEntries));
     },
-    [pickB.handleClick, handleMapClick],
+    [pickB.handleClick, handleMapClick, mapBLayers.layerEntries],
   );
 
   const onMouseMoveA = useCallback(
@@ -300,19 +304,6 @@ function App({
             layerEntries={mapBLayers.layerEntries}
             onClose={pickB.clear}
           />
-        )}
-
-        {/* Clear-marker control — appears only while a marker is dropped */}
-        {clickMarker && (
-          <button
-            onClick={() => setClickMarker(null)}
-            className="flex items-center gap-1 rounded-lg bg-white/90 px-2 py-1 text-xs font-medium text-gray-700 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
-            aria-label="Markering wissen"
-            title="Markering wissen"
-          >
-            <Icon name="location_off" size={16} className="text-gray-500" />
-            Markering wissen
-          </button>
         )}
 
         {/* Street View — to the right of FeatureInfo, shared across maps */}
