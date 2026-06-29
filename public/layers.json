@@ -1654,6 +1654,55 @@
       }
     },
     {
+      "id": "aandeel_geschikt_2024",
+      "name": "Aandeel geschikt 2024",
+      "source": "https://data.woonzorglimburg.nl/cog/aandeel_geschikt_2024.tif",
+      "format": "cog",
+      "style": {
+        "opacity": 0.8
+      },
+      "geostyler": {
+        "name": "Aandeel geschikt",
+        "rules": [
+          {
+            "name": "tot 10%",
+            "filter": ["==", "band0", 0],
+            "symbolizers": [{ "kind": "Fill", "color": "#d7f0b2" }]
+          },
+          {
+            "name": "10% tot 20%",
+            "filter": ["==", "band0", 1],
+            "symbolizers": [{ "kind": "Fill", "color": "#c1d699" }]
+          },
+          {
+            "name": "20% tot 40%",
+            "filter": ["==", "band0", 2],
+            "symbolizers": [{ "kind": "Fill", "color": "#acbf81" }]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": ["==", "band0", 3],
+            "symbolizers": [{ "kind": "Fill", "color": "#98a86a" }]
+          },
+          {
+            "name": "60% tot 80%",
+            "filter": ["==", "band0", 4],
+            "symbolizers": [{ "kind": "Fill", "color": "#829154" }]
+          },
+          {
+            "name": "80% tot 90%",
+            "filter": ["==", "band0", 5],
+            "symbolizers": [{ "kind": "Fill", "color": "#707d41" }]
+          },
+          {
+            "name": "meer dan 90%",
+            "filter": ["==", "band0", 6],
+            "symbolizers": [{ "kind": "Fill", "color": "#606b31" }]
+          }
+        ]
+      }
+    },
+    {
       "id": "cbsgemeente2026",
       "name": "CBS Gemeente 2026",
       "source": "https://data.woonzorglimburg.nl/parquet/cbsgemeente2026.parquet",
