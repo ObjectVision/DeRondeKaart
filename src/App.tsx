@@ -4,6 +4,8 @@ import { MapView } from "@/components/map/MapView";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
+import { useClickMarkerLayers } from "@/hooks/use-click-marker-layer";
+import { DEFAULT_CLICK_MARKER, type ClickMarkerConfig } from "@/config/map-config";
 import { useFeaturePick } from "@/hooks/use-feature-pick";
 import { useHoverCursor } from "@/hooks/use-hover-cursor";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
@@ -14,15 +16,18 @@ import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 import { MapPills } from "@/components/ui/map-pills";
+import { Icon } from "@/components/ui/nav-icon";
 
 function App({
   initialViewState,
   studyAreaId,
   streetviewEnabled = false,
+  clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
 }: {
   initialViewState: ViewState;
   studyAreaId?: string;
   streetviewEnabled?: boolean;
+  clickMarker?: ClickMarkerConfig;
 }) {
   const mapALayers = useMapLayers();
   const mapBLayers = useMapLayers();
@@ -50,13 +55,23 @@ function App({
   const [streetView, setStreetView] = useState<{ lng: number; lat: number } | null>(
     null,
   );
+  // Shared click marker — a single dot dropped at the most recent click on either map
+  const [clickMarker, setClickMarker] = useState<{ lng: number; lat: number } | null>(
+    null,
+  );
   const handleMapClick = useCallback(
     (e: MapLayerMouseEvent) => {
+      setClickMarker({ lng: e.lngLat.lng, lat: e.lngLat.lat });
       if (!streetviewEnabled) return;
       setStreetView({ lng: e.lngLat.lng, lat: e.lngLat.lat });
     },
     [streetviewEnabled],
   );
+
+  // Per-map marker layers (separate instances — Layer objects can't be shared
+  // across two Deck overlays). Appended to each map's always-on-top topLayers.
+  const markerLayersA = useClickMarkerLayers(clickMarker, clickMarkerConfig);
+  const markerLayersB = useClickMarkerLayers(clickMarker, clickMarkerConfig);
 
   // Compose feature picking with Street View capture so both run per click
   const onClickA = useCallback(
@@ -205,7 +220,7 @@ function App({
         <MapView
           ref={mapARef}
           layers={mapALayers.deckLayers}
-          topLayers={studyLayersA}
+          topLayers={[...studyLayersA, ...markerLayersA]}
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
           onMove={handleMove}
@@ -230,7 +245,7 @@ function App({
           <MapView
             ref={mapBRef}
             layers={mapBLayers.deckLayers}
-            topLayers={studyLayersB}
+            topLayers={[...studyLayersB, ...markerLayersB]}
             style={{ width: "100%", height: "100%" }}
             viewState={viewState}
             onMove={handleMove}
@@ -285,6 +300,19 @@ function App({
             layerEntries={mapBLayers.layerEntries}
             onClose={pickB.clear}
           />
+        )}
+
+        {/* Clear-marker control — appears only while a marker is dropped */}
+        {clickMarker && (
+          <button
+            onClick={() => setClickMarker(null)}
+            className="flex items-center gap-1 rounded-lg bg-white/90 px-2 py-1 text-xs font-medium text-gray-700 shadow-md backdrop-blur-sm transition-colors hover:bg-white"
+            aria-label="Markering wissen"
+            title="Markering wissen"
+          >
+            <Icon name="location_off" size={16} className="text-gray-500" />
+            Markering wissen
+          </button>
         )}
 
         {/* Street View — to the right of FeatureInfo, shared across maps */}
