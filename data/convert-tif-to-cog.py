@@ -16,12 +16,19 @@ Band count is preserved: a 1-band input produces a 1-band COG, a 3-band input a
 3-band COG, etc. The source ``nodata`` value is carried through so the client can
 render nodata pixels transparently.
 
+Output is **web-optimized** by default (reprojected/aligned to the Web-Mercator
+tiling grid, EPSG:3857) so it renders fastest in the map. Pass
+``--no-web-optimized`` to keep the source CRS and grid instead.
+
 Usage:
-    # Default: data/input.tif -> data/input.cog.tif
+    # Default (web-optimized): data/input.tif -> data/input.cog.tif
     python3 convert-tif-to-cog.py path/to/input.tif
 
     # Explicit input/output:
     python3 convert-tif-to-cog.py path/to/in.tif path/to/out.cog.tif
+
+    # Keep the source CRS/grid (no Web-Mercator reprojection):
+    python3 convert-tif-to-cog.py path/to/input.tif --no-web-optimized
 
 If you have ``uv`` installed you can run this without managing dependencies:
     uv run convert-tif-to-cog.py path/to/input.tif
@@ -76,9 +83,9 @@ def convert(input_path: Path, output_path: Path, web_optimized: bool) -> None:
             print("  Warning: input has no CRS — the COG may not position correctly")
         elif src.crs.to_epsg() != 3857 and not web_optimized:
             print(
-                f"  Note: source CRS is {src.crs}, not EPSG:3857 (Web Mercator). "
-                "The cog protocol reprojects on the fly, but pass --web-optimized "
-                "to bake a Web-Mercator-aligned COG for best performance."
+                f"  Note: source CRS is {src.crs}, not EPSG:3857 (Web Mercator), "
+                "and --no-web-optimized was given. The cog protocol reprojects on "
+                "the fly, but a web-optimized COG renders fastest."
             )
 
     # "deflate" profile: tiled, internally-overviewed, lossless DEFLATE compression.
@@ -115,7 +122,9 @@ def convert(input_path: Path, output_path: Path, web_optimized: bool) -> None:
 
 def main(argv: list[str]) -> int:
     args = [a for a in argv[1:] if not a.startswith("-")]
-    web_optimized = "--web-optimized" in argv[1:]
+    # Web-optimized (Web-Mercator-aligned) output is the default; opt out with
+    # --no-web-optimized to keep the source CRS/grid.
+    web_optimized = "--no-web-optimized" not in argv[1:]
 
     if len(args) < 1 or len(args) > 2:
         print(__doc__)
