@@ -104,16 +104,31 @@ function DeckGLOverlay(props: {
   layers: Layer[];
   overlayRef: React.RefObject<MapboxOverlay | null>;
   hoverRef: React.RefObject<boolean>;
+  mvtHoverRef: React.RefObject<boolean>;
+  clickableIdsRef: React.RefObject<string[]>;
 }) {
-  const { hoverRef } = props;
+  const { hoverRef, mvtHoverRef, clickableIdsRef } = props;
   const overlay = useControl(
     () =>
       new MapboxOverlay({
         interleaved: true,
+        // Use deck's built-in async hover (from its existing picking pass) rather
+        // than a synchronous pickObject per mousemove — the latter stalls the main
+        // thread and makes Chromium flash the blue "progress" cursor.
+        onHover: (info) => {
+          const id = info?.layer?.id;
+          hoverRef.current = id
+            ? clickableIdsRef.current.some((cid) => id.startsWith(cid))
+            : false;
+        },
         // deck owns the canvas cursor in interleaved mode; read the live hover
-        // flag so a pointer shows over clickable features, grabbing while panning.
+        // flags so a pointer shows over clickable features, grabbing while panning.
         getCursor: ({ isDragging }) =>
-          isDragging ? "grabbing" : hoverRef.current ? "pointer" : "grab",
+          isDragging
+            ? "grabbing"
+            : hoverRef.current || mvtHoverRef.current
+              ? "pointer"
+              : "grab",
       }),
   );
   props.overlayRef.current = overlay;
@@ -124,8 +139,12 @@ function DeckGLOverlay(props: {
 export interface MapViewHandle {
   mapRef: React.RefObject<MapRef | null>;
   overlayRef: React.RefObject<MapboxOverlay | null>;
-  /** Live flag: mouse is over a clickable feature. Drives the deck getCursor. */
+  /** Live flag: mouse is over a clickable deck (GeoArrow/Parquet) feature. */
   hoverRef: React.RefObject<boolean>;
+  /** Live flag: mouse is over a clickable MVT feature (set from MapLibre hover). */
+  mvtHoverRef: React.RefObject<boolean>;
+  /** Config ids of clickable layers; deck onHover matches picked layer ids against these. */
+  clickableIdsRef: React.RefObject<string[]>;
 }
 
 /** Read current layers from a MapboxOverlay */
@@ -165,8 +184,14 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
     const mapRef = useRef<MapRef>(null);
     const overlayRef = useRef<MapboxOverlay | null>(null);
     const hoverRef = useRef<boolean>(false);
+    const mvtHoverRef = useRef<boolean>(false);
+    const clickableIdsRef = useRef<string[]>([]);
 
-    useImperativeHandle(ref, () => ({ mapRef, overlayRef, hoverRef }), []);
+    useImperativeHandle(
+      ref,
+      () => ({ mapRef, overlayRef, hoverRef, mvtHoverRef, clickableIdsRef }),
+      [],
+    );
 
     useEffect(() => {
       function onFlyTo(e: Event) {
@@ -226,6 +251,8 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
           layers={topLayers && topLayers.length > 0 ? [...layers, ...topLayers] : layers}
           overlayRef={overlayRef}
           hoverRef={hoverRef}
+          mvtHoverRef={mvtHoverRef}
+          clickableIdsRef={clickableIdsRef}
         />
       </Map>
     );
