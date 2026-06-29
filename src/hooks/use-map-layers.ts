@@ -140,9 +140,12 @@ export function useMapLayers() {
 
     // Register a band-driven geostyler color function for this COG source (once
     // per URL). Must happen before the source is added so the first tiles render
-    // styled. Without geostyler rules the protocol renders the raw raster.
+    // styled. Skipped when the COG already contains its colors (`embeddedColors`)
+    // — there the rules are a legend key only. Without rules the protocol renders
+    // the raw raster.
     if (
       config.geostyler?.rules?.length &&
+      !config.embeddedColors &&
       !registeredCogColorUrls.has(config.source)
     ) {
       setColorFunction(config.source, buildCogColorFunction(config.geostyler));

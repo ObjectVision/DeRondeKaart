@@ -34,6 +34,7 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     excludeFromLegend: (layer.excludeFromLegend as boolean) ?? undefined,
     excludeFromPicking: (layer.excludeFromPicking as boolean) ?? undefined,
     excludeFromComparison: (layer.excludeFromComparison as boolean) ?? undefined,
+    embeddedColors: (layer.embeddedColors as boolean) ?? undefined,
   };
 }
 
