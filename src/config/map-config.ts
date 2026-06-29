@@ -12,6 +12,13 @@ export interface ClickMarkerConfig {
   size: number;
   /** Marker color as an [r, g, b, a] tuple (0–255). */
   color: [number, number, number, number];
+  /**
+   * Pixel offset applied to the rendered icon relative to the click point.
+   * Positive X moves right, positive Y moves **down**. Use this to align the
+   * icon's visual center with the mouse pointer (e.g. nudge `my_location` down).
+   */
+  offsetX: number;
+  offsetY: number;
 }
 
 /**
@@ -50,11 +57,13 @@ export interface MapConfig {
   clickMarker: ClickMarkerConfig;
 }
 
-/** Default on-click marker: a purple pin at 40px. */
+/** Default on-click marker: a purple pin at 40px, no offset. */
 export const DEFAULT_CLICK_MARKER: ClickMarkerConfig = {
   icon: "/click-marker.svg",
   size: 40,
   color: [134, 59, 255, 255],
+  offsetX: 0,
+  offsetY: 0,
 };
 
 /** Fallback view, matching the hardcoded INITIAL_VIEW_STATE in MapView.tsx. */
@@ -129,7 +138,18 @@ function validateClickMarker(value: unknown): ClickMarkerConfig {
     console.warn(`map.json: invalid clickMarker.color ${JSON.stringify(obj.color)}; using default`);
   }
 
-  return { icon, size, color };
+  // Pixel offsets — any finite number (negative allowed); default 0.
+  const validateOffset = (raw: unknown, key: string, fallback: number): number => {
+    if (raw === undefined) return fallback;
+    const n = Number(raw);
+    if (Number.isFinite(n)) return n;
+    console.warn(`map.json: invalid clickMarker.${key} ${JSON.stringify(raw)}; using default`);
+    return fallback;
+  };
+  const offsetX = validateOffset(obj.offsetX, "offsetX", DEFAULT_CLICK_MARKER.offsetX);
+  const offsetY = validateOffset(obj.offsetY, "offsetY", DEFAULT_CLICK_MARKER.offsetY);
+
+  return { icon, size, color, offsetX, offsetY };
 }
 
 /**

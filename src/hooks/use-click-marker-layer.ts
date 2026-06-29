@@ -27,7 +27,7 @@ export function useClickMarkerLayers(
   point: ClickPoint | null,
   config: ClickMarkerConfig = DEFAULT_CLICK_MARKER,
 ): Layer[] {
-  const { icon, size, color } = config;
+  const { icon, size, color, offsetX, offsetY } = config;
   const iconUrl = resolveMarkerIconUrl(icon);
   return useMemo(() => {
     if (!point) return [];
@@ -51,8 +51,11 @@ export function useClickMarkerLayers(
         getSize: size,
         sizeUnits: "pixels",
         getColor: color,
+        // Pixel nudge (positive Y = down) to align the icon's visual center
+        // with the click/pointer location. Configured via map.json.
+        getPixelOffset: [offsetX, offsetY],
         billboard: true,
       }),
     ];
-  }, [point, iconUrl, size, color]);
+  }, [point, iconUrl, size, color, offsetX, offsetY]);
 }
