@@ -145,6 +145,20 @@ function App({
     [mapBLayers],
   );
 
+  const handleRemoveA = useCallback(
+    (layerId: string) => {
+      mapALayers.removeLayer(layerId, mapARef.current?.mapRef ?? { current: null });
+    },
+    [mapALayers],
+  );
+
+  const handleRemoveB = useCallback(
+    (layerId: string) => {
+      mapBLayers.removeLayer(layerId, mapBRef.current?.mapRef ?? { current: null });
+    },
+    [mapBLayers],
+  );
+
   const handleMapALabelsReady = useCallback(() => {
     const ref = mapARef.current?.mapRef;
     if (ref) mapALayers.applyLabelBeforeId(ref);
@@ -236,6 +250,8 @@ function App({
           onToggleB={handleToggleB}
           onToggleRuleA={handleToggleRuleA}
           onToggleRuleB={handleToggleRuleB}
+          onRemoveA={handleRemoveA}
+          onRemoveB={handleRemoveB}
           comparisonMode={comparisonMode}
         />
 

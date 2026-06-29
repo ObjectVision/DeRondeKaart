@@ -12,6 +12,8 @@ interface LegendProps {
   onToggleB: (layerId: string) => void;
   onToggleRuleA: (layerId: string, ruleName: string) => void;
   onToggleRuleB: (layerId: string, ruleName: string) => void;
+  onRemoveA: (layerId: string) => void;
+  onRemoveB: (layerId: string) => void;
   comparisonMode: boolean;
 }
 
@@ -42,6 +44,7 @@ function LayerList({
   hiddenRules,
   onToggle,
   onToggleRule,
+  onRemove,
 }: {
   label?: string;
   entries: LayerEntry[];
@@ -49,6 +52,7 @@ function LayerList({
   hiddenRules: globalThis.Map<string, Set<string>>;
   onToggle: (layerId: string) => void;
   onToggleRule: (layerId: string, ruleName: string) => void;
+  onRemove: (layerId: string) => void;
 }) {
   if (entries.length === 0) return null;
 
@@ -68,31 +72,41 @@ function LayerList({
 
           return (
             <li key={config.id}>
-              {/* Layer-level toggle */}
-              <button
-                onClick={() => onToggle(config.id)}
-                className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-sm hover:bg-gray-100 transition-colors"
-              >
-                <span
-                  className="inline-block h-3 w-3 rounded-sm border border-gray-300 flex-shrink-0"
-                  style={{
-                    backgroundColor: isVisible
-                      ? hasRules
-                        ? ruleSwatchColor(rules[0])
-                        : colorToCSS(config.style.color)
-                      : "transparent",
-                  }}
-                />
-                <span
-                  className={
-                    isVisible
-                      ? "text-gray-800 font-medium"
-                      : "text-gray-400 line-through"
-                  }
+              {/* Layer-level toggle + close */}
+              <div className="group flex items-center rounded hover:bg-gray-100 transition-colors">
+                <button
+                  onClick={() => onToggle(config.id)}
+                  className="flex flex-1 items-center gap-2 px-1.5 py-1 text-left text-sm"
                 >
-                  {config.name}
-                </span>
-              </button>
+                  <span
+                    className="inline-block h-3 w-3 rounded-sm border border-gray-300 flex-shrink-0"
+                    style={{
+                      backgroundColor: isVisible
+                        ? hasRules
+                          ? ruleSwatchColor(rules[0])
+                          : colorToCSS(config.style.color)
+                        : "transparent",
+                    }}
+                  />
+                  <span
+                    className={
+                      isVisible
+                        ? "text-gray-800 font-medium"
+                        : "text-gray-400 line-through"
+                    }
+                  >
+                    {config.name}
+                  </span>
+                </button>
+                <button
+                  onClick={() => onRemove(config.id)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors text-sm leading-none px-1.5"
+                  aria-label={`Verwijder ${config.name}`}
+                  title="Laag verwijderen"
+                >
+                  &times;
+                </button>
+              </div>
 
               {/* Per-rule class toggles */}
               {hasRules && isVisible && (
@@ -147,6 +161,8 @@ export function Legend({
   onToggleB,
   onToggleRuleA,
   onToggleRuleB,
+  onRemoveA,
+  onRemoveB,
   comparisonMode,
 }: LegendProps) {
   const visibleA = entriesA.filter((e) => !e.config.excludeFromLegend);
@@ -167,6 +183,7 @@ export function Legend({
             hiddenRules={hiddenRulesA}
             onToggle={onToggleA}
             onToggleRule={onToggleRuleA}
+            onRemove={onRemoveA}
           />
           <LayerList
             label="Map B"
@@ -175,6 +192,7 @@ export function Legend({
             hiddenRules={hiddenRulesB}
             onToggle={onToggleB}
             onToggleRule={onToggleRuleB}
+            onRemove={onRemoveB}
           />
         </div>
       ) : (
@@ -184,6 +202,7 @@ export function Legend({
           hiddenRules={hiddenRulesA}
           onToggle={onToggleA}
           onToggleRule={onToggleRuleA}
+          onRemove={onRemoveA}
         />
       )}
     </div>
