@@ -1658,6 +1658,7 @@
       "name": "Aandeel geschikt 2024",
       "source": "https://data.woonzorglimburg.nl/cog/aandeel_geschikt_2024.tif",
       "format": "cog",
+      "embeddedColors": true,
       "style": {
         "opacity": 0.8
       },

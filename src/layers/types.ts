@@ -89,6 +89,8 @@ export interface LayerConfig {
   excludeFromPicking?: boolean;
   /** If true, presence of this layer on BOTH maps suppresses comparison mode (slider hides, Map B is not rendered) */
   excludeFromComparison?: boolean;
+  /** COG only: the raster already contains its colors; geostyler rules are shown in the legend but NOT applied as a per-pixel color function. */
+  embeddedColors?: boolean;
 }
 
 export interface LayersFile {
