@@ -5,6 +5,7 @@ import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
 import { useFeaturePick } from "@/hooks/use-feature-pick";
+import { useHoverCursor } from "@/hooks/use-hover-cursor";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
 import { useNavigation } from "@/hooks/use-navigation";
 import { Legend } from "@/components/ui/legend";
@@ -41,6 +42,10 @@ function App({
   const pickA = useFeaturePick(mapALayers.layerEntries, mapARef);
   const pickB = useFeaturePick(mapBLayers.layerEntries, mapBRef);
 
+  // Hover cursor (pointer over clickable features, grab otherwise) for each map
+  const hoverA = useHoverCursor(mapALayers.layerEntries, mapARef);
+  const hoverB = useHoverCursor(mapBLayers.layerEntries, mapBRef);
+
   // Shared Street View panel — reflects the most recent click on either map
   const [streetView, setStreetView] = useState<{ lng: number; lat: number } | null>(
     null,
@@ -67,6 +72,15 @@ function App({
       handleMapClick(e);
     },
     [pickB.handleClick, handleMapClick],
+  );
+
+  const onMouseMoveA = useCallback(
+    (e: MapLayerMouseEvent) => hoverA.handleMouseMove(e),
+    [hoverA.handleMouseMove],
+  );
+  const onMouseMoveB = useCallback(
+    (e: MapLayerMouseEvent) => hoverB.handleMouseMove(e),
+    [hoverB.handleMouseMove],
   );
 
   // Navigation menu: add/remove layers against the shared per-map state
@@ -196,6 +210,7 @@ function App({
           viewState={viewState}
           onMove={handleMove}
           onClick={onClickA}
+          onMouseMove={onMouseMoveA}
           onLoad={() => setMapAReady(true)}
           onLabelsReady={handleMapALabelsReady}
         />
@@ -220,6 +235,7 @@ function App({
             viewState={viewState}
             onMove={handleMove}
             onClick={onClickB}
+            onMouseMove={onMouseMoveB}
             onLoad={handleMapBLoad}
             onLabelsReady={handleMapBLabelsReady}
           />
