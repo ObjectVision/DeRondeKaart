@@ -67,7 +67,11 @@ function LayerList({
         {entries.map(({ config }) => {
           const isVisible = !hiddenIds.has(config.id);
           const rules = config.geostyler?.rules;
-          const hasRules = rules && rules.length > 0 && config.format !== "cog";
+          const hasRules = rules && rules.length > 0;
+          // COG rules are a read-only legend key: the raster is styled per-pixel
+          // by a color function, so individual classes can't be toggled the way
+          // deck-layer rules can. Render them as non-interactive swatches.
+          const isCog = config.format === "cog";
           const layerHiddenRules = hiddenRules.get(config.id);
 
           return (
@@ -113,20 +117,36 @@ function LayerList({
                 <ul className="ml-5 flex flex-col gap-0.5">
                   {rules.map((rule) => {
                     const isRuleHidden = layerHiddenRules?.has(rule.name) ?? false;
+                    const swatch = (
+                      <span
+                        className="inline-block h-2.5 w-2.5 rounded-sm border border-gray-300 flex-shrink-0"
+                        style={{
+                          backgroundColor: isRuleHidden
+                            ? "transparent"
+                            : ruleSwatchColor(rule),
+                        }}
+                      />
+                    );
+
+                    // COG: static legend key (no per-class toggle).
+                    if (isCog) {
+                      return (
+                        <li key={rule.name}>
+                          <div className="flex w-full items-center gap-2 px-1.5 py-0.5 text-xs">
+                            {swatch}
+                            <span className="text-gray-600">{rule.name}</span>
+                          </div>
+                        </li>
+                      );
+                    }
+
                     return (
                       <li key={rule.name}>
                         <button
                           onClick={() => onToggleRule(config.id, rule.name)}
                           className="flex w-full items-center gap-2 rounded px-1.5 py-0.5 text-left text-xs hover:bg-gray-100 transition-colors"
                         >
-                          <span
-                            className="inline-block h-2.5 w-2.5 rounded-sm border border-gray-300 flex-shrink-0"
-                            style={{
-                              backgroundColor: isRuleHidden
-                                ? "transparent"
-                                : ruleSwatchColor(rule),
-                            }}
-                          />
+                          {swatch}
                           <span
                             className={
                               isRuleHidden
