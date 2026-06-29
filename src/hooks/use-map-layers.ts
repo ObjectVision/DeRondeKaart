@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback } from "react";
 import type { Layer } from "@deck.gl/core";
 import type { MapRef } from "react-map-gl/maplibre";
+import { setColorFunction } from "@geomatico/maplibre-cog-protocol";
 import { bringLabelsToTop, bringStudyareaToTop, getFirstLabelId } from "@/components/map/MapView";
 import {
   loadParquetBatches,
@@ -9,12 +10,20 @@ import {
   createGeoArrowLayers,
   buildMvtLayerDefs,
 } from "@/layers";
+import { buildCogColorFunction } from "@/layers/cog-style";
 import type { LayerConfig } from "@/layers";
 
 export interface LayerEntry {
   config: LayerConfig;
   visible: boolean;
 }
+
+/**
+ * Source URLs that already have a COG color function registered. The
+ * cog-protocol keys renderers by URL globally, so registering once per source
+ * is enough (and Map A / Map B share the same URL).
+ */
+const registeredCogColorUrls = new Set<string>();
 
 export function useMapLayers() {
   const [deckLayers, setDeckLayers] = useState<Layer[]>([]);
@@ -128,6 +137,17 @@ export function useMapLayers() {
     const beforeId = getFirstLabelId(map);
     const sourceId = `cog-source-${config.id}`;
     const layerId = `cog-layer-${config.id}`;
+
+    // Register a band-driven geostyler color function for this COG source (once
+    // per URL). Must happen before the source is added so the first tiles render
+    // styled. Without geostyler rules the protocol renders the raw raster.
+    if (
+      config.geostyler?.rules?.length &&
+      !registeredCogColorUrls.has(config.source)
+    ) {
+      setColorFunction(config.source, buildCogColorFunction(config.geostyler));
+      registeredCogColorUrls.add(config.source);
+    }
 
     if (!map.getSource(sourceId)) {
       map.addSource(sourceId, {
