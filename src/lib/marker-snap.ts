@@ -1,6 +1,6 @@
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
-import type { LayerEntry } from "./use-map-layers";
+import type { LayerEntry } from "@/hooks/use-map-layers";
 import { buildMvtLayerDefs } from "@/layers";
 
 /**
