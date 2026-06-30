@@ -1706,7 +1706,7 @@
     {
       "id": "aandeel_ongeschikt_2024",
       "name": "Aandeel ongeschikt 2024",
-      "source": "https://data.woonzorglimburg.nl/cog/aandeel_ongeschikt_2024.tif",
+      "source": "https://data.woonzorglimburg.nl/cog/aandeel_ongeschikt_2026.tif",
       "format": "cog",
       "embeddedColors": true,
       "style": {
@@ -1756,7 +1756,7 @@
     {
       "id": "aandeel_aanpasbaar_2024",
       "name": "Aandeel aanpasbaar 2024",
-      "source": "https://data.woonzorglimburg.nl/cog/aandeel_aanpasbaar_2024.tif",
+      "source": "https://data.woonzorglimburg.nl/cog/aandeel_aanpasbaar_2026.tif",
       "format": "cog",
       "embeddedColors": true,
       "style": {
