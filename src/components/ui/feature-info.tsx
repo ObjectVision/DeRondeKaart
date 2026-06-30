@@ -47,7 +47,7 @@ export function FeatureInfo({ result, layerEntries, onClose }: FeatureInfoProps)
   }, [result, layerEntries]);
 
   const features = result.featuresByLayer.get(activeTab) ?? [];
-  const template = templates.get(activeTab);
+  const template = templates.get(activeTab); 
 
   return (
     <div className="max-w-sm max-h-[50vh] flex flex-col rounded-lg bg-white/90 shadow-md backdrop-blur-sm">
