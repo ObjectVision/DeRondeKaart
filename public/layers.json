@@ -1704,6 +1704,106 @@
       }
     },
     {
+      "id": "aandeel_ongeschikt_2024",
+      "name": "Aandeel ongeschikt 2024",
+      "source": "https://data.woonzorglimburg.nl/cog/aandeel_ongeschikt_2024.tif",
+      "format": "cog",
+      "embeddedColors": true,
+      "style": {
+        "opacity": 0.8
+      },
+      "geostyler": {
+        "name": "Aandeel ongeschikt",
+        "rules": [
+          {
+            "name": "tot 10%",
+            "filter": ["==", "band0", 0],
+            "symbolizers": [{ "kind": "Fill", "color": "#ffebcd" }]
+          },
+          {
+            "name": "10% tot 20%",
+            "filter": ["==", "band0", 1],
+            "symbolizers": [{ "kind": "Fill", "color": "#fed7aa" }]
+          },
+          {
+            "name": "20% tot 40%",
+            "filter": ["==", "band0", 2],
+            "symbolizers": [{ "kind": "Fill", "color": "#fec18a" }]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": ["==", "band0", 3],
+            "symbolizers": [{ "kind": "Fill", "color": "#feac6b" }]
+          },
+          {
+            "name": "60% tot 80%",
+            "filter": ["==", "band0", 4],
+            "symbolizers": [{ "kind": "Fill", "color": "#fb9c51" }]
+          },
+          {
+            "name": "80% tot 90%",
+            "filter": ["==", "band0", 5],
+            "symbolizers": [{ "kind": "Fill", "color": "#f68738" }]
+          },
+          {
+            "name": "meer dan 90%",
+            "filter": ["==", "band0", 6],
+            "symbolizers": [{ "kind": "Fill", "color": "#ef751f" }]
+          }
+        ]
+      }
+    },
+    {
+      "id": "aandeel_aanpasbaar_2024",
+      "name": "Aandeel aanpasbaar 2024",
+      "source": "https://data.woonzorglimburg.nl/cog/aandeel_aanpasbaar_2024.tif",
+      "format": "cog",
+      "embeddedColors": true,
+      "style": {
+        "opacity": 0.8
+      },
+      "geostyler": {
+        "name": "Aandeel aanpasbaar",
+        "rules": [
+          {
+            "name": "tot 10%",
+            "filter": ["==", "band0", 0],
+            "symbolizers": [{ "kind": "Fill", "color": "#feebe2" }]
+          },
+          {
+            "name": "10% tot 20%",
+            "filter": ["==", "band0", 1],
+            "symbolizers": [{ "kind": "Fill", "color": "#fcc5c0" }]
+          },
+          {
+            "name": "20% tot 40%",
+            "filter": ["==", "band0", 2],
+            "symbolizers": [{ "kind": "Fill", "color": "#fa9fb6" }]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": ["==", "band0", 3],
+            "symbolizers": [{ "kind": "Fill", "color": "#f768a6" }]
+          },
+          {
+            "name": "60% tot 80%",
+            "filter": ["==", "band0", 4],
+            "symbolizers": [{ "kind": "Fill", "color": "#dd3497" }]
+          },
+          {
+            "name": "80% tot 90%",
+            "filter": ["==", "band0", 5],
+            "symbolizers": [{ "kind": "Fill", "color": "#ae017d" }]
+          },
+          {
+            "name": "meer dan 90%",
+            "filter": ["==", "band0", 6],
+            "symbolizers": [{ "kind": "Fill", "color": "#7a0177" }]
+          }
+        ]
+      }
+    },
+    {
       "id": "cbsgemeente2026",
       "name": "CBS Gemeente 2026",
       "source": "https://data.woonzorglimburg.nl/parquet/cbsgemeente2026.parquet",
