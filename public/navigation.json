@@ -107,7 +107,9 @@
             "color": "#2D6CDF",
             "expanded": true,
             "children": [
-            { "id": "aandeel_geschikt_2024", "icon": "apartment", "color": "#8C54D6", "label": "Nultrede", "a": false, "b": false }
+            { "id": "aandeel_geschikt_2024", "icon": "apartment", "color": "#8C54D6", "label": "Nultrede", "a": false, "b": false },
+            { "id": "aandeel_ongeschikt_2024", "icon": "apartment", "color": "#8C54D6", "label": "Ongeschikt", "a": false, "b": false },
+            { "id": "aandeel_aanpasbaar_2024", "icon": "apartment", "color": "#8C54D6", "label": "Aanpasbaar", "a": false, "b": false }
             ]
         },
         {
