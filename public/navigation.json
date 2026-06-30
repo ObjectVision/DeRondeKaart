@@ -114,7 +114,7 @@
             "label": "specificatie bezit woningcorporaties",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": false,
+            "expanded": true,
             "children": [
             { "id": "", "label": "", "a": false, "b": false }
             ]
