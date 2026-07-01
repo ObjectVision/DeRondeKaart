@@ -67,7 +67,14 @@ export function useNavigation({
     [mapLeftLayers, mapRightLayers, mapLeftRef, mapRightRef, isOnMap, getConfigs],
   );
 
-  return useMemo(() => ({ isOnMap, toggleOnMap }), [isOnMap, toggleOnMap]);
+  // The right map can only receive layers once the left map has at least one:
+  // comparison is left-anchored, so an empty left map has nothing to compare against.
+  const leftHasLayers = mapLeftLayers.layerEntries.length > 0;
+
+  return useMemo(
+    () => ({ isOnMap, toggleOnMap, leftHasLayers }),
+    [isOnMap, toggleOnMap, leftHasLayers],
+  );
 }
 
 export type NavigationApi = ReturnType<typeof useNavigation>;
