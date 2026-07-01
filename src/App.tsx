@@ -16,7 +16,7 @@ import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
-import { MapPills } from "@/components/ui/map-pills";
+//import { MapPills } from "@/components/ui/map-pills";
 
 function App({
   initialViewState,
