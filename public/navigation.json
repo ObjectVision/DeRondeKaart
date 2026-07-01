@@ -3,10 +3,10 @@
     "label": "woonzorganalyse",
     "icon": "diversity_1",
     "color": "#EB5BA6",
-    "expanded": false,
+    "expanded": true,
     "children": [
     {
-        "label": "woonzorganalyse woningvoorraad",
+        "label": "woningvoorraad",
         "icon": "diversity_1",
         "color": "#EB5BA6",
         "expanded": false,
@@ -15,7 +15,7 @@
         ]
     },
     {
-        "label": "woonzorganalyse kwetsbare ouderen",
+        "label": "kwetsbare ouderen",
         "icon": "elderly",
         "color": "#EB5BA6",
         "expanded": false,
@@ -24,7 +24,7 @@
         ]
     },
     {
-        "label": "woonzorganalyse aandachtsgroepen",
+        "label": "aandachtsgroepen",
         "icon": "diversity_1",
         "color": "#EB5BA6",
         "expanded": false,
@@ -33,10 +33,10 @@
         ]
     },
     {
-        "label": "woonzorglocaties en concentraties",
+        "label": "clusters van indicaties",
         "icon": "location_on",
         "color": "#E0457B",
-        "expanded": false,
+        "expanded": true,
         "children": [
         { "id": "verpleging_en_verzorging", "label": "Verpleging en verzorging", "a": false, "b": false },
         { "id": "geestelijke_gezondheidszorg_B", "label": "Geestelijke gezondheidszorg B", "a": false, "b": false },
@@ -70,7 +70,7 @@
         "label": "veerkrachtanalyse",
         "icon": "monitor_heart",
         "color": "#3DB6B0",
-        "expanded": false,
+        "expanded": true,
         "children": [
         { "id": "veerkracht_limburg", "label": "Veerkracht tov NL", "a": false, "b": false },
         { "id": "focus_limburg", "label": "Focus tov NL", "a": false, "b": false }
@@ -82,13 +82,13 @@
     "label": "bevolking",
     "icon": "groups",
     "color": "#7C5CFC",
-    "expanded": false,
+    "expanded": true,
     "children": [
         {
             "label": "sociaal economisch",
             "icon": "trending_up",
             "color": "#22A06B",
-            "expanded": false,
+            "expanded": true,
             "children": [
             { "id": "Sociaal_dominante_klasse", "label": "Sociaal dominante klasse", "a": false, "b": false }
             ]
@@ -127,7 +127,7 @@
     "label": "omgeving",
     "icon": "nature_people",
     "color": "#4FB477",
-    "expanded": false,
+    "expanded": true,
     "children": [
         {
             "label": "voorzieningen",
@@ -176,7 +176,7 @@
     "label": "gebiedsindelingen",
     "icon": "border_all",
     "color": "#F2994A",
-    "expanded": false,
+    "expanded": true,
     "children": [
         { "id": "cbsgemeente2026", "icon": "border_all", "color": "#F2994A", "label": "gemeente", "a": false, "b": false },
         { "id": "cbswijk2026", "icon": "border_all", "color": "#F2994A", "label": "wijk", "a": false, "b": false },

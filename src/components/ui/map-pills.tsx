@@ -18,7 +18,7 @@ export function MapPills({ activeA, activeB }: MapPillsProps) {
           activeA ? "opacity-100" : "opacity-40"
         }`}
       >
-        Kaart A
+        linker
       </span>
       <span
         data-active={activeB}
@@ -26,7 +26,7 @@ export function MapPills({ activeA, activeB }: MapPillsProps) {
           activeB ? "opacity-100" : "opacity-40"
         }`}
       >
-        Kaart B
+        rechter
       </span>
     </div>
   );
