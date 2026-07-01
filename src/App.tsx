@@ -317,7 +317,7 @@ function App({
       </div>
 
       {/* Kaart A/B identification pills — top left/right */}
-      <MapPills activeA={hasMapALayers} activeB={showMapB} />
+      {/*<MapPills activeA={hasMapALayers} activeB={showMapB} />*/}
     </div>
   );
 }

@@ -98,7 +98,7 @@ export function LeafDetail({ leaf, path, nav, onBack }: LeafDetailProps) {
             onClick={() => nav.toggleOnMap(leaf.id, "a")}
           >
             <Icon name="map" size={16} />
-            {onA ? "Kaart A ✓" : "Kaart A"}
+            {onA ? "linker kaart ✓" : "linker kaart"}
           </Button>
           <Button
             variant={onB ? "default" : "outline"}
@@ -106,7 +106,7 @@ export function LeafDetail({ leaf, path, nav, onBack }: LeafDetailProps) {
             onClick={() => nav.toggleOnMap(leaf.id, "b")}
           >
             <Icon name="map" size={16} />
-            {onB ? "Kaart B ✓" : "Kaart B"}
+            {onB ? "rechter kaart ✓" : "rechter kaart"}
           </Button>
         </div>
       </div>

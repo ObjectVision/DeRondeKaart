@@ -197,7 +197,7 @@ export function Legend({
       {comparisonMode ? (
         <div className="flex flex-col gap-2">
           <LayerList
-            label="Map A"
+            label="Linker kaart"
             entries={visibleA}
             hiddenIds={hiddenIdsA}
             hiddenRules={hiddenRulesA}
@@ -206,7 +206,7 @@ export function Legend({
             onRemove={onRemoveA}
           />
           <LayerList
-            label="Map B"
+            label="Rechter kaart"
             entries={visibleB}
             hiddenIds={hiddenIdsB}
             hiddenRules={hiddenRulesB}
