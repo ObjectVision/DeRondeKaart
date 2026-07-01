@@ -57,6 +57,9 @@ export function LeafDetail({ leaf, path, nav, onBack }: LeafDetailProps) {
 
   const onA = nav.isOnMap(leaf.id, "a");
   const onB = nav.isOnMap(leaf.id, "b");
+  // The right map can only be added to once the left map holds a layer. Adding is
+  // blocked while the left map is empty; removing an existing right-map layer stays allowed.
+  const rightDisabled = !nav.leftHasLayers && !onB;
 
   return (
     <div className="flex flex-col gap-3">
@@ -98,15 +101,21 @@ export function LeafDetail({ leaf, path, nav, onBack }: LeafDetailProps) {
             onClick={() => nav.toggleOnMap(leaf.id, "a")}
           >
             <Icon name="map" size={16} />
-            {onA ? "linker kaart ✓" : "linker kaart"}
+            {onA ? "Linker kaart ✓" : "Linker kaart"}
           </Button>
           <Button
             variant={onB ? "default" : "outline"}
             size="sm"
+            disabled={rightDisabled}
+            title={
+              rightDisabled
+                ? "Voeg eerst een laag toe aan de linker kaart"
+                : undefined
+            }
             onClick={() => nav.toggleOnMap(leaf.id, "b")}
           >
             <Icon name="map" size={16} />
-            {onB ? "rechter kaart ✓" : "rechter kaart"}
+            {onB ? "Rechter kaart ✓" : "Rechter kaart"}
           </Button>
         </div>
       </div>
