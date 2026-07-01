@@ -21,7 +21,7 @@ export interface LayerEntry {
 /**
  * Source URLs that already have a COG color function registered. The
  * cog-protocol keys renderers by URL globally, so registering once per source
- * is enough (and Map A / Map B share the same URL).
+ * is enough (and the left / right map share the same URL).
  */
 const registeredCogColorUrls = new Set<string>();
 
@@ -316,7 +316,7 @@ export function useMapLayers() {
 
   /**
    * Re-apply imperative MVT/COG entries to a map. Used when a map mounts
-   * after addLayer was already called (e.g. Map B becoming ready after the
+   * after addLayer was already called (e.g. the right map becoming ready after the
    * first layer was added to it). Safe to call repeatedly — the MVT/COG
    * helpers skip sources/layers that already exist.
    */
@@ -337,7 +337,7 @@ export function useMapLayers() {
    * Retroactively set the beforeId on every existing deck.gl layer to the
    * first label id. Called once labels finish loading on a map. Without this,
    * any deck.gl layer constructed before labels were loaded (e.g. the first
-   * layer added to Map B) has beforeId=undefined and deck.gl's resolveLayers
+   * layer added to the right map) has beforeId=undefined and deck.gl's resolveLayers
    * permanently keeps it at the top of the style — above labels.
    */
   const applyLabelBeforeId = useCallback(

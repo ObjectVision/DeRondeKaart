@@ -8,10 +8,10 @@ import type { useMapLayers } from "./use-map-layers";
 type MapSlot = "a" | "b";
 
 interface UseNavigationOptions {
-  mapALayers: ReturnType<typeof useMapLayers>;
-  mapBLayers: ReturnType<typeof useMapLayers>;
-  mapARef: React.RefObject<MapViewHandle | null>;
-  mapBRef: React.RefObject<MapViewHandle | null>;
+  mapLeftLayers: ReturnType<typeof useMapLayers>;
+  mapRightLayers: ReturnType<typeof useMapLayers>;
+  mapLeftRef: React.RefObject<MapViewHandle | null>;
+  mapRightRef: React.RefObject<MapViewHandle | null>;
 }
 
 const emptyRef: React.RefObject<MapRef | null> = { current: null };
@@ -23,10 +23,10 @@ const emptyRef: React.RefObject<MapRef | null> = { current: null };
  * all three share one source of truth.
  */
 export function useNavigation({
-  mapALayers,
-  mapBLayers,
-  mapARef,
-  mapBRef,
+  mapLeftLayers,
+  mapRightLayers,
+  mapLeftRef,
+  mapRightRef,
 }: UseNavigationOptions) {
   const configsRef = useRef<LayerConfig[] | null>(null);
 
@@ -39,16 +39,16 @@ export function useNavigation({
 
   const isOnMap = useCallback(
     (id: string, slot: MapSlot): boolean => {
-      const entries = slot === "b" ? mapBLayers.layerEntries : mapALayers.layerEntries;
+      const entries = slot === "b" ? mapRightLayers.layerEntries : mapLeftLayers.layerEntries;
       return entries.some((e) => e.config.id === id);
     },
-    [mapALayers.layerEntries, mapBLayers.layerEntries],
+    [mapLeftLayers.layerEntries, mapRightLayers.layerEntries],
   );
 
   const toggleOnMap = useCallback(
     async (id: string, slot: MapSlot) => {
-      const side = slot === "b" ? mapBLayers : mapALayers;
-      const ref = slot === "b" ? mapBRef : mapARef;
+      const side = slot === "b" ? mapRightLayers : mapLeftLayers;
+      const ref = slot === "b" ? mapRightRef : mapLeftRef;
       const mapRef = ref.current?.mapRef ?? emptyRef;
 
       if (isOnMap(id, slot)) {
@@ -64,7 +64,7 @@ export function useNavigation({
       }
       await side.addLayer(config, mapRef);
     },
-    [mapALayers, mapBLayers, mapARef, mapBRef, isOnMap, getConfigs],
+    [mapLeftLayers, mapRightLayers, mapLeftRef, mapRightRef, isOnMap, getConfigs],
   );
 
   return useMemo(() => ({ isOnMap, toggleOnMap }), [isOnMap, toggleOnMap]);

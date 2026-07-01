@@ -7,7 +7,7 @@ export interface NavLeaf {
   icon?: string;
   /** CSS color for the leaf icon, e.g. "#E0457B". */
   color?: string;
-  /** Default-add to map A / map B (informational; not auto-applied). */
+  /** Default-add to the left map / right map (informational; not auto-applied). */
   a?: boolean;
   b?: boolean;
   /** Path to an HTML metadata file, e.g. "/data/meta/huisarts.html". */
