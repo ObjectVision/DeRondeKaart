@@ -115,8 +115,8 @@ function App({
 
   // Process URL commands for layer management (only after Map A is ready)
   useUrlCommands({
-    mapA: { layers: mapALayers, mapRef: mapARef },
-    mapB: { layers: mapBLayers, mapRef: mapBRef },
+    mapA: { layers: mapALayers, mapRef: mapARef }, // labelled as "linker kaart"
+    mapB: { layers: mapBLayers, mapRef: mapBRef }, // labelled as "rechter kaart"
     ready: mapAReady,
     applyView,
   });

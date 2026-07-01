@@ -3,7 +3,7 @@ Goal: create a webmap app that is embedable given the following conditions:
 general
 - use typescript
 - use react.js framework with vite
-- two available maps: map A and map B
+- two available maps: map A (linker kaart) and map B (rechter kaart)
 - default state is no layers added, map A visible with a chosen default basemap
 - do not interact with the git interface of this project, commits will be handled by a human
 
