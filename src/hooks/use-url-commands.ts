@@ -15,8 +15,8 @@ export interface ViewUpdate {
 }
 
 interface UseUrlCommandsOptions {
-  mapA: MapSide;
-  mapB: MapSide;
+  mapLeft: MapSide;
+  mapRight: MapSide;
   ready: boolean;
   applyView: (view: ViewUpdate) => void;
 }
@@ -88,7 +88,7 @@ function parseCommands(params: URLSearchParams): LayerCommand[] {
   return commands;
 }
 
-export function useUrlCommands({ mapA, mapB, ready, applyView }: UseUrlCommandsOptions) {
+export function useUrlCommands({ mapLeft, mapRight, ready, applyView }: UseUrlCommandsOptions) {
   const configsRef = useRef<LayerConfig[] | null>(null);
   const processedInitialHash = useRef(false);
 
@@ -109,7 +109,7 @@ export function useUrlCommands({ mapA, mapB, ready, applyView }: UseUrlCommandsO
           return;
         }
 
-        const side = command.map === "b" ? mapB : mapA;
+        const side = command.map === "b" ? mapRight : mapLeft;
         const config = command.layer
           ? getLayerConfigById(configs, command.layer)
           : undefined;
@@ -134,7 +134,7 @@ export function useUrlCommands({ mapA, mapB, ready, applyView }: UseUrlCommandsO
         }
       }
     },
-    [getConfigs, mapA, mapB],
+    [getConfigs, mapLeft, mapRight],
   );
 
   const processHash = useCallback(() => {

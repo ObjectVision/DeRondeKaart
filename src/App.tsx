@@ -29,27 +29,27 @@ function App({
   streetviewEnabled?: boolean;
   clickMarker?: ClickMarkerConfig;
 }) {
-  const mapALayers = useMapLayers();
-  const mapBLayers = useMapLayers();
+  const mapLeftLayers = useMapLayers();
+  const mapRightLayers = useMapLayers();
 
   // Always-on study area, pinned above everything (incl. labels) on both maps.
   // Separate instances — Layer objects must not be shared across two Deck overlays.
   const studyLayersA = useStudyAreaLayer(studyAreaId);
   const studyLayersB = useStudyAreaLayer(studyAreaId);
-  const mapARef = useRef<MapViewHandle>(null);
-  const mapBRef = useRef<MapViewHandle>(null);
-  const [mapAReady, setMapAReady] = useState(false);
+  const mapLeftRef = useRef<MapViewHandle>(null);
+  const mapRightRef = useRef<MapViewHandle>(null);
+  const [mapLeftReady, setMapLeftReady] = useState(false);
 
   const [viewState, setViewState] = useState(initialViewState);
   const [sliderPosition, setSliderPosition] = useState(50);
 
   // Feature picking for each map
-  const pickA = useFeaturePick(mapALayers.layerEntries, mapARef);
-  const pickB = useFeaturePick(mapBLayers.layerEntries, mapBRef);
+  const pickA = useFeaturePick(mapLeftLayers.layerEntries, mapLeftRef);
+  const pickB = useFeaturePick(mapRightLayers.layerEntries, mapRightRef);
 
   // Hover cursor (pointer over clickable features, grab otherwise) for each map
-  const hoverA = useHoverCursor(mapALayers.layerEntries, mapARef);
-  const hoverB = useHoverCursor(mapBLayers.layerEntries, mapBRef);
+  const hoverA = useHoverCursor(mapLeftLayers.layerEntries, mapLeftRef);
+  const hoverB = useHoverCursor(mapRightLayers.layerEntries, mapRightRef);
 
   // Shared Street View panel — reflects the most recent click on either map
   const [streetView, setStreetView] = useState<{ lng: number; lat: number } | null>(
@@ -81,16 +81,16 @@ function App({
   const onClickA = useCallback(
     (e: MapLayerMouseEvent) => {
       pickA.handleClick(e);
-      handleMapClick(e, resolveMarkerPoint(e, mapARef, mapALayers.layerEntries));
+      handleMapClick(e, resolveMarkerPoint(e, mapLeftRef, mapLeftLayers.layerEntries));
     },
-    [pickA.handleClick, handleMapClick, mapALayers.layerEntries],
+    [pickA.handleClick, handleMapClick, mapLeftLayers.layerEntries],
   );
   const onClickB = useCallback(
     (e: MapLayerMouseEvent) => {
       pickB.handleClick(e);
-      handleMapClick(e, resolveMarkerPoint(e, mapBRef, mapBLayers.layerEntries));
+      handleMapClick(e, resolveMarkerPoint(e, mapRightRef, mapRightLayers.layerEntries));
     },
-    [pickB.handleClick, handleMapClick, mapBLayers.layerEntries],
+    [pickB.handleClick, handleMapClick, mapRightLayers.layerEntries],
   );
 
   const onMouseMoveA = useCallback(
@@ -103,7 +103,7 @@ function App({
   );
 
   // Navigation menu: add/remove layers against the shared per-map state
-  const nav = useNavigation({ mapALayers, mapBLayers, mapARef, mapBRef });
+  const nav = useNavigation({ mapLeftLayers, mapRightLayers, mapLeftRef, mapRightRef });
 
   const applyView = useCallback((view: ViewUpdate) => {
     setViewState((s) => ({
@@ -113,33 +113,33 @@ function App({
     }));
   }, []);
 
-  // Process URL commands for layer management (only after Map A is ready)
+  // Process URL commands for layer management (only after the left map is ready)
   useUrlCommands({
-    mapA: { layers: mapALayers, mapRef: mapARef }, // labelled as "linker kaart"
-    mapB: { layers: mapBLayers, mapRef: mapBRef }, // labelled as "rechter kaart"
-    ready: mapAReady,
+    mapLeft: { layers: mapLeftLayers, mapRef: mapLeftRef }, // "linker kaart"
+    mapRight: { layers: mapRightLayers, mapRef: mapRightRef }, // "rechter kaart"
+    ready: mapLeftReady,
     applyView,
   });
 
-  const hasMapALayers = mapALayers.layerEntries.length > 0;
-  const hasMapBLayers = mapBLayers.layerEntries.length > 0;
+  const hasMapLeftLayers = mapLeftLayers.layerEntries.length > 0;
+  const hasMapRightLayers = mapRightLayers.layerEntries.length > 0;
 
-  // Comparison requires Map B to contain at least one non-flagged layer.
-  const hasComparableLayerOnB = mapBLayers.layerEntries.some(
+  // Comparison requires the right map to contain at least one non-flagged layer.
+  const hasComparableLayerOnRight = mapRightLayers.layerEntries.some(
     (e) => !e.config.excludeFromComparison,
   );
 
-  const comparisonMode = hasMapALayers && hasMapBLayers && hasComparableLayerOnB;
-  // Mount Map B only when it has a comparable layer — flagged-only B has nothing
-  // meaningful to compare and is hidden alongside the slider.
-  const showMapB = hasMapBLayers && hasComparableLayerOnB;
+  const comparisonMode = hasMapLeftLayers && hasMapRightLayers && hasComparableLayerOnRight;
+  // Mount the right map only when it has a comparable layer — a flagged-only
+  // right map has nothing meaningful to compare and is hidden with the slider.
+  const showMapRight = hasMapRightLayers && hasComparableLayerOnRight;
 
-  // Once Map B's MapLibre style is loaded, replay any imperative MVT/COG
+  // Once the right map's MapLibre style is loaded, replay any imperative MVT/COG
   // entries that addLayer attempted before the map existed. Idempotent.
-  const handleMapBLoad = useCallback(() => {
-    const ref = mapBRef.current?.mapRef;
-    if (ref) mapBLayers.syncImperativeLayers(ref);
-  }, [mapBLayers]);
+  const handleMapRightLoad = useCallback(() => {
+    const ref = mapRightRef.current?.mapRef;
+    if (ref) mapRightLayers.syncImperativeLayers(ref);
+  }, [mapRightLayers]);
 
   const handleMove = useCallback((evt: ViewStateChangeEvent) => {
     setViewState((prev) => ({
@@ -152,55 +152,55 @@ function App({
 
   const handleToggleA = useCallback(
     (layerId: string) => {
-      mapALayers.toggleLayer(layerId, mapARef.current?.mapRef ?? { current: null });
+      mapLeftLayers.toggleLayer(layerId, mapLeftRef.current?.mapRef ?? { current: null });
     },
-    [mapALayers],
+    [mapLeftLayers],
   );
 
   const handleToggleB = useCallback(
     (layerId: string) => {
-      mapBLayers.toggleLayer(layerId, mapBRef.current?.mapRef ?? { current: null });
+      mapRightLayers.toggleLayer(layerId, mapRightRef.current?.mapRef ?? { current: null });
     },
-    [mapBLayers],
+    [mapRightLayers],
   );
 
   const handleToggleRuleA = useCallback(
     (layerId: string, ruleName: string) => {
-      mapALayers.toggleRule(layerId, ruleName, mapARef.current?.mapRef ?? { current: null });
+      mapLeftLayers.toggleRule(layerId, ruleName, mapLeftRef.current?.mapRef ?? { current: null });
     },
-    [mapALayers],
+    [mapLeftLayers],
   );
 
   const handleToggleRuleB = useCallback(
     (layerId: string, ruleName: string) => {
-      mapBLayers.toggleRule(layerId, ruleName, mapBRef.current?.mapRef ?? { current: null });
+      mapRightLayers.toggleRule(layerId, ruleName, mapRightRef.current?.mapRef ?? { current: null });
     },
-    [mapBLayers],
+    [mapRightLayers],
   );
 
   const handleRemoveA = useCallback(
     (layerId: string) => {
-      mapALayers.removeLayer(layerId, mapARef.current?.mapRef ?? { current: null });
+      mapLeftLayers.removeLayer(layerId, mapLeftRef.current?.mapRef ?? { current: null });
     },
-    [mapALayers],
+    [mapLeftLayers],
   );
 
   const handleRemoveB = useCallback(
     (layerId: string) => {
-      mapBLayers.removeLayer(layerId, mapBRef.current?.mapRef ?? { current: null });
+      mapRightLayers.removeLayer(layerId, mapRightRef.current?.mapRef ?? { current: null });
     },
-    [mapBLayers],
+    [mapRightLayers],
   );
 
-  const handleMapALabelsReady = useCallback(() => {
-    const ref = mapARef.current?.mapRef;
-    if (ref) mapALayers.applyLabelBeforeId(ref);
-  }, [mapALayers]);
+  const handleMapLeftLabelsReady = useCallback(() => {
+    const ref = mapLeftRef.current?.mapRef;
+    if (ref) mapLeftLayers.applyLabelBeforeId(ref);
+  }, [mapLeftLayers]);
 
-  const handleMapBLabelsReady = useCallback(() => {
-    const ref = mapBRef.current?.mapRef;
-    if (ref) mapBLayers.applyLabelBeforeId(ref);
-  }, [mapBLayers]);
+  const handleMapRightLabelsReady = useCallback(() => {
+    const ref = mapRightRef.current?.mapRef;
+    if (ref) mapRightLayers.applyLabelBeforeId(ref);
+  }, [mapRightLayers]);
 
   const handleZoomIn = useCallback(() => {
     setViewState((prev) => ({ ...prev, zoom: prev.zoom + 1 }));
@@ -212,7 +212,7 @@ function App({
 
   return (
     <div className="relative w-full h-full">
-      {/* Map A — full width in single mode, clipped left in comparison */}
+      {/* Left map — full width in single mode, clipped left in comparison */}
       <div
         className="absolute inset-0"
         style={
@@ -222,22 +222,22 @@ function App({
         }
       >
         <MapView
-          ref={mapARef}
-          layers={mapALayers.deckLayers}
+          ref={mapLeftRef}
+          layers={mapLeftLayers.deckLayers}
           topLayers={[...studyLayersA, ...markerLayersA]}
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
           onMove={handleMove}
           onClick={onClickA}
           onMouseMove={onMouseMoveA}
-          onLoad={() => setMapAReady(true)}
-          onLabelsReady={handleMapALabelsReady}
+          onLoad={() => setMapLeftReady(true)}
+          onLabelsReady={handleMapLeftLabelsReady}
         />
       </div>
 
-      {/* Map B — mounted whenever B has its own layers. Only clipped in
-          comparison mode; otherwise renders full-width on top of A. */}
-      {showMapB && (
+      {/* Right map — mounted whenever it has its own layers. Only clipped in
+          comparison mode; otherwise renders full-width on top of the left map. */}
+      {showMapRight && (
         <div
           className="absolute inset-0"
           style={
@@ -247,16 +247,16 @@ function App({
           }
         >
           <MapView
-            ref={mapBRef}
-            layers={mapBLayers.deckLayers}
+            ref={mapRightRef}
+            layers={mapRightLayers.deckLayers}
             topLayers={[...studyLayersB, ...markerLayersB]}
             style={{ width: "100%", height: "100%" }}
             viewState={viewState}
             onMove={handleMove}
             onClick={onClickB}
             onMouseMove={onMouseMoveB}
-            onLoad={handleMapBLoad}
-            onLabelsReady={handleMapBLabelsReady}
+            onLoad={handleMapRightLoad}
+            onLabelsReady={handleMapRightLabelsReady}
           />
         </div>
       )}
@@ -275,12 +275,12 @@ function App({
       {/* Legend + FeatureInfo — bottom left, side by side with icon-button gap */}
       <div className="absolute bottom-2 left-2 z-30 flex items-end gap-2 sm:bottom-4 sm:left-4">
         <Legend
-          entriesA={mapALayers.layerEntries}
-          entriesB={mapBLayers.layerEntries}
-          hiddenIdsA={mapALayers.hiddenIds}
-          hiddenIdsB={mapBLayers.hiddenIds}
-          hiddenRulesA={mapALayers.hiddenRules}
-          hiddenRulesB={mapBLayers.hiddenRules}
+          entriesA={mapLeftLayers.layerEntries}
+          entriesB={mapRightLayers.layerEntries}
+          hiddenIdsA={mapLeftLayers.hiddenIds}
+          hiddenIdsB={mapRightLayers.hiddenIds}
+          hiddenRulesA={mapLeftLayers.hiddenRules}
+          hiddenRulesB={mapRightLayers.hiddenRules}
           onToggleA={handleToggleA}
           onToggleB={handleToggleB}
           onToggleRuleA={handleToggleRuleA}
@@ -294,14 +294,14 @@ function App({
         {pickA.result && (
           <FeatureInfo
             result={pickA.result}
-            layerEntries={mapALayers.layerEntries}
+            layerEntries={mapLeftLayers.layerEntries}
             onClose={pickA.clear}
           />
         )}
         {pickB.result && (
           <FeatureInfo
             result={pickB.result}
-            layerEntries={mapBLayers.layerEntries}
+            layerEntries={mapRightLayers.layerEntries}
             onClose={pickB.clear}
           />
         )}
@@ -317,7 +317,7 @@ function App({
       </div>
 
       {/* Kaart A/B identification pills — top left/right */}
-      {/*<MapPills activeA={hasMapALayers} activeB={showMapB} />*/}
+      {/*<MapPills activeA={hasMapLeftLayers} activeB={showMapRight} />*/}
     </div>
   );
 }

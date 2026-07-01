@@ -5,7 +5,7 @@ import type { BatchCallback } from "./parquet-loader";
  * URL-keyed cache of parsed Arrow tables, shared across all loaders.
  *
  * Keyed on the source URL, so the same file is fetched + parsed once even when
- * it is added to both map A and map B, or referenced by multiple layer ids in
+ * it is added to both the left map and the right map, or referenced by multiple layer ids in
  * layers.json. Stores the in-flight Promise (not the resolved Table) so that
  * concurrent loads of the same URL dedupe instead of racing two fetches.
  */
