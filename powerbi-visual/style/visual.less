@@ -4,11 +4,13 @@
   height: 100%;
   overflow: hidden;
 
+  // Width/height and the counter-scale transform are set inline from JS
+  // (see sizeIframe()); the iframe is pinned to the top-left origin so the
+  // transform-origin math lines up.
   iframe {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    top: 0;
+    left: 0;
     border: 0;
     display: block;
   }
