@@ -51,6 +51,72 @@ export class MapCardSettings extends FormattingSettingsCard {
   ];
 }
 
+/**
+ * UI / view overrides — mirror the map.json flags. Sent to the app as a
+ * `map-config` message (searchbar/navigation/streetview) and, when
+ * "Beginweergave instellen" is on, an initial center/zoom `view` command.
+ */
+export class MapViewCardSettings extends FormattingSettingsCard {
+  searchbar = new formattingSettings.ToggleSwitch({
+    name: "searchbar",
+    displayName: "Zoekbalk",
+    description: "Toon de zoekbalk (overschrijft map.json)",
+    value: false,
+  });
+
+  navigation = new formattingSettings.ToggleSwitch({
+    name: "navigation",
+    displayName: "Navigatie",
+    description: "Toon de navigatieknoppen en categorierij (overschrijft map.json)",
+    value: false,
+  });
+
+  streetview = new formattingSettings.ToggleSwitch({
+    name: "streetview",
+    displayName: "Street View",
+    description: "Open Street View bij klikken op de kaart (overschrijft map.json)",
+    value: false,
+  });
+
+  setInitialView = new formattingSettings.ToggleSwitch({
+    name: "setInitialView",
+    displayName: "Beginweergave instellen",
+    description:
+      "Gebruik de onderstaande lengte-/breedtegraad en zoom als beginweergave (in plaats van map.json / automatisch zoomen)",
+    value: false,
+  });
+
+  initialLongitude = new formattingSettings.NumUpDown({
+    name: "initialLongitude",
+    displayName: "Lengtegraad",
+    value: 5.788,
+  });
+
+  initialLatitude = new formattingSettings.NumUpDown({
+    name: "initialLatitude",
+    displayName: "Breedtegraad",
+    value: 51.093,
+  });
+
+  initialZoom = new formattingSettings.NumUpDown({
+    name: "initialZoom",
+    displayName: "Zoom",
+    value: 8,
+  });
+
+  name: string = "mapView";
+  displayName: string = "Kaartweergave";
+  slices: Array<formattingSettings.Slice> = [
+    this.searchbar,
+    this.navigation,
+    this.streetview,
+    this.setInitialView,
+    this.initialLongitude,
+    this.initialLatitude,
+    this.initialZoom,
+  ];
+}
+
 /** Point style for the dynamic Power BI data layer. */
 export class PointStyleCardSettings extends FormattingSettingsCard {
   fillColor = new formattingSettings.ColorPicker({
@@ -151,9 +217,16 @@ export class PolygonStyleCardSettings extends FormattingSettingsCard {
 
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
   mapCard = new MapCardSettings();
+  mapViewCard = new MapViewCardSettings();
   pointStyleCard = new PointStyleCardSettings();
   lineStyleCard = new LineStyleCardSettings();
   polygonStyleCard = new PolygonStyleCardSettings();
 
-  cards = [this.mapCard, this.pointStyleCard, this.lineStyleCard, this.polygonStyleCard];
+  cards = [
+    this.mapCard,
+    this.mapViewCard,
+    this.pointStyleCard,
+    this.lineStyleCard,
+    this.polygonStyleCard,
+  ];
 }

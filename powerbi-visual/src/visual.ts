@@ -33,6 +33,13 @@ interface MapDataset {
   features: Feature[];
 }
 
+/** Runtime UI-config overrides sent to the app as a `map-config` message. */
+interface MapUiConfig {
+  searchbar?: boolean;
+  navigation?: boolean;
+  streetview?: boolean;
+}
+
 /** Stable id of the dynamic Power BI layer inside the map app. */
 const DATA_LAYER_ID = "powerbi-data";
 
@@ -89,11 +96,15 @@ export class Visual implements IVisual {
   private desiredLayersRight: string[] = [];
   private desiredDataset: MapDataset | null = null;
   private autoZoom = true;
+  private desiredConfig: MapUiConfig = {};
+  private desiredInitialView: { center: [number, number]; zoom: number } | null = null;
 
   private sentLayersLeft: string[] = [];
   private sentLayersRight: string[] = [];
   private sentDatasetPresent = false;
   private lastZoomKey = "";
+  private sentConfigKey = "";
+  private sentInitialViewKey = "";
 
   private readonly onMessage = (event: MessageEvent): void => {
     if (event.source !== this.iframe.contentWindow) return;
@@ -104,6 +115,8 @@ export class Visual implements IVisual {
       this.sentLayersRight = [];
       this.sentDatasetPresent = false;
       this.lastZoomKey = "";
+      this.sentConfigKey = "";
+      this.sentInitialViewKey = "";
       this.reconcile();
     }
   };
@@ -137,6 +150,19 @@ export class Visual implements IVisual {
     this.desiredLayersRight = parseIdList(map.layersRight.value);
     this.desiredDataset = this.buildDataset(dataView);
 
+    const view = this.formattingSettings.mapViewCard;
+    this.desiredConfig = {
+      searchbar: view.searchbar.value,
+      navigation: view.navigation.value,
+      streetview: view.streetview.value,
+    };
+    this.desiredInitialView = view.setInitialView.value
+      ? {
+          center: [Number(view.initialLongitude.value), Number(view.initialLatitude.value)],
+          zoom: Number(view.initialZoom.value),
+        }
+      : null;
+
     this.reconcile();
   }
 
@@ -158,6 +184,24 @@ export class Visual implements IVisual {
   private reconcile(): void {
     if (!this.mapReady) return;
 
+    // UI-config overrides (searchbar/navigation/streetview): send on change.
+    const configKey = JSON.stringify(this.desiredConfig);
+    if (configKey !== this.sentConfigKey) {
+      this.post({ type: "map-config", ...this.desiredConfig });
+      this.sentConfigKey = configKey;
+    }
+
+    // Explicit initial view overrides auto-zoom-to-data; send on change.
+    if (this.desiredInitialView) {
+      const key = JSON.stringify(this.desiredInitialView);
+      if (key !== this.sentInitialViewKey) {
+        this.post({ type: "map-command", view: this.desiredInitialView });
+        this.sentInitialViewKey = key;
+      }
+    } else {
+      this.sentInitialViewKey = "";
+    }
+
     // layers.json layers: diff per map side against what was already sent.
     const commands: Array<{ cmd: "add" | "remove"; map: "a" | "b"; layer: string }> = [];
     diffLayers(this.sentLayersLeft, this.desiredLayersLeft, "a", commands);
@@ -172,7 +216,10 @@ export class Visual implements IVisual {
     if (this.desiredDataset) {
       this.post({ type: "map-data", dataset: this.desiredDataset });
       this.sentDatasetPresent = true;
-      if (this.autoZoom) this.maybeZoomTo(this.desiredDataset.features);
+      // Auto-zoom to data unless an explicit initial view is configured.
+      if (this.autoZoom && !this.desiredInitialView) {
+        this.maybeZoomTo(this.desiredDataset.features);
+      }
     } else if (this.sentDatasetPresent) {
       this.post({ type: "map-data-remove", id: DATA_LAYER_ID });
       this.sentDatasetPresent = false;

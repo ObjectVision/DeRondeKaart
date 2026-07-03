@@ -18,11 +18,25 @@ export interface EmbedDataset {
   features: Feature[];
 }
 
+/**
+ * Runtime UI-config overrides pushed by an embedding host. Each field mirrors
+ * the corresponding map.json flag; only the provided fields are applied. (Initial
+ * view — center/zoom — is handled by the existing `map-command` `view` channel,
+ * not here.)
+ */
+export interface EmbedConfig {
+  searchbar?: boolean;
+  navigation?: boolean;
+  streetview?: boolean;
+}
+
 interface UseEmbedDataOptions {
   mapLeftLayers: ReturnType<typeof useMapLayers>;
   mapLeftRef: React.RefObject<MapViewHandle | null>;
   /** The left map is ready — triggers the `map-ready` handshake to the parent. */
   ready: boolean;
+  /** Apply runtime UI-config overrides from a `map-config` message. */
+  onConfig?: (config: EmbedConfig) => void;
 }
 
 const emptyRef: React.RefObject<MapRef | null> = { current: null };
@@ -37,6 +51,8 @@ const emptyRef: React.RefObject<MapRef | null> = { current: null };
  *       Empty `features` removes the layer.
  *   { type: "map-data-remove", id }
  *     → remove the layer with that id.
+ *   { type: "map-config", searchbar?, navigation?, streetview? }
+ *     → apply runtime UI-config overrides (only provided fields).
  *
  * When the left map becomes ready, `{ type: "map-ready", v: 1 }` is posted to
  * the parent window so the host knows it can start sending messages (the app
@@ -45,7 +61,7 @@ const emptyRef: React.RefObject<MapRef | null> = { current: null };
  * Validation is shape-based (no origin allow-list), consistent with the
  * existing map-command bridge.
  */
-export function useEmbedData({ mapLeftLayers, mapLeftRef, ready }: UseEmbedDataOptions) {
+export function useEmbedData({ mapLeftLayers, mapLeftRef, ready, onConfig }: UseEmbedDataOptions) {
   const applyDataset = useCallback(
     (dataset: EmbedDataset) => {
       const mapRef = mapLeftRef.current?.mapRef ?? emptyRef;
@@ -92,12 +108,18 @@ export function useEmbedData({ mapLeftLayers, mapLeftRef, ready }: UseEmbedDataO
         if (typeof data.id === "string" && data.id.length > 0) {
           removeDataset(data.id);
         }
+      } else if (data.type === "map-config") {
+        onConfig?.({
+          searchbar: data.searchbar,
+          navigation: data.navigation,
+          streetview: data.streetview,
+        });
       }
     }
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [applyDataset, removeDataset]);
+  }, [applyDataset, removeDataset, onConfig]);
 
   // Ready handshake: tell the embedding host it can start sending messages.
   useEffect(() => {

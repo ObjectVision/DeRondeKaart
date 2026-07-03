@@ -10,7 +10,7 @@ import { DEFAULT_CLICK_MARKER, type ClickMarkerConfig } from "@/config/map-confi
 import { useFeaturePick } from "@/hooks/use-feature-pick";
 import { useHoverCursor } from "@/hooks/use-hover-cursor";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
-import { useEmbedData } from "@/hooks/use-embed-data";
+import { useEmbedData, type EmbedConfig } from "@/hooks/use-embed-data";
 import { useNavigation } from "@/hooks/use-navigation";
 import { Legend } from "@/components/ui/legend";
 import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
@@ -34,6 +34,12 @@ function App({
   navigationEnabled?: boolean;
   clickMarker?: ClickMarkerConfig;
 }) {
+  // UI-surface flags are seeded from map.json (props) but can be overridden at
+  // runtime by an embedding host (Power BI visual) via the `map-config` message.
+  const [streetview, setStreetviewEnabled] = useState(streetviewEnabled);
+  const [searchbar, setSearchbarEnabled] = useState(searchbarEnabled);
+  const [navigation, setNavigationEnabled] = useState(navigationEnabled);
+
   const mapLeftLayers = useMapLayers();
   const mapRightLayers = useMapLayers();
 
@@ -71,10 +77,10 @@ function App({
     (e: MapLayerMouseEvent, snapped: { lng: number; lat: number } | null) => {
       const point = snapped ?? { lng: e.lngLat.lng, lat: e.lngLat.lat };
       setClickMarker(point);
-      if (!streetviewEnabled) return;
+      if (!streetview) return;
       setStreetView(point);
     },
-    [streetviewEnabled],
+    [streetview],
   );
 
   // Per-map marker layers (separate instances — Layer objects can't be shared
@@ -126,9 +132,16 @@ function App({
     applyView,
   });
 
+  // Apply runtime UI-config overrides from an embedding host (Power BI visual).
+  const applyConfig = useCallback((cfg: EmbedConfig) => {
+    if (typeof cfg.searchbar === "boolean") setSearchbarEnabled(cfg.searchbar);
+    if (typeof cfg.navigation === "boolean") setNavigationEnabled(cfg.navigation);
+    if (typeof cfg.streetview === "boolean") setStreetviewEnabled(cfg.streetview);
+  }, []);
+
   // In-memory data pushed by an embedding host (Power BI visual): renders on
   // the left map and posts the map-ready handshake to the parent window.
-  useEmbedData({ mapLeftLayers, mapLeftRef, ready: mapLeftReady });
+  useEmbedData({ mapLeftLayers, mapLeftRef, ready: mapLeftReady, onConfig: applyConfig });
 
   const hasMapLeftLayers = mapLeftLayers.layerEntries.length > 0;
   const hasMapRightLayers = mapRightLayers.layerEntries.length > 0;
@@ -283,8 +296,8 @@ function App({
         nav={nav}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
-        showSearch={searchbarEnabled}
-        showNavigation={navigationEnabled}
+        showSearch={searchbar}
+        showNavigation={navigation}
       />
 
       {/* Legend + FeatureInfo — bottom left, side by side with icon-button gap */}
@@ -322,7 +335,7 @@ function App({
         )}
 
         {/* Street View — to the right of FeatureInfo, shared across maps */}
-        {streetviewEnabled && streetView && (
+        {streetview && streetView && (
           <StreetView
             lng={streetView.lng}
             lat={streetView.lat}
