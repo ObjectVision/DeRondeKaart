@@ -12,6 +12,8 @@ async function bootstrap() {
         initialViewState={toInitialViewState(mapConfig)}
         studyAreaId={mapConfig.studyarea}
         streetviewEnabled={mapConfig.streetview ?? false}
+        searchbarEnabled={mapConfig.searchbar}
+        navigationEnabled={mapConfig.navigation}
         clickMarker={mapConfig.clickMarker}
       />
     </StrictMode>,

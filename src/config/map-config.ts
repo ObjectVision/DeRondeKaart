@@ -53,6 +53,16 @@ export interface MapConfig {
    * when omitted; set to `true` in map.json to enable it.
    */
   streetview?: boolean;
+  /**
+   * Whether the search bar (the "Zoek een kaartlaag…" input) is shown.
+   * Defaults to `false` when omitted.
+   */
+  searchbar: boolean;
+  /**
+   * Whether the navigation controls (category row + zoom +/- controls) are
+   * shown. Defaults to `false` when omitted.
+   */
+  navigation: boolean;
   /** Appearance of the on-click marker. Falls back to {@link DEFAULT_CLICK_MARKER}. */
   clickMarker: ClickMarkerConfig;
 }
@@ -71,6 +81,8 @@ export const DEFAULT_MAP_CONFIG: MapConfig = {
   center: [5.0, 52.0],
   zoom: 7,
   streetview: false,
+  searchbar: false,
+  navigation: false,
   clickMarker: DEFAULT_CLICK_MARKER,
 };
 
@@ -187,12 +199,17 @@ export async function loadMapConfig(): Promise<MapConfig> {
     console.warn(`map.json: invalid "studyarea" ${JSON.stringify(data.studyarea)}; ignoring`);
   }
 
-  let streetview = DEFAULT_MAP_CONFIG.streetview;
-  if (typeof data.streetview === "boolean") {
-    streetview = data.streetview;
-  } else if (data.streetview !== undefined) {
-    console.warn(`map.json: invalid "streetview" ${JSON.stringify(data.streetview)}; using default`);
-  }
+  const validateBool = (raw: unknown, key: string, fallback: boolean): boolean => {
+    if (typeof raw === "boolean") return raw;
+    if (raw !== undefined) {
+      console.warn(`map.json: invalid "${key}" ${JSON.stringify(raw)}; using default`);
+    }
+    return fallback;
+  };
+
+  const streetview = validateBool(data.streetview, "streetview", DEFAULT_MAP_CONFIG.streetview!);
+  const searchbar = validateBool(data.searchbar, "searchbar", DEFAULT_MAP_CONFIG.searchbar);
+  const navigation = validateBool(data.navigation, "navigation", DEFAULT_MAP_CONFIG.navigation);
 
   const clickMarker = validateClickMarker(data.clickMarker);
 
@@ -201,6 +218,8 @@ export async function loadMapConfig(): Promise<MapConfig> {
     zoom: zoom ?? DEFAULT_MAP_CONFIG.zoom,
     studyarea,
     streetview,
+    searchbar,
+    navigation,
     clickMarker,
   };
 }

@@ -29,10 +29,16 @@ export function NavigationPanel({
   nav,
   onZoomIn,
   onZoomOut,
+  showSearch = false,
+  showNavigation = false,
 }: {
   nav: NavigationApi;
   onZoomIn: () => void;
   onZoomOut: () => void;
+  /** Show the search bar. Defaults off (map.json `searchbar`). */
+  showSearch?: boolean;
+  /** Show the navigation controls (category row + zoom). Defaults off (map.json `navigation`). */
+  showNavigation?: boolean;
 }) {
   const [tree, setTree] = useState<NavNode[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
@@ -97,6 +103,8 @@ export function NavigationPanel({
     return () => ro.disconnect();
   }, [tree]);
 
+  // Nothing to show if both surfaces are disabled, or the tree hasn't loaded.
+  if (!showSearch && !showNavigation) return null;
   if (tree.length === 0) return null;
 
   const q = query.trim().toLowerCase();
@@ -156,19 +164,24 @@ export function NavigationPanel({
   return (
     <div className="absolute left-1/2 top-2 z-30 flex w-[min(96vw,56rem)] -translate-x-1/2 flex-col gap-3 sm:top-4">
       {/* Search / question input */}
-      <div className="flex items-center gap-4 rounded-full border border-gray-200/80 bg-white/95 px-7 py-[18px] shadow-md backdrop-blur-sm transition-shadow focus-within:border-gray-300 focus-within:shadow-lg">
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Zoek een kaartlaag…"
-          className="min-w-0 flex-1 bg-transparent text-[22px] text-gray-700 outline-none placeholder:text-gray-400"
-        />
-        <Icon name="send" size={28} className="flex-shrink-0 text-gray-300" />
-      </div>
+      {showSearch && (
+        <div className="flex items-center gap-4 rounded-full border border-gray-200/80 bg-white/95 px-7 py-[18px] shadow-md backdrop-blur-sm transition-shadow focus-within:border-gray-300 focus-within:shadow-lg">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Zoek een kaartlaag…"
+            className="min-w-0 flex-1 bg-transparent text-[22px] text-gray-700 outline-none placeholder:text-gray-400"
+          />
+          <Icon name="send" size={28} className="flex-shrink-0 text-gray-300" />
+        </div>
+      )}
 
-      {/* Navigation controls (search, +, -) left of the category icon row;
-          their combined height matches the icon buttons via items-stretch. */}
+      {/* Navigation controls (zoom +/- and the category icon row); their combined
+          height matches the icon buttons via items-stretch. The tree/leaf
+          popovers below open from these controls, so they share the gate. */}
+      {showNavigation && (
+      <>
       <div className="flex items-stretch gap-2">
         <MapControls onZoomIn={onZoomIn} onZoomOut={onZoomOut} />
 
@@ -232,6 +245,8 @@ export function NavigationPanel({
             onBack={() => setSelected(null)}
           />
         </div>
+      )}
+      </>
       )}
     </div>
   );

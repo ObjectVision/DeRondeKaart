@@ -80,17 +80,23 @@ applies a Content-Security-Policy whose allow-list is exactly the WebAccess
    `http://localhost:5173`. **Add your host here and repackage if it differs.**
    (Also: a tenant admin must enable custom-visual web access in the admin
    portal for WebAccess to take effect.)
-2. **App server (target side).** The app must allow being framed from a null
-   origin:
-   - Do **not** send `X-Frame-Options: DENY/SAMEORIGIN`.
-   - If a CSP is set on the app, include `frame-ancestors *` (a null origin
-     cannot be named explicitly, so the wildcard is required here).
+2. **App server (target side).** The visual sandbox has an **opaque (null)
+   origin** (`sandbox="allow-scripts"`, no `allow-same-origin`). An opaque origin
+   **cannot be matched by `frame-ancestors` at all — not even `*`** (the wildcard
+   only covers `http/https/ws/wss` schemes). So the app must send **no framing
+   restriction whatsoever**:
+   - Send **no** `X-Frame-Options` header.
+   - Send **no** `Content-Security-Policy: frame-ancestors` directive. If a CSP
+     is needed for other reasons, keep the other directives but omit
+     `frame-ancestors` entirely. Do **not** set `frame-ancestors *` — it fails
+     for the opaque sandbox origin (see `known_issues.md`).
    - Serve over **HTTPS** (mixed content is blocked); `http://localhost:5173`
      works only in local `pbiviz start` dev.
 
 Quick check: open the app URL directly in a browser tab — if it loads there but
-shows "content is blocked" in Power BI, the cause is gate #1 (host not in
-WebAccess) or an `X-Frame-Options`/`frame-ancestors` header on the app (gate #2).
+shows "refused to connect" / "content is blocked" in Power BI, the cause is
+gate #1 (host not in WebAccess) or a framing header (`X-Frame-Options` /
+`frame-ancestors`) still present on the app (gate #2).
 
 ## Known v1 limitations
 
