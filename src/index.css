@@ -6,11 +6,21 @@
 
 @custom-variant dark (&:is(.dark *));
 
-html, body, #root {
+html, body {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
+}
+
+/* Fill the viewport directly rather than via a percentage-height cascade. A
+   percentage height collapses to 0 if any ancestor lacks a definite height —
+   which happens inside the Power BI custom-visual sandbox iframe, leaving the
+   map a tiny square top-left. `position: fixed; inset: 0` resolves against the
+   iframe viewport (always a real pixel size), so the map always fills it. */
+#root {
+  position: fixed;
+  inset: 0;
 }
 
 @theme inline {
