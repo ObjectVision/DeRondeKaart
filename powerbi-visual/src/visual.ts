@@ -133,17 +133,13 @@ export class Visual implements IVisual {
   }
 
   public update(options: VisualUpdateOptions): void {
-    // Size the visual explicitly from the host-provided viewport. Relying on CSS
-    // height:100% alone leaves the iframe collapsed when the host element has no
-    // resolved height, so the map only fills the top-left corner. Set the pixel
-    // box on BOTH the host element and the iframe itself so the iframe never
-    // depends on % resolution inside the host.
-    const { width, height } = options.viewport;
-    this.rootElement.style.width = `${width}px`;
-    this.rootElement.style.height = `${height}px`;
-    this.iframe.style.width = `${width}px`;
-    this.iframe.style.height = `${height}px`;
-
+    // Sizing is handled entirely by CSS: the host element (.northwake-map-visual)
+    // fills the visual via width/height:100%, and the iframe is position:absolute;
+    // inset:0 of it (style/visual.less). The app itself fills the iframe via
+    // #root { position:fixed; inset:0 }. We deliberately do NOT hard-size the
+    // iframe from options.viewport in px — Power BI passes a *scaled* viewport
+    // (logical units), and forcing raw px inside the already-scaled sandbox makes
+    // the iframe content render magnified.
     const dataView: DataView | undefined = options.dataViews && options.dataViews[0];
     this.formattingSettings =
       this.formattingSettingsService.populateFormattingSettingsModel(
