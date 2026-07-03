@@ -49,6 +49,17 @@
         "autoZoom": { "type": { "bool": true } }
       }
     },
+    "mapView": {
+      "properties": {
+        "searchbar": { "type": { "bool": true } },
+        "navigation": { "type": { "bool": true } },
+        "streetview": { "type": { "bool": true } },
+        "setInitialView": { "type": { "bool": true } },
+        "initialLongitude": { "type": { "numeric": true } },
+        "initialLatitude": { "type": { "numeric": true } },
+        "initialZoom": { "type": { "numeric": true } }
+      }
+    },
     "pointStyle": {
       "properties": {
         "fillColor": { "type": { "fill": { "solid": { "color": true } } } },
