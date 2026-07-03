@@ -157,7 +157,6 @@ export function NavigationPanel({
     <div className="absolute left-1/2 top-2 z-30 flex w-[min(96vw,56rem)] -translate-x-1/2 flex-col gap-3 sm:top-4">
       {/* Search / question input */}
       <div className="flex items-center gap-4 rounded-full border border-gray-200/80 bg-white/95 px-7 py-[18px] shadow-md backdrop-blur-sm transition-shadow focus-within:border-gray-300 focus-within:shadow-lg">
-        <Icon name="auto_awesome" size={28} className="flex-shrink-0 text-blue-500" />
         <input
           type="text"
           value={query}
