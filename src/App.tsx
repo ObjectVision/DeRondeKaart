@@ -23,11 +23,15 @@ function App({
   initialViewState,
   studyAreaId,
   streetviewEnabled = false,
+  searchbarEnabled = false,
+  navigationEnabled = false,
   clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
 }: {
   initialViewState: ViewState;
   studyAreaId?: string;
   streetviewEnabled?: boolean;
+  searchbarEnabled?: boolean;
+  navigationEnabled?: boolean;
   clickMarker?: ClickMarkerConfig;
 }) {
   const mapLeftLayers = useMapLayers();
@@ -275,7 +279,13 @@ function App({
       )}
 
       {/* Navigation menu — top center (includes map controls: search, +, -) */}
-      <NavigationPanel nav={nav} onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+      <NavigationPanel
+        nav={nav}
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        showSearch={searchbarEnabled}
+        showNavigation={navigationEnabled}
+      />
 
       {/* Legend + FeatureInfo — bottom left, side by side with icon-button gap */}
       <div className="absolute bottom-2 left-2 z-30 flex items-end gap-2 sm:bottom-4 sm:left-4">

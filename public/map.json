@@ -3,6 +3,8 @@
   "zoom": 8,
   "studyarea": "studiegebied_limburg",
   "streetview": true,
+  "searchbar": false,
+  "navigation": true,
   "clickMarker": {
     "icon": "my_location",
     "size": 30,
