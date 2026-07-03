@@ -63,14 +63,34 @@ packaging does not.
    (`https://data.woonzorglimburg.nl`, `http://localhost:5173` for dev).
 3. Bind fields, set the app URL in the format pane if it differs from the default.
 
-## Hosting requirements
+## Hosting requirements (nested iframe = two separate gates)
 
-The map app must be reachable from Power BI and allow being framed:
+Power BI runs custom visuals in a sandbox iframe with **only `allow-scripts`**
+(no `allow-same-origin`), so this visual has a **`null` origin**, and Power BI
+applies a Content-Security-Policy whose allow-list is exactly the WebAccess
+`parameters`. A nested iframe to the app must pass **both** gates, or you get
+"This content is blocked. Contact the site owner to fix the issue":
 
-- Do **not** send `X-Frame-Options: DENY/SAMEORIGIN` for the app URL.
-- If a CSP is set, include `frame-ancestors *` (or the Power BI hosts, e.g.
-  `https://app.powerbi.com https://*.powerbi.com ms-pbi:` and the sandbox host
-  `https://visuals.azureedge.net`).
+1. **Power BI CSP (visual side).** The app URL host **must** be listed in the
+   `WebAccess` privilege in `capabilities.json` — WebAccess updates the CSP
+   `default-src`/`frame-src`. If the format-pane **App-URL** points at a host
+   that isn't whitelisted, the iframe is blocked before any request is made.
+   Current whitelist: `https://map.woonzorglimburg.nl`,
+   `https://data.woonzorglimburg.nl`, `https://*.woonzorglimburg.nl`,
+   `http://localhost:5173`. **Add your host here and repackage if it differs.**
+   (Also: a tenant admin must enable custom-visual web access in the admin
+   portal for WebAccess to take effect.)
+2. **App server (target side).** The app must allow being framed from a null
+   origin:
+   - Do **not** send `X-Frame-Options: DENY/SAMEORIGIN`.
+   - If a CSP is set on the app, include `frame-ancestors *` (a null origin
+     cannot be named explicitly, so the wildcard is required here).
+   - Serve over **HTTPS** (mixed content is blocked); `http://localhost:5173`
+     works only in local `pbiviz start` dev.
+
+Quick check: open the app URL directly in a browser tab — if it loads there but
+shows "content is blocked" in Power BI, the cause is gate #1 (host not in
+WebAccess) or an `X-Frame-Options`/`frame-ancestors` header on the app (gate #2).
 
 ## Known v1 limitations
 
