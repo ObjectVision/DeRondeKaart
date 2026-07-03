@@ -1,4 +1,5 @@
 import type { Layer, Color } from "@deck.gl/core";
+import { GeoJsonLayer } from "@deck.gl/layers";
 import { Table } from "apache-arrow";
 import {
   GeoArrowScatterplotLayer,
@@ -231,4 +232,34 @@ function detectGeometryType(
 
   // Fallback: default to point
   return "point";
+}
+
+/**
+ * Create a deck.gl layer for the in-memory "geojson" format (`config.data`),
+ * used by dynamically pushed data such as the Power BI bridge. One GeoJsonLayer
+ * renders points, lines and (multi)polygons uniformly, styled from the flat
+ * `config.style` — the same LayerStyle the legend renders as a swatch.
+ */
+export function createGeoJsonLayers(config: LayerConfig, beforeId?: string): Layer[] {
+  const { style, data } = config;
+  if (!data || data.features.length === 0) return [];
+
+  return [
+    new GeoJsonLayer({
+      id: `${config.id}-geojson`,
+      data,
+      pickable: true,
+      pointType: "circle",
+      filled: style.filled ?? true,
+      stroked: style.stroked ?? true,
+      getFillColor: toColor(style.color, [0, 128, 255, 150]),
+      getLineColor: toColor(style.lineColor ?? style.color, [0, 128, 255, 200]),
+      getPointRadius: style.radius ?? 5,
+      pointRadiusUnits: "pixels",
+      getLineWidth: style.lineWidth ?? 2,
+      lineWidthUnits: "pixels",
+      opacity: style.opacity ?? 1,
+      beforeId,
+    } as unknown as ConstructorParameters<typeof GeoJsonLayer>[0]),
+  ];
 }

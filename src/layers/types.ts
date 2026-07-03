@@ -1,4 +1,11 @@
-export type LayerFormat = "geoarrow" | "geoparquet" | "parquet" | "mvt" | "cog";
+import type { FeatureCollection } from "geojson";
+
+/**
+ * "geojson" is an in-memory format: features are provided on `LayerConfig.data`
+ * (e.g. pushed by the Power BI visual via postMessage) instead of fetched from
+ * `source`. It is not valid in layers.json.
+ */
+export type LayerFormat = "geoarrow" | "geoparquet" | "parquet" | "mvt" | "cog" | "geojson";
 
 export type GeometryType = "point" | "line" | "polygon";
 
@@ -55,6 +62,8 @@ export interface GeoStylerStyle {
 // Legacy flat style (kept for backwards compatibility / COG layers)
 export interface LayerStyle {
   color?: [number, number, number] | [number, number, number, number];
+  /** Outline/stroke color; falls back to `color` when omitted (geojson format). */
+  lineColor?: [number, number, number] | [number, number, number, number];
   opacity?: number;
   radius?: number;
   lineWidth?: number;
@@ -91,6 +100,8 @@ export interface LayerConfig {
   excludeFromComparison?: boolean;
   /** COG only: the raster already contains its colors; geostyler rules are shown in the legend but NOT applied as a per-pixel color function. */
   embeddedColors?: boolean;
+  /** "geojson" format only: the in-memory features to render. `source` is unused ("") for this format. */
+  data?: FeatureCollection;
 }
 
 export interface LayersFile {

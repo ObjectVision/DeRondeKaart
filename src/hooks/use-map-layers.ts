@@ -8,6 +8,7 @@ import {
   loadGeoParquetBatches,
   loadArrowBatches,
   createGeoArrowLayers,
+  createGeoJsonLayers,
   buildMvtLayerDefs,
 } from "@/layers";
 import { buildCogColorFunction } from "@/layers/cog-style";
@@ -79,6 +80,9 @@ export function useMapLayers() {
         addMvtLayer(config, mapRef);
       } else if (config.format === "cog") {
         addCogLayer(config, mapRef);
+      } else if (config.format === "geojson") {
+        // In-memory features (config.data) — no fetch, build synchronously.
+        addDeckLayers(createGeoJsonLayers(config, beforeId()));
       }
     } catch (err) {
       console.error(`Failed to load layer "${config.id}":`, err);
