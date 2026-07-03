@@ -304,6 +304,24 @@ export class Visual implements IVisual {
     const useWkt = geomIdx !== -1;
     if (!useWkt && (lngIdx === -1 || latIdx === -1)) return null;
 
+    // Diagnostic: reveal which geometry path is active and a sample of the raw
+    // cell values/types, so skipped-row causes are visible instead of guessed.
+    // eslint-disable-next-line no-console
+    console.log(
+      "[nwviz] buildDataset",
+      { useWkt, geomIdx, lngIdx, latIdx, rows: table.rows.length },
+      "sampleRow0",
+      table.rows[0],
+      useWkt
+        ? { wkt: table.rows[0]?.[geomIdx], type: typeof table.rows[0]?.[geomIdx] }
+        : {
+            lngRaw: table.rows[0]?.[lngIdx],
+            lngType: typeof table.rows[0]?.[lngIdx],
+            latRaw: table.rows[0]?.[latIdx],
+            latType: typeof table.rows[0]?.[latIdx],
+          },
+    );
+
     const features: Feature[] = [];
     const kindCounts: Record<GeometryKind, number> = { point: 0, line: 0, polygon: 0 };
     let skipped = 0;
