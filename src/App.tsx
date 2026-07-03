@@ -10,6 +10,7 @@ import { DEFAULT_CLICK_MARKER, type ClickMarkerConfig } from "@/config/map-confi
 import { useFeaturePick } from "@/hooks/use-feature-pick";
 import { useHoverCursor } from "@/hooks/use-hover-cursor";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
+import { useEmbedData } from "@/hooks/use-embed-data";
 import { useNavigation } from "@/hooks/use-navigation";
 import { Legend } from "@/components/ui/legend";
 import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
@@ -120,6 +121,10 @@ function App({
     ready: mapLeftReady,
     applyView,
   });
+
+  // In-memory data pushed by an embedding host (Power BI visual): renders on
+  // the left map and posts the map-ready handshake to the parent window.
+  useEmbedData({ mapLeftLayers, mapLeftRef, ready: mapLeftReady });
 
   const hasMapLeftLayers = mapLeftLayers.layerEntries.length > 0;
   const hasMapRightLayers = mapRightLayers.layerEntries.length > 0;

@@ -1,5 +1,7 @@
 import type { LayerConfig, LayersFile, LayerFormat } from "./types";
 
+// "geojson" is deliberately absent: it is an in-memory format (LayerConfig.data)
+// constructed programmatically (e.g. by the Power BI bridge), never via layers.json.
 const VALID_FORMATS: LayerFormat[] = ["geoarrow", "geoparquet", "parquet", "mvt", "cog"];
 
 let cachedConfig: LayerConfig[] | null = null;
