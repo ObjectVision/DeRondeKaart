@@ -135,10 +135,14 @@ export class Visual implements IVisual {
   public update(options: VisualUpdateOptions): void {
     // Size the visual explicitly from the host-provided viewport. Relying on CSS
     // height:100% alone leaves the iframe collapsed when the host element has no
-    // resolved height, so the map only fills the top-left corner.
+    // resolved height, so the map only fills the top-left corner. Set the pixel
+    // box on BOTH the host element and the iframe itself so the iframe never
+    // depends on % resolution inside the host.
     const { width, height } = options.viewport;
     this.rootElement.style.width = `${width}px`;
     this.rootElement.style.height = `${height}px`;
+    this.iframe.style.width = `${width}px`;
+    this.iframe.style.height = `${height}px`;
 
     const dataView: DataView | undefined = options.dataViews && options.dataViews[0];
     this.formattingSettings =
