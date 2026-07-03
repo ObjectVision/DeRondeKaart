@@ -122,7 +122,6 @@ export class Visual implements IVisual {
   };
 
   private readonly rootElement: HTMLElement;
-  private scale = 1;
 
   constructor(options: VisualConstructorOptions) {
     this.rootElement = options.element;
@@ -131,37 +130,41 @@ export class Visual implements IVisual {
     this.iframe.setAttribute("title", "Northwake kaart");
     this.rootElement.appendChild(this.iframe);
     window.addEventListener("message", this.onMessage);
-
-    const ro = new ResizeObserver(() => this.sizeIframe());
-    ro.observe(this.rootElement);
-    this.sizeIframe();
   }
 
   /**
    * Size the iframe to fill the host box while rendering its content at 1:1.
    *
    * Power BI reports a `scale` (report page zoom / DPI, e.g. 1.4) and magnifies
-   * the visual's sandbox content by that factor. Left alone, the embedded app
-   * appears zoomed in. We counter it: make the iframe CSS box `scale`× larger
-   * than the host, then `transform: scale(1/scale)` shrinks it back so it covers
-   * the host exactly, and the app inside renders un-magnified.
+   * the visual's sandbox content by that factor; left alone the app appears
+   * zoomed in. We size the iframe to the viewport, then `transform:
+   * scale(1/scale)` renders its content un-magnified. The box is sized `scale`×
+   * larger so it still covers the visual after the shrink.
+   *
+   * `transform: scale()` can leave a hairline gap at the transform-origin edges
+   * (sub-pixel rounding), which showed as a border on the top/left. We overscan:
+   * anchor the transform at the CENTER and add a couple of logical pixels to the
+   * box, so the scaled iframe over-covers every edge (excess clipped by the
+   * host's `overflow: hidden`).
    */
-  private sizeIframe(): void {
-    const rect = this.rootElement.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return;
-    const s = this.scale || 1;
-    this.iframe.style.width = `${rect.width * s}px`;
-    this.iframe.style.height = `${rect.height * s}px`;
+  private sizeIframe(width: number, height: number, scale: number): void {
+    const s = scale || 1;
+    const overscan = 2; // logical px added on each axis to hide hairline edges
+    this.iframe.style.width = `${(width + overscan) * s}px`;
+    this.iframe.style.height = `${(height + overscan) * s}px`;
+    // Center-origin + a small negative offset keeps the content centered while
+    // the overscan bleeds equally past all four edges.
+    this.iframe.style.left = `${-overscan / 2}px`;
+    this.iframe.style.top = `${-overscan / 2}px`;
     this.iframe.style.transform = s === 1 ? "" : `scale(${1 / s})`;
     this.iframe.style.transformOrigin = "top left";
   }
 
   public update(options: VisualUpdateOptions): void {
-    // Capture the report's scale factor (page zoom / DPI). The iframe is then
-    // counter-scaled in sizeIframe() so its content renders at 1:1 rather than
-    // magnified. See sizeIframe() for the mechanism.
-    this.scale = (options.viewport as powerbi.ScaledViewport).scale || 1;
-    this.sizeIframe();
+    // Size + counter-scale the iframe from the host-provided viewport so it fills
+    // the visual with content rendered at 1:1 (see sizeIframe()).
+    const vp = options.viewport as powerbi.ScaledViewport;
+    this.sizeIframe(vp.width, vp.height, vp.scale || 1);
 
     const dataView: DataView | undefined = options.dataViews && options.dataViews[0];
     this.formattingSettings =
