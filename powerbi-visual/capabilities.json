@@ -76,7 +76,11 @@
     {
       "name": "WebAccess",
       "essential": true,
-      "parameters": ["https://data.woonzorglimburg.nl", "http://localhost:5173"]
+      "parameters": [
+        "https://map.woonzorglimburg.nl",
+        "https://data.woonzorglimburg.nl",
+        "http://localhost:5173"
+      ]
     }
   ],
   "supportsEmptyDataView": true,

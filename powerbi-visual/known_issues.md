@@ -1,0 +1,1 @@
+Framing 'https://map.woonzorglimburg.nl/' violates the following Content Security Policy directive: "frame-ancestors *". The request has been blocked. Note that '*' matches only URLs with network schemes ('http', 'https', 'ws', 'wss'), or URLs whose scheme matches `self`'s scheme. The scheme 'https:' must be added explicitly.
