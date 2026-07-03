@@ -202,6 +202,33 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       return () => window.removeEventListener("map:flyto", onFlyTo);
     }, []);
 
+    // Keep the MapLibre canvas sized to its container. MapLibre only auto-resizes
+    // on window "resize" events, so when the container is resized without one —
+    // e.g. the app is embedded in an iframe (Power BI custom visual) that grows
+    // after boot — the canvas keeps its initial size and leaves blank space.
+    // A ResizeObserver on the container calls map.resize() on every size change.
+    useEffect(() => {
+      let observer: ResizeObserver | null = null;
+      let raf = 0;
+
+      const attach = () => {
+        const map = mapRef.current?.getMap();
+        const container = map?.getContainer();
+        if (!map || !container) {
+          raf = requestAnimationFrame(attach); // map not mounted yet — retry
+          return;
+        }
+        observer = new ResizeObserver(() => map.resize());
+        observer.observe(container);
+      };
+      attach();
+
+      return () => {
+        cancelAnimationFrame(raf);
+        observer?.disconnect();
+      };
+    }, []);
+
     // Whenever the deck.gl layer set changes the interleaved overlay re-syncs
     // them into the maplibre style at the top — push labels back above them,
     // then re-pin the study area above the labels. Also keep the map's record
