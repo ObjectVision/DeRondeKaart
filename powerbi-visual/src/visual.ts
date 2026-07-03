@@ -121,15 +121,25 @@ export class Visual implements IVisual {
     }
   };
 
+  private readonly rootElement: HTMLElement;
+
   constructor(options: VisualConstructorOptions) {
-    options.element.classList.add("northwake-map-visual");
+    this.rootElement = options.element;
+    this.rootElement.classList.add("northwake-map-visual");
     this.iframe = document.createElement("iframe");
     this.iframe.setAttribute("title", "Northwake kaart");
-    options.element.appendChild(this.iframe);
+    this.rootElement.appendChild(this.iframe);
     window.addEventListener("message", this.onMessage);
   }
 
   public update(options: VisualUpdateOptions): void {
+    // Size the visual explicitly from the host-provided viewport. Relying on CSS
+    // height:100% alone leaves the iframe collapsed when the host element has no
+    // resolved height, so the map only fills the top-left corner.
+    const { width, height } = options.viewport;
+    this.rootElement.style.width = `${width}px`;
+    this.rootElement.style.height = `${height}px`;
+
     const dataView: DataView | undefined = options.dataViews && options.dataViews[0];
     this.formattingSettings =
       this.formattingSettingsService.populateFormattingSettingsModel(
