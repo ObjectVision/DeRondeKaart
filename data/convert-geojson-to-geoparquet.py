@@ -96,6 +96,18 @@ def convert(input_path: Path, output_path: Path, log=print) -> None:
     # bridge-sliver artefacts (see normalize_winding docstring).
     gdf = normalize_winding(gdf)
 
+    # Export all field names in lowercase. Rename every column, then re-point the
+    # active geometry column at its new (lowercased) name so the geometry
+    # association survives the rename.
+    geom_name = gdf.geometry.name
+    lowered = {c: c.lower() for c in gdf.columns}
+    dupes = [v for v in lowered.values() if list(lowered.values()).count(v) > 1]
+    if dupes:
+        log(f"  Warning: lowercasing collides on {sorted(set(dupes))}; keeping originals")
+    else:
+        gdf = gdf.rename(columns=lowered)
+        gdf = gdf.set_geometry(geom_name.lower())
+
     # GeoPandas writes a GeoParquet 1.1 file with WKB-encoded geometry by
     # default, which is exactly what @geoarrow/geoparquet-wasm consumes.
     output_path.parent.mkdir(parents=True, exist_ok=True)
