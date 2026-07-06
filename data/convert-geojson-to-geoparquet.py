@@ -4,20 +4,30 @@
 # dependencies = [
 #   "geopandas>=1.0",
 #   "pyarrow>=15",
+#   "tqdm>=4.66",
 # ]
 # ///
-"""Convert a GeoJSON file to GeoParquet (WKB-encoded geometry, GeoParquet 1.1 spec).
+"""Convert GeoJSON to GeoParquet (WKB-encoded geometry, GeoParquet 1.1 spec).
 
 The output is a standard GeoParquet file that this app renders via the
 ``"geoparquet"`` format entry in ``public/layers.json`` — i.e. the same path
 that handles the existing ``example-polygons`` layer.
 
+Accepts either a single ``.geojson``/``.json`` file **or a folder**: when a
+folder is given, every ``*.geojson``/``*.json`` in it is converted (each
+``name.geojson`` -> ``name.parquet`` beside it), with a tqdm progress bar.
+
 Usage:
-    # Default: convert data/vrz_limburg_2026.geojson → data/vrz_limburg_2026.parquet
+    # Default: convert data/vrz_limburg_2026.geojson -> data/vrz_limburg_2026.parquet
     python3 convert-geojson-to-geoparquet.py
 
-    # Explicit input/output:
+    # Single file, explicit input/output:
     python3 convert-geojson-to-geoparquet.py path/to/in.geojson path/to/out.parquet
+
+    # Whole folder -> one .parquet per .geojson, written alongside the inputs:
+    python3 convert-geojson-to-geoparquet.py path/to/folder
+    # ...or to a separate output folder:
+    python3 convert-geojson-to-geoparquet.py path/to/folder path/to/out_folder
 
 If you have ``uv`` installed you can run this without managing dependencies:
     uv run convert-geojson-to-geoparquet.py
@@ -39,10 +49,12 @@ from pathlib import Path
 
 import geopandas as gpd
 from shapely.geometry.polygon import orient
+from tqdm import tqdm
 
 
 HERE = Path(__file__).resolve().parent
 DEFAULT_INPUT = HERE / "vrz_limburg_2026.geojson"
+GEOJSON_SUFFIXES = (".geojson", ".json")
 
 
 def normalize_winding(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -62,17 +74,22 @@ def normalize_winding(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return gdf
 
 
-def convert(input_path: Path, output_path: Path) -> None:
-    print(f"Reading  {input_path}")
+def convert(input_path: Path, output_path: Path, log=print) -> None:
+    """Convert one GeoJSON file to GeoParquet.
+
+    ``log`` is the sink for progress messages — ``print`` for single-file mode,
+    ``tqdm.write`` in folder mode so it doesn't corrupt the progress bar.
+    """
+    log(f"Reading  {input_path}")
     gdf = gpd.read_file(input_path)
-    print(f"  {len(gdf)} features, CRS={gdf.crs}, geometry types={sorted(gdf.geom_type.unique())}")
+    log(f"  {len(gdf)} features, CRS={gdf.crs}, geometry types={sorted(gdf.geom_type.unique())}")
 
     # The app's deck.gl rendering expects WGS84 (EPSG:4326) coordinates.
     if gdf.crs is None:
-        print("  Warning: input has no CRS — assuming EPSG:4326")
+        log("  Warning: input has no CRS — assuming EPSG:4326")
         gdf = gdf.set_crs(epsg=4326)
     elif gdf.crs.to_epsg() != 4326:
-        print(f"  Reprojecting from {gdf.crs} to EPSG:4326")
+        log(f"  Reprojecting from {gdf.crs} to EPSG:4326")
         gdf = gdf.to_crs(epsg=4326)
 
     # Normalize ring winding so deck.gl tessellates donut/mask polygons without
@@ -81,11 +98,40 @@ def convert(input_path: Path, output_path: Path) -> None:
 
     # GeoPandas writes a GeoParquet 1.1 file with WKB-encoded geometry by
     # default, which is exactly what @geoarrow/geoparquet-wasm consumes.
-    print(f"Writing  {output_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    log(f"Writing  {output_path}")
     gdf.to_parquet(output_path, compression="snappy", index=False)
 
     size = output_path.stat().st_size
-    print(f"Wrote {output_path.name} ({size:,} bytes)")
+    log(f"Wrote {output_path.name} ({size:,} bytes)")
+
+
+def convert_folder(input_dir: Path, output_dir: Path) -> int:
+    """Convert every GeoJSON in ``input_dir`` to GeoParquet in ``output_dir``.
+
+    Returns the number of files that failed (0 on full success).
+    """
+    files = sorted(
+        p for p in input_dir.iterdir()
+        if p.is_file() and p.suffix.lower() in GEOJSON_SUFFIXES
+    )
+    if not files:
+        print(f"error: no .geojson/.json files found in {input_dir}", file=sys.stderr)
+        return 1
+
+    print(f"Converting {len(files)} file(s) from {input_dir} -> {output_dir}")
+    failures = 0
+    for path in tqdm(files, unit="file", desc="Converting"):
+        out = output_dir / (path.stem + ".parquet")
+        try:
+            convert(path, out, log=tqdm.write)
+        except Exception as err:  # keep going through the batch
+            failures += 1
+            tqdm.write(f"error converting {path.name}: {err}")
+
+    done = len(files) - failures
+    print(f"Done: {done}/{len(files)} converted" + (f", {failures} failed" if failures else ""))
+    return 1 if failures else 0
 
 
 def main(argv: list[str]) -> int:
@@ -97,16 +143,27 @@ def main(argv: list[str]) -> int:
     if not input_path.is_absolute():
         input_path = (Path.cwd() / input_path).resolve()
 
+    if not input_path.exists():
+        print(f"error: input not found: {input_path}", file=sys.stderr)
+        return 1
+
+    # Folder mode: convert every GeoJSON in the folder.
+    if input_path.is_dir():
+        if len(argv) >= 3:
+            output_dir = Path(argv[2])
+            if not output_dir.is_absolute():
+                output_dir = (Path.cwd() / output_dir).resolve()
+        else:
+            output_dir = input_path  # write .parquet alongside the inputs
+        return convert_folder(input_path, output_dir)
+
+    # Single-file mode.
     if len(argv) >= 3:
         output_path = Path(argv[2])
         if not output_path.is_absolute():
             output_path = (Path.cwd() / output_path).resolve()
     else:
         output_path = input_path.with_suffix(".parquet")
-
-    if not input_path.exists():
-        print(f"error: input not found: {input_path}", file=sys.stderr)
-        return 1
 
     convert(input_path, output_path)
     return 0
