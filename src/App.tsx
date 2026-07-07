@@ -13,6 +13,8 @@ import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
 import { useEmbedData, type EmbedConfig } from "@/hooks/use-embed-data";
 import { useNavigation } from "@/hooks/use-navigation";
 import { useAreaFilter } from "@/hooks/use-area-filter";
+import { useBoxSelect } from "@/hooks/use-box-select";
+import { useSelectionBoxLayers } from "@/hooks/use-selection-box-layer";
 import { isChartEligible } from "@/layers/charts";
 import { Legend } from "@/components/ui/legend";
 import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
@@ -104,29 +106,63 @@ function App({
   const markerLayersA = useClickMarkerLayers(clickMarker, clickMarkerConfig);
   const markerLayersB = useClickMarkerLayers(clickMarker, clickMarkerConfig);
 
+  // Area-select tool: a drawn rectangle restricting the charts/statistics to
+  // rows inside it (ANDed with the area filter). One shared instance — the box
+  // is a single filter shown on both maps; map rendering is unaffected.
+  const boxSelect = useBoxSelect();
+  const { active: boxSelectActive, toggle: boxSelectToggle } = boxSelect;
+  const selectionBox = boxSelect.draft ?? boxSelect.box;
+  const boxLayersA = useSelectionBoxLayers(selectionBox, "a");
+  const boxLayersB = useSelectionBoxLayers(selectionBox, "b");
+
+  // Mirror the tool state into both maps' cursor flags (crosshair while armed).
+  useEffect(() => {
+    for (const handle of [mapLeftRef.current, mapRightRef.current]) {
+      if (!handle) continue;
+      handle.drawModeRef.current = boxSelect.active;
+      const canvas = handle.mapRef.current?.getMap()?.getCanvas();
+      if (canvas) canvas.style.cursor = boxSelect.active ? "crosshair" : "";
+    }
+  }, [boxSelect.active]);
+
   // Compose feature picking with Street View capture so both run per click
+  const pickAClick = pickA.handleClick;
+  const pickBClick = pickB.handleClick;
   const onClickA = useCallback(
     (e: MapLayerMouseEvent) => {
-      pickA.handleClick(e);
+      // While area select is armed, clicks belong to the draw gesture (MapLibre
+      // fires click after mouseup) — don't drop the marker or open FeatureInfo.
+      if (boxSelectActive) return;
+      pickAClick(e);
       handleMapClick(e, resolveMarkerPoint(e, mapLeftRef, mapLeftLayers.layerEntries));
     },
-    [pickA.handleClick, handleMapClick, mapLeftLayers.layerEntries],
+    [boxSelectActive, pickAClick, handleMapClick, mapLeftLayers.layerEntries],
   );
   const onClickB = useCallback(
     (e: MapLayerMouseEvent) => {
-      pickB.handleClick(e);
+      if (boxSelectActive) return;
+      pickBClick(e);
       handleMapClick(e, resolveMarkerPoint(e, mapRightRef, mapRightLayers.layerEntries));
     },
-    [pickB.handleClick, handleMapClick, mapRightLayers.layerEntries],
+    [boxSelectActive, pickBClick, handleMapClick, mapRightLayers.layerEntries],
   );
 
+  const hoverAMove = hoverA.handleMouseMove;
+  const hoverBMove = hoverB.handleMouseMove;
+  const boxSelectMove = boxSelect.handleMouseMove;
   const onMouseMoveA = useCallback(
-    (e: MapLayerMouseEvent) => hoverA.handleMouseMove(e),
-    [hoverA.handleMouseMove],
+    (e: MapLayerMouseEvent) => {
+      hoverAMove(e);
+      boxSelectMove(e);
+    },
+    [hoverAMove, boxSelectMove],
   );
   const onMouseMoveB = useCallback(
-    (e: MapLayerMouseEvent) => hoverB.handleMouseMove(e),
-    [hoverB.handleMouseMove],
+    (e: MapLayerMouseEvent) => {
+      hoverBMove(e);
+      boxSelectMove(e);
+    },
+    [hoverBMove, boxSelectMove],
   );
 
   // Navigation menu: add/remove layers against the shared per-map state
@@ -230,7 +266,25 @@ function App({
       disabled: !hasChartLayer,
       onToggle: toggleChartsMinimized,
     });
+    sectionToggles.push({
+      key: "area-select",
+      icon: "select",
+      title: !hasChartLayer
+        ? "Gebied selecteren — selecteer eerst een laag met statistieken"
+        : boxSelect.active
+          ? "Gebiedselectie uitschakelen"
+          : "Gebied selecteren (sleep een rechthoek)",
+      active: boxSelect.active,
+      disabled: !hasChartLayer,
+      onToggle: boxSelect.toggle,
+    });
   }
+
+  // The chart layer went away while the tool was armed: turn it off so the box
+  // doesn't linger invisibly in the filter behind a disabled button.
+  useEffect(() => {
+    if (boxSelectActive && !selectedChartLayerId) boxSelectToggle();
+  }, [boxSelectActive, boxSelectToggle, selectedChartLayerId]);
 
   const refreshLeft = mapLeftLayers.refreshAreaFilter;
   const refreshRight = mapRightLayers.refreshAreaFilter;
@@ -370,12 +424,14 @@ function App({
         <MapView
           ref={mapLeftRef}
           layers={mapLeftLayers.deckLayers}
-          topLayers={[...studyLayersA, ...markerLayersA]}
+          topLayers={[...studyLayersA, ...markerLayersA, ...boxLayersA]}
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
           onMove={handleMove}
           onClick={onClickA}
           onMouseMove={onMouseMoveA}
+          onMouseDown={boxSelect.handleMouseDown}
+          onMouseUp={boxSelect.handleMouseUp}
           onLoad={() => setMapLeftReady(true)}
           onLabelsReady={handleMapLeftLabelsReady}
         />
@@ -395,12 +451,14 @@ function App({
           <MapView
             ref={mapRightRef}
             layers={mapRightLayers.deckLayers}
-            topLayers={[...studyLayersB, ...markerLayersB]}
+            topLayers={[...studyLayersB, ...markerLayersB, ...boxLayersB]}
             style={{ width: "100%", height: "100%" }}
             viewState={viewState}
             onMove={handleMove}
             onClick={onClickB}
             onMouseMove={onMouseMoveB}
+            onMouseDown={boxSelect.handleMouseDown}
+            onMouseUp={boxSelect.handleMouseUp}
             onLoad={handleMapRightLoad}
             onLabelsReady={handleMapRightLabelsReady}
           />
@@ -451,7 +509,7 @@ function App({
       {chartsPanelEnabled && chartLayerConfig && !chartsMinimized && (
         <ChartsPanel
           config={chartLayerConfig}
-          version={areaFilter.version}
+          version={areaFilter.version + boxSelect.version}
           onClose={() => setSelectedChartLayerId(null)}
         />
       )}

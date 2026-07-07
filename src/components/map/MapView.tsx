@@ -106,8 +106,9 @@ function DeckGLOverlay(props: {
   hoverRef: React.RefObject<boolean>;
   mvtHoverRef: React.RefObject<boolean>;
   clickableIdsRef: React.RefObject<string[]>;
+  drawModeRef: React.RefObject<boolean>;
 }) {
-  const { hoverRef, mvtHoverRef, clickableIdsRef } = props;
+  const { hoverRef, mvtHoverRef, clickableIdsRef, drawModeRef } = props;
   const overlay = useControl(
     () =>
       new MapboxOverlay({
@@ -122,13 +123,16 @@ function DeckGLOverlay(props: {
             : false;
         },
         // deck owns the canvas cursor in interleaved mode; read the live hover
-        // flags so a pointer shows over clickable features, grabbing while panning.
+        // flags so a pointer shows over clickable features, grabbing while panning,
+        // crosshair while the area-select tool is armed.
         getCursor: ({ isDragging }) =>
-          isDragging
-            ? "grabbing"
-            : hoverRef.current || mvtHoverRef.current
-              ? "pointer"
-              : "grab",
+          drawModeRef.current
+            ? "crosshair"
+            : isDragging
+              ? "grabbing"
+              : hoverRef.current || mvtHoverRef.current
+                ? "pointer"
+                : "grab",
       }),
   );
   props.overlayRef.current = overlay;
@@ -145,6 +149,8 @@ export interface MapViewHandle {
   mvtHoverRef: React.RefObject<boolean>;
   /** Config ids of clickable layers; deck onHover matches picked layer ids against these. */
   clickableIdsRef: React.RefObject<string[]>;
+  /** Live flag: the area-select draw mode is armed (crosshair cursor). */
+  drawModeRef: React.RefObject<boolean>;
 }
 
 /** Read current layers from a MapboxOverlay */
@@ -175,21 +181,24 @@ interface MapViewProps {
   onMove?: (evt: ViewStateChangeEvent) => void;
   onClick?: (evt: MapLayerMouseEvent) => void;
   onMouseMove?: (evt: MapLayerMouseEvent) => void;
+  onMouseDown?: (evt: MapLayerMouseEvent) => void;
+  onMouseUp?: (evt: MapLayerMouseEvent) => void;
   onLoad?: () => void;
   onLabelsReady?: (map: MapLibreMap) => void;
 }
 
 export const MapView = forwardRef<MapViewHandle, MapViewProps>(
-  function MapView({ layers, topLayers, style, viewState, onMove, onClick, onMouseMove, onLoad, onLabelsReady }, ref) {
+  function MapView({ layers, topLayers, style, viewState, onMove, onClick, onMouseMove, onMouseDown, onMouseUp, onLoad, onLabelsReady }, ref) {
     const mapRef = useRef<MapRef>(null);
     const overlayRef = useRef<MapboxOverlay | null>(null);
     const hoverRef = useRef<boolean>(false);
     const mvtHoverRef = useRef<boolean>(false);
     const clickableIdsRef = useRef<string[]>([]);
+    const drawModeRef = useRef<boolean>(false);
 
     useImperativeHandle(
       ref,
-      () => ({ mapRef, overlayRef, hoverRef, mvtHoverRef, clickableIdsRef }),
+      () => ({ mapRef, overlayRef, hoverRef, mvtHoverRef, clickableIdsRef, drawModeRef }),
       [],
     );
 
@@ -249,6 +258,8 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         onMove={onMove}
         onClick={onClick}
         onMouseMove={onMouseMove}
+        onMouseDown={onMouseDown}
+        onMouseUp={onMouseUp}
       >
         <DeckGLOverlay
           layers={topLayers && topLayers.length > 0 ? [...layers, ...topLayers] : layers}
@@ -256,6 +267,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
           hoverRef={hoverRef}
           mvtHoverRef={mvtHoverRef}
           clickableIdsRef={clickableIdsRef}
+          drawModeRef={drawModeRef}
         />
       </Map>
     );

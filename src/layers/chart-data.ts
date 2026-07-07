@@ -2,10 +2,11 @@
  * Aggregation for the analytics panel: turns a layer's arrow attribute table
  * into chart data and "Kerncijfers" statistics, counting ONLY rows that pass
  * the active gemeente/wijk/buurt area filter (the same predicate the map
- * rendering and picking use).
+ * rendering and picking use) AND the drawn box selection, if any.
  */
 import type { Table } from "apache-arrow";
 import { arrowRowMatchesAreaFilter } from "./area-filter";
+import { arrowRowMatchesBoxFilter } from "./box-filter";
 import { CHART_COLORS, type ChartConfig } from "./charts";
 import type { LayerConfig, StatisticConfig } from "./types";
 import { loadGeoParquetBatches, loadParquetBatches } from "./parquet-loader";
@@ -52,6 +53,13 @@ function rowInfo(table: Table, index: number) {
   return { index, data: { data: table } };
 }
 
+/** A row counts iff it passes both the area filter AND the box selection. */
+function rowPassesFilters(table: Table, index: number): boolean {
+  return (
+    arrowRowMatchesAreaFilter(rowInfo(table, index)) && arrowRowMatchesBoxFilter(table, index)
+  );
+}
+
 const warnedMissingColumns = new Set<string>();
 
 function warnMissingColumn(source: string, field: string) {
@@ -86,7 +94,8 @@ const MAX_GROUPS = 8;
 
 /**
  * Compute a chart's data from the table, restricted to rows passing the area
- * filter. `version` is the area-filter version (cache key only).
+ * filter and box selection. `version` is the combined filter version (cache
+ * key only).
  */
 export function computeChartData(
   table: Table,
@@ -114,7 +123,7 @@ function computeFieldsData(table: Table, chart: ChartConfig, source: string): Ch
   const sums = new Array<number>(specs.length).fill(0);
   const counts = new Array<number>(specs.length).fill(0);
   for (let i = 0; i < table.numRows; i++) {
-    if (!arrowRowMatchesAreaFilter(rowInfo(table, i))) continue;
+    if (!rowPassesFilters(table, i)) continue;
     for (let f = 0; f < specs.length; f++) {
       const raw = columns[f]?.get(i);
       if (raw === null || raw === undefined) continue;
@@ -156,7 +165,7 @@ function computeGroupByData(table: Table, chart: ChartConfig, source: string): C
 
   const groups = new Map<string, { sum: number; count: number }>();
   for (let i = 0; i < table.numRows; i++) {
-    if (!arrowRowMatchesAreaFilter(rowInfo(table, i))) continue;
+    if (!rowPassesFilters(table, i)) continue;
     const raw = groupCol.get(i);
     if (raw === null || raw === undefined) continue;
     const key = String(raw);
@@ -223,7 +232,7 @@ export function computeStatistics(
     });
 
     for (let i = 0; i < table.numRows; i++) {
-      if (!arrowRowMatchesAreaFilter(rowInfo(table, i))) continue;
+      if (!rowPassesFilters(table, i)) continue;
       for (const acc of accs) {
         const raw = acc.col?.get(i);
         if (raw === null || raw === undefined) continue;
