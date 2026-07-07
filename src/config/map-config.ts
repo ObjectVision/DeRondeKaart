@@ -70,6 +70,18 @@ export interface MapConfig {
    * Defaults to `"top"` when omitted.
    */
   navigationMode: "top" | "sidebar";
+  /**
+   * Whether the sidebar's Filter section is available. Only meaningful in
+   * sidebar mode when `navigation` is true. Defaults to `true`. Set to `false`
+   * to hide the Filter box (and its top-right toggle icon) entirely.
+   */
+  filterSection: boolean;
+  /**
+   * Whether the sidebar's Navigatie (Kaartlagen) section is available. Only
+   * meaningful in sidebar mode when `navigation` is true. Defaults to `true`.
+   * Set to `false` to hide the Navigatie box (and its top-right toggle icon).
+   */
+  navigationSection: boolean;
   /** Appearance of the on-click marker. Falls back to {@link DEFAULT_CLICK_MARKER}. */
   clickMarker: ClickMarkerConfig;
 }
@@ -91,6 +103,8 @@ export const DEFAULT_MAP_CONFIG: MapConfig = {
   searchbar: false,
   navigation: false,
   navigationMode: "top",
+  filterSection: true,
+  navigationSection: true,
   clickMarker: DEFAULT_CLICK_MARKER,
 };
 
@@ -218,6 +232,12 @@ export async function loadMapConfig(): Promise<MapConfig> {
   const streetview = validateBool(data.streetview, "streetview", DEFAULT_MAP_CONFIG.streetview!);
   const searchbar = validateBool(data.searchbar, "searchbar", DEFAULT_MAP_CONFIG.searchbar);
   const navigation = validateBool(data.navigation, "navigation", DEFAULT_MAP_CONFIG.navigation);
+  const filterSection = validateBool(data.filterSection, "filterSection", DEFAULT_MAP_CONFIG.filterSection);
+  const navigationSection = validateBool(
+    data.navigationSection,
+    "navigationSection",
+    DEFAULT_MAP_CONFIG.navigationSection,
+  );
 
   let navigationMode = DEFAULT_MAP_CONFIG.navigationMode;
   if (data.navigationMode === "top" || data.navigationMode === "sidebar") {
@@ -238,6 +258,8 @@ export async function loadMapConfig(): Promise<MapConfig> {
     searchbar,
     navigation,
     navigationMode,
+    filterSection,
+    navigationSection,
     clickMarker,
   };
 }

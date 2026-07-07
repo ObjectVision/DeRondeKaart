@@ -15,6 +15,8 @@ async function bootstrap() {
         searchbarEnabled={mapConfig.searchbar}
         navigationEnabled={mapConfig.navigation}
         navigationMode={mapConfig.navigationMode}
+        filterSectionEnabled={mapConfig.filterSection}
+        navigationSectionEnabled={mapConfig.navigationSection}
         clickMarker={mapConfig.clickMarker}
       />
     </StrictMode>,

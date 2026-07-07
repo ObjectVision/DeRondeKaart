@@ -6,6 +6,8 @@
   "searchbar": false,
   "navigation": true,
   "navigationMode": "sidebar",
+  "filterSection": true,
+  "navigationSection": true,
   "clickMarker": {
     "icon": "my_location",
     "size": 30,

@@ -22,9 +22,15 @@ interface SelectedLeaf {
 export function Sidebar({
   nav,
   areaFilter,
+  showFilter = true,
+  showNavigation = true,
 }: {
   nav: NavigationApi;
   areaFilter: AreaFilterState;
+  /** Render the Filter section (false = minimized or disabled in config). */
+  showFilter?: boolean;
+  /** Render the Navigatie section (false = minimized or disabled in config). */
+  showNavigation?: boolean;
 }) {
   const [tree, setTree] = useState<NavNode[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
@@ -36,7 +42,12 @@ export function Sidebar({
       .catch((err) => console.error("Failed to load navigation.json:", err));
   }, []);
 
-  const activeNode = activeCategory !== null ? tree[activeCategory] : null;
+  const filterVisible = showFilter && areaFilter.entries.length > 0;
+  // The category flyout only makes sense while the Navigatie section is shown.
+  const activeNode = showNavigation && activeCategory !== null ? tree[activeCategory] : null;
+
+  // Nothing to show — don't render an empty card (and let map clicks through).
+  if (!filterVisible && !showNavigation) return null;
 
   function selectCategory(index: number) {
     setActiveCategory((current) => (current === index ? null : index));
@@ -49,12 +60,14 @@ export function Sidebar({
     // sizing but must not swallow map clicks below the card.
     <div className="pointer-events-none absolute bottom-2 left-2 top-2 z-30 flex items-start sm:bottom-4 sm:left-4 sm:top-4">
       <div className="pointer-events-auto flex max-h-full w-72 flex-col gap-4 overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
-        {areaFilter.entries.length > 0 && <FilterSection areaFilter={areaFilter} />}
-        <NavigationSection
-          tree={tree}
-          activeCategory={activeCategory}
-          onSelectCategory={selectCategory}
-        />
+        {filterVisible && <FilterSection areaFilter={areaFilter} />}
+        {showNavigation && (
+          <NavigationSection
+            tree={tree}
+            activeCategory={activeCategory}
+            onSelectCategory={selectCategory}
+          />
+        )}
       </div>
 
       {activeNode && (

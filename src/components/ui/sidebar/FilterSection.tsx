@@ -9,7 +9,7 @@ export function FilterSection({ areaFilter }: { areaFilter: AreaFilterState }) {
   return (
     <div className="flex flex-col gap-2">
       <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-        Filter
+        Gebieden
       </h2>
       {areaFilter.entries.map((entry) => (
         <div key={entry.key} className="flex flex-col gap-1">

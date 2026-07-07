@@ -19,9 +19,9 @@ export function NavigationSection({
   return (
     <div className="flex flex-col gap-2">
       <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-        Navigatie
+        Themas
       </h2>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {tree.map((node, index) => {
           const isActive = activeCategory === index;
           const accent = node.color ?? "#F97316"; // default orange
