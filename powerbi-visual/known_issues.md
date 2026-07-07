@@ -67,5 +67,84 @@ approach is not viable and the alternative is to bundle the map app *into* the
 `.pbiviz` itself (self-contained visual, no nested iframe) — a much larger effort
 (port the Vite app into the pbiviz webpack toolchain).
 
+---
 
-Access to script at 'https://map.woonzorglimburg.nl/assets/index-DFgHUS4B.js' from origin 'null' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+# Gate 3: asset CORS from the null-origin document
+
+## Symptom
+
+After framing succeeds, the app's own bundle requests fail:
+
+```
+Access to script at '.../assets/index-*.js' from origin 'null' has been blocked
+by CORS policy: No 'Access-Control-Allow-Origin' header is present.
+Access to CSS stylesheet at '.../assets/index-*.css' from origin 'null' ... (same)
+```
+
+## Root cause
+
+Inside the sandbox the document runs at an **opaque (null) origin**, so a request
+for a *same-host* asset (`map.woonzorglimburg.nl` → `map.woonzorglimburg.nl/assets/…`)
+is now **cross-origin** (`null` ≠ `https://map…`). Two things then require CORS:
+
+- **ES module scripts** (`<script type="module">`) are **always** fetched in CORS
+  mode *by spec*, regardless of the `crossorigin` attribute. So the JS bundle
+  demands `Access-Control-Allow-Origin` no matter what.
+- Vite additionally emits `crossorigin` on the `<script>` and `<link
+  rel="stylesheet">` tags, which puts the **CSS** into CORS mode too.
+
+Because a build-only change can drop `crossorigin` from the CSS but **cannot**
+stop the module system from CORS-fetching the JS, this **must** be fixed on the
+server. There is no repo-only fix while the app loads as ES modules under a null
+origin.
+
+## Fix (server-side, required)
+
+Serve the app's static assets with:
+
+```
+Access-Control-Allow-Origin: *
+```
+
+on `/assets/*` (or the whole app path). This satisfies the CORS check for both the
+module JS and the CSS. Unlike dropping `frame-ancestors`, `ACAO: *` on read-only
+static JS/CSS/font/tile assets is benign — those bytes are already publicly
+fetchable by URL.
+
+### nginx gotcha: `add_header` does NOT merge across blocks
+
+A `server`-level `add_header Access-Control-Allow-Origin "*" always;` is **silently
+discarded** on any response whose `location` block has its *own* `add_header`
+(nginx replaces, never merges: inner `add_header` set wins entirely). A Vite
+`/assets/` block that sets cache headers (`expires 1y; add_header Cache-Control
+"public, immutable";`) therefore drops the server-level CORS header — the HTML at
+`/app/` gets the header but `/assets/*.js|.css` do not.
+
+Tell-tale: the asset response shows **two `Cache-Control` headers** (one from the
+block, one inherited) but **no** `Access-Control-Allow-Origin`, while `/app/` has
+it. Verify with:
+
+```
+curl -sSI https://map.woonzorglimburg.nl/assets/index-*.css | grep -i access-control
+```
+
+**Fix:** add the CORS header *inside the asset `location` block itself* (the one
+with `immutable`/`expires`):
+
+```nginx
+location /assets/ {
+    expires 1y;
+    add_header Cache-Control "public, immutable";
+    add_header Access-Control-Allow-Origin "*" always;   # must be repeated here
+}
+```
+
+Then `nginx -t && systemctl reload nginx` and hard-refresh (assets are
+`immutable`-cached; append `?v=2` to bust if a stale no-CORS copy is cached).
+
+## Summary of all three gates
+
+The app URL served to the Power BI custom visual must, for its whole path:
+1. be listed in the visual's `WebAccess` privilege (capabilities.json) — CSP host,
+2. send **no** `X-Frame-Options` and **no** `frame-ancestors` — framing,
+3. send `Access-Control-Allow-Origin: *` on assets — CORS from null origin.

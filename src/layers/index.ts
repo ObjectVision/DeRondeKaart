@@ -5,4 +5,5 @@ export { invalidateTableCache, clearTableCache } from "./table-cache";
 export { createGeoArrowLayers, createGeoJsonLayers } from "./layer-factory";
 export { buildMvtLayerDefs } from "./mvt-style";
 export { resolveTemplate, renderTemplate } from "./featureinfo-template";
+export { featureMatchesGeostyler } from "./geostyler";
 export type { LayerConfig, LayerFormat, LayerStyle, GeometryType, LayersFile, GeoStylerStyle, GeoStylerRule, FeatureInfoConfig } from "./types";
