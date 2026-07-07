@@ -37,7 +37,7 @@ export function SectionToggleBar({ toggles }: { toggles: SectionToggle[] }) {
           <Icon
             name={t.icon}
             size={20}
-            className={t.active ? "text-orange-500" : "text-gray-400"}
+            className={t.active ? "text-[#00498D]" : "text-gray-400"}
           />
         </Button>
       ))}
