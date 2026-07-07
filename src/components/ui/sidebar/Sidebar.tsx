@@ -24,6 +24,7 @@ export function Sidebar({
   areaFilter,
   showFilter = true,
   showNavigation = true,
+  toolbar,
 }: {
   nav: NavigationApi;
   areaFilter: AreaFilterState;
@@ -31,6 +32,12 @@ export function Sidebar({
   showFilter?: boolean;
   /** Render the Navigatie section (false = minimized or disabled in config). */
   showNavigation?: boolean;
+  /**
+   * Toolbar row (search/zoom + section toggles) rendered above the sections.
+   * Stays visible when both sections are minimized — it is how they are
+   * restored.
+   */
+  toolbar?: React.ReactNode;
 }) {
   const [tree, setTree] = useState<NavNode[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
@@ -45,9 +52,12 @@ export function Sidebar({
   const filterVisible = showFilter && areaFilter.entries.length > 0;
   // The category flyout only makes sense while the Navigatie section is shown.
   const activeNode = showNavigation && activeCategory !== null ? tree[activeCategory] : null;
+  const sectionsVisible = filterVisible || showNavigation;
 
-  // Nothing to show — don't render an empty card (and let map clicks through).
-  if (!filterVisible && !showNavigation) return null;
+  // Nothing at all to show — don't render an empty wrapper (and let map
+  // clicks through). The toolbar alone still renders: it is how minimized
+  // sections are restored.
+  if (!sectionsVisible && !toolbar) return null;
 
   function selectCategory(index: number) {
     setActiveCategory((current) => (current === index ? null : index));
@@ -55,22 +65,30 @@ export function Sidebar({
   }
 
   return (
-    // The flyout is a sibling of the (scrollable) sidebar card so the card's
-    // overflow doesn't clip it. The wrapper spans the full height for max-h
-    // sizing but must not swallow map clicks below the card.
-    <div className="pointer-events-none absolute bottom-2 left-2 top-2 z-30 flex items-start sm:bottom-4 sm:left-4 sm:top-4">
-      <div className="pointer-events-auto flex max-h-full w-72 flex-col gap-4 overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
-        {filterVisible && <FilterSection areaFilter={areaFilter} />}
-        {showNavigation && (
-          <NavigationSection
-            tree={tree}
-            activeCategory={activeCategory}
-            onSelectCategory={selectCategory}
-          />
-        )}
-      </div>
+    // Column: toolbar row on top, then the sections card with the flyout as a
+    // sibling (so the card's overflow doesn't clip it). The wrapper spans the
+    // full height for max-h sizing but must not swallow map clicks around the
+    // cards.
+    <div className="pointer-events-none absolute bottom-2 left-2 top-2 z-30 flex flex-col items-start gap-2 sm:bottom-4 sm:left-4 sm:top-4">
+      {toolbar && (
+        <div className="pointer-events-auto flex items-center gap-2">{toolbar}</div>
+      )}
 
-      {activeNode && (
+      <div className="flex min-h-0 flex-1 items-start">
+        {sectionsVisible && (
+          <div className="pointer-events-auto flex max-h-full w-72 flex-col gap-4 overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
+            {filterVisible && <FilterSection areaFilter={areaFilter} />}
+            {showNavigation && (
+              <NavigationSection
+                tree={tree}
+                activeCategory={activeCategory}
+                onSelectCategory={selectCategory}
+              />
+            )}
+          </div>
+        )}
+
+        {activeNode && (
         <div className="pointer-events-auto ml-2 max-h-full w-80 self-start overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
           {selected ? (
             <LeafDetail
@@ -99,8 +117,9 @@ export function Sidebar({
               />
             </>
           )}
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

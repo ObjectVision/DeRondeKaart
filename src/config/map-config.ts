@@ -82,6 +82,12 @@ export interface MapConfig {
    * Set to `false` to hide the Navigatie box (and its top-right toggle icon).
    */
   navigationSection: boolean;
+  /**
+   * Whether the analytics ("Analyse & statistieken") panel is available:
+   * clicking a chart-configured layer's name in the legend opens it. Defaults
+   * to `true`.
+   */
+  chartsPanel: boolean;
   /** Appearance of the on-click marker. Falls back to {@link DEFAULT_CLICK_MARKER}. */
   clickMarker: ClickMarkerConfig;
 }
@@ -105,6 +111,7 @@ export const DEFAULT_MAP_CONFIG: MapConfig = {
   navigationMode: "top",
   filterSection: true,
   navigationSection: true,
+  chartsPanel: true,
   clickMarker: DEFAULT_CLICK_MARKER,
 };
 
@@ -238,6 +245,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     "navigationSection",
     DEFAULT_MAP_CONFIG.navigationSection,
   );
+  const chartsPanel = validateBool(data.chartsPanel, "chartsPanel", DEFAULT_MAP_CONFIG.chartsPanel);
 
   let navigationMode = DEFAULT_MAP_CONFIG.navigationMode;
   if (data.navigationMode === "top" || data.navigationMode === "sidebar") {
@@ -260,6 +268,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     navigationMode,
     filterSection,
     navigationSection,
+    chartsPanel,
     clickMarker,
   };
 }

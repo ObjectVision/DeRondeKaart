@@ -19,11 +19,22 @@ export interface SectionToggle {
  * section's state: highlighted when open, muted when minimized. Renders nothing
  * when there are no toggles.
  */
-export function SectionToggleBar({ toggles }: { toggles: SectionToggle[] }) {
+export function SectionToggleBar({
+  toggles,
+  orientation = "vertical",
+}: {
+  toggles: SectionToggle[];
+  /** "vertical" (default) stacks the buttons; "horizontal" lays them out as a row. */
+  orientation?: "vertical" | "horizontal";
+}) {
   if (toggles.length === 0) return null;
 
   return (
-    <div className="flex flex-shrink-0 flex-col gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+    <div
+      className={`flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm ${
+        orientation === "horizontal" ? "flex-row" : "flex-col"
+      }`}
+    >
       {toggles.map((t) => (
         <Button
           key={t.key}

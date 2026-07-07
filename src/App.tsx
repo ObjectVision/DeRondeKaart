@@ -22,6 +22,7 @@ import { MapControls } from "@/components/ui/map-controls";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
+import { ChartsPanel } from "@/components/charts/ChartsPanel";
 //import { MapPills } from "@/components/ui/map-pills";
 
 function App({
@@ -33,6 +34,7 @@ function App({
   navigationMode = "top",
   filterSectionEnabled = true,
   navigationSectionEnabled = true,
+  chartsPanelEnabled = true,
   clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
 }: {
   initialViewState: ViewState;
@@ -43,6 +45,7 @@ function App({
   navigationMode?: "top" | "sidebar";
   filterSectionEnabled?: boolean;
   navigationSectionEnabled?: boolean;
+  chartsPanelEnabled?: boolean;
   clickMarker?: ClickMarkerConfig;
 }) {
   // UI-surface flags are seeded from map.json (props) but can be overridden at
@@ -138,6 +141,31 @@ function App({
   // sidebar mode; `*SectionEnabled` (from map.json) gates availability entirely.
   const [filterMinimized, , toggleFilterMinimized] = useSessionFlag("sidebar.filter.min", false);
   const [navMinimized, , toggleNavMinimized] = useSessionFlag("sidebar.nav.min", false);
+  const [chartsMinimized, setChartsMinimized, toggleChartsMinimized] = useSessionFlag(
+    "sidebar.charts.min",
+    false,
+  );
+
+  // Analytics ("Analyse & statistieken") panel: selected via a layer-name
+  // click in the legend; fed by the layer's attribute table restricted to the
+  // current area filter.
+  const [selectedChartLayerId, setSelectedChartLayerId] = useState<string | null>(null);
+  const chartLayerConfig =
+    (selectedChartLayerId &&
+      (mapLeftLayers.layerEntries.find((e) => e.config.id === selectedChartLayerId)?.config ??
+        mapRightLayers.layerEntries.find((e) => e.config.id === selectedChartLayerId)?.config)) ||
+    null;
+  const handleSelectChartLayer = useCallback(
+    (id: string) => {
+      setSelectedChartLayerId((prev) => (prev === id ? null : id));
+      setChartsMinimized(false);
+    },
+    [setChartsMinimized],
+  );
+  // The selected layer was removed from both maps — close the panel.
+  useEffect(() => {
+    if (selectedChartLayerId && !chartLayerConfig) setSelectedChartLayerId(null);
+  }, [selectedChartLayerId, chartLayerConfig]);
 
   const sidebarActive = sidebarMode && navigation;
   const filterAvailable = sidebarActive && filterSectionEnabled && areaFilter.entries.length > 0;
@@ -160,6 +188,15 @@ function App({
       title: navMinimized ? "Navigatie tonen" : "Navigatie verbergen",
       active: !navMinimized,
       onToggle: toggleNavMinimized,
+    });
+  }
+  if (chartsPanelEnabled && selectedChartLayerId) {
+    sectionToggles.push({
+      key: "charts",
+      icon: "monitoring",
+      title: chartsMinimized ? "Statistieken tonen" : "Statistieken verbergen",
+      active: !chartsMinimized,
+      onToggle: toggleChartsMinimized,
     });
   }
 
@@ -356,20 +393,35 @@ function App({
         showNavigation={navigation && !sidebarMode}
       />
 
-      {/* Sidebar mode: Filter + Navigatie on the left, map controls top right */}
+      {/* Sidebar mode: toolbar (search, zoom, section toggles) top left above
+          the Filter + Navigatie sections */}
       {sidebarActive && (
-        <>
-          <Sidebar
-            nav={nav}
-            areaFilter={areaFilter}
-            showFilter={filterAvailable && !filterMinimized}
-            showNavigation={navAvailable && !navMinimized}
-          />
-          <div className="absolute right-2 top-2 z-30 flex flex-col items-end gap-2 sm:right-4 sm:top-4">
-            <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
-            <SectionToggleBar toggles={sectionToggles} />
-          </div>
-        </>
+        <Sidebar
+          nav={nav}
+          areaFilter={areaFilter}
+          showFilter={filterAvailable && !filterMinimized}
+          showNavigation={navAvailable && !navMinimized}
+          toolbar={
+            <>
+              <MapControls
+                orientation="horizontal"
+                onZoomIn={handleZoomIn}
+                onZoomOut={handleZoomOut}
+              />
+              <SectionToggleBar orientation="horizontal" toggles={sectionToggles} />
+            </>
+          }
+        />
+      )}
+
+      {/* Analytics panel — right side; opened by selecting a layer in the
+          legend. In comparison mode it overlays the right map by design. */}
+      {chartsPanelEnabled && chartLayerConfig && !chartsMinimized && (
+        <ChartsPanel
+          config={chartLayerConfig}
+          version={areaFilter.version}
+          onClose={() => setSelectedChartLayerId(null)}
+        />
       )}
 
       {/* Legend + FeatureInfo — bottom left, side by side with icon-button gap.
@@ -392,6 +444,9 @@ function App({
           onRemoveA={handleRemoveA}
           onRemoveB={handleRemoveB}
           comparisonMode={comparisonMode}
+          selectedChartLayerId={selectedChartLayerId}
+          onSelectChartLayer={handleSelectChartLayer}
+          chartsEnabled={chartsPanelEnabled}
         />
 
         {/* FeatureInfo popups */}

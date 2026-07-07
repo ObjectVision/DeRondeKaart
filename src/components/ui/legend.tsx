@@ -1,5 +1,17 @@
 import type { LayerEntry } from "@/hooks/use-map-layers";
-import type { GeoStylerRule } from "@/layers/types";
+import type { GeoStylerRule, LayerConfig } from "@/layers/types";
+import { Icon } from "@/components/ui/nav-icon";
+
+/** Formats whose attribute table can feed the analytics panel. */
+const CHART_FORMATS = ["geoarrow", "geoparquet", "parquet"];
+
+/** Can this layer open the analytics panel? */
+function isChartEligible(config: LayerConfig): boolean {
+  return (
+    CHART_FORMATS.includes(config.format) &&
+    Boolean(config.charts?.length || config.statistics?.length)
+  );
+}
 
 interface LegendProps {
   entriesA: LayerEntry[];
@@ -15,6 +27,12 @@ interface LegendProps {
   onRemoveA: (layerId: string) => void;
   onRemoveB: (layerId: string) => void;
   comparisonMode: boolean;
+  /** Layer currently shown in the analytics panel (null = panel closed). */
+  selectedChartLayerId: string | null;
+  /** Select/deselect a layer for the analytics panel. */
+  onSelectChartLayer: (layerId: string) => void;
+  /** map.json `chartsPanel` gate — false restores plain visibility clicks. */
+  chartsEnabled: boolean;
 }
 
 function colorToCSS(
@@ -45,6 +63,9 @@ function LayerList({
   onToggle,
   onToggleRule,
   onRemove,
+  selectedChartLayerId,
+  onSelectChartLayer,
+  chartsEnabled,
 }: {
   label?: string;
   entries: LayerEntry[];
@@ -53,6 +74,9 @@ function LayerList({
   onToggle: (layerId: string) => void;
   onToggleRule: (layerId: string, ruleName: string) => void;
   onRemove: (layerId: string) => void;
+  selectedChartLayerId: string | null;
+  onSelectChartLayer: (layerId: string) => void;
+  chartsEnabled: boolean;
 }) {
   if (entries.length === 0) return null;
 
@@ -73,17 +97,22 @@ function LayerList({
           // deck-layer rules can. Render them as non-interactive swatches.
           const isCog = config.format === "cog";
           const layerHiddenRules = hiddenRules.get(config.id);
+          const selectable = chartsEnabled && isChartEligible(config);
+          const isSelected = selectable && selectedChartLayerId === config.id;
 
           return (
             <li key={config.id}>
-              {/* Layer-level toggle + close */}
+              {/* Layer row: swatch = visibility; name = analytics select on
+                  chart-eligible layers, visibility elsewhere; × = remove */}
               <div className="group flex items-center rounded hover:bg-gray-100 transition-colors">
                 <button
                   onClick={() => onToggle(config.id)}
-                  className="flex flex-1 items-center gap-2 px-1.5 py-1 text-left text-sm"
+                  className="flex-shrink-0 px-1.5 py-1"
+                  title="Zichtbaarheid"
+                  aria-label={`Zichtbaarheid ${config.name}`}
                 >
                   <span
-                    className="inline-block h-3 w-3 rounded-none border border-gray-300 flex-shrink-0"
+                    className="inline-block h-3 w-3 rounded-none border border-gray-300"
                     style={{
                       backgroundColor: isVisible
                         ? hasRules
@@ -92,15 +121,29 @@ function LayerList({
                         : "transparent",
                     }}
                   />
+                </button>
+                <button
+                  onClick={() =>
+                    selectable ? onSelectChartLayer(config.id) : onToggle(config.id)
+                  }
+                  className="flex min-w-0 flex-1 items-center gap-1.5 py-1 pr-1.5 text-left text-sm"
+                  title={selectable ? "Statistieken tonen" : "Zichtbaarheid"}
+                  aria-pressed={selectable ? isSelected : undefined}
+                >
                   <span
                     className={
-                      isVisible
-                        ? "text-gray-800 font-medium"
-                        : "text-gray-400 line-through"
+                      isSelected
+                        ? "text-orange-500 font-semibold"
+                        : isVisible
+                          ? "text-gray-800 font-medium"
+                          : "text-gray-400 line-through"
                     }
                   >
                     {config.name}
                   </span>
+                  {isSelected && (
+                    <Icon name="monitoring" size={14} className="flex-shrink-0 text-orange-500" />
+                  )}
                 </button>
                 <button
                   onClick={() => onRemove(config.id)}
@@ -184,7 +227,11 @@ export function Legend({
   onRemoveA,
   onRemoveB,
   comparisonMode,
+  selectedChartLayerId,
+  onSelectChartLayer,
+  chartsEnabled,
 }: LegendProps) {
+  const chartProps = { selectedChartLayerId, onSelectChartLayer, chartsEnabled };
   const visibleA = entriesA.filter((e) => !e.config.excludeFromLegend);
   const visibleB = entriesB.filter((e) => !e.config.excludeFromLegend);
   if (visibleA.length === 0 && visibleB.length === 0) return null;
@@ -204,6 +251,7 @@ export function Legend({
             onToggle={onToggleA}
             onToggleRule={onToggleRuleA}
             onRemove={onRemoveA}
+            {...chartProps}
           />
           <LayerList
             label="Rechter kaart"
@@ -213,6 +261,7 @@ export function Legend({
             onToggle={onToggleB}
             onToggleRule={onToggleRuleB}
             onRemove={onRemoveB}
+            {...chartProps}
           />
         </div>
       ) : (
@@ -223,6 +272,7 @@ export function Legend({
           onToggle={onToggleA}
           onToggleRule={onToggleRuleA}
           onRemove={onRemoveA}
+          {...chartProps}
         />
       )}
     </div>
