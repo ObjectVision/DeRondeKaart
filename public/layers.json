@@ -831,6 +831,12 @@
       "source": "https://data.woonzorglimburg.nl/parquet/SDKLimburg2026.parquet",
       "format": "geoparquet",
       "geometryType": "polygon",
+      "charts": ["sdk_verdeling_donut"],
+      "statistics": [
+        { "field": "data", "stat": "count", "label": "Gebieden", "icon": "grid_view", "color": "#1c5cab" },
+        { "field": "data", "stat": "mean", "label": "Gem. klasse", "icon": "diversity_3", "color": "#F97316" },
+        { "field": "data", "stat": "variance", "label": "Spreiding", "icon": "monitoring", "color": "#1baf7a" }
+      ],
       "geostyler": {
         "name": "",
         "rules": [
@@ -1179,6 +1185,13 @@
       "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
+      "charts": ["vvt_verdeling_bar"],
+      "statistics": [
+        { "field": "vvt", "stat": "sum", "label": "Personen totaal", "icon": "groups", "color": "#1c5cab" },
+        { "field": "vvt", "stat": "count", "label": "Locaties", "icon": "location_on", "color": "#F97316" },
+        { "field": "vvt", "stat": "mean", "label": "Gem. per locatie", "icon": "person", "color": "#1baf7a" },
+        { "field": "vvt", "stat": "variance", "label": "Spreiding", "icon": "monitoring", "color": "#4a3aa7" }
+      ],
       "geostyler": {
         "name": "",
         "rules": [
@@ -1771,6 +1784,9 @@
       "source": "https://data.woonzorglimburg.nl/parquet/cbsbuurt2026.parquet",
       "format": "geoparquet",
       "geometryType": "polygon",
+      "statistics": [
+        { "field": "bu_code", "stat": "count", "label": "Buurten", "icon": "grid_view", "color": "#1c5cab" }
+      ],
       "style": {
         "opacity": 0.8
       },

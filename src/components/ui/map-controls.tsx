@@ -5,9 +5,16 @@ import { Icon } from "@/components/ui/nav-icon";
 interface MapControlsProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
+  /**
+   * "vertical" (default) stacks the buttons (top-mode / right-edge usage,
+   * search popover opens to the left); "horizontal" lays them out as a row
+   * for the sidebar toolbar (search popover opens below, so it isn't clipped
+   * at the left screen edge).
+   */
+  orientation?: "vertical" | "horizontal";
 }
 
-export function MapControls({ onZoomIn, onZoomOut }: MapControlsProps) {
+export function MapControls({ onZoomIn, onZoomOut, orientation = "vertical" }: MapControlsProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -34,9 +41,15 @@ export function MapControls({ onZoomIn, onZoomOut }: MapControlsProps) {
     }
   }
 
+  const horizontal = orientation === "horizontal";
+
   return (
-    // Self-sized card of stacked icon buttons (search, zoom in, zoom out).
-    <div className="relative flex flex-shrink-0 flex-col gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+    // Self-sized card of icon buttons (search, zoom in, zoom out).
+    <div
+      className={`relative flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm ${
+        horizontal ? "flex-row" : "flex-col"
+      }`}
+    >
       <Button
         variant="ghost"
         size="icon-sm"
@@ -62,11 +75,14 @@ export function MapControls({ onZoomIn, onZoomOut }: MapControlsProps) {
         <Icon name="remove" size={18} className="text-[#00498D]" />
       </Button>
 
-      {/* Location search popover — opens to the left of the magnifying glass. */}
+      {/* Location search popover — left of the card (vertical) or below it
+          (horizontal, where left would clip at the screen edge). */}
       {searchOpen && (
         <form
           onSubmit={handleSearch}
-          className="absolute right-full top-0 mr-2 flex gap-1 rounded-lg bg-white/95 p-1.5 shadow-md backdrop-blur-sm"
+          className={`absolute flex gap-1 rounded-lg bg-white/95 p-1.5 shadow-md backdrop-blur-sm ${
+            horizontal ? "left-0 top-full mt-2" : "right-full top-0 mr-2"
+          }`}
         >
           <input
             type="text"

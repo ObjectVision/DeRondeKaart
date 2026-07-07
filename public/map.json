@@ -1,5 +1,8 @@
 {
-  "center": [5.788017187520154, 51.09266041682005],
+  "center": [
+    5.788017187520154,
+    51.09266041682005
+  ],
   "zoom": 8,
   "studyarea": "studiegebied_limburg",
   "streetview": true,
@@ -11,7 +14,12 @@
   "clickMarker": {
     "icon": "my_location",
     "size": 30,
-    "color": [62, 116, 167, 255],
+    "color": [
+      62,
+      116,
+      167,
+      255
+    ],
     "offsetX": 0,
     "offsetY": 15
   }

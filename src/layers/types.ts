@@ -71,6 +71,25 @@ export interface LayerStyle {
   stroked?: boolean;
 }
 
+/** How a chart/statistic value is displayed. */
+export type ChartValueFormat = "number" | "percent" | "currency";
+
+/** One "Kerncijfers" statistic card in the analytics panel. */
+export interface StatisticConfig {
+  /** Numeric field of the layer's attribute table. */
+  field: string;
+  /** Which statistic of the field to show. */
+  stat: "sum" | "count" | "mean" | "variance";
+  /** Card label, e.g. "Woningen". */
+  label: string;
+  /** Material Symbols icon name, e.g. "home". */
+  icon: string;
+  /** Icon color; defaults to the brand blue. */
+  color?: string;
+  /** Value display format; defaults to "number". */
+  format?: ChartValueFormat;
+}
+
 export interface FeatureInfoConfig {
   /** Inline HTML template string with [[ param ]] placeholders */
   template?: string;
@@ -102,6 +121,10 @@ export interface LayerConfig {
   embeddedColors?: boolean;
   /** "geojson" format only: the in-memory features to render. `source` is unused ("") for this format. */
   data?: FeatureCollection;
+  /** Ids of charts.json chart definitions shown in the analytics panel (max 4 used). */
+  charts?: string[];
+  /** Statistic cards ("Kerncijfers") shown in the analytics panel. */
+  statistics?: StatisticConfig[];
 }
 
 export interface LayersFile {
