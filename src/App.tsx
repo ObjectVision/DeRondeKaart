@@ -13,6 +13,7 @@ import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
 import { useEmbedData, type EmbedConfig } from "@/hooks/use-embed-data";
 import { useNavigation } from "@/hooks/use-navigation";
 import { useAreaFilter } from "@/hooks/use-area-filter";
+import { isChartEligible } from "@/layers/charts";
 import { Legend } from "@/components/ui/legend";
 import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
 import { Sidebar } from "@/components/ui/sidebar/Sidebar";
@@ -166,6 +167,31 @@ function App({
   useEffect(() => {
     if (selectedChartLayerId && !chartLayerConfig) setSelectedChartLayerId(null);
   }, [selectedChartLayerId, chartLayerConfig]);
+
+  // Auto-open the panel when a layer with charts/statistics is added (via
+  // navigation, URL command or embed host) — the newest eligible layer wins.
+  const knownLayerIdsRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const known = knownLayerIdsRef.current;
+    const next = new Set<string>();
+    let added: string | null = null;
+    for (const entry of [...mapLeftLayers.layerEntries, ...mapRightLayers.layerEntries]) {
+      next.add(entry.config.id);
+      if (!known.has(entry.config.id) && chartsPanelEnabled && isChartEligible(entry.config)) {
+        added = entry.config.id;
+      }
+    }
+    knownLayerIdsRef.current = next;
+    if (added) {
+      setSelectedChartLayerId(added);
+      setChartsMinimized(false);
+    }
+  }, [
+    mapLeftLayers.layerEntries,
+    mapRightLayers.layerEntries,
+    chartsPanelEnabled,
+    setChartsMinimized,
+  ]);
 
   const sidebarActive = sidebarMode && navigation;
   const filterAvailable = sidebarActive && filterSectionEnabled && areaFilter.entries.length > 0;

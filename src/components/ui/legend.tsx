@@ -1,17 +1,7 @@
 import type { LayerEntry } from "@/hooks/use-map-layers";
-import type { GeoStylerRule, LayerConfig } from "@/layers/types";
+import type { GeoStylerRule } from "@/layers/types";
+import { isChartEligible } from "@/layers/charts";
 import { Icon } from "@/components/ui/nav-icon";
-
-/** Formats whose attribute table can feed the analytics panel. */
-const CHART_FORMATS = ["geoarrow", "geoparquet", "parquet"];
-
-/** Can this layer open the analytics panel? */
-function isChartEligible(config: LayerConfig): boolean {
-  return (
-    CHART_FORMATS.includes(config.format) &&
-    Boolean(config.charts?.length || config.statistics?.length)
-  );
-}
 
 interface LegendProps {
   entriesA: LayerEntry[];

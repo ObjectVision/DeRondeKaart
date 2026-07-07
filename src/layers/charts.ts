@@ -3,7 +3,18 @@
  * charts.json is a library of chart definitions; layers reference them by id
  * via `LayerConfig.charts`.
  */
-import type { ChartValueFormat } from "./types";
+import type { ChartValueFormat, LayerConfig } from "./types";
+
+/** Formats whose attribute table can feed the analytics panel. */
+const CHART_FORMATS = ["geoarrow", "geoparquet", "parquet"];
+
+/** Can this layer open the analytics panel? */
+export function isChartEligible(config: LayerConfig): boolean {
+  return (
+    CHART_FORMATS.includes(config.format) &&
+    Boolean(config.charts?.length || config.statistics?.length)
+  );
+}
 
 export type ChartType = "donut" | "bar" | "line";
 export type ChartAggregation = "sum" | "mean" | "count";
