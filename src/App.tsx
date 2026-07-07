@@ -216,12 +216,18 @@ function App({
       onToggle: toggleNavMinimized,
     });
   }
-  if (chartsPanelEnabled && selectedChartLayerId) {
+  if (chartsPanelEnabled) {
+    const hasChartLayer = Boolean(selectedChartLayerId);
     sectionToggles.push({
       key: "charts",
       icon: "monitoring",
-      title: chartsMinimized ? "Statistieken tonen" : "Statistieken verbergen",
-      active: !chartsMinimized,
+      title: !hasChartLayer
+        ? "Geen statistieken beschikbaar — selecteer een laag"
+        : chartsMinimized
+          ? "Statistieken tonen"
+          : "Statistieken verbergen",
+      active: hasChartLayer && !chartsMinimized,
+      disabled: !hasChartLayer,
       onToggle: toggleChartsMinimized,
     });
   }
