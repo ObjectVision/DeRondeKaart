@@ -83,7 +83,7 @@ function LayerList({
                   className="flex flex-1 items-center gap-2 px-1.5 py-1 text-left text-sm"
                 >
                   <span
-                    className="inline-block h-3 w-3 rounded-sm border border-gray-300 flex-shrink-0"
+                    className="inline-block h-3 w-3 rounded-none border border-gray-300 flex-shrink-0"
                     style={{
                       backgroundColor: isVisible
                         ? hasRules
@@ -119,7 +119,7 @@ function LayerList({
                     const isRuleHidden = layerHiddenRules?.has(rule.name) ?? false;
                     const swatch = (
                       <span
-                        className="inline-block h-2.5 w-2.5 rounded-sm border border-gray-300 flex-shrink-0"
+                        className="inline-block h-2.5 w-2.5 rounded-none border border-gray-300 flex-shrink-0"
                         style={{
                           backgroundColor: isRuleHidden
                             ? "transparent"

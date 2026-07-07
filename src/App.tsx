@@ -16,6 +16,8 @@ import { useAreaFilter } from "@/hooks/use-area-filter";
 import { Legend } from "@/components/ui/legend";
 import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
 import { Sidebar } from "@/components/ui/sidebar/Sidebar";
+import { SectionToggleBar, type SectionToggle } from "@/components/ui/sidebar/SectionToggleBar";
+import { useSessionFlag } from "@/hooks/use-session-flag";
 import { MapControls } from "@/components/ui/map-controls";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
@@ -29,6 +31,8 @@ function App({
   searchbarEnabled = false,
   navigationEnabled = false,
   navigationMode = "top",
+  filterSectionEnabled = true,
+  navigationSectionEnabled = true,
   clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
 }: {
   initialViewState: ViewState;
@@ -37,6 +41,8 @@ function App({
   searchbarEnabled?: boolean;
   navigationEnabled?: boolean;
   navigationMode?: "top" | "sidebar";
+  filterSectionEnabled?: boolean;
+  navigationSectionEnabled?: boolean;
   clickMarker?: ClickMarkerConfig;
 }) {
   // UI-surface flags are seeded from map.json (props) but can be overridden at
@@ -126,6 +132,37 @@ function App({
   // store read by the layer accessors; on change, re-clone both maps' deck
   // layers so the accessors re-evaluate.
   const areaFilter = useAreaFilter();
+
+  // Per-section minimize state (persisted for the session). Sections can be
+  // collapsed/restored via the top-right toolbar icons. Only relevant in
+  // sidebar mode; `*SectionEnabled` (from map.json) gates availability entirely.
+  const [filterMinimized, , toggleFilterMinimized] = useSessionFlag("sidebar.filter.min", false);
+  const [navMinimized, , toggleNavMinimized] = useSessionFlag("sidebar.nav.min", false);
+
+  const sidebarActive = sidebarMode && navigation;
+  const filterAvailable = sidebarActive && filterSectionEnabled && areaFilter.entries.length > 0;
+  const navAvailable = sidebarActive && navigationSectionEnabled;
+
+  const sectionToggles: SectionToggle[] = [];
+  if (filterAvailable) {
+    sectionToggles.push({
+      key: "filter",
+      icon: "filter_alt",
+      title: filterMinimized ? "Filter tonen" : "Filter verbergen",
+      active: !filterMinimized,
+      onToggle: toggleFilterMinimized,
+    });
+  }
+  if (navAvailable) {
+    sectionToggles.push({
+      key: "navigation",
+      icon: "layers",
+      title: navMinimized ? "Navigatie tonen" : "Navigatie verbergen",
+      active: !navMinimized,
+      onToggle: toggleNavMinimized,
+    });
+  }
+
   const refreshLeft = mapLeftLayers.refreshAreaFilter;
   const refreshRight = mapRightLayers.refreshAreaFilter;
   useEffect(() => {
@@ -320,21 +357,26 @@ function App({
       />
 
       {/* Sidebar mode: Filter + Navigatie on the left, map controls top right */}
-      {sidebarMode && navigation && (
+      {sidebarActive && (
         <>
-          <Sidebar nav={nav} areaFilter={areaFilter} />
-          <div className="absolute right-2 top-2 z-30 flex h-28 items-stretch sm:right-4 sm:top-4">
+          <Sidebar
+            nav={nav}
+            areaFilter={areaFilter}
+            showFilter={filterAvailable && !filterMinimized}
+            showNavigation={navAvailable && !navMinimized}
+          />
+          <div className="absolute right-2 top-2 z-30 flex flex-col items-end gap-2 sm:right-4 sm:top-4">
             <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+            <SectionToggleBar toggles={sectionToggles} />
           </div>
         </>
       )}
 
       {/* Legend + FeatureInfo — bottom left, side by side with icon-button gap.
-          Shifted right of the sidebar (w-72 + offset + gap) in sidebar mode. */}
+          Left edge aligns with the sidebar (Filter/Navigatie) column so the
+          Kaartlagen box sits directly below them. */}
       <div
-        className={`absolute bottom-2 z-30 flex items-end gap-2 sm:bottom-4 ${
-          sidebarMode && navigation ? "left-[19.5rem] sm:left-[20.5rem]" : "left-2 sm:left-4"
-        }`}
+        className="absolute bottom-2 left-2 z-30 flex items-end gap-2 sm:bottom-4 sm:left-4"
       >
         <Legend
           entriesA={mapLeftLayers.layerEntries}

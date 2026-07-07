@@ -35,13 +35,11 @@ export function MapControls({ onZoomIn, onZoomOut }: MapControlsProps) {
   }
 
   return (
-    // Sits to the left of the category icon row. The three buttons share the
-    // parent's height equally so their combined height matches the icon buttons.
+    // Self-sized card of stacked icon buttons (search, zoom in, zoom out).
     <div className="relative flex flex-shrink-0 flex-col gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
       <Button
         variant="ghost"
         size="icon-sm"
-        className="h-auto flex-1"
         onClick={() => setSearchOpen((v) => !v)}
         title="Search"
       >
@@ -52,7 +50,6 @@ export function MapControls({ onZoomIn, onZoomOut }: MapControlsProps) {
       <Button
         variant="ghost"
         size="icon-sm"
-        className="h-auto flex-1"
         onClick={onZoomIn}
         title="Zoom in"
       >
@@ -63,7 +60,6 @@ export function MapControls({ onZoomIn, onZoomOut }: MapControlsProps) {
       <Button
         variant="ghost"
         size="icon-sm"
-        className="h-auto flex-1"
         onClick={onZoomOut}
         title="Zoom out"
       >
@@ -82,7 +78,7 @@ export function MapControls({ onZoomIn, onZoomOut }: MapControlsProps) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search location..."
+            placeholder="Zoek een locatie..."
             className="w-48 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-blue-400"
             autoFocus
           />
