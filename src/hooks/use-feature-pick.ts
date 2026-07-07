@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
 import type { LayerEntry } from "./use-map-layers";
-import { buildMvtLayerDefs, featureMatchesGeostyler } from "@/layers";
+import { buildMvtLayerDefs, featureMatchesGeostyler, featureMatchesAreaFilter } from "@/layers";
 
 export interface PickedFeature {
   layerConfigId: string;
@@ -73,6 +73,12 @@ export function useFeaturePick(
             // Rule-filtered layers render non-matching features transparent;
             // treat them as dropped — not interactive — so clicks ignore them.
             if (!featureMatchesGeostyler(entry.config.geostyler, props as Record<string, unknown>)) {
+              continue;
+            }
+
+            // Area-filtered features render transparent; treat them as dropped
+            // too. (TODO: the hover pointer cursor may still appear over them.)
+            if (!featureMatchesAreaFilter(props as Record<string, unknown>)) {
               continue;
             }
 

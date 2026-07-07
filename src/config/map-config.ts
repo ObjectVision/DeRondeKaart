@@ -63,6 +63,13 @@ export interface MapConfig {
    * shown. Defaults to `false` when omitted.
    */
   navigation: boolean;
+  /**
+   * Layout of the navigation UI: `"top"` shows the top-center category row,
+   * `"sidebar"` shows the left sidebar with Filter + Navigatie sections and
+   * hides the top-center row. Only meaningful when `navigation` is true.
+   * Defaults to `"top"` when omitted.
+   */
+  navigationMode: "top" | "sidebar";
   /** Appearance of the on-click marker. Falls back to {@link DEFAULT_CLICK_MARKER}. */
   clickMarker: ClickMarkerConfig;
 }
@@ -83,6 +90,7 @@ export const DEFAULT_MAP_CONFIG: MapConfig = {
   streetview: false,
   searchbar: false,
   navigation: false,
+  navigationMode: "top",
   clickMarker: DEFAULT_CLICK_MARKER,
 };
 
@@ -211,6 +219,15 @@ export async function loadMapConfig(): Promise<MapConfig> {
   const searchbar = validateBool(data.searchbar, "searchbar", DEFAULT_MAP_CONFIG.searchbar);
   const navigation = validateBool(data.navigation, "navigation", DEFAULT_MAP_CONFIG.navigation);
 
+  let navigationMode = DEFAULT_MAP_CONFIG.navigationMode;
+  if (data.navigationMode === "top" || data.navigationMode === "sidebar") {
+    navigationMode = data.navigationMode;
+  } else if (data.navigationMode !== undefined) {
+    console.warn(
+      `map.json: invalid "navigationMode" ${JSON.stringify(data.navigationMode)}; using "top"`,
+    );
+  }
+
   const clickMarker = validateClickMarker(data.clickMarker);
 
   return {
@@ -220,6 +237,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     streetview,
     searchbar,
     navigation,
+    navigationMode,
     clickMarker,
   };
 }

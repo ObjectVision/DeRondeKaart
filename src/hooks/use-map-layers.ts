@@ -319,6 +319,26 @@ export function useMapLayers() {
   );
 
   /**
+   * Re-clone every deck.gl layer with a bumped area-filter update trigger so
+   * their color accessors (wrapped by the layer factory) re-evaluate against
+   * the new selection. `clone` preserves `visible`, so legend layer/rule
+   * toggles survive filter changes. MVT/COG are native MapLibre layers and
+   * are intentionally not filtered.
+   */
+  const refreshAreaFilter = useCallback((version: number) => {
+    setDeckLayers((prev) =>
+      prev.map((l) =>
+        l.clone({
+          updateTriggers: {
+            ...(l.props as { updateTriggers?: Record<string, unknown> }).updateTriggers,
+            all: `area-filter-${version}`,
+          },
+        } as Record<string, unknown>),
+      ),
+    );
+  }, []);
+
+  /**
    * Re-apply imperative MVT/COG entries to a map. Used when a map mounts
    * after addLayer was already called (e.g. the right map becoming ready after the
    * first layer was added to it). Safe to call repeatedly — the MVT/COG
@@ -367,6 +387,7 @@ export function useMapLayers() {
     hideLayer,
     toggleLayer,
     toggleRule,
+    refreshAreaFilter,
     syncImperativeLayers,
     applyLabelBeforeId,
   };

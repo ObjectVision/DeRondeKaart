@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Gemeente",
+    "source": "https://data.woonzorglimburg.nl/parquet/cbsgemeente2026.parquet",
+    "key": "gm_code",
+    "label": "statnaam",
+    "placeholder": "Alle gemeenten"
+  },
+  {
+    "name": "Wijk",
+    "source": "https://data.woonzorglimburg.nl/parquet/cbswijk2026.parquet",
+    "key": "wk_code",
+    "label": "statnaam",
+    "placeholder": "Alle wijken"
+  },
+  {
+    "name": "Buurt",
+    "source": "https://data.woonzorglimburg.nl/parquet/cbsbuurt2026.parquet",
+    "key": "bu_code",
+    "label": "statnaam",
+    "placeholder": "Alle buurten"
+  }
+]

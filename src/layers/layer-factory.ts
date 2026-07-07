@@ -7,6 +7,7 @@ import {
   GeoArrowPolygonLayer,
 } from "@geoarrow/deck.gl-layers";
 import type { LayerConfig, GeoStylerStyle, GeoStylerRule } from "./types";
+import { arrowRowMatchesAreaFilter, getAreaFilterVersion } from "./area-filter";
 import {
   getFillColorFromRule,
   getOutlineColorFromRule,
@@ -73,6 +74,22 @@ function buildArrowRuleColorAccessor(
   };
 }
 
+/**
+ * Wrap a color (constant or accessor) so rows outside the active area filter
+ * render TRANSPARENT — the same convention as the rule accessors above.
+ */
+function withAreaFilter(
+  accessor: Color | ((info: ArrowAccessorInfo) => Color),
+): (info: ArrowAccessorInfo) => Color {
+  return (info) => {
+    if (!arrowRowMatchesAreaFilter(info)) return TRANSPARENT;
+    return typeof accessor === "function" ? accessor(info) : accessor;
+  };
+}
+
+/** updateTriggers so a filter change re-evaluates all accessor attributes. */
+const areaFilterTriggers = () => ({ all: `area-filter-${getAreaFilterVersion()}` });
+
 /** Extract all field names referenced in a filter tree */
 function extractFilterFields(filter: unknown[]): string[] {
   const op = filter[0] as string;
@@ -109,39 +126,42 @@ export function createGeoArrowLayers(
         id: baseId,
         data: table,
         pickable: true,
-        getFillColor: toColor(style.color, [0, 128, 255, 200]),
+        getFillColor: withAreaFilter(toColor(style.color, [0, 128, 255, 200])),
         getRadius: style.radius ?? 5,
         radiusUnits: "pixels",
         opacity: style.opacity ?? 1,
+        updateTriggers: areaFilterTriggers(),
         beforeId,
-      })];
+      } as any)];
 
     case "line":
       return [new GeoArrowPathLayer({
         id: baseId,
         data: table,
         pickable: true,
-        getColor: toColor(style.color, [0, 128, 255, 200]),
+        getColor: withAreaFilter(toColor(style.color, [0, 128, 255, 200])),
         getWidth: style.lineWidth ?? 2,
         widthUnits: "pixels",
         opacity: style.opacity ?? 1,
+        updateTriggers: areaFilterTriggers(),
         beforeId,
-      })];
+      } as any)];
 
     case "polygon":
       return [new GeoArrowPolygonLayer({
         id: baseId,
         data: table,
         pickable: true,
-        getFillColor: toColor(style.color, [0, 128, 255, 100]),
-        getLineColor: toColor(style.color, [0, 128, 255, 200]),
+        getFillColor: withAreaFilter(toColor(style.color, [0, 128, 255, 100])),
+        getLineColor: withAreaFilter(toColor(style.color, [0, 128, 255, 200])),
         getLineWidth: style.lineWidth ?? 1,
         lineWidthUnits: "pixels",
         filled: style.filled ?? true,
         stroked: style.stroked ?? true,
         opacity: style.opacity ?? 1,
+        updateTriggers: areaFilterTriggers(),
         beforeId,
-      })];
+      } as any)];
 
     default:
       throw new Error(
@@ -168,10 +188,11 @@ function createRuleGeoArrowLayer(
         id: layerId,
         data: table,
         pickable: true,
-        getFillColor: buildArrowRuleColorAccessor(geostyler, rule, getMarkColorFromRule),
+        getFillColor: withAreaFilter(buildArrowRuleColorAccessor(geostyler, rule, getMarkColorFromRule)),
         getRadius: getMarkRadiusFromRule(rule),
         radiusUnits: "pixels",
         opacity,
+        updateTriggers: areaFilterTriggers(),
         beforeId,
       } as any);
 
@@ -180,10 +201,11 @@ function createRuleGeoArrowLayer(
         id: layerId,
         data: table,
         pickable: true,
-        getColor: buildArrowRuleColorAccessor(geostyler, rule, getLineColorFromRule),
+        getColor: withAreaFilter(buildArrowRuleColorAccessor(geostyler, rule, getLineColorFromRule)),
         getWidth: getLineWidthFromRule(rule),
         widthUnits: "pixels",
         opacity,
+        updateTriggers: areaFilterTriggers(),
         beforeId,
       } as any);
 
@@ -192,13 +214,14 @@ function createRuleGeoArrowLayer(
         id: layerId,
         data: table,
         pickable: true,
-        getFillColor: buildArrowRuleColorAccessor(geostyler, rule, getFillColorFromRule),
-        getLineColor: buildArrowRuleColorAccessor(geostyler, rule, getOutlineColorFromRule),
+        getFillColor: withAreaFilter(buildArrowRuleColorAccessor(geostyler, rule, getFillColorFromRule)),
+        getLineColor: withAreaFilter(buildArrowRuleColorAccessor(geostyler, rule, getOutlineColorFromRule)),
         getLineWidth: getOutlineWidthFromRule(rule),
         lineWidthUnits: "pixels",
         filled: true,
         stroked: true,
         opacity,
+        updateTriggers: areaFilterTriggers(),
         beforeId,
       } as any);
 
@@ -250,6 +273,7 @@ function detectGeometryType(
  * used by dynamically pushed data such as the Power BI bridge. One GeoJsonLayer
  * renders points, lines and (multi)polygons uniformly, styled from the flat
  * `config.style` — the same LayerStyle the legend renders as a swatch.
+ * The area filter intentionally does not apply to this in-memory embed data.
  */
 export function createGeoJsonLayers(config: LayerConfig, beforeId?: string): Layer[] {
   const { style, data } = config;

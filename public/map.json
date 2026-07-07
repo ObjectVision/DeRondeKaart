@@ -5,6 +5,7 @@
   "streetview": true,
   "searchbar": false,
   "navigation": true,
+  "navigationMode": "sidebar",
   "clickMarker": {
     "icon": "my_location",
     "size": 30,
