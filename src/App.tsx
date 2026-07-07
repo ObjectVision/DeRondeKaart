@@ -24,6 +24,7 @@ import { useSessionFlag } from "@/hooks/use-session-flag";
 import { MapControls } from "@/components/ui/map-controls";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
+import { InfoPopup } from "@/components/ui/info-popup";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 import { ChartsPanel } from "@/components/charts/ChartsPanel";
 //import { MapPills } from "@/components/ui/map-pills";
@@ -88,6 +89,10 @@ function App({
   const [clickMarker, setClickMarker] = useState<{ lng: number; lat: number } | null>(
     null,
   );
+  // Screen position of the most recent click — anchors the Details/Street View
+  // popup just below the pointer. Both maps fill the app root, so the map-local
+  // point doubles as a root-relative position.
+  const [popupPoint, setPopupPoint] = useState<{ x: number; y: number } | null>(null);
   // Drop the marker (and optional Street View) at a click. When the click hit a
   // point feature, `snapped` carries that feature's location so the marker lands
   // exactly on the point; otherwise we use the raw cursor lngLat.
@@ -128,23 +133,29 @@ function App({
   // Compose feature picking with Street View capture so both run per click
   const pickAClick = pickA.handleClick;
   const pickBClick = pickB.handleClick;
+  const pickAClear = pickA.clear;
+  const pickBClear = pickB.clear;
   const onClickA = useCallback(
     (e: MapLayerMouseEvent) => {
       // While area select is armed, clicks belong to the draw gesture (MapLibre
       // fires click after mouseup) — don't drop the marker or open FeatureInfo.
       if (boxSelectActive) return;
       pickAClick(e);
+      pickBClear(); // one popup: the latest click wins
+      setPopupPoint({ x: e.point.x, y: e.point.y });
       handleMapClick(e, resolveMarkerPoint(e, mapLeftRef, mapLeftLayers.layerEntries));
     },
-    [boxSelectActive, pickAClick, handleMapClick, mapLeftLayers.layerEntries],
+    [boxSelectActive, pickAClick, pickBClear, handleMapClick, mapLeftLayers.layerEntries],
   );
   const onClickB = useCallback(
     (e: MapLayerMouseEvent) => {
       if (boxSelectActive) return;
       pickBClick(e);
+      pickAClear();
+      setPopupPoint({ x: e.point.x, y: e.point.y });
       handleMapClick(e, resolveMarkerPoint(e, mapRightRef, mapRightLayers.layerEntries));
     },
-    [boxSelectActive, pickBClick, handleMapClick, mapRightLayers.layerEntries],
+    [boxSelectActive, pickBClick, pickAClear, handleMapClick, mapRightLayers.layerEntries],
   );
 
   const hoverAMove = hoverA.handleMouseMove;
@@ -402,6 +413,19 @@ function App({
     if (ref) mapRightLayers.applyLabelBeforeId(ref);
   }, [mapRightLayers]);
 
+  // One shared popup: the latest click's pick result (the other map's pick is
+  // cleared on click) plus Street View, closed together by its single button.
+  const pickResult = pickA.result ?? pickB.result;
+  const pickEntries = pickA.result
+    ? mapLeftLayers.layerEntries
+    : mapRightLayers.layerEntries;
+  const closePopup = useCallback(() => {
+    pickAClear();
+    pickBClear();
+    setStreetView(null);
+    setPopupPoint(null);
+  }, [pickAClear, pickBClear]);
+
   const handleZoomIn = useCallback(() => {
     setViewState((prev) => ({ ...prev, zoom: prev.zoom + 1 }));
   }, []);
@@ -539,31 +563,24 @@ function App({
           chartsEnabled={chartsPanelEnabled}
         />
 
-        {/* FeatureInfo popups */}
-        {pickA.result && (
-          <FeatureInfo
-            result={pickA.result}
-            layerEntries={mapLeftLayers.layerEntries}
-            onClose={pickA.clear}
-          />
-        )}
-        {pickB.result && (
-          <FeatureInfo
-            result={pickB.result}
-            layerEntries={mapRightLayers.layerEntries}
-            onClose={pickB.clear}
-          />
-        )}
-
-        {/* Street View — to the right of FeatureInfo, shared across maps */}
-        {streetview && streetView && (
-          <StreetView
-            lng={streetView.lng}
-            lat={streetView.lat}
-            onClose={() => setStreetView(null)}
-          />
-        )}
       </div>
+
+      {/* Details + Street View — one window below the click, single close button */}
+      {popupPoint && (pickResult || (streetview && streetView)) && (
+        <InfoPopup
+          x={popupPoint.x}
+          y={popupPoint.y}
+          title={pickResult ? "Details" : "Street View"}
+          onClose={closePopup}
+        >
+          {pickResult && (
+            <FeatureInfo result={pickResult} layerEntries={pickEntries} embedded />
+          )}
+          {streetview && streetView && (
+            <StreetView lng={streetView.lng} lat={streetView.lat} embedded />
+          )}
+        </InfoPopup>
+      )}
 
       {/* Kaart A/B identification pills — top left/right */}
       {/*<MapPills activeA={hasMapLeftLayers} activeB={showMapRight} />*/}
