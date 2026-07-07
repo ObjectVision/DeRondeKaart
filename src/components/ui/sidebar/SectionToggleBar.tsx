@@ -10,6 +10,8 @@ export interface SectionToggle {
   title: string;
   /** Whether the section is currently expanded (icon highlighted). */
   active: boolean;
+  /** Greyed out and not clickable (e.g. the section has nothing to show). */
+  disabled?: boolean;
   onToggle: () => void;
 }
 
@@ -44,11 +46,18 @@ export function SectionToggleBar({
           title={t.title}
           aria-label={t.title}
           aria-pressed={t.active}
+          disabled={t.disabled}
         >
           <Icon
             name={t.icon}
             size={20}
-            className={t.active ? "text-[#00498D]" : "text-gray-400"}
+            className={
+              t.disabled
+                ? "text-gray-300"
+                : t.active
+                  ? "text-[#00498D]"
+                  : "text-gray-400"
+            }
           />
         </Button>
       ))}
