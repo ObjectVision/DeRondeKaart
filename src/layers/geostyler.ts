@@ -66,6 +66,21 @@ export function matchRule(
   return undefined;
 }
 
+/**
+ * Whether a feature is "kept" by a layer's geostyler rules — i.e. it matches at
+ * least one rule. A layer WITHOUT geostyler rules keeps every feature (returns
+ * true). Used to make rule-filtered features non-interactive: features rendered
+ * transparent by the rule accessors (no matching rule) should not be pickable,
+ * mirroring a real row-drop filter.
+ */
+export function featureMatchesGeostyler(
+  style: GeoStylerStyle | undefined,
+  properties: Record<string, unknown>,
+): boolean {
+  if (!style || style.rules.length === 0) return true;
+  return matchRule(style, properties) !== undefined;
+}
+
 /** Extract fill color from the first Fill symbolizer in a rule */
 export function getFillColorFromRule(rule: GeoStylerRule): Color {
   const sym = rule.symbolizers.find((s) => s.kind === "Fill") as FillSymbolizer | undefined;

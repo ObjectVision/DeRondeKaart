@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
 import type { LayerEntry } from "./use-map-layers";
-import { buildMvtLayerDefs } from "@/layers";
+import { buildMvtLayerDefs, featureMatchesGeostyler } from "@/layers";
 
 export interface PickedFeature {
   layerConfigId: string;
@@ -69,6 +69,12 @@ export function useFeaturePick(
               typeof info.object.toJSON === "function"
                 ? info.object.toJSON()
                 : info.object;
+
+            // Rule-filtered layers render non-matching features transparent;
+            // treat them as dropped — not interactive — so clicks ignore them.
+            if (!featureMatchesGeostyler(entry.config.geostyler, props as Record<string, unknown>)) {
+              continue;
+            }
 
             const feature: PickedFeature = {
               layerConfigId: entry.config.id,

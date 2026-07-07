@@ -33,30 +33,41 @@ function toColor(
  */
 const TRANSPARENT: Color = [0, 0, 0, 0];
 
+/** deck.gl accessor info shape for GeoArrow layers (binary data + row index). */
+type ArrowAccessorInfo = {
+  index: number;
+  data: { data: { getChild: (name: string) => { get: (i: number) => unknown } | null } };
+};
+
+/** Collect the field names referenced across all rule filters, once. */
+function collectFilterFields(style: GeoStylerStyle): string[] {
+  const filterFields = new Set<string>();
+  for (const r of style.rules) {
+    if (r.filter) extractFilterFields(r.filter).forEach((f) => filterFields.add(f));
+  }
+  return Array.from(filterFields);
+}
+
+/** Read the filter-referenced properties of one row out of the arrow batch. */
+function readRowProps(info: ArrowAccessorInfo, fields: string[]): Record<string, unknown> {
+  const batch = info.data.data;
+  const props: Record<string, unknown> = {};
+  for (const field of fields) {
+    const col = batch.getChild(field);
+    if (col) props[field] = col.get(info.index);
+  }
+  return props;
+}
+
 function buildArrowRuleColorAccessor(
   style: GeoStylerStyle,
   rule: GeoStylerRule,
   extractor: (rule: GeoStylerRule) => Color,
 ) {
-  // Pre-extract all field names referenced in filters
-  const filterFields = new Set<string>();
-  for (const r of style.rules) {
-    if (r.filter) {
-      extractFilterFields(r.filter).forEach((f) => filterFields.add(f));
-    }
-  }
-  const fields = Array.from(filterFields);
+  const fields = collectFilterFields(style);
 
-  return (info: { index: number; data: { data: { getChild: (name: string) => { get: (i: number) => unknown } | null } } }) => {
-    const batch = info.data.data;
-    const props: Record<string, unknown> = {};
-
-    for (const field of fields) {
-      const col = batch.getChild(field);
-      if (col) props[field] = col.get(info.index);
-    }
-
-    const matched = matchRule(style, props);
+  return (info: ArrowAccessorInfo) => {
+    const matched = matchRule(style, readRowProps(info, fields));
     if (!matched || matched.name !== rule.name) return TRANSPARENT;
     return extractor(matched);
   };

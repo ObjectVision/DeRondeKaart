@@ -39,6 +39,11 @@ capped at 30 000 rows (`dataReductionAlgorithm.top`).
 - **Kaart**: app URL (default `https://data.woonzorglimburg.nl/app/` — adjust to
   the real hosting path), comma-separated `layers.json` ids for the left/right
   map, auto-zoom toggle.
+- **Kaartweergave**: overrides the app's `map.json` UI flags at runtime —
+  **Zoekbalk** (searchbar), **Navigatie** (navigation controls), **Street View**.
+  Also **Beginweergave instellen**: when on, the **Lengtegraad / Breedtegraad /
+  Zoom** fields set the initial view (and suppress auto-zoom-to-data). These are
+  sent to the app via a `map-config` message and a `view` command.
 - **Puntstijl / Lijnstijl / Polygoonstijl**: color, size/width, opacity for the
   dynamic Power BI data layer. The card matching the dominant geometry type of
   the bound data is applied. `layers.json` layers keep their server-defined style.
