@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import type { ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
 import { MapView } from "@/components/map/MapView";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
@@ -12,8 +12,11 @@ import { useHoverCursor } from "@/hooks/use-hover-cursor";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
 import { useEmbedData, type EmbedConfig } from "@/hooks/use-embed-data";
 import { useNavigation } from "@/hooks/use-navigation";
+import { useAreaFilter } from "@/hooks/use-area-filter";
 import { Legend } from "@/components/ui/legend";
 import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
+import { Sidebar } from "@/components/ui/sidebar/Sidebar";
+import { MapControls } from "@/components/ui/map-controls";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
@@ -25,6 +28,7 @@ function App({
   streetviewEnabled = false,
   searchbarEnabled = false,
   navigationEnabled = false,
+  navigationMode = "top",
   clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
 }: {
   initialViewState: ViewState;
@@ -32,6 +36,7 @@ function App({
   streetviewEnabled?: boolean;
   searchbarEnabled?: boolean;
   navigationEnabled?: boolean;
+  navigationMode?: "top" | "sidebar";
   clickMarker?: ClickMarkerConfig;
 }) {
   // UI-surface flags are seeded from map.json (props) but can be overridden at
@@ -39,6 +44,7 @@ function App({
   const [streetview, setStreetviewEnabled] = useState(streetviewEnabled);
   const [searchbar, setSearchbarEnabled] = useState(searchbarEnabled);
   const [navigation, setNavigationEnabled] = useState(navigationEnabled);
+  const sidebarMode = navigationMode === "sidebar";
 
   const mapLeftLayers = useMapLayers();
   const mapRightLayers = useMapLayers();
@@ -115,6 +121,18 @@ function App({
 
   // Navigation menu: add/remove layers against the shared per-map state
   const nav = useNavigation({ mapLeftLayers, mapRightLayers, mapLeftRef, mapRightRef });
+
+  // Gemeente/Wijk/Buurt area filter (sidebar). Selections live in a module
+  // store read by the layer accessors; on change, re-clone both maps' deck
+  // layers so the accessors re-evaluate.
+  const areaFilter = useAreaFilter();
+  const refreshLeft = mapLeftLayers.refreshAreaFilter;
+  const refreshRight = mapRightLayers.refreshAreaFilter;
+  useEffect(() => {
+    if (areaFilter.version === 0) return; // initial no-filter render
+    refreshLeft(areaFilter.version);
+    refreshRight(areaFilter.version);
+  }, [areaFilter.version, refreshLeft, refreshRight]);
 
   const applyView = useCallback((view: ViewUpdate) => {
     setViewState((s) => ({
@@ -291,17 +309,33 @@ function App({
         />
       )}
 
-      {/* Navigation menu — top center (includes map controls: search, +, -) */}
+      {/* Navigation menu — top center (includes map controls: search, +, -).
+          In sidebar mode only the search bar remains here. */}
       <NavigationPanel
         nav={nav}
         onZoomIn={handleZoomIn}
         onZoomOut={handleZoomOut}
         showSearch={searchbar}
-        showNavigation={navigation}
+        showNavigation={navigation && !sidebarMode}
       />
 
-      {/* Legend + FeatureInfo — bottom left, side by side with icon-button gap */}
-      <div className="absolute bottom-2 left-2 z-30 flex items-end gap-2 sm:bottom-4 sm:left-4">
+      {/* Sidebar mode: Filter + Navigatie on the left, map controls top right */}
+      {sidebarMode && navigation && (
+        <>
+          <Sidebar nav={nav} areaFilter={areaFilter} />
+          <div className="absolute right-2 top-2 z-30 flex h-28 items-stretch sm:right-4 sm:top-4">
+            <MapControls onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+          </div>
+        </>
+      )}
+
+      {/* Legend + FeatureInfo — bottom left, side by side with icon-button gap.
+          Shifted right of the sidebar (w-72 + offset + gap) in sidebar mode. */}
+      <div
+        className={`absolute bottom-2 z-30 flex items-end gap-2 sm:bottom-4 ${
+          sidebarMode && navigation ? "left-[19.5rem] sm:left-[20.5rem]" : "left-2 sm:left-4"
+        }`}
+      >
         <Legend
           entriesA={mapLeftLayers.layerEntries}
           entriesB={mapRightLayers.layerEntries}

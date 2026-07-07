@@ -6,6 +6,7 @@ import { LeafDetail } from "./LeafDetail";
 import { MapControls } from "@/components/ui/map-controls";
 import { loadNavigation, type NavLeaf, type NavNode } from "@/layers/navigation";
 import type { NavigationApi } from "@/hooks/use-navigation";
+import { withAlpha } from "@/lib/utils";
 
 interface SelectedLeaf {
   leaf: NavLeaf;
@@ -13,17 +14,6 @@ interface SelectedLeaf {
 }
 
 const BUTTON_GAP = 8; // gap-2
-
-/** Convert a #rgb or #rrggbb hex color to an rgba() string with the given alpha. */
-function withAlpha(hex: string, alpha: number): string {
-  let h = hex.replace("#", "");
-  if (h.length === 3) h = h.split("").map((c) => c + c).join("");
-  if (h.length !== 6) return hex; // not a hex we can parse — return as-is
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
 
 export function NavigationPanel({
   nav,
