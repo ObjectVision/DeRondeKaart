@@ -15,7 +15,7 @@ export {
   arrowRowMatchesAreaFilter,
 } from "./area-filter";
 export type { AreaFilterEntry } from "./area-filter";
-export { loadChartsConfig, CHART_COLORS } from "./charts";
+export { loadChartsConfig, CHART_COLORS, isChartEligible } from "./charts";
 export type {
   ChartType,
   ChartAggregation,
