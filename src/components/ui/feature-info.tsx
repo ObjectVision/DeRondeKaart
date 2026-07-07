@@ -6,10 +6,12 @@ import { resolveTemplate, renderTemplate } from "@/layers";
 interface FeatureInfoProps {
   result: FeatureInfoResult;
   layerEntries: LayerEntry[];
-  onClose: () => void;
+  onClose?: () => void;
+  /** Render bare content (no card chrome/header) inside a parent window. */
+  embedded?: boolean;
 }
 
-export function FeatureInfo({ result, layerEntries, onClose }: FeatureInfoProps) {
+export function FeatureInfo({ result, layerEntries, onClose, embedded = false }: FeatureInfoProps) {
   const layerIds = Array.from(result.featuresByLayer.keys());
   const [activeTab, setActiveTab] = useState(layerIds[0]);
   const [templates, setTemplates] = useState<Map<string, string>>(new Map());
@@ -50,20 +52,28 @@ export function FeatureInfo({ result, layerEntries, onClose }: FeatureInfoProps)
   const template = templates.get(activeTab); 
 
   return (
-    <div className="max-w-sm max-h-[50vh] flex flex-col rounded-lg bg-white/90 shadow-md backdrop-blur-sm">
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 pt-2 pb-1">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Details
-        </h3>
-        <button
-          onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 transition-colors text-sm leading-none px-1"
-          aria-label="Close"
-        >
-          &times;
-        </button>
-      </div>
+    <div
+      className={
+        embedded
+          ? "flex min-h-0 flex-col"
+          : "max-w-sm max-h-[50vh] flex flex-col rounded-lg bg-white/90 shadow-md backdrop-blur-sm"
+      }
+    >
+      {/* Header — omitted when embedded; the parent window owns the close button */}
+      {!embedded && (
+        <div className="flex items-center justify-between px-3 pt-2 pb-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Details
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors text-sm leading-none px-1"
+            aria-label="Close"
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Tabs — only if multiple layers */}
       {layerIds.length > 1 && (

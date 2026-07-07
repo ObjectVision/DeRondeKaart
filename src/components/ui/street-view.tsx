@@ -3,7 +3,9 @@ import { useEffect, useRef, useState } from "react";
 interface StreetViewProps {
   lng: number;
   lat: number;
-  onClose: () => void;
+  onClose?: () => void;
+  /** Render bare content (no card chrome/header) inside a parent window. */
+  embedded?: boolean;
 }
 
 /** Wait for the async-loaded Google Maps JS API to be ready. */
@@ -18,7 +20,7 @@ function waitForGoogleMaps(signal: { cancelled: boolean }): Promise<boolean> {
   });
 }
 
-export function StreetView({ lng, lat, onClose }: StreetViewProps) {
+export function StreetView({ lng, lat, onClose, embedded = false }: StreetViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const panoramaRef = useRef<any>(null);
   const [status, setStatus] = useState<"loading" | "ok" | "unavailable">(
@@ -79,23 +81,33 @@ export function StreetView({ lng, lat, onClose }: StreetViewProps) {
   }, [lng, lat]);
 
   return (
-    <div className="flex flex-col rounded-lg bg-white/90 shadow-md backdrop-blur-sm">
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 pt-2 pb-1">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Street View
-        </h3>
-        <button
-          onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 transition-colors text-sm leading-none px-1"
-          aria-label="Close"
-        >
-          &times;
-        </button>
-      </div>
+    <div
+      className={
+        embedded
+          ? "flex flex-col"
+          : "flex flex-col rounded-lg bg-white/90 shadow-md backdrop-blur-sm"
+      }
+    >
+      {/* Header — omitted when embedded; the parent window owns the close button */}
+      {!embedded && (
+        <div className="flex items-center justify-between px-3 pt-2 pb-1">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Street View
+          </h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors text-sm leading-none px-1"
+            aria-label="Close"
+          >
+            &times;
+          </button>
+        </div>
+      )}
 
       {/* Body */}
-      <div className="relative w-72 h-40 overflow-hidden rounded-b-lg">
+      <div
+        className={`relative h-40 overflow-hidden rounded-b-lg ${embedded ? "w-full" : "w-72"}`}
+      >
         <div ref={containerRef} className="absolute inset-0" />
         {status !== "ok" && (
           <div className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-gray-400">
