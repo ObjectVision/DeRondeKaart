@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import type { ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
-import { MapView } from "@/components/map/MapView";
+import { MapView, BASEMAPS, DEFAULT_BASEMAP_ID } from "@/components/map/MapView";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
@@ -72,6 +72,18 @@ function App({
 
   const [viewState, setViewState] = useState(initialViewState);
   const [sliderPosition, setSliderPosition] = useState(50);
+
+  // Selected background basemap (shared by both maps). The legend's map button
+  // cycles through BASEMAPS; only the base style swaps — user layers stay.
+  const [basemapId, setBasemapId] = useState(DEFAULT_BASEMAP_ID);
+  const basemapIndex = Math.max(0, BASEMAPS.findIndex((b) => b.id === basemapId));
+  const nextBasemap = BASEMAPS[(basemapIndex + 1) % BASEMAPS.length];
+  const cycleBasemap = useCallback(() => {
+    setBasemapId((prev) => {
+      const i = Math.max(0, BASEMAPS.findIndex((b) => b.id === prev));
+      return BASEMAPS[(i + 1) % BASEMAPS.length].id;
+    });
+  }, []);
 
   // Feature picking for each map
   const pickA = useFeaturePick(mapLeftLayers.layerEntries, mapLeftRef);
@@ -449,6 +461,7 @@ function App({
           ref={mapLeftRef}
           layers={mapLeftLayers.deckLayers}
           topLayers={[...studyLayersA, ...markerLayersA, ...boxLayersA]}
+          basemapId={basemapId}
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
           onMove={handleMove}
@@ -476,6 +489,7 @@ function App({
             ref={mapRightRef}
             layers={mapRightLayers.deckLayers}
             topLayers={[...studyLayersB, ...markerLayersB, ...boxLayersB]}
+            basemapId={basemapId}
             style={{ width: "100%", height: "100%" }}
             viewState={viewState}
             onMove={handleMove}
@@ -561,6 +575,8 @@ function App({
           selectedChartLayerId={selectedChartLayerId}
           onSelectChartLayer={handleSelectChartLayer}
           chartsEnabled={chartsPanelEnabled}
+          nextBasemapLabel={nextBasemap.label}
+          onCycleBasemap={cycleBasemap}
         />
 
       </div>

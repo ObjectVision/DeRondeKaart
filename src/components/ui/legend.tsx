@@ -2,6 +2,7 @@ import type { LayerEntry } from "@/hooks/use-map-layers";
 import type { GeoStylerRule } from "@/layers/types";
 import { isChartEligible } from "@/layers/charts";
 import { Icon } from "@/components/ui/nav-icon";
+import { Button } from "@/components/ui/button";
 
 interface LegendProps {
   entriesA: LayerEntry[];
@@ -23,6 +24,10 @@ interface LegendProps {
   onSelectChartLayer: (layerId: string) => void;
   /** map.json `chartsPanel` gate — false restores plain visibility clicks. */
   chartsEnabled: boolean;
+  /** Label of the next basemap (shown in the toggle button's tooltip). */
+  nextBasemapLabel: string;
+  /** Cycle to the next background basemap. */
+  onCycleBasemap: () => void;
 }
 
 function colorToCSS(
@@ -224,17 +229,33 @@ export function Legend({
   selectedChartLayerId,
   onSelectChartLayer,
   chartsEnabled,
+  nextBasemapLabel,
+  onCycleBasemap,
 }: LegendProps) {
   const chartProps = { selectedChartLayerId, onSelectChartLayer, chartsEnabled };
   const visibleA = entriesA.filter((e) => !e.config.excludeFromLegend);
   const visibleB = entriesB.filter((e) => !e.config.excludeFromLegend);
-  if (visibleA.length === 0 && visibleB.length === 0) return null;
+  const hasLayers = visibleA.length > 0 || visibleB.length > 0;
 
   return (
-    <div className="max-h-[50vh] overflow-y-auto rounded-lg bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3">
-      <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
-        Kaartlagen
-      </h3>
+    <div className="w-72 max-h-[50vh] overflow-y-auto rounded-lg bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Kaartlagen
+        </h3>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={onCycleBasemap}
+          title={`Achtergrondkaart: ${nextBasemapLabel}`}
+          aria-label="Achtergrondkaart wisselen"
+        >
+          <Icon name="cached" size={20} className="text-gray-400" />
+        </Button>
+      </div>
+      {!hasLayers && (
+        <p className="text-xs text-gray-400">Nog geen lagen toegevoegd</p>
+      )}
       {comparisonMode ? (
         <div className="flex flex-col gap-2">
           <LayerList
