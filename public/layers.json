@@ -47,7 +47,7 @@
         "name": "huisarts",
         "rules": [
           {
-            "name": "Huisarts",
+            "name": "huisarts",
             "filter": ["==", "type", 8],
             "symbolizers": [{ "kind": "Mark", "color": "#8856a7" }]
           }
@@ -60,13 +60,23 @@
     {
       "id": "supermarkt",
       "name": "supermarkt",
-      "source": "https://data.woonzorglimburg.nl/parquet/supermarkt_2026.parquet",
+      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
       "style": {
         "color": [255, 69, 0, 150],
         "opacity": 0.8,
         "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "supermarkt",
+        "rules": [
+          {
+            "name": "supermarkt",
+            "filter": ["==", "type", 17],
+            "symbolizers": [{ "kind": "Mark", "color": "#ff4500" }]
+          }
+        ]
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
@@ -75,13 +85,23 @@
     {
       "id": "dagbesteding",
       "name": "dagbesteding",
-      "source": "https://data.woonzorglimburg.nl/parquet/dagbesteding_2026.parquet",
+      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
       "style": {
         "color": [136, 86, 167, 150],
         "opacity": 0.8,
         "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "dagbesteding",
+        "rules": [
+          {
+            "name": "dagbesteding",
+            "filter": ["==", "type", 26],
+            "symbolizers": [{ "kind": "Mark", "color": "#8856a7" }]
+          }
+        ]
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
@@ -90,13 +110,23 @@
     {
       "id": "ontmoeting",
       "name": "ontmoeting",
-      "source": "https://data.woonzorglimburg.nl/parquet/ontmoeting_2026.parquet",
+      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
       "style": {
         "color": [43, 140, 190, 150],
         "opacity": 0.8,
         "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "ontmoeting",
+        "rules": [
+          {
+            "name": "ontmoeting",
+            "filter": ["==", "type", 12],
+            "symbolizers": [{ "kind": "Mark", "color": "#2b8cbe" }]
+          }
+        ]
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
@@ -105,13 +135,23 @@
     {
       "id": "tandarts",
       "name": "tandarts",
-      "source": "https://data.woonzorglimburg.nl/parquet/tandarts_2026.parquet",
+      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
       "style": {
         "color": [253, 141, 60, 150],
         "opacity": 0.8,
         "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "tandarts",
+        "rules": [
+          {
+            "name": "tandarts",
+            "filter": ["==", "type", 18],
+            "symbolizers": [{ "kind": "Mark", "color": "#fd8d3c" }]
+          }
+        ]
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
@@ -120,13 +160,23 @@
     {
       "id": "ov",
       "name": "openbaar vervoer",
-      "source": "https://data.woonzorglimburg.nl/parquet/ov_2026.parquet",
+      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
       "style": {
         "color": [44, 127, 184, 150],
         "opacity": 0.8,
         "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "ov",
+        "rules": [
+          {
+            "name": "openbaar vervoer",
+            "filter": ["==", "type", 0],
+            "symbolizers": [{ "kind": "Mark", "color": "#2c7fb8" }]
+          }
+        ]
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
@@ -135,13 +185,23 @@
     {
       "id": "apotheek",
       "name": "apotheek",
-      "source": "https://data.woonzorglimburg.nl/parquet/apotheek_2026.parquet",
+      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
       "style": {
         "color": [49,163,84, 150],
         "opacity": 0.8,
         "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "apotheek",
+        "rules": [
+          {
+            "name": "apotheek",
+            "filter": ["==", "type", 1],
+            "symbolizers": [{ "kind": "Mark", "color": "#31a354" }]
+          }
+        ]
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
@@ -150,13 +210,23 @@
     {
       "id": "fysiotherapeut",
       "name": "fysiotherapeut",
-      "source": "https://data.woonzorglimburg.nl/parquet/fysiotherapeut_2026.parquet",
+      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
       "style": {
         "color": [127,205,187, 150],
         "opacity": 0.8,
         "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "fysiotherapeut",
+        "rules": [
+          {
+            "name": "fysiotherapeut",
+            "filter": ["==", "type", 5],
+            "symbolizers": [{ "kind": "Mark", "color": "#7fcdbb" }]
+          }
+        ]
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
