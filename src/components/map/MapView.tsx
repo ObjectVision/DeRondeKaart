@@ -21,10 +21,10 @@ export const INITIAL_VIEW_STATE = {
 
 export type ViewState = typeof INITIAL_VIEW_STATE;
 
-/** URL of the Positron basemap (no labels, roads, or water) rendered as the background style. */
-const BASE_STYLE_URL = "/positron-base.json";
-/** URL of the Positron overlay (labels, roads, water); its layers are appended on top of user data. */
-const LABELS_STYLE_URL = "/positron-overlay.json";
+/** URL of the MapTiler Basic basemap (no labels, roads, or water) rendered as the background style. */
+const BASE_STYLE_URL = "/maptiler-basic-base.json";
+/** URL of the MapTiler Basic overlay (labels, roads, water); its layers are appended on top of user data. */
+const LABELS_STYLE_URL = "/maptiler-basic-overlay.json";
 
 /** Hidden tag we attach to a map after labels have been added, listing their ids. */
 type LabelTaggedMap = MapLibreMap & {
