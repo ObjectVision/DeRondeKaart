@@ -82,6 +82,10 @@ function LayerList({
           const isVisible = !hiddenIds.has(config.id);
           const rules = config.geostyler?.rules;
           const hasRules = rules && rules.length > 0;
+          // A single rule is indistinguishable from the layer itself: the parent
+          // row already shows its swatch, so listing it again just duplicates the
+          // name. Only break out per-rule class toggles when there are ≥2 rules.
+          const showRuleList = rules && rules.length > 1;
           // COG rules are a read-only legend key: the raster is styled per-pixel
           // by a color function, so individual classes can't be toggled the way
           // deck-layer rules can. Render them as non-interactive swatches.
@@ -145,8 +149,8 @@ function LayerList({
                 </button>
               </div>
 
-              {/* Per-rule class toggles */}
-              {hasRules && isVisible && (
+              {/* Per-rule class toggles — only when there's more than one rule */}
+              {showRuleList && isVisible && (
                 <ul className="ml-5 flex flex-col gap-0.5">
                   {rules.map((rule) => {
                     const isRuleHidden = layerHiddenRules?.has(rule.name) ?? false;
