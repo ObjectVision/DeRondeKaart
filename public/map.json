@@ -12,7 +12,7 @@
   "filterSection": true,
   "navigationSection": true,
   "clickMarker": {
-    "icon": "my_location",
+    "icon": "location_on",
     "size": 30,
     "color": [
       62,
@@ -21,6 +21,6 @@
       255
     ],
     "offsetX": 0,
-    "offsetY": 15
+    "offsetY": 0
   }
 }
