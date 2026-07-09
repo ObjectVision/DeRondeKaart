@@ -1843,7 +1843,10 @@
       "geometryType": "polygon",
       "beforeid": "foreground-layers",
       "style": {
-        "opacity": 0.8
+        "color": [0, 0, 0, 0],
+        "lineColor": [128, 0, 128, 255],
+        "lineWidth": 2,
+        "opacity": 1
       },
       "featureinfo": {
         "template": "<div><b>[[ statnaam]]</b></div>"
@@ -1860,7 +1863,10 @@
         { "field": "bu_code", "stat": "count", "label": "Buurten", "icon": "grid_view", "color": "#1c5cab" }
       ],
       "style": {
-        "opacity": 0.8
+        "color": [0, 0, 0, 0],
+        "lineColor": [128, 0, 128, 255],
+        "lineWidth": 2,
+        "opacity": 1
       },
       "featureinfo": {
         "template": "<div><b>[[ statnaam]]</b></div>"
@@ -1874,7 +1880,10 @@
       "geometryType": "polygon",
       "beforeid": "foreground-layers",
       "style": {
-        "opacity": 0.8
+        "color": [0, 0, 0, 0],
+        "lineColor": [128, 0, 128, 255],
+        "lineWidth": 2,
+        "opacity": 1
       },
       "featureinfo": {
         "template": "<div><b>[[ statnaam]]</b></div>"
