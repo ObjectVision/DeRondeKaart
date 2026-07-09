@@ -54,7 +54,7 @@ export function MapControls({ onZoomIn, onZoomOut, orientation = "vertical" }: M
         variant="ghost"
         size="icon-sm"
         onClick={() => setSearchOpen((v) => !v)}
-        title="Search"
+        title="Zoeken"
       >
         <Icon name="search" size={18} className="text-[#00498D]" />
       </Button>
