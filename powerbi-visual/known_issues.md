@@ -142,6 +142,16 @@ location /assets/ {
 Then `nginx -t && systemctl reload nginx` and hard-refresh (assets are
 `immutable`-cached; append `?v=2` to bust if a stale no-CORS copy is cached).
 
+# Geometry cell size: Power BI text limit truncates huge WKB
+
+Power BI truncates text cells at ~32,766 characters. A base64-encoded WKB
+polygon of more than ~2,000 vertices exceeds that and arrives truncated; the
+WKB decoder (`src/wkb.ts`) then returns `null` and the row is counted in the
+"rows without valid geometry skipped" console warning. Fix by simplifying /
+generalizing large geometries server-side before writing the geoparquet file.
+
+---
+
 ## Summary of all three gates
 
 The app URL served to the Power BI custom visual must, for its whole path:

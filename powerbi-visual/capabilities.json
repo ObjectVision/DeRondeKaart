@@ -14,8 +14,8 @@
     },
     {
       "name": "geometry",
-      "displayName": "Geometrie (WKT)",
-      "description": "Well-Known Text geometry column (POINT/LINESTRING/POLYGON, incl. MULTI*). Takes precedence over Lengtegraad/Breedtegraad.",
+      "displayName": "Geometrie (WKB)",
+      "description": "Base64-encoded WKB geometry column, e.g. Binary.ToText([geometry]) on a geoparquet geometry column in Power Query. Supports (Multi)Point/LineString/Polygon. Takes precedence over Lengtegraad/Breedtegraad.",
       "kind": "GroupingOrMeasure"
     },
     {
