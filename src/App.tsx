@@ -28,6 +28,7 @@ import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
 import { Sidebar } from "@/components/ui/sidebar/Sidebar";
 import { SectionToggleBar, type SectionToggle } from "@/components/ui/sidebar/SectionToggleBar";
 import { useSessionFlag } from "@/hooks/use-session-flag";
+import { useAutoCollapse } from "@/hooks/use-auto-collapse";
 import { MapControls } from "@/components/ui/map-controls";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
@@ -225,7 +226,10 @@ function App({
   // navigation window, restored via the "Navigatie tonen" toolbar icon (which
   // only appears while minimized). Only relevant in sidebar mode;
   // `*SectionEnabled` (from map.json) gates availability entirely.
-  const [navMinimized, , toggleNavMinimized] = useSessionFlag("sidebar.nav.min", false);
+  const [navMinimized, setNavMinimized, toggleNavMinimized] = useSessionFlag(
+    "sidebar.nav.min",
+    false,
+  );
   const [chartsMinimized, setChartsMinimized, toggleChartsMinimized] = useSessionFlag(
     "sidebar.charts.min",
     false,
@@ -233,7 +237,25 @@ function App({
   // Minimize state for the Kaartlagen (legend) window, persisted for the
   // session. Collapsed via the close button in the window header, restored via
   // the "Kaartlagen tonen" icon in the collapsed bottom-left bar.
-  const [legendMinimized, , toggleLegendMinimized] = useSessionFlag("legend.min", false);
+  const [legendMinimized, setLegendMinimized, toggleLegendMinimized] = useSessionFlag(
+    "legend.min",
+    false,
+  );
+
+  // On small screens, auto-collapse windows in the priority order
+  // Navigatie → Statistieken → Kaartlagen as the viewport narrows. Only fires
+  // when the width crosses a breakpoint, so manual toggles within a size band
+  // are preserved.
+  useAutoCollapse(
+    useCallback(
+      (t) => {
+        setNavMinimized(t.nav);
+        setChartsMinimized(t.charts);
+        setLegendMinimized(t.legend);
+      },
+      [setNavMinimized, setChartsMinimized, setLegendMinimized],
+    ),
+  );
 
   // Analytics ("Analyse & statistieken") panel: selected via a layer-name
   // click in the legend; fed by the layer's attribute table restricted to the
