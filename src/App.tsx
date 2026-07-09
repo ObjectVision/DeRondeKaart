@@ -65,10 +65,22 @@ function App({
   // Per-layer z-ordering is handled entirely in the layer factory via the
   // `beforeid` anchor from each config (see anchorForConfig) — no App-level wiring.
 
+  // Mount the right map only when it has a comparable (non-flagged) layer — a
+  // flagged-only right map has nothing meaningful to compare and is hidden with
+  // the slider. Computed up here because the B-side topLayer hooks below are
+  // gated on it: a deck Layer instance whose GL resources were created by the
+  // right map's deck must not survive that map's unmount — handing it to the
+  // remounted map's fresh deck draws against dead GL programs
+  // ("getUniformBlockIndex ... not of type 'WebGLProgram'" floods). Gating the
+  // hooks drops the instances at unmount and rebuilds them on remount.
+  const showMapRight = mapRightLayers.layerEntries.some(
+    (e) => !e.config.excludeFromComparison,
+  );
+
   // Always-on study area, pinned above everything (incl. labels) on both maps.
   // Separate instances — Layer objects must not be shared across two Deck overlays.
   const studyLayersA = useStudyAreaLayer(studyAreaId);
-  const studyLayersB = useStudyAreaLayer(studyAreaId);
+  const studyLayersB = useStudyAreaLayer(showMapRight ? studyAreaId : undefined);
   const mapLeftRef = useRef<MapViewHandle>(null);
   const mapRightRef = useRef<MapViewHandle>(null);
   const [mapLeftReady, setMapLeftReady] = useState(false);
@@ -124,7 +136,7 @@ function App({
   // Per-map marker layers (separate instances — Layer objects can't be shared
   // across two Deck overlays). Appended to each map's always-on-top topLayers.
   const markerLayersA = useClickMarkerLayers(clickMarker, clickMarkerConfig);
-  const markerLayersB = useClickMarkerLayers(clickMarker, clickMarkerConfig);
+  const markerLayersB = useClickMarkerLayers(showMapRight ? clickMarker : null, clickMarkerConfig);
 
   // Area-select tool: a drawn rectangle restricting the charts/statistics to
   // rows inside it (ANDed with the area filter). One shared instance — the box
@@ -133,7 +145,7 @@ function App({
   const { active: boxSelectActive, toggle: boxSelectToggle } = boxSelect;
   const selectionBox = boxSelect.draft ?? boxSelect.box;
   const boxLayersA = useSelectionBoxLayers(selectionBox, "a");
-  const boxLayersB = useSelectionBoxLayers(selectionBox, "b");
+  const boxLayersB = useSelectionBoxLayers(showMapRight ? selectionBox : null, "b");
 
   // Mirror the tool state into both maps' cursor flags (crosshair while armed).
   useEffect(() => {
@@ -348,17 +360,10 @@ function App({
   useEmbedData({ mapLeftLayers, mapLeftRef, ready: mapLeftReady, onConfig: applyConfig });
 
   const hasMapLeftLayers = mapLeftLayers.layerEntries.length > 0;
-  const hasMapRightLayers = mapRightLayers.layerEntries.length > 0;
 
-  // Comparison requires the right map to contain at least one non-flagged layer.
-  const hasComparableLayerOnRight = mapRightLayers.layerEntries.some(
-    (e) => !e.config.excludeFromComparison,
-  );
-
-  const comparisonMode = hasMapLeftLayers && hasMapRightLayers && hasComparableLayerOnRight;
-  // Mount the right map only when it has a comparable layer — a flagged-only
-  // right map has nothing meaningful to compare and is hidden with the slider.
-  const showMapRight = hasMapRightLayers && hasComparableLayerOnRight;
+  // Comparison requires layers on the left and a comparable layer on the right
+  // (showMapRight, computed near the top with the B-side topLayer hooks).
+  const comparisonMode = hasMapLeftLayers && showMapRight;
 
   // Once the right map's MapLibre style is loaded, replay any imperative MVT/COG
   // entries that addLayer attempted before the map existed. Idempotent.
