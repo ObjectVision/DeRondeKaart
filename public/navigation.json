@@ -169,6 +169,15 @@
                     ]
                 }
             ]
+        },
+        {
+            "label": "bomen",
+            "icon": "nature_people",
+            "color": "#54B6C0",
+            "expanded": true,
+            "children": [
+                    { "id": "bomen-3-rule-2026", "icon": "forest", "color": "#8C54D6", "label": "3 bomen", "a": false, "b": false }
+            ]
         }
     ]
   },

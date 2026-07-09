@@ -292,31 +292,36 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
     // (interleaved) and native addLayer place everything in the right band
     // natively — no post-hoc moveLayer shuffling needed.
 
-
-    // Force deck's interleaved overlay to re-resolve layer order against the
-    // current maplibre stack. Deck re-resolves on `styledata` and on prop
-    // changes, but a burst of synchronous addLayer calls (anchors + overlay) can
-    // land without a clean re-resolve afterwards — leaving a deck layer added
-    // before the anchors existed stranded in the wrong band. Re-setting the same
-    // layers array forces `_resolveLayers` to run once the anchors are in place.
-    //
-    // Deferred to the next frame and skipped when there are no deck layers, so it
-    // never re-diffs (which can dispose/recreate layer GL programs) inside or
-    // racing an in-flight draw pass.
-    function forceDeckResolve() {
-      requestAnimationFrame(() => {
-        const overlay = overlayRef.current;
-        const current = getDeckLayers(overlayRef);
-        if (overlay && current.length > 0) overlay.setProps({ layers: current });
-      });
+    // Keep the anchors present for the whole map lifetime. A basemap swap calls
+    // setStyle(), which wipes the anchors; deck.gl's own `styledata` handler then
+    // re-resolves its interleaved layers and calls `map.addLayer(layer, beforeId)`
+    // — which THROWS if the `beforeId` anchor isn't in the style yet. So we must
+    // recreate the anchors on `styledata` too, before deck's handler runs a resolve
+    // against a missing anchor. This is wired via the <Map onStyleData> prop (not a
+    // manual map.on in an effect): react-map-gl registers its event forwarding when
+    // the map instance is created — before useControl adds the deck overlay — so it
+    // works for a late-mounting map (the right map, whose maplibre instance doesn't
+    // exist yet when a mount effect would try to attach a listener) AND runs before
+    // deck's styledata handler on the same event. `ensureAnchors` is guarded
+    // per-anchor (skips ones already present), so the `styledata` it re-fires is a
+    // no-op → no feedback loop.
+    // Readiness check: deliberately NOT `map.isStyleLoaded()`. That also waits for
+    // sources/sprites, but maplibre's `addLayer` (and deck's resolve) only require
+    // the style JSON itself (`style._loaded`). On the right map — which mounts with
+    // deck layers already queued — deck resolves in that window where `_loaded` is
+    // true but `isStyleLoaded()` is false, so an isStyleLoaded guard would skip
+    // creating the anchors exactly when deck needs them.
+    function handleStyleData() {
+      const map = mapRef.current?.getMap();
+      if (!map || !map.style) return;
+      const styleLoaded = (map.style as unknown as { _loaded?: boolean })._loaded;
+      if (styleLoaded) ensureAnchors(map);
     }
 
     function handleLoad() {
       const map = mapRef.current?.getMap();
       if (map) {
-        (window as unknown as Record<string, unknown>).__mapA ??= map;
         ensureAnchorsAndOverlay(map, basemap.overlay).then(() => {
-          forceDeckResolve();
           onLabelsReady?.(map);
         });
       }
@@ -338,7 +343,6 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         if (!map || !map.isStyleLoaded()) return;
         map.off("idle", onStyleReady);
         ensureAnchorsAndOverlay(map, basemap.overlay).then(() => {
-          forceDeckResolve();
           onLabelsReady?.(map);
         });
         appliedBasemapRef.current = basemap.id;
@@ -367,6 +371,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         dragRotate={false}
         pitchWithRotate={false}
         onLoad={handleLoad}
+        onStyleData={handleStyleData}
         onMove={onMove}
         onClick={onClick}
         onMouseMove={onMouseMove}
