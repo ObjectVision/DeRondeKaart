@@ -73,6 +73,7 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     excludeFromLegend: (layer.excludeFromLegend as boolean) ?? undefined,
     excludeFromPicking: (layer.excludeFromPicking as boolean) ?? undefined,
     excludeFromComparison: (layer.excludeFromComparison as boolean) ?? undefined,
+    beforeid: (layer.beforeid as string) ?? undefined,
     embeddedColors: (layer.embeddedColors as boolean) ?? undefined,
     charts: validateCharts(layer.charts, layer.id as string),
     statistics: validateStatistics(layer.statistics, layer.id as string),
