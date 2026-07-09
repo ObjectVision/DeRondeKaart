@@ -22,6 +22,8 @@ import { useBoxSelect } from "@/hooks/use-box-select";
 import { useSelectionBoxLayers } from "@/hooks/use-selection-box-layer";
 import { isChartEligible } from "@/layers/charts";
 import { Legend } from "@/components/ui/legend";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/nav-icon";
 import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
 import { Sidebar } from "@/components/ui/sidebar/Sidebar";
 import { SectionToggleBar, type SectionToggle } from "@/components/ui/sidebar/SectionToggleBar";
@@ -218,15 +220,20 @@ function App({
   // layers so the accessors re-evaluate.
   const areaFilter = useAreaFilter();
 
-  // Per-section minimize state (persisted for the session). Sections can be
-  // collapsed/restored via the top-right toolbar icons. Only relevant in
-  // sidebar mode; `*SectionEnabled` (from map.json) gates availability entirely.
-  const [filterMinimized, , toggleFilterMinimized] = useSessionFlag("sidebar.filter.min", false);
+  // Minimize state for the whole navigation UI (Filter + Navigatie together,
+  // persisted for the session). Collapsed via the close button inside the
+  // navigation window, restored via the "Navigatie tonen" toolbar icon (which
+  // only appears while minimized). Only relevant in sidebar mode;
+  // `*SectionEnabled` (from map.json) gates availability entirely.
   const [navMinimized, , toggleNavMinimized] = useSessionFlag("sidebar.nav.min", false);
   const [chartsMinimized, setChartsMinimized, toggleChartsMinimized] = useSessionFlag(
     "sidebar.charts.min",
     false,
   );
+  // Minimize state for the Kaartlagen (legend) window, persisted for the
+  // session. Collapsed via the close button in the window header, restored via
+  // the "Kaartlagen tonen" icon in the collapsed bottom-left bar.
+  const [legendMinimized, , toggleLegendMinimized] = useSessionFlag("legend.min", false);
 
   // Analytics ("Analyse & statistieken") panel: selected via a layer-name
   // click in the legend; fed by the layer's attribute table restricted to the
@@ -285,38 +292,32 @@ function App({
   const navShowsControls = sidebarActive || (navigation && !sidebarMode);
 
   const sectionToggles: SectionToggle[] = [];
-  if (filterAvailable) {
-    sectionToggles.push({
-      key: "filter",
-      icon: "filter_alt",
-      title: filterMinimized ? "Filter tonen" : "Filter verbergen",
-      active: !filterMinimized,
-      onToggle: toggleFilterMinimized,
-    });
-  }
-  if (navAvailable) {
+  // Single combined toggle for the whole navigation (Filter + Navigatie). It
+  // only appears while minimized — restoring the window. Closing happens via
+  // the close button inside the navigation window itself.
+  if ((filterAvailable || navAvailable) && navMinimized) {
     sectionToggles.push({
       key: "navigation",
       icon: "layers",
-      title: navMinimized ? "Navigatie tonen" : "Navigatie verbergen",
-      active: !navMinimized,
+      title: "Navigatie tonen",
+      active: false,
       onToggle: toggleNavMinimized,
     });
   }
   if (chartsPanelEnabled) {
     const hasChartLayer = Boolean(selectedChartLayerId);
-    sectionToggles.push({
-      key: "charts",
-      icon: "monitoring",
-      title: !hasChartLayer
-        ? "Geen statistieken beschikbaar — selecteer een laag"
-        : chartsMinimized
-          ? "Statistieken tonen"
-          : "Statistieken verbergen",
-      active: hasChartLayer && !chartsMinimized,
-      disabled: !hasChartLayer,
-      onToggle: toggleChartsMinimized,
-    });
+    // Restore toggle for the statistics panel — only appears while a chart is
+    // selected but minimized (closed via the panel's own close button). Clicking
+    // it reopens the last shown chart.
+    if (hasChartLayer && chartsMinimized) {
+      sectionToggles.push({
+        key: "charts",
+        icon: "monitoring",
+        title: "Statistieken tonen",
+        active: false,
+        onToggle: toggleChartsMinimized,
+      });
+    }
     sectionToggles.push({
       key: "area-select",
       icon: "select",
@@ -567,8 +568,9 @@ function App({
         <Sidebar
           nav={nav}
           areaFilter={areaFilter}
-          showFilter={filterAvailable && !filterMinimized}
+          showFilter={filterAvailable && !navMinimized}
           showNavigation={navAvailable && !navMinimized}
+          onClose={toggleNavMinimized}
           toolbar={
             <>
               <MapControls
@@ -590,7 +592,7 @@ function App({
         <ChartsPanel
           config={chartLayerConfig}
           version={areaFilter.version + boxSelect.version}
-          onClose={() => setSelectedChartLayerId(null)}
+          onClose={() => setChartsMinimized(true)}
         />
       )}
 
@@ -600,28 +602,53 @@ function App({
       <div
         className="absolute bottom-2 left-2 z-30 flex items-end gap-2 sm:bottom-4 sm:left-4"
       >
-        <Legend
-          entriesA={mapLeftLayers.layerEntries}
-          entriesB={mapRightLayers.layerEntries}
-          hiddenIdsA={mapLeftLayers.hiddenIds}
-          hiddenIdsB={mapRightLayers.hiddenIds}
-          hiddenRulesA={mapLeftLayers.hiddenRules}
-          hiddenRulesB={mapRightLayers.hiddenRules}
-          onToggleA={handleToggleA}
-          onToggleB={handleToggleB}
-          onToggleRuleA={handleToggleRuleA}
-          onToggleRuleB={handleToggleRuleB}
-          onRemoveA={handleRemoveA}
-          onRemoveB={handleRemoveB}
-          comparisonMode={comparisonMode}
-          mapBOnTop={showMapRight}
-          selectedChartLayerId={selectedChartLayerId}
-          onSelectChartLayer={handleSelectChartLayer}
-          chartsEnabled={chartsPanelEnabled}
-          nextBasemapLabel={nextBasemap.label}
-          onCycleBasemap={cycleBasemap}
-        />
-
+        {legendMinimized ? (
+          // Collapsed bar (bottom-left → right): show-Kaartlagen toggle, then
+          // the basemap toggle. Restoring re-opens the Kaartlagen window.
+          <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={toggleLegendMinimized}
+              title="Kaartlagen tonen"
+              aria-label="Kaartlagen tonen"
+            >
+              <Icon name="layers" size={20} className="text-gray-400" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={cycleBasemap}
+              title={`Achtergrondkaart: ${nextBasemap.label}`}
+              aria-label="Achtergrondkaart wisselen"
+            >
+              <Icon name="cached" size={20} className="text-gray-400" />
+            </Button>
+          </div>
+        ) : (
+          <Legend
+            entriesA={mapLeftLayers.layerEntries}
+            entriesB={mapRightLayers.layerEntries}
+            hiddenIdsA={mapLeftLayers.hiddenIds}
+            hiddenIdsB={mapRightLayers.hiddenIds}
+            hiddenRulesA={mapLeftLayers.hiddenRules}
+            hiddenRulesB={mapRightLayers.hiddenRules}
+            onToggleA={handleToggleA}
+            onToggleB={handleToggleB}
+            onToggleRuleA={handleToggleRuleA}
+            onToggleRuleB={handleToggleRuleB}
+            onRemoveA={handleRemoveA}
+            onRemoveB={handleRemoveB}
+            comparisonMode={comparisonMode}
+            mapBOnTop={showMapRight}
+            selectedChartLayerId={selectedChartLayerId}
+            onSelectChartLayer={handleSelectChartLayer}
+            chartsEnabled={chartsPanelEnabled}
+            nextBasemapLabel={nextBasemap.label}
+            onCycleBasemap={cycleBasemap}
+            onClose={toggleLegendMinimized}
+          />
+        )}
       </div>
 
       {/* Details + Street View — one window below the click, single close button */}

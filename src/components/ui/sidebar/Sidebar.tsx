@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { NavIcon } from "@/components/ui/nav-icon";
+import { NavIcon, Icon } from "@/components/ui/nav-icon";
+import { Button } from "@/components/ui/button";
 import { NavTree } from "@/components/ui/navigation/NavTree";
 import { LeafDetail } from "@/components/ui/navigation/LeafDetail";
 import { FilterSection } from "./FilterSection";
@@ -24,6 +25,7 @@ export function Sidebar({
   areaFilter,
   showFilter = true,
   showNavigation = true,
+  onClose,
   toolbar,
 }: {
   nav: NavigationApi;
@@ -32,6 +34,8 @@ export function Sidebar({
   showFilter?: boolean;
   /** Render the Navigatie section (false = minimized or disabled in config). */
   showNavigation?: boolean;
+  /** Close the whole navigation window (Filter + Navigatie together). */
+  onClose?: () => void;
   /**
    * Toolbar row (search/zoom + section toggles) rendered above the sections.
    * Stays visible when both sections are minimized — it is how they are
@@ -76,7 +80,19 @@ export function Sidebar({
 
       <div className="flex min-h-0 flex-1 items-start">
         {sectionsVisible && (
-          <div className="pointer-events-auto flex max-h-full w-72 flex-col gap-4 overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
+          <div className="pointer-events-auto relative flex max-h-full w-72 flex-col gap-4 overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
+            {onClose && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={onClose}
+                title="Navigatie verbergen"
+                aria-label="Navigatie verbergen"
+                className="absolute right-2 top-2 z-10 h-5 w-5"
+              >
+                <Icon name="close" size={18} className="text-gray-400" />
+              </Button>
+            )}
             {filterVisible && <FilterSection areaFilter={areaFilter} />}
             {showNavigation && (
               <NavigationSection

@@ -34,6 +34,8 @@ interface LegendProps {
   nextBasemapLabel: string;
   /** Cycle to the next background basemap. */
   onCycleBasemap: () => void;
+  /** Collapse the Kaartlagen window (restored from the bottom-left bar). */
+  onClose?: () => void;
 }
 
 function colorToCSS(
@@ -238,6 +240,7 @@ export function Legend({
   chartsEnabled,
   nextBasemapLabel,
   onCycleBasemap,
+  onClose,
 }: LegendProps) {
   const chartProps = { selectedChartLayerId, onSelectChartLayer, chartsEnabled };
   const visibleA = entriesA.filter((e) => !e.config.excludeFromLegend);
@@ -250,15 +253,28 @@ export function Legend({
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
           Kaartlagen
         </h3>
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={onCycleBasemap}
-          title={`Achtergrondkaart: ${nextBasemapLabel}`}
-          aria-label="Achtergrondkaart wisselen"
-        >
-          <Icon name="cached" size={20} className="text-gray-400" />
-        </Button>
+        <div className="flex items-center">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onCycleBasemap}
+            title={`Achtergrondkaart: ${nextBasemapLabel}`}
+            aria-label="Achtergrondkaart wisselen"
+          >
+            <Icon name="cached" size={20} className="text-gray-400" />
+          </Button>
+          {onClose && (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={onClose}
+              title="Kaartlagen verbergen"
+              aria-label="Kaartlagen verbergen"
+            >
+              <Icon name="close" size={20} className="text-gray-400" />
+            </Button>
+          )}
+        </div>
       </div>
       {!hasLayers && (
         <p className="text-xs text-gray-400">Nog geen lagen toegevoegd</p>
