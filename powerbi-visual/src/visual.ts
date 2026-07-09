@@ -2,7 +2,7 @@
 
 import powerbi from "powerbi-visuals-api";
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
-import { parse as parseWkt } from "wellknown";
+import { parseWkbBase64 } from "./wkb";
 import type { Feature, Geometry, Position } from "geojson";
 
 import { VisualFormattingSettingsModel } from "./settings";
@@ -301,19 +301,22 @@ export class Visual implements IVisual {
       if (roles.tooltips) tooltipIdxs.push(i);
     }
 
-    const useWkt = geomIdx !== -1;
-    if (!useWkt && (lngIdx === -1 || latIdx === -1)) return null;
+    const useGeom = geomIdx !== -1;
+    if (!useGeom && (lngIdx === -1 || latIdx === -1)) return null;
 
     // Diagnostic: reveal which geometry path is active and a sample of the raw
     // cell values/types, so skipped-row causes are visible instead of guessed.
     // eslint-disable-next-line no-console
+    const sampleGeom = table.rows[0]?.[geomIdx];
     console.log(
       "[nwviz] buildDataset",
-      { useWkt, geomIdx, lngIdx, latIdx, rows: table.rows.length },
-      "sampleRow0",
-      table.rows[0],
-      useWkt
-        ? { wkt: table.rows[0]?.[geomIdx], type: typeof table.rows[0]?.[geomIdx] }
+      { useGeom, geomIdx, lngIdx, latIdx, rows: table.rows.length },
+      useGeom
+        ? {
+            type: typeof sampleGeom,
+            length: typeof sampleGeom === "string" ? sampleGeom.length : undefined,
+            head: typeof sampleGeom === "string" ? sampleGeom.slice(0, 16) : sampleGeom,
+          }
         : {
             lngRaw: table.rows[0]?.[lngIdx],
             lngType: typeof table.rows[0]?.[lngIdx],
@@ -329,14 +332,10 @@ export class Visual implements IVisual {
     for (const row of table.rows) {
       let geometry: Geometry | null = null;
 
-      if (useWkt) {
-        const wkt = row[geomIdx];
-        if (typeof wkt === "string" && wkt.length > 0) {
-          try {
-            geometry = parseWkt(wkt) as Geometry | null;
-          } catch {
-            geometry = null;
-          }
+      if (useGeom) {
+        const cell = row[geomIdx];
+        if (typeof cell === "string" && cell.length > 0) {
+          geometry = parseWkbBase64(cell);
         }
       } else {
         const lng = Number(row[lngIdx]);
