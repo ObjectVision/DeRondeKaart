@@ -6,7 +6,12 @@ import { useMapLayers } from "@/hooks/use-map-layers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
 import { useClickMarkerLayers } from "@/hooks/use-click-marker-layer";
 import { resolveMarkerPoint } from "@/lib/marker-snap";
-import { DEFAULT_CLICK_MARKER, type ClickMarkerConfig } from "@/config/map-config";
+import {
+  DEFAULT_CLICK_MARKER,
+  DEFAULT_MAP_CONTROLS,
+  type ClickMarkerConfig,
+  type MapControlsConfig,
+} from "@/config/map-config";
 import { useFeaturePick } from "@/hooks/use-feature-pick";
 import { useHoverCursor } from "@/hooks/use-hover-cursor";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
@@ -39,6 +44,7 @@ function App({
   filterSectionEnabled = true,
   navigationSectionEnabled = true,
   chartsPanelEnabled = true,
+  mapControls = DEFAULT_MAP_CONTROLS,
   clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
 }: {
   initialViewState: ViewState;
@@ -50,6 +56,7 @@ function App({
   filterSectionEnabled?: boolean;
   navigationSectionEnabled?: boolean;
   chartsPanelEnabled?: boolean;
+  mapControls?: MapControlsConfig;
   clickMarker?: ClickMarkerConfig;
 }) {
   // UI-surface flags are seeded from map.json (props) but can be overridden at
@@ -270,6 +277,12 @@ function App({
   const sidebarActive = sidebarMode && navigation;
   const filterAvailable = sidebarActive && filterSectionEnabled && areaFilter.entries.length > 0;
   const navAvailable = sidebarActive && navigationSectionEnabled;
+
+  // The navigation UI embeds the MapControls card (search + zoom) whenever it is
+  // shown: the top-center panel (top mode) or the sidebar toolbar (sidebar mode).
+  // When it isn't, we render a standalone card so the controls stay independent
+  // of the navigation flag (map.json `mapControls`).
+  const navShowsControls = sidebarActive || (navigation && !sidebarMode);
 
   const sectionToggles: SectionToggle[] = [];
   if (filterAvailable) {
@@ -530,7 +543,23 @@ function App({
         onZoomOut={handleZoomOut}
         showSearch={searchbar}
         showNavigation={navigation && !sidebarMode}
+        showControlsSearch={mapControls.search}
+        showControlsZoom={mapControls.zoom}
       />
+
+      {/* Standalone map controls (search + zoom) — bottom right, per the
+          mapcontrols spec. Rendered only when the navigation UI isn't already
+          showing the MapControls card, so the two flags stay independent. */}
+      {!navShowsControls && (mapControls.search || mapControls.zoom) && (
+        <div className="absolute bottom-2 right-2 z-30 sm:bottom-4 sm:right-4">
+          <MapControls
+            onZoomIn={handleZoomIn}
+            onZoomOut={handleZoomOut}
+            showSearch={mapControls.search}
+            showZoom={mapControls.zoom}
+          />
+        </div>
+      )}
 
       {/* Sidebar mode: toolbar (search, zoom, section toggles) top left above
           the Filter + Navigatie sections */}
@@ -546,6 +575,8 @@ function App({
                 orientation="horizontal"
                 onZoomIn={handleZoomIn}
                 onZoomOut={handleZoomOut}
+                showSearch={mapControls.search}
+                showZoom={mapControls.zoom}
               />
               <SectionToggleBar orientation="horizontal" toggles={sectionToggles} />
             </>

@@ -12,11 +12,24 @@ interface MapControlsProps {
    * at the left screen edge).
    */
   orientation?: "vertical" | "horizontal";
+  /** Show the location-search button (+ its popover). Defaults to `true`. */
+  showSearch?: boolean;
+  /** Show the zoom in/out buttons. Defaults to `true`. */
+  showZoom?: boolean;
 }
 
-export function MapControls({ onZoomIn, onZoomOut, orientation = "vertical" }: MapControlsProps) {
+export function MapControls({
+  onZoomIn,
+  onZoomOut,
+  orientation = "vertical",
+  showSearch = true,
+  showZoom = true,
+}: MapControlsProps) {
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Nothing to render if both surfaces are disabled — avoids an empty card.
+  if (!showSearch && !showZoom) return null;
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -50,34 +63,40 @@ export function MapControls({ onZoomIn, onZoomOut, orientation = "vertical" }: M
         horizontal ? "flex-row" : "flex-col"
       }`}
     >
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        onClick={() => setSearchOpen((v) => !v)}
-        title="Zoeken"
-      >
-        <Icon name="search" size={18} className="text-[#00498D]" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        onClick={onZoomIn}
-        title="Inzoomen"
-      >
-        <Icon name="add" size={18} className="text-[#00498D]" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        onClick={onZoomOut}
-        title="Uitzoomen"
-      >
-        <Icon name="remove" size={18} className="text-[#00498D]" />
-      </Button>
+      {showSearch && (
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => setSearchOpen((v) => !v)}
+          title="Zoeken"
+        >
+          <Icon name="search" size={18} className="text-[#00498D]" />
+        </Button>
+      )}
+      {showZoom && (
+        <>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onZoomIn}
+            title="Inzoomen"
+          >
+            <Icon name="add" size={18} className="text-[#00498D]" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onZoomOut}
+            title="Uitzoomen"
+          >
+            <Icon name="remove" size={18} className="text-[#00498D]" />
+          </Button>
+        </>
+      )}
 
       {/* Location search popover — left of the card (vertical) or below it
           (horizontal, where left would clip at the screen edge). */}
-      {searchOpen && (
+      {showSearch && searchOpen && (
         <form
           onSubmit={handleSearch}
           className={`absolute flex gap-1 rounded-lg bg-white/95 p-1.5 shadow-md backdrop-blur-sm ${

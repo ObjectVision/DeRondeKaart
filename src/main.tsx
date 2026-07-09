@@ -18,6 +18,7 @@ async function bootstrap() {
         filterSectionEnabled={mapConfig.filterSection}
         navigationSectionEnabled={mapConfig.navigationSection}
         chartsPanelEnabled={mapConfig.chartsPanel}
+        mapControls={mapConfig.mapControls}
         clickMarker={mapConfig.clickMarker}
       />
     </StrictMode>,
