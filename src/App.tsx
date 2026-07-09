@@ -62,6 +62,9 @@ function App({
   const mapLeftLayers = useMapLayers();
   const mapRightLayers = useMapLayers();
 
+  // Per-layer z-ordering is handled entirely in the layer factory via the
+  // `beforeid` anchor from each config (see anchorForConfig) — no App-level wiring.
+
   // Always-on study area, pinned above everything (incl. labels) on both maps.
   // Separate instances — Layer objects must not be shared across two Deck overlays.
   const studyLayersA = useStudyAreaLayer(studyAreaId);
@@ -415,14 +418,17 @@ function App({
     [mapRightLayers],
   );
 
+  // Fired once anchors + overlay are (re)loaded — on initial load and after a
+  // basemap swap. setStyle wipes native MVT/COG layers, so re-add them; the
+  // helpers are idempotent and skip layers/sources that already exist.
   const handleMapLeftLabelsReady = useCallback(() => {
     const ref = mapLeftRef.current?.mapRef;
-    if (ref) mapLeftLayers.applyLabelBeforeId(ref);
+    if (ref) mapLeftLayers.syncImperativeLayers(ref);
   }, [mapLeftLayers]);
 
   const handleMapRightLabelsReady = useCallback(() => {
     const ref = mapRightRef.current?.mapRef;
-    if (ref) mapRightLayers.applyLabelBeforeId(ref);
+    if (ref) mapRightLayers.syncImperativeLayers(ref);
   }, [mapRightLayers]);
 
   // One shared popup: the latest click's pick result (the other map's pick is

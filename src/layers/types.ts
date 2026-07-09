@@ -117,6 +117,14 @@ export interface LayerConfig {
   excludeFromPicking?: boolean;
   /** If true, presence of this layer on BOTH maps suppresses comparison mode (slider hides, the right map is not rendered) */
   excludeFromComparison?: boolean;
+  /**
+   * Which z-order band the layer is inserted into, named by the anchor layer it
+   * sits below. One of the ANCHORS ids in MapView (`background-layers`,
+   * `map-layers`, `overlay-layers`, `foreground-layers`, `studyarea-layers`).
+   * Omitted → `map-layers` (below the basemap label/road/water overlay).
+   * `foreground-layers` puts the layer above that overlay.
+   */
+  beforeid?: string;
   /** COG only: the raster already contains its colors; geostyler rules are shown in the legend but NOT applied as a per-pixel color function. */
   embeddedColors?: boolean;
   /** "geojson" format only: the in-memory features to render. `source` is unused ("") for this format. */
