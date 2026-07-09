@@ -1766,8 +1766,58 @@
       }
     },
     {
+      "id": "bomen-30-rule-2026",
+      "name": "bladerdek",
+      "source": "https://data.woonzorglimburg.nl/cog/bomen_30_rule_2026.cog.tif",
+      "format": "cog",
+      "embeddedColors": true,
+      "style": {
+        "opacity": 0.8
+      },
+      "geostyler": {
+        "name": "minder dan 30%",
+        "rules": [
+          {
+            "name": "bladerdek kleiner dan 30%",
+            "filter": ["==", "band0", 0],
+            "symbolizers": [{ "kind": "Fill", "color": "#EBE4B1" }]
+          },
+          {
+            "name": "bladerdek 30% of meer",
+            "filter": ["==", "band0", 1],
+            "symbolizers": [{ "kind": "Fill", "color": "#54B6C0" }]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bomen-300-rule-2026",
+      "name": "bladerdek",
+      "source": "https://data.woonzorglimburg.nl/cog/bomen_300_rule_2026.cog.tif",
+      "format": "cog",
+      "embeddedColors": true,
+      "style": {
+        "opacity": 0.8
+      },
+      "geostyler": {
+        "name": "bereik groen",
+        "rules": [
+          {
+            "name": "meer dan 300 meter lopen",
+            "filter": ["==", "band0", 0],
+            "symbolizers": [{ "kind": "Fill", "color": "#EBE4B1" }]
+          },
+          {
+            "name": "minder dan 300 meter lopen",
+            "filter": ["==", "band0", 1],
+            "symbolizers": [{ "kind": "Fill", "color": "#54B6C0" }]
+          }
+        ]
+      }
+    },
+    {
       "id": "bomen-3-30-300-rule-2026",
-      "name": "zichtbaarheid bomen",
+      "name": "3-30-300 vuistregel",
       "source": "https://data.woonzorglimburg.nl/cog/bomen_3_30_300_rule_2026.cog.tif",
       "format": "cog",
       "embeddedColors": true,
@@ -1775,17 +1825,47 @@
         "opacity": 0.8
       },
       "geostyler": {
-        "name": "3 bomen vuistregel",
+        "name": "3-30-300 vuistregel",
         "rules": [
           {
-            "name": "minder dan 3",
+            "name": "geen regels",
             "filter": ["==", "band0", 0],
-            "symbolizers": [{ "kind": "Fill", "color": "#EBE4B1" }]
+            "symbolizers": [{ "kind": "Fill", "color": "#DADADA" }]
           },
           {
-            "name": "3 of meer",
+            "name": "alleen 3",
             "filter": ["==", "band0", 1],
-            "symbolizers": [{ "kind": "Fill", "color": "#54B6C0" }]
+            "symbolizers": [{ "kind": "Fill", "color": "#F1DD9B" }]
+          },
+          {
+            "name": "alleen 30",
+            "filter": ["==", "band0", 0],
+            "symbolizers": [{ "kind": "Fill", "color": "#E9E4A9" }]
+          },
+          {
+            "name": "3 en 30",
+            "filter": ["==", "band0", 1],
+            "symbolizers": [{ "kind": "Fill", "color": "#B1D2A5" }]
+          },
+          {
+            "name": "alleen 300",
+            "filter": ["==", "band0", 0],
+            "symbolizers": [{ "kind": "Fill", "color": "#96C9B0" }]
+          },
+          {
+            "name": "3 en 300",
+            "filter": ["==", "band0", 1],
+            "symbolizers": [{ "kind": "Fill", "color": "#71B8BE" }]
+          },
+          {
+            "name": "30 en 300",
+            "filter": ["==", "band0", 0],
+            "symbolizers": [{ "kind": "Fill", "color": "#4496B3" }]
+          },
+          {
+            "name": "3, 30 en 300",
+            "filter": ["==", "band0", 1],
+            "symbolizers": [{ "kind": "Fill", "color": "#1E6299" }]
           }
         ]
       }
