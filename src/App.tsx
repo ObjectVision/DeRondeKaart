@@ -583,6 +583,7 @@ function App({
           onRemoveA={handleRemoveA}
           onRemoveB={handleRemoveB}
           comparisonMode={comparisonMode}
+          mapBOnTop={showMapRight}
           selectedChartLayerId={selectedChartLayerId}
           onSelectChartLayer={handleSelectChartLayer}
           chartsEnabled={chartsPanelEnabled}
