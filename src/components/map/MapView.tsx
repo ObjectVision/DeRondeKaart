@@ -24,7 +24,7 @@ export type ViewState = typeof INITIAL_VIEW_STATE;
 /**
  * Selectable background basemaps. Each entry pairs a base style (background +
  * geometry, no labels — rendered under user data) with the matching overlay
- * (labels, roads, water — appended on top of user data by `loadLabelLayers`).
+ * (labels, roads, water — inserted into the overlay band by ensureAnchorsAndOverlay).
  * The `label` is what the legend's basemap toggle shows.
  */
 export interface Basemap {
@@ -132,34 +132,36 @@ function ensureAnchors(map: MapLibreMap) {
   }
 }
 
-/**
- * Fetch the overlay style and add its label/road/water layers into the overlay
- * band — inserted before the `overlay-layers` anchor so they sit above
- * `map-layers` and below `overlay-layers`. Idempotent per map+overlay set.
- */
-async function loadLabelLayers(map: MapLibreMap, overlayUrl: string) {
+/** Fetch an overlay style's layer specs (or null on failure). */
+async function fetchOverlayLayers(overlayUrl: string): Promise<LayerSpecification[] | null> {
   const resp = await fetch(overlayUrl);
   if (!resp.ok) {
     console.warn(`Failed to load labels style: ${resp.statusText}`);
-    return;
+    return null;
   }
   const style = (await resp.json()) as { layers: LayerSpecification[] };
-  for (const layer of style.layers) {
-    if (map.getLayer(layer.id)) continue;
-    map.addLayer(layer, ANCHORS.overlay);
-  }
+  return style.layers;
 }
 
 /**
- * Ensure all four anchors + the basemap overlay are present, in the correct
- * interleaving. Anchors go in first (so they exist before any deck sync), then
- * the overlay is inserted into the overlay band. Safe to call on initial load
- * and after a basemap swap (setStyle wipes anchors + overlay). Deck's
- * interleaved layers re-sync against the anchors automatically.
+ * Ensure all anchors + the basemap overlay are present, in the correct
+ * interleaving. The overlay style is fetched FIRST, then anchors and overlay
+ * layers are added in a single synchronous burst — so `overlay-layers` is
+ * guaranteed to exist when the overlay layers reference it as `beforeId` (the
+ * `await` used to sit between anchor creation and overlay insertion, letting a
+ * concurrent setStyle diff wipe the anchors mid-flight → "non-existing layer"
+ * errors on a basemap swap). Safe to call on initial load and after a swap.
+ * Deck's interleaved layers re-sync against the anchors automatically.
  */
 async function ensureAnchorsAndOverlay(map: MapLibreMap, overlayUrl: string) {
+  const overlayLayers = await fetchOverlayLayers(overlayUrl);
+  // Synchronous from here — no await splits the anchor/overlay insertion.
   ensureAnchors(map);
-  await loadLabelLayers(map, overlayUrl);
+  if (!overlayLayers) return;
+  for (const layer of overlayLayers) {
+    if (map.getLayer(layer.id)) continue;
+    map.addLayer(layer, ANCHORS.overlay);
+  }
 }
 
 function DeckGLOverlay(props: {
@@ -312,6 +314,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
     function handleLoad() {
       const map = mapRef.current?.getMap();
       if (map) {
+        (window as unknown as Record<string, unknown>).__mapA ??= map;
         ensureAnchorsAndOverlay(map, basemap.overlay).then(() => {
           forceDeckResolve();
           onLabelsReady?.(map);
