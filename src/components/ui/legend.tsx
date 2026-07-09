@@ -18,6 +18,12 @@ interface LegendProps {
   onRemoveA: (layerId: string) => void;
   onRemoveB: (layerId: string) => void;
   comparisonMode: boolean;
+  /**
+   * The right map is mounted full-width on top of the left map (it has
+   * comparable layers while the left map has none). Outside comparison mode
+   * the legend then lists map B — that's the map actually on screen.
+   */
+  mapBOnTop: boolean;
   /** Layer currently shown in the analytics panel (null = panel closed). */
   selectedChartLayerId: string | null;
   /** Select/deselect a layer for the analytics panel. */
@@ -226,6 +232,7 @@ export function Legend({
   onRemoveA,
   onRemoveB,
   comparisonMode,
+  mapBOnTop,
   selectedChartLayerId,
   onSelectChartLayer,
   chartsEnabled,
@@ -279,6 +286,16 @@ export function Legend({
             {...chartProps}
           />
         </div>
+      ) : mapBOnTop ? (
+        <LayerList
+          entries={visibleB}
+          hiddenIds={hiddenIdsB}
+          hiddenRules={hiddenRulesB}
+          onToggle={onToggleB}
+          onToggleRule={onToggleRuleB}
+          onRemove={onRemoveB}
+          {...chartProps}
+        />
       ) : (
         <LayerList
           entries={visibleA}
