@@ -11,6 +11,10 @@
   "navigationMode": "sidebar",
   "filterSection": true,
   "navigationSection": true,
+  "mapControls": {
+    "search": false,
+    "zoom": false
+  },
   "clickMarker": {
     "icon": "location_on",
     "size": 30,

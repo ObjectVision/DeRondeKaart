@@ -37,6 +37,19 @@ export function resolveMarkerIconUrl(icon: string): string {
   return `https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/${icon}/default/24px.svg`;
 }
 
+/**
+ * Visibility of the individual map controls (search-tool and zoom +/-). These
+ * work independently of the `searchbar`/`navigation` UI flags: even with the
+ * navigation UI off, this card renders standalone (bottom-right) so an embedded
+ * map can offer just search and/or zoom.
+ */
+export interface MapControlsConfig {
+  /** Show the location-search tool. Defaults to `true`. */
+  search: boolean;
+  /** Show the zoom-in / zoom-out buttons. Defaults to `true`. */
+  zoom: boolean;
+}
+
 /** Server-editable initial-view configuration, loaded from `public/map.json`. */
 export interface MapConfig {
   /** Map center as [longitude, latitude]. */
@@ -88,9 +101,17 @@ export interface MapConfig {
    * to `true`.
    */
   chartsPanel: boolean;
+  /** Visibility of the search-tool / zoom controls. Both default to `true`. */
+  mapControls: MapControlsConfig;
   /** Appearance of the on-click marker. Falls back to {@link DEFAULT_CLICK_MARKER}. */
   clickMarker: ClickMarkerConfig;
 }
+
+/** Default map controls: both search and zoom visible. */
+export const DEFAULT_MAP_CONTROLS: MapControlsConfig = {
+  search: true,
+  zoom: true,
+};
 
 /** Default on-click marker: a purple pin at 40px, no offset. */
 export const DEFAULT_CLICK_MARKER: ClickMarkerConfig = {
@@ -112,6 +133,7 @@ export const DEFAULT_MAP_CONFIG: MapConfig = {
   filterSection: true,
   navigationSection: true,
   chartsPanel: true,
+  mapControls: DEFAULT_MAP_CONTROLS,
   clickMarker: DEFAULT_CLICK_MARKER,
 };
 
@@ -194,6 +216,34 @@ function validateClickMarker(value: unknown): ClickMarkerConfig {
 }
 
 /**
+ * Validate the optional `mapControls` block, falling back per-field to
+ * {@link DEFAULT_MAP_CONTROLS}. Never returns null — a missing/invalid block
+ * yields the default so the controls always render.
+ */
+function validateMapControls(value: unknown): MapControlsConfig {
+  if (value === undefined) return DEFAULT_MAP_CONTROLS;
+  if (typeof value !== "object" || value === null) {
+    console.warn(`map.json: invalid "mapControls" ${JSON.stringify(value)}; using default`);
+    return DEFAULT_MAP_CONTROLS;
+  }
+
+  const obj = value as Record<string, unknown>;
+
+  const validateFlag = (raw: unknown, key: string, fallback: boolean): boolean => {
+    if (typeof raw === "boolean") return raw;
+    if (raw !== undefined) {
+      console.warn(`map.json: invalid mapControls.${key} ${JSON.stringify(raw)}; using default`);
+    }
+    return fallback;
+  };
+
+  return {
+    search: validateFlag(obj.search, "search", DEFAULT_MAP_CONTROLS.search),
+    zoom: validateFlag(obj.zoom, "zoom", DEFAULT_MAP_CONTROLS.zoom),
+  };
+}
+
+/**
  * Load `public/map.json` and produce a MapConfig. Never throws: on a missing
  * file, network error, or invalid/partial fields, the offending value falls
  * back to {@link DEFAULT_MAP_CONFIG} so an embedded map always loads.
@@ -256,6 +306,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     );
   }
 
+  const mapControls = validateMapControls(data.mapControls);
   const clickMarker = validateClickMarker(data.clickMarker);
 
   return {
@@ -269,6 +320,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     filterSection,
     navigationSection,
     chartsPanel,
+    mapControls,
     clickMarker,
   };
 }

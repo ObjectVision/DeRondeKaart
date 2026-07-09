@@ -21,6 +21,8 @@ export function NavigationPanel({
   onZoomOut,
   showSearch = false,
   showNavigation = false,
+  showControlsSearch = true,
+  showControlsZoom = true,
 }: {
   nav: NavigationApi;
   onZoomIn: () => void;
@@ -29,6 +31,10 @@ export function NavigationPanel({
   showSearch?: boolean;
   /** Show the navigation controls (category row + zoom). Defaults off (map.json `navigation`). */
   showNavigation?: boolean;
+  /** Show the location-search button in the MapControls card (map.json `mapControls.search`). */
+  showControlsSearch?: boolean;
+  /** Show the zoom +/- buttons in the MapControls card (map.json `mapControls.zoom`). */
+  showControlsZoom?: boolean;
 }) {
   const [tree, setTree] = useState<NavNode[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
@@ -173,7 +179,12 @@ export function NavigationPanel({
       {showNavigation && (
       <>
       <div className="flex items-stretch gap-2">
-        <MapControls onZoomIn={onZoomIn} onZoomOut={onZoomOut} />
+        <MapControls
+          onZoomIn={onZoomIn}
+          onZoomOut={onZoomOut}
+          showSearch={showControlsSearch}
+          showZoom={showControlsZoom}
+        />
 
         {/* Category icon row — never wider than the input; extras collapse into a
             "…" overflow button. */}
