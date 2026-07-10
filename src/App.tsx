@@ -572,6 +572,9 @@ function App({
           onClose={toggleNavMinimized}
           toolbar={
             <>
+              {/* Navigation-restore toggle sits left of the map controls, so
+                  reopening the navigation happens at the far-left of the row. */}
+              <SectionToggleBar orientation="horizontal" toggles={sectionToggles} />
               <MapControls
                 orientation="horizontal"
                 onZoomIn={handleZoomIn}
@@ -579,7 +582,6 @@ function App({
                 showSearch={mapControls.search}
                 showZoom={mapControls.zoom}
               />
-              <SectionToggleBar orientation="horizontal" toggles={sectionToggles} />
             </>
           }
         />
