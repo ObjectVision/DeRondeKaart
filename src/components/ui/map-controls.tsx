@@ -7,10 +7,9 @@ interface MapControlsProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
   /**
-   * "vertical" (default) stacks the buttons (top-mode / right-edge usage,
-   * search popover opens to the left); "horizontal" lays them out as a row
-   * for the sidebar toolbar (search popover opens below, so it isn't clipped
-   * at the left screen edge).
+   * "vertical" (default) stacks the buttons (top-mode / right-edge usage);
+   * "horizontal" lays them out as a row for the sidebar toolbar. Search is
+   * always the last button and its popover expands to the right of it.
    */
   orientation?: "vertical" | "horizontal";
   /** Show the location-search button (+ its popover). Defaults to `true`. */
@@ -64,16 +63,6 @@ export function MapControls({
         horizontal ? "flex-row" : "flex-col"
       }`}
     >
-      {showSearch && (
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => setSearchOpen((v) => !v)}
-          title="Zoeken"
-        >
-          <Icon name="search" size={chromeIconSize()} color={chromeIconColor()} />
-        </Button>
-      )}
       {showZoom && (
         <>
           <Button
@@ -94,14 +83,28 @@ export function MapControls({
           </Button>
         </>
       )}
+      {/* Search is always the last (rightmost in horizontal / bottom in
+          vertical) button so its popover opens into open space to the right. */}
+      {showSearch && (
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => setSearchOpen((v) => !v)}
+          title="Zoeken"
+        >
+          <Icon name="search" size={chromeIconSize()} color={chromeIconColor()} />
+        </Button>
+      )}
 
-      {/* Location search popover — left of the card (vertical) or below it
-          (horizontal, where left would clip at the screen edge). */}
+      {/* Location search popover. Horizontal (top-left toolbar): expands to the
+          right of the search button, aligned with the row. Vertical (bottom-right
+          corner): opens to the left of the bottom-most search button, where there
+          is room away from the screen edge. */}
       {showSearch && searchOpen && (
         <form
           onSubmit={handleSearch}
           className={`absolute flex gap-1 rounded-lg bg-white/95 p-1.5 shadow-md backdrop-blur-sm ${
-            horizontal ? "left-0 top-full mt-2" : "right-full top-0 mr-2"
+            horizontal ? "left-full top-0 ml-2" : "right-full bottom-0 mr-2"
           }`}
         >
           <input
