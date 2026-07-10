@@ -4,6 +4,7 @@ import { useChartData } from "@/hooks/use-chart-data";
 import type { LayerConfig } from "@/layers/types";
 import { ChartCard } from "./ChartCard";
 import { StatCard } from "./StatCard";
+import { chromeIconSize } from "@/config/map-config";
 
 /**
  * "Analyse & statistieken" panel, docked on the right side of the map. Opened
@@ -16,10 +17,16 @@ export function ChartsPanel({
   config,
   version,
   onClose,
+  areaSelectActive,
+  onToggleAreaSelect,
 }: {
   config: LayerConfig;
   version: number;
   onClose: () => void;
+  /** Whether the "Gebied selecteren" box-select tool is currently armed. */
+  areaSelectActive: boolean;
+  /** Arm/disarm the box-select tool (drag a rectangle to filter statistics). */
+  onToggleAreaSelect: () => void;
 }) {
   const { charts, stats, loading } = useChartData(config, version);
 
@@ -36,15 +43,36 @@ export function ChartsPanel({
               <span className="font-semibold text-orange-500">{config.name}</span>
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="flex-shrink-0 cursor-pointer"
-            onClick={onClose}
-            title="Sluiten"
-          >
-            <Icon name="close" size={18} className="text-gray-500" />
-          </Button>
+          <div className="flex flex-shrink-0 items-center">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="cursor-pointer"
+              onClick={onToggleAreaSelect}
+              title={
+                areaSelectActive
+                  ? "Gebiedselectie uitschakelen"
+                  : "Gebied selecteren (sleep een rechthoek)"
+              }
+              aria-label="Gebied selecteren"
+              aria-pressed={areaSelectActive}
+            >
+              <Icon
+                name="select"
+                size={chromeIconSize()}
+                className={areaSelectActive ? "text-[#00498D]" : "text-gray-400"}
+              />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="cursor-pointer"
+              onClick={onClose}
+              title="Sluiten"
+            >
+              <Icon name="close" size={chromeIconSize()} className="text-gray-500" />
+            </Button>
+          </div>
         </div>
 
         {loading ? (

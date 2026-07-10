@@ -105,6 +105,27 @@ export interface MapConfig {
   mapControls: MapControlsConfig;
   /** Appearance of the on-click marker. Falls back to {@link DEFAULT_CLICK_MARKER}. */
   clickMarker: ClickMarkerConfig;
+  /**
+   * Pixel size of the UI-chrome toggle/header icons (legend collapse bar,
+   * sidebar section toggles, navigation panel, legend header). Defaults to
+   * {@link DEFAULT_CHROME_ICON_SIZE}. Read at runtime via {@link chromeIconSize}.
+   */
+  chromeIconSize: number;
+}
+
+/** Default pixel size of the UI-chrome toggle/header icons. */
+export const DEFAULT_CHROME_ICON_SIZE = 20;
+
+/**
+ * Module-level cache of the effective chrome icon size, set once by
+ * {@link loadMapConfig}. UI-chrome components that don't receive the MapConfig
+ * as a prop read it via {@link chromeIconSize}.
+ */
+let chromeIconSizeValue = DEFAULT_CHROME_ICON_SIZE;
+
+/** Current UI-chrome icon size (px), configurable via `map.json`'s `chromeIconSize`. */
+export function chromeIconSize(): number {
+  return chromeIconSizeValue;
 }
 
 /** Default map controls: both search and zoom visible. */
@@ -135,6 +156,7 @@ export const DEFAULT_MAP_CONFIG: MapConfig = {
   chartsPanel: true,
   mapControls: DEFAULT_MAP_CONTROLS,
   clickMarker: DEFAULT_CLICK_MARKER,
+  chromeIconSize: DEFAULT_CHROME_ICON_SIZE,
 };
 
 const MIN_LAT = -85.05112878;
@@ -309,6 +331,17 @@ export async function loadMapConfig(): Promise<MapConfig> {
   const mapControls = validateMapControls(data.mapControls);
   const clickMarker = validateClickMarker(data.clickMarker);
 
+  let chromeIcon = DEFAULT_CHROME_ICON_SIZE;
+  const ci = Number(data.chromeIconSize);
+  if (Number.isFinite(ci) && ci > 0) {
+    chromeIcon = ci;
+  } else if (data.chromeIconSize !== undefined) {
+    console.warn(
+      `map.json: invalid "chromeIconSize" ${JSON.stringify(data.chromeIconSize)}; using default`,
+    );
+  }
+  chromeIconSizeValue = chromeIcon;
+
   return {
     center: center ?? DEFAULT_MAP_CONFIG.center,
     zoom: zoom ?? DEFAULT_MAP_CONFIG.zoom,
@@ -322,6 +355,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     chartsPanel,
     mapControls,
     clickMarker,
+    chromeIconSize: chromeIcon,
   };
 }
 

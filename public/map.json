@@ -15,6 +15,7 @@
     "search": false,
     "zoom": false
   },
+  "chromeIconSize": 22,
   "clickMarker": {
     "icon": "location_on",
     "size": 30,

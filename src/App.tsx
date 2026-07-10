@@ -9,6 +9,7 @@ import { resolveMarkerPoint } from "@/lib/marker-snap";
 import {
   DEFAULT_CLICK_MARKER,
   DEFAULT_MAP_CONTROLS,
+  chromeIconSize,
   type ClickMarkerConfig,
   type MapControlsConfig,
 } from "@/config/map-config";
@@ -326,33 +327,8 @@ function App({
       onToggle: toggleNavMinimized,
     });
   }
-  if (chartsPanelEnabled) {
-    const hasChartLayer = Boolean(selectedChartLayerId);
-    // Restore toggle for the statistics panel — only appears while a chart is
-    // selected but minimized (closed via the panel's own close button). Clicking
-    // it reopens the last shown chart.
-    if (hasChartLayer && chartsMinimized) {
-      sectionToggles.push({
-        key: "charts",
-        icon: "monitoring",
-        title: "Statistieken tonen",
-        active: false,
-        onToggle: toggleChartsMinimized,
-      });
-    }
-    sectionToggles.push({
-      key: "area-select",
-      icon: "select",
-      title: !hasChartLayer
-        ? "Gebied selecteren — selecteer eerst een laag met statistieken"
-        : boxSelect.active
-          ? "Gebiedselectie uitschakelen"
-          : "Gebied selecteren (sleep een rechthoek)",
-      active: boxSelect.active,
-      disabled: !hasChartLayer,
-      onToggle: boxSelect.toggle,
-    });
-  }
+  // The statistics-panel restore button lives top-right (next to where the
+  // panel itself docks), not in this top-left toolbar — see the render below.
 
   // The chart layer went away while the tool was armed: turn it off so the box
   // doesn't linger invisibly in the filter behind a disabled button.
@@ -615,7 +591,26 @@ function App({
           config={chartLayerConfig}
           version={areaFilter.version + boxSelect.version}
           onClose={() => setChartsMinimized(true)}
+          areaSelectActive={boxSelect.active}
+          onToggleAreaSelect={boxSelect.toggle}
         />
+      )}
+
+      {/* Restore button for the minimized statistics panel — docked top-right
+          where the panel itself lives, so reopening happens in the same place
+          it was closed. */}
+      {chartsPanelEnabled && chartLayerConfig && chartsMinimized && (
+        <div className="absolute right-2 top-2 z-30 flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm sm:right-4 sm:top-4">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={toggleChartsMinimized}
+            title="Statistieken tonen"
+            aria-label="Statistieken tonen"
+          >
+            <Icon name="monitoring" size={chromeIconSize()} className="text-gray-400" />
+          </Button>
+        </div>
       )}
 
       {/* Legend + FeatureInfo — bottom left, side by side with icon-button gap.
@@ -635,7 +630,7 @@ function App({
               title="Kaartlagen tonen"
               aria-label="Kaartlagen tonen"
             >
-              <Icon name="layers" size={20} className="text-gray-400" />
+              <Icon name="legend_toggle" size={chromeIconSize()} className="text-gray-400" />
             </Button>
             <Button
               variant="ghost"
@@ -644,7 +639,7 @@ function App({
               title={`Achtergrondkaart: ${nextBasemap.label}`}
               aria-label="Achtergrondkaart wisselen"
             >
-              <Icon name="cached" size={20} className="text-gray-400" />
+              <Icon name="cached" size={chromeIconSize()} className="text-gray-400" />
             </Button>
           </div>
         ) : (
