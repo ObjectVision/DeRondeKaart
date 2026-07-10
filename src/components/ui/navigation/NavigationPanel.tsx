@@ -7,6 +7,7 @@ import { MapControls } from "@/components/ui/map-controls";
 import { loadNavigation, type NavLeaf, type NavNode } from "@/layers/navigation";
 import type { NavigationApi } from "@/hooks/use-navigation";
 import { withAlpha } from "@/lib/utils";
+import { chromeIconSize } from "@/config/map-config";
 
 interface SelectedLeaf {
   leaf: NavLeaf;
@@ -222,7 +223,7 @@ export function NavigationPanel({
               <NavIcon
                 name={activeNode.icon}
                 color={activeNode.color}
-                size={20}
+                size={chromeIconSize()}
                 className="text-orange-500"
               />
               <span className="text-sm font-semibold text-gray-900">{activeNode.label}</span>
