@@ -4,7 +4,7 @@ import { useChartData } from "@/hooks/use-chart-data";
 import type { LayerConfig } from "@/layers/types";
 import { ChartCard } from "./ChartCard";
 import { StatCard } from "./StatCard";
-import { chromeIconSize } from "@/config/map-config";
+import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 
 /**
  * "Analyse & statistieken" panel, docked on the right side of the map. Opened
@@ -60,7 +60,8 @@ export function ChartsPanel({
               <Icon
                 name="select"
                 size={chromeIconSize()}
-                className={areaSelectActive ? "text-[#00498D]" : "text-gray-400"}
+                color={areaSelectActive ? chromeIconColor() : undefined}
+                className={areaSelectActive ? undefined : "text-gray-400"}
               />
             </Button>
             <Button
@@ -70,7 +71,7 @@ export function ChartsPanel({
               onClick={onClose}
               title="Sluiten"
             >
-              <Icon name="close" size={chromeIconSize()} className="text-gray-500" />
+              <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
             </Button>
           </div>
         </div>

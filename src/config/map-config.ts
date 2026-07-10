@@ -111,6 +111,13 @@ export interface MapConfig {
    * {@link DEFAULT_CHROME_ICON_SIZE}. Read at runtime via {@link chromeIconSize}.
    */
   chromeIconSize: number;
+  /**
+   * CSS color of the UI-chrome button icons (map controls, plus the "active"
+   * brand state of the section-toggle / area-select buttons). Any CSS color
+   * string. Defaults to {@link DEFAULT_CHROME_ICON_COLOR}. Read at runtime via
+   * {@link chromeIconColor}.
+   */
+  chromeIconColor: string;
 }
 
 /** Default pixel size of the UI-chrome toggle/header icons. */
@@ -126,6 +133,20 @@ let chromeIconSizeValue = DEFAULT_CHROME_ICON_SIZE;
 /** Current UI-chrome icon size (px), configurable via `map.json`'s `chromeIconSize`. */
 export function chromeIconSize(): number {
   return chromeIconSizeValue;
+}
+
+/** Default CSS color of the UI-chrome button icons. */
+export const DEFAULT_CHROME_ICON_COLOR = "#3E74A7";
+
+/**
+ * Module-level cache of the effective chrome icon color, set once by
+ * {@link loadMapConfig}. UI-chrome components read it via {@link chromeIconColor}.
+ */
+let chromeIconColorValue = DEFAULT_CHROME_ICON_COLOR;
+
+/** Current UI-chrome icon color, configurable via `map.json`'s `chromeIconColor`. */
+export function chromeIconColor(): string {
+  return chromeIconColorValue;
 }
 
 /** Default map controls: both search and zoom visible. */
@@ -157,6 +178,7 @@ export const DEFAULT_MAP_CONFIG: MapConfig = {
   mapControls: DEFAULT_MAP_CONTROLS,
   clickMarker: DEFAULT_CLICK_MARKER,
   chromeIconSize: DEFAULT_CHROME_ICON_SIZE,
+  chromeIconColor: DEFAULT_CHROME_ICON_COLOR,
 };
 
 const MIN_LAT = -85.05112878;
@@ -342,6 +364,16 @@ export async function loadMapConfig(): Promise<MapConfig> {
   }
   chromeIconSizeValue = chromeIcon;
 
+  let chromeColor = DEFAULT_CHROME_ICON_COLOR;
+  if (typeof data.chromeIconColor === "string" && data.chromeIconColor.length > 0) {
+    chromeColor = data.chromeIconColor;
+  } else if (data.chromeIconColor !== undefined) {
+    console.warn(
+      `map.json: invalid "chromeIconColor" ${JSON.stringify(data.chromeIconColor)}; using default`,
+    );
+  }
+  chromeIconColorValue = chromeColor;
+
   return {
     center: center ?? DEFAULT_MAP_CONFIG.center,
     zoom: zoom ?? DEFAULT_MAP_CONFIG.zoom,
@@ -356,6 +388,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     mapControls,
     clickMarker,
     chromeIconSize: chromeIcon,
+    chromeIconColor: chromeColor,
   };
 }
 
