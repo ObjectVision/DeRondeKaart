@@ -10,6 +10,7 @@ import {
   DEFAULT_CLICK_MARKER,
   DEFAULT_MAP_CONTROLS,
   chromeIconSize,
+  chromeIconColor,
   type ClickMarkerConfig,
   type MapControlsConfig,
 } from "@/config/map-config";
@@ -608,7 +609,7 @@ function App({
             title="Statistieken tonen"
             aria-label="Statistieken tonen"
           >
-            <Icon name="monitoring" size={chromeIconSize()} className="text-gray-400" />
+            <Icon name="monitoring" size={chromeIconSize()} color={chromeIconColor()} />
           </Button>
         </div>
       )}
@@ -630,7 +631,7 @@ function App({
               title="Kaartlagen tonen"
               aria-label="Kaartlagen tonen"
             >
-              <Icon name="legend_toggle" size={chromeIconSize()} className="text-gray-400" />
+              <Icon name="legend_toggle" size={chromeIconSize()} color={chromeIconColor()} />
             </Button>
             <Button
               variant="ghost"
@@ -639,7 +640,7 @@ function App({
               title={`Achtergrondkaart: ${nextBasemap.label}`}
               aria-label="Achtergrondkaart wisselen"
             >
-              <Icon name="cached" size={chromeIconSize()} className="text-gray-400" />
+              <Icon name="cached" size={chromeIconSize()} color={chromeIconColor()} />
             </Button>
           </div>
         ) : (

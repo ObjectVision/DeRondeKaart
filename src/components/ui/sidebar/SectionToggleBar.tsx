@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
-import { chromeIconSize } from "@/config/map-config";
+import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 
 export interface SectionToggle {
   /** Stable key for React. */
@@ -52,13 +52,8 @@ export function SectionToggleBar({
           <Icon
             name={t.icon}
             size={chromeIconSize()}
-            className={
-              t.disabled
-                ? "text-gray-300"
-                : t.active
-                  ? "text-[#00498D]"
-                  : "text-gray-400"
-            }
+            color={t.disabled ? undefined : chromeIconColor()}
+            className={t.disabled ? "text-gray-300" : undefined}
           />
         </Button>
       ))}

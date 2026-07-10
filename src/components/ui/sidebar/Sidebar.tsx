@@ -8,7 +8,7 @@ import { NavigationSection } from "./NavigationSection";
 import { loadNavigation, type NavLeaf, type NavNode } from "@/layers/navigation";
 import type { NavigationApi } from "@/hooks/use-navigation";
 import type { AreaFilterState } from "@/hooks/use-area-filter";
-import { chromeIconSize } from "@/config/map-config";
+import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 
 interface SelectedLeaf {
   leaf: NavLeaf;
@@ -91,7 +91,7 @@ export function Sidebar({
                 aria-label="Navigatie verbergen"
                 className="absolute right-2 top-2 z-10 h-5 w-5"
               >
-                <Icon name="close" size={chromeIconSize()} className="text-gray-400" />
+                <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
               </Button>
             )}
             {filterVisible && <FilterSection areaFilter={areaFilter} />}

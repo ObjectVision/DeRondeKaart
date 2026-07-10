@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
+import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 
 interface MapControlsProps {
   onZoomIn: () => void;
@@ -70,7 +71,7 @@ export function MapControls({
           onClick={() => setSearchOpen((v) => !v)}
           title="Zoeken"
         >
-          <Icon name="search" size={18} className="text-[#00498D]" />
+          <Icon name="search" size={chromeIconSize()} color={chromeIconColor()} />
         </Button>
       )}
       {showZoom && (
@@ -81,7 +82,7 @@ export function MapControls({
             onClick={onZoomIn}
             title="Inzoomen"
           >
-            <Icon name="add" size={18} className="text-[#00498D]" />
+            <Icon name="add" size={chromeIconSize()} color={chromeIconColor()} />
           </Button>
           <Button
             variant="ghost"
@@ -89,7 +90,7 @@ export function MapControls({
             onClick={onZoomOut}
             title="Uitzoomen"
           >
-            <Icon name="remove" size={18} className="text-[#00498D]" />
+            <Icon name="remove" size={chromeIconSize()} color={chromeIconColor()} />
           </Button>
         </>
       )}
@@ -112,7 +113,7 @@ export function MapControls({
             autoFocus
           />
           <Button variant="ghost" size="icon-sm" type="submit" title="Zoeken">
-            <Icon name="send" size={18} className="text-gray-400" />
+            <Icon name="send" size={chromeIconSize()} className="text-gray-400" />
           </Button>
         </form>
       )}

@@ -12,10 +12,11 @@
   "filterSection": true,
   "navigationSection": true,
   "mapControls": {
-    "search": false,
+    "search": true,
     "zoom": false
   },
   "chromeIconSize": 22,
+  "chromeIconColor": "#3E74A7",
   "clickMarker": {
     "icon": "location_on",
     "size": 30,

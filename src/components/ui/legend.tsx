@@ -3,7 +3,7 @@ import type { GeoStylerRule } from "@/layers/types";
 import { isChartEligible } from "@/layers/charts";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
-import { chromeIconSize } from "@/config/map-config";
+import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 
 interface LegendProps {
   entriesA: LayerEntry[];
@@ -262,7 +262,7 @@ export function Legend({
             title={`Achtergrondkaart: ${nextBasemapLabel}`}
             aria-label="Achtergrondkaart wisselen"
           >
-            <Icon name="cached" size={chromeIconSize()} className="text-gray-400" />
+            <Icon name="cached" size={chromeIconSize()} color={chromeIconColor()} />
           </Button>
           {onClose && (
             <Button
@@ -272,7 +272,7 @@ export function Legend({
               title="Kaartlagen verbergen"
               aria-label="Kaartlagen verbergen"
             >
-              <Icon name="close" size={chromeIconSize()} className="text-gray-400" />
+              <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
             </Button>
           )}
         </div>
