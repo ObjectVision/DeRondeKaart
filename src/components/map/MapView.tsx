@@ -255,10 +255,17 @@ interface MapViewProps {
   onMouseUp?: (evt: MapLayerMouseEvent) => void;
   onLoad?: () => void;
   onLabelsReady?: (map: MapLibreMap) => void;
+  /**
+   * Keep the WebGL drawing buffer readable after rendering (small perf cost).
+   * Set by the export-preview map so PNG capture can read the canvas at idle
+   * — including deck.gl's interleaved draws — instead of racing a render
+   * event. Leave off for the main maps.
+   */
+  preserveDrawingBuffer?: boolean;
 }
 
 export const MapView = forwardRef<MapViewHandle, MapViewProps>(
-  function MapView({ layers, topLayers, basemapId, style, viewState, onMove, onClick, onMouseMove, onMouseDown, onMouseUp, onLoad, onLabelsReady }, ref) {
+  function MapView({ layers, topLayers, basemapId, style, viewState, onMove, onClick, onMouseMove, onMouseDown, onMouseUp, onLoad, onLabelsReady, preserveDrawingBuffer }, ref) {
     const mapRef = useRef<MapRef>(null);
     const overlayRef = useRef<MapboxOverlay | null>(null);
     const hoverRef = useRef<boolean>(false);
@@ -370,6 +377,10 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         mapStyle={basemap.base}
         dragRotate={false}
         pitchWithRotate={false}
+        // MapLibre 5 takes GL context flags via canvasContextAttributes.
+        canvasContextAttributes={
+          preserveDrawingBuffer ? { preserveDrawingBuffer: true } : undefined
+        }
         onLoad={handleLoad}
         onStyleData={handleStyleData}
         onMove={onMove}

@@ -41,11 +41,25 @@ export function captureMapCanvas(map: MapLibreMap): Promise<HTMLCanvasElement> {
 }
 
 /**
- * Capture the map at a target pixel resolution without changing its framing:
- * temporarily raise the canvas pixel ratio so the same CSS-pixel viewport
- * renders at `targetPx` device pixels (tiles/labels reload at the higher
- * density), capture once the map is idle, then restore. The result is exactly
- * `targetPx` wide (and, for a square container, square).
+ * Capture the map at a target pixel resolution without changing its framing.
+ *
+ * Strategy: temporarily enlarge the map's container to `targetPx /
+ * devicePixelRatio` CSS pixels and raise the zoom by log2(scale) — a bigger
+ * viewport at a compensated zoom shows the exact same extent, and the canvas
+ * ends up ~`targetPx` device pixels wide. This is a plain resize, the one
+ * path deck.gl's interleaved overlay fully supports.
+ *
+ * Deliberately NOT `map.setPixelRatio()`: that resizes MapLibre's framebuffer
+ * behind deck.gl's back — deck keeps rendering against the old device size
+ * (its size comes from the container × window.devicePixelRatio), so its
+ * layers (geoparquet/geoarrow) end up mis-viewported and vanish from the
+ * capture while native MapLibre layers survive.
+ *
+ * The enlarged container is visually contained by the preview's
+ * overflow-hidden circle wrapper + the "Bezig met exporteren" overlay.
+ * Requires `preserveDrawingBuffer: true` (the export preview map sets it):
+ * the canvas is read synchronously inside the `idle` handler — the moment
+ * every tile AND deck layer has finished drawing.
  */
 export async function captureMapAtResolution(
   map: MapLibreMap,
@@ -53,14 +67,47 @@ export async function captureMapAtResolution(
 ): Promise<HTMLCanvasElement> {
   const container = map.getContainer();
   const cssSize = Math.max(1, container.clientWidth);
-  const ratio = targetPx / cssSize;
+  const dpr = window.devicePixelRatio || 1;
+  const targetCss = targetPx / dpr;
+  const zoomDelta = Math.log2(targetCss / cssSize);
 
-  map.setPixelRatio(ratio);
+  const prev = {
+    width: container.style.width,
+    height: container.style.height,
+    zoom: map.getZoom(),
+    center: map.getCenter(),
+  };
+
+  container.style.width = `${targetCss}px`;
+  container.style.height = `${targetCss}px`;
+  map.resize();
+  map.jumpTo({ center: prev.center, zoom: prev.zoom + zoomDelta });
+
   try {
-    await new Promise<void>((resolve) => map.once("idle", () => resolve()));
-    return await captureMapCanvas(map);
+    return await new Promise<HTMLCanvasElement>((resolve, reject) => {
+      map.once("idle", () => {
+        try {
+          const src = map.getCanvas();
+          const copy = document.createElement("canvas");
+          copy.width = src.width;
+          copy.height = src.height;
+          const ctx = copy.getContext("2d");
+          if (!ctx) throw new Error("2D context unavailable");
+          // Synchronous read inside the idle handler (see module comment).
+          ctx.drawImage(src, 0, 0);
+          resolve(copy);
+        } catch (err) {
+          reject(err);
+        }
+      });
+      // Kick a repaint in case the map went idle before we subscribed.
+      map.triggerRepaint();
+    });
   } finally {
-    map.setPixelRatio(window.devicePixelRatio);
+    container.style.width = prev.width;
+    container.style.height = prev.height;
+    map.resize();
+    map.jumpTo({ center: prev.center, zoom: prev.zoom });
   }
 }
 

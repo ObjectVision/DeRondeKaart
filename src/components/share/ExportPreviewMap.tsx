@@ -61,11 +61,15 @@ export const ExportPreviewMap = forwardRef<
     if (didReplay.current) return;
     didReplay.current = true;
 
-    let cancelled = false;
+    // One-shot, deliberately NOT cancelled on cleanup: StrictMode runs
+    // cleanup+effect again immediately after mount, and a cancellation flag
+    // would abort this loop after its first await — only the first layer
+    // would ever replay. The ref guard already prevents a second loop; on a
+    // real unmount the remaining setState calls land on a dead instance,
+    // which React ignores.
     (async () => {
       const previewMapRef = () => mapHandle.current?.mapRef ?? { current: null };
       for (const entry of entries) {
-        if (cancelled) return;
         await layers.addLayer(entry.config, previewMapRef());
         if (hiddenIds.has(entry.config.id)) {
           layers.hideLayer(entry.config.id, previewMapRef());
@@ -75,9 +79,6 @@ export const ExportPreviewMap = forwardRef<
         }
       }
     })();
-    return () => {
-      cancelled = true;
-    };
     // Snapshot semantics: the preview mirrors the state at dialog-open time.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -118,6 +119,10 @@ export const ExportPreviewMap = forwardRef<
       viewState={viewState}
       onMove={handleMove}
       onLabelsReady={handleLabelsReady}
+      // PNG capture reads this map's canvas at idle — the buffer must survive
+      // past the frame (deck.gl's interleaved draws included). Preview-only;
+      // the main maps skip the flag's perf cost.
+      preserveDrawingBuffer
     />
   );
 });
