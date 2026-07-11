@@ -22,11 +22,14 @@ function LeafActionMenu({
   nav,
   infoOpen,
   onToggleInfo,
+  onAdded,
 }: {
   leaf: NavLeaf;
   nav: NavigationApi;
   infoOpen: boolean;
   onToggleInfo: () => void;
+  /** Called after the layer is ADDED to a map — closes the menu. */
+  onAdded: () => void;
 }) {
   const onA = nav.isOnMap(leaf.id, "a");
   const onB = nav.isOnMap(leaf.id, "b");
@@ -47,7 +50,10 @@ function LeafActionMenu({
       <Button
         variant="ghost"
         size="icon-sm"
-        onClick={() => nav.toggleOnMap(leaf.id, "a")}
+        onClick={() => {
+          nav.toggleOnMap(leaf.id, "a");
+          if (!onA) onAdded(); // adding (not removing) closes the menu
+        }}
         title={onA ? "Verwijder van linker kaart" : "Toon op linker kaart"}
         aria-label={onA ? "Verwijder van linker kaart" : "Toon op linker kaart"}
         aria-pressed={onA}
@@ -59,7 +65,10 @@ function LeafActionMenu({
         variant="ghost"
         size="icon-sm"
         disabled={rightDisabled}
-        onClick={() => nav.toggleOnMap(leaf.id, "b")}
+        onClick={() => {
+          nav.toggleOnMap(leaf.id, "b");
+          if (!onB) onAdded(); // adding (not removing) closes the menu
+        }}
         title={
           rightDisabled
             ? "Voeg eerst een laag toe aan de linker kaart"
@@ -221,6 +230,10 @@ export function Sidebar({
                         nav={nav}
                         infoOpen={infoOpen}
                         onToggleInfo={() => setInfoOpen((v) => !v)}
+                        onAdded={() => {
+                          setSelectedLeafId(null);
+                          setInfoOpen(false);
+                        }}
                       />
                     )}
                     leafDetail={(leaf) =>
