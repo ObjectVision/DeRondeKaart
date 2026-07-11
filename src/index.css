@@ -23,6 +23,39 @@ html, body {
   inset: 0;
 }
 
+/* Scrollbar styling for the app's rounded floating cards: a thin rounded
+   thumb on a transparent track, inset from the top/bottom so it never
+   squares off the card's rounded-2xl corners. */
+/* Standard scrollbar properties ONLY where ::-webkit-scrollbar styling is
+   unavailable (Firefox). Chromium supports both, but setting the standard
+   properties there makes it IGNORE every ::-webkit-scrollbar* rule below —
+   bringing back the native arrow buttons. */
+@supports not selector(::-webkit-scrollbar) {
+  .app-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent; /* thumb gray-300, track invisible */
+  }
+}
+.app-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.app-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 16px 0; /* keep the track clear of the rounded corners */
+}
+.app-scrollbar::-webkit-scrollbar-thumb {
+  background: #d1d5db; /* gray-300 */
+  border-radius: 9999px;
+}
+.app-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af; /* gray-400 */
+}
+.app-scrollbar::-webkit-scrollbar-button {
+  display: none; /* no up/down arrow buttons */
+  width: 0;
+  height: 0;
+}
+
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: 'Geist Variable', sans-serif;
