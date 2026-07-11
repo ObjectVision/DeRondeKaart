@@ -18,6 +18,7 @@ import { useFeaturePick } from "@/hooks/use-feature-pick";
 import { useHoverCursor } from "@/hooks/use-hover-cursor";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
 import { useEmbedData, type EmbedConfig } from "@/hooks/use-embed-data";
+import { useMapSnapshot } from "@/hooks/use-map-snapshot";
 import { useNavigation } from "@/hooks/use-navigation";
 import { useAreaFilter } from "@/hooks/use-area-filter";
 import { useBoxSelect } from "@/hooks/use-box-select";
@@ -37,6 +38,7 @@ import { StreetView } from "@/components/ui/street-view";
 import { InfoPopup } from "@/components/ui/info-popup";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 import { ChartsPanel } from "@/components/charts/ChartsPanel";
+import { ShareDialog } from "@/components/share/ShareDialog";
 //import { MapPills } from "@/components/ui/map-pills";
 
 function App({
@@ -49,6 +51,7 @@ function App({
   filterSectionEnabled = true,
   navigationSectionEnabled = true,
   chartsPanelEnabled = true,
+  shareEnabled = true,
   mapControls = DEFAULT_MAP_CONTROLS,
   clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
 }: {
@@ -61,6 +64,7 @@ function App({
   filterSectionEnabled?: boolean;
   navigationSectionEnabled?: boolean;
   chartsPanelEnabled?: boolean;
+  shareEnabled?: boolean;
   mapControls?: MapControlsConfig;
   clickMarker?: ClickMarkerConfig;
 }) {
@@ -305,6 +309,12 @@ function App({
     setChartsMinimized,
   ]);
 
+  // "Delen" (share/export) dialog. The circular preview mirrors the on-screen
+  // map side: B when the right map renders full-width on top (same rule as the
+  // legend's mapBOnTop); comparison mode previews map A — a circular still
+  // can't represent a slider comparison.
+  const [shareOpen, setShareOpen] = useState(false);
+
   const sidebarActive = sidebarMode && navigation;
   const filterAvailable = sidebarActive && filterSectionEnabled && areaFilter.entries.length > 0;
   const navAvailable = sidebarActive && navigationSectionEnabled;
@@ -377,6 +387,16 @@ function App({
   // Comparison requires layers on the left and a comparable layer on the right
   // (showMapRight, computed near the top with the B-side topLayer hooks).
   const comparisonMode = hasMapLeftLayers && showMapRight;
+
+  // While embedded (Power BI visual), keep pushing map snapshots to the parent
+  // so dashboard PDF export shows the map (the iframe itself exports blank).
+  useMapSnapshot({
+    mapLeftRef,
+    mapRightRef,
+    comparisonMode,
+    sliderPosition,
+    ready: mapLeftReady,
+  });
 
   // Once the right map's MapLibre style is loaded, replay any imperative MVT/COG
   // entries that addLayer attempted before the map existed. Idempotent.
@@ -461,6 +481,27 @@ function App({
     setStreetView(null);
     setPopupPoint(null);
   }, [pickAClear, pickBClear]);
+
+  // The share toolbutton, rendered as its own card so it matches the sibling
+  // toolbar cards. In sidebar mode it slots into the toolbar row (after the
+  // nav-restore toggle, before the map controls); otherwise it stands alone
+  // top-left.
+  const shareButton = shareEnabled ? (
+    <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        onClick={() => setShareOpen(true)}
+        title="Delen"
+        aria-label="Delen"
+      >
+        <Icon name="share" size={chromeIconSize()} color={chromeIconColor()} />
+      </Button>
+    </div>
+  ) : null;
+
+  // On-screen side shown in the share preview/PNG (see shareOpen comment).
+  const shareSide = !comparisonMode && showMapRight ? mapRightLayers : mapLeftLayers;
 
   const handleZoomIn = useCallback(() => {
     setViewState((prev) => ({ ...prev, zoom: prev.zoom + 1 }));
@@ -573,8 +614,11 @@ function App({
           toolbar={
             <>
               {/* Navigation-restore toggle sits left of the map controls, so
-                  reopening the navigation happens at the far-left of the row. */}
+                  reopening the navigation happens at the far-left of the row.
+                  The share card follows it; map controls (search rightmost)
+                  close the row. */}
               <SectionToggleBar orientation="horizontal" toggles={sectionToggles} />
+              {shareButton}
               <MapControls
                 orientation="horizontal"
                 onZoomIn={handleZoomIn}
@@ -584,6 +628,30 @@ function App({
               />
             </>
           }
+        />
+      )}
+
+      {/* Share button — standalone top-left when the sidebar toolbar isn't
+          there to host it. */}
+      {!sidebarActive && shareButton && (
+        <div className="absolute left-2 top-2 z-30 sm:left-4 sm:top-4">{shareButton}</div>
+      )}
+
+      {/* "Delen" dialog — share links/QR + circular PNG export. */}
+      {shareEnabled && (
+        <ShareDialog
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+          entries={shareSide.layerEntries}
+          hiddenIds={shareSide.hiddenIds}
+          hiddenRules={shareSide.hiddenRules}
+          entriesA={mapLeftLayers.layerEntries}
+          entriesB={mapRightLayers.layerEntries}
+          hiddenIdsA={mapLeftLayers.hiddenIds}
+          hiddenIdsB={mapRightLayers.hiddenIds}
+          basemapId={basemapId}
+          studyAreaId={studyAreaId}
+          viewState={viewState}
         />
       )}
 

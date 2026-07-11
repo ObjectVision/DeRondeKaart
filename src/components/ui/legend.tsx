@@ -1,9 +1,9 @@
 import type { LayerEntry } from "@/hooks/use-map-layers";
-import type { GeoStylerRule } from "@/layers/types";
 import { isChartEligible } from "@/layers/charts";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
+import { colorToCSS, ruleSwatchColor } from "@/lib/legend-style";
 
 interface LegendProps {
   entriesA: LayerEntry[];
@@ -37,26 +37,6 @@ interface LegendProps {
   onCycleBasemap: () => void;
   /** Collapse the Kaartlagen window (restored from the bottom-left bar). */
   onClose?: () => void;
-}
-
-function colorToCSS(
-  color?: [number, number, number] | [number, number, number, number],
-): string {
-  if (!color) return "rgb(0, 128, 255)";
-  const [r, g, b, a] = color;
-  return a !== undefined
-    ? `rgba(${r}, ${g}, ${b}, ${a / 255})`
-    : `rgb(${r}, ${g}, ${b})`;
-}
-
-/** Get the display color from the first symbolizer of a GeoStyler rule */
-function ruleSwatchColor(rule: GeoStylerRule): string {
-  const sym = rule.symbolizers[0];
-  if (!sym) return "rgb(0, 128, 255)";
-  if (sym.kind === "Fill") return sym.color ?? "#0080ff";
-  if (sym.kind === "Line") return sym.color ?? "#0080ff";
-  if (sym.kind === "Mark") return sym.color ?? "#0080ff";
-  return "#0080ff";
 }
 
 function LayerList({

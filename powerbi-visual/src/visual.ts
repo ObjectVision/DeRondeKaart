@@ -87,6 +87,7 @@ export class Visual implements IVisual {
     new VisualFormattingSettingsModel();
 
   private readonly iframe: HTMLIFrameElement;
+  private readonly snapshotImg: HTMLImageElement;
   private currentAppUrl = "";
   private mapReady = false;
 
@@ -108,7 +109,8 @@ export class Visual implements IVisual {
 
   private readonly onMessage = (event: MessageEvent): void => {
     if (event.source !== this.iframe.contentWindow) return;
-    if (event.data && typeof event.data === "object" && event.data.type === "map-ready") {
+    if (!event.data || typeof event.data !== "object") return;
+    if (event.data.type === "map-ready") {
       this.mapReady = true;
       // Fresh app instance: nothing is on the map yet.
       this.sentLayersLeft = [];
@@ -118,6 +120,14 @@ export class Visual implements IVisual {
       this.sentConfigKey = "";
       this.sentInitialViewKey = "";
       this.reconcile();
+    } else if (event.data.type === "map-snapshot") {
+      // Latest rendered frame from the app. Painted into our own DOM (under
+      // the iframe) so Power BI's PDF/PPT export — which rasterizes the
+      // cross-origin iframe blank — shows the map. See style/visual.less.
+      const dataUrl = event.data.dataUrl;
+      if (typeof dataUrl === "string" && dataUrl.startsWith("data:image/")) {
+        this.snapshotImg.src = dataUrl;
+      }
     }
   };
 
@@ -126,6 +136,12 @@ export class Visual implements IVisual {
   constructor(options: VisualConstructorOptions) {
     this.rootElement = options.element;
     this.rootElement.classList.add("northwake-map-visual");
+    // Snapshot image appended BEFORE the iframe so the live map covers it
+    // during interactive use (same stacking context, later sibling on top).
+    this.snapshotImg = document.createElement("img");
+    this.snapshotImg.className = "map-snapshot";
+    this.snapshotImg.alt = "";
+    this.rootElement.appendChild(this.snapshotImg);
     this.iframe = document.createElement("iframe");
     this.iframe.setAttribute("title", "Northwake kaart");
     this.rootElement.appendChild(this.iframe);
@@ -260,6 +276,10 @@ export class Visual implements IVisual {
       this.post({ type: "map-data-remove", id: DATA_LAYER_ID });
       this.sentDatasetPresent = false;
     }
+
+    // Ask for a fresh snapshot once the pushed state settles (the app also
+    // refreshes it on map idle; this covers config/data-only changes).
+    this.post({ type: "request-snapshot" });
   }
 
   /** Fit the view to the data bbox via the existing map-command view channel. */
