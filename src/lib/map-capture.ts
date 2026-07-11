@@ -1,4 +1,5 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
+import type { MapboxOverlay } from "@deck.gl/mapbox";
 import type { ExportLegendItem } from "@/lib/legend-style";
 
 /**
@@ -41,48 +42,54 @@ export function captureMapCanvas(map: MapLibreMap): Promise<HTMLCanvasElement> {
 }
 
 /**
- * Capture the map at a target pixel resolution without changing its framing.
+ * Sync luma.gl's cached drawing-buffer size with the canvas's actual size.
  *
- * Strategy: temporarily enlarge the map's container to `targetPx /
- * devicePixelRatio` CSS pixels and raise the zoom by log2(scale) — a bigger
- * viewport at a compensated zoom shows the exact same extent, and the canvas
- * ends up ~`targetPx` device pixels wide. This is a plain resize, the one
- * path deck.gl's interleaved overlay fully supports.
+ * deck.gl derives its GL viewport from `canvasContext.cssToDeviceRatio()` =
+ * cached drawingBufferWidth ÷ CSS width. luma only refreshes that cache from
+ * a ResizeObserver on the canvas's CSS size — `map.setPixelRatio()` resizes
+ * the buffer WITHOUT touching CSS size, so the cache goes stale and deck
+ * draws its layers into a fraction of the framebuffer (they effectively
+ * vanish from a hi-res capture while native MapLibre layers look fine).
+ * Reaches through the overlay's private deck instance; silently no-ops if
+ * the internals move.
+ */
+function syncDeckBufferSize(overlay: MapboxOverlay | null, map: MapLibreMap): void {
+  const canvasContext = (
+    overlay as unknown as {
+      _deck?: { device?: { canvasContext?: { drawingBufferWidth: number; drawingBufferHeight: number } } };
+    } | null
+  )?._deck?.device?.canvasContext;
+  if (!canvasContext) return;
+  const canvas = map.getCanvas();
+  canvasContext.drawingBufferWidth = canvas.width;
+  canvasContext.drawingBufferHeight = canvas.height;
+}
+
+/**
+ * Capture the map at a target pixel resolution without changing its framing:
+ * temporarily raise the canvas pixel ratio so the same CSS-pixel viewport
+ * renders at `targetPx` device pixels. Unlike a container-resize + zoom
+ * bump, the pixel ratio scales label/symbol rendering too, so text in the
+ * export keeps the same proportions the user sees in the preview.
  *
- * Deliberately NOT `map.setPixelRatio()`: that resizes MapLibre's framebuffer
- * behind deck.gl's back — deck keeps rendering against the old device size
- * (its size comes from the container × window.devicePixelRatio), so its
- * layers (geoparquet/geoarrow) end up mis-viewported and vanish from the
- * capture while native MapLibre layers survive.
+ * deck.gl must be told about the buffer change (see syncDeckBufferSize) —
+ * without the sync its layers mis-viewport and drop out of the capture.
  *
- * The enlarged container is visually contained by the preview's
- * overflow-hidden circle wrapper + the "Bezig met exporteren" overlay.
  * Requires `preserveDrawingBuffer: true` (the export preview map sets it):
  * the canvas is read synchronously inside the `idle` handler — the moment
  * every tile AND deck layer has finished drawing.
  */
 export async function captureMapAtResolution(
   map: MapLibreMap,
+  overlay: MapboxOverlay | null,
   targetPx: number,
 ): Promise<HTMLCanvasElement> {
   const container = map.getContainer();
   const cssSize = Math.max(1, container.clientWidth);
-  const dpr = window.devicePixelRatio || 1;
-  const targetCss = targetPx / dpr;
-  const zoomDelta = Math.log2(targetCss / cssSize);
+  const ratio = targetPx / cssSize;
 
-  const prev = {
-    width: container.style.width,
-    height: container.style.height,
-    zoom: map.getZoom(),
-    center: map.getCenter(),
-  };
-
-  container.style.width = `${targetCss}px`;
-  container.style.height = `${targetCss}px`;
-  map.resize();
-  map.jumpTo({ center: prev.center, zoom: prev.zoom + zoomDelta });
-
+  map.setPixelRatio(ratio);
+  syncDeckBufferSize(overlay, map);
   try {
     return await new Promise<HTMLCanvasElement>((resolve, reject) => {
       map.once("idle", () => {
@@ -104,10 +111,8 @@ export async function captureMapAtResolution(
       map.triggerRepaint();
     });
   } finally {
-    container.style.width = prev.width;
-    container.style.height = prev.height;
-    map.resize();
-    map.jumpTo({ center: prev.center, zoom: prev.zoom });
+    map.setPixelRatio(window.devicePixelRatio);
+    syncDeckBufferSize(overlay, map);
   }
 }
 
@@ -202,13 +207,17 @@ export async function composeCircularExport(
     }
   }
 
-  // Legend card — bottom-left corner whitespace.
+  // Legend card — anchored to the canvas's bottom-left corner, so its left
+  // edge lines up with the circle's leftmost point and its bottom edge with
+  // the circle's bottom point (the card floats over the corner whitespace).
   if (legend.length > 0) {
-    const rowFont = `400 ${36 * u}px ${EXPORT_FONT}`;
-    const headingFont = `600 ${36 * u}px ${EXPORT_FONT}`;
-    const swatch = 32 * u;
-    const rowH = 52 * u;
-    const swatchGap = 16 * u;
+    const fontSize = 18 * u;
+    const rowFont = `400 ${fontSize}px ${EXPORT_FONT}`;
+    const headingFont = `600 ${fontSize}px ${EXPORT_FONT}`;
+    const legendPad = 20 * u;
+    const swatch = 16 * u;
+    const rowH = 26 * u;
+    const swatchGap = 8 * u;
 
     let maxRowWidth = 0;
     for (const item of legend) {
@@ -217,27 +226,27 @@ export async function composeCircularExport(
         ctx.measureText(item.label).width + (item.heading ? 0 : swatch + swatchGap);
       maxRowWidth = Math.max(maxRowWidth, w);
     }
-    const cardW = Math.min(size * 0.45, maxRowWidth + pad * 2);
-    const cardH = legend.length * rowH + pad * 2 - (rowH - 36 * u);
-    const cardX = margin;
-    const cardY = size - margin - cardH;
+    const cardW = Math.min(size * 0.45, maxRowWidth + legendPad * 2);
+    const cardH = legend.length * rowH + legendPad * 2 - (rowH - fontSize);
+    const cardX = 0;
+    const cardY = size - cardH;
     drawCard(cardX, cardY, cardW, cardH);
 
     ctx.textBaseline = "middle";
-    let rowY = cardY + pad + (36 * u) / 2;
+    let rowY = cardY + legendPad + fontSize / 2;
     for (const item of legend) {
-      let textX = cardX + pad;
+      let textX = cardX + legendPad;
       if (!item.heading) {
         ctx.fillStyle = item.color || "#0080ff";
-        ctx.fillRect(cardX + pad, rowY - swatch / 2, swatch, swatch);
+        ctx.fillRect(cardX + legendPad, rowY - swatch / 2, swatch, swatch);
         ctx.strokeStyle = "#d1d5db"; // gray-300
-        ctx.lineWidth = 2 * u;
-        ctx.strokeRect(cardX + pad, rowY - swatch / 2, swatch, swatch);
+        ctx.lineWidth = 1 * u;
+        ctx.strokeRect(cardX + legendPad, rowY - swatch / 2, swatch, swatch);
         textX += swatch + swatchGap;
       }
       ctx.font = item.heading ? headingFont : rowFont;
       ctx.fillStyle = "#1f2937"; // gray-800
-      ctx.fillText(item.label, textX, rowY, cardW - pad * 2 - (item.heading ? 0 : swatch + swatchGap));
+      ctx.fillText(item.label, textX, rowY, cardW - legendPad * 2 - (item.heading ? 0 : swatch + swatchGap));
       rowY += rowH;
     }
   }

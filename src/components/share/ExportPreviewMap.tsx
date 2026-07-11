@@ -8,6 +8,7 @@ import {
 } from "react";
 import type { ViewStateChangeEvent } from "react-map-gl/maplibre";
 import type { Map as MapLibreMap } from "maplibre-gl";
+import type { MapboxOverlay } from "@deck.gl/mapbox";
 import { MapView } from "@/components/map/MapView";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers, type LayerEntry } from "@/hooks/use-map-layers";
@@ -16,6 +17,8 @@ import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
 export interface ExportPreviewHandle {
   /** The preview's raw MapLibre map (null until loaded). */
   getMap(): MapLibreMap | null;
+  /** The preview's deck.gl overlay — hi-res capture must sync its buffer size. */
+  getOverlay(): MapboxOverlay | null;
 }
 
 /**
@@ -49,7 +52,10 @@ export const ExportPreviewMap = forwardRef<
 
   useImperativeHandle(
     ref,
-    () => ({ getMap: () => mapHandle.current?.mapRef.current?.getMap() ?? null }),
+    () => ({
+      getMap: () => mapHandle.current?.mapRef.current?.getMap() ?? null,
+      getOverlay: () => mapHandle.current?.overlayRef.current ?? null,
+    }),
     [],
   );
 
