@@ -186,7 +186,8 @@ export function ShareDialog({
     if (!map || exporting) return;
     setExporting(true);
     try {
-      const mapCanvas = await captureMapAtResolution(map, EXPORT_SIZE);
+      const overlay = previewRef.current?.getOverlay() ?? null;
+      const mapCanvas = await captureMapAtResolution(map, overlay, EXPORT_SIZE);
       const composed = await composeCircularExport({
         mapCanvas,
         size: EXPORT_SIZE,
@@ -269,9 +270,11 @@ export function ShareDialog({
                 />
               </div>
 
-              {/* Mini legend — mirrors what the PNG composites bottom-left. */}
+              {/* Mini legend — mirrors the PNG: anchored to the square's
+                  bottom-left corner, flush with the circle's left/bottom
+                  tangent points. */}
               {legendItems.length > 0 && (
-                <div className="absolute bottom-6 left-2 z-10 max-w-[60%] rounded-lg bg-white/95 p-2 shadow-md backdrop-blur-sm">
+                <div className="absolute bottom-0 left-0 z-10 max-w-[60%] rounded-lg bg-white/95 p-2 shadow-md backdrop-blur-sm">
                   <ul className="flex flex-col gap-0.5">
                     {legendItems.map((item, i) => (
                       <li key={i} className="flex items-center gap-1.5">
