@@ -377,6 +377,9 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         mapStyle={basemap.base}
         dragRotate={false}
         pitchWithRotate={false}
+        // The default bottom-right attribution control is replaced by the
+        // app's own info button (MapAttribution in App.tsx).
+        attributionControl={false}
         // MapLibre 5 takes GL context flags via canvasContextAttributes.
         canvasContextAttributes={
           preserveDrawingBuffer ? { preserveDrawingBuffer: true } : undefined

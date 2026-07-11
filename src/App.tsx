@@ -33,6 +33,7 @@ import { SectionToggleBar, type SectionToggle } from "@/components/ui/sidebar/Se
 import { useSessionFlag } from "@/hooks/use-session-flag";
 import { useAutoCollapse } from "@/hooks/use-auto-collapse";
 import { MapControls } from "@/components/ui/map-controls";
+import { MapAttribution } from "@/components/ui/map-attribution";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
 import { InfoPopup } from "@/components/ui/info-popup";
@@ -588,19 +589,21 @@ function App({
         showControlsZoom={mapControls.zoom}
       />
 
-      {/* Standalone map controls (search + zoom) — bottom right, per the
-          mapcontrols spec. Rendered only when the navigation UI isn't already
-          showing the MapControls card, so the two flags stay independent. */}
-      {!navShowsControls && (mapControls.search || mapControls.zoom) && (
-        <div className="absolute bottom-2 right-2 z-30 sm:bottom-4 sm:right-4">
+      {/* Bottom-right stack: standalone map controls (search + zoom, only
+          when the navigation UI isn't already showing the MapControls card)
+          above the map-attribution info button, which replaces MapLibre's
+          default attribution control. */}
+      <div className="absolute bottom-2 right-2 z-30 flex flex-col items-end gap-2 sm:bottom-4 sm:right-4">
+        {!navShowsControls && (mapControls.search || mapControls.zoom) && (
           <MapControls
             onZoomIn={handleZoomIn}
             onZoomOut={handleZoomOut}
             showSearch={mapControls.search}
             showZoom={mapControls.zoom}
           />
-        </div>
-      )}
+        )}
+        <MapAttribution />
+      </div>
 
       {/* Sidebar mode: toolbar (search, zoom, section toggles) top left above
           the Filter + Navigatie sections */}
