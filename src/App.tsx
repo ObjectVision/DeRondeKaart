@@ -6,6 +6,7 @@ import { useMapLayers } from "@/hooks/use-map-layers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
 import { useClickMarkerLayers } from "@/hooks/use-click-marker-layer";
 import { resolveMarkerPoint } from "@/lib/marker-snap";
+import { viewForBbox } from "@/lib/fly-to";
 import {
   DEFAULT_CLICK_MARKER,
   DEFAULT_MAP_CONTROLS,
@@ -53,6 +54,7 @@ function App({
   navigationSectionEnabled = true,
   chartsPanelEnabled = true,
   shareEnabled = true,
+  filterFlyToEnabled = true,
   mapControls = DEFAULT_MAP_CONTROLS,
   clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
 }: {
@@ -66,6 +68,7 @@ function App({
   navigationSectionEnabled?: boolean;
   chartsPanelEnabled?: boolean;
   shareEnabled?: boolean;
+  filterFlyToEnabled?: boolean;
   mapControls?: MapControlsConfig;
   clickMarker?: ClickMarkerConfig;
 }) {
@@ -226,7 +229,7 @@ function App({
   // Gemeente/Wijk/Buurt area filter (sidebar). Selections live in a module
   // store read by the layer accessors; on change, re-clone both maps' deck
   // layers so the accessors re-evaluate.
-  const areaFilter = useAreaFilter();
+  const areaFilter = useAreaFilter({ flyTo: filterFlyToEnabled });
 
   // Minimize state for the whole navigation UI (Filter + Navigatie together,
   // persisted for the session). Collapsed via the close button inside the
@@ -357,8 +360,14 @@ function App({
   }, [areaFilter.version, refreshLeft, refreshRight]);
 
   const applyView = useCallback((view: ViewUpdate) => {
+    // A bbox resolves to center/zoom through the shared fly-to heuristic
+    // (same formula the filter fly-to uses); explicit center/zoom still win.
+    const framed = view.bbox ? viewForBbox(view.bbox) : null;
     setViewState((s) => ({
       ...s,
+      ...(framed
+        ? { longitude: framed.center[0], latitude: framed.center[1], zoom: framed.zoom }
+        : {}),
       ...(view.zoom !== undefined ? { zoom: view.zoom } : {}),
       ...(view.center ? { longitude: view.center[0], latitude: view.center[1] } : {}),
     }));

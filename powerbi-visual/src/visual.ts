@@ -282,22 +282,23 @@ export class Visual implements IVisual {
     this.post({ type: "request-snapshot" });
   }
 
-  /** Fit the view to the data bbox via the existing map-command view channel. */
+  /**
+   * Fit the view to the data bbox via the map-command view channel. The bbox
+   * is resolved to a center/zoom APP-side (viewForBbox in src/lib/fly-to.ts)
+   * — the one shared implementation, also used by the filter fly-to — so no
+   * zoom heuristic is duplicated here.
+   */
   private maybeZoomTo(features: Feature[]): void {
     const bbox = [Infinity, Infinity, -Infinity, -Infinity];
     for (const f of features) extendBbox((f.geometry as { coordinates?: unknown }).coordinates, bbox);
     if (!Number.isFinite(bbox[0]) || !Number.isFinite(bbox[2])) return;
 
-    const center: [number, number] = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2];
-    const extent = Math.max(bbox[2] - bbox[0], (bbox[3] - bbox[1]) * 2, 0.005);
-    const zoom = Math.max(5, Math.min(15, Math.floor(Math.log2(360 / extent))));
-
     // Only re-zoom when the data extent actually changed — a format-pane tweak
     // resends the dataset but should not yank the user's viewport.
-    const key = `${center[0].toFixed(4)},${center[1].toFixed(4)},${zoom}`;
+    const key = bbox.map((v) => v.toFixed(4)).join(",");
     if (key === this.lastZoomKey) return;
     this.lastZoomKey = key;
-    this.post({ type: "map-command", view: { center, zoom } });
+    this.post({ type: "map-command", view: { bbox } });
   }
 
   // ------------------------------------------------------------- data mapping

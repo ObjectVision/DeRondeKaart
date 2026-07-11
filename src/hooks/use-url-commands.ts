@@ -12,6 +12,12 @@ interface MapSide {
 export interface ViewUpdate {
   zoom?: number;
   center?: [number, number]; // [longitude, latitude]
+  /**
+   * Frame this extent instead of an explicit center/zoom ([minLng, minLat,
+   * maxLng, maxLat]); resolved via the shared viewForBbox heuristic. Sent by
+   * the Power BI visual for auto-zoom-to-data.
+   */
+  bbox?: [number, number, number, number];
 }
 
 interface UseUrlCommandsOptions {
@@ -184,7 +190,10 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView }: UseUrlCo
         commands?: LayerCommand[];
         view?: ViewUpdate;
       };
-      if (view && (view.zoom !== undefined || view.center !== undefined)) {
+      if (
+        view &&
+        (view.zoom !== undefined || view.center !== undefined || view.bbox !== undefined)
+      ) {
         applyView(view);
       }
       if (Array.isArray(commands)) {
