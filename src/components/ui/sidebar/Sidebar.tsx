@@ -170,7 +170,9 @@ export function Sidebar({
 
       <div className="flex min-h-0 flex-1 items-start">
         {sectionsVisible && (
-          <div className="pointer-events-auto relative flex max-h-full w-72 flex-col gap-4 overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
+          // Capped at half the viewport height — longer content (category
+          // trees, info panels) scrolls inside the card.
+          <div className="app-scrollbar pointer-events-auto relative flex max-h-[50vh] w-72 flex-col gap-4 overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
             {onClose && (
               <Button
                 variant="ghost"
