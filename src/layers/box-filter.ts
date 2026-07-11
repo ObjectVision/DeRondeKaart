@@ -104,6 +104,62 @@ function representativeCoord(value: unknown, depth: number): [number, number] | 
     : null;
 }
 
+/** Read one coordinate (any of the three arrow layouts) into the callback. */
+function readCoord(v: unknown, cb: (x: number, y: number) => void): void {
+  if (v === null || v === undefined) return;
+  const c = v as { get?: (i: number) => unknown; x?: unknown; y?: unknown };
+  let x: unknown;
+  let y: unknown;
+  if (typeof c.get === "function") {
+    x = c.get(0);
+    y = c.get(1);
+  } else if (ArrayBuffer.isView(v) || Array.isArray(v)) {
+    x = (v as unknown[])[0];
+    y = (v as unknown[])[1];
+  } else {
+    x = c.x;
+    y = c.y;
+  }
+  if (typeof x === "number" && typeof y === "number" && Number.isFinite(x) && Number.isFinite(y)) {
+    cb(x, y);
+  }
+}
+
+/** Walk every coordinate `depth` list levels below `value`. */
+function walkCoords(value: unknown, depth: number, cb: (x: number, y: number) => void): void {
+  if (value === null || value === undefined) return;
+  if (depth === 0) {
+    readCoord(value, cb);
+    return;
+  }
+  const list = value as { get?: (i: number) => unknown; length?: number };
+  const length = typeof list.length === "number" ? list.length : 0;
+  for (let i = 0; i < length; i++) {
+    const child = typeof list.get === "function" ? list.get(i) : (value as unknown[])[i];
+    walkCoords(child, depth - 1, cb);
+  }
+}
+
+/**
+ * Extend `into` ([minLng, minLat, maxLng, maxLat]) with EVERY coordinate of
+ * the row's geometry (used by the filter fly-to to frame selected areas).
+ * Returns whether any coordinate was read. Rows without a recognized
+ * geometry column contribute nothing.
+ */
+export function extendRowBbox(table: Table, index: number, into: BBox): boolean {
+  const geometry = resolveGeometry(table);
+  if (!geometry) return false;
+  let any = false;
+  walkCoords(geometry.col.get(index), geometry.depth, (x, y) => {
+    into[0] = Math.min(into[0], x);
+    into[1] = Math.min(into[1], y);
+    into[2] = Math.max(into[2], x);
+    into[3] = Math.max(into[3], y);
+    any = true;
+  });
+  return any;
+}
+
 /**
  * Whether the table row's representative point lies inside the active box.
  * No box or no recognized geometry column passes everything; a present but

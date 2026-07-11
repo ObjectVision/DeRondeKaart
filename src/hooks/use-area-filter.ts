@@ -5,6 +5,8 @@ import {
   setAreaFilterSelection,
   type AreaFilterEntry,
 } from "@/layers/area-filter";
+import { extendRowBbox, type BBox } from "@/layers/box-filter";
+import { flyToBbox } from "@/lib/fly-to";
 
 /** One selectable value in a filter dropdown. */
 export interface AreaFilterOption {
@@ -100,11 +102,49 @@ function optionMatchesAncestor(
 }
 
 /**
+ * Fly to the bbox of the FINEST level with a selection: walk that level's
+ * (cached) table, extend the bbox with the geometry of every selected row,
+ * and dispatch through the shared fly-to system. No selection → stay put.
+ */
+async function flyToSelection(
+  entries: AreaFilterEntry[],
+  selection: Map<string, Set<string>>,
+): Promise<void> {
+  for (let i = entries.length - 1; i >= 0; i--) {
+    const entry = entries[i];
+    const codes = selection.get(entry.key);
+    if (!codes || codes.size === 0) continue;
+
+    try {
+      // Cached by loadGeoParquetBatches — no refetch after the options load.
+      const table = await loadGeoParquetBatches(entry.source, () => {});
+      const codeCol = table.getChild(entry.key);
+      if (!codeCol) return;
+
+      const bbox: BBox = [Infinity, Infinity, -Infinity, -Infinity];
+      let any = false;
+      for (let row = 0; row < codeCol.length; row++) {
+        const raw = codeCol.get(row);
+        if (raw === null || raw === undefined || !codes.has(String(raw))) continue;
+        if (extendRowBbox(table, row, bbox)) any = true;
+      }
+      if (any) flyToBbox(bbox);
+    } catch (err) {
+      console.warn(`Filter fly-to failed for "${entry.name}":`, err);
+    }
+    return; // only the finest selected level counts
+  }
+}
+
+/**
  * React state for the Filter section: loads filter.json + the option tables,
  * cascades dropdown options coarse-to-fine, prunes orphaned selections, and
  * keeps the module-level area-filter store (read by rendering/picking) in sync.
+ * With `flyTo` enabled (map.json `filterFlyTo`), every selection change flies
+ * the maps to the selected areas.
  */
-export function useAreaFilter(): AreaFilterState {
+export function useAreaFilter(options?: { flyTo?: boolean }): AreaFilterState {
+  const flyToEnabled = options?.flyTo ?? true;
   const [entries, setEntries] = useState<AreaFilterEntry[]>([]);
   const [optionsByKey, setOptionsByKey] = useState<Map<string, AreaFilterOption[]>>(
     new Map(),
@@ -212,8 +252,9 @@ export function useAreaFilter(): AreaFilterState {
       }
 
       commit(next);
+      if (flyToEnabled) void flyToSelection(entries, next);
     },
-    [selections, entries, optionsByKey, commit],
+    [selections, entries, optionsByKey, commit, flyToEnabled],
   );
 
   const clearLevel = useCallback(

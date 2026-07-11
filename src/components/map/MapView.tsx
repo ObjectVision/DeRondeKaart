@@ -284,8 +284,8 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
 
     useEffect(() => {
       function onFlyTo(e: Event) {
-        const { latitude, longitude } = (e as CustomEvent).detail;
-        mapRef.current?.flyTo({ center: [longitude, latitude], zoom: 12 });
+        const { latitude, longitude, zoom } = (e as CustomEvent).detail;
+        mapRef.current?.flyTo({ center: [longitude, latitude], zoom: zoom ?? 12 });
       }
       window.addEventListener("map:flyto", onFlyTo);
       return () => window.removeEventListener("map:flyto", onFlyTo);
