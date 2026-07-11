@@ -211,13 +211,13 @@ export async function composeCircularExport(
   // edge lines up with the circle's leftmost point and its bottom edge with
   // the circle's bottom point (the card floats over the corner whitespace).
   if (legend.length > 0) {
-    const fontSize = 18 * u;
+    const fontSize = 36 * u;
     const rowFont = `400 ${fontSize}px ${EXPORT_FONT}`;
     const headingFont = `600 ${fontSize}px ${EXPORT_FONT}`;
-    const legendPad = 20 * u;
-    const swatch = 16 * u;
-    const rowH = 26 * u;
-    const swatchGap = 8 * u;
+    const legendPad = 40 * u;
+    const swatch = 32 * u;
+    const rowH = 52 * u;
+    const swatchGap = 16 * u;
 
     let maxRowWidth = 0;
     for (const item of legend) {
@@ -240,7 +240,7 @@ export async function composeCircularExport(
         ctx.fillStyle = item.color || "#0080ff";
         ctx.fillRect(cardX + legendPad, rowY - swatch / 2, swatch, swatch);
         ctx.strokeStyle = "#d1d5db"; // gray-300
-        ctx.lineWidth = 1 * u;
+        ctx.lineWidth = 2 * u;
         ctx.strokeRect(cardX + legendPad, rowY - swatch / 2, swatch, swatch);
         textX += swatch + swatchGap;
       }
