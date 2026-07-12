@@ -11,9 +11,10 @@ import type { AreaFilterState } from "@/hooks/use-area-filter";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 
 /**
- * Three-button menu shown to the right of a selected layer row: draw on the
- * left map, draw on the right map (only once the left map holds a layer),
- * and toggle the layer's meta info (rendered below the row via leafDetail).
+ * Three-button menu shown to the right of a selected or hovered layer row:
+ * draw on the left map, draw on the right map (only once the left map holds a
+ * layer), and toggle the layer's meta info (rendered below the row via
+ * leafDetail).
  * Replaces the old LeafDetail flyout in sidebar mode. All icons follow the
  * chrome icon color; only the disabled right-map button greys out.
  */
@@ -228,8 +229,17 @@ export function Sidebar({
                       <LeafActionMenu
                         leaf={leaf}
                         nav={nav}
-                        infoOpen={infoOpen}
-                        onToggleInfo={() => setInfoOpen((v) => !v)}
+                        infoOpen={infoOpen && leaf.id === selectedLeafId}
+                        onToggleInfo={() => {
+                          if (leaf.id === selectedLeafId) {
+                            setInfoOpen((v) => !v);
+                          } else {
+                            // Info on a hovered (unselected) row: select it so
+                            // its detail panel can render, and open the info.
+                            setSelectedLeafId(leaf.id);
+                            setInfoOpen(true);
+                          }
+                        }}
                         onAdded={() => {
                           setSelectedLeafId(null);
                           setInfoOpen(false);
