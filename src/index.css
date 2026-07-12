@@ -11,6 +11,12 @@ html, body {
   padding: 0;
   width: 100%;
   height: 100%;
+  /* The app is a fixed full-viewport map; the document must never scroll.
+     Without these, mobile browsers treat vertical map pans as page scroll:
+     rubber-band overscroll + address-bar collapse leave a black band where
+     the canvas hasn't resized yet. */
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 /* Fill the viewport directly rather than via a percentage-height cascade. A

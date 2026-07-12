@@ -525,7 +525,7 @@ function App({
     <div className="relative w-full h-full">
       {/* Left map — full width in single mode, clipped left in comparison */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 touch-none"
         style={
           comparisonMode
             ? { clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }
@@ -553,7 +553,7 @@ function App({
           comparison mode; otherwise renders full-width on top of the left map. */}
       {showMapRight && (
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 touch-none"
           style={
             comparisonMode
               ? { clipPath: `inset(0 0 0 ${sliderPosition}%)` }
