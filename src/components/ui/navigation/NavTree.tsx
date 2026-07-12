@@ -9,9 +9,10 @@ interface NavTreeProps {
   selectedLeafId?: string;
   onSelectLeaf: (leaf: NavLeaf, path: string[]) => void;
   /**
-   * Actions rendered to the RIGHT of the SELECTED leaf row (the sidebar's
-   * three-button menu). When omitted, selecting a leaf is the caller's
-   * business entirely (top mode opens LeafDetail instead).
+   * Actions rendered to the RIGHT of a leaf row (the sidebar's three-button
+   * menu) — always visible on the selected row, shown on hover for the rest.
+   * When omitted, selecting a leaf is the caller's business entirely (top
+   * mode opens LeafDetail instead).
    */
   leafActions?: (leaf: NavLeaf) => React.ReactNode;
   /** Panel rendered below the SELECTED leaf row (the sidebar's info panel). */
@@ -51,7 +52,7 @@ export function NavTree({
               leaf={item}
               selected={item.id === selectedLeafId}
               onSelect={() => onSelectLeaf(item, [item.label])}
-              actions={item.id === selectedLeafId ? leafActions?.(item) : undefined}
+              actions={leafActions?.(item)}
               detail={item.id === selectedLeafId ? leafDetail?.(item) : undefined}
               status={leafStatus?.(item)}
             />
@@ -140,7 +141,7 @@ function LeafRow({
   leaf: NavLeaf;
   selected: boolean;
   onSelect: () => void;
-  /** Inline menu shown to the right of the row while it is selected. */
+  /** Inline menu right of the row: always shown while selected, on hover otherwise. */
   actions?: React.ReactNode;
   /** Panel shown below the row while it is selected (info). */
   detail?: React.ReactNode;
@@ -151,7 +152,7 @@ function LeafRow({
     <li>
       <div
         className={
-          "flex w-full items-center gap-1 rounded pr-1 transition-colors hover:bg-gray-100 " +
+          "group flex w-full items-center gap-1 rounded pr-1 transition-colors hover:bg-gray-100 " +
           (selected ? "bg-blue-50" : "")
         }
       >
@@ -171,8 +172,15 @@ function LeafRow({
           />
           <span className="truncate">{leaf.label}</span>
         </button>
-        {status}
-        {selected && actions}
+        {/* The action menu's map buttons already reflect the on-map state, so
+            the status check is redundant (and would duplicate) while the menu
+            is visible on hover. */}
+        {status && (
+          <div className={actions ? "group-hover:hidden" : undefined}>{status}</div>
+        )}
+        {actions && (
+          <div className={selected ? "flex" : "hidden group-hover:flex"}>{actions}</div>
+        )}
       </div>
       {selected && detail}
     </li>
