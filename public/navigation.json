@@ -223,7 +223,7 @@
             "label": "Mooiland",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": true,
+            "expanded": false,
             "children": [
               {
                 "id": "corp_mooiland_bat_2026",
@@ -287,7 +287,7 @@
             "label": "Nester",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": true,
+            "expanded": false,
             "children": [
               {
                 "id": "corp_nester_bat_2026",
@@ -351,7 +351,7 @@
             "label": "Wonen Meerssen",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": true,
+            "expanded": false,
             "children": [
               {
                 "id": "corp_wonen_meerssen_bat_2026",
@@ -415,7 +415,7 @@
             "label": "Wonen Zuid",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": true,
+            "expanded": false,
             "children": [
               {
                 "id": "corp_wonen_zuid_bat_2026",
@@ -479,7 +479,7 @@
             "label": "Woonpunt",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": true,
+            "expanded": false,
             "children": [
               {
                 "id": "corp_woonpunt_bat_2026",
@@ -543,7 +543,7 @@
             "label": "ZoWonen",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": true,
+            "expanded": false,
             "children": [
               {
                 "id": "corp_zowonen_bat_2026",
