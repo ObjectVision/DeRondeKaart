@@ -82,7 +82,16 @@ def convert(input_path: Path, output_path: Path, log=print) -> None:
     """
     log(f"Reading  {input_path}")
     gdf = gpd.read_file(input_path)
-    log(f"  {len(gdf)} features, CRS={gdf.crs}, geometry types={sorted(gdf.geom_type.unique())}")
+
+    # Drop features with null/empty geometry: they can't be rendered by deck.gl,
+    # and their geom_type is NaN (a float) which breaks sorting/orientation below.
+    missing = gdf.geometry.isna() | gdf.geometry.is_empty
+    if missing.any():
+        log(f"  Dropping {int(missing.sum())} feature(s) with null/empty geometry")
+        gdf = gdf[~missing].copy()
+
+    geom_types = sorted(gdf.geom_type.dropna().unique())
+    log(f"  {len(gdf)} features, CRS={gdf.crs}, geometry types={geom_types}")
 
     # The app's deck.gl rendering expects WGS84 (EPSG:4326) coordinates.
     if gdf.crs is None:
