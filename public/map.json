@@ -1,5 +1,8 @@
 {
-  "center": [5.788017187520154, 51.09266041682005],
+  "center": [
+    5.788017187520154,
+    51.09266041682005
+  ],
   "zoom": 8,
   "studyarea": "studiegebied_limburg",
   "streetview": true,
@@ -8,11 +11,23 @@
   "navigationMode": "sidebar",
   "filterSection": true,
   "navigationSection": true,
+  "mapControls": {
+    "search": true,
+    "zoom": false
+  },
+  "chromeIconSize": 22,
+  "chromeIconColor": "#3E74A7",
+  "share": true,
   "clickMarker": {
-    "icon": "my_location",
+    "icon": "location_on",
     "size": 30,
-    "color": [62, 116, 167, 255],
+    "color": [
+      62,
+      116,
+      167,
+      255
+    ],
     "offsetX": 0,
-    "offsetY": 15
+    "offsetY": 0
   }
 }

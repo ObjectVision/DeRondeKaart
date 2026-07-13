@@ -71,6 +71,25 @@ export interface LayerStyle {
   stroked?: boolean;
 }
 
+/** How a chart/statistic value is displayed. */
+export type ChartValueFormat = "number" | "percent" | "currency";
+
+/** One "Kerncijfers" statistic card in the analytics panel. */
+export interface StatisticConfig {
+  /** Numeric field of the layer's attribute table. */
+  field: string;
+  /** Which statistic of the field to show. */
+  stat: "sum" | "count" | "mean" | "variance";
+  /** Card label, e.g. "Woningen". */
+  label: string;
+  /** Material Symbols icon name, e.g. "home". */
+  icon: string;
+  /** Icon color; defaults to the brand blue. */
+  color?: string;
+  /** Value display format; defaults to "number". */
+  format?: ChartValueFormat;
+}
+
 export interface FeatureInfoConfig {
   /** Inline HTML template string with [[ param ]] placeholders */
   template?: string;
@@ -98,10 +117,22 @@ export interface LayerConfig {
   excludeFromPicking?: boolean;
   /** If true, presence of this layer on BOTH maps suppresses comparison mode (slider hides, the right map is not rendered) */
   excludeFromComparison?: boolean;
+  /**
+   * Which z-order band the layer is inserted into, named by the anchor layer it
+   * sits below. One of the ANCHORS ids in MapView (`background-layers`,
+   * `map-layers`, `overlay-layers`, `foreground-layers`, `studyarea-layers`).
+   * Omitted → `map-layers` (below the basemap label/road/water overlay).
+   * `foreground-layers` puts the layer above that overlay.
+   */
+  beforeid?: string;
   /** COG only: the raster already contains its colors; geostyler rules are shown in the legend but NOT applied as a per-pixel color function. */
   embeddedColors?: boolean;
   /** "geojson" format only: the in-memory features to render. `source` is unused ("") for this format. */
   data?: FeatureCollection;
+  /** Ids of charts.json chart definitions shown in the analytics panel (max 4 used). */
+  charts?: string[];
+  /** Statistic cards ("Kerncijfers") shown in the analytics panel. */
+  statistics?: StatisticConfig[];
 }
 
 export interface LayersFile {

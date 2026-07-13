@@ -2,7 +2,7 @@
 
 import powerbi from "powerbi-visuals-api";
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
-import { parse as parseWkt } from "wellknown";
+import { parseWkbBase64 } from "./wkb";
 import type { Feature, Geometry, Position } from "geojson";
 
 import { VisualFormattingSettingsModel } from "./settings";
@@ -87,6 +87,7 @@ export class Visual implements IVisual {
     new VisualFormattingSettingsModel();
 
   private readonly iframe: HTMLIFrameElement;
+  private readonly snapshotImg: HTMLImageElement;
   private currentAppUrl = "";
   private mapReady = false;
 
@@ -108,7 +109,8 @@ export class Visual implements IVisual {
 
   private readonly onMessage = (event: MessageEvent): void => {
     if (event.source !== this.iframe.contentWindow) return;
-    if (event.data && typeof event.data === "object" && event.data.type === "map-ready") {
+    if (!event.data || typeof event.data !== "object") return;
+    if (event.data.type === "map-ready") {
       this.mapReady = true;
       // Fresh app instance: nothing is on the map yet.
       this.sentLayersLeft = [];
@@ -118,6 +120,14 @@ export class Visual implements IVisual {
       this.sentConfigKey = "";
       this.sentInitialViewKey = "";
       this.reconcile();
+    } else if (event.data.type === "map-snapshot") {
+      // Latest rendered frame from the app. Painted into our own DOM (under
+      // the iframe) so Power BI's PDF/PPT export — which rasterizes the
+      // cross-origin iframe blank — shows the map. See style/visual.less.
+      const dataUrl = event.data.dataUrl;
+      if (typeof dataUrl === "string" && dataUrl.startsWith("data:image/")) {
+        this.snapshotImg.src = dataUrl;
+      }
     }
   };
 
@@ -126,6 +136,12 @@ export class Visual implements IVisual {
   constructor(options: VisualConstructorOptions) {
     this.rootElement = options.element;
     this.rootElement.classList.add("northwake-map-visual");
+    // Snapshot image appended BEFORE the iframe so the live map covers it
+    // during interactive use (same stacking context, later sibling on top).
+    this.snapshotImg = document.createElement("img");
+    this.snapshotImg.className = "map-snapshot";
+    this.snapshotImg.alt = "";
+    this.rootElement.appendChild(this.snapshotImg);
     this.iframe = document.createElement("iframe");
     this.iframe.setAttribute("title", "Northwake kaart");
     this.rootElement.appendChild(this.iframe);
@@ -260,24 +276,29 @@ export class Visual implements IVisual {
       this.post({ type: "map-data-remove", id: DATA_LAYER_ID });
       this.sentDatasetPresent = false;
     }
+
+    // Ask for a fresh snapshot once the pushed state settles (the app also
+    // refreshes it on map idle; this covers config/data-only changes).
+    this.post({ type: "request-snapshot" });
   }
 
-  /** Fit the view to the data bbox via the existing map-command view channel. */
+  /**
+   * Fit the view to the data bbox via the map-command view channel. The bbox
+   * is resolved to a center/zoom APP-side (viewForBbox in src/lib/fly-to.ts)
+   * — the one shared implementation, also used by the filter fly-to — so no
+   * zoom heuristic is duplicated here.
+   */
   private maybeZoomTo(features: Feature[]): void {
     const bbox = [Infinity, Infinity, -Infinity, -Infinity];
     for (const f of features) extendBbox((f.geometry as { coordinates?: unknown }).coordinates, bbox);
     if (!Number.isFinite(bbox[0]) || !Number.isFinite(bbox[2])) return;
 
-    const center: [number, number] = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2];
-    const extent = Math.max(bbox[2] - bbox[0], (bbox[3] - bbox[1]) * 2, 0.005);
-    const zoom = Math.max(5, Math.min(15, Math.floor(Math.log2(360 / extent))));
-
     // Only re-zoom when the data extent actually changed — a format-pane tweak
     // resends the dataset but should not yank the user's viewport.
-    const key = `${center[0].toFixed(4)},${center[1].toFixed(4)},${zoom}`;
+    const key = bbox.map((v) => v.toFixed(4)).join(",");
     if (key === this.lastZoomKey) return;
     this.lastZoomKey = key;
-    this.post({ type: "map-command", view: { center, zoom } });
+    this.post({ type: "map-command", view: { bbox } });
   }
 
   // ------------------------------------------------------------- data mapping
@@ -301,19 +322,22 @@ export class Visual implements IVisual {
       if (roles.tooltips) tooltipIdxs.push(i);
     }
 
-    const useWkt = geomIdx !== -1;
-    if (!useWkt && (lngIdx === -1 || latIdx === -1)) return null;
+    const useGeom = geomIdx !== -1;
+    if (!useGeom && (lngIdx === -1 || latIdx === -1)) return null;
 
     // Diagnostic: reveal which geometry path is active and a sample of the raw
     // cell values/types, so skipped-row causes are visible instead of guessed.
     // eslint-disable-next-line no-console
+    const sampleGeom = table.rows[0]?.[geomIdx];
     console.log(
       "[nwviz] buildDataset",
-      { useWkt, geomIdx, lngIdx, latIdx, rows: table.rows.length },
-      "sampleRow0",
-      table.rows[0],
-      useWkt
-        ? { wkt: table.rows[0]?.[geomIdx], type: typeof table.rows[0]?.[geomIdx] }
+      { useGeom, geomIdx, lngIdx, latIdx, rows: table.rows.length },
+      useGeom
+        ? {
+            type: typeof sampleGeom,
+            length: typeof sampleGeom === "string" ? sampleGeom.length : undefined,
+            head: typeof sampleGeom === "string" ? sampleGeom.slice(0, 16) : sampleGeom,
+          }
         : {
             lngRaw: table.rows[0]?.[lngIdx],
             lngType: typeof table.rows[0]?.[lngIdx],
@@ -329,14 +353,10 @@ export class Visual implements IVisual {
     for (const row of table.rows) {
       let geometry: Geometry | null = null;
 
-      if (useWkt) {
-        const wkt = row[geomIdx];
-        if (typeof wkt === "string" && wkt.length > 0) {
-          try {
-            geometry = parseWkt(wkt) as Geometry | null;
-          } catch {
-            geometry = null;
-          }
+      if (useGeom) {
+        const cell = row[geomIdx];
+        if (typeof cell === "string" && cell.length > 0) {
+          geometry = parseWkbBase64(cell);
         }
       } else {
         const lng = Number(row[lngIdx]);

@@ -169,6 +169,18 @@
                     ]
                 }
             ]
+        },
+        {
+            "label": "3-30-300 vuistregel",
+            "icon": "nature_people",
+            "color": "#54B6C0",
+            "expanded": true,
+            "children": [
+                    { "id": "bomen-3-rule-2026", "icon": "forest", "color": "#54B6C0", "label": "3 bomen", "a": false, "b": false },
+                    { "id": "bomen-30-rule-2026", "icon": "forest", "color": "#54B6C0", "label": "30% bladerdek", "a": false, "b": false },
+                    { "id": "bomen-300-rule-2026", "icon": "forest", "color": "#54B6C0", "label": "binnen 300 meter lopen", "a": false, "b": false },
+                    { "id": "bomen-3-30-300-rule-2026", "icon": "forest", "color": "#54B6C0", "label": "3-30-300 vuistregels", "a": false, "b": false }
+            ]
         }
     ]
   },

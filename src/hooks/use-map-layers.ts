@@ -2,7 +2,7 @@ import { useRef, useState, useCallback } from "react";
 import type { Layer } from "@deck.gl/core";
 import type { MapRef } from "react-map-gl/maplibre";
 import { setColorFunction } from "@geomatico/maplibre-cog-protocol";
-import { bringLabelsToTop, bringStudyareaToTop, getFirstLabelId } from "@/components/map/MapView";
+import { anchorForConfig } from "@/components/map/MapView";
 import {
   loadParquetBatches,
   loadGeoParquetBatches,
@@ -51,29 +51,26 @@ export function useMapLayers() {
       return [...prev, { config, visible: true }];
     });
 
-    // Read once at dispatch time — the deck.gl `beforeId` is captured by each
-    // Layer at construction. If labels haven't loaded yet beforeId is undefined
-    // and the user layer goes on top; labels added afterwards naturally land
-    // above it, which is also correct.
-    const beforeId = (() => {
-      const map = mapRef.current?.getMap();
-      return map ? getFirstLabelId(map) : undefined;
-    });
+    // Constant anchor set at layer construction from the config's `beforeid`
+    // (defaults to "map-layers", below the overlay). deck.gl (interleaved)
+    // inserts each layer against this anchor once it exists, so there's no
+    // timing dependency on when the overlay/anchors finish loading.
+    const beforeId = anchorForConfig(config);
 
     try {
       if (config.format === "parquet") {
         await loadParquetBatches(config.source, (batchIndex, table) => {
-          const layers = createGeoArrowLayers(config, table, batchIndex, beforeId());
+          const layers = createGeoArrowLayers(config, table, batchIndex, beforeId);
           addDeckLayers(layers);
         });
       } else if (config.format === "geoparquet") {
         await loadGeoParquetBatches(config.source, (batchIndex, table) => {
-          const layers = createGeoArrowLayers(config, table, batchIndex, beforeId());
+          const layers = createGeoArrowLayers(config, table, batchIndex, beforeId);
           addDeckLayers(layers);
         });
       } else if (config.format === "geoarrow") {
         await loadArrowBatches(config.source, (batchIndex, table) => {
-          const layers = createGeoArrowLayers(config, table, batchIndex, beforeId());
+          const layers = createGeoArrowLayers(config, table, batchIndex, beforeId);
           addDeckLayers(layers);
         });
       } else if (config.format === "mvt") {
@@ -82,7 +79,7 @@ export function useMapLayers() {
         addCogLayer(config, mapRef);
       } else if (config.format === "geojson") {
         // In-memory features (config.data) — no fetch, build synchronously.
-        addDeckLayers(createGeoJsonLayers(config, beforeId()));
+        addDeckLayers(createGeoJsonLayers(config, beforeId));
       }
     } catch (err) {
       console.error(`Failed to load layer "${config.id}":`, err);
@@ -94,7 +91,7 @@ export function useMapLayers() {
     const map = mapRef.current?.getMap();
     if (!map) return;
 
-    const beforeId = getFirstLabelId(map);
+    const beforeId = anchorForConfig(config);
     const sourceId = `mvt-source-${config.id}`;
 
     if (!map.getSource(sourceId)) {
@@ -127,18 +124,18 @@ export function useMapLayers() {
         layerSpec.filter = def.filter;
       }
 
-      map.addLayer(layerSpec as any, beforeId);
+      // Native addLayer throws if beforeId names a missing layer — fall back to
+      // appending when the anchor isn't in the style yet (it will be once the
+      // overlay/anchors finish loading; imperative layers are re-synced then).
+      map.addLayer(layerSpec as any, map.getLayer(beforeId) ? beforeId : undefined);
     }
-
-    bringLabelsToTop(map);
-    bringStudyareaToTop(map);
   }
 
   function addCogLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
     const map = mapRef.current?.getMap();
     if (!map) return;
 
-    const beforeId = getFirstLabelId(map);
+    const beforeId = anchorForConfig(config);
     const sourceId = `cog-source-${config.id}`;
     const layerId = `cog-layer-${config.id}`;
 
@@ -169,12 +166,10 @@ export function useMapLayers() {
           type: "raster",
           paint: { "raster-opacity": config.style.opacity ?? 1 },
         },
-        beforeId,
+        // Append when the anchor isn't in the style yet (see addMvtLayer note).
+        map.getLayer(beforeId) ? beforeId : undefined,
       );
     }
-
-    bringLabelsToTop(map);
-    bringStudyareaToTop(map);
   }
 
   function removeLayer(layerId: string, mapRef: React.RefObject<MapRef | null>) {
@@ -357,26 +352,6 @@ export function useMapLayers() {
     [],
   );
 
-  /**
-   * Retroactively set the beforeId on every existing deck.gl layer to the
-   * first label id. Called once labels finish loading on a map. Without this,
-   * any deck.gl layer constructed before labels were loaded (e.g. the first
-   * layer added to the right map) has beforeId=undefined and deck.gl's resolveLayers
-   * permanently keeps it at the top of the style — above labels.
-   */
-  const applyLabelBeforeId = useCallback(
-    (mapRef: React.RefObject<MapRef | null>) => {
-      const map = mapRef.current?.getMap();
-      if (!map) return;
-      const beforeId = getFirstLabelId(map);
-      if (!beforeId) return;
-      setDeckLayers((prev) =>
-        prev.map((l) => l.clone({ beforeId } as Record<string, unknown>)),
-      );
-    },
-    [],
-  );
-
   return {
     layerEntries,
     deckLayers,
@@ -389,7 +364,6 @@ export function useMapLayers() {
     toggleRule,
     refreshAreaFilter,
     syncImperativeLayers,
-    applyLabelBeforeId,
   };
 }
 
