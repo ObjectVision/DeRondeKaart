@@ -248,6 +248,38 @@
                 "label": "Mutatiegraad",
                 "a": false,
                 "b": false
+              },
+              {
+                "id": "corp_mooiland_senioren_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Seniorenbeleid",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_mooiland_ouderen_met_indicatie_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Ouderen met indicatie",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_mooiland_aandachtsgroepen_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Aandachtsgroepenbeleid",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_mooiland_inpandige_gemsch_ruimte_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Gemeenschappelijke ruimte",
+                "a": false,
+                "b": false
               }
             ]
           },
@@ -278,6 +310,38 @@
                 "icon": "apartment",
                 "color": "#2D6CDF",
                 "label": "Mutatiegraad",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_nester_senioren_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Seniorenbeleid",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_nester_ouderen_met_indicatie_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Ouderen met indicatie",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_nester_aandachtsgroepen_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Aandachtsgroepenbeleid",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_nester_inpandige_gemsch_ruimte_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Gemeenschappelijke ruimte",
                 "a": false,
                 "b": false
               }
@@ -312,6 +376,38 @@
                 "label": "Mutatiegraad",
                 "a": false,
                 "b": false
+              },
+              {
+                "id": "corp_wonen_meerssen_senioren_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Seniorenbeleid",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_wonen_meerssen_ouderen_met_indicatie_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Ouderen met indicatie",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_wonen_meerssen_aandachtsgroepen_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Aandachtsgroepenbeleid",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_wonen_meerssen_inpandige_gemsch_ruimte_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Gemeenschappelijke ruimte",
+                "a": false,
+                "b": false
               }
             ]
           },
@@ -342,6 +438,38 @@
                 "icon": "apartment",
                 "color": "#2D6CDF",
                 "label": "Mutatiegraad",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_wonen_zuid_senioren_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Seniorenbeleid",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_wonen_zuid_ouderen_met_indicatie_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Ouderen met indicatie",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_wonen_zuid_aandachtsgroepen_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Aandachtsgroepenbeleid",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_wonen_zuid_inpandige_gemsch_ruimte_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Gemeenschappelijke ruimte",
                 "a": false,
                 "b": false
               }
@@ -376,6 +504,38 @@
                 "label": "Mutatiegraad",
                 "a": false,
                 "b": false
+              },
+              {
+                "id": "corp_woonpunt_senioren_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Seniorenbeleid",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_woonpunt_ouderen_met_indicatie_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Ouderen met indicatie",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_woonpunt_aandachtsgroepen_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Aandachtsgroepenbeleid",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_woonpunt_inpandige_gemsch_ruimte_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Gemeenschappelijke ruimte",
+                "a": false,
+                "b": false
               }
             ]
           },
@@ -406,6 +566,38 @@
                 "icon": "apartment",
                 "color": "#2D6CDF",
                 "label": "Mutatiegraad",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_zowonen_senioren_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Seniorenbeleid",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_zowonen_ouderen_met_indicatie_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Ouderen met indicatie",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_zowonen_aandachtsgroepen_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Aandachtsgroepenbeleid",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "corp_zowonen_inpandige_gemsch_ruimte_2026",
+                "icon": "apartment",
+                "color": "#2D6CDF",
+                "label": "Gemeenschappelijke ruimte",
                 "a": false,
                 "b": false
               }

@@ -2515,6 +2515,214 @@
       }
     },
     {
+      "id": "corp_mooiland_senioren_2026",
+      "name": "Mooiland Seniorenbeleid",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_mooiland_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Seniorenbeleid",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "senioren",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "senioren",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Seniorenbeleid: [[ senioren ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_mooiland_ouderen_met_indicatie_2026",
+      "name": "Mooiland Ouderen met indicatie",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_mooiland_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Ouderen met indicatie",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "ouderen_met_indicatie",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "ouderen_met_indicatie",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Ouderen met indicatie: [[ ouderen_met_indicatie ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_mooiland_aandachtsgroepen_2026",
+      "name": "Mooiland Aandachtsgroepenbeleid",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_mooiland_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Aandachtsgroepenbeleid",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "aandachtsgroepen",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "aandachtsgroepen",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandachtsgroepenbeleid: [[ aandachtsgroepen ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_mooiland_inpandige_gemsch_ruimte_2026",
+      "name": "Mooiland Gemeenschappelijke ruimte",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_mooiland_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Gemeenschappelijke ruimte",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "inpandige_gemsch_ruimte",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "inpandige_gemsch_ruimte",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Gemeenschappelijke ruimte: [[ inpandige_gemsch_ruimte ]]</b></div>"
+      }
+    },
+    {
       "id": "corp_nester_bat_2026",
       "name": "Nester BAT score",
       "source": "https://data.woonzorglimburg.nl/parquet/corp_nester_2026.parquet",
@@ -2887,6 +3095,214 @@
       },
       "featureinfo": {
         "template": "<div><b>Mutatiegraad: [[ mutatiegraad ]]%</b></div>"
+      }
+    },
+    {
+      "id": "corp_nester_senioren_2026",
+      "name": "Nester Seniorenbeleid",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_nester_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Seniorenbeleid",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "senioren",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "senioren",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Seniorenbeleid: [[ senioren ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_nester_ouderen_met_indicatie_2026",
+      "name": "Nester Ouderen met indicatie",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_nester_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Ouderen met indicatie",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "ouderen_met_indicatie",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "ouderen_met_indicatie",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Ouderen met indicatie: [[ ouderen_met_indicatie ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_nester_aandachtsgroepen_2026",
+      "name": "Nester Aandachtsgroepenbeleid",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_nester_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Aandachtsgroepenbeleid",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "aandachtsgroepen",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "aandachtsgroepen",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandachtsgroepenbeleid: [[ aandachtsgroepen ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_nester_inpandige_gemsch_ruimte_2026",
+      "name": "Nester Gemeenschappelijke ruimte",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_nester_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Gemeenschappelijke ruimte",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "inpandige_gemsch_ruimte",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "inpandige_gemsch_ruimte",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Gemeenschappelijke ruimte: [[ inpandige_gemsch_ruimte ]]</b></div>"
       }
     },
     {
@@ -3265,6 +3681,214 @@
       }
     },
     {
+      "id": "corp_wonen_meerssen_senioren_2026",
+      "name": "Wonen Meerssen Seniorenbeleid",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_wonen_meerssen_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Seniorenbeleid",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "senioren",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "senioren",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Seniorenbeleid: [[ senioren ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_wonen_meerssen_ouderen_met_indicatie_2026",
+      "name": "Wonen Meerssen Ouderen met indicatie",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_wonen_meerssen_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Ouderen met indicatie",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "ouderen_met_indicatie",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "ouderen_met_indicatie",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Ouderen met indicatie: [[ ouderen_met_indicatie ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_wonen_meerssen_aandachtsgroepen_2026",
+      "name": "Wonen Meerssen Aandachtsgroepenbeleid",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_wonen_meerssen_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Aandachtsgroepenbeleid",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "aandachtsgroepen",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "aandachtsgroepen",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandachtsgroepenbeleid: [[ aandachtsgroepen ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_wonen_meerssen_inpandige_gemsch_ruimte_2026",
+      "name": "Wonen Meerssen Gemeenschappelijke ruimte",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_wonen_meerssen_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Gemeenschappelijke ruimte",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "inpandige_gemsch_ruimte",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "inpandige_gemsch_ruimte",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Gemeenschappelijke ruimte: [[ inpandige_gemsch_ruimte ]]</b></div>"
+      }
+    },
+    {
       "id": "corp_wonen_zuid_bat_2026",
       "name": "Wonen Zuid BAT score",
       "source": "https://data.woonzorglimburg.nl/parquet/corp_wonen_zuid_2026.parquet",
@@ -3637,6 +4261,214 @@
       },
       "featureinfo": {
         "template": "<div><b>Mutatiegraad: [[ mutatiegraad ]]%</b></div>"
+      }
+    },
+    {
+      "id": "corp_wonen_zuid_senioren_2026",
+      "name": "Wonen Zuid Seniorenbeleid",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_wonen_zuid_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Seniorenbeleid",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "senioren",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "senioren",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Seniorenbeleid: [[ senioren ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_wonen_zuid_ouderen_met_indicatie_2026",
+      "name": "Wonen Zuid Ouderen met indicatie",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_wonen_zuid_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Ouderen met indicatie",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "ouderen_met_indicatie",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "ouderen_met_indicatie",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Ouderen met indicatie: [[ ouderen_met_indicatie ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_wonen_zuid_aandachtsgroepen_2026",
+      "name": "Wonen Zuid Aandachtsgroepenbeleid",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_wonen_zuid_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Aandachtsgroepenbeleid",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "aandachtsgroepen",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "aandachtsgroepen",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandachtsgroepenbeleid: [[ aandachtsgroepen ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_wonen_zuid_inpandige_gemsch_ruimte_2026",
+      "name": "Wonen Zuid Gemeenschappelijke ruimte",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_wonen_zuid_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Gemeenschappelijke ruimte",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "inpandige_gemsch_ruimte",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "inpandige_gemsch_ruimte",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Gemeenschappelijke ruimte: [[ inpandige_gemsch_ruimte ]]</b></div>"
       }
     },
     {
@@ -4015,6 +4847,214 @@
       }
     },
     {
+      "id": "corp_woonpunt_senioren_2026",
+      "name": "Woonpunt Seniorenbeleid",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_woonpunt_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Seniorenbeleid",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "senioren",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "senioren",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Seniorenbeleid: [[ senioren ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_woonpunt_ouderen_met_indicatie_2026",
+      "name": "Woonpunt Ouderen met indicatie",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_woonpunt_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Ouderen met indicatie",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "ouderen_met_indicatie",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "ouderen_met_indicatie",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Ouderen met indicatie: [[ ouderen_met_indicatie ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_woonpunt_aandachtsgroepen_2026",
+      "name": "Woonpunt Aandachtsgroepenbeleid",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_woonpunt_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Aandachtsgroepenbeleid",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "aandachtsgroepen",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "aandachtsgroepen",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandachtsgroepenbeleid: [[ aandachtsgroepen ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_woonpunt_inpandige_gemsch_ruimte_2026",
+      "name": "Woonpunt Gemeenschappelijke ruimte",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_woonpunt_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Gemeenschappelijke ruimte",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "inpandige_gemsch_ruimte",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "inpandige_gemsch_ruimte",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Gemeenschappelijke ruimte: [[ inpandige_gemsch_ruimte ]]</b></div>"
+      }
+    },
+    {
       "id": "corp_zowonen_bat_2026",
       "name": "ZoWonen BAT score",
       "source": "https://data.woonzorglimburg.nl/parquet/corp_zowonen_2026.parquet",
@@ -4387,6 +5427,214 @@
       },
       "featureinfo": {
         "template": "<div><b>Mutatiegraad: [[ mutatiegraad ]]%</b></div>"
+      }
+    },
+    {
+      "id": "corp_zowonen_senioren_2026",
+      "name": "ZoWonen Seniorenbeleid",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_zowonen_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Seniorenbeleid",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "senioren",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "senioren",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Seniorenbeleid: [[ senioren ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_zowonen_ouderen_met_indicatie_2026",
+      "name": "ZoWonen Ouderen met indicatie",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_zowonen_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Ouderen met indicatie",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "ouderen_met_indicatie",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "ouderen_met_indicatie",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Ouderen met indicatie: [[ ouderen_met_indicatie ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_zowonen_aandachtsgroepen_2026",
+      "name": "ZoWonen Aandachtsgroepenbeleid",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_zowonen_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Aandachtsgroepenbeleid",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "aandachtsgroepen",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "aandachtsgroepen",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandachtsgroepenbeleid: [[ aandachtsgroepen ]]</b></div>"
+      }
+    },
+    {
+      "id": "corp_zowonen_inpandige_gemsch_ruimte_2026",
+      "name": "ZoWonen Gemeenschappelijke ruimte",
+      "source": "https://data.woonzorglimburg.nl/parquet/corp_zowonen_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "Gemeenschappelijke ruimte",
+        "rules": [
+          {
+            "name": "Afwezig",
+            "filter": [
+              "==",
+              "inpandige_gemsch_ruimte",
+              false
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "Aanwezig",
+            "filter": [
+              "==",
+              "inpandige_gemsch_ruimte",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Gemeenschappelijke ruimte: [[ inpandige_gemsch_ruimte ]]</b></div>"
       }
     },
     {
