@@ -153,7 +153,7 @@ export function createGeoArrowLayers(
         data: table,
         pickable: true,
         getFillColor: withAreaFilter(toColor(style.color, [0, 128, 255, 100])),
-        getLineColor: withAreaFilter(toColor(style.color, [0, 128, 255, 200])),
+        getLineColor: withAreaFilter(toColor(style.lineColor ?? style.color, [0, 128, 255, 200])),
         getLineWidth: style.lineWidth ?? 1,
         lineWidthUnits: "pixels",
         filled: style.filled ?? true,

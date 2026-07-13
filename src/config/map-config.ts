@@ -37,6 +37,19 @@ export function resolveMarkerIconUrl(icon: string): string {
   return `https://fonts.gstatic.com/s/i/short-term/release/materialsymbolsoutlined/${icon}/default/24px.svg`;
 }
 
+/**
+ * Visibility of the individual map controls (search-tool and zoom +/-). These
+ * work independently of the `searchbar`/`navigation` UI flags: even with the
+ * navigation UI off, this card renders standalone (bottom-right) so an embedded
+ * map can offer just search and/or zoom.
+ */
+export interface MapControlsConfig {
+  /** Show the location-search tool. Defaults to `true`. */
+  search: boolean;
+  /** Show the zoom-in / zoom-out buttons. Defaults to `true`. */
+  zoom: boolean;
+}
+
 /** Server-editable initial-view configuration, loaded from `public/map.json`. */
 export interface MapConfig {
   /** Map center as [longitude, latitude]. */
@@ -82,9 +95,76 @@ export interface MapConfig {
    * Set to `false` to hide the Navigatie box (and its top-right toggle icon).
    */
   navigationSection: boolean;
+  /**
+   * Whether the analytics ("Analyse & statistieken") panel is available:
+   * clicking a chart-configured layer's name in the legend opens it. Defaults
+   * to `true`.
+   */
+  chartsPanel: boolean;
+  /**
+   * Whether the "Delen" (share/export) feature is available: the share
+   * toolbutton in the top-left toolbar and its dialog (social sharing, share
+   * URL/QR, circular PNG export). Defaults to `true`.
+   */
+  share: boolean;
+  /**
+   * Whether changing the area filter (Gemeente/Wijk/Buurt) flies the maps to
+   * the selected areas (centroid + fitting zoom). Defaults to `true`.
+   */
+  filterFlyTo: boolean;
+  /** Visibility of the search-tool / zoom controls. Both default to `true`. */
+  mapControls: MapControlsConfig;
   /** Appearance of the on-click marker. Falls back to {@link DEFAULT_CLICK_MARKER}. */
   clickMarker: ClickMarkerConfig;
+  /**
+   * Pixel size of the UI-chrome toggle/header icons (legend collapse bar,
+   * sidebar section toggles, navigation panel, legend header). Defaults to
+   * {@link DEFAULT_CHROME_ICON_SIZE}. Read at runtime via {@link chromeIconSize}.
+   */
+  chromeIconSize: number;
+  /**
+   * CSS color of the UI-chrome button icons (map controls, plus the "active"
+   * brand state of the section-toggle / area-select buttons). Any CSS color
+   * string. Defaults to {@link DEFAULT_CHROME_ICON_COLOR}. Read at runtime via
+   * {@link chromeIconColor}.
+   */
+  chromeIconColor: string;
 }
+
+/** Default pixel size of the UI-chrome toggle/header icons. */
+export const DEFAULT_CHROME_ICON_SIZE = 20;
+
+/**
+ * Module-level cache of the effective chrome icon size, set once by
+ * {@link loadMapConfig}. UI-chrome components that don't receive the MapConfig
+ * as a prop read it via {@link chromeIconSize}.
+ */
+let chromeIconSizeValue = DEFAULT_CHROME_ICON_SIZE;
+
+/** Current UI-chrome icon size (px), configurable via `map.json`'s `chromeIconSize`. */
+export function chromeIconSize(): number {
+  return chromeIconSizeValue;
+}
+
+/** Default CSS color of the UI-chrome button icons. */
+export const DEFAULT_CHROME_ICON_COLOR = "#3E74A7";
+
+/**
+ * Module-level cache of the effective chrome icon color, set once by
+ * {@link loadMapConfig}. UI-chrome components read it via {@link chromeIconColor}.
+ */
+let chromeIconColorValue = DEFAULT_CHROME_ICON_COLOR;
+
+/** Current UI-chrome icon color, configurable via `map.json`'s `chromeIconColor`. */
+export function chromeIconColor(): string {
+  return chromeIconColorValue;
+}
+
+/** Default map controls: both search and zoom visible. */
+export const DEFAULT_MAP_CONTROLS: MapControlsConfig = {
+  search: true,
+  zoom: true,
+};
 
 /** Default on-click marker: a purple pin at 40px, no offset. */
 export const DEFAULT_CLICK_MARKER: ClickMarkerConfig = {
@@ -105,7 +185,13 @@ export const DEFAULT_MAP_CONFIG: MapConfig = {
   navigationMode: "top",
   filterSection: true,
   navigationSection: true,
+  chartsPanel: true,
+  share: true,
+  filterFlyTo: true,
+  mapControls: DEFAULT_MAP_CONTROLS,
   clickMarker: DEFAULT_CLICK_MARKER,
+  chromeIconSize: DEFAULT_CHROME_ICON_SIZE,
+  chromeIconColor: DEFAULT_CHROME_ICON_COLOR,
 };
 
 const MIN_LAT = -85.05112878;
@@ -187,6 +273,34 @@ function validateClickMarker(value: unknown): ClickMarkerConfig {
 }
 
 /**
+ * Validate the optional `mapControls` block, falling back per-field to
+ * {@link DEFAULT_MAP_CONTROLS}. Never returns null — a missing/invalid block
+ * yields the default so the controls always render.
+ */
+function validateMapControls(value: unknown): MapControlsConfig {
+  if (value === undefined) return DEFAULT_MAP_CONTROLS;
+  if (typeof value !== "object" || value === null) {
+    console.warn(`map.json: invalid "mapControls" ${JSON.stringify(value)}; using default`);
+    return DEFAULT_MAP_CONTROLS;
+  }
+
+  const obj = value as Record<string, unknown>;
+
+  const validateFlag = (raw: unknown, key: string, fallback: boolean): boolean => {
+    if (typeof raw === "boolean") return raw;
+    if (raw !== undefined) {
+      console.warn(`map.json: invalid mapControls.${key} ${JSON.stringify(raw)}; using default`);
+    }
+    return fallback;
+  };
+
+  return {
+    search: validateFlag(obj.search, "search", DEFAULT_MAP_CONTROLS.search),
+    zoom: validateFlag(obj.zoom, "zoom", DEFAULT_MAP_CONTROLS.zoom),
+  };
+}
+
+/**
  * Load `public/map.json` and produce a MapConfig. Never throws: on a missing
  * file, network error, or invalid/partial fields, the offending value falls
  * back to {@link DEFAULT_MAP_CONFIG} so an embedded map always loads.
@@ -238,6 +352,9 @@ export async function loadMapConfig(): Promise<MapConfig> {
     "navigationSection",
     DEFAULT_MAP_CONFIG.navigationSection,
   );
+  const chartsPanel = validateBool(data.chartsPanel, "chartsPanel", DEFAULT_MAP_CONFIG.chartsPanel);
+  const share = validateBool(data.share, "share", DEFAULT_MAP_CONFIG.share);
+  const filterFlyTo = validateBool(data.filterFlyTo, "filterFlyTo", DEFAULT_MAP_CONFIG.filterFlyTo);
 
   let navigationMode = DEFAULT_MAP_CONFIG.navigationMode;
   if (data.navigationMode === "top" || data.navigationMode === "sidebar") {
@@ -248,7 +365,29 @@ export async function loadMapConfig(): Promise<MapConfig> {
     );
   }
 
+  const mapControls = validateMapControls(data.mapControls);
   const clickMarker = validateClickMarker(data.clickMarker);
+
+  let chromeIcon = DEFAULT_CHROME_ICON_SIZE;
+  const ci = Number(data.chromeIconSize);
+  if (Number.isFinite(ci) && ci > 0) {
+    chromeIcon = ci;
+  } else if (data.chromeIconSize !== undefined) {
+    console.warn(
+      `map.json: invalid "chromeIconSize" ${JSON.stringify(data.chromeIconSize)}; using default`,
+    );
+  }
+  chromeIconSizeValue = chromeIcon;
+
+  let chromeColor = DEFAULT_CHROME_ICON_COLOR;
+  if (typeof data.chromeIconColor === "string" && data.chromeIconColor.length > 0) {
+    chromeColor = data.chromeIconColor;
+  } else if (data.chromeIconColor !== undefined) {
+    console.warn(
+      `map.json: invalid "chromeIconColor" ${JSON.stringify(data.chromeIconColor)}; using default`,
+    );
+  }
+  chromeIconColorValue = chromeColor;
 
   return {
     center: center ?? DEFAULT_MAP_CONFIG.center,
@@ -260,7 +399,13 @@ export async function loadMapConfig(): Promise<MapConfig> {
     navigationMode,
     filterSection,
     navigationSection,
+    chartsPanel,
+    share,
+    filterFlyTo,
+    mapControls,
     clickMarker,
+    chromeIconSize: chromeIcon,
+    chromeIconColor: chromeColor,
   };
 }
 

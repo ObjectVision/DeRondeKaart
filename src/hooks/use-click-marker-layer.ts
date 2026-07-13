@@ -15,7 +15,7 @@ export interface ClickPoint {
 /**
  * Build the always-on-top "you clicked here" marker as a deck.gl IconLayer.
  * Returns `[]` when there is no marker. Loaded through the `topLayers` channel
- * (pinned above data + labels via `bringStudyareaToTop`), mirroring
+ * (no `beforeId`, so deck appends it above every anchor → topmost), mirroring
  * `useStudyAreaLayer`. Call once per map — Layer instances must not be shared
  * across two Deck overlays.
  *

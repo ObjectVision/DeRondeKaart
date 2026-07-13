@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
+import { LeafMeta } from "./LeafMeta";
 import type { NavLeaf } from "@/layers/navigation";
 import type { NavigationApi } from "@/hooks/use-navigation";
 
@@ -12,49 +12,7 @@ interface LeafDetailProps {
   onBack: () => void;
 }
 
-// Module-level cache of fetched meta HTML, keyed by path.
-const metaCache = new Map<string, string>();
-
 export function LeafDetail({ leaf, path, nav, onBack }: LeafDetailProps) {
-  const [html, setHtml] = useState<string | null>(
-    leaf.meta ? metaCache.get(leaf.meta) ?? null : null,
-  );
-  const [loading, setLoading] = useState<boolean>(Boolean(leaf.meta) && !html);
-  const reqId = useRef(0);
-
-  useEffect(() => {
-    if (!leaf.meta) {
-      setHtml(null);
-      setLoading(false);
-      return;
-    }
-    const cached = metaCache.get(leaf.meta);
-    if (cached !== undefined) {
-      setHtml(cached);
-      setLoading(false);
-      return;
-    }
-
-    const id = ++reqId.current;
-    setLoading(true);
-    fetch(leaf.meta)
-      .then((res) => (res.ok ? res.text() : Promise.reject(res.statusText)))
-      .then((text) => {
-        metaCache.set(leaf.meta!, text);
-        if (id === reqId.current) {
-          setHtml(text);
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.warn(`Failed to load meta for "${leaf.id}":`, err);
-        if (id === reqId.current) {
-          setHtml(null);
-          setLoading(false);
-        }
-      });
-  }, [leaf.meta, leaf.id]);
-
   const onA = nav.isOnMap(leaf.id, "a");
   const onB = nav.isOnMap(leaf.id, "b");
   // The right map can only be added to once the left map holds a layer. Adding is
@@ -79,16 +37,7 @@ export function LeafDetail({ leaf, path, nav, onBack }: LeafDetailProps) {
 
       {/* Description / meta */}
       <div className="text-sm leading-relaxed text-gray-600">
-        {loading ? (
-          <span className="text-gray-400">Laden…</span>
-        ) : html ? (
-          <div
-            className="prose-sm [&_a]:text-blue-600 [&_a]:underline"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
-        ) : (
-          "Geen informatie beschikbaar"
-        )}
+        <LeafMeta leaf={leaf} />
       </div>
 
       {/* Add to map */}

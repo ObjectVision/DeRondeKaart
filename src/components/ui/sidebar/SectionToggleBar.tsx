@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
+import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 
 export interface SectionToggle {
   /** Stable key for React. */
@@ -10,6 +11,8 @@ export interface SectionToggle {
   title: string;
   /** Whether the section is currently expanded (icon highlighted). */
   active: boolean;
+  /** Greyed out and not clickable (e.g. the section has nothing to show). */
+  disabled?: boolean;
   onToggle: () => void;
 }
 
@@ -19,11 +22,22 @@ export interface SectionToggle {
  * section's state: highlighted when open, muted when minimized. Renders nothing
  * when there are no toggles.
  */
-export function SectionToggleBar({ toggles }: { toggles: SectionToggle[] }) {
+export function SectionToggleBar({
+  toggles,
+  orientation = "vertical",
+}: {
+  toggles: SectionToggle[];
+  /** "vertical" (default) stacks the buttons; "horizontal" lays them out as a row. */
+  orientation?: "vertical" | "horizontal";
+}) {
   if (toggles.length === 0) return null;
 
   return (
-    <div className="flex flex-shrink-0 flex-col gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+    <div
+      className={`flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm ${
+        orientation === "horizontal" ? "flex-row" : "flex-col"
+      }`}
+    >
       {toggles.map((t) => (
         <Button
           key={t.key}
@@ -33,11 +47,13 @@ export function SectionToggleBar({ toggles }: { toggles: SectionToggle[] }) {
           title={t.title}
           aria-label={t.title}
           aria-pressed={t.active}
+          disabled={t.disabled}
         >
           <Icon
             name={t.icon}
-            size={20}
-            className={t.active ? "text-[#00498D]" : "text-gray-400"}
+            size={chromeIconSize()}
+            color={t.disabled ? undefined : chromeIconColor()}
+            className={t.disabled ? "text-gray-300" : undefined}
           />
         </Button>
       ))}

@@ -13,10 +13,15 @@ import type { LayerConfig } from "@/layers";
 
 /**
  * Load the configured "study area" layer as a set of deck.gl layers that are
- * always active and meant to be pinned on top of everything (the caller enforces
- * z-order via `bringStudyareaToTop`). The layers are made non-pickable so the
- * always-on-top layer never swallows clicks intended for the data layers beneath
- * it (matches the layer's `excludeFromPicking` flag).
+ * always active and pinned on top. They carry no `beforeId`, so deck appends
+ * them above every anchor — the topmost band. (They deliberately do NOT target
+ * the `studyarea-layers` anchor: deck's interleaved insert passes `beforeId`
+ * straight to `map.addLayer`, which throws if that anchor isn't present yet, and
+ * the study area can reach deck before the anchors are injected. `undefined`
+ * never throws. The `studyarea-layers` anchor still exists so other layers can
+ * target that band via `beforeid`.)
+ * The layers are made non-pickable so the always-on-top layer never swallows
+ * clicks intended for the data layers beneath it (matches `excludeFromPicking`).
  *
  * Loaded through its own channel (not `useMapLayers`) so it stays out of the
  * legend, feature-picking, and comparison logic. Returns `[]` until loaded, or
@@ -35,7 +40,7 @@ export function useStudyAreaLayer(studyAreaId: string | undefined): Layer[] {
     const acc: Layer[] = [];
 
     function addBatch(config: LayerConfig, batchIndex: number, table: Table) {
-      // beforeId omitted — order is enforced via bringStudyareaToTop, not beforeId.
+      // beforeId omitted → deck appends above every anchor (topmost, never throws).
       const built = createGeoArrowLayers(config, table, batchIndex).map((l) =>
         l.clone({ pickable: false }),
       );

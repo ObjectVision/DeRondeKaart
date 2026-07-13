@@ -1,9 +1,9 @@
 # Northwake Kaart — Power BI custom visual
 
 A thin Power BI custom visual that embeds the northwake map application in an
-iframe and drives it via postMessage. Power BI data (points via lng/lat, lines
-and polygons via WKT) renders as a dynamic layer on the **left map**; predefined
-layers from the app's `layers.json` can be added by id to either map.
+iframe and drives it via postMessage. Power BI data (points via lng/lat, or any
+geometry via base64-encoded WKB) renders as a dynamic layer on the **left map**;
+predefined layers from the app's `layers.json` can be added by id to either map.
 
 ## Architecture
 
@@ -15,8 +15,9 @@ Power BI ──update()──► visual.ts ──postMessage──► iframe (ho
                           ◄── { type: "map-ready", v: 1 }              ← handshake, app is booted
 ```
 
-- The visual converts DataView rows to **GeoJSON** before posting (WKT is parsed
-  with `wellknown` inside the visual), so the app protocol stays format-agnostic.
+- The visual converts DataView rows to **GeoJSON** before posting (base64 WKB is
+  decoded by `src/wkb.ts` inside the visual), so the app protocol stays
+  format-agnostic.
 - The app renders the dataset with the in-memory `"geojson"` layer format
   (`src/hooks/use-embed-data.ts` + `createGeoJsonLayers`), participating in the
   app legend like any other layer.
@@ -28,11 +29,19 @@ Power BI ──update()──► visual.ts ──postMessage──► iframe (ho
 | Well | Purpose |
 |---|---|
 | **Lengtegraad (X)** / **Breedtegraad (Y)** | WGS84 coordinates → point features |
-| **Geometrie (WKT)** | WKT column (`POINT`/`LINESTRING`/`POLYGON`, incl. `MULTI*`) → takes precedence over lng/lat |
+| **Geometrie (WKB)** | Base64-encoded WKB column (`Point`/`LineString`/`Polygon`, incl. `Multi*`, ISO Z/M and EWKB accepted, coordinates must be WGS84) → takes precedence over lng/lat |
 | **Knopinfo** | Extra columns carried along as feature properties |
 
-Rows without valid geometry are skipped (count logged to the console). Data is
-capped at 30 000 rows (`dataReductionAlgorithm.top`).
+Geoparquet geometry columns are WKB binary; convert them to base64 text in
+Power Query when loading, e.g.:
+
+```powerquery
+Table.TransformColumns(Source, {{"geometry", Binary.ToText, type text}})
+```
+
+(`Binary.ToText` defaults to base64.) Rows without valid geometry are skipped
+(count logged to the console). Data is capped at 30 000 rows
+(`dataReductionAlgorithm.top`).
 
 ## Format pane (Visual opmaken)
 

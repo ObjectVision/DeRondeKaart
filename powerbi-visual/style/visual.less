@@ -14,4 +14,16 @@
     border: 0;
     display: block;
   }
+
+  // Latest map snapshot (posted by the app via `map-snapshot`). Sits UNDER
+  // the iframe: invisible during interactive use, but Power BI's PDF/PPT
+  // export rasterizes the cross-origin iframe blank, revealing this image.
+  img.map-snapshot {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
 }
