@@ -9,6 +9,7 @@ import {
 import type { LayerConfig, GeoStylerStyle, GeoStylerRule } from "./types";
 import { arrowRowMatchesAreaFilter, getAreaFilterVersion } from "./area-filter";
 import {
+  evaluateFilter,
   getFillColorFromRule,
   getOutlineColorFromRule,
   getOutlineWidthFromRule,
@@ -17,7 +18,6 @@ import {
   getMarkColorFromRule,
   getMarkRadiusFromRule,
   getOpacityFromStyle,
-  matchRule,
 } from "./geostyler";
 
 function toColor(
@@ -34,10 +34,16 @@ function toColor(
  */
 const TRANSPARENT: Color = [0, 0, 0, 0];
 
+/** Arrow record batch shape seen by GeoArrow layer accessors. */
+type ArrowBatch = {
+  numRows: number;
+  getChild: (name: string) => { get: (i: number) => unknown } | null;
+};
+
 /** deck.gl accessor info shape for GeoArrow layers (binary data + row index). */
 type ArrowAccessorInfo = {
   index: number;
-  data: { data: { getChild: (name: string) => { get: (i: number) => unknown } | null } };
+  data: { data: ArrowBatch };
 };
 
 /** Collect the field names referenced across all rule filters, once. */
@@ -49,15 +55,45 @@ function collectFilterFields(style: GeoStylerStyle): string[] {
   return Array.from(filterFields);
 }
 
-/** Read the filter-referenced properties of one row out of the arrow batch. */
-function readRowProps(info: ArrowAccessorInfo, fields: string[]): Record<string, unknown> {
-  const batch = info.data.data;
-  const props: Record<string, unknown> = {};
-  for (const field of fields) {
-    const col = batch.getChild(field);
-    if (col) props[field] = col.get(info.index);
+/**
+ * Per-record-batch memo of the winning rule index per row (-1 = no rule
+ * matches). Computed in a single pass with the column handles hoisted out of
+ * the row loop, so styling costs O(rows × rules) once per batch — instead of
+ * every rule layer's accessor re-walking every rule per row (O(rows × rules²)
+ * plus a hex parse per call). Keyed weakly on the batch so the cache is shared
+ * across rule layers, both maps, and area-filter re-evaluations.
+ */
+const ruleIndexCache = new WeakMap<object, globalThis.Map<GeoStylerStyle, Int32Array>>();
+
+function ruleIndexColumn(batch: ArrowBatch, style: GeoStylerStyle): Int32Array {
+  let byStyle = ruleIndexCache.get(batch);
+  if (!byStyle) {
+    byStyle = new globalThis.Map();
+    ruleIndexCache.set(batch, byStyle);
   }
-  return props;
+  const cached = byStyle.get(style);
+  if (cached) return cached;
+
+  const fields = collectFilterFields(style);
+  const cols = fields.map((f) => batch.getChild(f));
+  const rules = style.rules;
+  const props: Record<string, unknown> = {};
+  const out = new Int32Array(batch.numRows).fill(-1);
+  for (let i = 0; i < batch.numRows; i++) {
+    for (let f = 0; f < fields.length; f++) {
+      const col = cols[f];
+      if (col) props[fields[f]] = col.get(i);
+    }
+    for (let r = 0; r < rules.length; r++) {
+      const rule = rules[r];
+      if (!rule.filter || evaluateFilter(rule.filter, props)) {
+        out[i] = r;
+        break;
+      }
+    }
+  }
+  byStyle.set(style, out);
+  return out;
 }
 
 function buildArrowRuleColorAccessor(
@@ -65,13 +101,14 @@ function buildArrowRuleColorAccessor(
   rule: GeoStylerRule,
   extractor: (rule: GeoStylerRule) => Color,
 ) {
-  const fields = collectFilterFields(style);
+  // The color is invariant within a rule layer — resolve it (symbolizer find +
+  // hex parse) once here. The accessor only answers "does this row's winning
+  // rule equal this layer's rule?" via the precomputed index column.
+  const ruleIndex = style.rules.indexOf(rule);
+  const color = extractor(rule);
 
-  return (info: ArrowAccessorInfo) => {
-    const matched = matchRule(style, readRowProps(info, fields));
-    if (!matched || matched.name !== rule.name) return TRANSPARENT;
-    return extractor(matched);
-  };
+  return (info: ArrowAccessorInfo) =>
+    ruleIndexColumn(info.data.data, style)[info.index] === ruleIndex ? color : TRANSPARENT;
 }
 
 /**
@@ -102,14 +139,18 @@ function extractFilterFields(filter: unknown[]): string[] {
 /**
  * Create deck.gl layers for a GeoArrow/Parquet source.
  * Returns one layer per GeoStyler rule (child layers), or a single layer if no geostyler.
+ *
+ * Layer ids are stable across progressive batch emissions (the loaders emit
+ * cumulative tables), so each emission REPLACES the previous layer via deck's
+ * id-matched diff instead of stacking a new copy on top — one live layer set
+ * per config, not one per batch.
  */
 export function createGeoArrowLayers(
   config: LayerConfig,
   table: Table,
-  batchIndex: number,
   beforeId?: string,
 ): Layer[] {
-  const baseId = `${config.id}-batch-${batchIndex}`;
+  const baseId = config.id;
   const { style, geostyler } = config;
   const geometryType = config.geometryType ?? detectGeometryType(table);
 

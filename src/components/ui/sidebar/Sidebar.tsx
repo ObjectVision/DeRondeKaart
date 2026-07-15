@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { NavIcon, Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
 import { NavTree } from "@/components/ui/navigation/NavTree";
@@ -108,7 +108,7 @@ function LeafActionMenu({
  * card, with a back header); clicking a layer expands the inline
  * LeafActionMenu below its row.
  */
-export function Sidebar({
+export const Sidebar = memo(function Sidebar({
   nav,
   areaFilter,
   showFilter = true,
@@ -295,4 +295,4 @@ export function Sidebar({
       </div>
     </div>
   );
-}
+});

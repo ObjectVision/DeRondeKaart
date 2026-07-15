@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
 import type { LayerEntry } from "./use-map-layers";
@@ -22,18 +22,22 @@ export function useHoverCursor(
   mapViewRef: React.RefObject<MapViewHandle | null>,
 ) {
   // Clickable set: same filter as use-feature-pick.ts
-  const clickableEntries = layerEntries.filter(
-    (e) =>
-      e.config.featureinfo &&
-      e.config.format !== "cog" &&
-      !e.config.excludeFromPicking,
+  const clickableEntries = useMemo(
+    () =>
+      layerEntries.filter(
+        (e) =>
+          e.config.featureinfo &&
+          e.config.format !== "cog" &&
+          !e.config.excludeFromPicking,
+      ),
+    [layerEntries],
   );
 
   // Publish clickable config ids for deck's onHover to match picked layer ids against.
   useEffect(() => {
     const ref = mapViewRef.current?.clickableIdsRef;
     if (ref) ref.current = clickableEntries.map((e) => e.config.id);
-  });
+  }, [clickableEntries, mapViewRef]);
 
   const handleMouseMove = useCallback(
     (event: MapLayerMouseEvent) => {

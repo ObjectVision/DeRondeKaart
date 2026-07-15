@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { useChartData } from "@/hooks/use-chart-data";
@@ -13,7 +14,7 @@ import { chromeIconSize, chromeIconColor } from "@/config/map-config";
  * In comparison mode it overlays the right map by design (the panel is
  * closeable and the slider stays usable left of it).
  */
-export function ChartsPanel({
+export const ChartsPanel = memo(function ChartsPanel({
   config,
   version,
   onClose,
@@ -107,4 +108,4 @@ export function ChartsPanel({
       </div>
     </div>
   );
-}
+});

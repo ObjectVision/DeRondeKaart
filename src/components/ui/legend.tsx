@@ -1,3 +1,4 @@
+import { memo } from "react";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { isChartEligible } from "@/layers/charts";
 import { Icon } from "@/components/ui/nav-icon";
@@ -201,7 +202,11 @@ function LayerList({
   );
 }
 
-export function Legend({
+/**
+ * Memoized: App re-renders ~60×/sec during a pan (view state), and every
+ * Legend prop is referentially stable across those renders.
+ */
+export const Legend = memo(function Legend({
   entriesA,
   entriesB,
   hiddenIdsA,
@@ -306,4 +311,4 @@ export function Legend({
       )}
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NavIcon, Icon } from "@/components/ui/nav-icon";
 import { NavTree } from "./NavTree";
@@ -16,7 +16,7 @@ interface SelectedLeaf {
 
 const BUTTON_GAP = 8; // gap-2
 
-export function NavigationPanel({
+export const NavigationPanel = memo(function NavigationPanel({
   nav,
   onZoomIn,
   onZoomOut,
@@ -252,4 +252,4 @@ export function NavigationPanel({
       )}
     </div>
   );
-}
+});
