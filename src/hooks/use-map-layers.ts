@@ -1,5 +1,6 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useMemo } from "react";
 import type { Layer } from "@deck.gl/core";
+import type { Table } from "apache-arrow";
 import type { MapRef } from "react-map-gl/maplibre";
 import { setColorFunction } from "@geomatico/maplibre-cog-protocol";
 import { anchorForConfig } from "@/components/map/MapView";
@@ -33,19 +34,40 @@ export function useMapLayers() {
   const [hiddenRules, setHiddenRules] = useState<globalThis.Map<string, Set<string>>>(new globalThis.Map());
   const layerEntriesRef = useRef<LayerEntry[]>([]);
 
-  function addDeckLayers(newLayers: Layer[]) {
-    setDeckLayers((prev) => [...prev, ...newLayers]);
-  }
-
-  function updateLayerEntries(updater: (prev: LayerEntry[]) => LayerEntry[]) {
-    setLayerEntries((prev) => {
-      const next = updater(prev);
-      layerEntriesRef.current = next;
-      return next;
+  /**
+   * Add deck layers, replacing any existing layer with the same id. The
+   * loaders emit cumulative tables under stable ids, so each batch emission
+   * swaps the previous layer for a fuller one instead of stacking duplicates
+   * (which made rendering/picking quadratic in the batch count). `visible` is
+   * carried over from the replaced layer so a legend toggle survives batches
+   * that keep arriving mid-load.
+   */
+  const addDeckLayers = useCallback((newLayers: Layer[]) => {
+    setDeckLayers((prev) => {
+      const incoming = new globalThis.Map(newLayers.map((l) => [l.id, l]));
+      const next = prev.map((l) => {
+        const replacement = incoming.get(l.id);
+        if (!replacement) return l;
+        incoming.delete(l.id);
+        const visible = (l.props as { visible?: boolean }).visible;
+        return visible === false ? replacement.clone({ visible: false }) : replacement;
+      });
+      return incoming.size > 0 ? [...next, ...incoming.values()] : next;
     });
-  }
+  }, []);
 
-  async function addLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
+  const updateLayerEntries = useCallback(
+    (updater: (prev: LayerEntry[]) => LayerEntry[]) => {
+      setLayerEntries((prev) => {
+        const next = updater(prev);
+        layerEntriesRef.current = next;
+        return next;
+      });
+    },
+    [],
+  );
+
+  const addLayer = useCallback(async (config: LayerConfig, mapRef: React.RefObject<MapRef | null>) => {
     updateLayerEntries((prev) => {
       if (prev.some((e) => e.config.id === config.id)) return prev;
       return [...prev, { config, visible: true }];
@@ -58,21 +80,15 @@ export function useMapLayers() {
     const beforeId = anchorForConfig(config);
 
     try {
+      const onBatch = (_batchIndex: number, table: Table) => {
+        addDeckLayers(createGeoArrowLayers(config, table, beforeId));
+      };
       if (config.format === "parquet") {
-        await loadParquetBatches(config.source, (batchIndex, table) => {
-          const layers = createGeoArrowLayers(config, table, batchIndex, beforeId);
-          addDeckLayers(layers);
-        });
+        await loadParquetBatches(config.source, onBatch);
       } else if (config.format === "geoparquet") {
-        await loadGeoParquetBatches(config.source, (batchIndex, table) => {
-          const layers = createGeoArrowLayers(config, table, batchIndex, beforeId);
-          addDeckLayers(layers);
-        });
+        await loadGeoParquetBatches(config.source, onBatch);
       } else if (config.format === "geoarrow") {
-        await loadArrowBatches(config.source, (batchIndex, table) => {
-          const layers = createGeoArrowLayers(config, table, batchIndex, beforeId);
-          addDeckLayers(layers);
-        });
+        await loadArrowBatches(config.source, onBatch);
       } else if (config.format === "mvt") {
         addMvtLayer(config, mapRef);
       } else if (config.format === "cog") {
@@ -85,94 +101,9 @@ export function useMapLayers() {
       console.error(`Failed to load layer "${config.id}":`, err);
       updateLayerEntries((prev) => prev.filter((e) => e.config.id !== config.id));
     }
-  }
+  }, [addDeckLayers, updateLayerEntries]);
 
-  function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
-    const map = mapRef.current?.getMap();
-    if (!map) return;
-
-    const beforeId = anchorForConfig(config);
-    const sourceId = `mvt-source-${config.id}`;
-
-    if (!map.getSource(sourceId)) {
-      map.addSource(sourceId, {
-        type: "vector",
-        tiles: [config.source],
-        minzoom: 0,
-        maxzoom: 14,
-      });
-    }
-
-    const defs = buildMvtLayerDefs(config);
-    for (const def of defs) {
-      if (map.getLayer(def.id)) continue;
-
-      const layerSpec: Record<string, unknown> = {
-        id: def.id,
-        source: sourceId,
-        type: def.type,
-        paint: def.paint,
-        layout: def.layout,
-      };
-
-      // Use sourceLayer from config if specified
-      if (config.sourceLayer) {
-        layerSpec["source-layer"] = config.sourceLayer;
-      }
-
-      if (def.filter) {
-        layerSpec.filter = def.filter;
-      }
-
-      // Native addLayer throws if beforeId names a missing layer — fall back to
-      // appending when the anchor isn't in the style yet (it will be once the
-      // overlay/anchors finish loading; imperative layers are re-synced then).
-      map.addLayer(layerSpec as any, map.getLayer(beforeId) ? beforeId : undefined);
-    }
-  }
-
-  function addCogLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
-    const map = mapRef.current?.getMap();
-    if (!map) return;
-
-    const beforeId = anchorForConfig(config);
-    const sourceId = `cog-source-${config.id}`;
-    const layerId = `cog-layer-${config.id}`;
-
-    // Register a band-driven geostyler color function for this COG source (once
-    // per URL). Must happen before the source is added so the first tiles render
-    // styled. Skipped when the COG already contains its colors (`embeddedColors`)
-    // — there the rules are a legend key only. Without rules the protocol renders
-    // the raw raster.
-    if (
-      config.geostyler?.rules?.length &&
-      !config.embeddedColors &&
-      !registeredCogColorUrls.has(config.source)
-    ) {
-      setColorFunction(config.source, buildCogColorFunction(config.geostyler));
-      registeredCogColorUrls.add(config.source);
-    }
-
-    if (!map.getSource(sourceId)) {
-      map.addSource(sourceId, {
-        type: "raster",
-        url: `cog://${config.source}`,
-        tileSize: 256,
-      });
-      map.addLayer(
-        {
-          id: layerId,
-          source: sourceId,
-          type: "raster",
-          paint: { "raster-opacity": config.style.opacity ?? 1 },
-        },
-        // Append when the anchor isn't in the style yet (see addMvtLayer note).
-        map.getLayer(beforeId) ? beforeId : undefined,
-      );
-    }
-  }
-
-  function removeLayer(layerId: string, mapRef: React.RefObject<MapRef | null>) {
+  const removeLayer = useCallback((layerId: string, mapRef: React.RefObject<MapRef | null>) => {
     const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
 
     updateLayerEntries((prev) => prev.filter((e) => e.config.id !== layerId));
@@ -209,9 +140,9 @@ export function useMapLayers() {
       if (map.getLayer(cogLayerId)) map.removeLayer(cogLayerId);
       if (map.getSource(cogSourceId)) map.removeSource(cogSourceId);
     }
-  }
+  }, [updateLayerEntries]);
 
-  function hideLayer(layerId: string, mapRef: React.RefObject<MapRef | null>) {
+  const hideLayer = useCallback((layerId: string, mapRef: React.RefObject<MapRef | null>) => {
     setHiddenIds((prev) => {
       if (prev.has(layerId)) return prev;
       const next = new Set(prev);
@@ -231,7 +162,7 @@ export function useMapLayers() {
     if (entry) {
       setNativeLayerVisibility(layerId, entry.config, mapRef, "none");
     }
-  }
+  }, []);
 
   const toggleLayer = useCallback(
     (layerId: string, mapRef: React.RefObject<MapRef | null>) => {
@@ -352,19 +283,127 @@ export function useMapLayers() {
     [],
   );
 
-  return {
-    layerEntries,
-    deckLayers,
-    hiddenIds,
-    hiddenRules,
-    addLayer,
-    removeLayer,
-    hideLayer,
-    toggleLayer,
-    toggleRule,
-    refreshAreaFilter,
-    syncImperativeLayers,
-  };
+  // Stable object identity (all functions are useCallback'd): consumers'
+  // useMemo/useCallback chains and React.memo children only invalidate when the
+  // layer state itself changes — not on every render of the caller.
+  return useMemo(
+    () => ({
+      layerEntries,
+      deckLayers,
+      hiddenIds,
+      hiddenRules,
+      addLayer,
+      removeLayer,
+      hideLayer,
+      toggleLayer,
+      toggleRule,
+      refreshAreaFilter,
+      syncImperativeLayers,
+    }),
+    [
+      layerEntries,
+      deckLayers,
+      hiddenIds,
+      hiddenRules,
+      addLayer,
+      removeLayer,
+      hideLayer,
+      toggleLayer,
+      toggleRule,
+      refreshAreaFilter,
+      syncImperativeLayers,
+    ],
+  );
+}
+
+/**
+ * Add a native MapLibre vector-tile source + one layer per style rule.
+ * Module-scope: depends only on the config and the target map.
+ */
+function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
+  const map = mapRef.current?.getMap();
+  if (!map) return;
+
+  const beforeId = anchorForConfig(config);
+  const sourceId = `mvt-source-${config.id}`;
+
+  if (!map.getSource(sourceId)) {
+    map.addSource(sourceId, {
+      type: "vector",
+      tiles: [config.source],
+      minzoom: 0,
+      maxzoom: 14,
+    });
+  }
+
+  const defs = buildMvtLayerDefs(config);
+  for (const def of defs) {
+    if (map.getLayer(def.id)) continue;
+
+    const layerSpec: Record<string, unknown> = {
+      id: def.id,
+      source: sourceId,
+      type: def.type,
+      paint: def.paint,
+      layout: def.layout,
+    };
+
+    // Use sourceLayer from config if specified
+    if (config.sourceLayer) {
+      layerSpec["source-layer"] = config.sourceLayer;
+    }
+
+    if (def.filter) {
+      layerSpec.filter = def.filter;
+    }
+
+    // Native addLayer throws if beforeId names a missing layer — fall back to
+    // appending when the anchor isn't in the style yet (it will be once the
+    // overlay/anchors finish loading; imperative layers are re-synced then).
+    map.addLayer(layerSpec as any, map.getLayer(beforeId) ? beforeId : undefined);
+  }
+}
+
+/** Add a native MapLibre raster source/layer for a COG. Module-scope. */
+function addCogLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
+  const map = mapRef.current?.getMap();
+  if (!map) return;
+
+  const beforeId = anchorForConfig(config);
+  const sourceId = `cog-source-${config.id}`;
+  const layerId = `cog-layer-${config.id}`;
+
+  // Register a band-driven geostyler color function for this COG source (once
+  // per URL). Must happen before the source is added so the first tiles render
+  // styled. Skipped when the COG already contains its colors (`embeddedColors`)
+  // — there the rules are a legend key only. Without rules the protocol renders
+  // the raw raster.
+  if (
+    config.geostyler?.rules?.length &&
+    !config.embeddedColors &&
+    !registeredCogColorUrls.has(config.source)
+  ) {
+    setColorFunction(config.source, buildCogColorFunction(config.geostyler));
+    registeredCogColorUrls.add(config.source);
+  }
+
+  if (!map.getSource(sourceId)) {
+    map.addSource(sourceId, {
+      type: "raster",
+      url: `cog://${config.source}`,
+      tileSize: 256,
+    });
+    map.addLayer(
+      {
+        id: layerId,
+        source: sourceId,
+        type: "raster",
+        paint: { "raster-opacity": config.style.opacity ?? 1 },
+      },
+      // Append when the anchor isn't in the style yet (see addMvtLayer note).
+      map.getLayer(beforeId) ? beforeId : undefined,
+    );
+  }
 }
 
 /** Set visibility on all native MapLibre layers belonging to a config */

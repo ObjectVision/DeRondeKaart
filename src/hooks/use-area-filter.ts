@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { loadGeoParquetBatches } from "@/layers";
 import {
   loadAreaFilterConfig,
@@ -268,5 +268,10 @@ export function useAreaFilter(options?: { flyTo?: boolean }): AreaFilterState {
     [selections, commit],
   );
 
-  return { entries, optionsFor, selections, toggleValue, clearLevel, version };
+  // Stable identity so React.memo consumers (Sidebar) don't re-render on
+  // unrelated App renders.
+  return useMemo(
+    () => ({ entries, optionsFor, selections, toggleValue, clearLevel, version }),
+    [entries, optionsFor, selections, toggleValue, clearLevel, version],
+  );
 }

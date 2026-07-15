@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import { setBoxFilter, type BBox } from "@/layers/box-filter";
 
@@ -131,5 +131,10 @@ export function useBoxSelect(): BoxSelectState {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [active, cancelDrag, commit]);
 
-  return { active, toggle, box, draft, version, handleMouseDown, handleMouseMove, handleMouseUp };
+  // Stable identity so React.memo consumers (Sidebar/ChartsPanel) don't
+  // re-render on unrelated App renders.
+  return useMemo(
+    () => ({ active, toggle, box, draft, version, handleMouseDown, handleMouseMove, handleMouseUp }),
+    [active, toggle, box, draft, version, handleMouseDown, handleMouseMove, handleMouseUp],
+  );
 }

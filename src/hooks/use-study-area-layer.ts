@@ -37,15 +37,15 @@ export function useStudyAreaLayer(studyAreaId: string | undefined): Layer[] {
     }
 
     let cancelled = false;
-    const acc: Layer[] = [];
 
-    function addBatch(config: LayerConfig, batchIndex: number, table: Table) {
+    function addBatch(config: LayerConfig, table: Table) {
       // beforeId omitted → deck appends above every anchor (topmost, never throws).
-      const built = createGeoArrowLayers(config, table, batchIndex).map((l) =>
+      // The loaders emit cumulative tables under stable layer ids, so each batch
+      // REPLACES the previous layer set instead of accumulating duplicates.
+      const built = createGeoArrowLayers(config, table).map((l) =>
         l.clone({ pickable: false }),
       );
-      acc.push(...built);
-      if (!cancelled) setLayers([...acc]);
+      if (!cancelled) setLayers(built);
     }
 
     (async () => {
@@ -57,8 +57,8 @@ export function useStudyAreaLayer(studyAreaId: string | undefined): Layer[] {
           return;
         }
 
-        const onBatch = (batchIndex: number, table: Table) =>
-          addBatch(config, batchIndex, table);
+        const onBatch = (_batchIndex: number, table: Table) =>
+          addBatch(config, table);
 
         if (config.format === "parquet") {
           await loadParquetBatches(config.source, onBatch);

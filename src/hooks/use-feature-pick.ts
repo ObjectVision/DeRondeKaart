@@ -29,6 +29,9 @@ export function useFeaturePick(
   const handleClick = useCallback(
     (event: MapLayerMouseEvent) => {
       const featuresByLayer = new Map<string, PickedFeature[]>();
+      // The same feature is picked once per rule layer; dedupe on a cheap
+      // stable key instead of stringifying property bags per pair (O(n²)).
+      const seen = new Set<string>();
 
       // Only pick from layers that have featureinfo configured and aren't excluded from picking
       const infoEntries = layerEntries.filter(
@@ -70,6 +73,13 @@ export function useFeaturePick(
                 ? info.object.toJSON()
                 : info.object;
 
+            // Same feature picked via another rule layer → duplicate. Keyed on
+            // the stringified property bag ONCE per pick (info.index can't be
+            // used: it is per record batch, so it collides across batches).
+            const key = `${entry.config.id}:${JSON.stringify(props)}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+
             // Rule-filtered layers render non-matching features transparent;
             // treat them as dropped — not interactive — so clicks ignore them.
             if (!featureMatchesGeostyler(entry.config.geostyler, props as Record<string, unknown>)) {
@@ -89,14 +99,8 @@ export function useFeaturePick(
             };
 
             const existing = featuresByLayer.get(entry.config.id) ?? [];
-            // Deduplicate — same feature is picked from multiple rule layers
-            const isDuplicate = existing.some(
-              (p) => JSON.stringify(p.properties) === JSON.stringify(feature.properties),
-            );
-            if (!isDuplicate) {
-              existing.push(feature);
-              featuresByLayer.set(entry.config.id, existing);
-            }
+            existing.push(feature);
+            featuresByLayer.set(entry.config.id, existing);
           }
         }
       }
@@ -131,21 +135,22 @@ export function useFeaturePick(
             );
             if (!entry) continue;
 
+            const properties = feature.properties ?? {};
+            // Same feature returned once per rule layer → duplicate (stringify
+            // once per pick, not per pair).
+            const key = `${entry.config.id}:${JSON.stringify(properties)}`;
+            if (seen.has(key)) continue;
+            seen.add(key);
+
             const picked: PickedFeature = {
               layerConfigId: entry.config.id,
               layerName: entry.config.name,
-              properties: feature.properties ?? {},
+              properties,
             };
 
             const existing = featuresByLayer.get(entry.config.id) ?? [];
-            // Deduplicate by checking if same properties already exist
-            const isDuplicate = existing.some(
-              (p) => JSON.stringify(p.properties) === JSON.stringify(picked.properties),
-            );
-            if (!isDuplicate) {
-              existing.push(picked);
-              featuresByLayer.set(entry.config.id, existing);
-            }
+            existing.push(picked);
+            featuresByLayer.set(entry.config.id, existing);
           }
         }
       }

@@ -8,8 +8,42 @@ interface StreetViewProps {
   embedded?: boolean;
 }
 
-/** Wait for the async-loaded Google Maps JS API to be ready. */
-function waitForGoogleMaps(signal: { cancelled: boolean }): Promise<boolean> {
+const GOOGLE_MAPS_SRC =
+  "https://maps.googleapis.com/maps/api/js?key=AIzaSyA6sQWT0NPNI2JyT4ygpoR93my_WSji6-Q&loading=async";
+
+let googleMapsPromise: Promise<void> | null = null;
+
+/**
+ * Load the Google Maps JS API on first use. Street View is the only consumer,
+ * so the script (and its third-party fetch) stays off the critical path until
+ * a Street View panel actually opens. Idempotent — one script tag ever.
+ */
+function loadGoogleMapsScript(): Promise<void> {
+  if (window.google?.maps) return Promise.resolve();
+  if (!googleMapsPromise) {
+    googleMapsPromise = new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = GOOGLE_MAPS_SRC;
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = () => {
+        googleMapsPromise = null; // allow a retry on the next open
+        reject(new Error("Failed to load Google Maps JS API"));
+      };
+      document.head.appendChild(script);
+    });
+  }
+  return googleMapsPromise;
+}
+
+/** Wait for the lazily loaded Google Maps JS API to be ready. */
+async function waitForGoogleMaps(signal: { cancelled: boolean }): Promise<boolean> {
+  try {
+    await loadGoogleMapsScript();
+  } catch {
+    return false;
+  }
+  // `loading=async` — the API may finish initializing just after script load.
   return new Promise((resolve) => {
     const check = () => {
       if (signal.cancelled) return resolve(false);
@@ -32,7 +66,14 @@ export function StreetView({ lng, lat, onClose, embedded = false }: StreetViewPr
 
     async function load() {
       const ready = await waitForGoogleMaps(signal);
-      if (!ready || signal.cancelled || !containerRef.current) return;
+      if (signal.cancelled) return;
+      if (!ready) {
+        // Script failed to load (offline, blocked) — show a real state
+        // instead of an endless spinner.
+        setStatus("unavailable");
+        return;
+      }
+      if (!containerRef.current) return;
 
       const location = { lat, lng };
       const service = new google.maps.StreetViewService();

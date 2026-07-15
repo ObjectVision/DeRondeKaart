@@ -1,4 +1,4 @@
-import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import { useEffect, useMemo, useRef, forwardRef, useImperativeHandle } from "react";
 import type { Layer } from "@deck.gl/core";
 import { Map, useControl } from "react-map-gl/maplibre";
 import type { MapRef, ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
@@ -200,7 +200,13 @@ function DeckGLOverlay(props: {
       }),
   );
   props.overlayRef.current = overlay;
-  overlay.setProps({ layers: props.layers });
+  // Push layers in an effect, not the render body: onMove re-renders this
+  // component ~60×/sec during a pan, and setProps → deck's full layer-diff pass
+  // is not free even when every layer instance is identical.
+  const { layers } = props;
+  useEffect(() => {
+    overlay.setProps({ layers });
+  }, [overlay, layers]);
   return null;
 }
 
@@ -369,6 +375,13 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       mapProps.initialViewState = INITIAL_VIEW_STATE;
     }
 
+    // Stable merged array — building it inline would hand DeckGLOverlay a new
+    // array (→ a full deck setProps diff) on every view-state render.
+    const overlayLayers = useMemo(
+      () => (topLayers && topLayers.length > 0 ? [...layers, ...topLayers] : layers),
+      [layers, topLayers],
+    );
+
     return (
       <Map
         ref={mapRef}
@@ -393,7 +406,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         onMouseUp={onMouseUp}
       >
         <DeckGLOverlay
-          layers={topLayers && topLayers.length > 0 ? [...layers, ...topLayers] : layers}
+          layers={overlayLayers}
           overlayRef={overlayRef}
           hoverRef={hoverRef}
           mvtHoverRef={mvtHoverRef}

@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import type { ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
 import { MapView, BASEMAPS, DEFAULT_BASEMAP_ID } from "@/components/map/MapView";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
@@ -167,6 +167,17 @@ function App({
   const boxLayersA = useSelectionBoxLayers(selectionBox, "a");
   const boxLayersB = useSelectionBoxLayers(showMapRight ? selectionBox : null, "b");
 
+  // Stable topLayers arrays — inline `[...a, ...b, ...c]` would feed MapView a
+  // new array every render (60×/sec while panning), defeating its layer memo.
+  const topLayersA = useMemo(
+    () => [...studyLayersA, ...markerLayersA, ...boxLayersA],
+    [studyLayersA, markerLayersA, boxLayersA],
+  );
+  const topLayersB = useMemo(
+    () => [...studyLayersB, ...markerLayersB, ...boxLayersB],
+    [studyLayersB, markerLayersB, boxLayersB],
+  );
+
   // Mirror the tool state into both maps' cursor flags (crosshair while armed).
   useEffect(() => {
     for (const handle of [mapLeftRef.current, mapRightRef.current]) {
@@ -283,6 +294,7 @@ function App({
     },
     [setChartsMinimized],
   );
+  const handleChartsClose = useCallback(() => setChartsMinimized(true), [setChartsMinimized]);
   // The selected layer was removed from both maps — close the panel.
   useEffect(() => {
     if (selectedChartLayerId && !chartLayerConfig) setSelectedChartLayerId(null);
@@ -329,19 +341,25 @@ function App({
   // of the navigation flag (map.json `mapControls`).
   const navShowsControls = sidebarActive || (navigation && !sidebarMode);
 
-  const sectionToggles: SectionToggle[] = [];
   // Single combined toggle for the whole navigation (Filter + Navigatie). It
   // only appears while minimized — restoring the window. Closing happens via
-  // the close button inside the navigation window itself.
-  if ((filterAvailable || navAvailable) && navMinimized) {
-    sectionToggles.push({
-      key: "navigation",
-      icon: "layers",
-      title: "Navigatie tonen",
-      active: false,
-      onToggle: toggleNavMinimized,
-    });
-  }
+  // the close button inside the navigation window itself. Memoized (with the
+  // toolbar below) so the memoized Sidebar doesn't re-render per map frame.
+  const sectionToggles = useMemo<SectionToggle[]>(
+    () =>
+      (filterAvailable || navAvailable) && navMinimized
+        ? [
+            {
+              key: "navigation",
+              icon: "layers",
+              title: "Navigatie tonen",
+              active: false,
+              onToggle: toggleNavMinimized,
+            },
+          ]
+        : [],
+    [filterAvailable, navAvailable, navMinimized, toggleNavMinimized],
+  );
   // The statistics-panel restore button lives top-right (next to where the
   // panel itself docks), not in this top-left toolbar — see the render below.
 
@@ -496,23 +514,6 @@ function App({
   // toolbar cards. In sidebar mode it slots into the toolbar row (after the
   // nav-restore toggle, before the map controls); otherwise it stands alone
   // top-left.
-  const shareButton = shareEnabled ? (
-    <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        onClick={() => setShareOpen(true)}
-        title="Delen"
-        aria-label="Delen"
-      >
-        <Icon name="share" size={chromeIconSize()} color={chromeIconColor()} />
-      </Button>
-    </div>
-  ) : null;
-
-  // On-screen side shown in the share preview/PNG (see shareOpen comment).
-  const shareSide = !comparisonMode && showMapRight ? mapRightLayers : mapLeftLayers;
-
   const handleZoomIn = useCallback(() => {
     setViewState((prev) => ({ ...prev, zoom: prev.zoom + 1 }));
   }, []);
@@ -520,6 +521,50 @@ function App({
   const handleZoomOut = useCallback(() => {
     setViewState((prev) => ({ ...prev, zoom: Math.max(0, prev.zoom - 1) }));
   }, []);
+
+  const shareButton = useMemo(
+    () =>
+      shareEnabled ? (
+        <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setShareOpen(true)}
+            title="Delen"
+            aria-label="Delen"
+          >
+            <Icon name="share" size={chromeIconSize()} color={chromeIconColor()} />
+          </Button>
+        </div>
+      ) : null,
+    [shareEnabled],
+  );
+
+  // Stable toolbar element for the memoized Sidebar (an inline fragment would
+  // be a new element every render, defeating its memo).
+  const sidebarToolbar = useMemo(
+    () => (
+      <>
+        {/* Navigation-restore toggle sits left of the map controls, so
+            reopening the navigation happens at the far-left of the row.
+            The share card follows it; map controls (search rightmost)
+            close the row. */}
+        <SectionToggleBar orientation="horizontal" toggles={sectionToggles} />
+        {shareButton}
+        <MapControls
+          orientation="horizontal"
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          showSearch={mapControls.search}
+          showZoom={mapControls.zoom}
+        />
+      </>
+    ),
+    [sectionToggles, shareButton, handleZoomIn, handleZoomOut, mapControls.search, mapControls.zoom],
+  );
+
+  // On-screen side shown in the share preview/PNG (see shareOpen comment).
+  const shareSide = !comparisonMode && showMapRight ? mapRightLayers : mapLeftLayers;
 
   return (
     <div className="relative w-full h-full">
@@ -535,7 +580,7 @@ function App({
         <MapView
           ref={mapLeftRef}
           layers={mapLeftLayers.deckLayers}
-          topLayers={[...studyLayersA, ...markerLayersA, ...boxLayersA]}
+          topLayers={topLayersA}
           basemapId={basemapId}
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
@@ -563,7 +608,7 @@ function App({
           <MapView
             ref={mapRightRef}
             layers={mapRightLayers.deckLayers}
-            topLayers={[...studyLayersB, ...markerLayersB, ...boxLayersB]}
+            topLayers={topLayersB}
             basemapId={basemapId}
             style={{ width: "100%", height: "100%" }}
             viewState={viewState}
@@ -623,23 +668,7 @@ function App({
           showFilter={filterAvailable && !navMinimized}
           showNavigation={navAvailable && !navMinimized}
           onClose={toggleNavMinimized}
-          toolbar={
-            <>
-              {/* Navigation-restore toggle sits left of the map controls, so
-                  reopening the navigation happens at the far-left of the row.
-                  The share card follows it; map controls (search rightmost)
-                  close the row. */}
-              <SectionToggleBar orientation="horizontal" toggles={sectionToggles} />
-              {shareButton}
-              <MapControls
-                orientation="horizontal"
-                onZoomIn={handleZoomIn}
-                onZoomOut={handleZoomOut}
-                showSearch={mapControls.search}
-                showZoom={mapControls.zoom}
-              />
-            </>
-          }
+          toolbar={sidebarToolbar}
         />
       )}
 
@@ -673,7 +702,7 @@ function App({
         <ChartsPanel
           config={chartLayerConfig}
           version={areaFilter.version + boxSelect.version}
-          onClose={() => setChartsMinimized(true)}
+          onClose={handleChartsClose}
           areaSelectActive={boxSelect.active}
           onToggleAreaSelect={boxSelect.toggle}
         />

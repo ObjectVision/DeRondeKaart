@@ -1,5 +1,5 @@
 import type { GeoStylerStyle } from "./types";
-import { matchRule, getFillColorFromRule } from "./geostyler";
+import { evaluateFilter, getFillColorFromRule } from "./geostyler";
 
 /**
  * Per-pixel color function for `@geomatico/maplibre-cog-protocol`'s
@@ -25,6 +25,14 @@ export function buildCogColorFunction(style: GeoStylerStyle): CogColorFunction {
   // Reused across every pixel — mutated in place to avoid per-pixel allocation.
   const properties: Record<string, number> = {};
 
+  // Rule colors are constant, so resolve them (symbolizer lookup + hex parse)
+  // once here, index-aligned with style.rules — not per pixel.
+  const rules = style.rules;
+  const ruleColors = rules.map((rule) => {
+    const [r, g, b, a] = getFillColorFromRule(rule);
+    return [r, g, b, a ?? 255] as const;
+  });
+
   return (pixel, color, metadata) => {
     // nodata → transparent
     if (metadata?.noData !== undefined && pixel[0] === metadata.noData) {
@@ -36,17 +44,21 @@ export function buildCogColorFunction(style: GeoStylerStyle): CogColorFunction {
       properties[`band${b}`] = pixel[b];
     }
 
-    const rule = matchRule(style, properties);
-    if (!rule) {
-      // unmatched class → transparent
-      color[0] = color[1] = color[2] = color[3] = 0;
-      return;
+    // First matching rule wins (same semantics as matchRule), but resolve to an
+    // index into the precomputed color table.
+    for (let i = 0; i < rules.length; i++) {
+      const rule = rules[i];
+      if (!rule.filter || evaluateFilter(rule.filter, properties)) {
+        const c = ruleColors[i];
+        color[0] = c[0];
+        color[1] = c[1];
+        color[2] = c[2];
+        color[3] = c[3];
+        return;
+      }
     }
 
-    const [r, g, b, a] = getFillColorFromRule(rule);
-    color[0] = r;
-    color[1] = g;
-    color[2] = b;
-    color[3] = a ?? 255;
+    // unmatched class → transparent
+    color[0] = color[1] = color[2] = color[3] = 0;
   };
 }
