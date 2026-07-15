@@ -7000,6 +7000,37 @@
       }
     },
     {
+      "id": "bomen_limburg_2026",
+      "name": "bomen_limburg_2026",
+      "source": "https://data.woonzorglimburg.nl/parquet/bomen_lb_2026.parquet",
+      "format": "parquet",
+      "geometryType": "point",
+      "style": {
+        "color": [
+          46,
+          139,
+          87,
+          150
+        ],
+        "opacity": 0.8,
+        "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "bomen_limburg_2026",
+        "rules": [
+          {
+            "name": "boom",
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#2E8B57"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "id": "aandeel_aanpasbaar_2024",
       "name": "Aandeel aanpasbaar 2024",
       "source": "https://data.woonzorglimburg.nl/cog/aandeel_aanpasbaar_2026.tif",
