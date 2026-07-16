@@ -110,14 +110,15 @@ function LayerList({
                     {config.name}
                   </span>
                 </button>
-                <button
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
                   onClick={() => onRemove(config.id)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors text-sm leading-none px-1.5"
                   aria-label={`Verwijder ${config.name}`}
                   title="Laag verwijderen"
                 >
-                  &times;
-                </button>
+                  <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+                </Button>
               </div>
 
               {/* Per-rule class toggles — only when there's more than one rule */}
