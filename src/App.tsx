@@ -409,6 +409,12 @@ function App({
   // (showMapRight, computed near the top with the B-side topLayer hooks).
   const comparisonMode = hasMapLeftLayers && showMapRight;
 
+  // Legend placement. The bottom-left legend belongs to the map shown on that
+  // side: map A normally, but map B when it renders full-width on top with no
+  // left-map layers (mapBOnTop, outside comparison mode). The bottom-right
+  // legend (map B) only appears in comparison mode, when both maps are visible.
+  const leftLegendUsesMapB = !comparisonMode && showMapRight;
+
   // While embedded (Power BI visual), keep pushing map snapshots to the parent
   // so dashboard PDF export shows the map (the iframe itself exports blank).
   useMapSnapshot({
@@ -649,7 +655,21 @@ function App({
             showZoom={mapControls.zoom}
           />
         )}
-        <MapAttribution />
+        {/* Right-map legend sits to the left of the attribution info button; it
+            only appears in comparison mode, where the right map is on screen. */}
+        <div className="flex items-end gap-2">
+          {comparisonMode && !legendMinimized && (
+            <Legend
+              entries={mapRightLayers.layerEntries}
+              hiddenIds={mapRightLayers.hiddenIds}
+              hiddenRules={mapRightLayers.hiddenRules}
+              onToggle={handleToggleB}
+              onToggleRule={handleToggleRuleB}
+              onRemove={handleRemoveB}
+            />
+          )}
+          <MapAttribution />
+        </div>
       </div>
 
       {/* Sidebar mode: toolbar (search, zoom, section toggles) top left above
@@ -749,20 +769,12 @@ function App({
           </div>
         ) : (
           <Legend
-            entriesA={mapLeftLayers.layerEntries}
-            entriesB={mapRightLayers.layerEntries}
-            hiddenIdsA={mapLeftLayers.hiddenIds}
-            hiddenIdsB={mapRightLayers.hiddenIds}
-            hiddenRulesA={mapLeftLayers.hiddenRules}
-            hiddenRulesB={mapRightLayers.hiddenRules}
-            onToggleA={handleToggleA}
-            onToggleB={handleToggleB}
-            onToggleRuleA={handleToggleRuleA}
-            onToggleRuleB={handleToggleRuleB}
-            onRemoveA={handleRemoveA}
-            onRemoveB={handleRemoveB}
-            comparisonMode={comparisonMode}
-            mapBOnTop={showMapRight}
+            entries={leftLegendUsesMapB ? mapRightLayers.layerEntries : mapLeftLayers.layerEntries}
+            hiddenIds={leftLegendUsesMapB ? mapRightLayers.hiddenIds : mapLeftLayers.hiddenIds}
+            hiddenRules={leftLegendUsesMapB ? mapRightLayers.hiddenRules : mapLeftLayers.hiddenRules}
+            onToggle={leftLegendUsesMapB ? handleToggleB : handleToggleA}
+            onToggleRule={leftLegendUsesMapB ? handleToggleRuleB : handleToggleRuleA}
+            onRemove={leftLegendUsesMapB ? handleRemoveB : handleRemoveA}
             nextBasemapLabel={nextBasemap.label}
             onCycleBasemap={cycleBasemap}
             onClose={toggleLegendMinimized}

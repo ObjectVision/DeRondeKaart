@@ -6,35 +6,26 @@ import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 import { colorToCSS, ruleSwatchColor } from "@/lib/legend-style";
 
 interface LegendProps {
-  entriesA: LayerEntry[];
-  entriesB: LayerEntry[];
-  hiddenIdsA: Set<string>;
-  hiddenIdsB: Set<string>;
-  hiddenRulesA: globalThis.Map<string, Set<string>>;
-  hiddenRulesB: globalThis.Map<string, Set<string>>;
-  onToggleA: (layerId: string) => void;
-  onToggleB: (layerId: string) => void;
-  onToggleRuleA: (layerId: string, ruleName: string) => void;
-  onToggleRuleB: (layerId: string, ruleName: string) => void;
-  onRemoveA: (layerId: string) => void;
-  onRemoveB: (layerId: string) => void;
-  comparisonMode: boolean;
+  /** Layers for the map this legend represents. */
+  entries: LayerEntry[];
+  hiddenIds: Set<string>;
+  hiddenRules: globalThis.Map<string, Set<string>>;
+  onToggle: (layerId: string) => void;
+  onToggleRule: (layerId: string, ruleName: string) => void;
+  onRemove: (layerId: string) => void;
   /**
-   * The right map is mounted full-width on top of the left map (it has
-   * comparable layers while the left map has none). Outside comparison mode
-   * the legend then lists map B — that's the map actually on screen.
+   * Header chrome (basemap toggle + collapse button) is shown only when these
+   * are provided — the left-map legend hosts them; the right-map legend renders
+   * a title-only header. Its position (bottom-left vs bottom-right) identifies
+   * which map it belongs to, so no per-map label is needed.
    */
-  mapBOnTop: boolean;
-  /** Label of the next basemap (shown in the toggle button's tooltip). */
-  nextBasemapLabel: string;
-  /** Cycle to the next background basemap. */
-  onCycleBasemap: () => void;
+  nextBasemapLabel?: string;
+  onCycleBasemap?: () => void;
   /** Collapse the Kaartlagen window (restored from the bottom-left bar). */
   onClose?: () => void;
 }
 
 function LayerList({
-  label,
   entries,
   hiddenIds,
   hiddenRules,
@@ -42,7 +33,6 @@ function LayerList({
   onToggleRule,
   onRemove,
 }: {
-  label?: string;
   entries: LayerEntry[];
   hiddenIds: Set<string>;
   hiddenRules: globalThis.Map<string, Set<string>>;
@@ -54,11 +44,6 @@ function LayerList({
 
   return (
     <div>
-      {label && (
-        <h4 className="mb-1 text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-          {label}
-        </h4>
-      )}
       <ul className="flex flex-col gap-0.5">
         {entries.map(({ config }) => {
           const isVisible = !hiddenIds.has(config.id);
@@ -184,27 +169,19 @@ function LayerList({
  * Legend prop is referentially stable across those renders.
  */
 export const Legend = memo(function Legend({
-  entriesA,
-  entriesB,
-  hiddenIdsA,
-  hiddenIdsB,
-  hiddenRulesA,
-  hiddenRulesB,
-  onToggleA,
-  onToggleB,
-  onToggleRuleA,
-  onToggleRuleB,
-  onRemoveA,
-  onRemoveB,
-  comparisonMode,
-  mapBOnTop,
+  entries,
+  hiddenIds,
+  hiddenRules,
+  onToggle,
+  onToggleRule,
+  onRemove,
   nextBasemapLabel,
   onCycleBasemap,
   onClose,
 }: LegendProps) {
-  const visibleA = entriesA.filter((e) => !e.config.excludeFromLegend);
-  const visibleB = entriesB.filter((e) => !e.config.excludeFromLegend);
-  const hasLayers = visibleA.length > 0 || visibleB.length > 0;
+  const visible = entries.filter((e) => !e.config.excludeFromLegend);
+  // Only the left-map legend hosts the basemap toggle + collapse button.
+  const showChrome = Boolean(onCycleBasemap);
 
   return (
     <div className="w-72 max-h-[50vh] overflow-y-auto rounded-lg bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3">
@@ -212,70 +189,41 @@ export const Legend = memo(function Legend({
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
           Kaartlagen
         </h3>
-        <div className="flex items-center">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={onCycleBasemap}
-            title={`Achtergrondkaart: ${nextBasemapLabel}`}
-            aria-label="Achtergrondkaart wisselen"
-          >
-            <Icon name="cached" size={chromeIconSize()} color={chromeIconColor()} />
-          </Button>
-          {onClose && (
+        {showChrome && (
+          <div className="flex items-center">
             <Button
               variant="ghost"
               size="icon-sm"
-              onClick={onClose}
-              title="Kaartlagen verbergen"
-              aria-label="Kaartlagen verbergen"
+              onClick={onCycleBasemap}
+              title={`Achtergrondkaart: ${nextBasemapLabel}`}
+              aria-label="Achtergrondkaart wisselen"
             >
-              <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+              <Icon name="cached" size={chromeIconSize()} color={chromeIconColor()} />
             </Button>
-          )}
-        </div>
+            {onClose && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={onClose}
+                title="Kaartlagen verbergen"
+                aria-label="Kaartlagen verbergen"
+              >
+                <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+              </Button>
+            )}
+          </div>
+        )}
       </div>
-      {!hasLayers && (
+      {visible.length === 0 ? (
         <p className="text-xs text-gray-400">Nog geen lagen toegevoegd</p>
-      )}
-      {comparisonMode ? (
-        <div className="flex flex-col gap-2">
-          <LayerList
-            label="Linker kaart"
-            entries={visibleA}
-            hiddenIds={hiddenIdsA}
-            hiddenRules={hiddenRulesA}
-            onToggle={onToggleA}
-            onToggleRule={onToggleRuleA}
-            onRemove={onRemoveA}
-          />
-          <LayerList
-            label="Rechter kaart"
-            entries={visibleB}
-            hiddenIds={hiddenIdsB}
-            hiddenRules={hiddenRulesB}
-            onToggle={onToggleB}
-            onToggleRule={onToggleRuleB}
-            onRemove={onRemoveB}
-          />
-        </div>
-      ) : mapBOnTop ? (
-        <LayerList
-          entries={visibleB}
-          hiddenIds={hiddenIdsB}
-          hiddenRules={hiddenRulesB}
-          onToggle={onToggleB}
-          onToggleRule={onToggleRuleB}
-          onRemove={onRemoveB}
-        />
       ) : (
         <LayerList
-          entries={visibleA}
-          hiddenIds={hiddenIdsA}
-          hiddenRules={hiddenRulesA}
-          onToggle={onToggleA}
-          onToggleRule={onToggleRuleA}
-          onRemove={onRemoveA}
+          entries={visible}
+          hiddenIds={hiddenIds}
+          hiddenRules={hiddenRules}
+          onToggle={onToggle}
+          onToggleRule={onToggleRule}
+          onRemove={onRemove}
         />
       )}
     </div>
