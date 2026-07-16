@@ -14,6 +14,13 @@ interface LegendProps {
   onToggleRule: (layerId: string, ruleName: string) => void;
   onRemove: (layerId: string) => void;
   /**
+   * Move a layer to the other map. Direction ("right" from the left legend,
+   * "left" from the right legend) picks the arrow_circle icon; omit to hide the
+   * button (e.g. when there is no second map to move to).
+   */
+  onMove?: (layerId: string) => void;
+  moveDirection?: "right" | "left";
+  /**
    * Header chrome (basemap toggle + collapse button) is shown only when these
    * are provided — the left-map legend hosts them; the right-map legend renders
    * a title-only header. Its position (bottom-left vs bottom-right) identifies
@@ -32,6 +39,8 @@ function LayerList({
   onToggle,
   onToggleRule,
   onRemove,
+  onMove,
+  moveDirection,
 }: {
   entries: LayerEntry[];
   hiddenIds: Set<string>;
@@ -39,6 +48,8 @@ function LayerList({
   onToggle: (layerId: string) => void;
   onToggleRule: (layerId: string, ruleName: string) => void;
   onRemove: (layerId: string) => void;
+  onMove?: (layerId: string) => void;
+  moveDirection?: "right" | "left";
 }) {
   if (entries.length === 0) return null;
 
@@ -104,6 +115,29 @@ function LayerList({
                 >
                   <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
                 </Button>
+                {onMove && (
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => onMove(config.id)}
+                    aria-label={
+                      moveDirection === "left"
+                        ? `Verplaats ${config.name} naar linker kaart`
+                        : `Verplaats ${config.name} naar rechter kaart`
+                    }
+                    title={
+                      moveDirection === "left"
+                        ? "Naar linker kaart"
+                        : "Naar rechter kaart"
+                    }
+                  >
+                    <Icon
+                      name={moveDirection === "left" ? "arrow_circle_left" : "arrow_circle_right"}
+                      size={chromeIconSize()}
+                      color={chromeIconColor()}
+                    />
+                  </Button>
+                )}
               </div>
 
               {/* Per-rule class toggles — only when there's more than one rule */}
@@ -175,6 +209,8 @@ export const Legend = memo(function Legend({
   onToggle,
   onToggleRule,
   onRemove,
+  onMove,
+  moveDirection,
   nextBasemapLabel,
   onCycleBasemap,
   onClose,
@@ -224,6 +260,8 @@ export const Legend = memo(function Legend({
           onToggle={onToggle}
           onToggleRule={onToggleRule}
           onRemove={onRemove}
+          onMove={onMove}
+          moveDirection={moveDirection}
         />
       )}
     </div>

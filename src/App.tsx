@@ -483,6 +483,29 @@ function App({
     [mapRightLayers],
   );
 
+  // Move a layer between maps: re-add its config to the destination map, then
+  // remove it from the source. The layer's config is the source of truth for
+  // which map it lives on, so the legend button icon follows automatically.
+  const handleMoveToRight = useCallback(
+    (layerId: string) => {
+      const entry = mapLeftLayers.layerEntries.find((e) => e.config.id === layerId);
+      if (!entry) return;
+      mapRightLayers.addLayer(entry.config, mapRightRef.current?.mapRef ?? { current: null });
+      mapLeftLayers.removeLayer(layerId, mapLeftRef.current?.mapRef ?? { current: null });
+    },
+    [mapLeftLayers, mapRightLayers],
+  );
+
+  const handleMoveToLeft = useCallback(
+    (layerId: string) => {
+      const entry = mapRightLayers.layerEntries.find((e) => e.config.id === layerId);
+      if (!entry) return;
+      mapLeftLayers.addLayer(entry.config, mapLeftRef.current?.mapRef ?? { current: null });
+      mapRightLayers.removeLayer(layerId, mapRightRef.current?.mapRef ?? { current: null });
+    },
+    [mapLeftLayers, mapRightLayers],
+  );
+
   // Fired once anchors + overlay are (re)loaded — on initial load and after a
   // basemap swap. setStyle wipes native MVT/COG layers, so re-add them; the
   // helpers are idempotent and skip layers/sources that already exist.
@@ -666,6 +689,8 @@ function App({
               onToggle={handleToggleB}
               onToggleRule={handleToggleRuleB}
               onRemove={handleRemoveB}
+              onMove={handleMoveToLeft}
+              moveDirection="left"
             />
           )}
           <MapAttribution />
@@ -775,6 +800,8 @@ function App({
             onToggle={leftLegendUsesMapB ? handleToggleB : handleToggleA}
             onToggleRule={leftLegendUsesMapB ? handleToggleRuleB : handleToggleRuleA}
             onRemove={leftLegendUsesMapB ? handleRemoveB : handleRemoveA}
+            onMove={leftLegendUsesMapB ? handleMoveToLeft : handleMoveToRight}
+            moveDirection={leftLegendUsesMapB ? "left" : "right"}
             nextBasemapLabel={nextBasemap.label}
             onCycleBasemap={cycleBasemap}
             onClose={toggleLegendMinimized}
