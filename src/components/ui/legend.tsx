@@ -1,6 +1,5 @@
 import { memo } from "react";
 import type { LayerEntry } from "@/hooks/use-map-layers";
-import { isChartEligible } from "@/layers/charts";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
@@ -26,12 +25,6 @@ interface LegendProps {
    * the legend then lists map B — that's the map actually on screen.
    */
   mapBOnTop: boolean;
-  /** Layer currently shown in the analytics panel (null = panel closed). */
-  selectedChartLayerId: string | null;
-  /** Select/deselect a layer for the analytics panel. */
-  onSelectChartLayer: (layerId: string) => void;
-  /** map.json `chartsPanel` gate — false restores plain visibility clicks. */
-  chartsEnabled: boolean;
   /** Label of the next basemap (shown in the toggle button's tooltip). */
   nextBasemapLabel: string;
   /** Cycle to the next background basemap. */
@@ -48,9 +41,6 @@ function LayerList({
   onToggle,
   onToggleRule,
   onRemove,
-  selectedChartLayerId,
-  onSelectChartLayer,
-  chartsEnabled,
 }: {
   label?: string;
   entries: LayerEntry[];
@@ -59,9 +49,6 @@ function LayerList({
   onToggle: (layerId: string) => void;
   onToggleRule: (layerId: string, ruleName: string) => void;
   onRemove: (layerId: string) => void;
-  selectedChartLayerId: string | null;
-  onSelectChartLayer: (layerId: string) => void;
-  chartsEnabled: boolean;
 }) {
   if (entries.length === 0) return null;
 
@@ -86,13 +73,10 @@ function LayerList({
           // deck-layer rules can. Render them as non-interactive swatches.
           const isCog = config.format === "cog";
           const layerHiddenRules = hiddenRules.get(config.id);
-          const selectable = chartsEnabled && isChartEligible(config);
-          const isSelected = selectable && selectedChartLayerId === config.id;
 
           return (
             <li key={config.id}>
-              {/* Layer row: swatch = visibility; name = analytics select on
-                  chart-eligible layers, visibility elsewhere; × = remove */}
+              {/* Layer row: swatch = visibility; name = visibility; × = remove */}
               <div className="group flex items-center rounded hover:bg-gray-100 transition-colors">
                 <button
                   onClick={() => onToggle(config.id)}
@@ -112,27 +96,19 @@ function LayerList({
                   />
                 </button>
                 <button
-                  onClick={() =>
-                    selectable ? onSelectChartLayer(config.id) : onToggle(config.id)
-                  }
+                  onClick={() => onToggle(config.id)}
                   className="flex min-w-0 flex-1 items-center gap-1.5 py-1 pr-1.5 text-left text-sm"
-                  title={selectable ? "Statistieken tonen" : "Zichtbaarheid"}
-                  aria-pressed={selectable ? isSelected : undefined}
+                  title="Zichtbaarheid"
                 >
                   <span
                     className={
-                      isSelected
-                        ? "text-orange-500 font-semibold"
-                        : isVisible
-                          ? "text-gray-800 font-medium"
-                          : "text-gray-400 line-through"
+                      isVisible
+                        ? "text-gray-800 font-medium"
+                        : "text-gray-400 line-through"
                     }
                   >
                     {config.name}
                   </span>
-                  {isSelected && (
-                    <Icon name="monitoring" size={14} className="flex-shrink-0 text-orange-500" />
-                  )}
                 </button>
                 <button
                   onClick={() => onRemove(config.id)}
@@ -221,14 +197,10 @@ export const Legend = memo(function Legend({
   onRemoveB,
   comparisonMode,
   mapBOnTop,
-  selectedChartLayerId,
-  onSelectChartLayer,
-  chartsEnabled,
   nextBasemapLabel,
   onCycleBasemap,
   onClose,
 }: LegendProps) {
-  const chartProps = { selectedChartLayerId, onSelectChartLayer, chartsEnabled };
   const visibleA = entriesA.filter((e) => !e.config.excludeFromLegend);
   const visibleB = entriesB.filter((e) => !e.config.excludeFromLegend);
   const hasLayers = visibleA.length > 0 || visibleB.length > 0;
@@ -275,7 +247,6 @@ export const Legend = memo(function Legend({
             onToggle={onToggleA}
             onToggleRule={onToggleRuleA}
             onRemove={onRemoveA}
-            {...chartProps}
           />
           <LayerList
             label="Rechter kaart"
@@ -285,7 +256,6 @@ export const Legend = memo(function Legend({
             onToggle={onToggleB}
             onToggleRule={onToggleRuleB}
             onRemove={onRemoveB}
-            {...chartProps}
           />
         </div>
       ) : mapBOnTop ? (
@@ -296,7 +266,6 @@ export const Legend = memo(function Legend({
           onToggle={onToggleB}
           onToggleRule={onToggleRuleB}
           onRemove={onRemoveB}
-          {...chartProps}
         />
       ) : (
         <LayerList
@@ -306,7 +275,6 @@ export const Legend = memo(function Legend({
           onToggle={onToggleA}
           onToggleRule={onToggleRuleA}
           onRemove={onRemoveA}
-          {...chartProps}
         />
       )}
     </div>
