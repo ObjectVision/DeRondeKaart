@@ -802,6 +802,9 @@ function App({
             onRemove={leftLegendUsesMapB ? handleRemoveB : handleRemoveA}
             onMove={leftLegendUsesMapB ? handleMoveToLeft : handleMoveToRight}
             moveDirection={leftLegendUsesMapB ? "left" : "right"}
+            // Moving the left map's only layer to the right map would empty the
+            // left map (which anchors the comparison) — grey the button out.
+            moveDisabled={!leftLegendUsesMapB && mapLeftLayers.layerEntries.length <= 1}
             nextBasemapLabel={nextBasemap.label}
             onCycleBasemap={cycleBasemap}
             onClose={toggleLegendMinimized}

@@ -113,23 +113,29 @@ export const Sidebar = memo(function Sidebar({
   }
 
   // Row click (anywhere except the on-map state toggle). One combined gesture:
-  //  - layer not on any map → add it to the left map; open its meta if any.
-  //  - layer on a map, meta open → close the meta.
-  //  - layer on a map, meta closed → (re)open the meta if any.
+  //  - meta panel open → close it (whether or not the layer is on a map).
+  //  - layer not on any map (meta collapsed) → add it to the left map; open its meta if any.
+  //  - layer on a map (meta collapsed) → remove the layer from every map.
   function handleRowClick(leaf: NavLeaf) {
-    const onMap = nav.isOnMap(leaf.id, "a") || nav.isOnMap(leaf.id, "b");
-    const hasMeta = Boolean(leaf.meta);
-
-    if (!onMap) {
-      nav.toggleOnMap(leaf.id, "a");
-      setMetaOpenLeafId(hasMeta ? leaf.id : null);
+    // An open meta panel always collapses first — even for an off-map layer.
+    if (metaOpenLeafId === leaf.id) {
+      setMetaOpenLeafId(null);
       return;
     }
 
-    // Already on a map: the row toggles the meta panel.
-    setMetaOpenLeafId((prev) =>
-      prev === leaf.id ? null : hasMeta ? leaf.id : null,
-    );
+    const onA = nav.isOnMap(leaf.id, "a");
+    const onB = nav.isOnMap(leaf.id, "b");
+
+    if (!onA && !onB) {
+      nav.toggleOnMap(leaf.id, "a");
+      setMetaOpenLeafId(leaf.meta ? leaf.id : null);
+      return;
+    }
+
+    // On a map with the meta collapsed → remove from every map it is on.
+    if (onA) nav.toggleOnMap(leaf.id, "a");
+    if (onB) nav.toggleOnMap(leaf.id, "b");
+    setMetaOpenLeafId(null);
   }
 
   return (
