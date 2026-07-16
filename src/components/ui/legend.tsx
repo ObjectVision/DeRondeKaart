@@ -21,6 +21,12 @@ interface LegendProps {
   onMove?: (layerId: string) => void;
   moveDirection?: "right" | "left";
   /**
+   * Grey out (disable) the move button — e.g. the left map holds only this one
+   * layer, so moving it to the right map would leave the left map empty (the
+   * right map cannot hold layers without a left map to anchor the comparison).
+   */
+  moveDisabled?: boolean;
+  /**
    * Header chrome (basemap toggle + collapse button) is shown only when these
    * are provided — the left-map legend hosts them; the right-map legend renders
    * a title-only header. Its position (bottom-left vs bottom-right) identifies
@@ -41,6 +47,7 @@ function LayerList({
   onRemove,
   onMove,
   moveDirection,
+  moveDisabled,
 }: {
   entries: LayerEntry[];
   hiddenIds: Set<string>;
@@ -50,6 +57,7 @@ function LayerList({
   onRemove: (layerId: string) => void;
   onMove?: (layerId: string) => void;
   moveDirection?: "right" | "left";
+  moveDisabled?: boolean;
 }) {
   if (entries.length === 0) return null;
 
@@ -119,6 +127,7 @@ function LayerList({
                   <Button
                     variant="ghost"
                     size="icon-sm"
+                    disabled={moveDisabled}
                     onClick={() => onMove(config.id)}
                     aria-label={
                       moveDirection === "left"
@@ -126,15 +135,18 @@ function LayerList({
                         : `Verplaats ${config.name} naar rechter kaart`
                     }
                     title={
-                      moveDirection === "left"
-                        ? "Naar linker kaart"
-                        : "Naar rechter kaart"
+                      moveDisabled
+                        ? "Voeg eerst een laag toe aan de linker kaart"
+                        : moveDirection === "left"
+                          ? "Naar linker kaart"
+                          : "Naar rechter kaart"
                     }
                   >
                     <Icon
                       name={moveDirection === "left" ? "arrow_circle_left" : "arrow_circle_right"}
                       size={chromeIconSize()}
-                      color={chromeIconColor()}
+                      color={moveDisabled ? undefined : chromeIconColor()}
+                      className={moveDisabled ? "text-gray-300" : undefined}
                     />
                   </Button>
                 )}
@@ -211,6 +223,7 @@ export const Legend = memo(function Legend({
   onRemove,
   onMove,
   moveDirection,
+  moveDisabled,
   nextBasemapLabel,
   onCycleBasemap,
   onClose,
@@ -262,6 +275,7 @@ export const Legend = memo(function Legend({
           onRemove={onRemove}
           onMove={onMove}
           moveDirection={moveDirection}
+          moveDisabled={moveDisabled}
         />
       )}
     </div>
