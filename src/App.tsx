@@ -287,13 +287,6 @@ function App({
       (mapLeftLayers.layerEntries.find((e) => e.config.id === selectedChartLayerId)?.config ??
         mapRightLayers.layerEntries.find((e) => e.config.id === selectedChartLayerId)?.config)) ||
     null;
-  const handleSelectChartLayer = useCallback(
-    (id: string) => {
-      setSelectedChartLayerId((prev) => (prev === id ? null : id));
-      setChartsMinimized(false);
-    },
-    [setChartsMinimized],
-  );
   const handleChartsClose = useCallback(() => setChartsMinimized(true), [setChartsMinimized]);
   // The selected layer was removed from both maps — close the panel.
   useEffect(() => {
@@ -770,9 +763,6 @@ function App({
             onRemoveB={handleRemoveB}
             comparisonMode={comparisonMode}
             mapBOnTop={showMapRight}
-            selectedChartLayerId={selectedChartLayerId}
-            onSelectChartLayer={handleSelectChartLayer}
-            chartsEnabled={chartsPanelEnabled}
             nextBasemapLabel={nextBasemap.label}
             onCycleBasemap={cycleBasemap}
             onClose={toggleLegendMinimized}
