@@ -30,8 +30,9 @@ import { useBoxSelect } from "@/hooks/use-box-select";
 import { useSelectionBoxLayers } from "@/hooks/use-selection-box-layer";
 import { useAnnotations } from "@/hooks/use-annotations";
 import { useCollab } from "@/hooks/use-collab";
-import { useAnnotationTool } from "@/hooks/use-annotation-tool";
-import { useAnnotationLayers } from "@/hooks/use-annotation-layers";
+import { useAnnotationTool, type AnnotationHit } from "@/hooks/use-annotation-tool";
+import { useAnnotationLayers, type PolygonHandleDatum } from "@/hooks/use-annotation-layers";
+import { centroid } from "@/lib/geo";
 import { AnnotationEditPopup } from "@/components/annotations/AnnotationEditPopup";
 import { PresenceBadge } from "@/components/annotations/PresenceBadge";
 import { restoreSnapshot } from "@/lib/annotation-restore";
@@ -267,9 +268,40 @@ function App({
     [annotations, collab.identity, captureSnapshot],
   );
 
+  const handleAnnotationCreatePolygon = useCallback(
+    (points: Array<{ lng: number; lat: number }>): string => {
+      const annotation: Annotation = {
+        id: crypto.randomUUID(),
+        center: centroid(points),
+        radiusM: 0,
+        points,
+        title: "",
+        description: "",
+        color: collab.identity.color,
+        author: collab.identity.name,
+        createdAt: Date.now(),
+        snapshot: captureSnapshot(),
+      };
+      annotations.add(annotation);
+      return annotation.id;
+    },
+    [annotations, collab.identity, captureSnapshot],
+  );
+
   const handleAnnotationMove = useCallback(
     (id: string, center: { lng: number; lat: number }) => {
       annotations.update(id, { center });
+    },
+    [annotations],
+  );
+
+  const handleAnnotationEditPoints = useCallback(
+    (
+      id: string,
+      points: Array<{ lng: number; lat: number }>,
+      center: { lng: number; lat: number },
+    ) => {
+      annotations.update(id, { points, center });
     },
     [annotations],
   );
@@ -304,28 +336,46 @@ function App({
     );
   }, []);
 
-  // Synchronous deck pick against a side's annotation circles, deciding at
-  // mousedown whether a drag creates, moves or resizes.
+  // Synchronous deck pick against a side's annotation layers, deciding at
+  // mousedown what the gesture edits. Handles (vertices, then edges) win over
+  // shape bodies, with a wider pick radius so they're easy to grab.
   const pickAnnotationAt = useCallback(
-    (side: "a" | "b", point: { x: number; y: number }): Annotation | null => {
+    (side: "a" | "b", point: { x: number; y: number }): AnnotationHit | null => {
       const handle = side === "a" ? mapLeftRef.current : mapRightRef.current;
       const overlay = handle?.overlayRef.current;
       if (!overlay) return null;
-      const info = overlay.pickObject({
-        x: point.x,
-        y: point.y,
-        radius: 2,
-        layerIds: [`annotations-circles-${side}`],
-      });
-      return (info?.object as Annotation | undefined) ?? null;
+      const pick = (layerIds: string[], radius: number) =>
+        overlay.pickObject({ x: point.x, y: point.y, radius, layerIds });
+
+      const vertex = pick([`annotations-vertices-${side}`], 6);
+      if (vertex?.object) {
+        const d = vertex.object as PolygonHandleDatum;
+        return { type: "vertex", annotation: d.annotation, index: d.index };
+      }
+      const edge = pick([`annotations-edges-${side}`], 4);
+      if (edge?.object) {
+        const d = edge.object as PolygonHandleDatum;
+        return { type: "edge", annotation: d.annotation, index: d.index };
+      }
+      const body = pick(
+        [`annotations-circles-${side}`, `annotations-polygons-${side}`],
+        2,
+      );
+      if (body?.object) {
+        const annotation = body.object as Annotation;
+        return { type: annotation.points ? "polygon" : "circle", annotation };
+      }
+      return null;
     },
     [],
   );
 
   const annotationTool = useAnnotationTool({
     onCreate: handleAnnotationCreate,
+    onCreatePolygon: handleAnnotationCreatePolygon,
     onMove: handleAnnotationMove,
     onResize: handleAnnotationResize,
+    onEditPoints: handleAnnotationEditPoints,
     onRestore: handleAnnotationRestore,
     onDelete: (id) => annotations.remove(id),
     pickAnnotationAt,
@@ -352,16 +402,30 @@ function App({
     if (annotationSelectedId && !selectedAnnotation) annotationSelect(null);
   }, [annotationSelectedId, selectedAnnotation, annotationSelect]);
 
-  // Screen anchor for the edit popup: the circle center projected through the
+  // Screen anchor for the edit popup: the top of the selected shape (topmost
+  // vertex for polygons, top of the rim for circles), projected through the
   // left map (both maps share the viewState, so the projection is identical).
-  // viewState is a dependency so the popup tracks the circle while the map
+  // viewState is a dependency so the popup tracks the shape while the map
   // pans or a snapshot restore flies.
   const annotationPopupPos = useMemo(() => {
     if (!selectedAnnotation) return null;
     const map = mapLeftRef.current?.mapRef.current?.getMap();
     if (!map) return null;
-    const p = map.project([selectedAnnotation.center.lng, selectedAnnotation.center.lat]);
-    return { x: p.x, y: p.y };
+    const c = map.project([selectedAnnotation.center.lng, selectedAnnotation.center.lat]);
+    if (selectedAnnotation.points) {
+      let minY = Infinity;
+      for (const p of selectedAnnotation.points) {
+        const q = map.project([p.lng, p.lat]);
+        if (q.y < minY) minY = q.y;
+      }
+      return { x: c.x, y: minY };
+    }
+    // Circle rim top: the radius northward from the center (≈111.32 km/°lat).
+    const top = map.project([
+      selectedAnnotation.center.lng,
+      selectedAnnotation.center.lat + selectedAnnotation.radiusM / 111320,
+    ]);
+    return { x: c.x, y: top.y };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAnnotation, viewState]);
 
@@ -1085,6 +1149,23 @@ function App({
                       className={annotationDrawTool === "circle" ? undefined : "text-gray-400"}
                     />
                   </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() =>
+                      annotationSetTool(annotationDrawTool === "polygon" ? null : "polygon")
+                    }
+                    title="Polygoon plaatsen"
+                    aria-label="Polygoon plaatsen"
+                    aria-pressed={annotationDrawTool === "polygon"}
+                  >
+                    <Icon
+                      name="pentagon"
+                      size={chromeIconSize()}
+                      color={annotationDrawTool === "polygon" ? chromeIconColor() : undefined}
+                      className={annotationDrawTool === "polygon" ? undefined : "text-gray-400"}
+                    />
+                  </Button>
                   <div className="h-4 w-px bg-gray-200" aria-hidden />
                 </>
               )}
@@ -1124,18 +1205,14 @@ function App({
         </div>
       )}
 
-      {/* Annotation edit popup — anchored below the selected circle's center. */}
+      {/* Annotation title box — anchored above the top of the selected shape.
+          Title-only for now; Delete/Backspace removes, Escape deselects. */}
       {annotationsVisible && selectedAnnotation && annotationPopupPos && (
         <AnnotationEditPopup
           annotation={selectedAnnotation}
           x={annotationPopupPos.x}
           y={annotationPopupPos.y}
           onChange={(patch) => annotations.update(selectedAnnotation.id, patch)}
-          onDelete={() => {
-            annotations.remove(selectedAnnotation.id);
-            annotationSelect(null);
-          }}
-          onClose={() => annotationSelect(null)}
         />
       )}
 
