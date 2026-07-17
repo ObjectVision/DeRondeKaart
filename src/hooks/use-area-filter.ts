@@ -22,6 +22,11 @@ export interface AreaFilterState {
   entries: AreaFilterEntry[];
   /** Options for a dropdown, narrowed by coarser selections (cascade). */
   optionsFor(entry: AreaFilterEntry): AreaFilterOption[];
+  /**
+   * Whether the entry's `dependsOn` filters all have a selection. When false
+   * the dropdown must be disabled: the user cannot select a value yet.
+   */
+  isEnabled(entry: AreaFilterEntry): boolean;
   /** Selected codes per key field. */
   selections: Map<string, Set<string>>;
   toggleValue(key: string, code: string): void;
@@ -86,6 +91,43 @@ function extractOptions(
   const options = [...byCode.values()];
   options.sort((a, b) => a.label.localeCompare(b.label, "nl"));
   return options;
+}
+
+/**
+ * Are all of `entry`'s `dependsOn` filters satisfied (each has a non-empty
+ * selection)? Dependencies reference filters by `name`; unknown names are
+ * ignored so a stale config never permanently locks a filter.
+ */
+function dependenciesSatisfied(
+  entry: AreaFilterEntry,
+  entries: AreaFilterEntry[],
+  selections: Map<string, Set<string>>,
+): boolean {
+  const deps = entry.dependsOn ?? [];
+  return deps.every((depName) => {
+    const dep = entries.find((e) => e.name === depName);
+    if (!dep) return true;
+    const selected = selections.get(dep.key);
+    return selected !== undefined && selected.size > 0;
+  });
+}
+
+/**
+ * Clear the selection of every filter whose dependencies are no longer
+ * satisfied, so a disabled dropdown never keeps filtering the map. Mutates
+ * `selection` in place. Iterating coarse-to-fine propagates the effect down a
+ * chain in a single pass (dependencies always point at earlier entries).
+ */
+function pruneDisabledSelections(
+  selection: Map<string, Set<string>>,
+  entries: AreaFilterEntry[],
+): void {
+  for (const entry of entries) {
+    if ((entry.dependsOn?.length ?? 0) === 0) continue;
+    if (!dependenciesSatisfied(entry, entries, selection)) {
+      selection.set(entry.key, new Set());
+    }
+  }
 }
 
 /** Does an option belong to any of the selected ancestor codes? */
@@ -203,11 +245,23 @@ export function useAreaFilter(options?: { flyTo?: boolean }): AreaFilterState {
     [entries, optionsByKey, selections],
   );
 
+  const isEnabled = useCallback(
+    (entry: AreaFilterEntry): boolean =>
+      dependenciesSatisfied(entry, entries, selections),
+    [entries, selections],
+  );
+
   /** Push the new selection into the module store and mirror its version. */
-  const commit = useCallback((next: Map<string, Set<string>>) => {
-    setSelections(next);
-    setVersion(setAreaFilterSelection(next));
-  }, []);
+  const commit = useCallback(
+    (next: Map<string, Set<string>>) => {
+      // Drop selections whose dependencies are no longer met (keeps the map in
+      // sync with the disabled dropdowns).
+      pruneDisabledSelections(next, entries);
+      setSelections(next);
+      setVersion(setAreaFilterSelection(next));
+    },
+    [entries],
+  );
 
   const toggleValue = useCallback(
     (key: string, code: string) => {
@@ -261,8 +315,8 @@ export function useAreaFilter(options?: { flyTo?: boolean }): AreaFilterState {
     (key: string) => {
       const next = new Map(selections);
       next.set(key, new Set());
-      // Finer selections stay: they were chosen from a narrower option set and
-      // remain valid within the (now wider) unfiltered options.
+      // Finer selections that don't depend on this level stay valid within the
+      // (now wider) unfiltered options; `commit` prunes any that do depend on it.
       commit(next);
     },
     [selections, commit],
@@ -271,7 +325,7 @@ export function useAreaFilter(options?: { flyTo?: boolean }): AreaFilterState {
   // Stable identity so React.memo consumers (Sidebar) don't re-render on
   // unrelated App renders.
   return useMemo(
-    () => ({ entries, optionsFor, selections, toggleValue, clearLevel, version }),
-    [entries, optionsFor, selections, toggleValue, clearLevel, version],
+    () => ({ entries, optionsFor, isEnabled, selections, toggleValue, clearLevel, version }),
+    [entries, optionsFor, isEnabled, selections, toggleValue, clearLevel, version],
   );
 }

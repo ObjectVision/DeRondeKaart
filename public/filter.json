@@ -4,20 +4,23 @@
     "source": "https://data.woonzorglimburg.nl/parquet/cbsgemeente2026.parquet",
     "key": "gm_code",
     "label": "statnaam",
-    "placeholder": "Alle gemeenten"
+    "placeholder": "Alle gemeenten",
+    "dependsOn": []
   },
   {
     "name": "Wijk",
     "source": "https://data.woonzorglimburg.nl/parquet/cbswijk2026.parquet",
     "key": "wk_code",
     "label": "statnaam",
-    "placeholder": "Alle wijken"
+    "placeholder": "Alle wijken",
+    "dependsOn": ["Gemeente"]
   },
   {
     "name": "Buurt",
     "source": "https://data.woonzorglimburg.nl/parquet/cbsbuurt2026.parquet",
     "key": "bu_code",
     "label": "statnaam",
-    "placeholder": "Alle buurten"
+    "placeholder": "Alle buurten",
+    "dependsOn": ["Gemeente", "Wijk"]
   }
 ]
