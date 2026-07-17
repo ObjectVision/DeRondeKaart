@@ -9,6 +9,7 @@
  * filter skips inapplicable levels.
  */
 import type { Table } from "apache-arrow";
+import type { MultiPolygon, Polygon } from "geojson";
 
 /** Selection rectangle as [minLng, minLat, maxLng, maxLat]. */
 export type BBox = [number, number, number, number];
@@ -138,6 +139,58 @@ function walkCoords(value: unknown, depth: number, cb: (x: number, y: number) =>
     const child = typeof list.get === "function" ? list.get(i) : (value as unknown[])[i];
     walkCoords(child, depth - 1, cb);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Row geometry -> GeoJSON (used by the filtered study area overlay).
+// ---------------------------------------------------------------------------
+
+type Position = [number, number];
+
+/** Convert `depth` nested list levels below `value` into coordinate arrays. */
+function nestedCoords(value: unknown, depth: number): unknown[] {
+  if (depth === 0) {
+    let coord: Position | null = null;
+    readCoord(value, (x, y) => {
+      coord = [x, y];
+    });
+    return coord ? [coord] : [];
+  }
+  const list = value as { get?: (i: number) => unknown; length?: number };
+  const length = typeof list.length === "number" ? list.length : 0;
+  const out: unknown[] = [];
+  for (let i = 0; i < length; i++) {
+    const child = typeof list.get === "function" ? list.get(i) : (value as unknown[])[i];
+    if (depth === 1) {
+      // A ring / linestring: collect its coordinates flat.
+      readCoord(child, (x, y) => out.push([x, y]));
+    } else {
+      out.push(nestedCoords(child, depth - 1));
+    }
+  }
+  return out;
+}
+
+/**
+ * Read the row's geoarrow geometry as a GeoJSON Polygon or MultiPolygon
+ * (`null` for rows without a recognized polygonal geometry). Coordinates are
+ * copied out of the arrow buffers, so the result is independent of the table.
+ */
+export function rowGeometryToGeoJson(
+  table: Table,
+  index: number,
+): Polygon | MultiPolygon | null {
+  const geometry = resolveGeometry(table);
+  if (!geometry) return null;
+  const value = geometry.col.get(index);
+  if (value === null || value === undefined) return null;
+  if (geometry.depth === 2) {
+    return { type: "Polygon", coordinates: nestedCoords(value, 2) as Position[][] };
+  }
+  if (geometry.depth === 3) {
+    return { type: "MultiPolygon", coordinates: nestedCoords(value, 3) as Position[][][] };
+  }
+  return null; // point/line encodings aren't study areas
 }
 
 /**

@@ -4,6 +4,10 @@ import { MapView, BASEMAPS, DEFAULT_BASEMAP_ID } from "@/components/map/MapView"
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
+import {
+  useFilteredStudyArea,
+  useFilteredStudyAreaLayers,
+} from "@/hooks/use-filtered-study-area";
 import { useClickMarkerLayers } from "@/hooks/use-click-marker-layer";
 import { resolveMarkerPoint } from "@/lib/marker-snap";
 import { viewForBbox } from "@/lib/fly-to";
@@ -97,10 +101,25 @@ function App({
     (e) => !e.config.excludeFromComparison,
   );
 
+  // Gemeente/Wijk/Buurt area filter (sidebar). Selections live in a module
+  // store read by the layer accessors; on change, re-clone both maps' deck
+  // layers so the accessors re-evaluate. Declared up here because the study
+  // area below swaps to the selected gebied's geometry.
+  const areaFilter = useAreaFilter({ flyTo: filterFlyToEnabled });
+
   // Always-on study area, pinned above everything (incl. labels) on both maps.
   // Separate instances — Layer objects must not be shared across two Deck overlays.
+  // While a gebiedsfilter selection is active, the configured studyarea is
+  // replaced by the selected gebied (finest level): a 200 km mask disc around
+  // it plus the gebied outline.
   const studyLayersA = useStudyAreaLayer(studyAreaId);
   const studyLayersB = useStudyAreaLayer(showMapRight ? studyAreaId : undefined);
+  const filteredStudy = useFilteredStudyArea(areaFilter);
+  const filteredStudyLayersA = useFilteredStudyAreaLayers(filteredStudy, "a");
+  const filteredStudyLayersB = useFilteredStudyAreaLayers(
+    showMapRight ? filteredStudy : null,
+    "b",
+  );
   const mapLeftRef = useRef<MapViewHandle>(null);
   const mapRightRef = useRef<MapViewHandle>(null);
   const [mapLeftReady, setMapLeftReady] = useState(false);
@@ -169,13 +188,27 @@ function App({
 
   // Stable topLayers arrays — inline `[...a, ...b, ...c]` would feed MapView a
   // new array every render (60×/sec while panning), defeating its layer memo.
+  // The configured studyarea layers are CLONED on every evaluation: the stored
+  // instances get finalized (GL programs deleted) while a gebied selection
+  // replaces them, and handing a finalized instance back to deck draws against
+  // dead programs ("getUniformBlockIndex ... not an object" floods). A clone is
+  // a fresh unfinalized instance; deck matches it by id, so while the layers
+  // stay mounted the clone is a cheap no-op state transfer.
   const topLayersA = useMemo(
-    () => [...studyLayersA, ...markerLayersA, ...boxLayersA],
-    [studyLayersA, markerLayersA, boxLayersA],
+    () => [
+      ...(filteredStudy ? filteredStudyLayersA : studyLayersA.map((l) => l.clone({}))),
+      ...markerLayersA,
+      ...boxLayersA,
+    ],
+    [filteredStudy, filteredStudyLayersA, studyLayersA, markerLayersA, boxLayersA],
   );
   const topLayersB = useMemo(
-    () => [...studyLayersB, ...markerLayersB, ...boxLayersB],
-    [studyLayersB, markerLayersB, boxLayersB],
+    () => [
+      ...(filteredStudy ? filteredStudyLayersB : studyLayersB.map((l) => l.clone({}))),
+      ...markerLayersB,
+      ...boxLayersB,
+    ],
+    [filteredStudy, filteredStudyLayersB, studyLayersB, markerLayersB, boxLayersB],
   );
 
   // Mirror the tool state into both maps' cursor flags (crosshair while armed).
@@ -236,11 +269,6 @@ function App({
 
   // Navigation menu: add/remove layers against the shared per-map state
   const nav = useNavigation({ mapLeftLayers, mapRightLayers, mapLeftRef, mapRightRef });
-
-  // Gemeente/Wijk/Buurt area filter (sidebar). Selections live in a module
-  // store read by the layer accessors; on change, re-clone both maps' deck
-  // layers so the accessors re-evaluate.
-  const areaFilter = useAreaFilter({ flyTo: filterFlyToEnabled });
 
   // Minimize state for the whole navigation UI (Filter + Navigatie together,
   // persisted for the session). Collapsed via the close button inside the
