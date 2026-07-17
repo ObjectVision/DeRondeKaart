@@ -25,10 +25,19 @@ export interface AnnotationDraft {
   radiusM: number;
 }
 
+/** Drawing tools in the annotation toolbar. Only circles for now. */
+export type AnnotationToolKind = "circle";
+
 type DragState =
   | {
       mode: "create";
       center: { lng: number; lat: number };
+      startPoint: { x: number; y: number };
+    }
+  | {
+      /** Mousedown on empty map with no tool armed — the map pans; only used
+       * to detect a plain click (deselect) on mouseup. */
+      mode: "pan";
       startPoint: { x: number; y: number };
     }
   | {
@@ -58,11 +67,14 @@ export interface AnnotationToolOptions {
 }
 
 export interface AnnotationToolState {
-  /** The annotation tool is armed (toolbar toggle on). */
+  /** The annotation mode is on (toolbar toggle). */
   active: boolean;
   toggle: () => void;
-  /** Arm the tool (idempotent) — used when a share link joins a collab room. */
+  /** Turn the mode on (idempotent) — used when a share link joins a collab room. */
   activate: () => void;
+  /** Armed drawing tool, or null — with no tool the map navigates as usual. */
+  tool: AnnotationToolKind | null;
+  setTool: (tool: AnnotationToolKind | null) => void;
   /** In-progress circle while drawing a new annotation (null otherwise). */
   draft: AnnotationDraft | null;
   /** Selected annotation (edit popup target), or null. */
@@ -74,20 +86,26 @@ export interface AnnotationToolState {
 }
 
 /**
- * State and MapLibre mouse handlers for the annotation tool, modeled on
+ * State and MapLibre mouse handlers for the annotation mode, modeled on
  * use-box-select.ts. One shared instance serves both maps (annotations are
- * geographic; a drag completes on whichever map it started on):
+ * geographic; a drag completes on whichever map it started on).
  *
- * - drag on empty map     → draw a new circle (center = mousedown, radius = drag)
+ * The mode itself doesn't claim the map: with no tool armed, dragging empty
+ * map pans as usual. Only a drag that starts on a circle, or a drag while the
+ * circle tool is armed, is intercepted:
+ *
+ * - circle tool + drag on empty map → draw a new circle (center = mousedown,
+ *   radius = drag); a successful placement disarms the tool again
  * - drag on a circle body → move it; drag near its rim (outer 25%) → resize it
  * - plain click on a circle → select it + restore its snapshot
  * - plain click on empty map → deselect
  * - Escape → cancel the in-progress drag (reverting a move/resize), else
- *   deselect; the tool itself stays armed.
+ *   deselect, else disarm the tool; the mode itself stays on.
  * - Delete/Backspace → delete the selected circle (unless typing in a field)
  */
 export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToolState {
   const [active, setActive] = useState(false);
+  const [tool, setTool] = useState<AnnotationToolKind | null>(null);
   const [draft, setDraft] = useState<AnnotationDraft | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -125,6 +143,7 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
       }
       return !prev;
     });
+    setTool(null);
   }, []);
 
   const activate = useCallback(() => {
@@ -134,13 +153,13 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
   const handleMouseDown = useCallback(
     (e: MapLayerMouseEvent, side: "a" | "b") => {
       if (!active) return;
-      // Suppress MapLibre's drag-pan for this gesture only.
-      e.preventDefault();
       const startPoint = { x: e.point.x, y: e.point.y };
       const startLngLat = { lng: e.lngLat.lng, lat: e.lngLat.lat };
 
       const hit = optionsRef.current.pickAnnotationAt(side, startPoint);
       if (hit) {
+        // Suppress MapLibre's drag-pan for this gesture only.
+        e.preventDefault();
         // Inner 75% of the radius drags the circle; the rim band resizes it.
         const mode =
           distanceMeters(startLngLat, hit.center) / hit.radiusM > 0.75
@@ -154,16 +173,22 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
           startLngLat,
           startPoint,
         };
-      } else {
+      } else if (tool === "circle") {
+        e.preventDefault();
         dragRef.current = { mode: "create", center: startLngLat, startPoint };
+      } else {
+        // No tool armed: let the map pan; remember the start point only to
+        // recognize a plain click (deselect) on mouseup.
+        dragRef.current = { mode: "pan", startPoint };
       }
     },
-    [active],
+    [active, tool],
   );
 
   const handleMouseMove = useCallback((e: MapLayerMouseEvent) => {
     const drag = dragRef.current;
     if (!drag) return;
+    if (drag.mode === "pan") return; // the map handles the drag itself
 
     if (drag.mode === "create") {
       setDraft({
@@ -201,9 +226,16 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
       const dy = e.point.y - drag.startPoint.y;
       const isClick = Math.hypot(dx, dy) < MIN_DRAG_PX;
 
+      if (drag.mode === "pan") {
+        // Plain click on empty map: just deselect. A real drag panned the map.
+        if (isClick) setSelectedId(null);
+        return;
+      }
+
       if (drag.mode === "create") {
         if (isClick) {
-          // Plain click on empty map: just deselect.
+          // Plain click while the circle tool is armed: deselect, keep the
+          // tool armed so the next drag still places the circle.
           setSelectedId(null);
           return;
         }
@@ -211,6 +243,8 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
         if (radiusM < MIN_RADIUS_M) return;
         const id = optionsRef.current.onCreate(drag.center, radiusM);
         setSelectedId(id);
+        // One circle per arming — placing it returns to map navigation.
+        setTool(null);
         return;
       }
 
@@ -249,8 +283,9 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
     return () => window.removeEventListener("mouseup", onWindowMouseUp);
   }, [active, cancelDrag]);
 
-  // Escape: cancel an in-progress drag, otherwise deselect (close the popup).
-  // Deliberately does NOT exit the mode — that's the toolbar button's job.
+  // Escape: cancel an in-progress drag, otherwise deselect (close the popup),
+  // otherwise disarm the drawing tool. Deliberately does NOT exit the mode —
+  // that's the toolbar button's job.
   // Delete/Backspace: delete the selected circle — unless the keystroke is
   // editing text (the popup's title/description fields).
   useEffect(() => {
@@ -259,8 +294,10 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
       if (e.key === "Escape") {
         if (dragRef.current) {
           cancelDrag();
-        } else {
+        } else if (selectedId) {
           setSelectedId(null);
+        } else {
+          setTool(null);
         }
         return;
       }
@@ -284,6 +321,8 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
       active,
       toggle,
       activate,
+      tool,
+      setTool,
       draft,
       selectedId,
       select,
@@ -291,6 +330,6 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
       handleMouseMove,
       handleMouseUp,
     }),
-    [active, toggle, activate, draft, selectedId, select, handleMouseDown, handleMouseMove, handleMouseUp],
+    [active, toggle, activate, tool, draft, selectedId, select, handleMouseDown, handleMouseMove, handleMouseUp],
   );
 }
