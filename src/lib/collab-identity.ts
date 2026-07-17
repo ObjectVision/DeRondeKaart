@@ -35,6 +35,21 @@ const NAMES = [
   "IJsvogel",
   "Ooievaar",
   "Leeuwerik",
+  "Korenwolf",
+  "Das",
+  "Vos",
+  "Ree",
+  "Bever",
+  "Otter",
+  "Egel",
+  "Eekhoorn",
+  "Hermelijn",
+  "Boommarter",
+  "Hazelmuis",
+  "Muurhagedis",
+  "Vroedmeesterpad",
+  "Vuursalamander",
+  "Everzwijn",
 ];
 
 function generateIdentity(): CollabIdentity {
