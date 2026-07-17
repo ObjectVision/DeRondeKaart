@@ -171,8 +171,9 @@ function DeckGLOverlay(props: {
   mvtHoverRef: React.RefObject<boolean>;
   clickableIdsRef: React.RefObject<string[]>;
   drawModeRef: React.RefObject<boolean>;
+  panningRef: React.RefObject<boolean>;
 }) {
-  const { hoverRef, mvtHoverRef, clickableIdsRef, drawModeRef } = props;
+  const { hoverRef, mvtHoverRef, clickableIdsRef, drawModeRef, panningRef } = props;
   const overlay = useControl(
     () =>
       new MapboxOverlay({
@@ -188,11 +189,12 @@ function DeckGLOverlay(props: {
         },
         // deck owns the canvas cursor in interleaved mode; read the live hover
         // flags so a pointer shows over clickable features, grabbing while panning,
-        // crosshair while the area-select tool is armed.
+        // crosshair while the area-select tool is armed. `isDragging` only covers
+        // deck's own drags — MapLibre handles drag-pan, tracked via panningRef.
         getCursor: ({ isDragging }) =>
           drawModeRef.current
             ? "crosshair"
-            : isDragging
+            : isDragging || panningRef.current
               ? "grabbing"
               : hoverRef.current || mvtHoverRef.current
                 ? "pointer"
@@ -278,6 +280,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
     const mvtHoverRef = useRef<boolean>(false);
     const clickableIdsRef = useRef<string[]>([]);
     const drawModeRef = useRef<boolean>(false);
+    const panningRef = useRef<boolean>(false);
     const basemap = basemapById(basemapId ?? DEFAULT_BASEMAP_ID);
     // The basemap applied on the last completed (re)load — used to detect a swap.
     const appliedBasemapRef = useRef<string>(basemap.id);
@@ -329,6 +332,25 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       if (!map || !map.style) return;
       const styleLoaded = (map.style as unknown as { _loaded?: boolean })._loaded;
       if (styleLoaded) ensureAnchors(map);
+    }
+
+    // MapLibre drag-pan (deck's `isDragging` only tracks deck's own drags):
+    // flip panningRef for getCursor and set the canvas cursor directly — deck
+    // suspends hover picking during a drag, so getCursor alone may not re-run
+    // until the next mousemove after the drag ends.
+    function handleDragStart() {
+      panningRef.current = true;
+      const canvas = mapRef.current?.getMap().getCanvas();
+      if (canvas && !drawModeRef.current) canvas.style.cursor = "grabbing";
+    }
+
+    function handleDragEnd() {
+      panningRef.current = false;
+      const canvas = mapRef.current?.getMap().getCanvas();
+      if (canvas && !drawModeRef.current) {
+        canvas.style.cursor =
+          hoverRef.current || mvtHoverRef.current ? "pointer" : "grab";
+      }
     }
 
     function handleLoad() {
@@ -399,6 +421,8 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         }
         onLoad={handleLoad}
         onStyleData={handleStyleData}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
         onMove={onMove}
         onClick={onClick}
         onMouseMove={onMouseMove}
@@ -412,6 +436,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
           mvtHoverRef={mvtHoverRef}
           clickableIdsRef={clickableIdsRef}
           drawModeRef={drawModeRef}
+          panningRef={panningRef}
         />
       </Map>
     );

@@ -336,6 +336,8 @@ function App({
     activate: annotationActivate,
     select: annotationSelect,
     selectedId: annotationSelectedId,
+    tool: annotationDrawTool,
+    setTool: annotationSetTool,
   } = annotationTool;
 
   // Broadcast the local selection so peers see which circle is being viewed.
@@ -411,7 +413,9 @@ function App({
   );
 
   // Mirror the tool state into both maps' cursor flags (crosshair while armed).
-  const drawToolArmed = boxSelect.active || annotationActive;
+  // Annotation mode alone doesn't claim the crosshair — only an armed drawing
+  // tool does; without one the map navigates (and shows cursors) as usual.
+  const drawToolArmed = boxSelect.active || annotationDrawTool !== null;
   useEffect(() => {
     for (const handle of [mapLeftRef.current, mapRightRef.current]) {
       if (!handle) continue;
@@ -1060,6 +1064,30 @@ function App({
         >
           {annotationsEnabled && (
             <div className="flex flex-shrink-0 items-center gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+              {/* Drawing toolbar — left of the mode toggle, only in the mode.
+                  Arming the circle tool places one circle, then disarms. */}
+              {annotationActive && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() =>
+                      annotationSetTool(annotationDrawTool === "circle" ? null : "circle")
+                    }
+                    title="Cirkel plaatsen"
+                    aria-label="Cirkel plaatsen"
+                    aria-pressed={annotationDrawTool === "circle"}
+                  >
+                    <Icon
+                      name="circle"
+                      size={chromeIconSize()}
+                      color={annotationDrawTool === "circle" ? chromeIconColor() : undefined}
+                      className={annotationDrawTool === "circle" ? undefined : "text-gray-400"}
+                    />
+                  </Button>
+                  <div className="h-4 w-px bg-gray-200" aria-hidden />
+                </>
+              )}
               <Button
                 variant="ghost"
                 size="icon-sm"
