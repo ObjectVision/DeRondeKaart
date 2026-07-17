@@ -20,6 +20,12 @@ export interface AreaFilterEntry {
   label: string;
   /** Text shown when nothing is selected, e.g. "Alle gemeenten". */
   placeholder: string;
+  /**
+   * Names of coarser filters this one cascades from. The filter stays disabled
+   * until every listed dependency has a selection. Empty/absent = always usable.
+   * e.g. "Buurt" -> ["Gemeente", "Wijk"].
+   */
+  dependsOn?: string[];
 }
 
 let cachedEntries: AreaFilterEntry[] | null = null;
@@ -27,9 +33,17 @@ let cachedEntries: AreaFilterEntry[] | null = null;
 function isValidEntry(value: unknown): value is AreaFilterEntry {
   if (typeof value !== "object" || value === null) return false;
   const obj = value as Record<string, unknown>;
-  return (["name", "source", "key", "label", "placeholder"] as const).every(
+  const requiredOk = (["name", "source", "key", "label", "placeholder"] as const).every(
     (field) => typeof obj[field] === "string" && obj[field] !== "",
   );
+  if (!requiredOk) return false;
+  // `dependsOn`, when present, must be an array of strings.
+  if (obj.dependsOn !== undefined) {
+    if (!Array.isArray(obj.dependsOn) || obj.dependsOn.some((d) => typeof d !== "string")) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**

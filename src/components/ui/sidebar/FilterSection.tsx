@@ -7,22 +7,27 @@ import type { AreaFilterState } from "@/hooks/use-area-filter";
  */
 export function FilterSection({ areaFilter }: { areaFilter: AreaFilterState }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1.5">
       <h2 className="px-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
         Gebieden
       </h2>
-      {areaFilter.entries.map((entry) => (
-        <div key={entry.key} className="flex flex-col gap-1">
-          <label className="px-1 text-xs font-medium text-gray-600">{entry.name}</label>
+      {areaFilter.entries.map((entry) => {
+        const enabled = areaFilter.isEnabled(entry);
+        const placeholder = enabled
+          ? entry.placeholder
+          : `Kies eerst ${(entry.dependsOn ?? []).join(" en ")}`;
+        return (
           <MultiSelect
-            placeholder={entry.placeholder}
+            key={entry.key}
+            placeholder={placeholder}
+            disabled={!enabled}
             options={areaFilter.optionsFor(entry)}
             selected={areaFilter.selections.get(entry.key) ?? new Set()}
             onToggle={(code) => areaFilter.toggleValue(entry.key, code)}
             onClear={() => areaFilter.clearLevel(entry.key)}
           />
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

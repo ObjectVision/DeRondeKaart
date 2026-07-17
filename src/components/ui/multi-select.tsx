@@ -18,12 +18,15 @@ export function MultiSelect({
   selected,
   onToggle,
   onClear,
+  disabled = false,
 }: {
   placeholder: string;
   options: MultiSelectOption[];
   selected: Set<string>;
   onToggle: (code: string) => void;
   onClear: () => void;
+  /** When true the dropdown can't be opened (e.g. a dependency isn't set yet). */
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -64,8 +67,9 @@ export function MultiSelect({
       <button
         type="button"
         aria-expanded={open}
+        disabled={disabled}
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full cursor-pointer items-center justify-between gap-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-left text-sm transition-colors hover:border-gray-300"
+        className="flex w-full items-center justify-between gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-left text-sm transition-colors hover:border-gray-300 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400 disabled:hover:border-gray-200 enabled:cursor-pointer"
       >
         {selectedLabels.length === 0 ? (
           <span className="truncate text-gray-400">{placeholder}</span>
@@ -92,7 +96,7 @@ export function MultiSelect({
         </span>
       </button>
 
-      {open && (
+      {open && !disabled && (
         <div className="absolute left-0 right-0 top-full z-40 mt-1 max-h-64 overflow-y-auto rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
           <div className="sticky top-0 bg-white/95 p-1 backdrop-blur-sm">
             <input
