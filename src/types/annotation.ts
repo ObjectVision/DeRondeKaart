@@ -26,6 +26,8 @@ export interface Annotation {
   /** Polygon corner points, an open ring of ≥3 — present ⇒ polygon, absent ⇒
    * circle (annotations stored before polygons existed have no `points`). */
   points?: Array<{ lng: number; lat: number }>;
+  /** Present ⇒ location pin at `center` (radiusM is 0, no points). */
+  pin?: true;
   title: string;
   description: string;
   /** Author's identity color (hex) — tints the circle. */
