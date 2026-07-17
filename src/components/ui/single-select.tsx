@@ -1,31 +1,30 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@/components/ui/nav-icon";
 
-export interface MultiSelectOption {
+export interface SingleSelectOption {
   code: string;
   label: string;
 }
 
 /**
- * Hand-rolled multi-select dropdown (trigger styled like an input + a
- * searchable checkbox-list popover), matching the app's other hand-rolled
- * popovers. Stays open while picking multiple values; closes on outside
- * click or Escape.
+ * Hand-rolled single-selection combobox: a trigger styled like an input that
+ * expands into a searchable popover. Only one option can be selected at a time
+ * (radio-button rows); picking one replaces the previous choice and closes the
+ * popover. The "Alle …" row (or the trigger's clear button) clears the level.
+ * Closes on outside click or Escape. `disabled` (a cascading dependency isn't
+ * set yet) makes the trigger un-openable.
  */
-export function MultiSelect({
+export function SingleSelect({
   placeholder,
   options,
-  selected,
-  onToggle,
-  onClear,
+  selectedCode,
+  onSelect,
   disabled = false,
 }: {
   placeholder: string;
-  options: MultiSelectOption[];
-  selected: Set<string>;
-  onToggle: (code: string) => void;
-  onClear: () => void;
-  /** When true the dropdown can't be opened (e.g. a dependency isn't set yet). */
+  options: SingleSelectOption[];
+  selectedCode: string | null;
+  onSelect: (code: string | null) => void;
   disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -56,11 +55,15 @@ export function MultiSelect({
     [options, q],
   );
 
-  const selectedLabels = options.filter((o) => selected.has(o.code)).map((o) => o.label);
-  const summary =
-    selectedLabels.length <= 2
-      ? selectedLabels.join(", ")
-      : `${selectedLabels.slice(0, 2).join(", ")} +${selectedLabels.length - 2}`;
+  const selectedLabel =
+    selectedCode !== null
+      ? (options.find((o) => o.code === selectedCode)?.label ?? selectedCode)
+      : null;
+
+  function choose(code: string | null) {
+    onSelect(code);
+    setOpen(false);
+  }
 
   return (
     <div ref={rootRef} className="relative">
@@ -68,25 +71,28 @@ export function MultiSelect({
         type="button"
         aria-expanded={open}
         disabled={disabled}
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          setQuery(""); // fresh search each time the popover opens
+          setOpen((v) => !v);
+        }}
         className="flex w-full items-center justify-between gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-left text-sm transition-colors hover:border-gray-300 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400 disabled:hover:border-gray-200 enabled:cursor-pointer"
       >
-        {selectedLabels.length === 0 ? (
+        {selectedLabel === null ? (
           <span className="truncate text-gray-400">{placeholder}</span>
         ) : (
-          <span className="truncate text-gray-800" title={selectedLabels.join(", ")}>
-            {summary}
+          <span className="truncate text-gray-800" title={selectedLabel}>
+            {selectedLabel}
           </span>
         )}
         <span className="flex flex-shrink-0 items-center gap-0.5">
-          {selectedLabels.length > 0 && (
+          {selectedLabel !== null && !disabled && (
             <span
               role="button"
               title="Selectie wissen"
               className="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
               onClick={(e) => {
                 e.stopPropagation();
-                onClear();
+                onSelect(null);
               }}
             >
               <Icon name="close" size={16} />
@@ -107,29 +113,59 @@ export function MultiSelect({
               className="w-full rounded border border-gray-200 px-2 py-1 text-sm outline-none focus:border-blue-400"
             />
           </div>
+          {/* "Alle …" clears the level; hidden while searching to keep results clean. */}
+          {!q && (
+            <OptionRow
+              label={placeholder}
+              checked={selectedCode === null}
+              muted
+              onSelect={() => choose(null)}
+            />
+          )}
           {filtered.length === 0 && (
             <div className="px-2 py-1.5 text-sm text-gray-400">Geen resultaten</div>
           )}
-          {filtered.map((option) => {
-            const isSelected = selected.has(option.code);
-            return (
-              <button
-                key={option.code}
-                type="button"
-                onClick={() => onToggle(option.code)}
-                className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-sm text-gray-700 transition-colors hover:bg-gray-100"
-              >
-                <Icon
-                  name={isSelected ? "check_box" : "check_box_outline_blank"}
-                  size={18}
-                  className={isSelected ? "flex-shrink-0 text-blue-600" : "flex-shrink-0 text-gray-400"}
-                />
-                <span className="truncate">{option.label}</span>
-              </button>
-            );
-          })}
+          {filtered.map((option) => (
+            <OptionRow
+              key={option.code}
+              label={option.label}
+              checked={selectedCode === option.code}
+              onSelect={() => choose(option.code)}
+            />
+          ))}
         </div>
       )}
     </div>
+  );
+}
+
+function OptionRow({
+  label,
+  checked,
+  onSelect,
+  muted = false,
+}: {
+  label: string;
+  checked: boolean;
+  onSelect: () => void;
+  muted?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={checked}
+      onClick={onSelect}
+      className="flex w-full cursor-pointer items-center gap-2 rounded px-1.5 py-1 text-left text-sm transition-colors hover:bg-gray-100"
+    >
+      <Icon
+        name={checked ? "radio_button_checked" : "radio_button_unchecked"}
+        size={18}
+        className={checked ? "flex-shrink-0 text-blue-600" : "flex-shrink-0 text-gray-400"}
+      />
+      <span className={`truncate ${muted && !checked ? "text-gray-400" : "text-gray-700"}`}>
+        {label}
+      </span>
+    </button>
   );
 }

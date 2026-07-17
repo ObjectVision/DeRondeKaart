@@ -24,12 +24,16 @@ export interface AreaFilterState {
   optionsFor(entry: AreaFilterEntry): AreaFilterOption[];
   /**
    * Whether the entry's `dependsOn` filters all have a selection. When false
-   * the dropdown must be disabled: the user cannot select a value yet.
+   * the control must be disabled: the user cannot select a value yet.
    */
   isEnabled(entry: AreaFilterEntry): boolean;
-  /** Selected codes per key field. */
+  /**
+   * Selected codes per key field. Single-selection: each level holds at most
+   * one code (kept as a Set so the store/predicate layer stays unchanged).
+   */
   selections: Map<string, Set<string>>;
-  toggleValue(key: string, code: string): void;
+  /** Select a single value for a level, or clear it with `null`. */
+  setValue(key: string, code: string | null): void;
   clearLevel(key: string): void;
   /** Mirrors the module store version; bumps on every selection change. */
   version: number;
@@ -263,16 +267,11 @@ export function useAreaFilter(options?: { flyTo?: boolean }): AreaFilterState {
     [entries],
   );
 
-  const toggleValue = useCallback(
-    (key: string, code: string) => {
+  const setValue = useCallback(
+    (key: string, code: string | null) => {
       const next = new Map(selections);
-      const codes = new Set(next.get(key) ?? []);
-      if (codes.has(code)) {
-        codes.delete(code);
-      } else {
-        codes.add(code);
-      }
-      next.set(key, codes);
+      // Single-selection: replace the level with the chosen code (or clear it).
+      next.set(key, code === null ? new Set() : new Set([code]));
 
       // Prune finer selections orphaned by the change: every selected code in
       // a finer level must still pass the same ancestor test its options use.
@@ -325,7 +324,7 @@ export function useAreaFilter(options?: { flyTo?: boolean }): AreaFilterState {
   // Stable identity so React.memo consumers (Sidebar) don't re-render on
   // unrelated App renders.
   return useMemo(
-    () => ({ entries, optionsFor, isEnabled, selections, toggleValue, clearLevel, version }),
-    [entries, optionsFor, isEnabled, selections, toggleValue, clearLevel, version],
+    () => ({ entries, optionsFor, isEnabled, selections, setValue, clearLevel, version }),
+    [entries, optionsFor, isEnabled, selections, setValue, clearLevel, version],
   );
 }
