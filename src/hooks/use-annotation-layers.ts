@@ -1,9 +1,16 @@
 import { useMemo } from "react";
 import type { Layer } from "@deck.gl/core";
-import { IconLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
+import { IconLayer, PathLayer, PolygonLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
 import { hexToRgba } from "@/lib/collab-identity";
 import type { Annotation, CollabPresence } from "@/types/annotation";
 import type { AnnotationDraft } from "@/hooks/use-annotation-tool";
+
+/** Datum for the selected polygon's pickable edge/vertex handle layers. */
+export interface PolygonHandleDatum {
+  annotation: Annotation;
+  /** Vertex index; for an edge, the index of its start vertex. */
+  index: number;
+}
 
 const FONT_FAMILY = "'Geist Variable', system-ui, sans-serif";
 const CURSOR_ICON = {
@@ -62,10 +69,28 @@ export function useAnnotationLayers({
   return useMemo(() => {
     if (!visible) return [];
     const activeKey = [...activeIds].sort().join(",");
+    const circles = annotations.filter((a) => !a.points);
+    const polygons = annotations.filter((a) => a.points);
     const layers: Layer[] = [
+      new PolygonLayer<Annotation>({
+        id: `annotations-polygons-${suffix}`,
+        data: polygons,
+        pickable: true,
+        stroked: true,
+        filled: true,
+        getPolygon: (d) => d.points!.map((p) => [p.lng, p.lat]),
+        getFillColor: (d) => hexToRgba(d.color, 30),
+        getLineColor: (d) => hexToRgba(d.color, activeIds.has(d.id) ? 255 : 200),
+        getLineWidth: (d) => (activeIds.has(d.id) ? 3.5 : 2),
+        lineWidthUnits: "pixels",
+        updateTriggers: {
+          getLineColor: activeKey,
+          getLineWidth: activeKey,
+        },
+      }),
       new ScatterplotLayer<Annotation>({
         id: `annotations-circles-${suffix}`,
-        data: annotations,
+        data: circles,
         pickable: true,
         stroked: true,
         filled: true,
@@ -100,9 +125,60 @@ export function useAnnotationLayers({
       }),
     ];
 
-    if (draft) {
+    // Edit handles for the locally selected polygon (Figma-style): pickable
+    // per-edge segments (mousedown on one splits it) drawn over the polygon's
+    // own stroke in the same opaque style, and draggable corner handles.
+    const selectedPolygon = polygons.find((a) => a.id === selectedId);
+    if (selectedPolygon?.points) {
+      const pts = selectedPolygon.points;
+      const edges: Array<PolygonHandleDatum & { path: [number, number][] }> =
+        pts.map((p, i) => {
+          const q = pts[(i + 1) % pts.length];
+          return {
+            annotation: selectedPolygon,
+            index: i,
+            path: [
+              [p.lng, p.lat],
+              [q.lng, q.lat],
+            ],
+          };
+        });
+      const vertices: Array<PolygonHandleDatum & { position: [number, number] }> =
+        pts.map((p, i) => ({
+          annotation: selectedPolygon,
+          index: i,
+          position: [p.lng, p.lat],
+        }));
       layers.push(
-        new ScatterplotLayer<AnnotationDraft>({
+        new PathLayer<(typeof edges)[number]>({
+          id: `annotations-edges-${suffix}`,
+          data: edges,
+          pickable: true,
+          getPath: (d) => d.path,
+          getColor: hexToRgba(selectedPolygon.color, 255),
+          getWidth: 3.5,
+          widthUnits: "pixels",
+        }),
+        new ScatterplotLayer<(typeof vertices)[number]>({
+          id: `annotations-vertices-${suffix}`,
+          data: vertices,
+          pickable: true,
+          stroked: true,
+          filled: true,
+          radiusUnits: "pixels",
+          getPosition: (d) => d.position,
+          getRadius: 5,
+          getFillColor: [255, 255, 255, 255],
+          getLineColor: hexToRgba(selectedPolygon.color, 255),
+          getLineWidth: 1.5,
+          lineWidthUnits: "pixels",
+        }),
+      );
+    }
+
+    if (draft?.kind === "circle") {
+      layers.push(
+        new ScatterplotLayer<AnnotationDraft & { kind: "circle" }>({
           id: `annotations-draft-${suffix}`,
           data: [draft],
           pickable: false,
@@ -111,6 +187,21 @@ export function useAnnotationLayers({
           radiusUnits: "meters",
           getPosition: (d) => [d.center.lng, d.center.lat],
           getRadius: (d) => d.radiusM,
+          getFillColor: hexToRgba(identityColor, 15),
+          getLineColor: hexToRgba(identityColor, 180),
+          getLineWidth: 2,
+          lineWidthUnits: "pixels",
+        }),
+      );
+    } else if (draft?.kind === "polygon") {
+      layers.push(
+        new PolygonLayer<AnnotationDraft & { kind: "polygon" }>({
+          id: `annotations-draft-${suffix}`,
+          data: [draft],
+          pickable: false,
+          stroked: true,
+          filled: true,
+          getPolygon: (d) => d.points.map((p) => [p.lng, p.lat]),
           getFillColor: hexToRgba(identityColor, 15),
           getLineColor: hexToRgba(identityColor, 180),
           getLineWidth: 2,
@@ -158,5 +249,5 @@ export function useAnnotationLayers({
     }
 
     return layers;
-  }, [visible, annotations, draft, activeIds, peers, identityColor, suffix]);
+  }, [visible, annotations, draft, activeIds, selectedId, peers, identityColor, suffix]);
 }

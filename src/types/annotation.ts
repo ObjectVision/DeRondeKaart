@@ -18,9 +18,14 @@ export interface AnnotationSnapshot {
 export interface Annotation {
   /** crypto.randomUUID() — also the Y.Map key. */
   id: string;
+  /** Circle center; for polygons the vertex centroid (label/popup anchor),
+   * kept in sync with `points` on every edit. */
   center: { lng: number; lat: number };
-  /** Circle radius in meters. */
+  /** Circle radius in meters (0 for polygons). */
   radiusM: number;
+  /** Polygon corner points, an open ring of ≥3 — present ⇒ polygon, absent ⇒
+   * circle (annotations stored before polygons existed have no `points`). */
+  points?: Array<{ lng: number; lat: number }>;
   title: string;
   description: string;
   /** Author's identity color (hex) — tints the circle. */
