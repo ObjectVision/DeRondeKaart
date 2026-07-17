@@ -1,0 +1,1 @@
+Don't interact with the git repository
