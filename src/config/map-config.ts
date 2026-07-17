@@ -112,6 +112,13 @@ export interface MapConfig {
    * the selected areas (centroid + fitting zoom). Defaults to `true`.
    */
   filterFlyTo: boolean;
+  /**
+   * Whether the annotation tool is available: the top-right toolbutton that
+   * arms circle-drawing (with per-circle title/description + a snapshot of
+   * filters/layers/camera) and, combined with `share`, collaborative
+   * annotation sessions over the `/collab` WebSocket. Defaults to `false`.
+   */
+  annotations: boolean;
   /** Visibility of the search-tool / zoom controls. Both default to `true`. */
   mapControls: MapControlsConfig;
   /** Appearance of the on-click marker. Falls back to {@link DEFAULT_CLICK_MARKER}. */
@@ -188,6 +195,7 @@ export const DEFAULT_MAP_CONFIG: MapConfig = {
   chartsPanel: true,
   share: true,
   filterFlyTo: true,
+  annotations: false,
   mapControls: DEFAULT_MAP_CONTROLS,
   clickMarker: DEFAULT_CLICK_MARKER,
   chromeIconSize: DEFAULT_CHROME_ICON_SIZE,
@@ -355,6 +363,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
   const chartsPanel = validateBool(data.chartsPanel, "chartsPanel", DEFAULT_MAP_CONFIG.chartsPanel);
   const share = validateBool(data.share, "share", DEFAULT_MAP_CONFIG.share);
   const filterFlyTo = validateBool(data.filterFlyTo, "filterFlyTo", DEFAULT_MAP_CONFIG.filterFlyTo);
+  const annotations = validateBool(data.annotations, "annotations", DEFAULT_MAP_CONFIG.annotations);
 
   let navigationMode = DEFAULT_MAP_CONFIG.navigationMode;
   if (data.navigationMode === "top" || data.navigationMode === "sidebar") {
@@ -402,6 +411,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     chartsPanel,
     share,
     filterFlyTo,
+    annotations,
     mapControls,
     clickMarker,
     chromeIconSize: chromeIcon,

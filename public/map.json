@@ -18,6 +18,7 @@
   "chromeIconSize": 22,
   "chromeIconColor": "#3E74A7",
   "share": true,
+  "annotations": true,
   "clickMarker": {
     "icon": "location_on",
     "size": 30,

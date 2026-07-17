@@ -25,7 +25,13 @@ interface UseUrlCommandsOptions {
   mapRight: MapSide;
   ready: boolean;
   applyView: (view: ViewUpdate) => void;
+  /** A share link carried an `annot` room id — join that collab session. */
+  onAnnotationRoom?: (roomId: string) => void;
 }
+
+/** Room ids are UUIDv4 — anything else is rejected (also server-side). */
+const ANNOT_ROOM_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface LayerCommand {
   cmd: "add" | "remove" | "hide" | "refresh";
@@ -94,7 +100,7 @@ function parseCommands(params: URLSearchParams): LayerCommand[] {
   return commands;
 }
 
-export function useUrlCommands({ mapLeft, mapRight, ready, applyView }: UseUrlCommandsOptions) {
+export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotationRoom }: UseUrlCommandsOptions) {
   const configsRef = useRef<LayerConfig[] | null>(null);
   const processedInitialHash = useRef(false);
 
@@ -152,13 +158,22 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView }: UseUrlCo
     const view = parseView(params);
     const hasView = view.zoom !== undefined || view.center !== undefined;
 
-    if (commands.length > 0 || hasView) {
+    const annotRaw = params.get("annot");
+    const annotRoom = annotRaw && ANNOT_ROOM_RE.test(annotRaw) ? annotRaw : null;
+    if (annotRaw && !annotRoom) {
+      console.warn(`Invalid annot room id: "${annotRaw}"`);
+    }
+
+    if (commands.length > 0 || hasView || annotRoom) {
       if (hasView) applyView(view);
       if (commands.length > 0) processCommands(commands);
+      // The joined room lives on in state — the hash is still cleared below,
+      // like every other processed command.
+      if (annotRoom) onAnnotationRoom?.(annotRoom);
       // Clear the hash after processing (without reload or hashchange event)
       window.history.replaceState({}, "", window.location.pathname + window.location.search);
     }
-  }, [processCommands, applyView]);
+  }, [processCommands, applyView, onAnnotationRoom]);
 
   // Process hash params on mount (once ready) and on hashchange
   useEffect(() => {

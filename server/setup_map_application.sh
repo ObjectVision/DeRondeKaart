@@ -37,6 +37,7 @@ $(print_kv "--repo URL"         "git remote of the Vite/React source repo")
 $(print_kv "--branch NAME"      "git branch to deploy (default: main)")
 $(print_kv "--node-version N"   "Node.js major version to install if missing (default: 20)")
 $(print_kv "--frame-ancestors V" "CSP frame-ancestors value; blank = embeddable anywhere (default: blank)")
+$(print_kv "--collab-port N"    "proxy /collab to a collab server on 127.0.0.1:N; blank = off (default: blank)")
 $(print_kv "--secret HEX"       "GitHub webhook HMAC secret (default: generated)")
 $(print_kv "--email ADDR"       "email for Let's Encrypt registration")
 $(print_kv "--no-tls"           "skip certbot; serve plain HTTP only")
@@ -46,7 +47,7 @@ EOF
 }
 
 SLUG=""; HOST=""; REPO=""; BRANCH=""; NODE_VERSION=""; FRAME_ANCESTORS=""
-SECRET=""; EMAIL=""; NO_TLS=0; FRAME_SET=0
+SECRET=""; EMAIL=""; NO_TLS=0; FRAME_SET=0; COLLAB_PORT=""; COLLAB_SET=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -62,6 +63,8 @@ while [ $# -gt 0 ]; do
     --node-version=*)   NODE_VERSION="${1#*=}"; shift ;;
     --frame-ancestors)  FRAME_ANCESTORS="$2"; FRAME_SET=1; shift 2 ;;
     --frame-ancestors=*) FRAME_ANCESTORS="${1#*=}"; FRAME_SET=1; shift ;;
+    --collab-port)      COLLAB_PORT="$2"; COLLAB_SET=1; shift 2 ;;
+    --collab-port=*)    COLLAB_PORT="${1#*=}"; COLLAB_SET=1; shift ;;
     --secret)           SECRET="$2"; shift 2 ;;
     --secret=*)         SECRET="${1#*=}"; shift ;;
     --email)            EMAIL="$2"; shift 2 ;;
@@ -88,6 +91,15 @@ if [ "$FRAME_SET" != "1" ] && [ "$ASSUME_YES" != "1" ]; then
   ask FRAME_ANCESTORS "CSP frame-ancestors (blank = embeddable anywhere)" " "
   FRAME_ANCESTORS="${FRAME_ANCESTORS# }"
 fi
+# collab-port: blank means no /collab proxy (collaborative annotation off).
+# The port is a collab server instance provisioned by setup_collab_server.sh.
+if [ "$COLLAB_SET" != "1" ] && [ "$ASSUME_YES" != "1" ]; then
+  ask COLLAB_PORT "Collab server port on 127.0.0.1 (blank = no collaboration)" " "
+  COLLAB_PORT="${COLLAB_PORT# }"
+fi
+if [ -n "$COLLAB_PORT" ]; then
+  [[ "$COLLAB_PORT" =~ ^[0-9]+$ ]] || die "Invalid --collab-port '$COLLAB_PORT'."
+fi
 ask_secret SECRET "GitHub webhook secret (HMAC)"
 if [ "$NO_TLS" != "1" ]; then
   ask EMAIL "Email for Let's Encrypt" ""
@@ -109,6 +121,7 @@ info "repo dir        : $REPO_DIR"
 info "deploy script   : $DEPLOY_SCRIPT"
 info "webhook hook id : $HOOK_ID  ->  https://$HOST/hooks/$HOOK_ID"
 info "frame-ancestors : ${FRAME_ANCESTORS:-(none — embeddable anywhere)}"
+info "collab proxy    : $([ -n "$COLLAB_PORT" ] && echo "/collab -> 127.0.0.1:$COLLAB_PORT" || echo "(off)")"
 info "TLS             : $([ "$NO_TLS" = 1 ] && echo disabled || echo "certbot ($EMAIL)")"
 echo
 confirm "Proceed?" || die "Aborted."
@@ -199,6 +212,23 @@ else
   FRAME_HEADER="    # No framing restriction: embeddable in any site/dashboard (Power BI, etc.)."
 fi
 
+# Collaborative-annotation WebSocket proxy. Same pattern as /hooks/: a path on
+# this host forwarded to a localhost daemon — certbot's TLS then covers wss://
+# with no extra subdomain or certificate.
+if [ -n "$COLLAB_PORT" ]; then
+  COLLAB_BLOCK="    location /collab {
+        proxy_pass http://127.0.0.1:$COLLAB_PORT;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection \"upgrade\";
+        proxy_set_header Host \$host;
+        proxy_read_timeout 1h;
+        proxy_send_timeout 1h;
+    }"
+else
+  COLLAB_BLOCK="    # No collab server proxied (re-run with --collab-port to enable)."
+fi
+
 nginx_write_site "$SLUG" <<EOF
 server {
     listen 80;
@@ -227,6 +257,8 @@ server {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_read_timeout 30s;
     }
+
+$COLLAB_BLOCK
 
 $FRAME_HEADER
     add_header X-Content-Type-Options "nosniff" always;

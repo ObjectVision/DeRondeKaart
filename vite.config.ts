@@ -11,6 +11,17 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    proxy: {
+      // Collaborative-annotation WebSocket — same-origin /collab in dev too
+      // (mirrors the nginx proxy in production). Run the server first:
+      //   cd collab-server && npm run dev
+      "/collab": {
+        target: "ws://localhost:5174",
+        ws: true,
+      },
+    },
+  },
   build: {
     rollupOptions: {
       output: {

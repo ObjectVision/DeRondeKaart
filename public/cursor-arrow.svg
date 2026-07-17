@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <!-- Classic pointer arrow, tip at (5,3). Rendered by deck.gl as a tinted
+       mask (only the alpha channel matters), so the fill color is arbitrary. -->
+  <path fill="#fff" d="M5 3v17l4.6-4.4 2.6 5.4 2.8-1.3-2.6-5.4 6.6-.6z"/>
+</svg>
