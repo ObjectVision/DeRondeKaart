@@ -10,6 +10,16 @@ const MIN_RADIUS_M = 5;
 /** Minimum interval between live Y.Map writes while dragging (peers see it). */
 const EDIT_THROTTLE_MS = 50;
 
+/** The keystroke lands in a text field (e.g. the edit popup's inputs). */
+function isEditingText(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLElement &&
+    (target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target.isContentEditable)
+  );
+}
+
 export interface AnnotationDraft {
   center: { lng: number; lat: number };
   radiusM: number;
@@ -38,6 +48,8 @@ export interface AnnotationToolOptions {
   onResize(id: string, radiusM: number): void;
   /** Plain click on an existing circle — restore its snapshot. */
   onRestore(id: string): void;
+  /** Delete/Backspace pressed while a circle is selected. */
+  onDelete(id: string): void;
   /** Synchronous deck pick against the given map side's annotation circles. */
   pickAnnotationAt(
     side: "a" | "b",
@@ -72,6 +84,7 @@ export interface AnnotationToolState {
  * - plain click on empty map → deselect
  * - Escape → cancel the in-progress drag (reverting a move/resize), else
  *   deselect; the tool itself stays armed.
+ * - Delete/Backspace → delete the selected circle (unless typing in a field)
  */
 export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToolState {
   const [active, setActive] = useState(false);
@@ -238,19 +251,33 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
 
   // Escape: cancel an in-progress drag, otherwise deselect (close the popup).
   // Deliberately does NOT exit the mode — that's the toolbar button's job.
+  // Delete/Backspace: delete the selected circle — unless the keystroke is
+  // editing text (the popup's title/description fields).
   useEffect(() => {
     if (!active) return;
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key !== "Escape") return;
-      if (dragRef.current) {
-        cancelDrag();
-      } else {
+      if (e.key === "Escape") {
+        if (dragRef.current) {
+          cancelDrag();
+        } else {
+          setSelectedId(null);
+        }
+        return;
+      }
+      if (
+        (e.key === "Delete" || e.key === "Backspace") &&
+        selectedId &&
+        !dragRef.current &&
+        !isEditingText(e.target)
+      ) {
+        e.preventDefault();
         setSelectedId(null);
+        optionsRef.current.onDelete(selectedId);
       }
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [active, cancelDrag]);
+  }, [active, cancelDrag, selectedId]);
 
   return useMemo(
     () => ({

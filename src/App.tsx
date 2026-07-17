@@ -327,6 +327,7 @@ function App({
     onMove: handleAnnotationMove,
     onResize: handleAnnotationResize,
     onRestore: handleAnnotationRestore,
+    onDelete: (id) => annotations.remove(id),
     pickAnnotationAt,
   });
   const {
