@@ -758,6 +758,7 @@ function App({
           hiddenIdsB={mapRightLayers.hiddenIds}
           basemapId={basemapId}
           studyAreaId={studyAreaId}
+          filteredStudy={filteredStudy}
           viewState={viewState}
         />
       )}

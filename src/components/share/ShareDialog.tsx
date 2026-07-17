@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 import { ExportPreviewMap, type ExportPreviewHandle } from "@/components/share/ExportPreviewMap";
+import type { FilteredStudyArea } from "@/hooks/use-filtered-study-area";
 import { SocialIcon, type SocialPlatform } from "@/components/share/social-icons";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import type { ViewState } from "@/components/map/MapView";
@@ -87,6 +88,7 @@ export function ShareDialog({
   hiddenIdsB,
   basemapId,
   studyAreaId,
+  filteredStudy,
   viewState,
 }: {
   open: boolean;
@@ -102,6 +104,8 @@ export function ShareDialog({
   hiddenIdsB: Set<string>;
   basemapId: string;
   studyAreaId?: string;
+  /** Gebiedsfilter-driven studyarea; replaces the configured one when set. */
+  filteredStudy?: FilteredStudyArea | null;
   /** The MAIN map's view — seeds the preview and is what the share URL encodes. */
   viewState: ViewState;
 }) {
@@ -240,6 +244,7 @@ export function ShareDialog({
                     hiddenRules={hiddenRules}
                     basemapId={basemapId}
                     studyAreaId={studyAreaId}
+                    filteredStudy={filteredStudy}
                     initialViewState={viewState}
                   />
                 )}
