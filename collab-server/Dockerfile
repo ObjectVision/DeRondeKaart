@@ -14,6 +14,7 @@ ENV NODE_ENV=production
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
+ENV HOST=0.0.0.0
 ENV PORT=5174
 ENV DB_PATH=/data/annotations.db
 EXPOSE 5174
