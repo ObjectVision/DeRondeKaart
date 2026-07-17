@@ -13,6 +13,10 @@ import { MapView } from "@/components/map/MapView";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers, type LayerEntry } from "@/hooks/use-map-layers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
+import {
+  useFilteredStudyAreaLayers,
+  type FilteredStudyArea,
+} from "@/hooks/use-filtered-study-area";
 
 export interface ExportPreviewHandle {
   /** The preview's raw MapLibre map (null until loaded). */
@@ -36,14 +40,21 @@ export const ExportPreviewMap = forwardRef<
     hiddenRules: globalThis.Map<string, Set<string>>;
     basemapId: string;
     studyAreaId?: string;
+    /** Gebiedsfilter-driven studyarea; replaces the configured one when set. */
+    filteredStudy?: FilteredStudyArea | null;
     initialViewState: ViewState;
   }
 >(function ExportPreviewMap(
-  { entries, hiddenIds, hiddenRules, basemapId, studyAreaId, initialViewState },
+  { entries, hiddenIds, hiddenRules, basemapId, studyAreaId, filteredStudy, initialViewState },
   ref,
 ) {
   const layers = useMapLayers();
-  const studyLayers = useStudyAreaLayer(studyAreaId);
+  // Same swap as the main maps: a gebiedsfilter selection replaces the
+  // configured studyarea (skip loading it entirely — the dialog is a per-open
+  // snapshot, so the choice never flips while mounted). Own layer instances:
+  // deck Layers can't be shared across overlays.
+  const studyLayers = useStudyAreaLayer(filteredStudy ? undefined : studyAreaId);
+  const filteredStudyLayers = useFilteredStudyAreaLayers(filteredStudy ?? null, "export");
   const mapHandle = useRef<MapViewHandle>(null);
   const [viewState, setViewState] = useState<ViewState>(initialViewState);
   // The dialog mounts a fresh instance per open, so replay-once refs reset
@@ -119,7 +130,7 @@ export const ExportPreviewMap = forwardRef<
     <MapView
       ref={mapHandle}
       layers={layers.deckLayers}
-      topLayers={studyLayers}
+      topLayers={filteredStudy ? filteredStudyLayers : studyLayers}
       basemapId={basemapId}
       style={{ width: "100%", height: "100%" }}
       viewState={viewState}
