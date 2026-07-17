@@ -1033,8 +1033,9 @@ function App({
       )}
 
       {/* Analytics panel — right side; opened by selecting a layer in the
-          legend. In comparison mode it overlays the right map by design. */}
-      {chartsPanelEnabled && chartLayerConfig && !chartsMinimized && (
+          legend. In comparison mode it overlays the right map by design.
+          Never shown while the annotation tool is active. */}
+      {chartsPanelEnabled && chartLayerConfig && !chartsMinimized && !annotationActive && (
         <ChartsPanel
           config={chartLayerConfig}
           version={areaFilter.version + boxSelect.version}
@@ -1052,7 +1053,7 @@ function App({
         <div
           className="absolute right-2 top-2 z-30 flex flex-col items-end gap-2 sm:right-4 sm:top-4"
           style={
-            chartsPanelEnabled && chartLayerConfig && !chartsMinimized
+            chartsPanelEnabled && chartLayerConfig && !chartsMinimized && !annotationActive
               ? { right: "calc(min(30rem, 90vw) + 1.5rem)" }
               : undefined
           }
@@ -1079,7 +1080,7 @@ function App({
               )}
             </div>
           )}
-          {chartsPanelEnabled && chartLayerConfig && chartsMinimized && (
+          {chartsPanelEnabled && chartLayerConfig && chartsMinimized && !annotationActive && (
             <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
               <Button
                 variant="ghost"
