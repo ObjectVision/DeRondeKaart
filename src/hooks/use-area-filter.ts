@@ -35,6 +35,12 @@ export interface AreaFilterState {
   /** Select a single value for a level, or clear it with `null`. */
   setValue(key: string, code: string | null): void;
   clearLevel(key: string): void;
+  /**
+   * Replace the whole selection map at once (annotation snapshot restore).
+   * Commits through the same prune + module-store path as setValue, but never
+   * flies — the snapshot carries its own camera.
+   */
+  applySelections(next: Map<string, Set<string>>): void;
   /** Mirrors the module store version; bumps on every selection change. */
   version: number;
 }
@@ -321,10 +327,17 @@ export function useAreaFilter(options?: { flyTo?: boolean }): AreaFilterState {
     [selections, commit],
   );
 
+  const applySelections = useCallback(
+    (next: Map<string, Set<string>>) => {
+      commit(new Map(next));
+    },
+    [commit],
+  );
+
   // Stable identity so React.memo consumers (Sidebar) don't re-render on
   // unrelated App renders.
   return useMemo(
-    () => ({ entries, optionsFor, isEnabled, selections, setValue, clearLevel, version }),
-    [entries, optionsFor, isEnabled, selections, setValue, clearLevel, version],
+    () => ({ entries, optionsFor, isEnabled, selections, setValue, clearLevel, applySelections, version }),
+    [entries, optionsFor, isEnabled, selections, setValue, clearLevel, applySelections, version],
   );
 }

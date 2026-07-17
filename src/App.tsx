@@ -28,6 +28,19 @@ import { useNavigation } from "@/hooks/use-navigation";
 import { useAreaFilter } from "@/hooks/use-area-filter";
 import { useBoxSelect } from "@/hooks/use-box-select";
 import { useSelectionBoxLayers } from "@/hooks/use-selection-box-layer";
+import { useAnnotations } from "@/hooks/use-annotations";
+import { useCollab } from "@/hooks/use-collab";
+import { useAnnotationTool } from "@/hooks/use-annotation-tool";
+import { useAnnotationLayers } from "@/hooks/use-annotation-layers";
+import { AnnotationEditPopup } from "@/components/annotations/AnnotationEditPopup";
+import { PresenceBadge } from "@/components/annotations/PresenceBadge";
+import { restoreSnapshot } from "@/lib/annotation-restore";
+import { isUrlAddressable } from "@/lib/share-url";
+import {
+  selectionsToJson,
+  type Annotation,
+  type AnnotationSnapshot,
+} from "@/types/annotation";
 import { isChartEligible } from "@/layers/charts";
 import { Legend } from "@/components/ui/legend";
 import { Button } from "@/components/ui/button";
@@ -59,6 +72,7 @@ function App({
   chartsPanelEnabled = true,
   shareEnabled = true,
   filterFlyToEnabled = true,
+  annotationsEnabled = false,
   mapControls = DEFAULT_MAP_CONTROLS,
   clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
 }: {
@@ -73,6 +87,7 @@ function App({
   chartsPanelEnabled?: boolean;
   shareEnabled?: boolean;
   filterFlyToEnabled?: boolean;
+  annotationsEnabled?: boolean;
   mapControls?: MapControlsConfig;
   clickMarker?: ClickMarkerConfig;
 }) {
@@ -186,6 +201,187 @@ function App({
   const boxLayersA = useSelectionBoxLayers(selectionBox, "a");
   const boxLayersB = useSelectionBoxLayers(showMapRight ? selectionBox : null, "b");
 
+  // Annotation tool: circles around areas of interest, each carrying a
+  // title/description and a snapshot of the session (gebiedsfilters, both
+  // maps' layers, camera). Annotations live in a Y.Doc from the start, so
+  // sharing later just attaches a collab provider (live cursors, shared
+  // edits) to the same doc — Yjs merges the local annotations into the room.
+  const annotations = useAnnotations();
+  const collab = useCollab(annotations.doc);
+  const { startSession, setCursor, setActiveAnnotation } = collab;
+
+  // Live refs for the async snapshot restore: layer adds await full data
+  // loads, so state objects captured at click time go stale mid-run.
+  const areaFilterRef = useRef(areaFilter);
+  areaFilterRef.current = areaFilter;
+  const mapLeftLayersRef = useRef(mapLeftLayers);
+  mapLeftLayersRef.current = mapLeftLayers;
+  const mapRightLayersRef = useRef(mapRightLayers);
+  mapRightLayersRef.current = mapRightLayers;
+  const annotationListRef = useRef(annotations.annotations);
+  annotationListRef.current = annotations.annotations;
+  const restoreTokenRef = useRef(0);
+
+  // Everything an annotation restores: filter selections, both sides'
+  // (URL-addressable) layer ids + hidden ids, and the camera.
+  const captureSnapshot = useCallback(
+    (): AnnotationSnapshot => ({
+      areaFilterSelections: selectionsToJson(areaFilter.selections),
+      mapA: {
+        layerIds: mapLeftLayers.layerEntries
+          .filter(isUrlAddressable)
+          .map((e) => e.config.id),
+        hiddenIds: [...mapLeftLayers.hiddenIds],
+      },
+      mapB: {
+        layerIds: mapRightLayers.layerEntries
+          .filter(isUrlAddressable)
+          .map((e) => e.config.id),
+        hiddenIds: [...mapRightLayers.hiddenIds],
+      },
+      view: {
+        longitude: viewState.longitude,
+        latitude: viewState.latitude,
+        zoom: viewState.zoom,
+      },
+    }),
+    [areaFilter.selections, mapLeftLayers, mapRightLayers, viewState],
+  );
+
+  const handleAnnotationCreate = useCallback(
+    (center: { lng: number; lat: number }, radiusM: number): string => {
+      const annotation: Annotation = {
+        id: crypto.randomUUID(),
+        center,
+        radiusM,
+        title: "",
+        description: "",
+        color: collab.identity.color,
+        author: collab.identity.name,
+        createdAt: Date.now(),
+        snapshot: captureSnapshot(),
+      };
+      annotations.add(annotation);
+      return annotation.id;
+    },
+    [annotations, collab.identity, captureSnapshot],
+  );
+
+  const handleAnnotationMove = useCallback(
+    (id: string, center: { lng: number; lat: number }) => {
+      annotations.update(id, { center });
+    },
+    [annotations],
+  );
+
+  const handleAnnotationResize = useCallback(
+    (id: string, radiusM: number) => {
+      annotations.update(id, { radiusM });
+    },
+    [annotations],
+  );
+
+  // Plain click on a circle: bring the session back to the annotation's
+  // snapshot. Local-only — peers' maps don't move.
+  const handleAnnotationRestore = useCallback((id: string) => {
+    const annotation = annotationListRef.current.find((a) => a.id === id);
+    if (!annotation) return;
+    const token = ++restoreTokenRef.current;
+    void restoreSnapshot(
+      annotation.snapshot,
+      {
+        applySelections: (next) => areaFilterRef.current.applySelections(next),
+        getSideA: () => ({
+          layers: mapLeftLayersRef.current,
+          mapRef: mapLeftRef.current?.mapRef ?? { current: null },
+        }),
+        getSideB: () => ({
+          layers: mapRightLayersRef.current,
+          mapRef: mapRightRef.current?.mapRef ?? { current: null },
+        }),
+      },
+      () => restoreTokenRef.current !== token,
+    );
+  }, []);
+
+  // Synchronous deck pick against a side's annotation circles, deciding at
+  // mousedown whether a drag creates, moves or resizes.
+  const pickAnnotationAt = useCallback(
+    (side: "a" | "b", point: { x: number; y: number }): Annotation | null => {
+      const handle = side === "a" ? mapLeftRef.current : mapRightRef.current;
+      const overlay = handle?.overlayRef.current;
+      if (!overlay) return null;
+      const info = overlay.pickObject({
+        x: point.x,
+        y: point.y,
+        radius: 2,
+        layerIds: [`annotations-circles-${side}`],
+      });
+      return (info?.object as Annotation | undefined) ?? null;
+    },
+    [],
+  );
+
+  const annotationTool = useAnnotationTool({
+    onCreate: handleAnnotationCreate,
+    onMove: handleAnnotationMove,
+    onResize: handleAnnotationResize,
+    onRestore: handleAnnotationRestore,
+    pickAnnotationAt,
+  });
+  const {
+    active: annotationActive,
+    toggle: annotationToggle,
+    activate: annotationActivate,
+    select: annotationSelect,
+    selectedId: annotationSelectedId,
+  } = annotationTool;
+
+  // Broadcast the local selection so peers see which circle is being viewed.
+  useEffect(() => {
+    setActiveAnnotation(annotationSelectedId);
+  }, [annotationSelectedId, setActiveAnnotation]);
+
+  const selectedAnnotation =
+    annotations.annotations.find((a) => a.id === annotationSelectedId) ?? null;
+  // The selected annotation was deleted (possibly by a peer) — close the popup.
+  useEffect(() => {
+    if (annotationSelectedId && !selectedAnnotation) annotationSelect(null);
+  }, [annotationSelectedId, selectedAnnotation, annotationSelect]);
+
+  // Screen anchor for the edit popup: the circle center projected through the
+  // left map (both maps share the viewState, so the projection is identical).
+  // viewState is a dependency so the popup tracks the circle while the map
+  // pans or a snapshot restore flies.
+  const annotationPopupPos = useMemo(() => {
+    if (!selectedAnnotation) return null;
+    const map = mapLeftRef.current?.mapRef.current?.getMap();
+    if (!map) return null;
+    const p = map.project([selectedAnnotation.center.lng, selectedAnnotation.center.lat]);
+    return { x: p.x, y: p.y };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedAnnotation, viewState]);
+
+  const annotationsVisible = annotationsEnabled && annotationActive;
+  const annotLayersA = useAnnotationLayers({
+    annotations: annotations.annotations,
+    draft: annotationTool.draft,
+    selectedId: annotationSelectedId,
+    peers: collab.peers,
+    identityColor: collab.identity.color,
+    visible: annotationsVisible,
+    suffix: "a",
+  });
+  const annotLayersB = useAnnotationLayers({
+    annotations: annotations.annotations,
+    draft: annotationTool.draft,
+    selectedId: annotationSelectedId,
+    peers: collab.peers,
+    identityColor: collab.identity.color,
+    visible: annotationsVisible && showMapRight,
+    suffix: "b",
+  });
+
   // Stable topLayers arrays — inline `[...a, ...b, ...c]` would feed MapView a
   // new array every render (60×/sec while panning), defeating its layer memo.
   // The configured studyarea layers are CLONED on every evaluation: the stored
@@ -199,27 +395,30 @@ function App({
       ...(filteredStudy ? filteredStudyLayersA : studyLayersA.map((l) => l.clone({}))),
       ...markerLayersA,
       ...boxLayersA,
+      ...annotLayersA,
     ],
-    [filteredStudy, filteredStudyLayersA, studyLayersA, markerLayersA, boxLayersA],
+    [filteredStudy, filteredStudyLayersA, studyLayersA, markerLayersA, boxLayersA, annotLayersA],
   );
   const topLayersB = useMemo(
     () => [
       ...(filteredStudy ? filteredStudyLayersB : studyLayersB.map((l) => l.clone({}))),
       ...markerLayersB,
       ...boxLayersB,
+      ...annotLayersB,
     ],
-    [filteredStudy, filteredStudyLayersB, studyLayersB, markerLayersB, boxLayersB],
+    [filteredStudy, filteredStudyLayersB, studyLayersB, markerLayersB, boxLayersB, annotLayersB],
   );
 
   // Mirror the tool state into both maps' cursor flags (crosshair while armed).
+  const drawToolArmed = boxSelect.active || annotationActive;
   useEffect(() => {
     for (const handle of [mapLeftRef.current, mapRightRef.current]) {
       if (!handle) continue;
-      handle.drawModeRef.current = boxSelect.active;
+      handle.drawModeRef.current = drawToolArmed;
       const canvas = handle.mapRef.current?.getMap()?.getCanvas();
-      if (canvas) canvas.style.cursor = boxSelect.active ? "crosshair" : "";
+      if (canvas) canvas.style.cursor = drawToolArmed ? "crosshair" : "";
     }
-  }, [boxSelect.active]);
+  }, [drawToolArmed]);
 
   // Compose feature picking with Street View capture so both run per click
   const pickAClick = pickA.handleClick;
@@ -228,44 +427,90 @@ function App({
   const pickBClear = pickB.clear;
   const onClickA = useCallback(
     (e: MapLayerMouseEvent) => {
-      // While area select is armed, clicks belong to the draw gesture (MapLibre
+      // While a draw tool is armed, clicks belong to its gesture (MapLibre
       // fires click after mouseup) — don't drop the marker or open FeatureInfo.
-      if (boxSelectActive) return;
+      if (boxSelectActive || annotationActive) return;
       pickAClick(e);
       pickBClear(); // one popup: the latest click wins
       setPopupPoint({ x: e.point.x, y: e.point.y });
       handleMapClick(e, resolveMarkerPoint(e, mapLeftRef, mapLeftLayers.layerEntries));
     },
-    [boxSelectActive, pickAClick, pickBClear, handleMapClick, mapLeftLayers.layerEntries],
+    [boxSelectActive, annotationActive, pickAClick, pickBClear, handleMapClick, mapLeftLayers.layerEntries],
   );
   const onClickB = useCallback(
     (e: MapLayerMouseEvent) => {
-      if (boxSelectActive) return;
+      if (boxSelectActive || annotationActive) return;
       pickBClick(e);
       pickAClear();
       setPopupPoint({ x: e.point.x, y: e.point.y });
       handleMapClick(e, resolveMarkerPoint(e, mapRightRef, mapRightLayers.layerEntries));
     },
-    [boxSelectActive, pickBClick, pickAClear, handleMapClick, mapRightLayers.layerEntries],
+    [boxSelectActive, annotationActive, pickBClick, pickAClear, handleMapClick, mapRightLayers.layerEntries],
   );
 
   const hoverAMove = hoverA.handleMouseMove;
   const hoverBMove = hoverB.handleMouseMove;
   const boxSelectMove = boxSelect.handleMouseMove;
+  const annotationMove = annotationTool.handleMouseMove;
   const onMouseMoveA = useCallback(
     (e: MapLayerMouseEvent) => {
       hoverAMove(e);
       boxSelectMove(e);
+      annotationMove(e);
+      // Broadcast the live cursor to collab peers (no-op outside a room).
+      setCursor({ lng: e.lngLat.lng, lat: e.lngLat.lat });
     },
-    [hoverAMove, boxSelectMove],
+    [hoverAMove, boxSelectMove, annotationMove, setCursor],
   );
   const onMouseMoveB = useCallback(
     (e: MapLayerMouseEvent) => {
       hoverBMove(e);
       boxSelectMove(e);
+      annotationMove(e);
+      setCursor({ lng: e.lngLat.lng, lat: e.lngLat.lat });
     },
-    [hoverBMove, boxSelectMove],
+    [hoverBMove, boxSelectMove, annotationMove, setCursor],
   );
+
+  // Mouse down/up dispatch to whichever draw tool is armed (they're mutually
+  // exclusive; see the toggle wrappers below). The annotation gesture needs to
+  // know which map it started on — picks must hit that side's deck overlay.
+  const boxSelectDown = boxSelect.handleMouseDown;
+  const boxSelectUp = boxSelect.handleMouseUp;
+  const annotationDown = annotationTool.handleMouseDown;
+  const annotationUp = annotationTool.handleMouseUp;
+  const onMouseDownA = useCallback(
+    (e: MapLayerMouseEvent) => {
+      if (annotationActive) annotationDown(e, "a");
+      else boxSelectDown(e);
+    },
+    [annotationActive, annotationDown, boxSelectDown],
+  );
+  const onMouseDownB = useCallback(
+    (e: MapLayerMouseEvent) => {
+      if (annotationActive) annotationDown(e, "b");
+      else boxSelectDown(e);
+    },
+    [annotationActive, annotationDown, boxSelectDown],
+  );
+  const onMouseUpAB = useCallback(
+    (e: MapLayerMouseEvent) => {
+      if (annotationActive) annotationUp(e);
+      else boxSelectUp(e);
+    },
+    [annotationActive, annotationUp, boxSelectUp],
+  );
+
+  // The two draw tools both claim mousedown + the crosshair — arming one
+  // disarms the other.
+  const handleAnnotationToolToggle = useCallback(() => {
+    if (!annotationActive && boxSelectActive) boxSelectToggle();
+    annotationToggle();
+  }, [annotationActive, boxSelectActive, boxSelectToggle, annotationToggle]);
+  const handleAreaSelectToggle = useCallback(() => {
+    if (!boxSelectActive && annotationActive) annotationToggle();
+    boxSelectToggle();
+  }, [boxSelectActive, annotationActive, annotationToggle, boxSelectToggle]);
 
   // Navigation menu: add/remove layers against the shared per-map state
   const nav = useNavigation({ mapLeftLayers, mapRightLayers, mapLeftRef, mapRightRef });
@@ -352,6 +597,16 @@ function App({
   // can't represent a slider comparison.
   const [shareOpen, setShareOpen] = useState(false);
 
+  // Sharing while the annotation tool is armed promotes the local session to
+  // a collaborative room: mint an unguessable UUID (the room's only access
+  // key — see collab-server/README.md) and connect; Yjs sync seeds the local
+  // annotations into the fresh room. The id persists for re-shares.
+  useEffect(() => {
+    if (shareOpen && annotationsEnabled && annotationActive && !collab.roomId) {
+      startSession(crypto.randomUUID());
+    }
+  }, [shareOpen, annotationsEnabled, annotationActive, collab.roomId, startSession]);
+
   const sidebarActive = sidebarMode && navigation;
   const filterAvailable = sidebarActive && filterSectionEnabled && areaFilter.entries.length > 0;
   const navAvailable = sidebarActive && navigationSectionEnabled;
@@ -412,12 +667,24 @@ function App({
     }));
   }, []);
 
+  // A share link with an `annot` room: enter annotation mode and join the
+  // collab session directly (ignored when the feature is disabled here).
+  const handleAnnotationRoom = useCallback(
+    (roomId: string) => {
+      if (!annotationsEnabled) return;
+      annotationActivate();
+      startSession(roomId);
+    },
+    [annotationsEnabled, annotationActivate, startSession],
+  );
+
   // Process URL commands for layer management (only after the left map is ready)
   useUrlCommands({
     mapLeft: { layers: mapLeftLayers, mapRef: mapLeftRef }, // "linker kaart"
     mapRight: { layers: mapRightLayers, mapRef: mapRightRef }, // "rechter kaart"
     ready: mapLeftReady,
     applyView,
+    onAnnotationRoom: handleAnnotationRoom,
   });
 
   // Apply runtime UI-config overrides from an embedding host (Power BI visual).
@@ -637,8 +904,8 @@ function App({
           onMove={handleMove}
           onClick={onClickA}
           onMouseMove={onMouseMoveA}
-          onMouseDown={boxSelect.handleMouseDown}
-          onMouseUp={boxSelect.handleMouseUp}
+          onMouseDown={onMouseDownA}
+          onMouseUp={onMouseUpAB}
           onLoad={() => setMapLeftReady(true)}
           onLabelsReady={handleMapLeftLabelsReady}
         />
@@ -665,8 +932,8 @@ function App({
             onMove={handleMove}
             onClick={onClickB}
             onMouseMove={onMouseMoveB}
-            onMouseDown={boxSelect.handleMouseDown}
-            onMouseUp={boxSelect.handleMouseUp}
+            onMouseDown={onMouseDownB}
+            onMouseUp={onMouseUpAB}
             onLoad={handleMapRightLoad}
             onLabelsReady={handleMapRightLabelsReady}
           />
@@ -760,6 +1027,7 @@ function App({
           studyAreaId={studyAreaId}
           filteredStudy={filteredStudy}
           viewState={viewState}
+          annotRoomId={annotationActive ? collab.roomId : null}
         />
       )}
 
@@ -771,25 +1039,74 @@ function App({
           version={areaFilter.version + boxSelect.version}
           onClose={handleChartsClose}
           areaSelectActive={boxSelect.active}
-          onToggleAreaSelect={boxSelect.toggle}
+          onToggleAreaSelect={handleAreaSelectToggle}
         />
       )}
 
-      {/* Restore button for the minimized statistics panel — docked top-right
-          where the panel itself lives, so reopening happens in the same place
-          it was closed. */}
-      {chartsPanelEnabled && chartLayerConfig && chartsMinimized && (
-        <div className="absolute right-2 top-2 z-30 flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm sm:right-4 sm:top-4">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={toggleChartsMinimized}
-            title="Statistieken tonen"
-            aria-label="Statistieken tonen"
-          >
-            <Icon name="monitoring" size={chromeIconSize()} color={chromeIconColor()} />
-          </Button>
+      {/* Top-right toolbar stack: the annotation tool card and the restore
+          button for the minimized statistics panel (docked where the panel
+          itself lives). While the statistics panel is open it occupies the
+          top-right corner, so the stack shifts left of it. */}
+      {(annotationsEnabled || (chartsPanelEnabled && chartLayerConfig && chartsMinimized)) && (
+        <div
+          className="absolute right-2 top-2 z-30 flex flex-col items-end gap-2 sm:right-4 sm:top-4"
+          style={
+            chartsPanelEnabled && chartLayerConfig && !chartsMinimized
+              ? { right: "calc(min(30rem, 90vw) + 1.5rem)" }
+              : undefined
+          }
+        >
+          {annotationsEnabled && (
+            <div className="flex flex-shrink-0 items-center gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={handleAnnotationToolToggle}
+                title={annotationActive ? "Annotaties sluiten" : "Annotaties"}
+                aria-label={annotationActive ? "Annotaties sluiten" : "Annotaties"}
+                aria-pressed={annotationActive}
+              >
+                <Icon
+                  name={annotationActive ? "edit_off" : "edit"}
+                  size={chromeIconSize()}
+                  color={annotationActive ? chromeIconColor() : undefined}
+                  className={annotationActive ? undefined : "text-gray-400"}
+                />
+              </Button>
+              {annotationActive && collab.roomId && (
+                <PresenceBadge peers={collab.peers} connected={collab.connected} />
+              )}
+            </div>
+          )}
+          {chartsPanelEnabled && chartLayerConfig && chartsMinimized && (
+            <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={toggleChartsMinimized}
+                title="Statistieken tonen"
+                aria-label="Statistieken tonen"
+              >
+                <Icon name="monitoring" size={chromeIconSize()} color={chromeIconColor()} />
+              </Button>
+            </div>
+          )}
         </div>
+      )}
+
+      {/* Annotation edit popup — anchored below the selected circle's center. */}
+      {annotationsVisible && selectedAnnotation && annotationPopupPos && (
+        <AnnotationEditPopup
+          annotation={selectedAnnotation}
+          x={annotationPopupPos.x}
+          y={annotationPopupPos.y}
+          onChange={(patch) => annotations.update(selectedAnnotation.id, patch)}
+          onDelete={() => {
+            annotations.remove(selectedAnnotation.id);
+            annotationSelect(null);
+          }}
+          onClose={() => annotationSelect(null)}
+        />
       )}
 
       {/* Legend + FeatureInfo — bottom left, side by side with icon-button gap.

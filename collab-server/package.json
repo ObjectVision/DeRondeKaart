@@ -1,0 +1,20 @@
+{
+  "name": "northwake-collab-server",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Hocuspocus (Yjs) WebSocket server for collaborative map annotations",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "npm run build && node --watch dist/index.js"
+  },
+  "dependencies": {
+    "@hocuspocus/extension-sqlite": "^4.0.0",
+    "@hocuspocus/server": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.12.0",
+    "typescript": "~5.9.3"
+  }
+}

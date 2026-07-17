@@ -90,6 +90,7 @@ export function ShareDialog({
   studyAreaId,
   filteredStudy,
   viewState,
+  annotRoomId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -108,6 +109,8 @@ export function ShareDialog({
   filteredStudy?: FilteredStudyArea | null;
   /** The MAIN map's view — seeds the preview and is what the share URL encodes. */
   viewState: ViewState;
+  /** Collaborative annotation room — carried in the link as `annot`. */
+  annotRoomId?: string | null;
 }) {
   const previewRef = useRef<ExportPreviewHandle>(null);
   const [title, setTitle] = useState("");
@@ -128,8 +131,9 @@ export function ShareDialog({
         entriesB,
         hiddenIdsA,
         hiddenIdsB,
+        annotRoomId,
       }),
-    [viewState, entriesA, entriesB, hiddenIdsA, hiddenIdsB],
+    [viewState, entriesA, entriesB, hiddenIdsA, hiddenIdsB, annotRoomId],
   );
 
   useEffect(() => {

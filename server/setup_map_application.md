@@ -56,6 +56,7 @@ Shared, installed once: nginx, git, **Node.js**, the webhook daemon on
 | `--branch NAME` | Git branch to deploy | `main` |
 | `--node-version N` | Node.js major version to install if missing | `20` |
 | `--frame-ancestors V` | CSP `frame-ancestors` value | *(blank — embeddable anywhere)* |
+| `--collab-port N` | Proxy `/collab` to a collab server on `127.0.0.1:N` (see [setup_collab_server.md](setup_collab_server.md)) | *(blank — collaboration off)* |
 | `--secret HEX` | GitHub webhook HMAC secret | *generated* |
 | `--email ADDR` | Let's Encrypt email | *(required unless `--no-tls`)* |
 | `--no-tls` | Serve plain HTTP, skip certbot | off |

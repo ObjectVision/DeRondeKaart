@@ -8,8 +8,13 @@ production VM (`cicada@37.97.169.242`):
 | Hugo landing page | [`setup_landing_page.sh`](setup_landing_page.sh) | [setup_landing_page.md](setup_landing_page.md) |
 | Geospatial file server | [`setup_fileserver.sh`](setup_fileserver.sh) | [setup_fileserver.md](setup_fileserver.md) |
 | React/Vite map application | [`setup_map_application.sh`](setup_map_application.sh) | [setup_map_application.md](setup_map_application.md) |
+| Collaborative-annotation server | [`setup_collab_server.sh`](setup_collab_server.sh) | [setup_collab_server.md](setup_collab_server.md) |
 
-All three source [`common.sh`](common.sh) for shared helpers.
+All scripts source [`common.sh`](common.sh) for shared helpers.
+
+The collab server is the odd one out: it listens on `127.0.0.1:<port>` only
+and has no nginx site or hostname — map app instances expose it at
+`wss://<map-host>/collab` via `setup_map_application.sh --collab-port <port>`.
 
 ## Multi-instance model
 

@@ -7,3 +7,17 @@ services:
       # Mount your instance-specific layers.json into the container
       - ./deploy/layers.example.json:/etc/mapapp/layers.json:ro
     restart: unless-stopped
+
+  # Collaborative-annotation WebSocket server (Hocuspocus + SQLite). The map
+  # app reaches it same-origin via nginx's /collab proxy location.
+  collab:
+    build: ./collab-server
+    volumes:
+      - collab-data:/data
+    environment:
+      - PORT=5174
+      - DB_PATH=/data/annotations.db
+    restart: unless-stopped
+
+volumes:
+  collab-data:

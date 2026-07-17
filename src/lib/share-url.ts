@@ -11,14 +11,20 @@ export interface ShareUrlState {
   entriesB: LayerEntry[];
   hiddenIdsA: Set<string>;
   hiddenIdsB: Set<string>;
+  /**
+   * Collaborative annotation room id (UUID). When set, the link carries an
+   * `annot` param: recipients auto-enter annotation mode and join the room.
+   */
+  annotRoomId?: string | null;
 }
 
 /**
  * A layer can only be re-added by id when it exists in layers.json. In-memory
  * embed datasets (Power BI `map-data`, format "geojson" with inline `data`)
- * are excluded — the recipient's app can't resolve them.
+ * are excluded — the recipient's app can't resolve them. (Annotation
+ * snapshots apply the same rule.)
  */
-function isUrlAddressable(entry: LayerEntry): boolean {
+export function isUrlAddressable(entry: LayerEntry): boolean {
   return !(entry.config.format === "geojson" && entry.config.data);
 }
 
@@ -36,6 +42,7 @@ export function buildShareUrl(state: ShareUrlState, base?: string): string {
     "center",
     `${state.viewState.longitude.toFixed(5)},${state.viewState.latitude.toFixed(5)}`,
   );
+  if (state.annotRoomId) params.set("annot", state.annotRoomId);
 
   // The parser index-aligns getAll("cmd")/getAll("map")/getAll("layer"), so
   // every command must append all three keys.
