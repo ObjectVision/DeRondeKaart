@@ -31,7 +31,11 @@ import { useSelectionBoxLayers } from "@/hooks/use-selection-box-layer";
 import { useAnnotations } from "@/hooks/use-annotations";
 import { useCollab } from "@/hooks/use-collab";
 import { useAnnotationTool, type AnnotationHit } from "@/hooks/use-annotation-tool";
-import { useAnnotationLayers, type PolygonHandleDatum } from "@/hooks/use-annotation-layers";
+import {
+  useAnnotationLayers,
+  PIN_SIZE_ACTIVE_PX,
+  type PolygonHandleDatum,
+} from "@/hooks/use-annotation-layers";
 import { centroid } from "@/lib/geo";
 import { AnnotationEditPopup } from "@/components/annotations/AnnotationEditPopup";
 import { PresenceBadge } from "@/components/annotations/PresenceBadge";
@@ -288,6 +292,26 @@ function App({
     [annotations, collab.identity, captureSnapshot],
   );
 
+  const handleAnnotationCreatePin = useCallback(
+    (center: { lng: number; lat: number }): string => {
+      const annotation: Annotation = {
+        id: crypto.randomUUID(),
+        center,
+        radiusM: 0,
+        pin: true,
+        title: "",
+        description: "",
+        color: collab.identity.color,
+        author: collab.identity.name,
+        createdAt: Date.now(),
+        snapshot: captureSnapshot(),
+      };
+      annotations.add(annotation);
+      return annotation.id;
+    },
+    [annotations, collab.identity, captureSnapshot],
+  );
+
   const handleAnnotationMove = useCallback(
     (id: string, center: { lng: number; lat: number }) => {
       annotations.update(id, { center });
@@ -358,12 +382,19 @@ function App({
         return { type: "edge", annotation: d.annotation, index: d.index };
       }
       const body = pick(
-        [`annotations-circles-${side}`, `annotations-polygons-${side}`],
+        [
+          `annotations-pins-${side}`,
+          `annotations-circles-${side}`,
+          `annotations-polygons-${side}`,
+        ],
         2,
       );
       if (body?.object) {
         const annotation = body.object as Annotation;
-        return { type: annotation.points ? "polygon" : "circle", annotation };
+        return {
+          type: annotation.pin ? "pin" : annotation.points ? "polygon" : "circle",
+          annotation,
+        };
       }
       return null;
     },
@@ -373,6 +404,7 @@ function App({
   const annotationTool = useAnnotationTool({
     onCreate: handleAnnotationCreate,
     onCreatePolygon: handleAnnotationCreatePolygon,
+    onCreatePin: handleAnnotationCreatePin,
     onMove: handleAnnotationMove,
     onResize: handleAnnotationResize,
     onEditPoints: handleAnnotationEditPoints,
@@ -412,6 +444,10 @@ function App({
     const map = mapLeftRef.current?.mapRef.current?.getMap();
     if (!map) return null;
     const c = map.project([selectedAnnotation.center.lng, selectedAnnotation.center.lat]);
+    if (selectedAnnotation.pin) {
+      // The pin icon extends upward from its anchored tip.
+      return { x: c.x, y: c.y - PIN_SIZE_ACTIVE_PX };
+    }
     if (selectedAnnotation.points) {
       let minY = Infinity;
       for (const p of selectedAnnotation.points) {
@@ -1164,6 +1200,23 @@ function App({
                       size={chromeIconSize()}
                       color={annotationDrawTool === "polygon" ? chromeIconColor() : undefined}
                       className={annotationDrawTool === "polygon" ? undefined : "text-gray-400"}
+                    />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() =>
+                      annotationSetTool(annotationDrawTool === "pin" ? null : "pin")
+                    }
+                    title="Pin plaatsen"
+                    aria-label="Pin plaatsen"
+                    aria-pressed={annotationDrawTool === "pin"}
+                  >
+                    <Icon
+                      name="location_on"
+                      size={chromeIconSize()}
+                      color={annotationDrawTool === "pin" ? chromeIconColor() : undefined}
+                      className={annotationDrawTool === "pin" ? undefined : "text-gray-400"}
                     />
                   </Button>
                   <div className="h-4 w-px bg-gray-200" aria-hidden />

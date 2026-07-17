@@ -22,6 +22,19 @@ const CURSOR_ICON = {
   anchorY: 3,
   mask: true,
 } as const;
+// The material "location_on" pin, anchored at its tip (the marked position).
+const PIN_ICON = {
+  url: "/location-pin.svg",
+  width: 24,
+  height: 24,
+  anchorX: 12,
+  anchorY: 22,
+  mask: true,
+} as const;
+/** On-map pin icon height in pixels; selected/highlighted pins render larger
+ * (exported: App anchors the selected pin's title box above the icon). */
+const PIN_SIZE_PX = 32;
+export const PIN_SIZE_ACTIVE_PX = 38;
 
 export interface AnnotationLayersOptions {
   annotations: Annotation[];
@@ -69,8 +82,9 @@ export function useAnnotationLayers({
   return useMemo(() => {
     if (!visible) return [];
     const activeKey = [...activeIds].sort().join(",");
-    const circles = annotations.filter((a) => !a.points);
+    const circles = annotations.filter((a) => !a.points && !a.pin);
     const polygons = annotations.filter((a) => a.points);
+    const pins = annotations.filter((a) => a.pin);
     const layers: Layer[] = [
       new PolygonLayer<Annotation>({
         id: `annotations-polygons-${suffix}`,
@@ -106,6 +120,20 @@ export function useAnnotationLayers({
           getLineWidth: activeKey,
         },
       }),
+      new IconLayer<Annotation>({
+        id: `annotations-pins-${suffix}`,
+        data: pins,
+        pickable: true,
+        getPosition: (d) => [d.center.lng, d.center.lat],
+        getIcon: () => ({ id: "location-pin", ...PIN_ICON }),
+        getSize: (d) => (activeIds.has(d.id) ? PIN_SIZE_ACTIVE_PX : PIN_SIZE_PX),
+        sizeUnits: "pixels",
+        getColor: (d) => hexToRgba(d.color, 255),
+        billboard: true,
+        updateTriggers: {
+          getSize: activeKey,
+        },
+      }),
       new TextLayer<Annotation>({
         id: `annotations-labels-${suffix}`,
         data: annotations.filter((d) => d.title),
@@ -120,7 +148,8 @@ export function useAnnotationLayers({
         background: true,
         getBackgroundColor: [255, 255, 255, 220],
         backgroundPadding: [6, 3, 6, 3],
-        getPixelOffset: [0, -14],
+        // Pins extend upward from their anchor — lift their label clear.
+        getPixelOffset: (d) => (d.pin ? [0, -(PIN_SIZE_ACTIVE_PX + 8)] : [0, -14]),
         billboard: true,
       }),
     ];

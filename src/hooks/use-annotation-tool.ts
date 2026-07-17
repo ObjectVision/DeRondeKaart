@@ -45,12 +45,13 @@ export type AnnotationDraft =
   | { kind: "polygon"; points: LngLat[] };
 
 /** Drawing tools in the annotation toolbar. */
-export type AnnotationToolKind = "circle" | "polygon";
+export type AnnotationToolKind = "circle" | "polygon" | "pin";
 
 /** What a mousedown pick hit: an annotation body, or a polygon handle. */
 export type AnnotationHit =
   | { type: "circle"; annotation: Annotation }
   | { type: "polygon"; annotation: Annotation }
+  | { type: "pin"; annotation: Annotation }
   /** A vertex handle of the selected polygon. */
   | { type: "vertex"; annotation: Annotation; index: number }
   /** An edge of the selected polygon; `index` is the edge's start vertex. */
@@ -65,6 +66,11 @@ type DragState =
   | {
       mode: "create-poly";
       start: LngLat;
+      startPoint: { x: number; y: number };
+    }
+  | {
+      /** Pin tool gesture — the pin is placed where the mouse is released. */
+      mode: "create-pin";
       startPoint: { x: number; y: number };
     }
   | {
@@ -106,6 +112,8 @@ export interface AnnotationToolOptions {
   onCreate(center: LngLat, radiusM: number): string;
   /** Commit a completed polygon draw. Returns the new id. */
   onCreatePolygon(points: LngLat[]): string;
+  /** Commit a placed location pin. Returns the new id. */
+  onCreatePin(center: LngLat): string;
   onMove(id: string, center: LngLat): void;
   onResize(id: string, radiusM: number): void;
   /** Live rewrite of a polygon's ring (move / vertex drag / edge split). */
@@ -153,7 +161,9 @@ export interface AnnotationToolState {
  *   radius = drag); a successful placement disarms the tool again
  * - polygon tool + drag on empty map → drag out a bbox, committed as a
  *   triangle (Figma-style shape drag); placement disarms the tool
+ * - pin tool + click → place a location pin there; placement disarms the tool
  * - drag on a circle body → move it; drag near its rim (outer 25%) → resize it
+ * - drag on a pin → move it
  * - drag on a polygon body → move the whole polygon
  * - selected polygon: corner handles drag individual vertices; mousedown on an
  *   edge splits it there (Figma-style — a plain click leaves the new vertex on
@@ -266,6 +276,16 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
             startLngLat,
             startPoint,
           };
+        } else if (hit.type === "pin") {
+          // Pins have no rim to resize — any drag moves them.
+          dragRef.current = {
+            mode: "move",
+            id: a.id,
+            startCenter: a.center,
+            startRadiusM: 0,
+            startLngLat,
+            startPoint,
+          };
         } else {
           // Inner 75% of the radius drags the circle; the rim band resizes it.
           const mode =
@@ -287,6 +307,9 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
       } else if (tool === "polygon") {
         e.preventDefault();
         dragRef.current = { mode: "create-poly", start: startLngLat, startPoint };
+      } else if (tool === "pin") {
+        e.preventDefault();
+        dragRef.current = { mode: "create-pin", startPoint };
       } else {
         // No tool armed: let the map pan; remember the start point only to
         // recognize a plain click (deselect) on mouseup.
@@ -300,6 +323,7 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
     const drag = dragRef.current;
     if (!drag) return;
     if (drag.mode === "pan") return; // the map handles the drag itself
+    if (drag.mode === "create-pin") return; // placed on mouseup, no preview
 
     if (drag.mode === "create") {
       setDraft({
@@ -386,6 +410,17 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
         const id = optionsRef.current.onCreatePolygon(
           triangleFromBbox(drag.start, e.lngLat),
         );
+        setSelectedId(id);
+        setTool(null);
+        return;
+      }
+
+      if (drag.mode === "create-pin") {
+        // Click or drag alike: the pin lands where the mouse was released.
+        const id = optionsRef.current.onCreatePin({
+          lng: e.lngLat.lng,
+          lat: e.lngLat.lat,
+        });
         setSelectedId(id);
         setTool(null);
         return;
