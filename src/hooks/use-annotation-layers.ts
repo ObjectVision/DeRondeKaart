@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import type { Layer } from "@deck.gl/core";
 import { IconLayer, PathLayer, PolygonLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
 import { hexToRgba } from "@/lib/collab-identity";
+import { distanceMeters, metersPerPixel } from "@/lib/geo";
 import type { Annotation, CollabPresence } from "@/types/annotation";
 import type { AnnotationDraft } from "@/hooks/use-annotation-tool";
 
@@ -35,6 +36,34 @@ const PIN_ICON = {
  * (exported: App anchors the selected pin's title box above the icon). */
 const PIN_SIZE_PX = 32;
 export const PIN_SIZE_ACTIVE_PX = 38;
+// Far-zoom icon forms of circle/polygon annotations (toolbar icon shapes),
+// anchored at their center like the toolbar glyphs.
+const CIRCLE_ICON = {
+  url: "/annotation-circle.svg",
+  width: 24,
+  height: 24,
+  mask: true,
+} as const;
+const POLYGON_ICON = {
+  url: "/annotation-polygon.svg",
+  width: 24,
+  height: 24,
+  mask: true,
+} as const;
+/** Screen radius below which a circle/polygon collapses to its icon form. */
+const ICONIFY_RADIUS_PX = 12;
+
+/**
+ * True when the shape is too small on screen at this zoom to be drawn as a
+ * shape — it renders as a fixed-size icon instead (pins always do).
+ */
+export function isAnnotationIconified(a: Annotation, zoom: number): boolean {
+  if (a.pin) return false;
+  const radiusM = a.points
+    ? Math.max(...a.points.map((p) => distanceMeters(a.center, p)))
+    : a.radiusM;
+  return radiusM / metersPerPixel(a.center.lat, zoom) < ICONIFY_RADIUS_PX;
+}
 
 export interface AnnotationLayersOptions {
   annotations: Annotation[];
@@ -48,6 +77,8 @@ export interface AnnotationLayersOptions {
   identityColor: string;
   /** False hides everything (annotation mode off). */
   visible: boolean;
+  /** Current map zoom — decides which shapes collapse to their icon form. */
+  zoom: number;
   /** "a" | "b" — layer ids must differ per map (two Deck overlays). */
   suffix: string;
 }
@@ -66,6 +97,7 @@ export function useAnnotationLayers({
   peers,
   identityColor,
   visible,
+  zoom,
   suffix,
 }: AnnotationLayersOptions): Layer[] {
   // Annotations highlighted for anyone: the local selection plus every peer's
@@ -82,9 +114,17 @@ export function useAnnotationLayers({
   return useMemo(() => {
     if (!visible) return [];
     const activeKey = [...activeIds].sort().join(",");
-    const circles = annotations.filter((a) => !a.points && !a.pin);
-    const polygons = annotations.filter((a) => a.points);
+    // Shapes too small on screen at this zoom render as icons instead.
+    const iconified = new Set(
+      annotations.filter((a) => isAnnotationIconified(a, zoom)).map((a) => a.id),
+    );
+    const iconifiedKey = [...iconified].sort().join(",");
+    const circles = annotations.filter(
+      (a) => !a.points && !a.pin && !iconified.has(a.id),
+    );
+    const polygons = annotations.filter((a) => a.points && !iconified.has(a.id));
     const pins = annotations.filter((a) => a.pin);
+    const shapeIcons = annotations.filter((a) => iconified.has(a.id));
     const layers: Layer[] = [
       new PolygonLayer<Annotation>({
         id: `annotations-polygons-${suffix}`,
@@ -124,8 +164,30 @@ export function useAnnotationLayers({
         id: `annotations-pins-${suffix}`,
         data: pins,
         pickable: true,
+        // Keep the glyph's transparent cutout pickable, not a click hole.
+        alphaCutoff: 0,
         getPosition: (d) => [d.center.lng, d.center.lat],
         getIcon: () => ({ id: "location-pin", ...PIN_ICON }),
+        getSize: (d) => (activeIds.has(d.id) ? PIN_SIZE_ACTIVE_PX : PIN_SIZE_PX),
+        sizeUnits: "pixels",
+        getColor: (d) => hexToRgba(d.color, 255),
+        billboard: true,
+        updateTriggers: {
+          getSize: activeKey,
+        },
+      }),
+      new IconLayer<Annotation>({
+        id: `annotations-shape-icons-${suffix}`,
+        data: shapeIcons,
+        pickable: true,
+        // The glyphs are outlines — without this, their transparent interior
+        // is a picking hole and clicks through the middle miss the icon.
+        alphaCutoff: 0,
+        getPosition: (d) => [d.center.lng, d.center.lat],
+        getIcon: (d) =>
+          d.points
+            ? { id: "annotation-polygon", ...POLYGON_ICON }
+            : { id: "annotation-circle", ...CIRCLE_ICON },
         getSize: (d) => (activeIds.has(d.id) ? PIN_SIZE_ACTIVE_PX : PIN_SIZE_PX),
         sizeUnits: "pixels",
         getColor: (d) => hexToRgba(d.color, 255),
@@ -148,9 +210,18 @@ export function useAnnotationLayers({
         background: true,
         getBackgroundColor: [255, 255, 255, 220],
         backgroundPadding: [6, 3, 6, 3],
-        // Pins extend upward from their anchor — lift their label clear.
-        getPixelOffset: (d) => (d.pin ? [0, -(PIN_SIZE_ACTIVE_PX + 8)] : [0, -14]),
+        // Pins and iconified shapes extend upward/outward from their anchor —
+        // lift their label clear of the icon.
+        getPixelOffset: (d) =>
+          d.pin
+            ? [0, -(PIN_SIZE_ACTIVE_PX + 8)]
+            : iconified.has(d.id)
+              ? [0, -(PIN_SIZE_ACTIVE_PX / 2 + 8)]
+              : [0, -14],
         billboard: true,
+        updateTriggers: {
+          getPixelOffset: iconifiedKey,
+        },
       }),
     ];
 
@@ -278,5 +349,5 @@ export function useAnnotationLayers({
     }
 
     return layers;
-  }, [visible, annotations, draft, activeIds, selectedId, peers, identityColor, suffix]);
+  }, [visible, annotations, draft, activeIds, selectedId, peers, identityColor, zoom, suffix]);
 }

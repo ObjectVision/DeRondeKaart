@@ -33,6 +33,7 @@ import { useCollab } from "@/hooks/use-collab";
 import { useAnnotationTool, type AnnotationHit } from "@/hooks/use-annotation-tool";
 import {
   useAnnotationLayers,
+  isAnnotationIconified,
   PIN_SIZE_ACTIVE_PX,
   type PolygonHandleDatum,
 } from "@/hooks/use-annotation-layers";
@@ -217,6 +218,7 @@ function App({
 
   // Live refs for the async snapshot restore: layer adds await full data
   // loads, so state objects captured at click time go stale mid-run.
+  /* eslint-disable react-hooks/refs -- deliberate latest-value mirrors */
   const areaFilterRef = useRef(areaFilter);
   areaFilterRef.current = areaFilter;
   const mapLeftLayersRef = useRef(mapLeftLayers);
@@ -225,6 +227,7 @@ function App({
   mapRightLayersRef.current = mapRightLayers;
   const annotationListRef = useRef(annotations.annotations);
   annotationListRef.current = annotations.annotations;
+  /* eslint-enable react-hooks/refs */
   const restoreTokenRef = useRef(0);
 
   // Everything an annotation restores: filter selections, both sides'
@@ -383,6 +386,7 @@ function App({
       }
       const body = pick(
         [
+          `annotations-shape-icons-${side}`,
           `annotations-pins-${side}`,
           `annotations-circles-${side}`,
           `annotations-polygons-${side}`,
@@ -391,6 +395,9 @@ function App({
       );
       if (body?.object) {
         const annotation = body.object as Annotation;
+        if (body.layer?.id.startsWith("annotations-shape-icons")) {
+          return { type: "icon", annotation };
+        }
         return {
           type: annotation.pin ? "pin" : annotation.points ? "polygon" : "circle",
           annotation,
@@ -441,12 +448,17 @@ function App({
   // pans or a snapshot restore flies.
   const annotationPopupPos = useMemo(() => {
     if (!selectedAnnotation) return null;
+    // eslint-disable-next-line react-hooks/refs
     const map = mapLeftRef.current?.mapRef.current?.getMap();
     if (!map) return null;
     const c = map.project([selectedAnnotation.center.lng, selectedAnnotation.center.lat]);
     if (selectedAnnotation.pin) {
       // The pin icon extends upward from its anchored tip.
       return { x: c.x, y: c.y - PIN_SIZE_ACTIVE_PX };
+    }
+    if (isAnnotationIconified(selectedAnnotation, viewState.zoom)) {
+      // Far-zoom icon form: center-anchored, half the icon extends upward.
+      return { x: c.x, y: c.y - PIN_SIZE_ACTIVE_PX / 2 };
     }
     if (selectedAnnotation.points) {
       let minY = Infinity;
@@ -462,7 +474,6 @@ function App({
       selectedAnnotation.center.lat + selectedAnnotation.radiusM / 111320,
     ]);
     return { x: c.x, y: top.y };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAnnotation, viewState]);
 
   const annotationsVisible = annotationsEnabled && annotationActive;
@@ -473,6 +484,7 @@ function App({
     peers: collab.peers,
     identityColor: collab.identity.color,
     visible: annotationsVisible,
+    zoom: viewState.zoom,
     suffix: "a",
   });
   const annotLayersB = useAnnotationLayers({
@@ -482,6 +494,7 @@ function App({
     peers: collab.peers,
     identityColor: collab.identity.color,
     visible: annotationsVisible && showMapRight,
+    zoom: viewState.zoom,
     suffix: "b",
   });
 

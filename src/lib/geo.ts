@@ -20,6 +20,11 @@ export function distanceMeters(
   return 2 * EARTH_RADIUS_M * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
+/** Web-mercator ground resolution in meters per pixel at a latitude + zoom. */
+export function metersPerPixel(lat: number, zoom: number): number {
+  return (156543.03392 * Math.cos(lat * (Math.PI / 180))) / 2 ** zoom;
+}
+
 /**
  * Vertex-average centroid of a polygon ring — the anchor for its label/popup,
  * not an exact area centroid (fine at annotation scale).
