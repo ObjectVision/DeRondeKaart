@@ -234,14 +234,6 @@
                 "b": false
               },
               {
-                "id": "corp_mooiland_streefhuur_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Streefhuur",
-                "a": false,
-                "b": false
-              },
-              {
                 "id": "corp_mooiland_mutatiegraad_2026",
                 "icon": "apartment",
                 "color": "#2D6CDF",
@@ -294,14 +286,6 @@
                 "icon": "apartment",
                 "color": "#2D6CDF",
                 "label": "BAT score",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_nester_streefhuur_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Streefhuur",
                 "a": false,
                 "b": false
               },
@@ -362,14 +346,6 @@
                 "b": false
               },
               {
-                "id": "corp_wonen_meerssen_streefhuur_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Streefhuur",
-                "a": false,
-                "b": false
-              },
-              {
                 "id": "corp_wonen_meerssen_mutatiegraad_2026",
                 "icon": "apartment",
                 "color": "#2D6CDF",
@@ -422,14 +398,6 @@
                 "icon": "apartment",
                 "color": "#2D6CDF",
                 "label": "BAT score",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_wonen_zuid_streefhuur_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Streefhuur",
                 "a": false,
                 "b": false
               },
@@ -490,14 +458,6 @@
                 "b": false
               },
               {
-                "id": "corp_woonpunt_streefhuur_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Streefhuur",
-                "a": false,
-                "b": false
-              },
-              {
                 "id": "corp_woonpunt_mutatiegraad_2026",
                 "icon": "apartment",
                 "color": "#2D6CDF",
@@ -550,14 +510,6 @@
                 "icon": "apartment",
                 "color": "#2D6CDF",
                 "label": "BAT score",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_zowonen_streefhuur_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Streefhuur",
                 "a": false,
                 "b": false
               },
