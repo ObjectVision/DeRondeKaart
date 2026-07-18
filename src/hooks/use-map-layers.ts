@@ -36,15 +36,23 @@ export function useMapLayers() {
 
   /**
    * Add deck layers, replacing any existing layer with the same id. The
-   * loaders emit cumulative tables under stable ids, so each batch emission
-   * swaps the previous layer for a fuller one instead of stacking duplicates
-   * (which made rendering/picking quadratic in the batch count). `visible` is
-   * carried over from the replaced layer so a legend toggle survives batches
-   * that keep arriving mid-load.
+   * loaders emit cumulative tables and the factory keys layers per record
+   * batch (`{configId}__b{n}`), so re-emitted batches swap their previous
+   * layer (a cheap id-matched diff) and only genuinely new batches append.
+   * `visible` is carried over from the replaced layer — and, for appended
+   * batches, from an earlier-batch sibling — so a legend layer/rule toggle
+   * survives batches that keep arriving mid-load.
    */
   const addDeckLayers = useCallback((newLayers: Layer[]) => {
     setDeckLayers((prev) => {
       const incoming = new globalThis.Map(newLayers.map((l) => [l.id, l]));
+      // Sibling keys of currently hidden layers: a new batch's layer inherits
+      // hidden when its config/rule siblings from earlier batches are hidden.
+      const hiddenSiblings = new Set(
+        prev
+          .filter((l) => (l.props as { visible?: boolean }).visible === false)
+          .map((l) => batchSiblingKey(l.id)),
+      );
       const next = prev.map((l) => {
         const replacement = incoming.get(l.id);
         if (!replacement) return l;
@@ -52,7 +60,11 @@ export function useMapLayers() {
         const visible = (l.props as { visible?: boolean }).visible;
         return visible === false ? replacement.clone({ visible: false }) : replacement;
       });
-      return incoming.size > 0 ? [...next, ...incoming.values()] : next;
+      if (incoming.size === 0) return next;
+      const appended = [...incoming.values()].map((l) =>
+        hiddenSiblings.has(batchSiblingKey(l.id)) ? l.clone({ visible: false }) : l,
+      );
+      return [...next, ...appended];
     });
   }, []);
 
@@ -432,8 +444,22 @@ function setNativeLayerVisibility(
 }
 
 /**
- * Check if a deck layer ID belongs to a given config ID.
+ * Check if a deck layer ID belongs to a given config ID. GeoArrow layers are
+ * per record batch (`{configId}__b{n}` / `{configId}__b{n}-{ruleName}`);
+ * GeoJson layers use `{configId}-geojson`.
  */
 function layerBelongsTo(deckLayerId: string, configId: string): boolean {
-  return deckLayerId === configId || deckLayerId.startsWith(configId + "-");
+  return (
+    deckLayerId === configId ||
+    deckLayerId.startsWith(configId + "-") ||
+    deckLayerId.startsWith(configId + "__b")
+  );
+}
+
+/**
+ * Sibling key: a deck layer id with its `__b{n}` batch segment wildcarded, so
+ * the same config/rule layer across different record batches compares equal.
+ */
+function batchSiblingKey(deckLayerId: string): string {
+  return deckLayerId.replace(/__b\d+/, "__b*");
 }

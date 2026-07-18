@@ -148,7 +148,7 @@ interface ArrowBatch {
   getChild(name: string): ArrowColumn | null;
 }
 
-/** Accessor info shape passed by @geoarrow/deck.gl-layers accessors. */
+/** Accessor info shape passed by @geoarrow/deck.gl-geoarrow accessors. */
 export interface ArrowFilterInfo {
   index: number;
   data: { data: ArrowBatch };

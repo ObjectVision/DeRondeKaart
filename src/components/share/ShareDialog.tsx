@@ -419,7 +419,7 @@ export function ShareDialog({
                 Downloaden als afbeelding
               </h3>
               <p className="mb-3 mt-1 text-xs text-gray-500">
-                Download de ronde kaart als PNG-afbeelding
+                Download de Ronde kaart als PNG-afbeelding
               </p>
               <Button
                 variant="outline"
