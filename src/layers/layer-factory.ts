@@ -1,12 +1,12 @@
 import type { Layer, Color } from "@deck.gl/core";
-import { GeoJsonLayer } from "@deck.gl/layers";
+import { GeoJsonLayer, IconLayer } from "@deck.gl/layers";
 import { Table, RecordBatch } from "apache-arrow";
 import {
   GeoArrowScatterplotLayer,
   GeoArrowPathLayer,
   GeoArrowPolygonLayer,
 } from "@geoarrow/deck.gl-geoarrow";
-import type { LayerConfig, GeoStylerStyle, GeoStylerRule } from "./types";
+import type { LayerConfig, GeoStylerStyle, GeoStylerRule, IconSymbolizer } from "./types";
 import { arrowRowMatchesAreaFilter, getAreaFilterVersion } from "./area-filter";
 import {
   evaluateFilter,
@@ -17,6 +17,7 @@ import {
   getLineWidthFromRule,
   getMarkColorFromRule,
   getMarkRadiusFromRule,
+  getIconFromRule,
   getOpacityFromStyle,
 } from "./geostyler";
 
@@ -127,6 +128,113 @@ function withAreaFilter(
 /** updateTriggers so a filter change re-evaluates all accessor attributes. */
 const areaFilterTriggers = () => ({ all: `area-filter-${getAreaFilterVersion()}` });
 
+// ---------------------------------------------------------------------------
+// Icon symbology (point geometry): deck.gl core IconLayer fed with the
+// GeoArrow point coordinates as a binary attribute — @geoarrow/deck.gl-geoarrow
+// has no icon layer, so this bridges the batch to deck directly.
+// ---------------------------------------------------------------------------
+
+/** Icon settings shared by the flat `style.icon` and the Icon symbolizer. */
+type IconSpec = Pick<IconSymbolizer, "width" | "height" | "size" | "anchorY"> & {
+  url: string;
+};
+
+/**
+ * Extract a geoarrow.point column's coordinates as a flat interleaved array
+ * for deck's binary attribute interface. Supports the interleaved
+ * (FixedSizeList) and separated (Struct x/y) GeoArrow point encodings;
+ * returns null for multipoint or missing point columns (caller falls back to
+ * the circle scatterplot rendering).
+ */
+function pointPositionAttribute(
+  batch: RecordBatch,
+): { value: Float64Array; size: number } | null {
+  const fields = batch.schema.fields;
+  for (let i = 0; i < fields.length; i++) {
+    const ext = fields[i].metadata.get("ARROW:extension:name");
+    if (ext !== "geoarrow.point") continue;
+
+    const data = batch.getChildAt(i)?.data?.[0];
+    if (!data) return null;
+
+    const type = fields[i].type as { listSize?: number };
+    if (typeof type.listSize === "number") {
+      // Interleaved: FixedSizeList<double>[listSize] — one flat child buffer.
+      const child = (data as { children?: Array<{ values?: unknown }> }).children?.[0];
+      const values = child?.values;
+      if (!(values instanceof Float64Array)) return null;
+      const start = data.offset * type.listSize;
+      return {
+        value: values.subarray(start, start + data.length * type.listSize),
+        size: type.listSize,
+      };
+    }
+
+    // Separated: Struct<x: double, y: double> — interleave a copy.
+    const children = (data as { children?: Array<{ values?: unknown }> }).children;
+    const xs = children?.[0]?.values;
+    const ys = children?.[1]?.values;
+    if (!(xs instanceof Float64Array) || !(ys instanceof Float64Array)) return null;
+    const out = new Float64Array(data.length * 2);
+    for (let r = 0; r < data.length; r++) {
+      out[r * 2] = xs[data.offset + r];
+      out[r * 2 + 1] = ys[data.offset + r];
+    }
+    return { value: out, size: 2 };
+  }
+  return null;
+}
+
+/** Warn once per config when icon symbology can't bind to the geometry. */
+const iconFallbackWarned = new Set<string>();
+
+/**
+ * Build an IconLayer for one record batch. `getColor`'s alpha channel gates
+ * per-row visibility (deck fades non-masked icons by the color's alpha), which
+ * is how the shared rule/area-filter accessors — returning TRANSPARENT for
+ * dropped rows — carry over to icons. The batch rides on `data.data`, so the
+ * accessors see the same `info.data.data` shape as the GeoArrow layers, and
+ * picking can resolve `batch.get(index)` for the feature-info popup.
+ */
+function createIconPointLayer(
+  layerId: string,
+  batch: RecordBatch,
+  positions: { value: Float64Array; size: number },
+  icon: IconSpec,
+  getColor: (info: ArrowAccessorInfo) => Color,
+  opacity: number,
+  beforeId?: string,
+): Layer {
+  return new IconLayer({
+    id: layerId,
+    data: {
+      length: batch.numRows,
+      data: batch,
+      attributes: { getPosition: positions },
+    },
+    pickable: true,
+    getIcon: () => ({
+      id: icon.url,
+      url: icon.url,
+      width: icon.width,
+      height: icon.height,
+      anchorY: icon.anchorY ?? icon.height / 2,
+      mask: false,
+    }),
+    getSize: icon.size ?? icon.height,
+    sizeUnits: "pixels",
+    // deck CORE layers call accessors as (object, info) — object is undefined
+    // for binary-attribute data. The shared rule/area-filter accessors expect
+    // the GeoArrow single-argument shape {index, data: {data: batch}}, which
+    // `info` already matches (data = our data prop) — adapt the convention.
+    getColor: (_object: unknown, info: { index: number; data: { data: RecordBatch } }) =>
+      getColor(info),
+    opacity,
+    updateTriggers: areaFilterTriggers(),
+    beforeId,
+  } as any);
+}
+
 /** Extract all field names referenced in a filter tree */
 function extractFilterFields(filter: unknown[]): string[] {
   const op = filter[0] as string;
@@ -189,7 +297,28 @@ function createFlatGeoArrowLayer(
   const { style } = config;
 
   switch (geometryType) {
-    case "point":
+    case "point": {
+      if (style.icon) {
+        const positions = pointPositionAttribute(batch);
+        if (positions) {
+          return createIconPointLayer(
+            layerId,
+            batch,
+            positions,
+            style.icon,
+            // Constant opaque color: only the alpha gates area-filter drops.
+            withAreaFilter([255, 255, 255, 255]),
+            style.opacity ?? 1,
+            beforeId,
+          );
+        }
+        if (!iconFallbackWarned.has(config.id)) {
+          iconFallbackWarned.add(config.id);
+          console.warn(
+            `Layer "${config.id}": icon symbology needs a geoarrow.point column — falling back to circles`,
+          );
+        }
+      }
       return new GeoArrowScatterplotLayer({
         id: layerId,
         data: batch,
@@ -201,6 +330,7 @@ function createFlatGeoArrowLayer(
         updateTriggers: areaFilterTriggers(),
         beforeId,
       } as any);
+    }
 
     case "line":
       return new GeoArrowPathLayer({
@@ -251,7 +381,32 @@ function createRuleGeoArrowLayer(
   const opacity = getOpacityFromStyle(geostyler);
 
   switch (geometryType) {
-    case "point":
+    case "point": {
+      const iconSym = getIconFromRule(rule);
+      if (iconSym) {
+        const positions = pointPositionAttribute(batch);
+        if (positions) {
+          return createIconPointLayer(
+            layerId,
+            batch,
+            positions,
+            { ...iconSym, url: iconSym.image },
+            // Opaque for rows won by this rule, TRANSPARENT otherwise — the
+            // alpha gates both the rule match and the area filter.
+            withAreaFilter(
+              buildArrowRuleColorAccessor(geostyler, rule, () => [255, 255, 255, 255]),
+            ),
+            iconSym.opacity ?? opacity,
+            beforeId,
+          );
+        }
+        if (!iconFallbackWarned.has(config.id)) {
+          iconFallbackWarned.add(config.id);
+          console.warn(
+            `Layer "${config.id}": icon symbology needs a geoarrow.point column — falling back to circles`,
+          );
+        }
+      }
       return new GeoArrowScatterplotLayer({
         id: layerId,
         data: batch,
@@ -263,6 +418,7 @@ function createRuleGeoArrowLayer(
         updateTriggers: areaFilterTriggers(),
         beforeId,
       } as any);
+    }
 
     case "line":
       return new GeoArrowPathLayer({

@@ -79,6 +79,48 @@
       }
     },
     {
+      "id": "supermarkt_svg",
+      "name": "supermarkt svg",
+      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
+      "format": "geoparquet",
+      "geometryType": "point",
+      "style": {
+        "color": [
+          255,
+          69,
+          0,
+          150
+        ],
+        "opacity": 0.8,
+        "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "supermarkt svg",
+        "rules": [
+          {
+            "name": "supermarkt svg",
+            "filter": [
+              "==",
+              "type",
+              17
+            ],
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/shopping_cart.svg",
+                "width": 32,
+                "height": 32,
+                "size": 24
+              }
+            ]
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
+      }
+    },
+    {
       "id": "dagbesteding",
       "name": "dagbesteding",
       "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
@@ -6864,15 +6906,6 @@
           }
         ]
       },
-      "style": {
-        "opacity": 0.8
-      }
-    },
-    {
-      "id": "example-cog",
-      "name": "Example COG",
-      "source": "https://maplibre.org/maplibre-gl-js/docs/assets/cog.tif",
-      "format": "cog",
       "style": {
         "opacity": 0.8
       }
