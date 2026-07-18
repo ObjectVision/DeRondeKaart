@@ -6,6 +6,7 @@ import type {
   FillSymbolizer,
   LineSymbolizer,
   MarkSymbolizer,
+  IconSymbolizer,
 } from "./types";
 
 /** Parse a CSS hex color string to a deck.gl RGBA color */
@@ -128,6 +129,11 @@ export function getMarkColorFromRule(rule: GeoStylerRule): Color {
 export function getMarkRadiusFromRule(rule: GeoStylerRule): number {
   const sym = rule.symbolizers.find((s) => s.kind === "Mark") as MarkSymbolizer | undefined;
   return sym?.radius ?? 5;
+}
+
+/** The first Icon symbolizer of a rule, if any (point icon symbology). */
+export function getIconFromRule(rule: GeoStylerRule): IconSymbolizer | undefined {
+  return rule.symbolizers.find((s) => s.kind === "Icon") as IconSymbolizer | undefined;
 }
 
 /** Get opacity from the first symbolizer of any kind */

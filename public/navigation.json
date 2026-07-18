@@ -635,6 +635,14 @@
                 "b": false
               },
               {
+                "id": "supermarkt_svg",
+                "icon": "shopping_cart",
+                "color": "#8C54D6",
+                "label": "Supermarkt (SVG)",
+                "a": false,
+                "b": false
+              },
+              {
                 "id": "tandarts",
                 "icon": "dentistry",
                 "color": "#8C54D6",

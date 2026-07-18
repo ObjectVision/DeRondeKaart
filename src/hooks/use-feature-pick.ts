@@ -56,7 +56,17 @@ export function useFeaturePick(
 
         if (picks && Array.isArray(picks)) {
           for (const info of picks) {
-            if (!info.object || !info.layer) continue;
+            if (!info.layer) continue;
+            // Icon layers feed positions as binary attributes, so deck has no
+            // row object to attach — resolve it from the record batch riding
+            // on the layer's data (see createIconPointLayer).
+            let object = info.object;
+            if (!object && typeof info.index === "number" && info.index >= 0) {
+              const data = (info.layer.props as { data?: { data?: unknown } }).data;
+              const batch = data?.data as { get?: (i: number) => unknown } | undefined;
+              if (batch?.get) object = batch.get(info.index);
+            }
+            if (!object) continue;
             const deckLayerId: string = info.layer.id;
 
             // Match deck layer ID to a config entry
@@ -67,11 +77,11 @@ export function useFeaturePick(
             );
             if (!entry) continue;
 
-            // info.object is an arrow.StructRowProxy — call toJSON() for plain object
+            // The picked object is an arrow.StructRowProxy — toJSON() for a plain object
             const props =
-              typeof info.object.toJSON === "function"
-                ? info.object.toJSON()
-                : info.object;
+              typeof (object as { toJSON?: () => unknown }).toJSON === "function"
+                ? (object as { toJSON: () => unknown }).toJSON()
+                : object;
 
             // Same feature picked via another rule layer → duplicate. Keyed on
             // the stringified property bag ONCE per pick (info.index can't be

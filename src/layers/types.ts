@@ -46,7 +46,35 @@ export interface MarkSymbolizer {
   strokeWidth?: number;
 }
 
-export type GeoStylerSymbolizer = FillSymbolizer | LineSymbolizer | MarkSymbolizer;
+/**
+ * Icon symbolizer for point geometry: renders an SVG/PNG image per feature
+ * (deck.gl IconLayer) instead of a circle. SVG files must declare explicit
+ * width/height attributes to rasterize; `width`/`height` here are the source
+ * image's pixel dimensions (required by deck.gl to size the texture).
+ */
+export interface IconSymbolizer {
+  kind: "Icon";
+  /** Image URL (absolute or app-public path, e.g. "/poi-school.svg"). */
+  image: string;
+  /** Source image pixel width. */
+  width: number;
+  /** Source image pixel height. */
+  height: number;
+  /** Rendered height in screen px; defaults to `height`. */
+  size?: number;
+  opacity?: number;
+  /**
+   * Vertical anchor in image pixels from the top; defaults to height/2
+   * (centered). Use `height` for bottom-anchored pin-style icons.
+   */
+  anchorY?: number;
+}
+
+export type GeoStylerSymbolizer =
+  | FillSymbolizer
+  | LineSymbolizer
+  | MarkSymbolizer
+  | IconSymbolizer;
 
 export interface GeoStylerRule {
   name: string;
@@ -69,6 +97,19 @@ export interface LayerStyle {
   lineWidth?: number;
   filled?: boolean;
   stroked?: boolean;
+  /** Point geometry only: render an SVG/PNG icon per feature instead of a circle. */
+  icon?: {
+    /** Image URL (absolute or app-public path). SVG needs explicit width/height attributes. */
+    url: string;
+    /** Source image pixel width. */
+    width: number;
+    /** Source image pixel height. */
+    height: number;
+    /** Rendered height in screen px; defaults to `height`. */
+    size?: number;
+    /** Vertical anchor in image px from the top; defaults to height/2 (centered). */
+    anchorY?: number;
+  };
 }
 
 /** How a chart/statistic value is displayed. */
