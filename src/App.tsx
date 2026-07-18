@@ -1280,6 +1280,20 @@ function App({
           x={annotationPopupPos.x}
           y={annotationPopupPos.y}
           onChange={(patch) => annotations.update(selectedAnnotation.id, patch)}
+          onRecaptureView={() =>
+            // Re-snapshot only the camera (zoom + center): a later restore
+            // returns to this view; layers/filters in the snapshot stay as-is.
+            annotations.update(selectedAnnotation.id, {
+              snapshot: {
+                ...selectedAnnotation.snapshot,
+                view: {
+                  longitude: viewState.longitude,
+                  latitude: viewState.latitude,
+                  zoom: viewState.zoom,
+                },
+              },
+            })
+          }
         />
       )}
 

@@ -19,6 +19,8 @@ const COMMIT_DEBOUNCE_MS = 300;
  *
  * - edit opens a menu editing the title + description (committed debounced +
  *   on blur; remote edits from peers flow back in unless a field is focused)
+ * - screenshot_frame_2 re-snapshots the annotation's camera (zoom + center)
+ *   to the current view — a later restore returns here
  * - info shows who created the annotation, when, and its description
  *
  * Open menus stack above the titlebox row, growing away from the shape.
@@ -28,12 +30,15 @@ export function AnnotationEditPopup({
   x,
   y,
   onChange,
+  onRecaptureView,
 }: {
   annotation: Annotation;
   /** Projected screen position of the shape's top point (app-root relative). */
   x: number;
   y: number;
   onChange: (patch: Partial<Pick<Annotation, "title" | "description">>) => void;
+  /** Re-snapshot the annotation's camera (zoom + center) to the current view. */
+  onRecaptureView: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
@@ -201,6 +206,19 @@ export function AnnotationEditPopup({
               size={chromeIconSize()}
               color={menu === "edit" ? chromeIconColor() : undefined}
               className={menu === "edit" ? undefined : "text-gray-400"}
+            />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onRecaptureView}
+            title="Kaartweergave opnieuw vastleggen"
+            aria-label="Kaartweergave opnieuw vastleggen"
+          >
+            <Icon
+              name="screenshot_frame_2"
+              size={chromeIconSize()}
+              className="text-gray-400"
             />
           </Button>
           <Button
