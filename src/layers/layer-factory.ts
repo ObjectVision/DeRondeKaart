@@ -1,11 +1,11 @@
 import type { Layer, Color } from "@deck.gl/core";
 import { GeoJsonLayer } from "@deck.gl/layers";
-import { Table } from "apache-arrow";
+import { Table, RecordBatch } from "apache-arrow";
 import {
   GeoArrowScatterplotLayer,
   GeoArrowPathLayer,
   GeoArrowPolygonLayer,
-} from "@geoarrow/deck.gl-layers";
+} from "@geoarrow/deck.gl-geoarrow";
 import type { LayerConfig, GeoStylerStyle, GeoStylerRule } from "./types";
 import { arrowRowMatchesAreaFilter, getAreaFilterVersion } from "./area-filter";
 import {
@@ -138,12 +138,17 @@ function extractFilterFields(filter: unknown[]): string[] {
 
 /**
  * Create deck.gl layers for a GeoArrow/Parquet source.
- * Returns one layer per GeoStyler rule (child layers), or a single layer if no geostyler.
+ *
+ * @geoarrow/deck.gl-geoarrow (v0.4+) takes one Arrow RecordBatch per layer
+ * instance, so this returns one layer per batch — times one per GeoStyler rule
+ * when the config has geostyler styling.
  *
  * Layer ids are stable across progressive batch emissions (the loaders emit
- * cumulative tables), so each emission REPLACES the previous layer via deck's
- * id-matched diff instead of stacking a new copy on top — one live layer set
- * per config, not one per batch.
+ * cumulative tables, so batch i keeps position i): re-emitted batches REPLACE
+ * their previous layer via deck's id-matched diff (a no-op — same RecordBatch
+ * instance), and only genuinely new batches append. The `__b{n}` segment uses
+ * a distinct separator so config-id prefix matching (`configId-…`) and rule
+ * suffix matching (`…-{ruleName}`) in use-map-layers stay unambiguous.
  */
 export function createGeoArrowLayers(
   config: LayerConfig,
@@ -151,21 +156,43 @@ export function createGeoArrowLayers(
   beforeId?: string,
 ): Layer[] {
   const baseId = config.id;
-  const { style, geostyler } = config;
+  const { geostyler } = config;
   const geometryType = config.geometryType ?? detectGeometryType(table);
 
-  if (geostyler && geostyler.rules.length > 0) {
-    return geostyler.rules.map((rule) =>
-      createRuleGeoArrowLayer(`${baseId}-${rule.name}`, config, table, geometryType, geostyler, rule, beforeId),
-    );
-  }
+  return table.batches.flatMap((batch, i) => {
+    const batchId = `${baseId}__b${i}`;
+    if (geostyler && geostyler.rules.length > 0) {
+      return geostyler.rules.map((rule) =>
+        createRuleGeoArrowLayer(
+          `${batchId}-${rule.name}`,
+          config,
+          batch,
+          geometryType,
+          geostyler,
+          rule,
+          beforeId,
+        ),
+      );
+    }
+    return [createFlatGeoArrowLayer(batchId, config, batch, geometryType, beforeId)];
+  });
+}
 
-  // Single layer for legacy flat style
+/** Create a single GeoArrow layer for one record batch with the legacy flat style. */
+function createFlatGeoArrowLayer(
+  layerId: string,
+  config: LayerConfig,
+  batch: RecordBatch,
+  geometryType: string,
+  beforeId?: string,
+): Layer {
+  const { style } = config;
+
   switch (geometryType) {
     case "point":
-      return [new GeoArrowScatterplotLayer({
-        id: baseId,
-        data: table,
+      return new GeoArrowScatterplotLayer({
+        id: layerId,
+        data: batch,
         pickable: true,
         getFillColor: withAreaFilter(toColor(style.color, [0, 128, 255, 200])),
         getRadius: style.radius ?? 5,
@@ -173,12 +200,12 @@ export function createGeoArrowLayers(
         opacity: style.opacity ?? 1,
         updateTriggers: areaFilterTriggers(),
         beforeId,
-      } as any)];
+      } as any);
 
     case "line":
-      return [new GeoArrowPathLayer({
-        id: baseId,
-        data: table,
+      return new GeoArrowPathLayer({
+        id: layerId,
+        data: batch,
         pickable: true,
         getColor: withAreaFilter(toColor(style.color, [0, 128, 255, 200])),
         getWidth: style.lineWidth ?? 2,
@@ -186,12 +213,12 @@ export function createGeoArrowLayers(
         opacity: style.opacity ?? 1,
         updateTriggers: areaFilterTriggers(),
         beforeId,
-      } as any)];
+      } as any);
 
     case "polygon":
-      return [new GeoArrowPolygonLayer({
-        id: baseId,
-        data: table,
+      return new GeoArrowPolygonLayer({
+        id: layerId,
+        data: batch,
         pickable: true,
         getFillColor: withAreaFilter(toColor(style.color, [0, 128, 255, 100])),
         getLineColor: withAreaFilter(toColor(style.lineColor ?? style.color, [0, 128, 255, 200])),
@@ -202,7 +229,7 @@ export function createGeoArrowLayers(
         opacity: style.opacity ?? 1,
         updateTriggers: areaFilterTriggers(),
         beforeId,
-      } as any)];
+      } as any);
 
     default:
       throw new Error(
@@ -211,11 +238,11 @@ export function createGeoArrowLayers(
   }
 }
 
-/** Create a single GeoArrow layer for one specific GeoStyler rule */
+/** Create a single GeoArrow layer for one record batch and one GeoStyler rule. */
 function createRuleGeoArrowLayer(
   layerId: string,
   config: LayerConfig,
-  table: Table,
+  batch: RecordBatch,
   geometryType: string,
   geostyler: GeoStylerStyle,
   rule: GeoStylerRule,
@@ -227,7 +254,7 @@ function createRuleGeoArrowLayer(
     case "point":
       return new GeoArrowScatterplotLayer({
         id: layerId,
-        data: table,
+        data: batch,
         pickable: true,
         getFillColor: withAreaFilter(buildArrowRuleColorAccessor(geostyler, rule, getMarkColorFromRule)),
         getRadius: getMarkRadiusFromRule(rule),
@@ -240,7 +267,7 @@ function createRuleGeoArrowLayer(
     case "line":
       return new GeoArrowPathLayer({
         id: layerId,
-        data: table,
+        data: batch,
         pickable: true,
         getColor: withAreaFilter(buildArrowRuleColorAccessor(geostyler, rule, getLineColorFromRule)),
         getWidth: getLineWidthFromRule(rule),
@@ -253,7 +280,7 @@ function createRuleGeoArrowLayer(
     case "polygon":
       return new GeoArrowPolygonLayer({
         id: layerId,
-        data: table,
+        data: batch,
         pickable: true,
         getFillColor: withAreaFilter(buildArrowRuleColorAccessor(geostyler, rule, getFillColorFromRule)),
         getLineColor: withAreaFilter(buildArrowRuleColorAccessor(geostyler, rule, getOutlineColorFromRule)),

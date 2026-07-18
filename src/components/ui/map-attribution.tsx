@@ -30,7 +30,7 @@ const SOFTWARE_CREDITS = [
   {
     label: "GeoArrow layers",
     license: "MIT",
-    href: "https://github.com/geoarrow/deck.gl-layers",
+    href: "https://github.com/geoarrow/deck.gl-geoarrow",
   },
   { label: "Apache Arrow", license: "Apache-2.0", href: "https://arrow.apache.org/" },
   {
@@ -78,6 +78,9 @@ export function MapAttribution() {
     <div className="flex flex-col items-end gap-2">
       {open && (
         <div className="max-w-72 rounded-xl bg-white/95 p-3 text-xs text-gray-600 shadow-md backdrop-blur-sm">
+          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            De Ronde kaart
+          </h3>
           <p className="mb-3 leading-snug">
             De Ronde kaart is het startpunt van gesprek, maakt het mogelijk
             ruimtelijke vraagstukken op inzichtelijke wijze samen aan te
