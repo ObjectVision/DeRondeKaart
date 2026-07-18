@@ -45,6 +45,7 @@
       "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
+      "beforeid": "foreground-layers",
       "style": {
         "color": [
           255,
@@ -84,6 +85,7 @@
       "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
+      "beforeid": "foreground-layers",
       "style": {
         "color": [
           255,
