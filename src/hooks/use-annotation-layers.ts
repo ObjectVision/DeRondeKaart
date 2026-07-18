@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import type { Layer } from "@deck.gl/core";
 import { IconLayer, PathLayer, PolygonLayer, ScatterplotLayer, TextLayer } from "@deck.gl/layers";
 import { hexToRgba } from "@/lib/collab-identity";
-import { distanceMeters, metersPerPixel } from "@/lib/geo";
+import { distanceMeters, metersPerPixel, METERS_PER_DEGREE_LAT } from "@/lib/geo";
 import type { Annotation, CollabPresence } from "@/types/annotation";
 import type { AnnotationDraft } from "@/hooks/use-annotation-tool";
 
@@ -198,9 +198,20 @@ export function useAnnotationLayers({
       }),
       new TextLayer<Annotation>({
         id: `annotations-labels-${suffix}`,
-        data: annotations.filter((d) => d.title),
+        // The locally selected annotation shows its title in the floating
+        // titlebox instead — skip its map label to avoid doubling it.
+        data: annotations.filter((d) => d.title && d.id !== selectedId),
         pickable: false,
-        getPosition: (d) => [d.center.lng, d.center.lat],
+        // Titles sit above their shape: circles above the rim, polygons above
+        // the topmost vertex (north-up is guaranteed — rotation is disabled);
+        // pins and iconified shapes label above their center-anchored icon.
+        getPosition: (d) => {
+          if (d.pin || iconified.has(d.id)) return [d.center.lng, d.center.lat];
+          if (d.points) {
+            return [d.center.lng, Math.max(...d.points.map((p) => p.lat))];
+          }
+          return [d.center.lng, d.center.lat + d.radiusM / METERS_PER_DEGREE_LAT];
+        },
         getText: (d) => d.title,
         getSize: 13,
         sizeUnits: "pixels",
@@ -221,6 +232,7 @@ export function useAnnotationLayers({
         billboard: true,
         updateTriggers: {
           getPixelOffset: iconifiedKey,
+          getPosition: iconifiedKey,
         },
       }),
     ];

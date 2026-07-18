@@ -37,7 +37,7 @@ import {
   PIN_SIZE_ACTIVE_PX,
   type PolygonHandleDatum,
 } from "@/hooks/use-annotation-layers";
-import { centroid } from "@/lib/geo";
+import { centroid, METERS_PER_DEGREE_LAT } from "@/lib/geo";
 import { AnnotationEditPopup } from "@/components/annotations/AnnotationEditPopup";
 import { PresenceBadge } from "@/components/annotations/PresenceBadge";
 import { restoreSnapshot } from "@/lib/annotation-restore";
@@ -468,10 +468,10 @@ function App({
       }
       return { x: c.x, y: minY };
     }
-    // Circle rim top: the radius northward from the center (≈111.32 km/°lat).
+    // Circle rim top: the radius northward from the center.
     const top = map.project([
       selectedAnnotation.center.lng,
-      selectedAnnotation.center.lat + selectedAnnotation.radiusM / 111320,
+      selectedAnnotation.center.lat + selectedAnnotation.radiusM / METERS_PER_DEGREE_LAT,
     ]);
     return { x: c.x, y: top.y };
   }, [selectedAnnotation, viewState]);
@@ -1271,8 +1271,9 @@ function App({
         </div>
       )}
 
-      {/* Annotation title box — anchored above the top of the selected shape.
-          Title-only for now; Delete/Backspace removes, Escape deselects. */}
+      {/* Selected-annotation chrome — titlebox + edit/info toolbuttons,
+          anchored above the top of the shape. Delete/Backspace removes,
+          Escape deselects. */}
       {annotationsVisible && selectedAnnotation && annotationPopupPos && (
         <AnnotationEditPopup
           annotation={selectedAnnotation}

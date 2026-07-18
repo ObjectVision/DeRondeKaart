@@ -1,19 +1,27 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/nav-icon";
+import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 import type { Annotation } from "@/types/annotation";
 
-/** Gap between the shape's top point and the box / viewport edges. */
+/** Gap between the shape's top point and the chrome / viewport edges. */
 const POINTER_OFFSET = 14;
 const EDGE_MARGIN = 8;
 /** One Y.Map write per typing pause, not per keystroke. */
 const COMMIT_DEBOUNCE_MS = 300;
 
 /**
- * Floating title box for a selected annotation, anchored just above the top
- * of its shape (App projects the shape's top point to screen space and
- * re-projects on every view change, so the box tracks the shape while the map
- * moves). Title edits are committed debounced + on blur; remote edits from
- * peers flow back in unless the field is focused. Reduced to the title only
- * for now — description editing was removed.
+ * Floating chrome for the selected annotation, anchored just above the top of
+ * its shape (App projects the shape's top point to screen space and
+ * re-projects on every view change, so it tracks the shape while the map
+ * moves). A read-only titlebox with an edit and an info toolbutton beside it,
+ * styled like the app's other floating menus:
+ *
+ * - edit opens a menu editing the title + description (committed debounced +
+ *   on blur; remote edits from peers flow back in unless a field is focused)
+ * - info shows who created the annotation, when, and its description
+ *
+ * Open menus stack above the titlebox row, growing away from the shape.
  */
 export function AnnotationEditPopup({
   annotation,
@@ -25,20 +33,25 @@ export function AnnotationEditPopup({
   /** Projected screen position of the shape's top point (app-root relative). */
   x: number;
   y: number;
-  onChange: (patch: Partial<Pick<Annotation, "title">>) => void;
+  onChange: (patch: Partial<Pick<Annotation, "title" | "description">>) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const [menu, setMenu] = useState<"edit" | "info" | null>(null);
   const [title, setTitle] = useState(annotation.title);
+  const [description, setDescription] = useState(annotation.description);
   const commitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingRef = useRef<Partial<Pick<Annotation, "title">>>({});
+  const pendingRef = useRef<Partial<Pick<Annotation, "title" | "description">>>({});
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
-  // Selection switched to another annotation: load its text.
+  // Selection switched to another annotation: load its text, close any menu.
   useEffect(() => {
     setTitle(annotation.title);
+    setDescription(annotation.description);
     pendingRef.current = {};
+    setMenu(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [annotation.id]);
 
@@ -47,6 +60,16 @@ export function AnnotationEditPopup({
   useEffect(() => {
     if (document.activeElement !== titleRef.current) setTitle(annotation.title);
   }, [annotation.title]);
+  useEffect(() => {
+    if (document.activeElement !== descriptionRef.current) {
+      setDescription(annotation.description);
+    }
+  }, [annotation.description]);
+
+  // Opening the edit menu puts the caret in the title field.
+  useEffect(() => {
+    if (menu === "edit") titleRef.current?.focus();
+  }, [menu]);
 
   const commit = () => {
     if (commitTimer.current) clearTimeout(commitTimer.current);
@@ -56,13 +79,13 @@ export function AnnotationEditPopup({
     if (Object.keys(pending).length > 0) onChangeRef.current(pending);
   };
 
-  const queue = (patch: Partial<Pick<Annotation, "title">>) => {
+  const queue = (patch: Partial<Pick<Annotation, "title" | "description">>) => {
     pendingRef.current = { ...pendingRef.current, ...patch };
     if (commitTimer.current) clearTimeout(commitTimer.current);
     commitTimer.current = setTimeout(commit, COMMIT_DEBOUNCE_MS);
   };
 
-  // Flush the pending edit when the box closes/unmounts.
+  // Flush the pending edit when the chrome closes/unmounts.
   useEffect(() => {
     return () => {
       if (commitTimer.current) clearTimeout(commitTimer.current);
@@ -72,8 +95,8 @@ export function AnnotationEditPopup({
     };
   }, []);
 
-  // Clamp to the app root; sits above the shape's top point, flipping below
-  // it when there is no room above.
+  // Clamp to the app root; the stack's bottom sits above the shape's top
+  // point (menus grow upward), flipping below it when there is no room above.
   useLayoutEffect(() => {
     const el = ref.current;
     const parent = el?.parentElement;
@@ -106,21 +129,97 @@ export function AnnotationEditPopup({
   return (
     <div
       ref={ref}
-      className="absolute z-40 w-56 rounded-lg bg-white/90 p-1.5 shadow-md backdrop-blur-sm"
+      className="absolute z-40 flex flex-col items-center gap-2"
       style={{ left: x, top: y - POINTER_OFFSET }}
     >
-      <input
-        ref={titleRef}
-        type="text"
-        value={title}
-        onChange={(e) => {
-          setTitle(e.target.value);
-          queue({ title: e.target.value });
-        }}
-        onBlur={commit}
-        placeholder="Titel"
-        className="w-full rounded-lg bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm outline-none ring-1 ring-gray-200 placeholder:font-normal placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
-      />
+      {menu === "edit" && (
+        <div className="flex w-72 flex-col gap-2 rounded-xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
+          <input
+            ref={titleRef}
+            type="text"
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              queue({ title: e.target.value });
+            }}
+            onBlur={commit}
+            placeholder="Titel"
+            className="rounded-lg bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm outline-none ring-1 ring-gray-200 placeholder:font-normal placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
+          />
+          <textarea
+            ref={descriptionRef}
+            value={description}
+            onChange={(e) => {
+              setDescription(e.target.value);
+              queue({ description: e.target.value });
+            }}
+            onBlur={commit}
+            placeholder="Beschrijving of analyse (optioneel)"
+            rows={3}
+            className="resize-none rounded-lg bg-white/95 px-3 py-1.5 text-xs text-gray-700 shadow-sm outline-none ring-1 ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
+          />
+        </div>
+      )}
+      {menu === "info" && (
+        <div className="max-w-72 rounded-xl bg-white/95 p-3 text-xs text-gray-600 shadow-md backdrop-blur-sm">
+          <p className="flex items-center gap-1.5 font-semibold text-gray-700">
+            <span
+              className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
+              style={{ backgroundColor: annotation.color }}
+              aria-hidden
+            />
+            {annotation.author}
+          </p>
+          <p className="text-gray-400">
+            {new Date(annotation.createdAt).toLocaleString("nl-NL", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })}
+          </p>
+          {annotation.description && (
+            <p className="mt-2 whitespace-pre-wrap">{annotation.description}</p>
+          )}
+        </div>
+      )}
+      <div className="flex items-center gap-1">
+        <div className="max-w-56 truncate rounded-xl bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-md backdrop-blur-sm">
+          {annotation.title || (
+            <span className="font-normal text-gray-400">Zonder titel</span>
+          )}
+        </div>
+        <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setMenu((m) => (m === "edit" ? null : "edit"))}
+            title="Annotatie bewerken"
+            aria-label="Annotatie bewerken"
+            aria-expanded={menu === "edit"}
+          >
+            <Icon
+              name="edit"
+              size={chromeIconSize()}
+              color={menu === "edit" ? chromeIconColor() : undefined}
+              className={menu === "edit" ? undefined : "text-gray-400"}
+            />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => setMenu((m) => (m === "info" ? null : "info"))}
+            title="Annotatie-informatie"
+            aria-label="Annotatie-informatie"
+            aria-expanded={menu === "info"}
+          >
+            <Icon
+              name="info"
+              size={chromeIconSize()}
+              color={menu === "info" ? chromeIconColor() : undefined}
+              className={menu === "info" ? undefined : "text-gray-400"}
+            />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

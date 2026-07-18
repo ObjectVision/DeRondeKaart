@@ -20,6 +20,9 @@ export function distanceMeters(
   return 2 * EARTH_RADIUS_M * Math.asin(Math.min(1, Math.sqrt(h)));
 }
 
+/** Meters per degree of latitude (spherical approximation). */
+export const METERS_PER_DEGREE_LAT = 111320;
+
 /** Web-mercator ground resolution in meters per pixel at a latitude + zoom. */
 export function metersPerPixel(lat: number, zoom: number): number {
   return (156543.03392 * Math.cos(lat * (Math.PI / 180))) / 2 ** zoom;
