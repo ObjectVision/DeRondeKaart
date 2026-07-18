@@ -52,6 +52,8 @@ export type AnnotationHit =
   | { type: "circle"; annotation: Annotation }
   | { type: "polygon"; annotation: Annotation }
   | { type: "pin"; annotation: Annotation }
+  /** A circle/polygon collapsed to its far-zoom icon form. */
+  | { type: "icon"; annotation: Annotation }
   /** A vertex handle of the selected polygon. */
   | { type: "vertex"; annotation: Annotation; index: number }
   /** An edge of the selected polygon; `index` is the edge's start vertex. */
@@ -276,13 +278,22 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
             startLngLat,
             startPoint,
           };
-        } else if (hit.type === "pin") {
-          // Pins have no rim to resize — any drag moves them.
+        } else if (hit.type === "pin" || (hit.type === "icon" && !a.points)) {
+          // Pins and far-zoom circle icons have no rim to grab — drag moves.
           dragRef.current = {
             mode: "move",
             id: a.id,
             startCenter: a.center,
-            startRadiusM: 0,
+            startRadiusM: a.radiusM,
+            startLngLat,
+            startPoint,
+          };
+        } else if (hit.type === "icon" && a.points) {
+          // Far-zoom polygon icon: drag translates the whole ring.
+          dragRef.current = {
+            mode: "move-poly",
+            id: a.id,
+            startPoints: a.points,
             startLngLat,
             startPoint,
           };
