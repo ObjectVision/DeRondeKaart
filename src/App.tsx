@@ -1289,19 +1289,10 @@ function App({
           x={annotationPopupPos.x}
           y={annotationPopupPos.y}
           onChange={(patch) => annotations.update(selectedAnnotation.id, patch)}
-          onRecaptureView={() =>
-            // Re-snapshot only the camera (zoom + center): a later restore
-            // returns to this view; layers/filters in the snapshot stay as-is.
-            annotations.update(selectedAnnotation.id, {
-              snapshot: {
-                ...selectedAnnotation.snapshot,
-                view: {
-                  longitude: viewState.longitude,
-                  latitude: viewState.latitude,
-                  zoom: viewState.zoom,
-                },
-              },
-            })
+          onRecapture={() =>
+            // Re-capture the FULL session snapshot — both maps' layers +
+            // hidden ids, gebiedsfilters and camera — exactly like creation.
+            annotations.update(selectedAnnotation.id, { snapshot: captureSnapshot() })
           }
         />
       )}
