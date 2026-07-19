@@ -1294,6 +1294,11 @@ function App({
             // hidden ids, gebiedsfilters and camera — exactly like creation.
             annotations.update(selectedAnnotation.id, { snapshot: captureSnapshot() })
           }
+          onDelete={() => {
+            // Same as the Delete/Backspace shortcut: deselect, then remove.
+            annotationSelect(null);
+            annotations.remove(selectedAnnotation.id);
+          }}
         />
       )}
 

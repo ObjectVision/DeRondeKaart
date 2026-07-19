@@ -23,6 +23,7 @@ const COMMIT_DEBOUNCE_MS = 300;
  *   the state as it is now
  * - info shows who created the annotation and when, plus the description —
  *   readable in place and editable via the edit/edit_off toggle
+ * - delete removes the annotation (same as Delete/Backspace)
  *
  * The info panel stacks above the titlebox row, growing away from the shape.
  */
@@ -32,6 +33,7 @@ export function AnnotationEditPopup({
   y,
   onChange,
   onRecapture,
+  onDelete,
 }: {
   annotation: Annotation;
   /** Projected screen position of the shape's top point (app-root relative). */
@@ -40,6 +42,8 @@ export function AnnotationEditPopup({
   onChange: (patch: Partial<Pick<Annotation, "title" | "description">>) => void;
   /** Re-snapshot the annotation's full session state (layers, filters, camera). */
   onRecapture: () => void;
+  /** Delete the annotation (also deselects — the popup unmounts). */
+  onDelete: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
@@ -249,6 +253,19 @@ export function AnnotationEditPopup({
               size={chromeIconSize()}
               color={infoOpen ? chromeIconColor() : undefined}
               className={infoOpen ? undefined : "text-gray-400"}
+            />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={onDelete}
+            title="Annotatie verwijderen"
+            aria-label="Annotatie verwijderen"
+          >
+            <Icon
+              name="delete"
+              size={chromeIconSize()}
+              className="text-gray-400 hover:text-red-500"
             />
           </Button>
         </div>

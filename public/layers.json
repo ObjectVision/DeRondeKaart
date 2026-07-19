@@ -40,8 +40,8 @@
       }
     },
     {
-      "id": "supermarkt_svg",
-      "name": "supermarkt svg",
+      "id": "supermarkt",
+      "name": "supermarkt",
       "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
       "format": "geoparquet",
       "geometryType": "point",
