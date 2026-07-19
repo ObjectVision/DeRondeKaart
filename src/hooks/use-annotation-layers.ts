@@ -81,6 +81,11 @@ export interface AnnotationLayersOptions {
   zoom: number;
   /** "a" | "b" — layer ids must differ per map (two Deck overlays). */
   suffix: string;
+  /**
+   * Render the on-map title labels (default true). The PNG export turns them
+   * off — it draws titles as callout labels below the circle instead.
+   */
+  showLabels?: boolean;
 }
 
 /**
@@ -99,6 +104,7 @@ export function useAnnotationLayers({
   visible,
   zoom,
   suffix,
+  showLabels = true,
 }: AnnotationLayersOptions): Layer[] {
   // Annotations highlighted for anyone: the local selection plus every peer's
   // broadcast selection (shows collaborators what others are looking at).
@@ -196,6 +202,8 @@ export function useAnnotationLayers({
           getSize: activeKey,
         },
       }),
+      ...(showLabels
+        ? [
       new TextLayer<Annotation>({
         id: `annotations-labels-${suffix}`,
         // The locally selected annotation shows its title in the floating
@@ -235,6 +243,8 @@ export function useAnnotationLayers({
           getPosition: iconifiedKey,
         },
       }),
+          ]
+        : []),
     ];
 
     // Edit handles for the locally selected polygon (Figma-style): pickable
@@ -361,5 +371,5 @@ export function useAnnotationLayers({
     }
 
     return layers;
-  }, [visible, annotations, draft, activeIds, selectedId, peers, identityColor, zoom, suffix]);
+  }, [visible, annotations, draft, activeIds, selectedId, peers, identityColor, zoom, suffix, showLabels]);
 }

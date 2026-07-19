@@ -143,6 +143,8 @@ export const ExportPreviewMap = forwardRef<
     visible: annotationList.length > 0,
     zoom: viewState.zoom,
     suffix: "export",
+    // Titles become callout labels below the exported circle (map-capture.ts).
+    showLabels: false,
   });
   const studyOrFiltered = filteredStudy ? filteredStudyLayers : studyLayers;
   const topLayers = useMemo(

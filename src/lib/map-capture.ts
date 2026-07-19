@@ -116,6 +116,16 @@ export async function captureMapAtResolution(
   }
 }
 
+/** One annotation callout: title drawn below the circle, leader line to (x,y). */
+export interface CalloutLabel {
+  title: string;
+  /** Annotation color — fills the anchor dot on the shape. */
+  color: string;
+  /** Anchor in output-canvas pixels (the shape's center inside the circle). */
+  x: number;
+  y: number;
+}
+
 export interface CircularExportOptions {
   /** Square canvas holding the captured map (any resolution ≥ size). */
   mapCanvas: HTMLCanvasElement;
@@ -124,20 +134,28 @@ export interface CircularExportOptions {
   title: string;
   subtitle?: string;
   legend: ExportLegendItem[];
+  /**
+   * Annotation titles rendered as callout labels in a band below the circle,
+   * each connected to its shape by a leader line (classic annotated-map
+   * style). Non-empty ⇒ the output canvas grows downward by the band height.
+   */
+  callouts?: CalloutLabel[];
 }
 
 /**
  * Compose the final circular export: the map clipped to an inscribed circle
  * on a transparent background, a rounded title card top-left and a legend
  * card bottom-left (the circle's corner whitespace, mirroring the dialog
- * preview). Only plain text and shapes are drawn — no icon-font glyphs, which
- * would rasterize as tofu. Waits for document fonts so Geist (not a fallback)
- * is measured and drawn.
+ * preview). With `callouts`, the canvas grows downward by a band holding the
+ * annotation titles, each wired to its shape by a leader line. Only plain
+ * text and shapes are drawn — no icon-font glyphs, which would rasterize as
+ * tofu. Waits for document fonts so Geist (not a fallback) is measured and
+ * drawn.
  */
 export async function composeCircularExport(
   options: CircularExportOptions,
 ): Promise<HTMLCanvasElement> {
-  const { mapCanvas, size, title, subtitle, legend } = options;
+  const { mapCanvas, size, title, subtitle, legend, callouts } = options;
   await document.fonts.ready;
 
   const out = document.createElement("canvas");
@@ -145,6 +163,19 @@ export async function composeCircularExport(
   out.height = size;
   const ctx = out.getContext("2d");
   if (!ctx) throw new Error("2D context unavailable");
+
+  // Layout constants scale with the output size (spec'd against 2048).
+  const u = size / 2048;
+  const pad = 40 * u; // card padding
+  const margin = 32 * u; // distance from canvas edge
+  const radius = 24 * u; // card corner radius
+
+  // Callout band layout — must run BEFORE drawing: the canvas grows downward
+  // to hold the labels, and resizing a canvas clears it.
+  const placedCallouts = layoutCallouts(ctx, callouts ?? [], size, u);
+  if (placedCallouts.bandH > 0) {
+    out.height = size + placedCallouts.bandH; // resets ctx state; nothing drawn yet
+  }
 
   // Map, clipped to the inscribed circle.
   ctx.save();
@@ -154,11 +185,8 @@ export async function composeCircularExport(
   ctx.drawImage(mapCanvas, 0, 0, size, size);
   ctx.restore();
 
-  // Layout constants scale with the output size (spec'd against 2048).
-  const u = size / 2048;
-  const pad = 40 * u; // card padding
-  const margin = 32 * u; // distance from canvas edge
-  const radius = 24 * u; // card corner radius
+  // Leader lines + labels — over the map but under the title/legend cards.
+  drawCallouts(ctx, placedCallouts, u);
 
   const drawCard = (x: number, y: number, w: number, h: number) => {
     ctx.save();
@@ -252,6 +280,144 @@ export async function composeCircularExport(
   }
 
   return out;
+}
+
+// ---------------------------------------------------------------------------
+// Annotation callouts: titles in a band below the circle, leader lines up to
+// their shapes (classic annotated-map style).
+// ---------------------------------------------------------------------------
+
+const CALLOUT_TEXT_H = 36; // px at 2048 (multiplied by u)
+
+interface PlacedCallout {
+  title: string;
+  color: string;
+  anchorX: number;
+  anchorY: number;
+  /** Text top-left in output pixels. */
+  labelX: number;
+  labelY: number;
+  width: number;
+}
+
+interface CalloutLayout {
+  placed: PlacedCallout[];
+  /** Extra canvas height below the circle square (0 = no band). */
+  bandH: number;
+}
+
+/** Shorten a title with an ellipsis until it fits maxW (ctx.font pre-set). */
+function ellipsize(ctx: CanvasRenderingContext2D, text: string, maxW: number): string {
+  if (ctx.measureText(text).width <= maxW) return text;
+  let t = text;
+  while (t.length > 1 && ctx.measureText(`${t}…`).width > maxW) {
+    t = t.slice(0, -1).trimEnd();
+  }
+  return `${t}…`;
+}
+
+/**
+ * Greedy multi-row layout: callouts sorted by anchor x, each label centered
+ * under its anchor where possible, pushed right past its row neighbor
+ * otherwise, wrapping to a new row when it no longer fits the canvas width.
+ */
+function layoutCallouts(
+  ctx: CanvasRenderingContext2D,
+  callouts: CalloutLabel[],
+  size: number,
+  u: number,
+): CalloutLayout {
+  const items = callouts.filter((c) => c.title.trim().length > 0);
+  if (items.length === 0) return { placed: [], bandH: 0 };
+
+  ctx.font = `400 ${CALLOUT_TEXT_H * u}px ${EXPORT_FONT}`;
+  const margin = 32 * u;
+  const gap = 40 * u; // min horizontal gap between labels in a row
+  const maxLabelW = size * 0.4;
+  const bandTopGap = 56 * u; // circle bottom edge → first row of text
+  const rowH = 96 * u; // row pitch (text + leader clearance)
+
+  const measured = items
+    .map((c) => {
+      const title = ellipsize(ctx, c.title.trim(), maxLabelW);
+      return { ...c, title, width: ctx.measureText(title).width };
+    })
+    .sort((a, b) => a.x - b.x);
+
+  const rows: Array<{ cursor: number }> = [];
+  const placed: PlacedCallout[] = [];
+  for (const c of measured) {
+    const desired = Math.max(margin, Math.min(c.x - c.width / 2, size - margin - c.width));
+    let rowIndex = -1;
+    let startX = desired;
+    for (let r = 0; r < rows.length; r++) {
+      const s = Math.max(desired, rows[r].cursor);
+      if (s + c.width <= size - margin) {
+        rowIndex = r;
+        startX = s;
+        break;
+      }
+    }
+    if (rowIndex === -1) {
+      rows.push({ cursor: 0 });
+      rowIndex = rows.length - 1;
+      startX = desired;
+    }
+    rows[rowIndex].cursor = startX + c.width + gap;
+    placed.push({
+      title: c.title,
+      color: c.color,
+      anchorX: c.x,
+      anchorY: c.y,
+      labelX: startX,
+      labelY: size + bandTopGap + rowIndex * rowH,
+      width: c.width,
+    });
+  }
+
+  const bandH = bandTopGap + rows.length * rowH - (rowH - CALLOUT_TEXT_H * u) + 32 * u;
+  return { placed, bandH };
+}
+
+/** Draw the leader lines, anchor dots and label texts of a callout layout. */
+function drawCallouts(ctx: CanvasRenderingContext2D, layout: CalloutLayout, u: number): void {
+  ctx.save();
+  for (const c of layout.placed) {
+    const cx = c.labelX + c.width / 2;
+    const startY = c.labelY - 10 * u; // just above the text
+    // Mostly-vertical leader: up from the label, short slanted tip to the
+    // anchor when it sits off-axis (bend just below the shape).
+    const bendY = Math.min(c.anchorY + 60 * u, startY);
+    ctx.strokeStyle = "#4b5563"; // gray-600
+    ctx.lineWidth = 2.5 * u;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(cx, startY);
+    if (Math.abs(c.anchorX - cx) < 2 * u) {
+      ctx.lineTo(c.anchorX, c.anchorY);
+    } else {
+      ctx.lineTo(cx, bendY);
+      ctx.lineTo(c.anchorX, c.anchorY);
+    }
+    ctx.stroke();
+
+    // Anchor dot in the annotation's color, white-ringed for contrast.
+    ctx.beginPath();
+    ctx.arc(c.anchorX, c.anchorY, 7 * u, 0, Math.PI * 2);
+    ctx.fillStyle = c.color;
+    ctx.fill();
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 2.5 * u;
+    ctx.stroke();
+
+    ctx.font = `400 ${CALLOUT_TEXT_H * u}px ${EXPORT_FONT}`;
+    ctx.fillStyle = "#1f2937"; // gray-800
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillText(c.title, c.labelX, c.labelY);
+  }
+  ctx.restore();
 }
 
 /** Trigger a browser download of the canvas as a PNG file. */
