@@ -198,6 +198,21 @@ export function ShareDialog({
     if (!map || exporting) return;
     setExporting(true);
     try {
+      // Project annotation anchors BEFORE the capture (map.project uses CSS
+      // coordinates; project outside the transient pixel-ratio window). Only
+      // titled shapes whose center lands inside the circle get a callout.
+      const scale = EXPORT_SIZE / Math.max(1, map.getContainer().clientWidth);
+      const callouts = (annotations ?? [])
+        .filter((a) => a.title.trim())
+        .map((a) => {
+          const p = map.project([a.center.lng, a.center.lat]);
+          return { title: a.title, color: a.color, x: p.x * scale, y: p.y * scale };
+        })
+        .filter(
+          (c) =>
+            Math.hypot(c.x - EXPORT_SIZE / 2, c.y - EXPORT_SIZE / 2) < EXPORT_SIZE / 2,
+        );
+
       const overlay = previewRef.current?.getOverlay() ?? null;
       const mapCanvas = await captureMapAtResolution(map, overlay, EXPORT_SIZE);
       const composed = await composeCircularExport({
@@ -206,6 +221,7 @@ export function ShareDialog({
         title,
         subtitle,
         legend: legendItems,
+        callouts,
       });
       downloadCanvasPng(composed, `${filenameSlug(title, "kaart")}.png`);
     } catch (err) {
@@ -213,7 +229,7 @@ export function ShareDialog({
     } finally {
       setExporting(false);
     }
-  }, [exporting, title, subtitle, legendItems]);
+  }, [exporting, title, subtitle, legendItems, annotations]);
 
   return (
     <DialogRoot open={open} onOpenChange={onOpenChange}>
