@@ -195,8 +195,11 @@ function App({
 
   // Per-map marker layers (separate instances — Layer objects can't be shared
   // across two Deck overlays). Appended to each map's always-on-top topLayers.
-  const markerLayersA = useClickMarkerLayers(clickMarker, clickMarkerConfig);
-  const markerLayersB = useClickMarkerLayers(showMapRight ? clickMarker : null, clickMarkerConfig);
+  // map.json `clickMarker.enabled: false` (or `clickMarker: false`) suppresses
+  // the marker; clicks still open popups/Street View.
+  const markerPoint = clickMarkerConfig.enabled ? clickMarker : null;
+  const markerLayersA = useClickMarkerLayers(markerPoint, clickMarkerConfig);
+  const markerLayersB = useClickMarkerLayers(showMapRight ? markerPoint : null, clickMarkerConfig);
 
   // Area-select tool: a drawn rectangle restricting the charts/statistics to
   // rows inside it (ANDed with the area filter). One shared instance — the box

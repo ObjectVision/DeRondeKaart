@@ -3,6 +3,12 @@ import type { ViewState } from "@/components/map/MapView";
 /** Appearance of the marker dropped where the user clicks the map. */
 export interface ClickMarkerConfig {
   /**
+   * Render the marker at all. `false` disables it (clicks still open feature
+   * info popups — only the dropped pin is suppressed). map.json can also use
+   * the shorthand `"clickMarker": false`. Defaults to `true`.
+   */
+  enabled: boolean;
+  /**
    * Either a Material Symbols icon **name** (e.g. "location_on") — resolved to
    * Google's hosted SVG — or a **path/URL** to a local SVG/PNG (e.g.
    * "/click-marker.svg"). See {@link resolveMarkerIconUrl}. Rendered as a tinted mask.
@@ -175,6 +181,7 @@ export const DEFAULT_MAP_CONTROLS: MapControlsConfig = {
 
 /** Default on-click marker: a purple pin at 40px, no offset. */
 export const DEFAULT_CLICK_MARKER: ClickMarkerConfig = {
+  enabled: true,
   icon: "/click-marker.svg",
   size: 40,
   color: [134, 59, 255, 255],
@@ -236,12 +243,21 @@ function validateColor(value: unknown): [number, number, number, number] | null 
  */
 function validateClickMarker(value: unknown): ClickMarkerConfig {
   if (value === undefined) return DEFAULT_CLICK_MARKER;
+  // Shorthand: `"clickMarker": false` disables the marker entirely.
+  if (value === false) return { ...DEFAULT_CLICK_MARKER, enabled: false };
   if (typeof value !== "object" || value === null) {
     console.warn(`map.json: invalid "clickMarker" ${JSON.stringify(value)}; using default`);
     return DEFAULT_CLICK_MARKER;
   }
 
   const obj = value as Record<string, unknown>;
+
+  let enabled = DEFAULT_CLICK_MARKER.enabled;
+  if (typeof obj.enabled === "boolean") {
+    enabled = obj.enabled;
+  } else if (obj.enabled !== undefined) {
+    console.warn(`map.json: invalid clickMarker.enabled ${JSON.stringify(obj.enabled)}; using default`);
+  }
 
   let icon = DEFAULT_CLICK_MARKER.icon;
   if (typeof obj.icon === "string" && obj.icon.length > 0) {
@@ -277,7 +293,7 @@ function validateClickMarker(value: unknown): ClickMarkerConfig {
   const offsetX = validateOffset(obj.offsetX, "offsetX", DEFAULT_CLICK_MARKER.offsetX);
   const offsetY = validateOffset(obj.offsetY, "offsetY", DEFAULT_CLICK_MARKER.offsetY);
 
-  return { icon, size, color, offsetX, offsetY };
+  return { enabled, icon, size, color, offsetX, offsetY };
 }
 
 /**
