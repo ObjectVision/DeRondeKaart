@@ -64,6 +64,12 @@ export interface IconSymbolizer {
   size?: number;
   opacity?: number;
   /**
+   * Tint color (hex). When set, the image is treated as a mask — its shape is
+   * kept but every opaque pixel is recolored (the SVG's own fill is ignored).
+   * Omit to render the image's own colors.
+   */
+  color?: string;
+  /**
    * Vertical anchor in image pixels from the top; defaults to height/2
    * (centered). Use `height` for bottom-anchored pin-style icons.
    */
@@ -107,6 +113,8 @@ export interface LayerStyle {
     height: number;
     /** Rendered height in screen px; defaults to `height`. */
     size?: number;
+    /** Tint color (hex): recolors the image's opaque pixels (mask rendering). */
+    color?: string;
     /** Vertical anchor in image px from the top; defaults to height/2 (centered). */
     anchorY?: number;
   };

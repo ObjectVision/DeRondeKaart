@@ -40,46 +40,6 @@
       }
     },
     {
-      "id": "supermarkt",
-      "name": "supermarkt",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
-      "format": "geoparquet",
-      "geometryType": "point",
-      "beforeid": "foreground-layers",
-      "style": {
-        "color": [
-          255,
-          69,
-          0,
-          150
-        ],
-        "opacity": 0.8,
-        "lineWidth": 1
-      },
-      "geostyler": {
-        "name": "supermarkt",
-        "rules": [
-          {
-            "name": "supermarkt",
-            "filter": [
-              "==",
-              "type",
-              17
-            ],
-            "symbolizers": [
-              {
-                "kind": "Mark",
-                "color": "#ff4500"
-              }
-            ]
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
-      }
-    },
-    {
       "id": "supermarkt_svg",
       "name": "supermarkt svg",
       "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
@@ -109,10 +69,12 @@
             "symbolizers": [
               {
                 "kind": "Icon",
-                "image": "/shopping_cart.svg",
+                "image": "/icons/shopping_cart_filled.svg",
                 "width": 32,
                 "height": 32,
-                "size": 24
+                "size": 24,
+                "color": "#ff4500",
+                "opacity": 0.8
               }
             ]
           }
