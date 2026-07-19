@@ -21,6 +21,7 @@
   "annotations": true,
   "clickMarker": {
     "icon": "location_on",
+    "enabled": false,
     "size": 30,
     "color": [
       62,
