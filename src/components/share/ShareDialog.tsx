@@ -6,6 +6,7 @@ import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 import { ExportPreviewMap, type ExportPreviewHandle } from "@/components/share/ExportPreviewMap";
 import type { FilteredStudyArea } from "@/hooks/use-filtered-study-area";
+import type { Annotation } from "@/types/annotation";
 import { SocialIcon, type SocialPlatform } from "@/components/share/social-icons";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import type { ViewState } from "@/components/map/MapView";
@@ -89,6 +90,7 @@ export function ShareDialog({
   basemapId,
   studyAreaId,
   filteredStudy,
+  annotations,
   viewState,
   annotRoomId,
 }: {
@@ -107,6 +109,8 @@ export function ShareDialog({
   studyAreaId?: string;
   /** Gebiedsfilter-driven studyarea; replaces the configured one when set. */
   filteredStudy?: FilteredStudyArea | null;
+  /** Active annotations to include in the preview/PNG (empty/omitted = none). */
+  annotations?: Annotation[];
   /** The MAIN map's view — seeds the preview and is what the share URL encodes. */
   viewState: ViewState;
   /** Collaborative annotation room — carried in the link as `annot`. */
@@ -249,6 +253,7 @@ export function ShareDialog({
                     basemapId={basemapId}
                     studyAreaId={studyAreaId}
                     filteredStudy={filteredStudy}
+                    annotations={annotations}
                     initialViewState={viewState}
                   />
                 )}
