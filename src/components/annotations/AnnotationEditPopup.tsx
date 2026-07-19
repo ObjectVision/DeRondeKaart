@@ -14,36 +14,38 @@ const COMMIT_DEBOUNCE_MS = 300;
  * Floating chrome for the selected annotation, anchored just above the top of
  * its shape (App projects the shape's top point to screen space and
  * re-projects on every view change, so it tracks the shape while the map
- * moves). A read-only titlebox with an edit and an info toolbutton beside it,
- * styled like the app's other floating menus:
+ * moves). The titlebox itself is an inline editor (type to rename; committed
+ * debounced + on blur; remote edits from peers flow back in unless the field
+ * is focused), with two toolbuttons beside it:
  *
- * - edit opens a menu editing the title + description (committed debounced +
- *   on blur; remote edits from peers flow back in unless a field is focused)
- * - screenshot_frame_2 re-snapshots the annotation's camera (zoom + center)
- *   to the current view — a later restore returns here
- * - info shows who created the annotation, when, and its description
+ * - screenshot_frame_2 re-captures the annotation's full session snapshot
+ *   (both maps' layers, gebiedsfilters, camera) — a later restore returns to
+ *   the state as it is now
+ * - info shows who created the annotation and when, plus the description —
+ *   readable in place and editable via the edit/edit_off toggle
  *
- * Open menus stack above the titlebox row, growing away from the shape.
+ * The info panel stacks above the titlebox row, growing away from the shape.
  */
 export function AnnotationEditPopup({
   annotation,
   x,
   y,
   onChange,
-  onRecaptureView,
+  onRecapture,
 }: {
   annotation: Annotation;
   /** Projected screen position of the shape's top point (app-root relative). */
   x: number;
   y: number;
   onChange: (patch: Partial<Pick<Annotation, "title" | "description">>) => void;
-  /** Re-snapshot the annotation's camera (zoom + center) to the current view. */
-  onRecaptureView: () => void;
+  /** Re-snapshot the annotation's full session state (layers, filters, camera). */
+  onRecapture: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLTextAreaElement>(null);
-  const [menu, setMenu] = useState<"edit" | "info" | null>(null);
+  const [infoOpen, setInfoOpen] = useState(false);
+  const [editingDescription, setEditingDescription] = useState(false);
   const [title, setTitle] = useState(annotation.title);
   const [description, setDescription] = useState(annotation.description);
   const commitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -51,12 +53,13 @@ export function AnnotationEditPopup({
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
-  // Selection switched to another annotation: load its text, close any menu.
+  // Selection switched to another annotation: load its text, close the panel.
   useEffect(() => {
     setTitle(annotation.title);
     setDescription(annotation.description);
     pendingRef.current = {};
-    setMenu(null);
+    setInfoOpen(false);
+    setEditingDescription(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [annotation.id]);
 
@@ -71,10 +74,10 @@ export function AnnotationEditPopup({
     }
   }, [annotation.description]);
 
-  // Opening the edit menu puts the caret in the title field.
+  // Starting a description edit puts the caret in the textarea.
   useEffect(() => {
-    if (menu === "edit") titleRef.current?.focus();
-  }, [menu]);
+    if (editingDescription) descriptionRef.current?.focus();
+  }, [editingDescription]);
 
   const commit = () => {
     if (commitTimer.current) clearTimeout(commitTimer.current);
@@ -137,83 +140,95 @@ export function AnnotationEditPopup({
       className="absolute z-40 flex flex-col items-center gap-2"
       style={{ left: x, top: y - POINTER_OFFSET }}
     >
-      {menu === "edit" && (
-        <div className="flex w-72 flex-col gap-2 rounded-xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
-          <input
-            ref={titleRef}
-            type="text"
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value);
-              queue({ title: e.target.value });
-            }}
-            onBlur={commit}
-            placeholder="Titel"
-            className="rounded-lg bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-sm outline-none ring-1 ring-gray-200 placeholder:font-normal placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
-          />
-          <textarea
-            ref={descriptionRef}
-            value={description}
-            onChange={(e) => {
-              setDescription(e.target.value);
-              queue({ description: e.target.value });
-            }}
-            onBlur={commit}
-            placeholder="Beschrijving of analyse (optioneel)"
-            rows={3}
-            className="resize-none rounded-lg bg-white/95 px-3 py-1.5 text-xs text-gray-700 shadow-sm outline-none ring-1 ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
-          />
-        </div>
-      )}
-      {menu === "info" && (
-        <div className="max-w-72 rounded-xl bg-white/95 p-3 text-xs text-gray-600 shadow-md backdrop-blur-sm">
-          <p className="flex items-center gap-1.5 font-semibold text-gray-700">
-            <span
-              className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
-              style={{ backgroundColor: annotation.color }}
-              aria-hidden
+      {infoOpen && (
+        <div className="w-72 rounded-xl bg-white/95 p-3 text-xs text-gray-600 shadow-md backdrop-blur-sm">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="flex items-center gap-1.5 font-semibold text-gray-700">
+                <span
+                  className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
+                  style={{ backgroundColor: annotation.color }}
+                  aria-hidden
+                />
+                {annotation.author}
+              </p>
+              <p className="text-gray-400">
+                {new Date(annotation.createdAt).toLocaleString("nl-NL", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="flex-shrink-0"
+              onClick={() => {
+                if (editingDescription) commit();
+                setEditingDescription((v) => !v);
+              }}
+              title={
+                editingDescription
+                  ? "Beschrijving bewerken stoppen"
+                  : "Beschrijving bewerken"
+              }
+              aria-label="Beschrijving bewerken"
+              aria-pressed={editingDescription}
+            >
+              <Icon
+                name={editingDescription ? "edit_off" : "edit"}
+                size={chromeIconSize()}
+                color={editingDescription ? chromeIconColor() : undefined}
+                className={editingDescription ? undefined : "text-gray-400"}
+              />
+            </Button>
+          </div>
+          {editingDescription ? (
+            <textarea
+              ref={descriptionRef}
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value);
+                queue({ description: e.target.value });
+              }}
+              onBlur={commit}
+              placeholder="Beschrijving of analyse"
+              rows={3}
+              className="mt-2 w-full resize-none rounded-lg bg-white/95 px-3 py-1.5 text-xs text-gray-700 shadow-sm outline-none ring-1 ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
             />
-            {annotation.author}
-          </p>
-          <p className="text-gray-400">
-            {new Date(annotation.createdAt).toLocaleString("nl-NL", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })}
-          </p>
-          {annotation.description && (
-            <p className="mt-2 whitespace-pre-wrap">{annotation.description}</p>
+          ) : description ? (
+            <p className="mt-2 whitespace-pre-wrap">{description}</p>
+          ) : (
+            <p className="mt-2 italic text-gray-400">Geen beschrijving</p>
           )}
         </div>
       )}
       <div className="flex items-center gap-1">
-        <div className="max-w-56 truncate rounded-xl bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-md backdrop-blur-sm">
-          {annotation.title || (
-            <span className="font-normal text-gray-400">Zonder titel</span>
-          )}
-        </div>
+        {/* Titlebox doubles as the title editor — type to rename. */}
+        <input
+          ref={titleRef}
+          type="text"
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            queue({ title: e.target.value });
+          }}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            // Enter confirms; keep Escape's deselect behavior after a blur.
+            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+          }}
+          placeholder="Zonder titel"
+          aria-label="Titel van de annotatie"
+          className="w-56 rounded-xl bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-md outline-none backdrop-blur-sm placeholder:font-normal placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
+        />
         <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
           <Button
             variant="ghost"
             size="icon-sm"
-            onClick={() => setMenu((m) => (m === "edit" ? null : "edit"))}
-            title="Annotatie bewerken"
-            aria-label="Annotatie bewerken"
-            aria-expanded={menu === "edit"}
-          >
-            <Icon
-              name="edit"
-              size={chromeIconSize()}
-              color={menu === "edit" ? chromeIconColor() : undefined}
-              className={menu === "edit" ? undefined : "text-gray-400"}
-            />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={onRecaptureView}
-            title="Kaartweergave opnieuw vastleggen"
-            aria-label="Kaartweergave opnieuw vastleggen"
+            onClick={onRecapture}
+            title="Kaartstatus opnieuw vastleggen"
+            aria-label="Kaartstatus opnieuw vastleggen"
           >
             <Icon
               name="screenshot_frame_2"
@@ -224,16 +239,16 @@ export function AnnotationEditPopup({
           <Button
             variant="ghost"
             size="icon-sm"
-            onClick={() => setMenu((m) => (m === "info" ? null : "info"))}
+            onClick={() => setInfoOpen((v) => !v)}
             title="Annotatie-informatie"
             aria-label="Annotatie-informatie"
-            aria-expanded={menu === "info"}
+            aria-expanded={infoOpen}
           >
             <Icon
               name="info"
               size={chromeIconSize()}
-              color={menu === "info" ? chromeIconColor() : undefined}
-              className={menu === "info" ? undefined : "text-gray-400"}
+              color={infoOpen ? chromeIconColor() : undefined}
+              className={infoOpen ? undefined : "text-gray-400"}
             />
           </Button>
         </div>
