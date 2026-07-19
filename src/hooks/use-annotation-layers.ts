@@ -86,6 +86,13 @@ export interface AnnotationLayersOptions {
    * off — it draws titles as callout labels below the circle instead.
    */
   showLabels?: boolean;
+  /**
+   * Supersampling factor for the SVG icon textures (default 1). Icons are
+   * rasterized at their definition's width/height, so a hi-res capture that
+   * scales the canvas up N× renders them pixelated; the export passes a
+   * matching factor to rasterize crisp textures. Draw size is unaffected.
+   */
+  iconScale?: number;
 }
 
 /**
@@ -105,6 +112,7 @@ export function useAnnotationLayers({
   zoom,
   suffix,
   showLabels = true,
+  iconScale = 1,
 }: AnnotationLayersOptions): Layer[] {
   // Annotations highlighted for anyone: the local selection plus every peer's
   // broadcast selection (shows collaborators what others are looking at).
@@ -120,6 +128,20 @@ export function useAnnotationLayers({
   return useMemo(() => {
     if (!visible) return [];
     const activeKey = [...activeIds].sort().join(",");
+    // Icon defs scaled for texture supersampling: width/height set the SVG
+    // rasterization resolution (anchors scale along); the id is keyed per
+    // scale so deck's icon atlas doesn't reuse a smaller raster.
+    const scaleIcon = <T extends { width: number; height: number; anchorX?: number; anchorY?: number }>(
+      id: string,
+      icon: T,
+    ): T & { id: string } => ({
+      ...icon,
+      id: iconScale === 1 ? id : `${id}@${iconScale}x`,
+      width: icon.width * iconScale,
+      height: icon.height * iconScale,
+      ...(icon.anchorX !== undefined ? { anchorX: icon.anchorX * iconScale } : {}),
+      ...(icon.anchorY !== undefined ? { anchorY: icon.anchorY * iconScale } : {}),
+    });
     // Shapes too small on screen at this zoom render as icons instead.
     const iconified = new Set(
       annotations.filter((a) => isAnnotationIconified(a, zoom)).map((a) => a.id),
@@ -173,7 +195,7 @@ export function useAnnotationLayers({
         // Keep the glyph's transparent cutout pickable, not a click hole.
         alphaCutoff: 0,
         getPosition: (d) => [d.center.lng, d.center.lat],
-        getIcon: () => ({ id: "location-pin", ...PIN_ICON }),
+        getIcon: () => scaleIcon("location-pin", PIN_ICON),
         getSize: (d) => (activeIds.has(d.id) ? PIN_SIZE_ACTIVE_PX : PIN_SIZE_PX),
         sizeUnits: "pixels",
         getColor: (d) => hexToRgba(d.color, 255),
@@ -192,8 +214,8 @@ export function useAnnotationLayers({
         getPosition: (d) => [d.center.lng, d.center.lat],
         getIcon: (d) =>
           d.points
-            ? { id: "annotation-polygon", ...POLYGON_ICON }
-            : { id: "annotation-circle", ...CIRCLE_ICON },
+            ? scaleIcon("annotation-polygon", POLYGON_ICON)
+            : scaleIcon("annotation-circle", CIRCLE_ICON),
         getSize: (d) => (activeIds.has(d.id) ? PIN_SIZE_ACTIVE_PX : PIN_SIZE_PX),
         sizeUnits: "pixels",
         getColor: (d) => hexToRgba(d.color, 255),
@@ -343,7 +365,7 @@ export function useAnnotationLayers({
           data: cursors,
           pickable: false,
           getPosition: (d) => [d.cursor.lng, d.cursor.lat],
-          getIcon: () => ({ id: "cursor-arrow", ...CURSOR_ICON }),
+          getIcon: () => scaleIcon("cursor-arrow", CURSOR_ICON),
           getSize: 20,
           sizeUnits: "pixels",
           getColor: (d) => hexToRgba(d.user.color, 255),
@@ -371,5 +393,5 @@ export function useAnnotationLayers({
     }
 
     return layers;
-  }, [visible, annotations, draft, activeIds, selectedId, peers, identityColor, zoom, suffix, showLabels]);
+  }, [visible, annotations, draft, activeIds, selectedId, peers, identityColor, zoom, suffix, showLabels, iconScale]);
 }

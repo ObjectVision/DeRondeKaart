@@ -145,6 +145,13 @@ export const ExportPreviewMap = forwardRef<
     suffix: "export",
     // Titles become callout labels below the exported circle (map-capture.ts).
     showLabels: false,
+    // The 2048px capture scales the ~430px preview ~5×. 8× atlas cells
+    // (24 → 192px) match the SVGs' intrinsic 192px raster size — the decoded
+    // bitmap lands 1:1 in the atlas, so pins/icons stay crisp in the export.
+    // (deck decodes an SVG at the FILE's width/height; the icon-def size only
+    // sets the atlas cell, so both must stay in step for a sharp texture.
+    // The live maps use iconScale 4 — a clean 2× step down from 192.)
+    iconScale: 8,
   });
   const studyOrFiltered = filteredStudy ? filteredStudyLayers : studyLayers;
   const topLayers = useMemo(
