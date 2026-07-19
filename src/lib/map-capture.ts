@@ -135,9 +135,10 @@ export interface CircularExportOptions {
   subtitle?: string;
   legend: ExportLegendItem[];
   /**
-   * Annotation titles rendered as callout labels in a band below the circle,
-   * each connected to its shape by a leader line (classic annotated-map
-   * style). Non-empty ⇒ the output canvas grows downward by the band height.
+   * Annotation titles rendered as callout labels fanned along the circle's
+   * bottom-right outer curve, each wired to its shape by a right-angle leader
+   * line (classic annotated-map style). When labels wrap past the circle's
+   * bottom point, the output canvas grows downward to hold them.
    */
   callouts?: CalloutLabel[];
 }
@@ -288,6 +289,8 @@ export async function composeCircularExport(
 // ---------------------------------------------------------------------------
 
 const CALLOUT_TEXT_H = 36; // px at 2048 (multiplied by u)
+/** Minimum distance between callout text and the circle's outer radius (px at 2048). */
+const CALLOUT_RIM_CLEARANCE = 48;
 
 interface PlacedCallout {
   title: string;
@@ -298,6 +301,8 @@ interface PlacedCallout {
   labelX: number;
   labelY: number;
   width: number;
+  /** X of the vertical leader segment (above the label's curve-side end). */
+  leaderX: number;
 }
 
 interface CalloutLayout {
@@ -317,9 +322,11 @@ function ellipsize(ctx: CanvasRenderingContext2D, text: string, maxW: number): s
 }
 
 /**
- * Greedy multi-row layout: callouts sorted by anchor x, each label centered
- * under its anchor where possible, pushed right past its row neighbor
- * otherwise, wrapping to a new row when it no longer fits the canvas width.
+ * Fan the labels along the circle's bottom-right outer curve (classic
+ * annotated-map style): one label per slot, top slots just outside the rim in
+ * the lower-right corner whitespace, further slots wrapping past the circle's
+ * bottom point and sliding down-left along the curve's continuation. The
+ * rightmost anchors take the upper-right slots so leader lines don't cross.
  */
 function layoutCallouts(
   ctx: CanvasRenderingContext2D,
@@ -331,51 +338,79 @@ function layoutCallouts(
   if (items.length === 0) return { placed: [], bandH: 0 };
 
   ctx.font = `400 ${CALLOUT_TEXT_H * u}px ${EXPORT_FONT}`;
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = size / 2;
+  const textH = CALLOUT_TEXT_H * u;
   const margin = 32 * u;
-  const gap = 40 * u; // min horizontal gap between labels in a row
-  const maxLabelW = size * 0.4;
-  const bandTopGap = 56 * u; // circle bottom edge → first row of text
-  const rowH = 96 * u; // row pitch (text + leader clearance)
+  // Minimum clearance between any label text and the circle's outer radius:
+  // labels are laid out against this virtual expanded circle, measured at the
+  // text edge closest to the rim.
+  const rimClearance = CALLOUT_RIM_CLEARANCE * u;
+  const R = r + rimClearance;
+  const rowH = 96 * u; // vertical slot pitch
+  const maxLabelW = size * 0.45;
 
-  const measured = items
-    .map((c) => {
-      const title = ellipsize(ctx, c.title.trim(), maxLabelW);
-      return { ...c, title, width: ctx.measureText(title).width };
-    })
-    .sort((a, b) => a.x - b.x);
+  // Rightmost anchors first — they take the highest (most-right) slots.
+  const sorted = [...items].sort((a, b) => b.x - a.x || a.y - b.y);
 
-  const rows: Array<{ cursor: number }> = [];
-  const placed: PlacedCallout[] = [];
-  for (const c of measured) {
-    const desired = Math.max(margin, Math.min(c.x - c.width / 2, size - margin - c.width));
-    let rowIndex = -1;
-    let startX = desired;
-    for (let r = 0; r < rows.length; r++) {
-      const s = Math.max(desired, rows[r].cursor);
-      if (s + c.width <= size - margin) {
-        rowIndex = r;
-        startX = s;
-        break;
-      }
+  // First slot sits where the rim has receded enough to leave label room in
+  // the corner whitespace (~1.5 rows above the circle's bottom edge).
+  const yFirst = size - 1.5 * rowH;
+
+  const placed: PlacedCallout[] = sorted.map((c, i) => {
+    const labelY = yFirst + i * rowH; // text top
+    const yMid = labelY + textH / 2;
+    let title: string;
+    let width: number;
+    let labelX: number;
+    let leaderX: number;
+
+    // The label's top edge is its closest point to the circle (slots sit
+    // below the center) — clearance is enforced there against the expanded
+    // radius R, so no corner of the text can come nearer than rimClearance.
+    const dyTop = labelY - cy;
+    const expandedHalfW = Math.sqrt(Math.max(0, R * R - dyTop * dyTop));
+
+    if (yMid < size) {
+      // Beside the rim: text starts on the expanded circle at this height
+      // and extends right into the corner whitespace.
+      const startX = cx + expandedHalfW;
+      const maxW = Math.max(60 * u, size - margin - startX);
+      title = ellipsize(ctx, c.title.trim(), Math.min(maxW, maxLabelW));
+      width = ctx.measureText(title).width;
+      labelX = startX;
+      leaderX = labelX + 10 * u; // leader rises above the first characters
+    } else {
+      // Wrapped past the bottom point: right-align the text so its end hugs
+      // the curve's continuation, sliding left as the slots descend — but
+      // never closer to the circle than the expanded radius allows (the
+      // bottom bulge still spans a wide x-range just above these slots).
+      const t = yMid - size;
+      const curveX = cx - t * 1.3 - rimClearance;
+      const boundaryX = dyTop < R ? cx - expandedHalfW : Number.POSITIVE_INFINITY;
+      const xRight = Math.min(curveX, boundaryX);
+      const maxW = Math.max(60 * u, xRight - margin);
+      title = ellipsize(ctx, c.title.trim(), Math.min(maxW, maxLabelW));
+      width = ctx.measureText(title).width;
+      labelX = xRight - width;
+      leaderX = labelX + width - 10 * u; // leader above the last characters
     }
-    if (rowIndex === -1) {
-      rows.push({ cursor: 0 });
-      rowIndex = rows.length - 1;
-      startX = desired;
-    }
-    rows[rowIndex].cursor = startX + c.width + gap;
-    placed.push({
-      title: c.title,
+
+    return {
+      title,
       color: c.color,
       anchorX: c.x,
       anchorY: c.y,
-      labelX: startX,
-      labelY: size + bandTopGap + rowIndex * rowH,
-      width: c.width,
-    });
-  }
+      labelX,
+      labelY,
+      width,
+      leaderX,
+    };
+  });
 
-  const bandH = bandTopGap + rows.length * rowH - (rowH - CALLOUT_TEXT_H * u) + 32 * u;
+  const lastY = placed[placed.length - 1].labelY;
+  const bandH = Math.max(0, lastY + textH + 32 * u - size);
   return { placed, bandH };
 }
 
@@ -383,23 +418,17 @@ function layoutCallouts(
 function drawCallouts(ctx: CanvasRenderingContext2D, layout: CalloutLayout, u: number): void {
   ctx.save();
   for (const c of layout.placed) {
-    const cx = c.labelX + c.width / 2;
-    const startY = c.labelY - 10 * u; // just above the text
-    // Mostly-vertical leader: up from the label, short slanted tip to the
-    // anchor when it sits off-axis (bend just below the shape).
-    const bendY = Math.min(c.anchorY + 60 * u, startY);
+    // Right-angle leader (screenshot style): vertical from just above the
+    // label's curve-side end up to the anchor's height, then horizontal to
+    // the anchor dot.
     ctx.strokeStyle = "#4b5563"; // gray-600
     ctx.lineWidth = 2.5 * u;
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
     ctx.beginPath();
-    ctx.moveTo(cx, startY);
-    if (Math.abs(c.anchorX - cx) < 2 * u) {
-      ctx.lineTo(c.anchorX, c.anchorY);
-    } else {
-      ctx.lineTo(cx, bendY);
-      ctx.lineTo(c.anchorX, c.anchorY);
-    }
+    ctx.moveTo(c.leaderX, c.labelY - 8 * u);
+    ctx.lineTo(c.leaderX, c.anchorY);
+    ctx.lineTo(c.anchorX, c.anchorY);
     ctx.stroke();
 
     // Anchor dot in the annotation's color, white-ringed for contrast.
