@@ -66,6 +66,92 @@ function syncDeckBufferSize(overlay: MapboxOverlay | null, map: MapLibreMap): vo
 }
 
 /**
+ * Temporarily boost every raster source's tile resolution for a hi-res
+ * capture. MapLibre selects raster tiles by zoom + source `tileSize` only —
+ * the canvas pixel ratio never enters tile selection — so a pixel-ratio
+ * capture stretches the on-screen tiles (blurry luchtfoto/COG imagery) while
+ * vectors re-render crisply. Lowering the declared tileSize by the capture
+ * ratio (256 → 64 for a ~4-5× capture) makes MapLibre fetch tiles ~2 zoom
+ * levels deeper for the same viewport: real source detail matching the output
+ * resolution. Sources past their maxzoom overzoom parent tiles — no worse
+ * than before.
+ *
+ * The swap is surgical (removeSource/addSource + re-adding dependent layers
+ * in place) — a full setStyle would nuke the imperatively added MVT/COG and
+ * deck custom layers. Returns a restore function; both directions are
+ * defensive (warn + continue) so a capture can never break on a style quirk.
+ */
+function boostRasterSources(map: MapLibreMap, ratio: number): () => void {
+  interface Swap {
+    id: string;
+    original: Record<string, unknown>;
+    /** Dependent layers with the id of the layer that followed each (order). */
+    layers: Array<{ spec: Record<string, unknown>; beforeId?: string }>;
+  }
+  const swaps: Swap[] = [];
+
+  try {
+    const factor = Math.pow(2, Math.round(Math.log2(Math.max(1, ratio))));
+    const style = map.getStyle();
+    if (!style?.sources) return () => {};
+
+    for (const [id, source] of Object.entries(style.sources)) {
+      if ((source as { type?: string }).type !== "raster") continue;
+      const spec = source as unknown as Record<string, unknown> & { tileSize?: number };
+      const currentTileSize = spec.tileSize ?? 512;
+      const target = Math.max(32, Math.min(256, currentTileSize / factor));
+      if (target >= currentTileSize) continue;
+
+      // Dependent layers, each with its successor for order-true re-insertion.
+      // The successor must be a layer of ANOTHER source: a same-source
+      // successor is removed too and wouldn't exist yet at re-add time.
+      const allLayers = style.layers ?? [];
+      const layers: Swap["layers"] = [];
+      for (let i = 0; i < allLayers.length; i++) {
+        const l = allLayers[i] as unknown as Record<string, unknown> & { source?: string };
+        if (l.source !== id) continue;
+        let beforeId: string | undefined;
+        for (let j = i + 1; j < allLayers.length; j++) {
+          const next = allLayers[j] as unknown as { id?: string; source?: string };
+          if (next.source !== id) {
+            beforeId = next.id;
+            break;
+          }
+        }
+        layers.push({ spec: l, beforeId });
+      }
+
+      for (const l of layers) map.removeLayer(l.spec.id as string);
+      map.removeSource(id);
+      map.addSource(id, { ...spec, tileSize: target } as never);
+      for (const l of layers) {
+        map.addLayer(l.spec as never, l.beforeId && map.getLayer(l.beforeId) ? l.beforeId : undefined);
+      }
+      swaps.push({ id, original: spec, layers });
+    }
+  } catch (err) {
+    console.warn("Raster tile-size boost failed; capturing at screen quality:", err);
+  }
+
+  return () => {
+    for (const swap of swaps) {
+      try {
+        for (const l of swap.layers) {
+          if (map.getLayer(l.spec.id as string)) map.removeLayer(l.spec.id as string);
+        }
+        map.removeSource(swap.id);
+        map.addSource(swap.id, swap.original as never);
+        for (const l of swap.layers) {
+          map.addLayer(l.spec as never, l.beforeId && map.getLayer(l.beforeId) ? l.beforeId : undefined);
+        }
+      } catch (err) {
+        console.warn(`Failed to restore raster source "${swap.id}":`, err);
+      }
+    }
+  };
+}
+
+/**
  * Capture the map at a target pixel resolution without changing its framing:
  * temporarily raise the canvas pixel ratio so the same CSS-pixel viewport
  * renders at `targetPx` device pixels. Unlike a container-resize + zoom
@@ -88,6 +174,10 @@ export async function captureMapAtResolution(
   const cssSize = Math.max(1, container.clientWidth);
   const ratio = targetPx / cssSize;
 
+  // Fetch raster (luchtfoto/COG) tiles from deeper zoom levels so their
+  // detail matches the capture resolution — pixel ratio alone only stretches
+  // the current tiles. Restored in the finally below.
+  const restoreRasters = boostRasterSources(map, ratio);
   map.setPixelRatio(ratio);
   syncDeckBufferSize(overlay, map);
   try {
@@ -112,6 +202,7 @@ export async function captureMapAtResolution(
     });
   } finally {
     map.setPixelRatio(window.devicePixelRatio);
+    restoreRasters();
     syncDeckBufferSize(overlay, map);
   }
 }
