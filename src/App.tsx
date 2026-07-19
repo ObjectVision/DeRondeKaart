@@ -480,6 +480,9 @@ function App({
   }, [selectedAnnotation, viewState]);
 
   const annotationsVisible = annotationsEnabled && annotationActive;
+  // iconScale 4: 96px atlas cells — a clean 2× step down from the SVGs'
+  // intrinsic 192px raster, and ≥ the 32-38px draw size on hi-DPI screens,
+  // so pins render crisp without a jagged single-step downscale.
   const annotLayersA = useAnnotationLayers({
     annotations: annotations.annotations,
     draft: annotationTool.draft,
@@ -489,6 +492,7 @@ function App({
     visible: annotationsVisible,
     zoom: viewState.zoom,
     suffix: "a",
+    iconScale: 4,
   });
   const annotLayersB = useAnnotationLayers({
     annotations: annotations.annotations,
@@ -499,6 +503,7 @@ function App({
     visible: annotationsVisible && showMapRight,
     zoom: viewState.zoom,
     suffix: "b",
+    iconScale: 4,
   });
 
   // Stable topLayers arrays — inline `[...a, ...b, ...c]` would feed MapView a
