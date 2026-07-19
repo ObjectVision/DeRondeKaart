@@ -19,6 +19,7 @@ import {
   getMarkRadiusFromRule,
   getIconFromRule,
   getOpacityFromStyle,
+  hexToColor,
 } from "./geostyler";
 
 function toColor(
@@ -135,9 +136,18 @@ const areaFilterTriggers = () => ({ all: `area-filter-${getAreaFilterVersion()}`
 // ---------------------------------------------------------------------------
 
 /** Icon settings shared by the flat `style.icon` and the Icon symbolizer. */
-type IconSpec = Pick<IconSymbolizer, "width" | "height" | "size" | "anchorY"> & {
+type IconSpec = Pick<IconSymbolizer, "width" | "height" | "size" | "color" | "anchorY"> & {
   url: string;
 };
+
+/**
+ * Per-row tint for an icon layer. With a configured `color` the icon renders
+ * as a mask and this RGB recolors it; without one only the alpha matters
+ * (visibility gating) and the image keeps its own colors.
+ */
+function iconTint(icon: IconSpec): Color {
+  return icon.color ? hexToColor(icon.color) : [255, 255, 255, 255];
+}
 
 /**
  * Extract a geoarrow.point column's coordinates as a flat interleaved array
@@ -214,12 +224,15 @@ function createIconPointLayer(
     },
     pickable: true,
     getIcon: () => ({
-      id: icon.url,
+      // Mask rendering shares no texture state with non-mask use of the same
+      // image — key the atlas entry on it so both variants can coexist.
+      id: `${icon.url}${icon.color ? "#mask" : ""}`,
       url: icon.url,
       width: icon.width,
       height: icon.height,
       anchorY: icon.anchorY ?? icon.height / 2,
-      mask: false,
+      // Mask = recolorable: the image's opaque shape is tinted by getColor.
+      mask: Boolean(icon.color),
     }),
     getSize: icon.size ?? icon.height,
     sizeUnits: "pixels",
@@ -306,8 +319,9 @@ function createFlatGeoArrowLayer(
             batch,
             positions,
             style.icon,
-            // Constant opaque color: only the alpha gates area-filter drops.
-            withAreaFilter([255, 255, 255, 255]),
+            // Tint (or opaque white for own-color icons); the alpha channel
+            // gates area-filter drops either way.
+            withAreaFilter(iconTint(style.icon)),
             style.opacity ?? 1,
             beforeId,
           );
@@ -386,15 +400,16 @@ function createRuleGeoArrowLayer(
       if (iconSym) {
         const positions = pointPositionAttribute(batch);
         if (positions) {
+          const spec = { ...iconSym, url: iconSym.image };
           return createIconPointLayer(
             layerId,
             batch,
             positions,
-            { ...iconSym, url: iconSym.image },
-            // Opaque for rows won by this rule, TRANSPARENT otherwise — the
+            spec,
+            // Tint for rows won by this rule, TRANSPARENT otherwise — the
             // alpha gates both the rule match and the area filter.
             withAreaFilter(
-              buildArrowRuleColorAccessor(geostyler, rule, () => [255, 255, 255, 255]),
+              buildArrowRuleColorAccessor(geostyler, rule, () => iconTint(spec)),
             ),
             iconSym.opacity ?? opacity,
             beforeId,
