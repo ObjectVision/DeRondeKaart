@@ -1147,6 +1147,7 @@ function App({
           basemapId={basemapId}
           studyAreaId={studyAreaId}
           filteredStudy={filteredStudy}
+          annotations={annotationsVisible ? annotations.annotations : undefined}
           viewState={viewState}
           annotRoomId={annotationActive ? collab.roomId : null}
         />

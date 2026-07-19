@@ -3,6 +3,7 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -17,6 +18,8 @@ import {
   useFilteredStudyAreaLayers,
   type FilteredStudyArea,
 } from "@/hooks/use-filtered-study-area";
+import { useAnnotationLayers } from "@/hooks/use-annotation-layers";
+import type { Annotation } from "@/types/annotation";
 
 export interface ExportPreviewHandle {
   /** The preview's raw MapLibre map (null until loaded). */
@@ -42,10 +45,21 @@ export const ExportPreviewMap = forwardRef<
     studyAreaId?: string;
     /** Gebiedsfilter-driven studyarea; replaces the configured one when set. */
     filteredStudy?: FilteredStudyArea | null;
+    /** Annotations to draw on the export (empty/omitted = none). */
+    annotations?: Annotation[];
     initialViewState: ViewState;
   }
 >(function ExportPreviewMap(
-  { entries, hiddenIds, hiddenRules, basemapId, studyAreaId, filteredStudy, initialViewState },
+  {
+    entries,
+    hiddenIds,
+    hiddenRules,
+    basemapId,
+    studyAreaId,
+    filteredStudy,
+    annotations,
+    initialViewState,
+  },
   ref,
 ) {
   const layers = useMapLayers();
@@ -117,6 +131,25 @@ export const ExportPreviewMap = forwardRef<
     setViewState((prev) => ({ ...prev, ...evt.viewState, pitch: 0, bearing: 0 }));
   }, []);
 
+  // Annotations on the export: own layer instances (deck Layers can't be
+  // shared across overlays), static view — no draft, selection, or peers.
+  const annotationList = annotations ?? [];
+  const annotLayers = useAnnotationLayers({
+    annotations: annotationList,
+    draft: null,
+    selectedId: null,
+    peers: [],
+    identityColor: "#000000",
+    visible: annotationList.length > 0,
+    zoom: viewState.zoom,
+    suffix: "export",
+  });
+  const studyOrFiltered = filteredStudy ? filteredStudyLayers : studyLayers;
+  const topLayers = useMemo(
+    () => [...studyOrFiltered, ...annotLayers],
+    [studyOrFiltered, annotLayers],
+  );
+
   // The dialog portal mounts the container in one commit — make sure MapLibre
   // measures the final layout box.
   useEffect(() => {
@@ -130,7 +163,7 @@ export const ExportPreviewMap = forwardRef<
     <MapView
       ref={mapHandle}
       layers={layers.deckLayers}
-      topLayers={filteredStudy ? filteredStudyLayers : studyLayers}
+      topLayers={topLayers}
       basemapId={basemapId}
       style={{ width: "100%", height: "100%" }}
       viewState={viewState}
