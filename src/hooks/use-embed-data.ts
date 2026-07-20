@@ -28,6 +28,8 @@ export interface EmbedConfig {
   searchbar?: boolean;
   navigation?: boolean;
   streetview?: boolean;
+  share?: boolean;
+  annotations?: boolean;
 }
 
 interface UseEmbedDataOptions {
@@ -51,7 +53,7 @@ const emptyRef: React.RefObject<MapRef | null> = { current: null };
  *       Empty `features` removes the layer.
  *   { type: "map-data-remove", id }
  *     → remove the layer with that id.
- *   { type: "map-config", searchbar?, navigation?, streetview? }
+ *   { type: "map-config", searchbar?, navigation?, streetview?, share?, annotations? }
  *     → apply runtime UI-config overrides (only provided fields).
  *
  * When the left map becomes ready, `{ type: "map-ready", v: 1 }` is posted to
@@ -113,6 +115,8 @@ export function useEmbedData({ mapLeftLayers, mapLeftRef, ready, onConfig }: Use
           searchbar: data.searchbar,
           navigation: data.navigation,
           streetview: data.streetview,
+          share: data.share,
+          annotations: data.annotations,
         });
       }
     }
