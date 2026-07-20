@@ -5,6 +5,7 @@
 #   "rio-cogeo>=5",
 #   "rasterio>=1.3",
 #   "numpy>=1.24",
+#   "gdal>=3.6",
 # ]
 # ///
 """Convert a regular GeoTIFF to a Cloud-Optimized GeoTIFF (COG).
@@ -28,6 +29,18 @@ tiling grid, EPSG:3857) so it renders fastest in the map. Pass
 ``--no-web-optimized`` to keep the source CRS and grid instead. Extra pixels
 created by the reprojection warp are filled with nodata (transparent).
 
+Pass ``--priority "v1,v2,…"`` to keep **thin/sparse classes visible when zoomed
+out** (e.g. rasterized panden/buildings). Normally COG overviews are built by
+decimation that drops a lone feature pixel among its background neighbors, so
+the feature fades at low zoom. With ``--priority`` the COG's overviews are
+rewritten with a "priority wins" reduction: at each level a cell takes a
+priority value if ANY source cell under it had one, plus a small dilation per
+level so a single building pixel keeps propagating up the pyramid. The
+full-resolution base band is untouched (no thickening when zoomed in); only the
+overviews are biased. Requires a single-band input and is mutually exclusive
+with ``--colors`` — the output is a single-band COG, so style the priority
+class with a GeoStyler rule in layers.json (see the ``geostyler`` block below).
+
 Usage:
     # Default (web-optimized): data/input.tif -> data/input.cog.tif
     python3 convert-tif-to-cog.py path/to/input.tif
@@ -41,6 +54,10 @@ Usage:
     # Colorize a single-band raster to RGB (value 0->1st color, 1->2nd, ...):
     python3 convert-tif-to-cog.py path/to/classes.tif \
         --colors "#d7f0b2,#c1d699,#acbf81,#98a86a"
+
+    # Keep sparse buildings (class value 1) visible when zoomed out. Produces a
+    # single-band COG — style value 1 with a GeoStyler rule in layers.json:
+    python3 convert-tif-to-cog.py path/to/panden.tif --priority "1"
 
 If you have ``uv`` installed you can run this without managing dependencies:
     uv run convert-tif-to-cog.py path/to/input.tif
@@ -114,6 +131,48 @@ def pick_nodata_rgb(colors: list[tuple[int, int, int]]) -> tuple[int, int, int]:
     raise ValueError("could not find a free nodata color (all greys are in use)")
 
 
+def build_luts(
+    colors: list[tuple[int, int, int]],
+    nodata_rgb: tuple[int, int, int],
+    max_value: int,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Per-channel lookup tables indexed by class value: value -> RGB. Every
+    value defaults to the nodata sentinel; mapped values are filled from
+    ``colors`` (positional). Sized to cover ``max_value`` and all colors."""
+    table_len = max(max_value + 1, len(colors))
+    r_lut = np.full(table_len, nodata_rgb[0], dtype=np.uint8)
+    g_lut = np.full(table_len, nodata_rgb[1], dtype=np.uint8)
+    b_lut = np.full(table_len, nodata_rgb[2], dtype=np.uint8)
+    for value, (r, g, b) in enumerate(colors):
+        if value < table_len:
+            r_lut[value], g_lut[value], b_lut[value] = r, g, b
+    return r_lut, g_lut, b_lut
+
+
+def apply_lut(
+    band: np.ndarray,
+    luts: tuple[np.ndarray, np.ndarray, np.ndarray],
+    nodata_rgb: tuple[int, int, int],
+    src_nodata: float | None,
+) -> np.ndarray:
+    """Map a single-band class array to a (3, H, W) uint8 RGB array via ``luts``.
+    Out-of-range / negative values and the source nodata become the RGB nodata
+    sentinel (rendered transparent). Pure — reused for the base band and every
+    manually-built overview level so overview colors are exact rule colors."""
+    r_lut, g_lut, b_lut = luts
+    table_len = r_lut.shape[0]
+    idx = band.astype(np.int64)
+    in_range = (idx >= 0) & (idx < table_len)
+    safe = np.where(in_range, idx, 0)
+
+    rgb = np.stack([r_lut[safe], g_lut[safe], b_lut[safe]])
+    nodata_col = np.array(nodata_rgb, dtype=np.uint8)[:, None]
+    rgb[:, ~in_range] = nodata_col
+    if src_nodata is not None:
+        rgb[:, band == src_nodata] = nodata_col
+    return rgb
+
+
 def colorize_to_rgb(
     src: rasterio.io.DatasetReader,
     colors: list[tuple[int, int, int]],
@@ -131,30 +190,8 @@ def colorize_to_rgb(
 
     nodata_rgb = pick_nodata_rgb(colors)
     band = src.read(1)
-
-    # Build per-channel lookup tables indexed by pixel value. Default every value
-    # to the nodata sentinel; then fill in the mapped values.
-    vmax = int(band.max(initial=0))
-    table_len = max(vmax + 1, len(colors))
-    r_lut = np.full(table_len, nodata_rgb[0], dtype=np.uint8)
-    g_lut = np.full(table_len, nodata_rgb[1], dtype=np.uint8)
-    b_lut = np.full(table_len, nodata_rgb[2], dtype=np.uint8)
-    for value, (r, g, b) in enumerate(colors):
-        if value < table_len:
-            r_lut[value], g_lut[value], b_lut[value] = r, g, b
-
-    # Clamp out-of-range / negative values to nodata via a safe index.
-    idx = band.astype(np.int64)
-    in_range = (idx >= 0) & (idx < table_len)
-    safe = np.where(in_range, idx, 0)
-
-    rgb = np.stack([r_lut[safe], g_lut[safe], b_lut[safe]])
-    # Out-of-range pixels -> nodata
-    rgb[:, ~in_range] = np.array(nodata_rgb, dtype=np.uint8)[:, None]
-    # Source nodata -> nodata sentinel
-    if src.nodata is not None:
-        mask = band == src.nodata
-        rgb[:, mask] = np.array(nodata_rgb, dtype=np.uint8)[:, None]
+    luts = build_luts(colors, nodata_rgb, int(band.max(initial=0)))
+    rgb = apply_lut(band, luts, nodata_rgb, src.nodata)
 
     profile = src.profile.copy()
     profile.update(
@@ -176,11 +213,105 @@ def colorize_to_rgb(
     return nodata_rgb
 
 
+def _priority_pool2x(mask: np.ndarray) -> np.ndarray:
+    """2×2 OR-pooling of a boolean priority mask (a cell is set if ANY of its
+    four source cells is). Odd trailing row/column is dropped — the COG's
+    overview dimensions are floor(n/2), matching this."""
+    h, w = mask.shape
+    h2, w2 = h // 2, w // 2
+    m = mask[: h2 * 2, : w2 * 2]
+    return (
+        m[0::2, 0::2] | m[1::2, 0::2] | m[0::2, 1::2] | m[1::2, 1::2]
+    )
+
+
+def _dilate(mask: np.ndarray, iterations: int) -> np.ndarray:
+    """Binary dilation with a 3×3 (8-connectivity) structuring element, numpy
+    only (no scipy). Grows priority blobs by `iterations` pixels so they keep
+    surviving further decimation at coarser overview levels."""
+    out = mask
+    for _ in range(iterations):
+        p = np.pad(out, 1)
+        out = (
+            p[1:-1, 1:-1]
+            | p[:-2, 1:-1] | p[2:, 1:-1] | p[1:-1, :-2] | p[1:-1, 2:]
+            | p[:-2, :-2] | p[:-2, 2:] | p[2:, :-2] | p[2:, 2:]
+        )
+    return out
+
+
+def rewrite_priority_overviews(cog_path: Path, priority: list[int]) -> None:
+    """Overwrite a single-band COG's overviews with priority-preserving,
+    progressively-dilated decimations of the base band, so sparse priority
+    classes (buildings) stay visible when zoomed out. The base (full-res) band
+    is left untouched. Requires the GDAL Python bindings (osgeo)."""
+    from osgeo import gdal
+
+    gdal.UseExceptions()
+    ds = gdal.Open(str(cog_path), gdal.GA_Update)
+    if ds is None:
+        raise RuntimeError(f"GDAL could not open {cog_path} for overview rewrite")
+    try:
+        band = ds.GetRasterBand(1)
+        n_ovr = band.GetOverviewCount()
+        if n_ovr == 0:
+            print("  (no overviews to rewrite)")
+            return
+
+        base = band.ReadAsArray()
+        base_priority = np.isin(base, priority)
+        pri_value = min(priority)  # value written where a coarse cell wins
+
+        # Walk levels coarse-relative: for each overview compute the OR-pooled
+        # priority mask at that level and dilate more as we go coarser, so a
+        # lone building keeps a footprint at every zoom.
+        written = []
+        for i in range(n_ovr):
+            ovr = band.GetOverview(i)
+            ow, oh = ovr.XSize, ovr.YSize
+            # Factor from full-res to this overview (GDAL guarantees ~2^k).
+            fx = round(ds.RasterXSize / ow)
+            level = max(1, round(np.log2(fx)))
+
+            # Non-priority appearance at this level: GDAL's existing (nearest)
+            # decimation is a fine base; we only paint priority cells on top.
+            existing = ovr.ReadAsArray()
+
+            # Pool the base priority mask down to this level: OR-pool each
+            # halving (a coarse cell wins if ANY source cell is priority — so a
+            # lone building never fully vanishes), then a single 1px dilation at
+            # the overview grid so it reads as a small dot. Dilating once at the
+            # end (not per halving) keeps sparse features visible WITHOUT the
+            # footprint compounding into a flood at very coarse levels.
+            mask = base_priority
+            for _h in range(level):
+                mask = _priority_pool2x(mask)
+            mask = _dilate(mask, 1)
+            # Size guard: crop/pad the pooled mask to the overview's exact dims.
+            mask = mask[:oh, :ow]
+            if mask.shape != (oh, ow):
+                fitted = np.zeros((oh, ow), dtype=bool)
+                fitted[: mask.shape[0], : mask.shape[1]] = mask
+                mask = fitted
+
+            out = existing.copy()
+            out[mask] = pri_value
+            ovr.WriteArray(out)
+            written.append(f"{ow}x{oh}(1/{fx})")
+
+        band.FlushCache()
+        ds.FlushCache()
+        print(f"  Priority overviews rewritten: {', '.join(written)}")
+    finally:
+        ds = None
+
+
 def convert(
     input_path: Path,
     output_path: Path,
     web_optimized: bool,
     colors: list[tuple[int, int, int]] | None,
+    priority: list[int] | None,
 ) -> None:
     print(f"Reading  {input_path}")
     with rasterio.open(input_path) as src:
@@ -195,6 +326,11 @@ def convert(
                 f"  Note: source CRS is {src.crs}, not EPSG:3857 (Web Mercator), "
                 "and --no-web-optimized was given. The cog protocol reprojects on "
                 "the fly, but a web-optimized COG renders fastest."
+            )
+
+        if priority is not None and src.count != 1:
+            raise ValueError(
+                f"--priority requires a single-band input, but got {src.count} bands"
             )
 
         # When colors are given, first colorize the single band to a temporary
@@ -239,6 +375,13 @@ def convert(
             tmp_rgb.unlink(missing_ok=True)
         except OSError:
             pass  # best-effort temp cleanup; the COG is already written
+
+    # --priority: replace the freshly built overviews with priority-dilated
+    # ones so sparse features (panden) stay visible when zoomed out, WITHOUT
+    # altering the full-resolution base band. Runs on the single class band of
+    # the already-warped COG (output grid), so it composes with web-optimize.
+    if priority is not None:
+        rewrite_priority_overviews(output_path, priority)
 
     print("Validating COG…")
     is_valid, errors, warnings = cog_validate(output_path)
@@ -288,6 +431,37 @@ def main(argv: list[str]) -> int:
             print("error: --colors given but no valid colors parsed", file=sys.stderr)
             return 1
 
+    # --priority "v1,v2,…": class values to keep visible in overviews (buildings).
+    priority: list[int] | None = None
+    priority_args = [a for a in flags if a.startswith("--priority")]
+    if priority_args:
+        raw = priority_args[-1]
+        if "=" in raw:
+            raw = raw.split("=", 1)[1]
+        else:
+            i = flags.index(raw)
+            if i + 1 < len(flags):
+                raw = flags[i + 1]
+                args = [a for a in args if a != raw]
+        try:
+            priority = [int(v.strip()) for v in raw.split(",") if v.strip()]
+        except ValueError:
+            print(f"error: --priority expects integer class values, got '{raw}'", file=sys.stderr)
+            return 1
+        if not priority:
+            print("error: --priority given but no valid values parsed", file=sys.stderr)
+            return 1
+
+    if priority is not None and colors is not None:
+        print(
+            "error: --priority and --colors are mutually exclusive. --priority keeps "
+            "a single-band COG (dilated overviews on the class band) — style it with "
+            "GeoStyler rules in layers.json. --colors bakes RGB and can't carry the "
+            "class-band dilation. Use one or the other.",
+            file=sys.stderr,
+        )
+        return 1
+
     if len(args) < 1 or len(args) > 2:
         print(__doc__)
         return 2
@@ -308,7 +482,7 @@ def main(argv: list[str]) -> int:
         print(f"error: input not found: {input_path}", file=sys.stderr)
         return 1
 
-    convert(input_path, output_path, web_optimized, colors)
+    convert(input_path, output_path, web_optimized, colors, priority)
     return 0
 
 
