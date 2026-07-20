@@ -71,6 +71,20 @@ export class MapViewCardSettings extends FormattingSettingsCard {
     value: false,
   });
 
+  share = new formattingSettings.ToggleSwitch({
+    name: "share",
+    displayName: "Share",
+    description: "Zet deel-functionality aan of uit (overschrijft map.json)",
+    value: false,
+  });
+
+  annotations = new formattingSettings.ToggleSwitch({
+    name: "annotations",
+    displayName: "Annotations",
+    description: "Zet annotatie functionaliteit aan of uit (overschrijft map.json)",
+    value: false,
+  });
+
   streetview = new formattingSettings.ToggleSwitch({
     name: "streetview",
     displayName: "Street View",
@@ -110,6 +124,8 @@ export class MapViewCardSettings extends FormattingSettingsCard {
     this.searchbar,
     this.navigation,
     this.streetview,
+    this.share,
+    this.annotations,
     this.setInitialView,
     this.initialLongitude,
     this.initialLatitude,
