@@ -54,6 +54,8 @@
         "searchbar": { "type": { "bool": true } },
         "navigation": { "type": { "bool": true } },
         "streetview": { "type": { "bool": true } },
+        "share": { "type": { "bool": true } },
+        "annotations": { "type": { "bool": true } },
         "setInitialView": { "type": { "bool": true } },
         "initialLongitude": { "type": { "numeric": true } },
         "initialLatitude": { "type": { "numeric": true } },

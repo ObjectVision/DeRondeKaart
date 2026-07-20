@@ -38,6 +38,8 @@ interface MapUiConfig {
   searchbar?: boolean;
   navigation?: boolean;
   streetview?: boolean;
+  share?: boolean;
+  annotations?: boolean;
 }
 
 /** Stable id of the dynamic Power BI layer inside the map app. */
@@ -207,6 +209,8 @@ export class Visual implements IVisual {
       searchbar: view.searchbar.value,
       navigation: view.navigation.value,
       streetview: view.streetview.value,
+      share: view.share.value,
+      annotations: view.annotations.value,
     };
     this.desiredInitialView = view.setInitialView.value
       ? {
@@ -236,7 +240,7 @@ export class Visual implements IVisual {
   private reconcile(): void {
     if (!this.mapReady) return;
 
-    // UI-config overrides (searchbar/navigation/streetview): send on change.
+    // UI-config overrides (searchbar/navigation/streetview/share/annotations): send on change.
     const configKey = JSON.stringify(this.desiredConfig);
     if (configKey !== this.sentConfigKey) {
       this.post({ type: "map-config", ...this.desiredConfig });

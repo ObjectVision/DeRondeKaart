@@ -76,9 +76,9 @@ function App({
   filterSectionEnabled = true,
   navigationSectionEnabled = true,
   chartsPanelEnabled = true,
-  shareEnabled = true,
+  shareEnabled: shareEnabledProp = true,
   filterFlyToEnabled = true,
-  annotationsEnabled = false,
+  annotationsEnabled: annotationsEnabledProp = false,
   mapControls = DEFAULT_MAP_CONTROLS,
   clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
 }: {
@@ -102,6 +102,8 @@ function App({
   const [streetview, setStreetviewEnabled] = useState(streetviewEnabled);
   const [searchbar, setSearchbarEnabled] = useState(searchbarEnabled);
   const [navigation, setNavigationEnabled] = useState(navigationEnabled);
+  const [shareEnabled, setShareEnabled] = useState(shareEnabledProp);
+  const [annotationsEnabled, setAnnotationsEnabled] = useState(annotationsEnabledProp);
   const sidebarMode = navigationMode === "sidebar";
 
   const mapLeftLayers = useMapLayers();
@@ -818,6 +820,8 @@ function App({
     if (typeof cfg.searchbar === "boolean") setSearchbarEnabled(cfg.searchbar);
     if (typeof cfg.navigation === "boolean") setNavigationEnabled(cfg.navigation);
     if (typeof cfg.streetview === "boolean") setStreetviewEnabled(cfg.streetview);
+    if (typeof cfg.share === "boolean") setShareEnabled(cfg.share);
+    if (typeof cfg.annotations === "boolean") setAnnotationsEnabled(cfg.annotations);
   }, []);
 
   // In-memory data pushed by an embedding host (Power BI visual): renders on
