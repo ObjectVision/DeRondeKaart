@@ -131,7 +131,7 @@ export const NavigationPanel = memo(function NavigationPanel({
         }}
         title={node.label}
       >
-        <NavIcon name={node.icon} color={node.color} size={32} />
+        <NavIcon name={node.icon} color={node.color} size={52} />
         <span className="text-center text-sm font-semibold text-gray-900">
           {node.label}
         </span>
