@@ -138,51 +138,42 @@ export class Visual implements IVisual {
   constructor(options: VisualConstructorOptions) {
     this.rootElement = options.element;
     this.rootElement.classList.add("northwake-map-visual");
-    // Snapshot image appended BEFORE the iframe so the live map covers it
-    // during interactive use (same stacking context, later sibling on top).
+    this.rootElement.style.position = "relative";
+    this.rootElement.style.overflow = "hidden";
+
+    // Both layers are absolutely positioned and sized IN PX from the viewport
+    // (see update()) — not via CSS %, which collapses when the sandbox host has
+    // no resolved height (was rendering both at intrinsic size, side by side).
+    // The snapshot sits behind (z-index 0, non-interactive) for PDF/PPT export;
+    // the live iframe is on top (z-index 1) and receives all interaction.
     this.snapshotImg = document.createElement("img");
     this.snapshotImg.className = "map-snapshot";
     this.snapshotImg.alt = "";
+    this.snapshotImg.style.cssText =
+      "position:absolute;top:0;left:0;object-fit:cover;display:block;z-index:0;pointer-events:none;";
     this.rootElement.appendChild(this.snapshotImg);
     this.iframe = document.createElement("iframe");
     this.iframe.setAttribute("title", "Northwake kaart");
+    this.iframe.style.cssText =
+      "position:absolute;top:0;left:0;border:0;display:block;z-index:1;";
     this.rootElement.appendChild(this.iframe);
     window.addEventListener("message", this.onMessage);
   }
 
-  /**
-   * Size the iframe to fill the host box while rendering its content at 1:1.
-   *
-   * Power BI reports a `scale` (report page zoom / DPI, e.g. 1.4) and magnifies
-   * the visual's sandbox content by that factor; left alone the app appears
-   * zoomed in. We size the iframe to the viewport, then `transform:
-   * scale(1/scale)` renders its content un-magnified. The box is sized `scale`×
-   * larger so it still covers the visual after the shrink.
-   *
-   * `transform: scale()` can leave a hairline gap at the transform-origin edges
-   * (sub-pixel rounding), which showed as a border on the top/left. We overscan:
-   * anchor the transform at the CENTER and add a couple of logical pixels to the
-   * box, so the scaled iframe over-covers every edge (excess clipped by the
-   * host's `overflow: hidden`).
-   */
-  private sizeIframe(width: number, height: number, scale: number): void {
-    const s = scale || 1;
-    const overscan = 2; // logical px added on each axis to hide hairline edges
-    this.iframe.style.width = `${(width + overscan) * s}px`;
-    this.iframe.style.height = `${(height + overscan) * s}px`;
-    // Center-origin + a small negative offset keeps the content centered while
-    // the overscan bleeds equally past all four edges.
-    this.iframe.style.left = `${-overscan / 2}px`;
-    this.iframe.style.top = `${-overscan / 2}px`;
-    this.iframe.style.transform = s === 1 ? "" : `scale(${1 / s})`;
-    this.iframe.style.transformOrigin = "top left";
-  }
-
   public update(options: VisualUpdateOptions): void {
-    // Size + counter-scale the iframe from the host-provided viewport so it fills
-    // the visual with content rendered at 1:1 (see sizeIframe()).
-    const vp = options.viewport as powerbi.ScaledViewport;
-    this.sizeIframe(vp.width, vp.height, vp.scale || 1);
+    // Size host + both layers explicitly in PX from the viewport. Relying on
+    // CSS % collapses inside the sandbox (no resolved parent height) and left
+    // the iframe/img at intrinsic size, tiled side by side. Setting px on all
+    // three makes them one overlaid, viewport-filling box — no split, no gap.
+    const vp = options.viewport;
+    const w = `${vp.width}px`;
+    const h = `${vp.height}px`;
+    this.rootElement.style.width = w;
+    this.rootElement.style.height = h;
+    this.iframe.style.width = w;
+    this.iframe.style.height = h;
+    this.snapshotImg.style.width = w;
+    this.snapshotImg.style.height = h;
 
     const dataView: DataView | undefined = options.dataViews && options.dataViews[0];
     this.formattingSettings =

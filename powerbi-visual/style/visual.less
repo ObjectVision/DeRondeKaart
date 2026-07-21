@@ -4,20 +4,27 @@
   height: 100%;
   overflow: hidden;
 
-  // Width/height and the counter-scale transform are set inline from JS
-  // (see sizeIframe()); the iframe is pinned to the top-left origin so the
-  // transform-origin math lines up.
+  // Live map. Fills the host with the SAME box as the snapshot image below, so
+  // the two never diverge into separate panes. `z-index: 1` keeps it above the
+  // snapshot — explicit ordering, not DOM-order-dependent (the Power BI sandbox
+  // composites the cross-origin iframe in its own layer, where "later sibling
+  // wins" does not reliably hold).
   iframe {
     position: absolute;
-    top: 0;
-    left: 0;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     border: 0;
     display: block;
+    z-index: 1;
   }
 
-  // Latest map snapshot (posted by the app via `map-snapshot`). Sits UNDER
-  // the iframe: invisible during interactive use, but Power BI's PDF/PPT
-  // export rasterizes the cross-origin iframe blank, revealing this image.
+  // Latest map snapshot (posted by the app via `map-snapshot`). Sits UNDER the
+  // live iframe (`z-index: 0`): invisible during interactive use, revealed only
+  // when Power BI's PDF/PPT export rasterizes the cross-origin iframe blank.
+  // `pointer-events: none` so it can NEVER intercept map interaction even if a
+  // compositor paints it on top — this is what was freezing the map (the image
+  // was swallowing all clicks/drags).
   img.map-snapshot {
     position: absolute;
     inset: 0;
@@ -25,5 +32,7 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    z-index: 0;
+    pointer-events: none;
   }
 }
