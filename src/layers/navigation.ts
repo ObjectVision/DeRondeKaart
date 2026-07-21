@@ -3,7 +3,11 @@ export interface NavLeaf {
   /** Layer id matching an entry in layers.json. */
   id: string;
   label: string;
-  /** Material Symbols (Outlined) icon name, e.g. "groups", "home". */
+  /**
+   * Icon reference: either a Material Symbols (Outlined) name ("groups",
+   * "home") or a local SVG in `public/icons/` given by an `.svg` filename
+   * ("woonzorganalyse.svg" → `/icons/woonzorganalyse.svg`). See nav-icon.tsx.
+   */
   icon?: string;
   /** CSS color for the leaf icon, e.g. "#E0457B". */
   color?: string;
@@ -17,7 +21,11 @@ export interface NavLeaf {
 /** A category / sub-category branch in the navigation tree. */
 export interface NavNode {
   label: string;
-  /** Material Symbols (Outlined) icon name, e.g. "groups", "home". */
+  /**
+   * Icon reference: either a Material Symbols (Outlined) name ("groups",
+   * "home") or a local SVG in `public/icons/` given by an `.svg` filename
+   * ("woonzorganalyse.svg" → `/icons/woonzorganalyse.svg`). See nav-icon.tsx.
+   */
   icon?: string;
   /** CSS color for the category icon, e.g. "#7C5CFC". */
   color?: string;
