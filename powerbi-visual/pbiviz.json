@@ -4,7 +4,7 @@
     "displayName": "Northwake Kaart",
     "guid": "northwakeMapC4E8A1B7D2F34965A0B1C2D3E4F50617",
     "visualClassName": "Visual",
-    "version": "1.0.0.0",
+    "version": "1.0.1.0",
     "description": "Embeds the northwake webmap. Renders dynamic point/line/polygon data from Power BI field wells and adds predefined layers from layers.json by id.",
     "supportUrl": "https://data.woonzorglimburg.nl",
     "gitHubUrl": ""

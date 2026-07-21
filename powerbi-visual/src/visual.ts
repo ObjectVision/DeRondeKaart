@@ -10,6 +10,7 @@ import { VisualFormattingSettingsModel } from "./settings";
 import IVisual = powerbi.extensibility.visual.IVisual;
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
+import IVisualEventService = powerbi.extensibility.IVisualEventService;
 import DataView = powerbi.DataView;
 
 type GeometryKind = "point" | "line" | "polygon";
@@ -90,6 +91,7 @@ export class Visual implements IVisual {
 
   private readonly iframe: HTMLIFrameElement;
   private readonly snapshotImg: HTMLImageElement;
+  private readonly events: IVisualEventService;
   private currentAppUrl = "";
   private mapReady = false;
 
@@ -136,6 +138,7 @@ export class Visual implements IVisual {
   private readonly rootElement: HTMLElement;
 
   constructor(options: VisualConstructorOptions) {
+    this.events = options.host.eventService;
     this.rootElement = options.element;
     this.rootElement.classList.add("northwake-map-visual");
     this.rootElement.style.position = "relative";
@@ -161,6 +164,22 @@ export class Visual implements IVisual {
   }
 
   public update(options: VisualUpdateOptions): void {
+    // Signal render start/finish so Power BI marks the visual export-capable —
+    // without these events the host refuses PDF/PPT export ("biedt geen
+    // ondersteuning voor exporteren"). renderingFinished only flips that flag;
+    // the exported pixels come from snapshotImg (kept current by the app's
+    // map-snapshot handshake), so it need not await the async iframe/snapshot.
+    this.events.renderingStarted(options);
+    try {
+      this.render(options);
+      this.events.renderingFinished(options);
+    } catch (e) {
+      this.events.renderingFailed(options, e instanceof Error ? e.message : String(e));
+      throw e;
+    }
+  }
+
+  private render(options: VisualUpdateOptions): void {
     // Size host + both layers explicitly in PX from the viewport. Relying on
     // CSS % collapses inside the sandbox (no resolved parent height) and left
     // the iframe/img at intrinsic size, tiled side by side. Setting px on all
