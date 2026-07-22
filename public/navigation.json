@@ -220,340 +220,52 @@
         "expanded": true,
         "children": [
           {
-            "label": "Mooiland",
+            "id": "corp_bat_2026",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": false,
-            "children": [
-              {
-                "id": "corp_mooiland_bat_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "BAT score",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_mooiland_mutatiegraad_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Mutatiegraad",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_mooiland_senioren_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Seniorenbeleid",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_mooiland_ouderen_met_indicatie_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Ouderen met indicatie",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_mooiland_aandachtsgroepen_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Aandachtsgroepenbeleid",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_mooiland_inpandige_gemsch_ruimte_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Gemeenschappelijke ruimte",
-                "a": false,
-                "b": false
-              }
-            ]
+            "label": "BAT score",
+            "a": false,
+            "b": false
           },
           {
-            "label": "Nester",
+            "id": "corp_mutatiegraad_2026",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": false,
-            "children": [
-              {
-                "id": "corp_nester_bat_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "BAT score",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_nester_mutatiegraad_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Mutatiegraad",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_nester_senioren_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Seniorenbeleid",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_nester_ouderen_met_indicatie_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Ouderen met indicatie",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_nester_aandachtsgroepen_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Aandachtsgroepenbeleid",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_nester_inpandige_gemsch_ruimte_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Gemeenschappelijke ruimte",
-                "a": false,
-                "b": false
-              }
-            ]
+            "label": "Mutatiegraad",
+            "a": false,
+            "b": false
           },
           {
-            "label": "Wonen Meerssen",
+            "id": "corp_senioren_2026",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": false,
-            "children": [
-              {
-                "id": "corp_wonen_meerssen_bat_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "BAT score",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_wonen_meerssen_mutatiegraad_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Mutatiegraad",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_wonen_meerssen_senioren_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Seniorenbeleid",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_wonen_meerssen_ouderen_met_indicatie_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Ouderen met indicatie",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_wonen_meerssen_aandachtsgroepen_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Aandachtsgroepenbeleid",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_wonen_meerssen_inpandige_gemsch_ruimte_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Gemeenschappelijke ruimte",
-                "a": false,
-                "b": false
-              }
-            ]
+            "label": "Seniorenbeleid",
+            "a": false,
+            "b": false
           },
           {
-            "label": "Wonen Zuid",
+            "id": "corp_ouderen_met_indicatie_2026",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": false,
-            "children": [
-              {
-                "id": "corp_wonen_zuid_bat_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "BAT score",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_wonen_zuid_mutatiegraad_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Mutatiegraad",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_wonen_zuid_senioren_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Seniorenbeleid",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_wonen_zuid_ouderen_met_indicatie_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Ouderen met indicatie",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_wonen_zuid_aandachtsgroepen_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Aandachtsgroepenbeleid",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_wonen_zuid_inpandige_gemsch_ruimte_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Gemeenschappelijke ruimte",
-                "a": false,
-                "b": false
-              }
-            ]
+            "label": "Ouderen met indicatie",
+            "a": false,
+            "b": false
           },
           {
-            "label": "Woonpunt",
+            "id": "corp_aandachtsgroepen_2026",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": false,
-            "children": [
-              {
-                "id": "corp_woonpunt_bat_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "BAT score",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_woonpunt_mutatiegraad_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Mutatiegraad",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_woonpunt_senioren_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Seniorenbeleid",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_woonpunt_ouderen_met_indicatie_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Ouderen met indicatie",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_woonpunt_aandachtsgroepen_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Aandachtsgroepenbeleid",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_woonpunt_inpandige_gemsch_ruimte_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Gemeenschappelijke ruimte",
-                "a": false,
-                "b": false
-              }
-            ]
+            "label": "Aandachtsgroepenbeleid",
+            "a": false,
+            "b": false
           },
           {
-            "label": "ZoWonen",
+            "id": "corp_inpandige_gemsch_ruimte_2026",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "expanded": false,
-            "children": [
-              {
-                "id": "corp_zowonen_bat_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "BAT score",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_zowonen_mutatiegraad_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Mutatiegraad",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_zowonen_senioren_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Seniorenbeleid",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_zowonen_ouderen_met_indicatie_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Ouderen met indicatie",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_zowonen_aandachtsgroepen_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Aandachtsgroepenbeleid",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "corp_zowonen_inpandige_gemsch_ruimte_2026",
-                "icon": "apartment",
-                "color": "#2D6CDF",
-                "label": "Gemeenschappelijke ruimte",
-                "a": false,
-                "b": false
-              }
-            ]
+            "label": "Gemeenschappelijke ruimte",
+            "a": false,
+            "b": false
           }
         ]
       }
