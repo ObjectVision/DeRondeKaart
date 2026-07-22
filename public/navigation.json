@@ -734,36 +734,124 @@
         "expanded": true,
         "children": [
           {
-            "id": "bomen-3-rule-2026",
+            "label": "gemeente",
             "icon": "forest",
             "color": "#54B6C0",
-            "label": "3 bomen",
-            "a": false,
-            "b": false
+            "expanded": false,
+            "children": [
+              {
+                "id": "bomen_rule_3_gemeente_2026",
+                "icon": "forest",
+                "color": "#54B6C0",
+                "label": "3 bomen",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_30_gemeente_2026",
+                "icon": "forest",
+                "color": "#54B6C0",
+                "label": "30% bladerdek",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_300_gemeente_2026",
+                "icon": "forest",
+                "color": "#54B6C0",
+                "label": "300 meter van groen",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_3_30_300_classified_gemeente_2026",
+                "icon": "forest",
+                "color": "#54B6C0",
+                "label": "3-30-300 vuistregels",
+                "a": false,
+                "b": false
+              }
+            ]
           },
           {
-            "id": "bomen-30-rule-2026",
+            "label": "wijk",
             "icon": "forest",
             "color": "#54B6C0",
-            "label": "30% bladerdek",
-            "a": false,
-            "b": false
+            "expanded": false,
+            "children": [
+              {
+                "id": "bomen_rule_3_wijk_2026",
+                "icon": "forest",
+                "color": "#54B6C0",
+                "label": "3 bomen",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_30_wijk_2026",
+                "icon": "forest",
+                "color": "#54B6C0",
+                "label": "30% bladerdek",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_300_wijk_2026",
+                "icon": "forest",
+                "color": "#54B6C0",
+                "label": "300 meter van groen",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_3_30_300_classified_wijk_2026",
+                "icon": "forest",
+                "color": "#54B6C0",
+                "label": "3-30-300 vuistregels",
+                "a": false,
+                "b": false
+              }
+            ]
           },
           {
-            "id": "bomen-300-rule-2026",
+            "label": "buurt",
             "icon": "forest",
             "color": "#54B6C0",
-            "label": "binnen 300 meter lopen",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "bomen-3-30-300-rule-2026",
-            "icon": "forest",
-            "color": "#54B6C0",
-            "label": "3-30-300 vuistregels",
-            "a": false,
-            "b": false
+            "expanded": false,
+            "children": [
+              {
+                "id": "bomen_rule_3_buurt_2026",
+                "icon": "forest",
+                "color": "#54B6C0",
+                "label": "3 bomen",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_30_buurt_2026",
+                "icon": "forest",
+                "color": "#54B6C0",
+                "label": "30% bladerdek",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_300_buurt_2026",
+                "icon": "forest",
+                "color": "#54B6C0",
+                "label": "300 meter van groen",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_3_30_300_classified_buurt_2026",
+                "icon": "forest",
+                "color": "#54B6C0",
+                "label": "3-30-300 vuistregels",
+                "a": false,
+                "b": false
+              }
+            ]
           }
         ]
       }
