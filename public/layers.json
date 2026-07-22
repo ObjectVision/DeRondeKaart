@@ -478,9 +478,9 @@
     {
       "id": "loopafstand_huisarts",
       "name": "loopafstand huisarts",
-      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_huisarts_2026.parquet",
-      "format": "geoparquet",
-      "geometryType": "polygon",
+      "source": "https://data.woonzorglimburg.nl/cog/huisarts_lb_m5.cog.tif",
+      "format": "cog",
+      "embeddedColors": true,
       "geostyler": {
         "name": "loopafstand in meter",
         "rules": [
@@ -596,371 +596,11 @@
       }
     },
     {
-      "id": "vrz_afstanden_10000",
-      "name": "vrz afstanden 10000",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_afstanden_2026_10000.parquet",
-      "format": "parquet",
-      "geometryType": "polygon",
-      "geostyler": {
-        "name": "loopafstand in meter",
-        "rules": [
-          {
-            "name": "minder dan 500",
-            "filter": [
-              "==",
-              "huisarts",
-              0
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#61BE7B",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "500 tot 750",
-            "filter": [
-              "==",
-              "huisarts",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#A0D392",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "750 tot 1000",
-            "filter": [
-              "==",
-              "huisarts",
-              2
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#FDEAB6",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "1000 tot 1250",
-            "filter": [
-              "==",
-              "huisarts",
-              3
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#F8D8AF",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "1250 tot 1500",
-            "filter": [
-              "==",
-              "huisarts",
-              4
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#FFAF92",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "meer dan 1500",
-            "filter": [
-              "==",
-              "huisarts",
-              5
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#FF6024",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          }
-        ]
-      },
-      "style": {
-        "opacity": 0.8
-      },
-      "featureinfo": {
-        "template": "<div><b>Loopafstand huisarts klasse: [[ huisarts ]]</b></div>"
-      }
-    },
-    {
-      "id": "vrz_afstanden_50000",
-      "name": "vrz afstanden 50000",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_afstanden_2026_50000.parquet",
-      "format": "parquet",
-      "geometryType": "polygon",
-      "geostyler": {
-        "name": "loopafstand in meter",
-        "rules": [
-          {
-            "name": "minder dan 500",
-            "filter": [
-              "==",
-              "huisarts",
-              0
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#61BE7B",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "500 tot 750",
-            "filter": [
-              "==",
-              "huisarts",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#A0D392",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "750 tot 1000",
-            "filter": [
-              "==",
-              "huisarts",
-              2
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#FDEAB6",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "1000 tot 1250",
-            "filter": [
-              "==",
-              "huisarts",
-              3
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#F8D8AF",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "1250 tot 1500",
-            "filter": [
-              "==",
-              "huisarts",
-              4
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#FFAF92",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "meer dan 1500",
-            "filter": [
-              "==",
-              "huisarts",
-              5
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#FF6024",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          }
-        ]
-      },
-      "style": {
-        "opacity": 0.8
-      },
-      "featureinfo": {
-        "template": "<div><b>Loopafstand huisarts klasse: [[ huisarts ]]</b></div>"
-      }
-    },
-    {
-      "id": "vrz_afstanden_100000",
-      "name": "vrz afstanden 100000",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_afstanden_2026_100000.parquet",
-      "format": "parquet",
-      "geometryType": "polygon",
-      "geostyler": {
-        "name": "loopafstand in meter",
-        "rules": [
-          {
-            "name": "minder dan 500",
-            "filter": [
-              "==",
-              "huisarts",
-              0
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#61BE7B",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "500 tot 750",
-            "filter": [
-              "==",
-              "huisarts",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#A0D392",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "750 tot 1000",
-            "filter": [
-              "==",
-              "huisarts",
-              2
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#FDEAB6",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "1000 tot 1250",
-            "filter": [
-              "==",
-              "huisarts",
-              3
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#F8D8AF",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "1250 tot 1500",
-            "filter": [
-              "==",
-              "huisarts",
-              4
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#FFAF92",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "meer dan 1500",
-            "filter": [
-              "==",
-              "huisarts",
-              5
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#FF6024",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          }
-        ]
-      },
-      "style": {
-        "opacity": 0.8
-      },
-      "featureinfo": {
-        "template": "<div><b>Loopafstand huisarts klasse: [[ huisarts ]]</b></div>"
-      }
-    },
-    {
       "id": "loopafstand_apotheek",
       "name": "loopafstand apotheek",
-      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_apotheek_2026.parquet",
-      "format": "geoparquet",
-      "geometryType": "polygon",
+      "source": "https://data.woonzorglimburg.nl/cog/apotheek_lb_m5.cog.tif",
+      "format": "cog",
+      "embeddedColors": true,
       "geostyler": {
         "name": "loopafstand in meter",
         "rules": [
@@ -1078,9 +718,9 @@
     {
       "id": "loopafstand_dagbesteding",
       "name": "loopafstand dagbesteding",
-      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_dagbesteding_2026.parquet",
-      "format": "geoparquet",
-      "geometryType": "polygon",
+      "source": "https://data.woonzorglimburg.nl/cog/dagbesteding_lb_m5.cog.tif",
+      "format": "cog",
+      "embeddedColors": true,
       "geostyler": {
         "name": "loopafstand in meter",
         "rules": [
@@ -1198,9 +838,9 @@
     {
       "id": "loopafstand_fysiotherapeut",
       "name": "loopafstand fysiotherapeut",
-      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_fysiotherapeut_2026.parquet",
-      "format": "geoparquet",
-      "geometryType": "polygon",
+      "source": "https://data.woonzorglimburg.nl/cog/fysiotherapeut_lb_m5.cog.tif",
+      "format": "cog",
+      "embeddedColors": true,
       "geostyler": {
         "name": "loopafstand in meter",
         "rules": [
@@ -1438,9 +1078,9 @@
     {
       "id": "loopafstand_ontmoeting",
       "name": "loopafstand ontmoeting",
-      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_ontmoeting_2026.parquet",
-      "format": "geoparquet",
-      "geometryType": "polygon",
+      "source": "https://data.woonzorglimburg.nl/cog/ontmoeting_lb_m5.cog.tif",
+      "format": "cog",
+      "embeddedColors": true,
       "geostyler": {
         "name": "loopafstand in meter",
         "rules": [
@@ -1558,9 +1198,9 @@
     {
       "id": "loopafstand_ov",
       "name": "loopafstand ov",
-      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_ov_2026.parquet",
-      "format": "geoparquet",
-      "geometryType": "polygon",
+      "source": "https://data.woonzorglimburg.nl/cog/ov_lb_m5.cog.tif",
+      "format": "cog",
+      "embeddedColors": true,
       "geostyler": {
         "name": "loopafstand in meter",
         "rules": [
@@ -1678,9 +1318,9 @@
     {
       "id": "loopafstand_supermarkt",
       "name": "loopafstand supermarkt",
-      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_supermarkt_2026.parquet",
-      "format": "geoparquet",
-      "geometryType": "polygon",
+      "source": "https://data.woonzorglimburg.nl/cog/supermarkt_lb_m5.cog.tif",
+      "format": "cog",
+      "embeddedColors": true,
       "geostyler": {
         "name": "loopafstand in meter",
         "rules": [
@@ -1798,9 +1438,9 @@
     {
       "id": "loopafstand_ziekenhuis",
       "name": "loopafstand ziekenhuis",
-      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_ziekenhuis_2026.parquet",
-      "format": "geoparquet",
-      "geometryType": "polygon",
+      "source": "https://data.woonzorglimburg.nl/cog/ziekenhuis_lb_m5.cog.tif",
+      "format": "cog",
+      "embeddedColors": true,
       "geostyler": {
         "name": "loopafstand in meter",
         "rules": [
