@@ -182,6 +182,30 @@
     "expanded": true,
     "children": [
       {
+        "label": "pandkenmerken",
+        "icon": "apartment",
+        "color": "#2D6CDF",
+        "expanded": true,
+        "children": [
+          {
+            "id": "bouwjaar_lb_2026",
+            "icon": "apartment",
+            "color": "#2D6CDF",
+            "label": "bouwjaar",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "pandtype_lb_2026",
+            "icon": "apartment",
+            "color": "#2D6CDF",
+            "label": "pandtype",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
         "label": "geschiktheid",
         "icon": "apartment",
         "color": "#2D6CDF",
