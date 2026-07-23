@@ -4,13 +4,13 @@
     "icon": "LN.svg",
     "expanded": true,
     "children": [
-        {
-          "icon": "LN.svg", 
-          "id": "374",
-          "label": "LNK <10% kostenverschil",
-          "a": false,
-          "b": false
-        }
+      {
+        "icon": "LN.svg",
+        "id": "374",
+        "label": "LNK <10% kostenverschil",
+        "a": false,
+        "b": false
+      }
     ]
   },
   {
@@ -18,20 +18,33 @@
     "icon": "LN.svg",
     "expanded": true,
     "children": [
+      {
+        "icon": "LN.svg",
+        "id": "357",
+        "label": "LNK <20% kostenverschil",
+        "a": false,
+        "b": false
+      }
     ]
   },
   {
     "label": "Basisgegevens",
     "icon": "BG.svg",
     "expanded": true,
-    "children": [
-    ]
+    "children": []
   },
   {
     "label": "Strategie 1: eWP",
     "icon": "S1.svg",
     "expanded": true,
     "children": [
+      {
+        "icon": "S1.svg",
+        "id": "350",
+        "label": "Strategie varianten (S1)",
+        "a": false,
+        "b": false
+      }
     ]
   },
   {
@@ -39,6 +52,13 @@
     "icon": "S2.svg",
     "expanded": true,
     "children": [
+      {
+        "icon": "S2.svg",
+        "id": "349",
+        "label": "Strategie varianten (S2)",
+        "a": false,
+        "b": false
+      }
     ]
   },
   {
@@ -46,6 +66,13 @@
     "icon": "S3.svg",
     "expanded": true,
     "children": [
+      {
+        "icon": "S3.svg",
+        "id": "351",
+        "label": "Strategie varianten (S3)",
+        "a": false,
+        "b": false
+      }
     ]
   },
   {
@@ -53,6 +80,13 @@
     "icon": "S4.svg",
     "expanded": true,
     "children": [
+      {
+        "icon": "S4.svg",
+        "id": "352",
+        "label": "Strategie varianten (S4)",
+        "a": false,
+        "b": false
+      }
     ]
   },
   {
@@ -60,6 +94,13 @@
     "icon": "R23.svg",
     "expanded": true,
     "children": [
+      {
+        "icon": "R23.svg",
+        "id": "235",
+        "label": "Energieverbruik (R23 H01)",
+        "a": false,
+        "b": false
+      }
     ]
   },
   {
@@ -67,6 +108,13 @@
     "icon": "R30.svg",
     "expanded": true,
     "children": [
+      {
+        "icon": "R30.svg",
+        "id": "240",
+        "label": "Energieverbruik (R30 H01)",
+        "a": false,
+        "b": false
+      }
     ]
   },
   {
@@ -74,55 +122,104 @@
     "icon": "GLN.svg",
     "expanded": true,
     "children": [
-        {
-          "label": "GA01",
-          "icon": "GLN.svg",
-          "expanded": true,
-          "children": [
-          ]
-        },
-        {
-          "label": "GA02",
-          "icon": "GLN.svg",
-          "expanded": true,
-          "children": [
-          ]
-        },
-        {
-          "label": "GA03",
-          "icon": "GLN.svg",
-          "expanded": true,
-          "children": [
-          ]
-        },
-        {
-          "label": "GA04",
-          "icon": "GLN.svg",
-          "expanded": true,
-          "children": [
-          ]
-        },
-        {
-          "label": "GA05",
-          "icon": "GLN.svg",
-          "expanded": true,
-          "children": [
-          ]
-        },
-        {
-          "label": "GA06",
-          "icon": "GLN.svg",
-          "expanded": true,
-          "children": [
-          ]
-        },
-        {
-          "label": "GA07",
-          "icon": "GLN.svg",
-          "expanded": true,
-          "children": [
-          ]
-        }
+      {
+        "label": "GA01",
+        "icon": "GLN.svg",
+        "expanded": true,
+        "children": [
+          {
+            "icon": "GLN.svg",
+            "id": "362",
+            "label": "Strategie varianten (LNGA01)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "GA02",
+        "icon": "GLN.svg",
+        "expanded": true,
+        "children": [
+          {
+            "icon": "GLN.svg",
+            "id": "363",
+            "label": "Strategie varianten (LNGA02)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "GA03",
+        "icon": "GLN.svg",
+        "expanded": true,
+        "children": [
+          {
+            "icon": "GLN.svg",
+            "id": "364",
+            "label": "Strategie varianten (LNGA03)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "GA04",
+        "icon": "GLN.svg",
+        "expanded": true,
+        "children": [
+          {
+            "icon": "GLN.svg",
+            "id": "365",
+            "label": "Strategie varianten (LNGA04)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "GA05",
+        "icon": "GLN.svg",
+        "expanded": true,
+        "children": [
+          {
+            "icon": "GLN.svg",
+            "id": "366",
+            "label": "Strategie varianten (LNGA05)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "GA06",
+        "icon": "GLN.svg",
+        "expanded": true,
+        "children": [
+          {
+            "icon": "GLN.svg",
+            "id": "367",
+            "label": "Strategie varianten (LNGA06)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "GA07",
+        "icon": "GLN.svg",
+        "expanded": true,
+        "children": [
+          {
+            "icon": "GLN.svg",
+            "id": "368",
+            "label": "Strategie varianten (LNGA07)",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
     ]
   }
 ]
