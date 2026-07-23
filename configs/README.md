@@ -30,6 +30,7 @@ VITE_CONFIG_PROJECT=woonzorglimburg npm run build
 
 # Run the dev server with that config
 VITE_CONFIG_PROJECT=woonzorglimburg npm run dev
+$env:VITE_CONFIG_PROJECT = "woonzorglimburg"; npm run dev
 
 # Build the public/ defaults (no overlay)
 npm run build
