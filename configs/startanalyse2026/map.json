@@ -1,0 +1,34 @@
+{
+  "center": [
+    5.0,
+    52.0
+  ],
+  "zoom": 7,
+  "streetview": false,
+  "searchbar": false,
+  "navigation": true,
+  "navigationMode": "sidebar",
+  "filterSection": true,
+  "navigationSection": true,
+  "mapControls": {
+    "search": true,
+    "zoom": false
+  },
+  "chromeIconSize": 22,
+  "chromeIconColor": "#3E74A7",
+  "share": true,
+  "annotations": false,
+  "clickMarker": {
+    "icon": "location_on",
+    "enabled": false,
+    "size": 30,
+    "color": [
+      62,
+      116,
+      167,
+      255
+    ],
+    "offsetX": 0,
+    "offsetY": 0
+  }
+}
