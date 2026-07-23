@@ -150,6 +150,16 @@ Group=${DEPLOY_USER}
 WorkingDirectory=${REPO_DIR}/collab-server
 Environment=PORT=${PORT}
 Environment=DB_PATH=${DATA_DIR}/annotations.db
+# Overload / storage guards — all optional; safe finite defaults apply if unset.
+# To tune, uncomment and re-run this script (it rewrites the unit), or edit here
+# and \`systemctl daemon-reload && systemctl restart ${SERVICE_NAME}\`. The
+# webhook deploy only rebuilds+restarts; it never rewrites this unit. See
+# collab-server/README.md "Abuse & overload guards" for the full list.
+#Environment=MAX_DOC_BYTES=2097152
+#Environment=MAX_ANNOTATIONS=300
+#Environment=MAX_SNAPSHOT_BYTES=131072
+#Environment=ROOM_TTL_DAYS=90
+#Environment=DB_SIZE_WARN_BYTES=536870912
 ExecStart=$(command -v node) ${REPO_DIR}/collab-server/dist/index.js
 Restart=always
 RestartSec=5s
