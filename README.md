@@ -14,7 +14,7 @@ Currently, two official plugins are available:
 Install dependencies:
 
 ```bash
-npm install
+npm install 
 ```
 
 ## Running locally
