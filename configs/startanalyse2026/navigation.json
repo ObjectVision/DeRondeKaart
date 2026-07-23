@@ -5,7 +5,7 @@
     "expanded": true,
     "children": [
         {
-          "icon": "LN.svg",
+          "icon": "LN.svg", 
           "id": "374",
           "label": "LNK <10% kostenverschil",
           "a": false,
