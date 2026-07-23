@@ -21,6 +21,13 @@
     ]
   },
   {
+    "label": "Basisgegevens",
+    "icon": "BG.svg",
+    "expanded": true,
+    "children": [
+    ]
+  },
+  {
     "label": "Strategie 1: eWP",
     "icon": "S1.svg",
     "expanded": true,
