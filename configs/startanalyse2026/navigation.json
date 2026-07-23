@@ -12,5 +12,61 @@
           "b": false
         }
     ]
+  },
+  {
+    "label": "Laagste nationale kosten",
+    "icon": "LN.svg",
+    "expanded": true,
+    "children": [
+    ]
+  },
+  {
+    "label": "Strategie 1: eWP",
+    "icon": "S1.svg",
+    "expanded": true,
+    "children": [
+    ]
+  },
+  {
+    "label": "Strategie 2: MT-warmtenet",
+    "icon": "S2.svg",
+    "expanded": true,
+    "children": [
+    ]
+  },
+  {
+    "label": "Strategie 3: Combi LT-WN & eWP",
+    "icon": "S3.svg",
+    "expanded": true,
+    "children": [
+    ]
+  },
+  {
+    "label": "Strategie 4: hWP met klimaatneutraal gas",
+    "icon": "S4.svg",
+    "expanded": true,
+    "children": [
+    ]
+  },
+  {
+    "label": "Referentie 2023",
+    "icon": "R23.svg",
+    "expanded": true,
+    "children": [
+    ]
+  },
+  {
+    "label": "Referentie 2030",
+    "icon": "R30.svg",
+    "expanded": true,
+    "children": [
+    ]
+  },
+  {
+    "label": "Gevoeligheidsanalyses",
+    "icon": "GLN.svg",
+    "expanded": true,
+    "children": [
+    ]
   }
 ]
