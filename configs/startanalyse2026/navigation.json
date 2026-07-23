@@ -74,6 +74,55 @@
     "icon": "GLN.svg",
     "expanded": true,
     "children": [
+        {
+          "label": "GA01",
+          "icon": "GLN.svg",
+          "expanded": true,
+          "children": [
+          ]
+        },
+        {
+          "label": "GA02",
+          "icon": "GLN.svg",
+          "expanded": true,
+          "children": [
+          ]
+        },
+        {
+          "label": "GA03",
+          "icon": "GLN.svg",
+          "expanded": true,
+          "children": [
+          ]
+        },
+        {
+          "label": "GA04",
+          "icon": "GLN.svg",
+          "expanded": true,
+          "children": [
+          ]
+        },
+        {
+          "label": "GA05",
+          "icon": "GLN.svg",
+          "expanded": true,
+          "children": [
+          ]
+        },
+        {
+          "label": "GA06",
+          "icon": "GLN.svg",
+          "expanded": true,
+          "children": [
+          ]
+        },
+        {
+          "label": "GA07",
+          "icon": "GLN.svg",
+          "expanded": true,
+          "children": [
+          ]
+        }
     ]
   }
 ]
