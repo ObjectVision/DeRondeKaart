@@ -105,6 +105,18 @@ export default defineConfig(({ mode }) => {
           target: "ws://localhost:5174",
           ws: true,
         },
+        // Same-origin proxy to the Startanalyse tile/asset CDN, which serves
+        // vector tiles with NO Access-Control-Allow-Origin header — a direct
+        // cross-origin fetch() from MapLibre is blocked by CORS. Routing through
+        // our own origin sidesteps CORS entirely. Mirrored by an nginx block in
+        // production (server/setup_map_application.sh, gated to that project).
+        // Inert for projects that never request /sa-tiles/ (e.g. woonzorglimburg
+        // fetches tiles from a CORS-enabled host directly).
+        "/sa-tiles": {
+          target: "https://startanalyse2025.files.mapgallery.io",
+          changeOrigin: true,
+          rewrite: (p) => p.replace(/^\/sa-tiles/, ""),
+        },
       },
     },
     build: {

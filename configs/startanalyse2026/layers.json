@@ -1,3 +1,163 @@
 {
-  "layers": []
+  "layers": [
+    {
+      "id": "374",
+      "name": "Laagste nationale kosten <10% kostenverschil (LN)",
+      "source": "/sa-tiles/tiles/layers/v15_02_00/stratLN/{z}/{x}/{y}.pbf",
+      "format": "mvt",
+      "sourceLayer": "stratLN",
+      "geometryType": "polygon",
+      "style": {
+        "opacity": 1
+      },
+      "geostyler": {
+        "name": "Laagste nationale kosten <10% kostenverschil (LN)",
+        "rules": [
+          {
+            "name": "s1: Elektrische warmtepomp (eWP)",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "Strategiecode",
+                1
+              ],
+              [
+                "<",
+                "Strategiecode",
+                3
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2688AE",
+                "opacity": 1,
+                "outlineColor": "black",
+                "outlineWidth": 0.3,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "s2: MT-warmtenet",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "Strategiecode",
+                3
+              ],
+              [
+                "<",
+                "Strategiecode",
+                8
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C83E28",
+                "opacity": 1,
+                "outlineColor": "black",
+                "outlineWidth": 0.3,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "s3: Combi LT-warmtenet & eWP",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "Strategiecode",
+                8
+              ],
+              [
+                "<",
+                "Strategiecode",
+                16
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#9D0064",
+                "opacity": 1,
+                "outlineColor": "black",
+                "outlineWidth": 0.3,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "s4: hWP met klimaatneutraal gas",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "Strategiecode",
+                16
+              ],
+              [
+                "<",
+                "Strategiecode",
+                18
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3d5c3c",
+                "opacity": 1,
+                "outlineColor": "black",
+                "outlineWidth": 0.3,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "Verschil in nationale kosten <10%",
+            "filter": [
+              "==",
+              "H17_perc_difference10",
+              true
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFDD0",
+                "opacity": 1,
+                "outlineColor": "black",
+                "outlineWidth": 0.3,
+                "outlineOpacity": 0.7
+              }
+            ]
+          },
+          {
+            "name": "Geen doorrekening",
+            "filter": [
+              "==",
+              "Strategiecode",
+              -999999
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#9C9C9C",
+                "opacity": 1,
+                "outlineColor": "black",
+                "outlineWidth": 0.3,
+                "outlineOpacity": 0.7
+              }
+            ]
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<table class=\"table\"> <tr><td rowspan=100> <img style=\"max-width: 80px; height: auto\" src=\"https://startanalyse2025.files.mapgallery.io/symbolen/LN.png\"></td></tr> <tr><th scope=\"col\">Attribuut</th><th scope=\"col\">Waarde</th> <th scope=\"col\">Eenheid</th></tr> <tr><td>Buurt</td><td>[[ buurtnaam ]]</td><td></td></tr> <tr><td>Wijk</td><td>[[ Wijknaam ]]</td><td></td></tr> <tr><td>Gemeente</td><td>[[ Gemeentenaam ]]</td><td></td></tr> <tr><td>Energieregio</td><td>[[ Energieregionaam ]]</td><td></td></tr> <tr><td>Variant</td><td>[[ V01_Strategievariant ]]</td><td></td></tr> <tr><td>Aantal woningen</td><td>[[ AantalWoningen ]]</td><td>woning</td></tr> <tr><td>Aantal utiliteiten</td><td>[[ AantalUtiliteiten ]]</td><td>utiliteit</td></tr> <tr><td>Aantal woning equivalenten</td><td>[[ WoningEquivalenten ]]</td><td>WEQ</td></tr> <tr><td>Nationale meerkosten <img src=\"https://startanalyse2025.files.mapgallery.io/symbolen/S1.png\" style=\"width: 40px; height: auto;\" alt=\"S1\"></td><td>[[ S1H17_Nationale_meerkosten_CO2 ]] </td><td>â‚¬/ton CO<sub>2</sub></td></tr> <tr><td>Nationale meerkosten <img src=\"https://startanalyse2025.files.mapgallery.io/symbolen/S2.png\" style=\"width: 40px; height: auto;\" alt=\"S2\"></td><td>[[ S2H17_Nationale_meerkosten_CO2 ]] </td><td>â‚¬/ton CO<sub>2</sub></td></tr> <tr><td>Nationale meerkosten <img src=\"https://startanalyse2025.files.mapgallery.io/symbolen/S3.png\" style=\"width: 40px; height: auto;\" alt=\"S3\"></td><td>[[ S3H17_Nationale_meerkosten_CO2 ]] </td><td>â‚¬/ton CO<sub>2</sub></td></tr> <tr><td>Nationale meerkosten <img src=\"https://startanalyse2025.files.mapgallery.io/symbolen/S4.png\" style=\"width: 40px; height: auto;\" alt=\"S4\"></td><td>[[ S4H17_Nationale_meerkosten_CO2 ]] </td><td>â‚¬/ton CO<sub>2</sub></td></tr> <tr><td>Toekenning klimaatneutraal gas (H20)</td><td>[[ H20_toekenning_klimaatneutraal_gas ]]</td><td></td></tr> <tr><td>Nationale kosten per woningequivalent (H18)</td><td>[[ H18_Nationale_meerkosten_extra ]]</td><td>â‚¬/jaar per WEQ</td></tr> <tr><td><details><summary>Energieverbruik (H01)</summary><p><table class=\"table\"> <tr><td>Ruimteverwarming (H02)</td><td>[[ H02_Energieverbruik_ruimteverwarming ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>Warmtapwater (H03)</td><td>[[ H03_Energieverbruik_warmtapwater ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>Ventilatie (H04)</td><td>[[ H04_Energieverbruik_ventilatie ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>Koude (H05)</td><td>[[ H05_Energieverbruik_koude ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>Apparaten en licht (H06)</td><td>[[ H06_Energieverbruik_apparaten_en_licht ]]</td><td>GJ/jaar per WEQ</td></tr></table></p></details></td><td>[[ H01_Energieverbruik ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td><details><summary>Energielevering (H08)</summary><p><table class=\"table\"> <tr><td>Duurzaam gas (H10)</td><td>[[ H10_Energielevering_duurzaamgas ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>Elektriciteit (H11)</td><td>[[ H11_Energielevering_elektriciteit ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>MT warmtebron (H12)</td><td>[[ H12_Energielevering_MTwarmtebronnen ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>LT warmtebron (H13)</td><td>[[ H13_Energielevering_LTwarmtebronnen ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>Energielevering overig (H14)</td><td>[[ H14_Energielevering_overig ]]</td><td>GJ/jaar per WEQ</td></tr></table></p></details></td><td>[[ H01_Energieverbruik ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>CO<sub>2</sub> uitstoot (H15)</td><td>[[ H15_CO2_uitstoot ]]</td><td>ton CO<sub>2</sub>/jaar</td></tr> <tr><td>Dichtheid warmteverbruik (H07)</td><td>[[ H07_Warmteverbruik ]]</td><td>GJ/jaar per ha</td></tr> <tr><td>Nationale meerkosten (H16)</td><td>[[ H16_Nationale_meerkosten ]]</td><td>â‚¬/jaar</td></tr> </table>"
+      }
+    }
+  ]
 }
