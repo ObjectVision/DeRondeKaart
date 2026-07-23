@@ -243,6 +243,24 @@ else
   COLLAB_BLOCK="    # No collab server proxied (re-run with --collab-port to enable)."
 fi
 
+# Startanalyse tile CDN proxy. The tile host serves vector tiles with NO
+# Access-Control-Allow-Origin header, so a cross-origin fetch() from MapLibre is
+# blocked by CORS. Proxying through this origin (/sa-tiles/ -> the CDN) makes the
+# request same-origin. Gated to the startanalyse2026 config project so no other
+# instance carries this block. Mirrors the /sa-tiles Vite dev proxy.
+if [ "$CONFIG_PROJECT" = "startanalyse2026" ]; then
+  SA_TILES_BLOCK="    location /sa-tiles/ {
+        proxy_pass https://startanalyse2025.files.mapgallery.io/;
+        proxy_set_header Host startanalyse2025.files.mapgallery.io;
+        proxy_ssl_server_name on;
+        proxy_hide_header Access-Control-Allow-Origin;
+        add_header Access-Control-Allow-Origin \"*\" always;
+        proxy_cache_valid 200 1h;
+    }"
+else
+  SA_TILES_BLOCK="    # No startanalyse tile proxy (only emitted for --config-project startanalyse2026)."
+fi
+
 nginx_write_site "$SLUG" <<EOF
 server {
     listen 80;
@@ -273,6 +291,8 @@ server {
     }
 
 $COLLAB_BLOCK
+
+$SA_TILES_BLOCK
 
 $FRAME_HEADER
     add_header X-Content-Type-Options "nosniff" always;
