@@ -4,18 +4,13 @@
     "icon": "LN.svg",
     "expanded": true,
     "children": [
-      {
-        "label": "Laagste nationale kosten <10% kostenverschil",
-        "expanded": true,
-        "children": [
-          {
-            "id": "374",
-            "label": "Laagste nationale kosten <10% kostenverschil (LN)",
-            "a": false,
-            "b": false
-          }
-        ]
-      }
+        {
+          "icon": "LN.svg",
+          "id": "374",
+          "label": "LNK <10% kostenverschil",
+          "a": false,
+          "b": false
+        }
     ]
   }
 ]
