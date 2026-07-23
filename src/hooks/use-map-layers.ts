@@ -329,6 +329,24 @@ export function useMapLayers() {
 }
 
 /**
+ * Make a tile URL template absolute.
+ *
+ * MapLibre hands tile URLs to `new Request(...)` (in a worker), which has no
+ * document base to resolve against — a root-relative template like
+ * "/sa-tiles/…/{z}/{x}/{y}.pbf" throws "Failed to parse URL". Prefixing the
+ * current origin lets layers.json stay origin-agnostic, so the same config
+ * works against the Vite dev proxy and the nginx proxy in production.
+ *
+ * Absolute URLs (with a scheme) are returned untouched. The `{z}/{x}/{y}`
+ * placeholders are preserved: only the origin is prepended, no URL parsing.
+ */
+function absoluteTileUrl(source: string): string {
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(source)) return source;
+  if (source.startsWith("/")) return window.location.origin + source;
+  return source;
+}
+
+/**
  * Add a native MapLibre vector-tile source + one layer per style rule.
  * Module-scope: depends only on the config and the target map.
  */
@@ -342,7 +360,7 @@ function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>
   if (!map.getSource(sourceId)) {
     map.addSource(sourceId, {
       type: "vector",
-      tiles: [config.source],
+      tiles: [absoluteTileUrl(config.source)],
       minzoom: 0,
       maxzoom: 14,
     });
