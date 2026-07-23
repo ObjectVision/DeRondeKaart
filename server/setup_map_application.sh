@@ -35,6 +35,7 @@ $(print_kv "--slug NAME"        "instance id, namespaces all paths (e.g. woonzor
 $(print_kv "--host HOST"        "hostname (e.g. map.woonzorglimburg.nl)")
 $(print_kv "--repo URL"         "git remote of the Vite/React source repo")
 $(print_kv "--branch NAME"      "git branch to deploy (default: main)")
+$(print_kv "--config-project S" "config overlay to build (configs/<S>/ over public/); blank = defaults")
 $(print_kv "--node-version N"   "Node.js major version to install if missing (default: 20)")
 $(print_kv "--frame-ancestors V" "CSP frame-ancestors value; blank = embeddable anywhere (default: blank)")
 $(print_kv "--collab-port N"    "proxy /collab to a collab server on 127.0.0.1:N; blank = off (default: blank)")
@@ -48,6 +49,7 @@ EOF
 
 SLUG=""; HOST=""; REPO=""; BRANCH=""; NODE_VERSION=""; FRAME_ANCESTORS=""
 SECRET=""; EMAIL=""; NO_TLS=0; FRAME_SET=0; COLLAB_PORT=""; COLLAB_SET=0
+CONFIG_PROJECT=""; CONFIG_PROJECT_SET=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -59,6 +61,8 @@ while [ $# -gt 0 ]; do
     --repo=*)           REPO="${1#*=}"; shift ;;
     --branch)           BRANCH="$2"; shift 2 ;;
     --branch=*)         BRANCH="${1#*=}"; shift ;;
+    --config-project)   CONFIG_PROJECT="$2"; CONFIG_PROJECT_SET=1; shift 2 ;;
+    --config-project=*) CONFIG_PROJECT="${1#*=}"; CONFIG_PROJECT_SET=1; shift ;;
     --node-version)     NODE_VERSION="$2"; shift 2 ;;
     --node-version=*)   NODE_VERSION="${1#*=}"; shift ;;
     --frame-ancestors)  FRAME_ANCESTORS="$2"; FRAME_SET=1; shift 2 ;;
@@ -85,6 +89,12 @@ ask HOST "Hostname" ""
 validate_host "$HOST"
 ask REPO         "Git repository URL (Vite/React source)" ""
 ask BRANCH       "Git branch"                             "main"
+# config-project: blank means build the default configs from public/. A value
+# selects configs/<value>/ to overlay (VITE_CONFIG_PROJECT at build time).
+if [ "$CONFIG_PROJECT_SET" != "1" ] && [ "$ASSUME_YES" != "1" ]; then
+  ask CONFIG_PROJECT "Config project overlay (blank = public/ defaults)" " "
+  CONFIG_PROJECT="${CONFIG_PROJECT# }"
+fi
 ask NODE_VERSION "Node.js major version"                  "20"
 # frame-ancestors: blank means "no CSP frame header" = embeddable anywhere.
 if [ "$FRAME_SET" != "1" ] && [ "$ASSUME_YES" != "1" ]; then
@@ -116,6 +126,7 @@ log "Plan"
 info "slug            : $SLUG"
 info "host            : $HOST"
 info "repo / branch   : $REPO ($BRANCH)"
+info "config project  : ${CONFIG_PROJECT:-<public/ defaults>}"
 info "webroot         : $WEBROOT"
 info "repo dir        : $REPO_DIR"
 info "deploy script   : $DEPLOY_SCRIPT"
@@ -156,7 +167,7 @@ log "First build (npm ci && vite build)"
 (
   cd "$REPO_DIR"
   npm ci
-  npx --no-install vite build
+  VITE_CONFIG_PROJECT="$CONFIG_PROJECT" npx --no-install vite build
   rsync -a --delete dist/ "$WEBROOT/"
 )
 ok "Built SPA into $WEBROOT"
@@ -177,6 +188,9 @@ echo "--- Deploy started: \$(date --iso-8601=seconds) ---"
 cd $REPO_DIR
 git fetch --prune origin
 git reset --hard origin/$BRANCH
+
+# Config overlay to build (configs/<slug>/ over public/); empty = public/ defaults.
+export VITE_CONFIG_PROJECT="$CONFIG_PROJECT"
 
 npm ci
 

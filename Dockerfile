@@ -8,9 +8,11 @@ RUN npm ci
 
 COPY . .
 
-# Remove layers.json so it is NOT baked into the production build.
-# In production, layers.json is mounted at runtime.
-RUN rm -f public/layers.json
+# Select which config overlay to bake in: configs/<CONFIG_PROJECT>/ is layered
+# over the public/ defaults at build time (see vite.config.ts). Empty builds the
+# public/ defaults. Pass with: docker build --build-arg CONFIG_PROJECT=<slug>
+ARG CONFIG_PROJECT=""
+ENV VITE_CONFIG_PROJECT=$CONFIG_PROJECT
 
 RUN npm run build
 

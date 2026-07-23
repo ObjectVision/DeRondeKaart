@@ -30,16 +30,28 @@ MAP_PORT=8081 docker compose up -d
 
 The container serves the app on port 80 internally, mapped to `MAP_PORT` (default 8080) on the host.
 
-## 2. Configure layers.json
+## 2. Configure the project (config overlay)
 
-Each container instance gets its own `layers.json` via bind mount. Edit `docker-compose.yml` to point to your config:
+The five config JSONs (`map.json`, `layers.json`, `filter.json`, `charts.json`,
+`navigation.json`) are selected **at build time** via the `CONFIG_PROJECT` build arg.
+It picks a `configs/<project>/` directory that is overlaid on the `public/` defaults
+(see [`../configs/README.md`](../configs/README.md)). Files a project omits fall back
+to the `public/` default.
 
-```yaml
-volumes:
-  - /path/to/your/layers.json:/etc/mapapp/layers.json:ro
+```bash
+# Build the woonzorglimburg config
+CONFIG_PROJECT=woonzorglimburg docker compose build
+
+# Build the public/ defaults (no overlay)
+docker compose build
 ```
 
-The `layers.json` file references data sources. For files served from the same host, use the `/data/` path prefix:
+`docker-compose.yml` reads `CONFIG_PROJECT` from the environment and passes it as the
+build arg. There is no runtime `layers.json` mount any more — all configs are baked into
+the image.
+
+The `layers.json` file references data sources. For files served from the same host, use
+the `/data/` path prefix:
 
 ```json
 {
@@ -93,24 +105,27 @@ sudo certbot --nginx -d maps.example.com
 
 ## Multiple Instances
 
-To run multiple app instances with different layer configs:
+To run multiple app instances with different configs, build each with its own
+`CONFIG_PROJECT` (each `configs/<project>/` is committed in the repo):
 
 ```yaml
 # docker-compose.override.yml
 services:
   mapapp-projectA:
-    build: .
+    build:
+      context: .
+      args:
+        CONFIG_PROJECT: projectA
     ports:
       - "8081:80"
-    volumes:
-      - /etc/mapapp/projectA/layers.json:/etc/mapapp/layers.json:ro
 
   mapapp-projectB:
-    build: .
+    build:
+      context: .
+      args:
+        CONFIG_PROJECT: projectB
     ports:
       - "8082:80"
-    volumes:
-      - /etc/mapapp/projectB/layers.json:/etc/mapapp/layers.json:ro
 ```
 
 Then add separate `location` blocks or `server` blocks in the host nginx config for each instance.
@@ -120,7 +135,7 @@ Then add separate `location` blocks or `server` blocks in the host nginx config 
 | File | Purpose |
 |------|---------|
 | `Dockerfile` | Multi-stage build (Node → nginx) |
-| `docker-compose.yml` | Container orchestration with layers.json mount |
+| `docker-compose.yml` | Container orchestration; `CONFIG_PROJECT` build arg |
 | `deploy/nginx-container.conf` | Nginx config inside the container |
 | `deploy/nginx-host.conf` | Host nginx site config (reverse proxy + static data) |
-| `deploy/layers.example.json` | Example production layers.json |
+| `configs/<project>/` | Per-project config overlay (see `configs/README.md`) |

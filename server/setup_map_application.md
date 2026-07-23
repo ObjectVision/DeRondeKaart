@@ -104,6 +104,21 @@ For **private repositories**, add a deploy key first (see the same section in
 
 ---
 
+## Per-project configuration
+
+The five config JSONs (`map.json`, `layers.json`, `filter.json`, `charts.json`,
+`navigation.json`) are selected at **build time** via `--config-project <slug>`, which
+sets `VITE_CONFIG_PROJECT` for both the first build and every webhook rebuild. It overlays
+`configs/<slug>/` in the repo on top of the `public/` defaults (see the repo's
+`configs/README.md`). Blank builds the neutral `public/` defaults.
+
+The production Limburg instance must be provisioned with
+`--config-project woonzorglimburg`, otherwise the next rebuild would ship the neutral
+defaults. **Re-provision it before merging the config-overlay change** so the env var is in
+place ahead of the first rebuild that carries genericized defaults.
+
+---
+
 ## Examples
 
 ```bash
@@ -114,6 +129,7 @@ For **private repositories**, add a deploy key first (see the same section in
 ./setup_map_application.sh -y \
   --slug woonzorglimburg_map --host map.woonzorglimburg.nl \
   --repo git@github.com:ObjectVision/northwake.git \
+  --config-project woonzorglimburg \
   --email eoudejans@objectvision.nl
 
 # A second map app, framing locked to one parent site
