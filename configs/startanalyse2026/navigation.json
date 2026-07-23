@@ -1477,7 +1477,7 @@
       {
         "label": "GA01",
         "icon": "GLN.svg",
-        "expanded": true,
+        "expanded": false,
         "children": [
           {
             "icon": "GLN.svg",
@@ -1547,7 +1547,7 @@
       {
         "label": "GA02",
         "icon": "GLN.svg",
-        "expanded": true,
+        "expanded": false,
         "children": [
           {
             "icon": "GLN.svg",
@@ -1617,7 +1617,7 @@
       {
         "label": "GA03",
         "icon": "GLN.svg",
-        "expanded": true,
+        "expanded": false,
         "children": [
           {
             "icon": "GLN.svg",
@@ -1687,7 +1687,7 @@
       {
         "label": "GA04",
         "icon": "GLN.svg",
-        "expanded": true,
+        "expanded": false,
         "children": [
           {
             "icon": "GLN.svg",
@@ -1757,7 +1757,7 @@
       {
         "label": "GA05",
         "icon": "GLN.svg",
-        "expanded": true,
+        "expanded": false,
         "children": [
           {
             "icon": "GLN.svg",
@@ -1827,7 +1827,7 @@
       {
         "label": "GA06",
         "icon": "GLN.svg",
-        "expanded": true,
+        "expanded": false,
         "children": [
           {
             "icon": "GLN.svg",
@@ -1897,7 +1897,7 @@
       {
         "label": "GA07",
         "icon": "GLN.svg",
-        "expanded": true,
+        "expanded": false,
         "children": [
           {
             "icon": "GLN.svg",
