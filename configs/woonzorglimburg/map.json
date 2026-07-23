@@ -1,10 +1,11 @@
 {
   "center": [
-    5.0,
-    52.0
+    5.788017187520154,
+    51.09266041682005
   ],
-  "zoom": 7,
-  "streetview": false,
+  "zoom": 8,
+  "studyarea": "studiegebied_limburg",
+  "streetview": true,
   "searchbar": false,
   "navigation": true,
   "navigationMode": "sidebar",
@@ -17,7 +18,7 @@
   "chromeIconSize": 22,
   "chromeIconColor": "#3E74A7",
   "share": true,
-  "annotations": false,
+  "annotations": true,
   "clickMarker": {
     "icon": "location_on",
     "enabled": false,

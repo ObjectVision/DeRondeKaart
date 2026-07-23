@@ -1,0 +1,77 @@
+{
+  "charts": [
+    {
+      "id": "sdk_verdeling_donut",
+      "title": "Sociaal dominante klasse — verdeling",
+      "type": "donut",
+      "data": {
+        "groupBy": "data",
+        "labels": {
+          "0": { "label": "werkende bovenlaag", "color": "#1229DE" },
+          "1": { "label": "jonge kansrijken", "color": "#A7FF74" },
+          "2": { "label": "rentenierende bovenlaag", "color": "#8304A7" },
+          "3": { "label": "werkende middengroep", "color": "#02A883" },
+          "4": { "label": "laagopgeleid gepensioneerd", "color": "#F4B1E0" },
+          "5": { "label": "onzekere werkenden", "color": "#FFB62B" },
+          "6": { "label": "precariaat", "color": "#BD0100" },
+          "7": { "label": "gemend bovenlaag", "color": "#002471" },
+          "8": { "label": "gemengd middengroep", "color": "#66CDA6" },
+          "9": { "label": "jonge kansrijken en onzekere werkenden", "color": "#BDD39B" },
+          "10": { "label": "onzekere werkenden en precariaat", "color": "#DC6E20" },
+          "11": { "label": "gemengde welvaart", "color": "#488F57" }
+        }
+      },
+      "aggregation": "count",
+      "format": "number"
+    },
+    {
+      "id": "sdk_verdeling_bar",
+      "title": "Gebieden per klasse",
+      "type": "bar",
+      "data": {
+        "groupBy": "data",
+        "labels": {
+          "0": { "label": "werkende bovenlaag" },
+          "1": { "label": "jonge kansrijken" },
+          "2": { "label": "rentenierende bovenlaag" },
+          "3": { "label": "werkende middengroep" },
+          "4": { "label": "laagopgeleid gepensioneerd" },
+          "5": { "label": "onzekere werkenden" },
+          "6": { "label": "precariaat" },
+          "7": { "label": "gemend bovenlaag" },
+          "8": { "label": "gemengd middengroep" },
+          "9": { "label": "jonge kansrijken en onzekere werkenden" },
+          "10": { "label": "onzekere werkenden en precariaat" },
+          "11": { "label": "gemengde welvaart" }
+        }
+      },
+      "aggregation": "count",
+      "format": "number"
+    },
+    {
+      "id": "vvt_verdeling_bar",
+      "title": "Personen met indicatie V&V",
+      "type": "bar",
+      "data": {
+        "fields": [{ "field": "vvt", "label": "Verpleging en verzorging" }]
+      },
+      "aggregation": "sum",
+      "format": "number"
+    },
+    {
+      "id": "woz_ontwikkeling",
+      "title": "Gemiddelde WOZ-waarde",
+      "type": "line",
+      "data": {
+        "fields": [
+          { "field": "woz_2015", "label": "2015" },
+          { "field": "woz_2018", "label": "2018" },
+          { "field": "woz_2021", "label": "2021" },
+          { "field": "woz_2024", "label": "2024" }
+        ]
+      },
+      "aggregation": "mean",
+      "format": "currency"
+    }
+  ]
+}

@@ -1,11 +1,13 @@
 services:
   mapapp:
-    build: .
+    build:
+      context: .
+      args:
+        # Config overlay to bake in: configs/<CONFIG_PROJECT>/ over public/
+        # defaults (see vite.config.ts). Blank builds the public/ defaults.
+        CONFIG_PROJECT: "${CONFIG_PROJECT:-}"
     ports:
       - "${MAP_PORT:-8080}:80"
-    volumes:
-      # Mount your instance-specific layers.json into the container
-      - ./deploy/layers.example.json:/etc/mapapp/layers.json:ro
     restart: unless-stopped
 
   # Collaborative-annotation WebSocket server (Hocuspocus + SQLite). The map
