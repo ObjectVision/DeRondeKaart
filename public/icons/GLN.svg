@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 133" width="200" height="133">
+  <polygon points="0,0 200,0 100,66.5" fill="#006E9A"/>
+  <polygon points="200,0 200,133 100,66.5" fill="#C83E28"/>
+  <polygon points="200,133 0,133 100,66.5" fill="#9D0064"/>
+  <polygon points="0,133 0,0 100,66.5" fill="#3D5C3C"/>
+  <text x="100" y="66.5" font-family="Arial, Helvetica, sans-serif" font-size="46" font-weight="700" fill="#FFFFFF" text-anchor="middle" dominant-baseline="central">G-LN</text>
+</svg>
