@@ -2,7 +2,7 @@
   {
     "label": "woonzorganalyse",
     "icon": "diversity_1",
-    "color": "#EB5BA6",
+    "color": "#3E74A7",
     "expanded": true,
     "children": [
       {
@@ -156,7 +156,7 @@
   {
     "label": "bevolking",
     "icon": "groups",
-    "color": "#7C5CFC",
+    "color": "#3E74A7",
     "expanded": true,
     "children": [
       {
@@ -178,7 +178,7 @@
   {
     "label": "woningvoorraad",
     "icon": "home_work",
-    "color": "#F2994A",
+    "color": "#3E74A7",
     "expanded": true,
     "children": [
       {
@@ -298,7 +298,7 @@
   {
     "label": "omgeving",
     "icon": "nature_people",
-    "color": "#4FB477",
+    "color": "#3E74A7",
     "expanded": true,
     "children": [
       {
@@ -596,7 +596,7 @@
   {
     "label": "gebiedsindelingen",
     "icon": "border_all",
-    "color": "#F2994A",
+    "color": "#3E74A7",
     "expanded": true,
     "children": [
       {
