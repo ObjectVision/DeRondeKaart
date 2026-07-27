@@ -64,6 +64,8 @@ import { InfoPopup } from "@/components/ui/info-popup";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 import { ChartsPanel } from "@/components/charts/ChartsPanel";
 import { ShareDialog } from "@/components/share/ShareDialog";
+import { CircularExportView } from "@/components/share/CircularExportView";
+import { legendItemsForEntries } from "@/lib/legend-style";
 //import { MapPills } from "@/components/ui/map-pills";
 
 function App({
@@ -81,6 +83,7 @@ function App({
   annotationsEnabled: annotationsEnabledProp = false,
   mapControls = DEFAULT_MAP_CONTROLS,
   clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
+  embedCircular = false,
 }: {
   initialViewState: ViewState;
   studyAreaId?: string;
@@ -96,6 +99,13 @@ function App({
   annotationsEnabled?: boolean;
   mapControls?: MapControlsConfig;
   clickMarker?: ClickMarkerConfig;
+  /**
+   * Boot straight into the standalone circular-export view (only the circular
+   * map + legend + title, no chrome/dialog) — set from the `?embed=circular`
+   * URL param for embedding on a webpage. Layers/view/title are then driven by
+   * the existing `cmd`/`layer` URL params and `open-share` messages.
+   */
+  embedCircular?: boolean;
 }) {
   // UI-surface flags are seeded from map.json (props) but can be overridden at
   // runtime by an embedding host (Power BI visual) via the `map-config` message.
@@ -724,6 +734,13 @@ function App({
   // legend's mapBOnTop); comparison mode previews map A — a circular still
   // can't represent a slider comparison.
   const [shareOpen, setShareOpen] = useState(false);
+  // The bare circular-export overlay (only the circle + legend + title, no
+  // dialog chrome). Driven by `open-share`; always on in `embedCircular` mode.
+  const [circularOpen, setCircularOpen] = useState(false);
+  // Export title/subtitle live here (not inside ShareDialog) so a host
+  // `open-share` message can prefill them — see openShare below.
+  const [shareTitle, setShareTitle] = useState("");
+  const [shareSubtitle, setShareSubtitle] = useState("");
 
   // Sharing while the annotation tool is armed promotes the local session to
   // a collaborative room: mint an unguessable UUID (the room's only access
@@ -806,13 +823,34 @@ function App({
     [annotationsEnabled, annotationActivate, startSession],
   );
 
-  // Process URL commands for layer management (only after the left map is ready)
+  // A host `open-share` message: prefill the export title/subtitle and show the
+  // bare circular-export overlay — only the circle + legend + title, no dialog
+  // chrome. (No-op when sharing is disabled here.) The layers/view are already
+  // reconciled by useUrlCommands before this fires.
+  const openShare = useCallback(
+    ({ title, subtitle }: { title?: string; subtitle?: string }) => {
+      if (!shareEnabled) {
+        console.warn("open-share ignored: sharing is disabled in this configuration");
+        return;
+      }
+      if (title !== undefined) setShareTitle(title);
+      if (subtitle !== undefined) setShareSubtitle(subtitle);
+      setCircularOpen(true);
+    },
+    [shareEnabled],
+  );
+
+  // Process URL commands for layer management (only after the left map is
+  // ready). In the standalone circular embed the main left map is never
+  // mounted, so gate on embedCircular too — layer entries populate without a
+  // live map (ExportPreviewMap re-syncs any native MVT/COG layers itself).
   useUrlCommands({
     mapLeft: { layers: mapLeftLayers, mapRef: mapLeftRef }, // "linker kaart"
     mapRight: { layers: mapRightLayers, mapRef: mapRightRef }, // "rechter kaart"
-    ready: mapLeftReady,
+    ready: mapLeftReady || embedCircular,
     applyView,
     onAnnotationRoom: handleAnnotationRoom,
+    onOpenShare: openShare,
   });
 
   // Apply runtime UI-config overrides from an embedding host (Power BI visual).
@@ -825,8 +863,15 @@ function App({
   }, []);
 
   // In-memory data pushed by an embedding host (Power BI visual): renders on
-  // the left map and posts the map-ready handshake to the parent window.
-  useEmbedData({ mapLeftLayers, mapLeftRef, ready: mapLeftReady, onConfig: applyConfig });
+  // the left map and posts the map-ready handshake to the parent window. In the
+  // standalone circular embed the main left map is never mounted, so treat the
+  // app as ready once mounted — the postMessage handlers don't need a live map.
+  useEmbedData({
+    mapLeftLayers,
+    mapLeftRef,
+    ready: mapLeftReady || embedCircular,
+    onConfig: applyConfig,
+  });
 
   const hasMapLeftLayers = mapLeftLayers.layerEntries.length > 0;
 
@@ -1013,6 +1058,47 @@ function App({
   // On-screen side shown in the share preview/PNG (see shareOpen comment).
   const shareSide = !comparisonMode && showMapRight ? mapRightLayers : mapLeftLayers;
 
+  // Legend rows for the circular export view (same flattening the dialog +
+  // PNG use). Cheap; recomputed when the shown side's layers/visibility change.
+  const circularLegendItems = legendItemsForEntries(
+    shareSide.layerEntries,
+    shareSide.hiddenIds,
+    shareSide.hiddenRules,
+  );
+
+  // The reusable circular map + legend + title, in fixed-text display mode.
+  // Shared by the standalone `?embed=circular` page and the `open-share`
+  // overlay. Keyed on the shown layer set so it re-seeds from the current
+  // state each time it opens (the preview snapshots at mount — see
+  // ExportPreviewMap).
+  const circularView = (
+    <CircularExportView
+      key={shareSide.layerEntries.map((e) => e.config.id).join(",")}
+      entries={shareSide.layerEntries}
+      hiddenIds={shareSide.hiddenIds}
+      hiddenRules={shareSide.hiddenRules}
+      basemapId={basemapId}
+      studyAreaId={studyAreaId}
+      filteredStudy={filteredStudy}
+      annotations={annotationsVisible ? annotations.annotations : undefined}
+      initialViewState={viewState}
+      legendItems={circularLegendItems}
+      title={shareTitle}
+      subtitle={shareSubtitle}
+      mode="display"
+    />
+  );
+
+  // Standalone embed: only the circular view, centered on a white page — the
+  // whole app boots into this for `?embed=circular`.
+  if (embedCircular) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-white p-4">
+        <div className="w-full max-w-[30rem]">{circularView}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full h-full">
       {/* Left map — full width in single mode, clipped left in comparison */}
@@ -1159,7 +1245,38 @@ function App({
           annotations={annotationsVisible ? annotations.annotations : undefined}
           viewState={viewState}
           annotRoomId={annotationActive ? collab.roomId : null}
+          title={shareTitle}
+          subtitle={shareSubtitle}
+          onTitleChange={setShareTitle}
+          onSubtitleChange={setShareSubtitle}
         />
+      )}
+
+      {/* Circular-export overlay — only the circle + legend + title (no dialog
+          chrome), shown when a host `open-share` message requests the preview.
+          Click the backdrop or the close button to dismiss. */}
+      {shareEnabled && circularOpen && (
+        <div
+          className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setCircularOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-[32rem] rounded-2xl bg-white p-4 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="absolute right-2 top-2 z-10"
+              onClick={() => setCircularOpen(false)}
+              title="Sluiten"
+              aria-label="Sluiten"
+            >
+              <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+            </Button>
+            {circularView}
+          </div>
+        </div>
       )}
 
       {/* Analytics panel — right side; opened by selecting a layer in the

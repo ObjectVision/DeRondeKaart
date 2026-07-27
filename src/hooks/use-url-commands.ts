@@ -2,6 +2,7 @@ import { useEffect, useCallback, useRef } from "react";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import type { LayerConfig } from "@/layers";
 import type { MapRef } from "react-map-gl/maplibre";
+import { isUrlAddressable } from "@/lib/share-url";
 import type { useMapLayers } from "./use-map-layers";
 
 interface MapSide {
@@ -27,6 +28,12 @@ interface UseUrlCommandsOptions {
   applyView: (view: ViewUpdate) => void;
   /** A share link carried an `annot` room id — join that collab session. */
   onAnnotationRoom?: (roomId: string) => void;
+  /**
+   * An `open-share` message asked to open the circular export preview. The
+   * layers/view have already been reconciled by the time this fires; the host
+   * carries title/subtitle straight into the dialog inputs.
+   */
+  onOpenShare?: (opts: { title?: string; subtitle?: string }) => void;
 }
 
 /** Room ids are UUIDv4 — anything else is rejected (also server-side). */
@@ -100,7 +107,7 @@ function parseCommands(params: URLSearchParams): LayerCommand[] {
   return commands;
 }
 
-export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotationRoom }: UseUrlCommandsOptions) {
+export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotationRoom, onOpenShare }: UseUrlCommandsOptions) {
   const configsRef = useRef<LayerConfig[] | null>(null);
   const processedInitialHash = useRef(false);
 
@@ -147,6 +154,40 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotati
       }
     },
     [getConfigs, mapLeft, mapRight],
+  );
+
+  // Reconcile the LEFT map to exactly `layerIds`: add the missing ones, remove
+  // the extra url-addressable ones. In-memory embed datasets (Power BI
+  // `map-data`) are non-url-addressable and left untouched, so a host that
+  // pushed its own data doesn't get it clobbered by an open-share request.
+  const reconcileLeftLayers = useCallback(
+    async (layerIds: string[]) => {
+      const configs = await getConfigs();
+      const ref = mapLeft.mapRef.current?.mapRef ?? { current: null };
+
+      const desired = new Set<string>();
+      for (const id of layerIds) {
+        if (getLayerConfigById(configs, id)) desired.add(id);
+        else console.warn(`open-share: layer "${id}" not found in layers.json`);
+      }
+
+      const present = new Set(mapLeft.layers.layerEntries.map((e) => e.config.id));
+
+      // Remove extras (only url-addressable ones — never host-pushed data).
+      for (const entry of mapLeft.layers.layerEntries) {
+        if (!desired.has(entry.config.id) && isUrlAddressable(entry)) {
+          mapLeft.layers.removeLayer(entry.config.id, ref);
+        }
+      }
+
+      // Add the ones not already present.
+      for (const id of desired) {
+        if (present.has(id)) continue;
+        const config = getLayerConfigById(configs, id);
+        if (config) await mapLeft.layers.addLayer(config, ref);
+      }
+    },
+    [getConfigs, mapLeft],
   );
 
   const processHash = useCallback(() => {
@@ -196,27 +237,55 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotati
 
   // Listen for postMessage from parent iframe
   useEffect(() => {
-    function handleMessage(event: MessageEvent) {
+    async function handleMessage(event: MessageEvent) {
       if (!event.data || typeof event.data !== "object") return;
-      if (event.data.type !== "map-command") return;
 
-      const { commands, view } = event.data as {
-        type: string;
-        commands?: LayerCommand[];
-        view?: ViewUpdate;
-      };
-      if (
-        view &&
-        (view.zoom !== undefined || view.center !== undefined || view.bbox !== undefined)
-      ) {
-        applyView(view);
+      if (event.data.type === "map-command") {
+        const { commands, view } = event.data as {
+          type: string;
+          commands?: LayerCommand[];
+          view?: ViewUpdate;
+        };
+        if (
+          view &&
+          (view.zoom !== undefined || view.center !== undefined || view.bbox !== undefined)
+        ) {
+          applyView(view);
+        }
+        if (Array.isArray(commands)) {
+          processCommands(commands);
+        }
+        return;
       }
-      if (Array.isArray(commands)) {
-        processCommands(commands);
+
+      // Host request to open the circular export preview with a given title,
+      // subtitle, and exact set of active layers. Reconcile view + layers
+      // first, then hand title/subtitle to the dialog.
+      if (event.data.type === "open-share") {
+        const { layers, view, title, subtitle } = event.data as {
+          type: string;
+          layers?: string[];
+          view?: ViewUpdate;
+          title?: unknown;
+          subtitle?: unknown;
+        };
+        if (
+          view &&
+          (view.zoom !== undefined || view.center !== undefined || view.bbox !== undefined)
+        ) {
+          applyView(view);
+        }
+        if (Array.isArray(layers)) {
+          await reconcileLeftLayers(layers.filter((l): l is string => typeof l === "string"));
+        }
+        onOpenShare?.({
+          title: typeof title === "string" ? title : undefined,
+          subtitle: typeof subtitle === "string" ? subtitle : undefined,
+        });
       }
     }
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [processCommands, applyView]);
+  }, [processCommands, applyView, reconcileLeftLayers, onOpenShare]);
 }
