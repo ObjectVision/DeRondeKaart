@@ -156,10 +156,10 @@
         <input id="share-layers" type="text" placeholder="Laag-ids, komma-gescheiden" value="gemeente,huisarts">
       </div>
       <div class="buttons">
-        <!-- open-share: shows only the circular map + legend + title overlay. -->
-        <button class="share" onclick="sendOpenShare()">Toon ronde kaart (overlay)</button>
-        <button class="share" onclick="sendOpenShare({ withView: true })">Toon + zoom Limburg</button>
-        <button class="share" onclick="sendOpenShare({ layers: [] })">Toon (geen lagen)</button>
+        <!-- open-circular: replaces the app with only the circular map + legend + title. -->
+        <button class="share" onclick="sendOpenCircular()">Toon ronde kaart</button>
+        <button class="share" onclick="sendOpenCircular({ withView: true })">Toon + zoom Limburg</button>
+        <button class="share" onclick="sendOpenCircular({ layers: [] })">Toon (geen lagen)</button>
         <!-- Standalone embed page: loads ?embed=circular in the embed iframe
              below, then pushes the same layers/title/view into it. -->
         <button class="share" onclick="openStandaloneEmbed()">Open standalone embed →</button>
@@ -176,7 +176,7 @@
       </div>
       <div class="buttons">
         <button class="share" onclick="sendFilterOnly()">Zet gebiedsfilter</button>
-        <button class="share" onclick="sendOpenShare({ withFilter: true })">Ronde kaart + gebiedsfilter</button>
+        <button class="share" onclick="sendOpenCircular({ withFilter: true })">Ronde kaart + gebiedsfilter</button>
         <button class="share" onclick="sendFilterOnly(true)">Wis gebiedsfilter</button>
       </div>
     </div>
@@ -236,11 +236,11 @@
       return filter;
     }
 
-    // Build the open-share message from the current inputs. `opts.layers`
+    // Build the open-circular message from the current inputs. `opts.layers`
     // overrides the input field; `opts.withView` also frames Limburg;
     // `opts.withFilter` attaches the gebiedsfilter.
-    function buildOpenShare(opts = {}) {
-      const message = { type: 'open-share' };
+    function buildOpenCircular(opts = {}) {
+      const message = { type: 'open-circular' };
 
       const title = document.getElementById('share-title').value;
       const subtitle = document.getElementById('share-subtitle').value;
@@ -265,19 +265,19 @@
       log.textContent = `Sent filter: ${JSON.stringify(filter)}`;
     }
 
-    // Show the circular map + legend + title as an overlay inside the running
-    // app (no dialog chrome, no social/QR).
-    function sendOpenShare(opts = {}) {
-      const message = buildOpenShare(opts);
+    // Replace the running app with only the circular map + legend + title (no
+    // map chrome, no dialog/social/QR).
+    function sendOpenCircular(opts = {}) {
+      const message = buildOpenCircular(opts);
       iframe.contentWindow.postMessage(message, '*');
-      log.textContent = `Sent open-share: ${JSON.stringify(message)}`;
+      log.textContent = `Sent open-circular: ${JSON.stringify(message)}`;
     }
 
     // Standalone embed: load ?embed=circular in the second iframe — the whole
     // page boots into only the circular view. Once it posts its map-ready
     // handshake, push the same layers/title/view into it.
     function openStandaloneEmbed() {
-      const message = buildOpenShare({ withView: true });
+      const message = buildOpenCircular({ withView: true });
       embedFrame.style.display = '';
 
       function onReady(event) {

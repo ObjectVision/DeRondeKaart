@@ -10,7 +10,7 @@ import type { ExportLegendItem } from "@/lib/legend-style";
  * The circular export view: the map clipped to a circle with the title/subtitle
  * card top-left and the mini-legend bottom-left — exactly the composition the
  * PNG mirrors. Shared by the "Delen" dialog (editable title/subtitle) and the
- * standalone `?embed=circular` page + `open-share` overlay (fixed display text).
+ * standalone `?embed=circular` page + `open-circular` message (fixed display text).
  *
  * The caller owns the map inputs (entries/hidden/basemap/study/annotations) and
  * the legend items; this component only lays them out around the circle.
