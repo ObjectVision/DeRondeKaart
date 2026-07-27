@@ -167,6 +167,21 @@
     </div>
 
     <div class="group">
+      <h2>Gebiedsfilter (woonzorglimburg)</h2>
+      <div class="fields">
+        <!-- CBS codes (gm_code / wk_code) OR labels ("Weert"). Leave blank to
+             clear a level. Buurt is not in this config's filter.json. -->
+        <input id="filter-gemeente" type="text" placeholder="Gemeente (code of naam)" value="Weert">
+        <input id="filter-wijk" type="text" placeholder="Wijk (code of naam)" value="">
+      </div>
+      <div class="buttons">
+        <button class="share" onclick="sendFilterOnly()">Zet gebiedsfilter</button>
+        <button class="share" onclick="sendOpenShare({ withFilter: true })">Ronde kaart + gebiedsfilter</button>
+        <button class="share" onclick="sendFilterOnly(true)">Wis gebiedsfilter</button>
+      </div>
+    </div>
+
+    <div class="group">
       <h2>Global</h2>
       <div class="buttons">
         <button class="refresh" onclick="send('refresh')">Refresh</button>
@@ -209,8 +224,21 @@
       log.textContent = `Sent view: ${JSON.stringify(view)}`;
     }
 
+    // Build the gebiedsfilter object from the inputs. `clear` empties every
+    // level. Only non-empty levels are included otherwise.
+    function buildFilter(clear = false) {
+      const gemeente = document.getElementById('filter-gemeente').value.trim();
+      const wijk = document.getElementById('filter-wijk').value.trim();
+      if (clear) return { Gemeente: null, Wijk: null };
+      const filter = {};
+      if (gemeente) filter.Gemeente = gemeente;
+      if (wijk) filter.Wijk = wijk;
+      return filter;
+    }
+
     // Build the open-share message from the current inputs. `opts.layers`
-    // overrides the input field; `opts.withView` also frames Limburg.
+    // overrides the input field; `opts.withView` also frames Limburg;
+    // `opts.withFilter` attaches the gebiedsfilter.
     function buildOpenShare(opts = {}) {
       const message = { type: 'open-share' };
 
@@ -225,7 +253,16 @@
         .filter(Boolean);
 
       if (opts.withView) message.view = { zoom: 9, center: [5.7, 51.0] };
+      if (opts.withFilter) message.filter = buildFilter();
       return message;
+    }
+
+    // Set the gebiedsfilter only (via map-command), without touching the
+    // circular view. `clear` empties every level instead.
+    function sendFilterOnly(clear = false) {
+      const filter = buildFilter(clear);
+      iframe.contentWindow.postMessage({ type: 'map-command', filter }, '*');
+      log.textContent = `Sent filter: ${JSON.stringify(filter)}`;
     }
 
     // Show the circular map + legend + title as an overlay inside the running

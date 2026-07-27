@@ -34,6 +34,13 @@ interface UseUrlCommandsOptions {
    * carries title/subtitle straight into the dialog inputs.
    */
   onOpenShare?: (opts: { title?: string; subtitle?: string }) => void;
+  /**
+   * A message carried a `filter` object: set the gebiedsfilter. Keyed by filter
+   * level (filter.json `name`, case-insensitive), valued by CBS code or display
+   * label (null/"" clears the level). Awaited so the selection + fly-to settle
+   * before an `open-share` snapshots the preview.
+   */
+  onSetFilter?: (filter: Record<string, string | null>) => void | Promise<void>;
 }
 
 /** Room ids are UUIDv4 — anything else is rejected (also server-side). */
@@ -107,7 +114,7 @@ function parseCommands(params: URLSearchParams): LayerCommand[] {
   return commands;
 }
 
-export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotationRoom, onOpenShare }: UseUrlCommandsOptions) {
+export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotationRoom, onOpenShare, onSetFilter }: UseUrlCommandsOptions) {
   const configsRef = useRef<LayerConfig[] | null>(null);
   const processedInitialHash = useRef(false);
 
@@ -237,14 +244,23 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotati
 
   // Listen for postMessage from parent iframe
   useEffect(() => {
+    // A `filter` field is a plain object of level→(code|label|null). Any other
+    // shape is ignored.
+    async function applyFilter(filter: unknown) {
+      if (filter && typeof filter === "object" && !Array.isArray(filter)) {
+        await onSetFilter?.(filter as Record<string, string | null>);
+      }
+    }
+
     async function handleMessage(event: MessageEvent) {
       if (!event.data || typeof event.data !== "object") return;
 
       if (event.data.type === "map-command") {
-        const { commands, view } = event.data as {
+        const { commands, view, filter } = event.data as {
           type: string;
           commands?: LayerCommand[];
           view?: ViewUpdate;
+          filter?: unknown;
         };
         if (
           view &&
@@ -255,19 +271,22 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotati
         if (Array.isArray(commands)) {
           processCommands(commands);
         }
+        await applyFilter(filter);
         return;
       }
 
       // Host request to open the circular export preview with a given title,
-      // subtitle, and exact set of active layers. Reconcile view + layers
-      // first, then hand title/subtitle to the dialog.
+      // subtitle, exact set of active layers, and gebiedsfilter. Reconcile
+      // view + layers + filter FIRST, then hand title/subtitle to the dialog
+      // (the preview snapshots at mount — see App.tsx circularView).
       if (event.data.type === "open-share") {
-        const { layers, view, title, subtitle } = event.data as {
+        const { layers, view, title, subtitle, filter } = event.data as {
           type: string;
           layers?: string[];
           view?: ViewUpdate;
           title?: unknown;
           subtitle?: unknown;
+          filter?: unknown;
         };
         if (
           view &&
@@ -278,6 +297,7 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotati
         if (Array.isArray(layers)) {
           await reconcileLeftLayers(layers.filter((l): l is string => typeof l === "string"));
         }
+        await applyFilter(filter);
         onOpenShare?.({
           title: typeof title === "string" ? title : undefined,
           subtitle: typeof subtitle === "string" ? subtitle : undefined,
@@ -287,5 +307,5 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotati
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [processCommands, applyView, reconcileLeftLayers, onOpenShare]);
+  }, [processCommands, applyView, reconcileLeftLayers, onOpenShare, onSetFilter]);
 }

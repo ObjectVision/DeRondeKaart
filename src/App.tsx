@@ -840,6 +840,50 @@ function App({
     [shareEnabled],
   );
 
+  // A host `filter` message: set the gebiedsfilter by level name → CBS code or
+  // display label. Resolves against the loaded filter options and applies
+  // coarse→fine through the same setValue path the dropdowns use (cascade
+  // pruning + fly-to included). Unknown levels/values are warned and skipped.
+  const setFilterFromHost = useCallback((filter: Record<string, string | null>) => {
+    const af = areaFilterRef.current;
+    if (af.entries.length === 0) {
+      console.warn("filter ignored: no gebiedsfilter is configured (filter.json empty)");
+      return;
+    }
+    // Apply coarse→fine (filter.json/entries order) so each level's options are
+    // narrowed by the ancestors already selected in this same pass.
+    for (const entry of af.entries) {
+      const match = Object.keys(filter).find(
+        (level) => level.toLowerCase() === entry.name.toLowerCase(),
+      );
+      if (match === undefined) continue;
+
+      const value = filter[match];
+      if (value === null || value === "") {
+        af.setValue(entry.key, null);
+        continue;
+      }
+
+      const options = af.optionsFor(entry);
+      const resolved =
+        options.find((o) => o.code === value) ??
+        options.find((o) => o.label.toLowerCase() === value.toLowerCase());
+      if (!resolved) {
+        console.warn(
+          `filter: value "${value}" not found for level "${entry.name}" (skipped)`,
+        );
+        continue;
+      }
+      af.setValue(entry.key, resolved.code);
+    }
+
+    for (const level of Object.keys(filter)) {
+      if (!af.entries.some((e) => e.name.toLowerCase() === level.toLowerCase())) {
+        console.warn(`filter: unknown level "${level}" (skipped)`);
+      }
+    }
+  }, []);
+
   // Process URL commands for layer management (only after the left map is
   // ready). In the standalone circular embed the main left map is never
   // mounted, so gate on embedCircular too — layer entries populate without a
@@ -851,6 +895,7 @@ function App({
     applyView,
     onAnnotationRoom: handleAnnotationRoom,
     onOpenShare: openShare,
+    onSetFilter: setFilterFromHost,
   });
 
   // Apply runtime UI-config overrides from an embedding host (Power BI visual).
