@@ -244,6 +244,10 @@ function App({
   annotationListRef.current = annotations.annotations;
   /* eslint-enable react-hooks/refs */
   const restoreTokenRef = useRef(0);
+  // A host `filter` message that arrives before the gebiedsfilter options have
+  // finished loading (areaFilter.entries still empty) is stashed here and
+  // flushed once the options are ready — see the effect below setFilterFromHost.
+  const pendingFilterRef = useRef<Record<string, string | null> | null>(null);
 
   // Everything an annotation restores: filter selections, both sides'
   // (URL-addressable) layer ids + hidden ids, and the camera.
@@ -847,7 +851,11 @@ function App({
   const setFilterFromHost = useCallback((filter: Record<string, string | null>) => {
     const af = areaFilterRef.current;
     if (af.entries.length === 0) {
-      console.warn("filter ignored: no gebiedsfilter is configured (filter.json empty)");
+      // Options not loaded yet (they resolve async after mount, and in embed
+      // mode the map-ready handshake fires immediately). Queue this message and
+      // flush it once entries are ready, so a filter sent right after open is
+      // not silently dropped.
+      pendingFilterRef.current = filter;
       return;
     }
     // Mirror the resulting selection locally: setState is async, so the ref
@@ -910,6 +918,15 @@ function App({
       });
     }
   }, [applyView, initialViewState]);
+
+  // Flush a filter message that arrived before the gebiedsfilter options loaded
+  // (see the queue in setFilterFromHost). Runs when entries become available.
+  useEffect(() => {
+    if (areaFilter.entries.length === 0 || !pendingFilterRef.current) return;
+    const pending = pendingFilterRef.current;
+    pendingFilterRef.current = null;
+    setFilterFromHost(pending);
+  }, [areaFilter.entries, setFilterFromHost]);
 
   // Process URL commands for layer management (only after the left map is
   // ready). In the standalone circular embed the main left map is never
