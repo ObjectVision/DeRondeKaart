@@ -282,6 +282,7 @@ export function ShareDialog({
                 title={title}
                 subtitle={subtitle}
                 mode="edit"
+                size="preview"
                 onTitleChange={onTitleChange}
                 onSubtitleChange={onSubtitleChange}
                 exporting={exporting}

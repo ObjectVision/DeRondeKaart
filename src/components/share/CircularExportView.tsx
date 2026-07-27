@@ -39,6 +39,13 @@ export const CircularExportView = forwardRef<
     onSubtitleChange?: (value: string) => void;
     /** Overlaid over the circle while a PNG export is running (dialog only). */
     exporting?: boolean;
+    /**
+     * "preview" (default): capped at 30rem for the dialog's grid column.
+     * "fill": sized to the largest square that fits the viewport (smaller of
+     * width/height) with a small margin — for the full-bleed circular embed.
+     * Only safe when this view owns the whole `#root` viewport (never the dialog).
+     */
+    size?: "preview" | "fill";
   }
 >(function CircularExportView(
   {
@@ -57,6 +64,7 @@ export const CircularExportView = forwardRef<
     onTitleChange,
     onSubtitleChange,
     exporting,
+    size = "preview",
   },
   ref,
 ) {
@@ -64,7 +72,19 @@ export const CircularExportView = forwardRef<
   const subtitleText = subtitle.trim();
 
   return (
-    <div className="relative mx-auto aspect-square w-full max-w-[30rem]">
+    <div
+      className={
+        size === "fill"
+          ? "relative mx-auto aspect-square"
+          : "relative mx-auto aspect-square w-full max-w-[30rem]"
+      }
+      // Fill: largest square fitting the viewport, ~0.5rem margin per side.
+      style={
+        size === "fill"
+          ? { width: "min(calc(100vw - 1rem), calc(100vh - 1rem))" }
+          : undefined
+      }
+    >
       {/* The map itself, clipped to a circle. */}
       <div className="absolute inset-0 overflow-hidden rounded-full ring-1 ring-gray-200">
         <ExportPreviewMap

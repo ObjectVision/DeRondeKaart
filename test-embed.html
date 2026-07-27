@@ -182,6 +182,25 @@
     </div>
 
     <div class="group">
+      <h2>Circular embed — stepwise filter</h2>
+      <div class="fields">
+        <!-- Codes (gm_code / wk_code / bu_code) OR labels. Buurt needs a Buurt
+             entry in configs/woonzorglimburg/filter.json to resolve. -->
+        <input id="step-gemeente" type="text" placeholder="Gemeente (code of naam)" value="GM0957">
+        <input id="step-wijk" type="text" placeholder="Wijk (code of naam)" value="WK095700">
+        <input id="step-buurt" type="text" placeholder="Buurt (code of naam)" value="BU09570000">
+      </div>
+      <div class="buttons">
+        <!-- Step 0: load the circular embed with the full filter (zooms in). -->
+        <button class="share" onclick="openStepEmbed()">1· Open embed + filter</button>
+        <!-- Each step posts a filter change to the embed iframe. -->
+        <button class="share" onclick="stepRemove('Buurt')">2· Verwijder buurt →wijk</button>
+        <button class="share" onclick="stepRemove('Wijk')">3· Verwijder wijk →gemeente</button>
+        <button class="share" onclick="stepRemove('Gemeente')">4· Verwijder gemeente →start</button>
+      </div>
+    </div>
+
+    <div class="group">
       <h2>Global</h2>
       <div class="buttons">
         <button class="refresh" onclick="send('refresh')">Refresh</button>
@@ -292,6 +311,51 @@
       // (Re)load the embed URL so a fresh map-ready fires even on re-open.
       embedFrame.src = 'http://localhost:5173/?embed=circular';
       log.textContent = 'Loading standalone embed (?embed=circular)…';
+    }
+
+    // ---- Stepwise filter demo against the circular embed iframe ----------
+
+    // Full filter from the step inputs (only non-empty levels).
+    function buildStepFilter() {
+      const filter = {};
+      const gemeente = document.getElementById('step-gemeente').value.trim();
+      const wijk = document.getElementById('step-wijk').value.trim();
+      const buurt = document.getElementById('step-buurt').value.trim();
+      if (gemeente) filter.Gemeente = gemeente;
+      if (wijk) filter.Wijk = wijk;
+      if (buurt) filter.Buurt = buurt;
+      return filter;
+    }
+
+    // Step 1: (re)load ?embed=circular, then push the full filter once the embed
+    // reports ready. The map zooms in to the finest selected level.
+    function openStepEmbed() {
+      const filter = buildStepFilter();
+      embedFrame.style.display = '';
+
+      function onReady(event) {
+        if (event.source !== embedFrame.contentWindow) return;
+        if (!event.data || event.data.type !== 'map-ready') return;
+        window.removeEventListener('message', onReady);
+        embedFrame.contentWindow.postMessage(
+          { type: 'open-circular', layers: ['aandeel_geschikt_2024'], filter },
+          '*'
+        );
+        log.textContent = `Embed ready → open-circular + filter ${JSON.stringify(filter)}`;
+      }
+      window.addEventListener('message', onReady);
+
+      embedFrame.src = 'http://localhost:5173/?embed=circular';
+      log.textContent = 'Loading circular embed for stepwise filter…';
+    }
+
+    // Steps 2-4: remove one level from the embed's filter. Removing the last
+    // level flies back to the app's default view.
+    function stepRemove(level) {
+      if (!embedFrame.contentWindow) return;
+      const filter = { [level]: null };
+      embedFrame.contentWindow.postMessage({ type: 'map-command', filter }, '*');
+      log.textContent = `Embed filter change: ${JSON.stringify(filter)}`;
     }
   </script>
 </body>
