@@ -120,7 +120,7 @@ export function ShareDialog({
   viewState: ViewState;
   /** Collaborative annotation room — carried in the link as `annot`. */
   annotRoomId?: string | null;
-  /** Controlled title/subtitle — lifted to App so a host `open-share` can prefill them. */
+  /** Controlled title/subtitle — lifted to App so a host `open-circular` can prefill them. */
   title: string;
   subtitle: string;
   onTitleChange: (value: string) => void;

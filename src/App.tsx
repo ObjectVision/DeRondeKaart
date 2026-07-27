@@ -103,7 +103,7 @@ function App({
    * Boot straight into the standalone circular-export view (only the circular
    * map + legend + title, no chrome/dialog) — set from the `?embed=circular`
    * URL param for embedding on a webpage. Layers/view/title are then driven by
-   * the existing `cmd`/`layer` URL params and `open-share` messages.
+   * the existing `cmd`/`layer` URL params and `open-circular` messages.
    */
   embedCircular?: boolean;
 }) {
@@ -734,11 +734,11 @@ function App({
   // legend's mapBOnTop); comparison mode previews map A — a circular still
   // can't represent a slider comparison.
   const [shareOpen, setShareOpen] = useState(false);
-  // The bare circular-export overlay (only the circle + legend + title, no
-  // dialog chrome). Driven by `open-share`; always on in `embedCircular` mode.
+  // The bare circular-only view (only the circle + legend + title, no map
+  // chrome). Driven by the `open-circular` message; always on in `embedCircular`.
   const [circularOpen, setCircularOpen] = useState(false);
   // Export title/subtitle live here (not inside ShareDialog) so a host
-  // `open-share` message can prefill them — see openShare below.
+  // `open-circular` message can prefill them — see openCircular below.
   const [shareTitle, setShareTitle] = useState("");
   const [shareSubtitle, setShareSubtitle] = useState("");
 
@@ -823,14 +823,14 @@ function App({
     [annotationsEnabled, annotationActivate, startSession],
   );
 
-  // A host `open-share` message: prefill the export title/subtitle and show the
-  // bare circular-export overlay — only the circle + legend + title, no dialog
-  // chrome. (No-op when sharing is disabled here.) The layers/view are already
-  // reconciled by useUrlCommands before this fires.
-  const openShare = useCallback(
+  // A host `open-circular` message: prefill the export title/subtitle and show
+  // the bare circular-only view — only the circle + legend + title, no map
+  // chrome. (No-op when sharing is disabled here.) The layers/view/filter are
+  // already reconciled by useUrlCommands before this fires.
+  const openCircular = useCallback(
     ({ title, subtitle }: { title?: string; subtitle?: string }) => {
       if (!shareEnabled) {
-        console.warn("open-share ignored: sharing is disabled in this configuration");
+        console.warn("open-circular ignored: sharing is disabled in this configuration");
         return;
       }
       if (title !== undefined) setShareTitle(title);
@@ -894,7 +894,7 @@ function App({
     ready: mapLeftReady || embedCircular,
     applyView,
     onAnnotationRoom: handleAnnotationRoom,
-    onOpenShare: openShare,
+    onOpenCircular: openCircular,
     onSetFilter: setFilterFromHost,
   });
 
@@ -1112,8 +1112,8 @@ function App({
   );
 
   // The reusable circular map + legend + title, in fixed-text display mode.
-  // Shared by the standalone `?embed=circular` page and the `open-share`
-  // overlay. Keyed on the shown layer set so it re-seeds from the current
+  // Shared by the standalone `?embed=circular` page and the `open-circular`
+  // message. Keyed on the shown layer set so it re-seeds from the current
   // state each time it opens (the preview snapshots at mount — see
   // ExportPreviewMap).
   const circularView = (
@@ -1134,11 +1134,28 @@ function App({
     />
   );
 
-  // Standalone embed: only the circular view, centered on a white page — the
-  // whole app boots into this for `?embed=circular`.
-  if (embedCircular) {
+  // Circular-only view: NOTHING but the circle + legend + title, centered on a
+  // white page — no map chrome, toolbar, sidebar or backdrop. Rendered both for
+  // the standalone `?embed=circular` page and when a host `open-circular`
+  // message requests it (the message-driven case gets a close button to return
+  // to the full app). This replaces the whole app rather than overlaying it.
+  const showCircularOnly = embedCircular || (shareEnabled && circularOpen);
+  if (showCircularOnly) {
     return (
-      <div className="flex h-full w-full items-center justify-center bg-white p-4">
+      <div className="relative flex h-full w-full items-center justify-center bg-white p-4">
+        {/* No close button in standalone embed mode — it's the whole page. */}
+        {!embedCircular && (
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            className="absolute right-3 top-3 z-10"
+            onClick={() => setCircularOpen(false)}
+            title="Sluiten"
+            aria-label="Sluiten"
+          >
+            <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+          </Button>
+        )}
         <div className="w-full max-w-[30rem]">{circularView}</div>
       </div>
     );
@@ -1295,33 +1312,6 @@ function App({
           onTitleChange={setShareTitle}
           onSubtitleChange={setShareSubtitle}
         />
-      )}
-
-      {/* Circular-export overlay — only the circle + legend + title (no dialog
-          chrome), shown when a host `open-share` message requests the preview.
-          Click the backdrop or the close button to dismiss. */}
-      {shareEnabled && circularOpen && (
-        <div
-          className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setCircularOpen(false)}
-        >
-          <div
-            className="relative w-full max-w-[32rem] rounded-2xl bg-white p-4 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              className="absolute right-2 top-2 z-10"
-              onClick={() => setCircularOpen(false)}
-              title="Sluiten"
-              aria-label="Sluiten"
-            >
-              <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
-            </Button>
-            {circularView}
-          </div>
-        </div>
       )}
 
       {/* Analytics panel — right side; opened by selecting a layer in the

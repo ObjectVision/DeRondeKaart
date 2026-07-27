@@ -29,16 +29,16 @@ interface UseUrlCommandsOptions {
   /** A share link carried an `annot` room id — join that collab session. */
   onAnnotationRoom?: (roomId: string) => void;
   /**
-   * An `open-share` message asked to open the circular export preview. The
-   * layers/view have already been reconciled by the time this fires; the host
-   * carries title/subtitle straight into the dialog inputs.
+   * An `open-circular` message asked to show the circular-only view. The
+   * layers/view/filter have already been reconciled by the time this fires; the
+   * host carries title/subtitle straight into the view.
    */
-  onOpenShare?: (opts: { title?: string; subtitle?: string }) => void;
+  onOpenCircular?: (opts: { title?: string; subtitle?: string }) => void;
   /**
    * A message carried a `filter` object: set the gebiedsfilter. Keyed by filter
    * level (filter.json `name`, case-insensitive), valued by CBS code or display
    * label (null/"" clears the level). Awaited so the selection + fly-to settle
-   * before an `open-share` snapshots the preview.
+   * before an `open-circular` snapshots the preview.
    */
   onSetFilter?: (filter: Record<string, string | null>) => void | Promise<void>;
 }
@@ -114,7 +114,7 @@ function parseCommands(params: URLSearchParams): LayerCommand[] {
   return commands;
 }
 
-export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotationRoom, onOpenShare, onSetFilter }: UseUrlCommandsOptions) {
+export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotationRoom, onOpenCircular, onSetFilter }: UseUrlCommandsOptions) {
   const configsRef = useRef<LayerConfig[] | null>(null);
   const processedInitialHash = useRef(false);
 
@@ -166,7 +166,7 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotati
   // Reconcile the LEFT map to exactly `layerIds`: add the missing ones, remove
   // the extra url-addressable ones. In-memory embed datasets (Power BI
   // `map-data`) are non-url-addressable and left untouched, so a host that
-  // pushed its own data doesn't get it clobbered by an open-share request.
+  // pushed its own data doesn't get it clobbered by an open-circular request.
   const reconcileLeftLayers = useCallback(
     async (layerIds: string[]) => {
       const configs = await getConfigs();
@@ -175,7 +175,7 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotati
       const desired = new Set<string>();
       for (const id of layerIds) {
         if (getLayerConfigById(configs, id)) desired.add(id);
-        else console.warn(`open-share: layer "${id}" not found in layers.json`);
+        else console.warn(`open-circular: layer "${id}" not found in layers.json`);
       }
 
       const present = new Set(mapLeft.layers.layerEntries.map((e) => e.config.id));
@@ -275,11 +275,11 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotati
         return;
       }
 
-      // Host request to open the circular export preview with a given title,
+      // Host request to show the circular-only view with a given title,
       // subtitle, exact set of active layers, and gebiedsfilter. Reconcile
-      // view + layers + filter FIRST, then hand title/subtitle to the dialog
+      // view + layers + filter FIRST, then hand title/subtitle to the view
       // (the preview snapshots at mount — see App.tsx circularView).
-      if (event.data.type === "open-share") {
+      if (event.data.type === "open-circular") {
         const { layers, view, title, subtitle, filter } = event.data as {
           type: string;
           layers?: string[];
@@ -298,7 +298,7 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotati
           await reconcileLeftLayers(layers.filter((l): l is string => typeof l === "string"));
         }
         await applyFilter(filter);
-        onOpenShare?.({
+        onOpenCircular?.({
           title: typeof title === "string" ? title : undefined,
           subtitle: typeof subtitle === "string" ? subtitle : undefined,
         });
@@ -307,5 +307,5 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotati
 
     window.addEventListener("message", handleMessage);
     return () => window.removeEventListener("message", handleMessage);
-  }, [processCommands, applyView, reconcileLeftLayers, onOpenShare, onSetFilter]);
+  }, [processCommands, applyView, reconcileLeftLayers, onOpenCircular, onSetFilter]);
 }
