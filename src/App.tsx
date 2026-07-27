@@ -850,6 +850,12 @@ function App({
       console.warn("filter ignored: no gebiedsfilter is configured (filter.json empty)");
       return;
     }
+    // Mirror the resulting selection locally: setState is async, so the ref
+    // still holds the pre-commit value this tick. Start from the current
+    // selection and track what each applied level ends up as, so we can tell
+    // whether ANY level remains selected after this message (see home-fly).
+    const selectedAfter = new Map(af.selections);
+
     // Apply coarse→fine (filter.json/entries order) so each level's options are
     // narrowed by the ancestors already selected in this same pass.
     for (const entry of af.entries) {
@@ -861,6 +867,12 @@ function App({
       const value = filter[match];
       if (value === null || value === "") {
         af.setValue(entry.key, null);
+        selectedAfter.set(entry.key, new Set());
+        // setValue also clears finer levels (cascade prune) — mirror that.
+        const idx = af.entries.indexOf(entry);
+        for (let i = idx + 1; i < af.entries.length; i++) {
+          selectedAfter.set(af.entries[i].key, new Set());
+        }
         continue;
       }
 
@@ -875,6 +887,7 @@ function App({
         continue;
       }
       af.setValue(entry.key, resolved.code);
+      selectedAfter.set(entry.key, new Set([resolved.code]));
     }
 
     for (const level of Object.keys(filter)) {
@@ -882,7 +895,21 @@ function App({
         console.warn(`filter: unknown level "${level}" (skipped)`);
       }
     }
-  }, []);
+
+    // When this message leaves NO level selected (the last filter was cleared),
+    // fly back to the configured default view. flyToSelection is a no-op with an
+    // empty selection, so without this the camera would stay zoomed in on the
+    // area just cleared. applyView sets the view directly, winning over
+    // setValue's own no-op fly-to. (Host-driven only — dropdown clears elsewhere
+    // keep their stay-put behavior.)
+    const anySelected = [...selectedAfter.values()].some((s) => s.size > 0);
+    if (!anySelected) {
+      applyView({
+        center: [initialViewState.longitude, initialViewState.latitude],
+        zoom: initialViewState.zoom,
+      });
+    }
+  }, [applyView, initialViewState]);
 
   // Process URL commands for layer management (only after the left map is
   // ready). In the standalone circular embed the main left map is never

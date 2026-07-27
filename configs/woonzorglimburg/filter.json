@@ -14,5 +14,13 @@
     "label": "statnaam",
     "placeholder": "Alle wijken",
     "dependsOn": ["Gemeente"]
+  },
+  {
+    "name": "Buurt",
+    "source": "https://data.woonzorglimburg.nl/parquet/cbsbuurt2026.parquet",
+    "key": "bu_code",
+    "label": "statnaam",
+    "placeholder": "Alle buurten",
+    "dependsOn": ["Gemeente", "Wijk"]
   }
 ]
