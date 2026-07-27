@@ -131,6 +131,24 @@ export const ExportPreviewMap = forwardRef<
     setViewState((prev) => ({ ...prev, ...evt.viewState, pitch: 0, bearing: 0 }));
   }, []);
 
+  // Follow externally driven view changes. The preview seeds its own viewState
+  // at mount (so user pan/zoom is local), but when the host reframes the map —
+  // e.g. a gebiedsfilter fly-to arriving via `open-circular`/`map-command`
+  // after mount — App feeds the new camera in through initialViewState. Adopt
+  // it so the circle tracks the filter instead of staying on the mount frame.
+  const lastInitialRef = useRef(initialViewState);
+  useEffect(() => {
+    if (
+      initialViewState.longitude === lastInitialRef.current.longitude &&
+      initialViewState.latitude === lastInitialRef.current.latitude &&
+      initialViewState.zoom === lastInitialRef.current.zoom
+    ) {
+      return;
+    }
+    lastInitialRef.current = initialViewState;
+    setViewState((prev) => ({ ...prev, ...initialViewState }));
+  }, [initialViewState]);
+
   // Annotations on the export: own layer instances (deck Layers can't be
   // shared across overlays), static view — no draft, selection, or peers.
   const annotationList = annotations ?? [];
