@@ -1175,6 +1175,7 @@ function App({
       title={shareTitle}
       subtitle={shareSubtitle}
       mode="display"
+      size="fill"
     />
   );
 
@@ -1186,7 +1187,7 @@ function App({
   const showCircularOnly = embedCircular || (shareEnabled && circularOpen);
   if (showCircularOnly) {
     return (
-      <div className="relative flex h-full w-full items-center justify-center bg-white p-4">
+      <div className="relative flex h-full w-full items-center justify-center bg-white">
         {/* No close button in standalone embed mode — it's the whole page. */}
         {!embedCircular && (
           <Button
@@ -1200,7 +1201,8 @@ function App({
             <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
           </Button>
         )}
-        <div className="w-full max-w-[30rem]">{circularView}</div>
+        {/* size="fill" sizes the circle to the viewport itself — no width cap here. */}
+        {circularView}
       </div>
     );
   }
