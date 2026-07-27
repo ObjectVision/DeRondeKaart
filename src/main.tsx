@@ -6,9 +6,14 @@ import { loadMapConfig, toInitialViewState } from '@/config/map-config'
 
 async function bootstrap() {
   const mapConfig = await loadMapConfig()
+  // `?embed=circular` boots straight into the standalone circular-export view
+  // (only the circle + legend + title) for embedding on a webpage.
+  const embedCircular =
+    new URLSearchParams(window.location.search).get('embed') === 'circular'
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <App
+        embedCircular={embedCircular}
         initialViewState={toInitialViewState(mapConfig)}
         studyAreaId={mapConfig.studyarea}
         streetviewEnabled={mapConfig.streetview ?? false}

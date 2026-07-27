@@ -4,7 +4,8 @@ import { DialogRoot, DialogContent, DialogTitle, DialogDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
-import { ExportPreviewMap, type ExportPreviewHandle } from "@/components/share/ExportPreviewMap";
+import type { ExportPreviewHandle } from "@/components/share/ExportPreviewMap";
+import { CircularExportView } from "@/components/share/CircularExportView";
 import type { FilteredStudyArea } from "@/hooks/use-filtered-study-area";
 import type { Annotation } from "@/types/annotation";
 import { SocialIcon, type SocialPlatform } from "@/components/share/social-icons";
@@ -93,6 +94,10 @@ export function ShareDialog({
   annotations,
   viewState,
   annotRoomId,
+  title,
+  subtitle,
+  onTitleChange,
+  onSubtitleChange,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -115,10 +120,13 @@ export function ShareDialog({
   viewState: ViewState;
   /** Collaborative annotation room — carried in the link as `annot`. */
   annotRoomId?: string | null;
+  /** Controlled title/subtitle — lifted to App so a host `open-share` can prefill them. */
+  title: string;
+  subtitle: string;
+  onTitleChange: (value: string) => void;
+  onSubtitleChange: (value: string) => void;
 }) {
   const previewRef = useRef<ExportPreviewHandle>(null);
-  const [title, setTitle] = useState("");
-  const [subtitle, setSubtitle] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
@@ -230,6 +238,7 @@ export function ShareDialog({
       setExporting(false);
     }
   }, [exporting, title, subtitle, legendItems, annotations]);
+  // (title & subtitle are props now — both already listed above.)
 
   return (
     <DialogRoot open={open} onOpenChange={onOpenChange}>
@@ -256,79 +265,28 @@ export function ShareDialog({
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
           {/* Left: circular preview */}
           <div className="flex min-w-0 flex-col gap-3">
-            <div className="relative mx-auto aspect-square w-full max-w-[30rem]">
-              {/* The map itself, clipped to a circle. Mounted only while the
-                  dialog is open — a fresh preview instance per open. */}
-              <div className="absolute inset-0 overflow-hidden rounded-full ring-1 ring-gray-200">
-                {open && (
-                  <ExportPreviewMap
-                    ref={previewRef}
-                    entries={entries}
-                    hiddenIds={hiddenIds}
-                    hiddenRules={hiddenRules}
-                    basemapId={basemapId}
-                    studyAreaId={studyAreaId}
-                    filteredStudy={filteredStudy}
-                    annotations={annotations}
-                    initialViewState={viewState}
-                  />
-                )}
-                {exporting && (
-                  <div className="absolute inset-0 z-20 flex items-center justify-center rounded-full bg-white/70">
-                    <span className="text-sm font-medium text-gray-700">
-                      Bezig met exporteren…
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Title / subtitle inputs — composited into the PNG top-left. */}
-              <div className="absolute left-0 top-4 z-10 flex w-64 max-w-[70%] flex-col gap-1">
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Titel"
-                  className="rounded-lg bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-md outline-none backdrop-blur-sm placeholder:font-normal placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
-                />
-                <input
-                  type="text"
-                  value={subtitle}
-                  onChange={(e) => setSubtitle(e.target.value)}
-                  placeholder="Ondertitel (optioneel)"
-                  className="rounded-lg bg-white/95 px-3 py-1 text-xs italic text-gray-600 shadow-md outline-none backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
-                />
-              </div>
-
-              {/* Mini legend — mirrors the PNG: anchored to the square's
-                  bottom-left corner, flush with the circle's left/bottom
-                  tangent points. */}
-              {legendItems.length > 0 && (
-                <div className="absolute bottom-0 left-0 z-10 max-w-[60%] rounded-lg bg-white/95 p-2 shadow-md backdrop-blur-sm">
-                  <ul className="flex flex-col gap-0.5">
-                    {legendItems.map((item, i) => (
-                      <li key={i} className="flex items-center gap-1.5">
-                        {!item.heading && (
-                          <span
-                            className="inline-block h-2.5 w-2.5 flex-shrink-0 border border-gray-300"
-                            style={{ backgroundColor: item.color }}
-                          />
-                        )}
-                        <span
-                          className={
-                            item.heading
-                              ? "text-xs font-semibold text-gray-800"
-                              : "truncate text-xs text-gray-700"
-                          }
-                        >
-                          {item.label}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
+            {/* Circular map + title/subtitle + legend. Mounted only while the
+                dialog is open — a fresh preview instance per open. */}
+            {open && (
+              <CircularExportView
+                ref={previewRef}
+                entries={entries}
+                hiddenIds={hiddenIds}
+                hiddenRules={hiddenRules}
+                basemapId={basemapId}
+                studyAreaId={studyAreaId}
+                filteredStudy={filteredStudy}
+                annotations={annotations}
+                initialViewState={viewState}
+                legendItems={legendItems}
+                title={title}
+                subtitle={subtitle}
+                mode="edit"
+                onTitleChange={onTitleChange}
+                onSubtitleChange={onSubtitleChange}
+                exporting={exporting}
+              />
+            )}
 
             {/* Hint bar */}
             <div className="mx-auto w-full max-w-[30rem] rounded-lg bg-blue-50 px-3 py-2 text-xs text-blue-900">
