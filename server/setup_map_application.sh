@@ -250,7 +250,14 @@ fi
 # instance carries this block. Mirrors the /sa-tiles Vite dev proxy.
 if [ "$CONFIG_PROJECT" = "startanalyse2026" ]; then
   SA_TILES_BLOCK="    location /sa-tiles/ {
-        proxy_pass https://startanalyse2025.files.mapgallery.io/;
+        # Resolve the tile CDN at request time (variable proxy_pass + resolver)
+        # so a transient DNS failure cannot fail nginx startup/-t and take down
+        # every site on this host. A literal hostname is resolved at load time,
+        # so a CDN DNS blip during an nginx restart would 'emerg' the whole box.
+        resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;
+        set \$sa_tiles_host startanalyse2025.files.mapgallery.io;
+        rewrite ^/sa-tiles/(.*)\$ /\$1 break;
+        proxy_pass https://\$sa_tiles_host;
         proxy_set_header Host startanalyse2025.files.mapgallery.io;
         proxy_ssl_server_name on;
         proxy_hide_header Access-Control-Allow-Origin;
