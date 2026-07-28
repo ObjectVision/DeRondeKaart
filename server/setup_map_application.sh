@@ -300,12 +300,14 @@ $FRAME_HEADER
     add_header Access-Control-Allow-Origin "*" always;
 
     # --- Compression (gzip + brotli) ---
-    # Text types compress on the fly; the big wins are WASM (parquet readers,
-    # ~14 MB raw) and the icon font, previously served uncompressed. Requires
-    # the brotli modules (installed by ensure_base_stack in common.sh);
-    # brotli_static also serves any precompressed .br emitted by the build.
+    # Text types compress on the fly; the big wins are WASM (parquet reader) and
+    # the icon font, previously served uncompressed. Requires the brotli modules
+    # (installed by ensure_base_stack in common.sh). brotli_static/gzip_static
+    # serve the precompressed .br/.gz the build emits (brotli q11 — better than
+    # the on-the-fly level below), falling back to live compression otherwise.
     gzip on;
     gzip_vary on;
+    gzip_static on;
     gzip_comp_level 6;
     gzip_min_length 1024;
     gzip_types

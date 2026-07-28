@@ -5,6 +5,7 @@ import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { subsetIconFont } from './scripts/subset-icon-font'
+import { precompressDir } from './scripts/precompress-dist'
 
 /**
  * Overlay a project-specific config directory (`configs/<slug>/`) on top of the
@@ -85,13 +86,37 @@ function configOverlay(project: string | undefined): Plugin {
   }
 }
 
+/**
+ * After the bundle is written, precompress assets to .br (brotli q11) + .gz so
+ * nginx serves them via brotli_static/gzip_static instead of compressing on the
+ * fly at ~q5. Build-only; skipped in dev.
+ */
+function precompressDist(): Plugin {
+  let outDir = "dist"
+  return {
+    name: "precompress-dist",
+    apply: "build",
+    configResolved(config) {
+      outDir = config.build.outDir
+    },
+    closeBundle() {
+      const { files, rawTotal, brTotal } = precompressDir(outDir)
+      const kb = (n: number) => (n / 1024).toFixed(0)
+      this.info?.(
+        `precompress-dist: ${files} assets → brotli q11 ` +
+          `(${kb(rawTotal)}KB → ${kb(brTotal)}KB) + gzip 9`,
+      )
+    },
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, __dirname, "VITE_")
   const project = env.VITE_CONFIG_PROJECT || undefined
 
   return {
-    plugins: [react(), tailwindcss(), configOverlay(project), subsetIconFont(__dirname)],
+    plugins: [react(), tailwindcss(), configOverlay(project), subsetIconFont(__dirname), precompressDist()],
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
