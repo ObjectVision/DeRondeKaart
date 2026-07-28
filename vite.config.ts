@@ -126,10 +126,11 @@ export default defineConfig(({ mode }) => {
           // Split the heavy geo/vendor stacks into parallel-loadable, separately
           // cacheable chunks instead of one monolithic bundle.
           manualChunks(id: string) {
+            // The parquet-wasm reader is vendored under src/vendor/ (slim build),
+            // so match it before the node_modules early-return below.
+            if (id.includes("vendor/parquet-wasm")) return "vendor-parquet"
             if (!id.includes("node_modules")) return
-            if (id.includes("parquet-wasm") || id.includes("geoparquet-wasm")) {
-              return "vendor-parquet"
-            }
+            if (id.includes("parquet-wasm")) return "vendor-parquet"
             if (id.includes("apache-arrow")) return "vendor-arrow"
             if (id.includes("deck.gl")) return "vendor-deck"
             if (id.includes("maplibre") || id.includes("react-map-gl")) {
