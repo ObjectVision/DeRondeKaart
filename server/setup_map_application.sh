@@ -299,9 +299,45 @@ $FRAME_HEADER
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
     add_header Access-Control-Allow-Origin "*" always;
 
+    # --- Compression (gzip + brotli) ---
+    # Text types compress on the fly; the big wins are WASM (parquet readers,
+    # ~14 MB raw) and the icon font, previously served uncompressed. Requires
+    # the brotli modules (installed by ensure_base_stack in common.sh);
+    # brotli_static also serves any precompressed .br emitted by the build.
     gzip on;
-    gzip_types text/plain text/css application/javascript application/json image/svg+xml;
+    gzip_vary on;
+    gzip_comp_level 6;
     gzip_min_length 1024;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        application/javascript
+        application/json
+        application/wasm
+        application/xml
+        image/svg+xml
+        font/ttf
+        font/otf
+        font/woff
+        font/woff2;
+
+    brotli on;
+    brotli_comp_level 5;
+    brotli_static on;
+    brotli_types
+        text/plain
+        text/css
+        text/xml
+        application/javascript
+        application/json
+        application/wasm
+        application/xml
+        image/svg+xml
+        font/ttf
+        font/otf
+        font/woff
+        font/woff2;
 }
 EOF
 nginx_enable_site "$SLUG"
