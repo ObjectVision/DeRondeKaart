@@ -5,7 +5,6 @@ import {
   loadLayerConfigs,
   getLayerConfigById,
   loadParquetBatches,
-  loadGeoParquetBatches,
   loadArrowBatches,
   createGeoArrowLayers,
 } from "@/layers";
@@ -62,13 +61,11 @@ export function useStudyAreaLayer(studyAreaId: string | undefined): Layer[] {
 
         if (config.format === "parquet") {
           await loadParquetBatches(config.source, onBatch);
-        } else if (config.format === "geoparquet") {
-          await loadGeoParquetBatches(config.source, onBatch);
         } else if (config.format === "geoarrow") {
           await loadArrowBatches(config.source, onBatch);
         } else {
           console.warn(
-            `map.json: studyarea "${studyAreaId}" has unsupported format "${config.format}" (expected geoparquet/parquet/geoarrow)`,
+            `map.json: studyarea "${studyAreaId}" has unsupported format "${config.format}" (expected parquet/geoarrow)`,
           );
         }
       } catch (err) {

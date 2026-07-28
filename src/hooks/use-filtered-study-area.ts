@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { Layer } from "@deck.gl/core";
 import { GeoJsonLayer } from "@deck.gl/layers";
 import type { Feature, MultiPolygon, Polygon, Position } from "geojson";
-import { loadGeoParquetBatches } from "@/layers";
+import { loadParquetBatches } from "@/layers";
 import { extendRowBbox, rowGeometryToGeoJson, type BBox } from "@/layers/box-filter";
 import type { AreaFilterState } from "@/hooks/use-area-filter";
 
@@ -66,7 +66,7 @@ function outerRings(geometry: Polygon | MultiPolygon): Position[][] {
  * Build the {@link FilteredStudyArea} for the FINEST gebiedsfilter level with
  * a selection, or `null` when nothing is selected (the caller then falls back
  * to the configured studyarea layers). The geometry comes from the filter's
- * own geoparquet table, already cached by the option loading.
+ * own parquet table, already cached by the option loading.
  */
 export function useFilteredStudyArea(areaFilter: AreaFilterState): FilteredStudyArea | null {
   const { entries, selections } = areaFilter;
@@ -97,8 +97,8 @@ export function useFilteredStudyArea(areaFilter: AreaFilterState): FilteredStudy
     const { entry, codes, token } = finest;
     (async () => {
       try {
-        // Cached by loadGeoParquetBatches — no refetch after the options load.
-        const table = await loadGeoParquetBatches(entry.source, () => {});
+        // Cached by loadParquetBatches — no refetch after the options load.
+        const table = await loadParquetBatches(entry.source, () => {});
         const codeCol = table.getChild(entry.key);
         if (!codeCol) return;
 

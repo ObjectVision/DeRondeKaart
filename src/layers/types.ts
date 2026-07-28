@@ -5,7 +5,7 @@ import type { FeatureCollection } from "geojson";
  * (e.g. pushed by the Power BI visual via postMessage) instead of fetched from
  * `source`. It is not valid in layers.json.
  */
-export type LayerFormat = "geoarrow" | "geoparquet" | "parquet" | "mvt" | "cog" | "geojson";
+export type LayerFormat = "geoarrow" | "parquet" | "mvt" | "cog" | "geojson";
 
 export type GeometryType = "point" | "line" | "polygon";
 

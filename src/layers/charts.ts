@@ -6,7 +6,7 @@
 import type { ChartValueFormat, LayerConfig } from "./types";
 
 /** Formats whose attribute table can feed the analytics panel. */
-const CHART_FORMATS = ["geoarrow", "geoparquet", "parquet"];
+const CHART_FORMATS = ["geoarrow", "parquet"];
 
 /** Can this layer open the analytics panel? */
 export function isChartEligible(config: LayerConfig): boolean {

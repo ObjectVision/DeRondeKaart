@@ -1,27 +1,16 @@
 import { tableFromIPC, Table } from "apache-arrow";
-import initGeoParquet, {
-  readGeoParquet,
-} from "@geoarrow/geoparquet-wasm/esm";
 import initParquet, { readParquet, readParquetStream } from "parquet-wasm";
 import { loadTableCached } from "./table-cache";
 
 // Memoize the WASM init PROMISE, not a boolean. wasm-bindgen's __wbg_init only
 // sets its internal guard AFTER the fetch+compile resolves, so a boolean flag
 // set after `await init…()` lets concurrent callers each start their own
-// download. At startup several geoparquet loads fire at once (use-area-filter
+// download. At startup several parquet loads fire at once (use-area-filter
 // loads every filter level in one Promise.all, plus the study area and initial
-// layers), so the un-deduped init fetched the ~1.75 MB WASM once per caller.
+// layers), so the un-deduped init fetched the ~1.6 MB WASM once per caller.
 // Sharing one in-flight promise means exactly one download per session; on
 // failure the memo is reset so a later load can retry (mirrors table-cache).
-let geoParquetInit: Promise<unknown> | null = null;
 let parquetInit: Promise<unknown> | null = null;
-
-function ensureGeoParquetWasmInit(): Promise<unknown> {
-  return (geoParquetInit ??= initGeoParquet().catch((err) => {
-    geoParquetInit = null;
-    throw err;
-  }));
-}
 
 function ensureParquetWasmInit(): Promise<unknown> {
   return (parquetInit ??= initParquet().catch((err) => {
@@ -50,39 +39,9 @@ function emitBatches(arrowTable: Table, onBatch: BatchCallback) {
 }
 
 /**
- * Loads a GeoParquet file (WKB-encoded geometry) and converts geometries to
- * native GeoArrow encoding via @geoarrow/geoparquet-wasm.
- */
-export function loadGeoParquetBatches(
-  url: string,
-  onBatch: BatchCallback,
-): Promise<Table> {
-  return loadTableCached(url, (cb) => loadGeoParquetBatchesUncached(url, cb), onBatch);
-}
-
-async function loadGeoParquetBatchesUncached(
-  url: string,
-  onBatch: BatchCallback,
-): Promise<Table> {
-  await ensureGeoParquetWasmInit();
-
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch geoparquet file: ${response.statusText}`);
-  }
-
-  const buffer = await response.arrayBuffer();
-  const wasmTable = readGeoParquet(new Uint8Array(buffer));
-  const arrowTable = tableFromIPC(wasmTable.intoIPCStream());
-
-  await emitBatches(arrowTable, onBatch);
-  return arrowTable;
-}
-
-/**
- * Loads a Parquet file whose geometry column is already stored using GeoArrow
- * encoding (not WKB). Read directly with parquet-wasm — no geometry conversion
- * is performed. See https://github.com/geoarrow/deck.gl-geoarrow#parquet.
+ * Loads a Parquet file whose geometry column is stored using GeoArrow encoding.
+ * Read directly with parquet-wasm — no geometry conversion is performed. See
+ * https://github.com/geoarrow/deck.gl-geoarrow#parquet.
  *
  * Streams record batches over HTTP Range requests (206 Partial Content):
  * `readParquetStream` reads the footer, then fetches column chunks on demand,
@@ -91,9 +50,8 @@ async function loadGeoParquetBatchesUncached(
  * buffering the whole file in memory.
  *
  * Falls back to the whole-file `readParquet` path if streaming throws (e.g. a
- * server without range support). Unlike the geoparquet WKB reader, parquet-wasm
- * stream errors surface through the normal promise/stream reject path, so this
- * fallback is reliably reached.
+ * server without range support): parquet-wasm stream errors surface through the
+ * normal promise/stream reject path, so this fallback is reliably reached.
  */
 export function loadParquetBatches(
   url: string,

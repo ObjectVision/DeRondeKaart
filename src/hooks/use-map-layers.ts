@@ -6,7 +6,6 @@ import { setColorFunction } from "@geomatico/maplibre-cog-protocol";
 import { anchorForConfig } from "@/components/map/MapView";
 import {
   loadParquetBatches,
-  loadGeoParquetBatches,
   loadArrowBatches,
   createGeoArrowLayers,
   createGeoJsonLayers,
@@ -97,8 +96,6 @@ export function useMapLayers() {
       };
       if (config.format === "parquet") {
         await loadParquetBatches(config.source, onBatch);
-      } else if (config.format === "geoparquet") {
-        await loadGeoParquetBatches(config.source, onBatch);
       } else if (config.format === "geoarrow") {
         await loadArrowBatches(config.source, onBatch);
       } else if (config.format === "mvt") {
