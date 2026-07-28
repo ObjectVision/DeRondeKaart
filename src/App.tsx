@@ -1212,12 +1212,16 @@ function App({
 
   // The reusable circular map + legend + title, in fixed-text display mode.
   // Shared by the standalone `?embed=circular` page and the `open-circular`
-  // message. Keyed on the shown layer set so it re-seeds from the current
-  // state each time it opens (the preview snapshots at mount — see
-  // ExportPreviewMap).
+  // message.
+  //
+  // Deliberately NOT keyed on the layer set: a key change remounts the whole
+  // subtree, which tears down the MapLibre instance and refetches the basemap,
+  // sprites and tiles on every layer switch. The point of the postMessage API is
+  // that swapping layers adds/removes just those layers, so ExportPreviewMap
+  // reconciles its own layer set from `entries` instead (and adopts camera
+  // changes through initialViewState). The map instance is long-lived.
   const circularView = (
     <CircularExportView
-      key={shareSide.layerEntries.map((e) => e.config.id).join(",")}
       entries={shareSide.layerEntries}
       hiddenIds={shareSide.hiddenIds}
       hiddenRules={shareSide.hiddenRules}

@@ -71,9 +71,13 @@ export const ExportPreviewMap = forwardRef<
   const filteredStudyLayers = useFilteredStudyAreaLayers(filteredStudy ?? null, "export");
   const mapHandle = useRef<MapViewHandle>(null);
   const [viewState, setViewState] = useState<ViewState>(initialViewState);
-  // The dialog mounts a fresh instance per open, so replay-once refs reset
-  // naturally; they only guard against StrictMode's double effect run.
-  const didReplay = useRef(false);
+  // Bumped per reconcile run so a superseded (StrictMode double-invoke, or a
+  // fast layer switch) run stops applying mid-loop. See the effect below.
+  const replayGeneration = useRef(0);
+  // Layer ids this instance has added. Tracked here rather than read back from
+  // `layers.layerEntries` because addLayer's state commit is async — within one
+  // synchronous reconcile pass the hook's entries are still stale.
+  const presentIdsRef = useRef<Set<string>>(new Set());
 
   useImperativeHandle(
     ref,
@@ -84,35 +88,70 @@ export const ExportPreviewMap = forwardRef<
     [],
   );
 
-  // Replay the main map's entries into this instance. Sequential per layer:
-  // addLayer resolves after all batches are loaded, so the hide that follows
-  // sees every deck child layer. MVT/COG adds no-op until the map exists —
-  // handleLabelsReady re-syncs them below.
-  useEffect(() => {
-    if (didReplay.current) return;
-    didReplay.current = true;
+  // Reconcile this instance's layers to match `entries`. Runs on mount AND
+  // whenever the source layer set changes — a host `open-circular` message that
+  // swaps layers must not remount this component (that tears down the MapLibre
+  // map and refetches the basemap, sprites and tiles), so the diff happens here
+  // instead. Sequential per layer: addLayer resolves after all batches are
+  // loaded, so the hide that follows sees every deck child layer. MVT/COG adds
+  // no-op until the map exists — handleLabelsReady re-syncs them below.
+  //
+  // Keyed on the id list, not the `entries` array identity: App rebuilds that
+  // array on unrelated renders.
+  const entryIds = entries.map((e) => e.config.id).join(",");
+  // Latest props for the async body — it must not re-run when only the hidden
+  // sets change identity, but it must read their current values.
+  const reconcileInputsRef = useRef({ entries, hiddenIds, hiddenRules });
+  reconcileInputsRef.current = { entries, hiddenIds, hiddenRules };
 
-    // One-shot, deliberately NOT cancelled on cleanup: StrictMode runs
-    // cleanup+effect again immediately after mount, and a cancellation flag
-    // would abort this loop after its first await — only the first layer
-    // would ever replay. The ref guard already prevents a second loop; on a
-    // real unmount the remaining setState calls land on a dead instance,
-    // which React ignores.
+  useEffect(() => {
+    // Generation token instead of a cancellation flag: StrictMode runs
+    // cleanup+effect again immediately after mount, and cancelling would abort
+    // the loop after its first await — only the first layer would ever land.
+    // A superseded run simply stops applying once a newer one starts; on a real
+    // unmount the remaining setState calls hit a dead instance, which React
+    // ignores.
+    const generation = ++replayGeneration.current;
+
     (async () => {
       const previewMapRef = () => mapHandle.current?.mapRef ?? { current: null };
-      for (const entry of entries) {
-        await layers.addLayer(entry.config, previewMapRef());
-        if (hiddenIds.has(entry.config.id)) {
-          layers.hideLayer(entry.config.id, previewMapRef());
+      const { entries: want, hiddenIds: hidden, hiddenRules: rules } =
+        reconcileInputsRef.current;
+
+      const desired = new Set(want.map((e) => e.config.id));
+      // Drop layers no longer wanted. removeLayer also tears down the native
+      // MVT/COG source, so re-adding the same id later is safe.
+      for (const id of [...presentIdsRef.current]) {
+        if (desired.has(id)) continue;
+        layers.removeLayer(id, previewMapRef());
+        presentIdsRef.current.delete(id);
+      }
+
+      for (const entry of want) {
+        if (generation !== replayGeneration.current) return;
+        const id = entry.config.id;
+        if (!presentIdsRef.current.has(id)) {
+          // Marked present BEFORE the await so a newer run overlapping this one
+          // doesn't add the same layer twice. addLayer is itself idempotent on
+          // id and rolls back its own entry if loading throws.
+          presentIdsRef.current.add(id);
+          await layers.addLayer(entry.config, previewMapRef());
+          if (generation !== replayGeneration.current) return;
         }
-        for (const ruleName of hiddenRules.get(entry.config.id) ?? []) {
-          layers.toggleRule(entry.config.id, ruleName, previewMapRef());
+        if (hidden.has(id)) {
+          layers.hideLayer(id, previewMapRef());
+        }
+        for (const ruleName of rules.get(id) ?? []) {
+          layers.toggleRule(id, ruleName, previewMapRef());
         }
       }
+
+      // Native MVT/COG layers are skipped by addLayer until the style exists;
+      // safe to call repeatedly.
+      layers.syncImperativeLayers(previewMapRef());
     })();
-    // Snapshot semantics: the preview mirrors the state at dialog-open time.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [entryIds]);
 
   // MVT/COG layers are native MapLibre layers — re-add them once the style
   // (and after any basemap logic) is ready, then reapply hidden visibility
