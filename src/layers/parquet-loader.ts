@@ -1,5 +1,8 @@
 import { tableFromIPC, Table } from "apache-arrow";
-import initParquet, { readParquet, readParquetStream } from "parquet-wasm";
+import initParquet, {
+  readParquet,
+  readParquetStream,
+} from "@/vendor/parquet-wasm/parquet_wasm.js";
 import { loadTableCached } from "./table-cache";
 
 // Memoize the WASM init PROMISE, not a boolean. wasm-bindgen's __wbg_init only
