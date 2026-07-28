@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { loadParquetBatches } from "@/layers";
 import {
   loadAreaFilterConfig,
@@ -157,10 +157,17 @@ function optionMatchesAncestor(
  * Fly to the bbox of the FINEST level with a selection: walk that level's
  * (cached) table, extend the bbox with the geometry of every selected row,
  * and dispatch through the shared fly-to system. No selection → stay put.
+ *
+ * `onBbox` additionally reports the framed bbox to the caller. The `map:flyto`
+ * event only reaches MOUNTED MapViews, and the circular-only view renders
+ * without any (App early-returns before them), so in that mode the event has no
+ * listener and the camera would never move. App uses this callback to drive its
+ * own viewState instead — see the `onFlyToBbox` option below.
  */
 async function flyToSelection(
   entries: AreaFilterEntry[],
   selection: Map<string, Set<string>>,
+  onBbox?: (bbox: BBox) => void,
 ): Promise<void> {
   for (let i = entries.length - 1; i >= 0; i--) {
     const entry = entries[i];
@@ -180,7 +187,10 @@ async function flyToSelection(
         if (raw === null || raw === undefined || !codes.has(String(raw))) continue;
         if (extendRowBbox(table, row, bbox)) any = true;
       }
-      if (any) flyToBbox(bbox);
+      if (any) {
+        flyToBbox(bbox);
+        onBbox?.(bbox);
+      }
     } catch (err) {
       console.warn(`Filter fly-to failed for "${entry.name}":`, err);
     }
@@ -193,10 +203,18 @@ async function flyToSelection(
  * cascades dropdown options coarse-to-fine, prunes orphaned selections, and
  * keeps the module-level area-filter store (read by rendering/picking) in sync.
  * With `flyTo` enabled (map.json `filterFlyTo`), every selection change flies
- * the maps to the selected areas.
+ * the maps to the selected areas. `onFlyToBbox` additionally receives the
+ * framed bbox, for callers that must move a camera no mounted MapView owns.
  */
-export function useAreaFilter(options?: { flyTo?: boolean }): AreaFilterState {
+export function useAreaFilter(options?: {
+  flyTo?: boolean;
+  onFlyToBbox?: (bbox: BBox) => void;
+}): AreaFilterState {
   const flyToEnabled = options?.flyTo ?? true;
+  // Held in a ref so a caller passing an inline callback doesn't change
+  // setValue's identity on every render.
+  const onFlyToBboxRef = useRef(options?.onFlyToBbox);
+  onFlyToBboxRef.current = options?.onFlyToBbox;
   const [entries, setEntries] = useState<AreaFilterEntry[]>([]);
   const [optionsByKey, setOptionsByKey] = useState<Map<string, AreaFilterOption[]>>(
     new Map(),
@@ -311,7 +329,9 @@ export function useAreaFilter(options?: { flyTo?: boolean }): AreaFilterState {
       }
 
       commit(next);
-      if (flyToEnabled) void flyToSelection(entries, next);
+      if (flyToEnabled) {
+        void flyToSelection(entries, next, (bbox) => onFlyToBboxRef.current?.(bbox));
+      }
     },
     [selections, entries, optionsByKey, commit, flyToEnabled],
   );

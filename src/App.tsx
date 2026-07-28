@@ -11,6 +11,7 @@ import {
 import { useClickMarkerLayers } from "@/hooks/use-click-marker-layer";
 import { resolveMarkerPoint } from "@/lib/marker-snap";
 import { viewForBbox } from "@/lib/fly-to";
+import type { BBox } from "@/layers/box-filter";
 import {
   DEFAULT_CLICK_MARKER,
   DEFAULT_MAP_CONTROLS,
@@ -138,7 +139,18 @@ function App({
   // store read by the layer accessors; on change, re-clone both maps' deck
   // layers so the accessors re-evaluate. Declared up here because the study
   // area below swaps to the selected gebied's geometry.
-  const areaFilter = useAreaFilter({ flyTo: filterFlyToEnabled });
+  //
+  // The filter's fly-to normally reaches the maps through the shared `map:flyto`
+  // event, which only MOUNTED MapViews listen to. The circular-only view renders
+  // without any (see showCircularOnly's early return), so there the event has no
+  // listener and the camera would never follow the filter. onFlyToBbox lets us
+  // drive viewState directly in that case; the ref is filled in below, once
+  // applyView and the circular flag exist.
+  const filterFlyToBboxRef = useRef<((bbox: BBox) => void) | null>(null);
+  const areaFilter = useAreaFilter({
+    flyTo: filterFlyToEnabled,
+    onFlyToBbox: (bbox) => filterFlyToBboxRef.current?.(bbox),
+  });
 
   // Always-on study area, pinned above everything (incl. labels) on both maps.
   // Separate instances — Layer objects must not be shared across two Deck overlays.
@@ -816,6 +828,20 @@ function App({
     }));
   }, []);
 
+  // Fill in the filter fly-to fallback declared above. Only active while the
+  // circular-only view is showing: with no MapView mounted, nothing listens to
+  // the `map:flyto` event and nothing feeds a camera back into viewState (that's
+  // handleMove, a prop of those unmounted maps). Routing the bbox through
+  // applyView moves the circle instead. In the normal app this stays null so the
+  // animated MapLibre flyTo remains authoritative — a hard setViewState there
+  // would replace the animation with a jump.
+  const circularOnlyActive = embedCircular || (shareEnabled && circularOpen);
+  useEffect(() => {
+    filterFlyToBboxRef.current = circularOnlyActive
+      ? (bbox: BBox) => applyView({ bbox })
+      : null;
+  }, [circularOnlyActive, applyView]);
+
   // A share link with an `annot` room: enter annotation mode and join the
   // collab session directly (ignored when the feature is disabled here).
   const handleAnnotationRoom = useCallback(
@@ -1184,7 +1210,7 @@ function App({
   // the standalone `?embed=circular` page and when a host `open-circular`
   // message requests it (the message-driven case gets a close button to return
   // to the full app). This replaces the whole app rather than overlaying it.
-  const showCircularOnly = embedCircular || (shareEnabled && circularOpen);
+  const showCircularOnly = circularOnlyActive;
   if (showCircularOnly) {
     return (
       <div className="relative flex h-full w-full items-center justify-center bg-white">
