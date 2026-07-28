@@ -152,8 +152,12 @@ ensure_packages() {
 }
 
 # The base packages every service relies on.
+# The brotli modules give nginx `brotli`/`brotli_static` (used by the map site's
+# compression block) — the WASM/font assets are otherwise served uncompressed.
+# They auto-enable via /etc/nginx/modules-enabled/; harmless for other services.
 ensure_base_stack() {
-  ensure_packages nginx git curl jq rsync ca-certificates
+  ensure_packages nginx git curl jq rsync ca-certificates \
+    libnginx-mod-http-brotli-filter libnginx-mod-http-brotli-static
   sudo systemctl enable --now nginx >/dev/null 2>&1 || true
 }
 
