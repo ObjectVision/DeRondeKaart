@@ -35,9 +35,7 @@ export function resolveMarkerPoint(
     if (info?.object && deckLayerId) {
       const entry = pointEntries.find(
         (e) =>
-          (e.config.format === "geoarrow" ||
-            e.config.format === "parquet" ||
-            e.config.format === "geoparquet") &&
+          (e.config.format === "geoarrow" || e.config.format === "parquet") &&
           deckLayerId.startsWith(e.config.id),
       );
       if (entry && Array.isArray(info.coordinate) && info.coordinate.length >= 2) {

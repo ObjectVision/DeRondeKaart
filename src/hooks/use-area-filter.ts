@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { loadGeoParquetBatches } from "@/layers";
+import { loadParquetBatches } from "@/layers";
 import {
   loadAreaFilterConfig,
   setAreaFilterSelection,
@@ -168,8 +168,8 @@ async function flyToSelection(
     if (!codes || codes.size === 0) continue;
 
     try {
-      // Cached by loadGeoParquetBatches — no refetch after the options load.
-      const table = await loadGeoParquetBatches(entry.source, () => {});
+      // Cached by loadParquetBatches — no refetch after the options load.
+      const table = await loadParquetBatches(entry.source, () => {});
       const codeCol = table.getChild(entry.key);
       if (!codeCol) return;
 
@@ -213,11 +213,11 @@ export function useAreaFilter(options?: { flyTo?: boolean }): AreaFilterState {
       const loaded: AreaFilterEntry[] = [];
       const options = new Map<string, AreaFilterOption[]>();
       // The sources are the same URLs as the CBS layers in layers.json, so
-      // loadGeoParquetBatches' table cache means one download per session.
+      // loadParquetBatches' table cache means one download per session.
       await Promise.all(
         config.map(async (entry) => {
           try {
-            const table = await loadGeoParquetBatches(entry.source, () => {});
+            const table = await loadParquetBatches(entry.source, () => {});
             const extracted = extractOptions(table, entry);
             if (extracted) {
               loaded.push(entry);

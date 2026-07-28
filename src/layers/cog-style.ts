@@ -10,7 +10,7 @@ import { evaluateFilter, getFillColorFromRule } from "./geostyler";
  *
  * We expose the bands as `band0`, `band1`, … and run them through the SAME
  * GeoStyler engine used for vector layers (`matchRule`), so a COG band is styled
- * with the identical rule syntax as geoparquet — e.g.
+ * with the identical rule syntax as parquet vector layers — e.g.
  * `["&&", [">=", "band0", 11], ["<", "band0", 25]]`.
  *
  * Pixels matching no rule, and nodata pixels, are written fully transparent.

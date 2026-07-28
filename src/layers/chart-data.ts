@@ -9,7 +9,7 @@ import { arrowRowMatchesAreaFilter } from "./area-filter";
 import { arrowRowMatchesBoxFilter } from "./box-filter";
 import { CHART_COLORS, type ChartConfig } from "./charts";
 import type { LayerConfig, StatisticConfig } from "./types";
-import { loadGeoParquetBatches, loadParquetBatches } from "./parquet-loader";
+import { loadParquetBatches } from "./parquet-loader";
 import { loadArrowBatches } from "./arrow-loader";
 
 export interface ChartDatum {
@@ -37,8 +37,6 @@ export interface ResolvedStat {
  */
 export function loadTableForConfig(config: LayerConfig): Promise<Table | null> {
   switch (config.format) {
-    case "geoparquet":
-      return loadGeoParquetBatches(config.source, () => {});
     case "parquet":
       return loadParquetBatches(config.source, () => {});
     case "geoarrow":

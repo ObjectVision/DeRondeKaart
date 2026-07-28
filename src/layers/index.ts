@@ -1,5 +1,5 @@
 export { loadLayerConfigs, getLayerConfigById } from "./config";
-export { loadParquetBatches, loadGeoParquetBatches } from "./parquet-loader";
+export { loadParquetBatches } from "./parquet-loader";
 export { loadArrowBatches } from "./arrow-loader";
 export { invalidateTableCache, clearTableCache } from "./table-cache";
 export { createGeoArrowLayers, createGeoJsonLayers } from "./layer-factory";
