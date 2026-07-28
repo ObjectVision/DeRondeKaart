@@ -260,6 +260,11 @@ function App({
   // finished loading (areaFilter.entries still empty) is stashed here and
   // flushed once the options are ready — see the effect below setFilterFromHost.
   const pendingFilterRef = useRef<Record<string, string | null> | null>(null);
+  // The selection the last host `filter` message committed, used to chain two
+  // messages that arrive in the same tick (see setFilterFromHost). Cleared once
+  // React state catches up, so any change from elsewhere (dropdowns, snapshot
+  // restore) is picked up normally rather than being masked by a stale value.
+  const lastHostSelectionRef = useRef<Map<string, Set<string>> | null>(null);
 
   // Everything an annotation restores: filter selections, both sides'
   // (URL-addressable) layer ids + hidden ids, and the camera.
@@ -871,9 +876,15 @@ function App({
   );
 
   // A host `filter` message: set the gebiedsfilter by level name → CBS code or
-  // display label. Resolves against the loaded filter options and applies
-  // coarse→fine through the same setValue path the dropdowns use (cascade
+  // display label. Resolves against the loaded filter options and builds the
+  // end state coarse→fine, then commits it in ONE applySelections call (cascade
   // pruning + fly-to included). Unknown levels/values are warned and skipped.
+  //
+  // The single commit is load-bearing, not a tidy-up: setValue rebuilds from the
+  // hook's `selections` render closure, so calling it once per level in this
+  // synchronous pass made every call discard the previous one's result. Last
+  // write won — which is why unpicking Buurt then re-sending {Gemeente, Wijk}
+  // re-flew to the still-present Buurt instead of zooming out to Wijk.
   const setFilterFromHost = useCallback((filter: Record<string, string | null>) => {
     const af = areaFilterRef.current;
     if (af.entries.length === 0) {
@@ -884,14 +895,20 @@ function App({
       pendingFilterRef.current = filter;
       return;
     }
-    // Mirror the resulting selection locally: setState is async, so the ref
-    // still holds the pre-commit value this tick. Start from the current
-    // selection and track what each applied level ends up as, so we can tell
-    // whether ANY level remains selected after this message (see home-fly).
-    const selectedAfter = new Map(af.selections);
+    // Build the post-message selection locally, starting from the current one:
+    // levels this message doesn't name keep their value (partial merge).
+    //
+    // Seed from the last commit we made rather than `af.selections` when one
+    // exists: React state doesn't update until a re-render, so two host messages
+    // arriving in the same tick (the two-message unpick — an explicit clear
+    // followed by the new state) would both read the pre-clear selection and the
+    // second would resurrect what the first cleared.
+    const selectedAfter = new Map(lastHostSelectionRef.current ?? af.selections);
 
     // Apply coarse→fine (filter.json/entries order) so each level's options are
-    // narrowed by the ancestors already selected in this same pass.
+    // narrowed by the ancestors already resolved in this same pass — hence
+    // resolving against `selectedAfter` rather than the committed selections,
+    // which don't change until the single commit below.
     for (const entry of af.entries) {
       const match = Object.keys(filter).find(
         (level) => level.toLowerCase() === entry.name.toLowerCase(),
@@ -900,9 +917,8 @@ function App({
 
       const value = filter[match];
       if (value === null || value === "") {
-        af.setValue(entry.key, null);
         selectedAfter.set(entry.key, new Set());
-        // setValue also clears finer levels (cascade prune) — mirror that.
+        // Clearing a level cascades to every finer one (same as setValue's prune).
         const idx = af.entries.indexOf(entry);
         for (let i = idx + 1; i < af.entries.length; i++) {
           selectedAfter.set(af.entries[i].key, new Set());
@@ -910,7 +926,7 @@ function App({
         continue;
       }
 
-      const options = af.optionsFor(entry);
+      const options = af.optionsFor(entry, selectedAfter);
       const resolved =
         options.find((o) => o.code === value) ??
         options.find((o) => o.label.toLowerCase() === value.toLowerCase());
@@ -920,9 +936,12 @@ function App({
         );
         continue;
       }
-      af.setValue(entry.key, resolved.code);
       selectedAfter.set(entry.key, new Set([resolved.code]));
     }
+
+    // One commit, one fly-to, both computed from the true end state.
+    lastHostSelectionRef.current = selectedAfter;
+    af.applySelections(selectedAfter, { fly: true });
 
     for (const level of Object.keys(filter)) {
       if (!af.entries.some((e) => e.name.toLowerCase() === level.toLowerCase())) {
@@ -933,9 +952,9 @@ function App({
     // When this message leaves NO level selected (the last filter was cleared),
     // fly back to the configured default view. flyToSelection is a no-op with an
     // empty selection, so without this the camera would stay zoomed in on the
-    // area just cleared. applyView sets the view directly, winning over
-    // setValue's own no-op fly-to. (Host-driven only — dropdown clears elsewhere
-    // keep their stay-put behavior.)
+    // area just cleared. applyView sets the view directly, winning over the
+    // no-op fly-to above. (Host-driven only — dropdown clears elsewhere keep
+    // their stay-put behavior.)
     const anySelected = [...selectedAfter.values()].some((s) => s.size > 0);
     if (!anySelected) {
       applyView({
@@ -953,6 +972,16 @@ function App({
     pendingFilterRef.current = null;
     setFilterFromHost(pending);
   }, [areaFilter.entries, setFilterFromHost]);
+
+  // Once React state reflects the last host commit, drop the chaining ref: from
+  // here on `areaFilter.selections` is authoritative again, so a dropdown change
+  // or snapshot restore isn't masked by a stale host value.
+  useEffect(() => {
+    if (lastHostSelectionRef.current === null) return;
+    if (lastHostSelectionRef.current === areaFilter.selections) {
+      lastHostSelectionRef.current = null;
+    }
+  }, [areaFilter.selections]);
 
   // Process URL commands for layer management (only after the left map is
   // ready). In the standalone circular embed the main left map is never

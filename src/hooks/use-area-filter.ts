@@ -20,8 +20,16 @@ export interface AreaFilterOption {
 
 export interface AreaFilterState {
   entries: AreaFilterEntry[];
-  /** Options for a dropdown, narrowed by coarser selections (cascade). */
-  optionsFor(entry: AreaFilterEntry): AreaFilterOption[];
+  /**
+   * Options for a dropdown, narrowed by coarser selections (cascade).
+   * `against` overrides which selection map does the narrowing — needed when a
+   * caller is building an end-state map that hasn't been committed yet (see
+   * App's host-filter handler); defaults to the committed selections.
+   */
+  optionsFor(
+    entry: AreaFilterEntry,
+    against?: Map<string, Set<string>>,
+  ): AreaFilterOption[];
   /**
    * Whether the entry's `dependsOn` filters all have a selection. When false
    * the control must be disabled: the user cannot select a value yet.
@@ -36,11 +44,16 @@ export interface AreaFilterState {
   setValue(key: string, code: string | null): void;
   clearLevel(key: string): void;
   /**
-   * Replace the whole selection map at once (annotation snapshot restore).
-   * Commits through the same prune + module-store path as setValue, but never
-   * flies — the snapshot carries its own camera.
+   * Replace the whole selection map at once (annotation snapshot restore; host
+   * filter messages). Commits through the same prune + module-store path as
+   * setValue. Flies only with `{ fly: true }` — the snapshot restore carries its
+   * own camera, while a host filter message wants the usual fly-to.
+   *
+   * Prefer this over looping setValue: setValue rebuilds from the `selections`
+   * render closure, so N calls in one synchronous pass each discard the
+   * previous one's result (last write wins, for both the commit and the fly-to).
    */
-  applySelections(next: Map<string, Set<string>>): void;
+  applySelections(next: Map<string, Set<string>>, opts?: { fly?: boolean }): void;
   /** Mirrors the module store version; bumps on every selection change. */
   version: number;
 }
@@ -258,13 +271,16 @@ export function useAreaFilter(options?: {
   }, []);
 
   const optionsFor = useCallback(
-    (entry: AreaFilterEntry): AreaFilterOption[] => {
+    (
+      entry: AreaFilterEntry,
+      against: Map<string, Set<string>> = selections,
+    ): AreaFilterOption[] => {
       const options = optionsByKey.get(entry.key) ?? [];
       const index = entries.indexOf(entry);
       // Narrow by the nearest coarser level with a non-empty selection.
       for (let i = index - 1; i >= 0; i--) {
         const ancestor = entries[i];
-        const selected = selections.get(ancestor.key);
+        const selected = against.get(ancestor.key);
         if (!selected || selected.size === 0) continue;
         return options.filter((o) => optionMatchesAncestor(o, ancestor.key, selected));
       }
@@ -348,10 +364,16 @@ export function useAreaFilter(options?: {
   );
 
   const applySelections = useCallback(
-    (next: Map<string, Set<string>>) => {
-      commit(new Map(next));
+    (next: Map<string, Set<string>>, opts?: { fly?: boolean }) => {
+      // commit() prunes IN PLACE, so `copy` is the post-prune truth by the time
+      // flyToSelection reads it — same object, same ordering as setValue.
+      const copy = new Map(next);
+      commit(copy);
+      if (opts?.fly && flyToEnabled) {
+        void flyToSelection(entries, copy, (bbox) => onFlyToBboxRef.current?.(bbox));
+      }
     },
-    [commit],
+    [commit, entries, flyToEnabled],
   );
 
   // Stable identity so React.memo consumers (Sidebar) don't re-render on
