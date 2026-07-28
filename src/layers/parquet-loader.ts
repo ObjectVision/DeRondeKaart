@@ -5,21 +5,29 @@ import initGeoParquet, {
 import initParquet, { readParquet, readParquetStream } from "parquet-wasm";
 import { loadTableCached } from "./table-cache";
 
-let geoParquetWasmInitialized = false;
-let parquetWasmInitialized = false;
+// Memoize the WASM init PROMISE, not a boolean. wasm-bindgen's __wbg_init only
+// sets its internal guard AFTER the fetch+compile resolves, so a boolean flag
+// set after `await init…()` lets concurrent callers each start their own
+// download. At startup several geoparquet loads fire at once (use-area-filter
+// loads every filter level in one Promise.all, plus the study area and initial
+// layers), so the un-deduped init fetched the ~1.75 MB WASM once per caller.
+// Sharing one in-flight promise means exactly one download per session; on
+// failure the memo is reset so a later load can retry (mirrors table-cache).
+let geoParquetInit: Promise<unknown> | null = null;
+let parquetInit: Promise<unknown> | null = null;
 
-async function ensureGeoParquetWasmInit() {
-  if (!geoParquetWasmInitialized) {
-    await initGeoParquet();
-    geoParquetWasmInitialized = true;
-  }
+function ensureGeoParquetWasmInit(): Promise<unknown> {
+  return (geoParquetInit ??= initGeoParquet().catch((err) => {
+    geoParquetInit = null;
+    throw err;
+  }));
 }
 
-async function ensureParquetWasmInit() {
-  if (!parquetWasmInitialized) {
-    await initParquet();
-    parquetWasmInitialized = true;
-  }
+function ensureParquetWasmInit(): Promise<unknown> {
+  return (parquetInit ??= initParquet().catch((err) => {
+    parquetInit = null;
+    throw err;
+  }));
 }
 
 export interface BatchCallback {
