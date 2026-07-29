@@ -5,7 +5,7 @@ import type { FeatureCollection } from "geojson";
  * (e.g. pushed by the Power BI visual via postMessage) instead of fetched from
  * `source`. It is not valid in layers.json.
  */
-export type LayerFormat = "geoarrow" | "parquet" | "mvt" | "cog" | "geojson" | "flatgeobuf";
+export type LayerFormat = "geoarrow" | "parquet" | "mvt" | "cog" | "geojson" | "flatgeobuf" | "composite";
 
 export type GeometryType = "point" | "line" | "polygon";
 
@@ -175,11 +175,27 @@ export interface LayerConfig {
    */
   beforeid?: string;
   /**
-   * "flatgeobuf" only: below this zoom level nothing is fetched or shown for
-   * the layer (viewport bbox reads over a large file would otherwise cover the
-   * whole dataset when zoomed out). Default: 12.
+   * Lower zoom bound. For "flatgeobuf": below this zoom nothing is fetched or
+   * shown (default 12 — viewport bbox reads over a large file would otherwise
+   * cover the whole dataset when zoomed out). For a "composite" child: the
+   * child only loads while `minzoom <= zoom < maxzoom` (default 0).
    */
   minzoom?: number;
+  /**
+   * Upper zoom bound (exclusive, MapLibre convention). For a "composite"
+   * child: the child unloads at and above this zoom (default 24). Also
+   * stamped on native MapLibre layer specs for an exact mid-gesture cutoff.
+   */
+  maxzoom?: number;
+  /**
+   * "composite" only: the child layer configs this composite is composed of.
+   * Children are full layer configs (any format except "composite"/"geojson")
+   * with synthesized ids `${parentId}__c${index}`; each child loads only while
+   * the map zoom is inside its [minzoom, maxzoom) range. The composite itself
+   * is the single navigation/legend/share entry — its own `geostyler` drives
+   * the legend and its `featureinfo` the popups.
+   */
+  layers?: LayerConfig[];
   /** COG only: the raster already contains its colors; geostyler rules are shown in the legend but NOT applied as a per-pixel color function. */
   embeddedColors?: boolean;
   /** "geojson" format only: the in-memory features to render. `source` is unused ("") for this format. */
