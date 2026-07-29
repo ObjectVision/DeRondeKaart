@@ -9338,230 +9338,192 @@
       }
     },
     {
-      "id": "bouwjaar_lb_2026",
+      "id": "bouwjaar_2026",
       "name": "bouwjaar",
-      "source": "https://data.woonzorglimburg.nl/cog/bouwjaar_lb_m5.cog.tif",
-      "format": "cog",
+      "format": "composite",
+      "geometryType": "polygon",
+      "style": { "opacity": 0.8 },
+      "featureinfo": { "template": "<div><b>Bouwjaar klasse: [[ attr ]]</b></div>" },
       "geostyler": {
         "name": "bouwjaar",
         "rules": [
           {
             "name": "voor 1940",
-            "filter": [
-              "==",
-              "band0",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#a50026"
-              }
-            ]
-          },
-          {
-            "name": "1940-1950",
-            "filter": [
-              "==",
-              "band0",
-              2
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#d73027"
-              }
-            ]
-          },
-          {
-            "name": "1950-1960",
-            "filter": [
-              "==",
-              "band0",
-              3
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#f46d43"
-              }
-            ]
-          },
-          {
-            "name": "1960-1970",
-            "filter": [
-              "==",
-              "band0",
-              4
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#fdae61"
-              }
-            ]
-          },
-          {
-            "name": "1970-1980",
-            "filter": [
-              "==",
-              "band0",
-              5
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#fee08b"
-              }
-            ]
-          },
-          {
-            "name": "1980-1990",
-            "filter": [
-              "==",
-              "band0",
-              6
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#d9ef8b"
-              }
-            ]
-          },
-          {
-            "name": "1990-2000",
-            "filter": [
-              "==",
-              "band0",
-              7
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#a6d96a"
-              }
-            ]
-          },
-          {
-            "name": "2000-2010",
-            "filter": [
-              "==",
-              "band0",
-              8
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#66bd63"
-              }
-            ]
-          },
-          {
-            "name": "2010-2020",
-            "filter": [
-              "==",
-              "band0",
-              9
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#1a9850"
-              }
-            ]
-          },
-          {
-            "name": "na 2020",
-            "filter": [
-              "==",
-              "band0",
-              10
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#006837"
-              }
-            ]
-          }
-        ]
-      },
-      "style": {
-        "opacity": 0.8
-      },
-      "featureinfo": {
-        "template": "<div><b>Bouwjaar klasse: [[ band0 ]]</b></div>"
-      }
-    },
-    {
-      "id": "bouwjaar_pand_2026",
-      "name": "bouwjaar pand",
-      "source": "https://data.woonzorglimburg.nl/flatgeobuf/bouwjaar_lb_2026.fgb",
-      "format": "flatgeobuf",
-      "geometryType": "polygon",
-      "minzoom": 12,
-      "geostyler": {
-        "name": "bouwjaar pand",
-        "rules": [
-          {
-            "name": "voor 1940",
             "filter": ["==", "attr", 1],
-            "symbolizers": [{ "kind": "Fill", "color": "#a50026", "outlineWidth": 0 }]
+            "symbolizers": [{ "kind": "Fill", "color": "#a50026" }]
           },
           {
             "name": "1940-1950",
             "filter": ["==", "attr", 2],
-            "symbolizers": [{ "kind": "Fill", "color": "#d73027", "outlineWidth": 0 }]
+            "symbolizers": [{ "kind": "Fill", "color": "#d73027" }]
           },
           {
             "name": "1950-1960",
             "filter": ["==", "attr", 3],
-            "symbolizers": [{ "kind": "Fill", "color": "#f46d43", "outlineWidth": 0 }]
+            "symbolizers": [{ "kind": "Fill", "color": "#f46d43" }]
           },
           {
             "name": "1960-1970",
             "filter": ["==", "attr", 4],
-            "symbolizers": [{ "kind": "Fill", "color": "#fdae61", "outlineWidth": 0 }]
+            "symbolizers": [{ "kind": "Fill", "color": "#fdae61" }]
           },
           {
             "name": "1970-1980",
             "filter": ["==", "attr", 5],
-            "symbolizers": [{ "kind": "Fill", "color": "#fee08b", "outlineWidth": 0 }]
+            "symbolizers": [{ "kind": "Fill", "color": "#fee08b" }]
           },
           {
             "name": "1980-1990",
             "filter": ["==", "attr", 6],
-            "symbolizers": [{ "kind": "Fill", "color": "#d9ef8b", "outlineWidth": 0 }]
+            "symbolizers": [{ "kind": "Fill", "color": "#d9ef8b" }]
           },
           {
             "name": "1990-2000",
             "filter": ["==", "attr", 7],
-            "symbolizers": [{ "kind": "Fill", "color": "#a6d96a", "outlineWidth": 0 }]
+            "symbolizers": [{ "kind": "Fill", "color": "#a6d96a" }]
           },
           {
             "name": "2000-2010",
             "filter": ["==", "attr", 8],
-            "symbolizers": [{ "kind": "Fill", "color": "#66bd63", "outlineWidth": 0 }]
+            "symbolizers": [{ "kind": "Fill", "color": "#66bd63" }]
           },
           {
             "name": "2010-2020",
             "filter": ["==", "attr", 9],
-            "symbolizers": [{ "kind": "Fill", "color": "#1a9850", "outlineWidth": 0 }]
+            "symbolizers": [{ "kind": "Fill", "color": "#1a9850" }]
           },
           {
             "name": "na 2020",
             "filter": ["==", "attr", 10],
-            "symbolizers": [{ "kind": "Fill", "color": "#006837", "outlineWidth": 0 }]
+            "symbolizers": [{ "kind": "Fill", "color": "#006837" }]
           }
         ]
       },
-      "style": {
-        "opacity": 0.8
-      },
-      "featureinfo": {
-        "template": "<div><b>Bouwjaar klasse: [[ attr ]]</b></div>"
-      }
+      "layers": [
+        {
+          "format": "cog",
+          "source": "https://data.woonzorglimburg.nl/cog/bouwjaar_lb_m5.cog.tif",
+          "maxzoom": 15,
+          "style": { "opacity": 0.8 },
+          "geostyler": {
+            "name": "bouwjaar klasse",
+            "rules": [
+              {
+                "name": "voor 1940",
+                "filter": ["==", "band0", 1],
+                "symbolizers": [{ "kind": "Fill", "color": "#a50026" }]
+              },
+              {
+                "name": "1940-1950",
+                "filter": ["==", "band0", 2],
+                "symbolizers": [{ "kind": "Fill", "color": "#d73027" }]
+              },
+              {
+                "name": "1950-1960",
+                "filter": ["==", "band0", 3],
+                "symbolizers": [{ "kind": "Fill", "color": "#f46d43" }]
+              },
+              {
+                "name": "1960-1970",
+                "filter": ["==", "band0", 4],
+                "symbolizers": [{ "kind": "Fill", "color": "#fdae61" }]
+              },
+              {
+                "name": "1970-1980",
+                "filter": ["==", "band0", 5],
+                "symbolizers": [{ "kind": "Fill", "color": "#fee08b" }]
+              },
+              {
+                "name": "1980-1990",
+                "filter": ["==", "band0", 6],
+                "symbolizers": [{ "kind": "Fill", "color": "#d9ef8b" }]
+              },
+              {
+                "name": "1990-2000",
+                "filter": ["==", "band0", 7],
+                "symbolizers": [{ "kind": "Fill", "color": "#a6d96a" }]
+              },
+              {
+                "name": "2000-2010",
+                "filter": ["==", "band0", 8],
+                "symbolizers": [{ "kind": "Fill", "color": "#66bd63" }]
+              },
+              {
+                "name": "2010-2020",
+                "filter": ["==", "band0", 9],
+                "symbolizers": [{ "kind": "Fill", "color": "#1a9850" }]
+              },
+              {
+                "name": "na 2020",
+                "filter": ["==", "band0", 10],
+                "symbolizers": [{ "kind": "Fill", "color": "#006837" }]
+              }
+            ]
+          }
+        },
+        {
+          "format": "flatgeobuf",
+          "source": "https://data.woonzorglimburg.nl/flatgeobuf/bouwjaar_lb_2026.fgb",
+          "geometryType": "polygon",
+          "minzoom": 14,
+          "style": { "opacity": 0.8 },
+          "geostyler": {
+            "name": "bouwjaar pand",
+            "rules": [
+              {
+                "name": "voor 1940",
+                "filter": ["==", "attr", 1],
+                "symbolizers": [{ "kind": "Fill", "color": "#a50026", "outlineWidth": 0 }]
+              },
+              {
+                "name": "1940-1950",
+                "filter": ["==", "attr", 2],
+                "symbolizers": [{ "kind": "Fill", "color": "#d73027", "outlineWidth": 0 }]
+              },
+              {
+                "name": "1950-1960",
+                "filter": ["==", "attr", 3],
+                "symbolizers": [{ "kind": "Fill", "color": "#f46d43", "outlineWidth": 0 }]
+              },
+              {
+                "name": "1960-1970",
+                "filter": ["==", "attr", 4],
+                "symbolizers": [{ "kind": "Fill", "color": "#fdae61", "outlineWidth": 0 }]
+              },
+              {
+                "name": "1970-1980",
+                "filter": ["==", "attr", 5],
+                "symbolizers": [{ "kind": "Fill", "color": "#fee08b", "outlineWidth": 0 }]
+              },
+              {
+                "name": "1980-1990",
+                "filter": ["==", "attr", 6],
+                "symbolizers": [{ "kind": "Fill", "color": "#d9ef8b", "outlineWidth": 0 }]
+              },
+              {
+                "name": "1990-2000",
+                "filter": ["==", "attr", 7],
+                "symbolizers": [{ "kind": "Fill", "color": "#a6d96a", "outlineWidth": 0 }]
+              },
+              {
+                "name": "2000-2010",
+                "filter": ["==", "attr", 8],
+                "symbolizers": [{ "kind": "Fill", "color": "#66bd63", "outlineWidth": 0 }]
+              },
+              {
+                "name": "2010-2020",
+                "filter": ["==", "attr", 9],
+                "symbolizers": [{ "kind": "Fill", "color": "#1a9850", "outlineWidth": 0 }]
+              },
+              {
+                "name": "na 2020",
+                "filter": ["==", "attr", 10],
+                "symbolizers": [{ "kind": "Fill", "color": "#006837", "outlineWidth": 0 }]
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "id": "pandtype_lb_2026",

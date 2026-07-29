@@ -2,7 +2,12 @@ import { useState, useCallback } from "react";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
 import type { LayerEntry } from "./use-map-layers";
-import { buildNativeLayerDefs, featureMatchesGeostyler, featureMatchesAreaFilter } from "@/layers";
+import {
+  buildNativeLayerDefs,
+  featureMatchesGeostyler,
+  featureMatchesAreaFilter,
+  expandForMapQueries,
+} from "@/layers";
 
 export interface PickedFeature {
   layerConfigId: string;
@@ -33,12 +38,15 @@ export function useFeaturePick(
       // stable key instead of stringifying property bags per pair (O(n²)).
       const seen = new Set<string>();
 
-      // Only pick from layers that have featureinfo configured and aren't excluded from picking
-      const infoEntries = layerEntries.filter(
+      // Only pick from layers that have featureinfo configured and aren't
+      // excluded from picking. Composite entries are expanded to their
+      // children (the configs actually on the map) but keep the PARENT's
+      // featureinfo/name/id as the owner — picks report the composite.
+      const infoEntries = expandForMapQueries(layerEntries).filter(
         (e) =>
-          e.config.featureinfo &&
+          e.featureinfo &&
           e.config.format !== "cog" &&
-          !e.config.excludeFromPicking,
+          !e.excludeFromPicking,
       );
       if (infoEntries.length === 0) {
         setResult(null);
@@ -86,7 +94,7 @@ export function useFeaturePick(
             // Same feature picked via another rule layer → duplicate. Keyed on
             // the stringified property bag ONCE per pick (info.index can't be
             // used: it is per record batch, so it collides across batches).
-            const key = `${entry.config.id}:${JSON.stringify(props)}`;
+            const key = `${entry.ownerId}:${JSON.stringify(props)}`;
             if (seen.has(key)) continue;
             seen.add(key);
 
@@ -103,14 +111,14 @@ export function useFeaturePick(
             }
 
             const feature: PickedFeature = {
-              layerConfigId: entry.config.id,
-              layerName: entry.config.name,
+              layerConfigId: entry.ownerId,
+              layerName: entry.ownerName,
               properties: props as Record<string, unknown>,
             };
 
-            const existing = featuresByLayer.get(entry.config.id) ?? [];
+            const existing = featuresByLayer.get(entry.ownerId) ?? [];
             existing.push(feature);
-            featuresByLayer.set(entry.config.id, existing);
+            featuresByLayer.set(entry.ownerId, existing);
           }
         }
       }
@@ -157,19 +165,19 @@ export function useFeaturePick(
             // feature id (flatgeobuf assigns one; MVT tiles may carry one) —
             // property JSON alone merges distinct features that share all
             // property values.
-            const key = `${entry.config.id}:${feature.id ?? JSON.stringify(properties)}`;
+            const key = `${entry.ownerId}:${feature.id ?? JSON.stringify(properties)}`;
             if (seen.has(key)) continue;
             seen.add(key);
 
             const picked: PickedFeature = {
-              layerConfigId: entry.config.id,
-              layerName: entry.config.name,
+              layerConfigId: entry.ownerId,
+              layerName: entry.ownerName,
               properties,
             };
 
-            const existing = featuresByLayer.get(entry.config.id) ?? [];
+            const existing = featuresByLayer.get(entry.ownerId) ?? [];
             existing.push(picked);
-            featuresByLayer.set(entry.config.id, existing);
+            featuresByLayer.set(entry.ownerId, existing);
           }
         }
       }

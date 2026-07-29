@@ -1,7 +1,7 @@
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
 import type { LayerEntry } from "@/hooks/use-map-layers";
-import { buildNativeLayerDefs } from "@/layers";
+import { buildNativeLayerDefs, expandForMapQueries } from "@/layers";
 
 /**
  * Given a click, return the lng/lat to drop the marker at. When the click hits a
@@ -18,7 +18,8 @@ export function resolveMarkerPoint(
   mapViewRef: React.RefObject<MapViewHandle | null>,
   layerEntries: LayerEntry[],
 ): { lng: number; lat: number } | null {
-  const pointEntries = layerEntries.filter(
+  // Composite entries expand to their children — the configs actually on the map.
+  const pointEntries = expandForMapQueries(layerEntries).filter(
     (e) => e.config.geometryType === "point" && e.config.format !== "cog",
   );
   if (pointEntries.length === 0) return null;

@@ -198,6 +198,8 @@ export function addFlatgeobufLayer(config: LayerConfig, mapRef: React.RefObject<
       // minzoom on the layer spec makes features vanish exactly at the cutoff,
       // even before the refetch clears the source data.
       minzoom,
+      // maxzoom only for composite children with an upper bound.
+      ...(config.maxzoom !== undefined ? { maxzoom: config.maxzoom } : {}),
       layout: {
         ...def.layout,
         ...(session?.hidden ? { visibility: "none" } : {}),

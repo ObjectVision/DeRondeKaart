@@ -5,6 +5,15 @@ export { invalidateTableCache, clearTableCache } from "./table-cache";
 export { createGeoArrowLayers, createGeoJsonLayers } from "./layer-factory";
 export { buildNativeLayerDefs } from "./mvt-style";
 export { addFlatgeobufLayer, removeFlatgeobufLayer, setFlatgeobufHidden } from "./flatgeobuf-loader";
+export {
+  addCompositeLayer,
+  removeCompositeLayer,
+  isComposite,
+  childrenOf,
+  childInRange,
+  expandForMapQueries,
+} from "./composite-manager";
+export type { CompositeHost, PickableEntry } from "./composite-manager";
 export { resolveTemplate, renderTemplate } from "./featureinfo-template";
 export { featureMatchesGeostyler } from "./geostyler";
 export {
