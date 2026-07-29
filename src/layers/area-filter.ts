@@ -213,6 +213,70 @@ export function arrowRowMatchesAreaFilter(info: ArrowFilterInfo): boolean {
 // Plain-props predicate, used by feature picking.
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// MapLibre expression, used by native vector layers (mvt/pmtiles/flatgeobuf).
+// ---------------------------------------------------------------------------
+
+/**
+ * The active selection as a MapLibre filter expression, or `null` when nothing
+ * is selected (the caller then applies only the layer's own rule filter).
+ *
+ * Native layers have no Arrow table, so they can't use
+ * {@link arrowRowMatchesAreaFilter}; the same semantics are expressed against
+ * tile attributes instead: AND across levels, OR within a level, levels whose
+ * columns the layer lacks are skipped, and a level falls back to a coarser CBS
+ * code column with digit-prefix matching (a buurt code starts with its wijk's
+ * digits, which start with the gemeente's).
+ *
+ * Unlike the deck.gl path — which renders non-matching rows transparent — a
+ * MapLibre filter removes them from the layer entirely. Visually equivalent
+ * here (both hide the feature) and cheaper, but it also means filtered-out
+ * features stop being pickable, matching what featureMatchesAreaFilter
+ * already enforced for picks.
+ */
+export function areaFilterExpression(): unknown[] | null {
+  if (store.levels.length === 0) return null;
+
+  const clauses: unknown[] = [];
+  for (const level of store.levels) {
+    // Exact match on the level's own key when the layer carries that column.
+    const exact: unknown[] = [
+      "match",
+      ["get", level.key],
+      [...level.codes],
+      true,
+      false,
+    ];
+
+    // Fallback: compare digit prefixes against a coarser code column. MapLibre
+    // has no "strip non-digits", but CBS codes are a fixed 2-letter prefix
+    // ("GM0882"/"WK088200"/"BU08820000"), so slicing past it is equivalent.
+    const fallbacks: unknown[] = [];
+    for (const field of CODE_FIELDS) {
+      if (field === level.key) continue;
+      const digits = ["slice", ["to-string", ["get", field]], 2];
+      for (const d of level.digits) {
+        // Either direction is a prefix of the other (coarser vs finer level).
+        fallbacks.push(["==", ["index-of", d, digits], 0]);
+        fallbacks.push(["==", ["index-of", digits, d], 0]);
+      }
+    }
+
+    clauses.push([
+      "case",
+      // Level applies via its own column.
+      ["has", level.key], exact,
+      // Otherwise via a coarser column, when the layer has one.
+      ["any", ...CODE_FIELDS.filter((f) => f !== level.key).map((f) => ["has", f])],
+      fallbacks.length > 0 ? ["any", ...fallbacks] : true,
+      // Level not applicable to this layer — skip it.
+      true,
+    ]);
+  }
+
+  return clauses.length === 1 ? (clauses[0] as unknown[]) : ["all", ...clauses];
+}
+
 /** Same semantics as {@link arrowRowMatchesAreaFilter}, over picked props. */
 export function featureMatchesAreaFilter(props: Record<string, unknown>): boolean {
   if (store.levels.length === 0) return true;

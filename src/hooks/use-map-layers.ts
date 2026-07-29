@@ -17,6 +17,7 @@ import {
   removeCompositeLayer,
   childrenOf,
   isNativeVectorFormat,
+  areaFilterExpression,
 } from "@/layers";
 import { isChildLoaded } from "@/layers/composite-manager";
 import type { CompositeHost } from "@/layers";
@@ -332,24 +333,35 @@ export function useMapLayers() {
   );
 
   /**
-   * Re-clone every deck.gl layer with a bumped area-filter update trigger so
-   * their color accessors (wrapped by the layer factory) re-evaluate against
-   * the new selection. `clone` preserves `visible`, so legend layer/rule
-   * toggles survive filter changes. MVT/COG are native MapLibre layers and
-   * are intentionally not filtered.
+   * Re-apply the area filter to both rendering paths:
+   *  - deck.gl layers are re-cloned with a bumped update trigger so their
+   *    color accessors (wrapped by the layer factory) re-evaluate the
+   *    selection. `clone` preserves `visible`, so legend layer/rule toggles
+   *    survive filter changes.
+   *  - native MapLibre layers (mvt/pmtiles/flatgeobuf) have no Arrow rows, so
+   *    the selection is pushed down as a layer filter expression instead.
+   * COG is a raster and stays unfiltered.
    */
-  const refreshAreaFilter = useCallback((version: number) => {
-    setDeckLayers((prev) =>
-      prev.map((l) =>
-        l.clone({
-          updateTriggers: {
-            ...(l.props as { updateTriggers?: Record<string, unknown> }).updateTriggers,
-            all: `area-filter-${version}`,
-          },
-        } as Record<string, unknown>),
-      ),
-    );
-  }, []);
+  const refreshAreaFilter = useCallback(
+    (version: number, mapRefs: React.RefObject<MapRef | null>[] = []) => {
+      setDeckLayers((prev) =>
+        prev.map((l) =>
+          l.clone({
+            updateTriggers: {
+              ...(l.props as { updateTriggers?: Record<string, unknown> }).updateTriggers,
+              all: `area-filter-${version}`,
+            },
+          } as Record<string, unknown>),
+        ),
+      );
+      for (const entry of layerEntriesRef.current) {
+        for (const mapRef of mapRefs) {
+          refreshNativeAreaFilter(entry.config, mapRef);
+        }
+      }
+    },
+    [],
+  );
 
   /**
    * Re-apply imperative MVT/COG/FlatGeobuf/composite entries to a map. Used
@@ -485,8 +497,11 @@ function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>
       layerSpec["source-layer"] = config.sourceLayer;
     }
 
-    if (def.filter) {
-      layerSpec.filter = def.filter;
+    // Rule filter AND the active area filter: a layer added while a gebied is
+    // selected must arrive already filtered.
+    const filter = combinedNativeFilter(def);
+    if (filter) {
+      layerSpec.filter = filter;
     }
 
     // Native addLayer throws if beforeId names a missing layer — fall back to
@@ -590,6 +605,37 @@ function removeNativeArtifacts(config: LayerConfig, mapRef: React.RefObject<MapR
     if (map.getSource(cogSourceId)) map.removeSource(cogSourceId);
   } else if (config.format === "flatgeobuf") {
     removeFlatgeobufLayer(config, mapRef);
+  }
+}
+
+/**
+ * Combine a native layer's own rule filter with the active area filter.
+ * Returns undefined when neither applies (MapLibre then shows everything).
+ */
+function combinedNativeFilter(def: { filter?: unknown[] }): unknown[] | undefined {
+  const area = areaFilterExpression();
+  if (!area) return def.filter;
+  return def.filter ? ["all", def.filter, area] : area;
+}
+
+/**
+ * Re-apply the area filter to every native vector layer of a config. Native
+ * layers have no Arrow rows to re-evaluate (that's what refreshAreaFilter does
+ * for deck.gl), so the selection is pushed down as a MapLibre filter instead.
+ */
+function refreshNativeAreaFilter(
+  config: LayerConfig,
+  mapRef: React.RefObject<MapRef | null>,
+) {
+  const map = mapRef.current?.getMap();
+  if (!map) return;
+  const targets = config.format === "composite" ? childrenOf(config) : [config];
+  for (const target of targets) {
+    if (!isNativeVectorFormat(target.format)) continue;
+    for (const def of buildNativeLayerDefs(target)) {
+      if (!map.getLayer(def.id)) continue;
+      map.setFilter(def.id, combinedNativeFilter(def) as never);
+    }
   }
 }
 

@@ -23,6 +23,7 @@ export {
   isAreaFilterActive,
   featureMatchesAreaFilter,
   arrowRowMatchesAreaFilter,
+  areaFilterExpression,
 } from "./area-filter";
 export type { AreaFilterEntry } from "./area-filter";
 export { loadChartsConfig, CHART_COLORS, isChartEligible } from "./charts";
