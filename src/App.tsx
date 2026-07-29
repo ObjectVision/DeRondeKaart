@@ -815,8 +815,10 @@ function App({
   const refreshRight = mapRightLayers.refreshAreaFilter;
   useEffect(() => {
     if (areaFilter.version === 0) return; // initial no-filter render
-    refreshLeft(areaFilter.version);
-    refreshRight(areaFilter.version);
+    // Native layers live on a specific map, so each side's refresh gets its own
+    // map ref (deck.gl layers are re-cloned regardless).
+    refreshLeft(areaFilter.version, [mapLeftRef.current?.mapRef ?? { current: null }]);
+    refreshRight(areaFilter.version, [mapRightRef.current?.mapRef ?? { current: null }]);
   }, [areaFilter.version, refreshLeft, refreshRight]);
 
   const applyView = useCallback((view: ViewUpdate) => {
