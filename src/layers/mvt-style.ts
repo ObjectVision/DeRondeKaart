@@ -29,6 +29,16 @@ function resolveColor(color: string | undefined, fallback: string): string {
   return color;
 }
 
+/**
+ * Formats rendered as native MapLibre *vector* layers built from GeoStyler
+ * rules (as opposed to deck.gl layers, or the COG raster path). These share
+ * the `buildNativeLayerDefs` id scheme, so picking/hover/visibility/rule
+ * toggling all treat them identically.
+ */
+export function isNativeVectorFormat(format: LayerConfig["format"]): boolean {
+  return format === "mvt" || format === "pmtiles" || format === "flatgeobuf";
+}
+
 interface NativeLayerDef {
   id: string;
   ruleName: string;
@@ -44,14 +54,19 @@ interface NativeLayerDef {
  * format's pick/hover paths can recognize its own layers.
  */
 function layerId(config: LayerConfig, ruleName?: string): string {
-  const prefix = config.format === "flatgeobuf" ? "fgb-layer-" : "mvt-layer-";
+  const prefix =
+    config.format === "flatgeobuf"
+      ? "fgb-layer-"
+      : config.format === "pmtiles"
+        ? "pmtiles-layer-"
+        : "mvt-layer-";
   return ruleName === undefined
     ? `${prefix}${config.id}`
     : `${prefix}${config.id}-${ruleName}`;
 }
 
 /**
- * Build native MapLibre layer definitions from a LayerConfig (MVT and
+ * Build native MapLibre layer definitions from a LayerConfig (MVT, PMTiles and
  * FlatGeobuf formats). Returns one layer per GeoStyler rule, or a single
  * layer for flat style.
  */
@@ -63,12 +78,13 @@ export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
   }
 
   // Flat style — single layer. MVT keeps its historical fill-only behavior;
-  // flatgeobuf picks the layer type from the configured geometry type.
+  // flatgeobuf/pmtiles pick the layer type from the configured geometry type.
   const [r, g, b, a] = style.color ?? [0, 128, 255, 100];
   const opacity = style.opacity ?? 1;
   const rgba = `rgba(${r}, ${g}, ${b}, ${(a ?? 200) / 255})`;
+  const typedFlatStyle = config.format === "flatgeobuf" || config.format === "pmtiles";
 
-  if (config.format === "flatgeobuf" && config.geometryType === "point") {
+  if (typedFlatStyle && config.geometryType === "point") {
     return [{
       id: layerId(config),
       ruleName: "",
@@ -81,7 +97,7 @@ export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
       layout: {},
     }];
   }
-  if (config.format === "flatgeobuf" && config.geometryType === "line") {
+  if (typedFlatStyle && config.geometryType === "line") {
     return [{
       id: layerId(config),
       ruleName: "",

@@ -34,7 +34,7 @@ $(print_kv "--slug NAME"       "instance id, namespaces all paths (e.g. woonzorg
 $(print_kv "--host HOST"       "hostname (e.g. data.woonzorglimburg.nl)")
 $(print_kv "--data-dir PATH"   "directory served (default: /var/www/<slug>)")
 $(print_kv "--cors-origin V"   "Access-Control-Allow-Origin value (default: *)")
-$(print_kv "--subdirs LIST"    "space-separated data subdirs to create (default: 'parquet arrow tiles cog')")
+$(print_kv "--subdirs LIST"    "space-separated data subdirs to create (default: 'parquet arrow tiles cog pmtiles')")
 $(print_kv "--autoindex on|off" "directory browsing (default: on)")
 $(print_kv "--email ADDR"      "email for Let's Encrypt registration")
 $(print_kv "--no-tls"          "skip certbot; serve plain HTTP only")
@@ -78,7 +78,7 @@ ask HOST "Hostname" ""
 validate_host "$HOST"
 ask DATA_DIR    "Data directory"                 "/var/www/$SLUG"
 ask CORS_ORIGIN "Access-Control-Allow-Origin"     "*"
-ask SUBDIRS     "Data subdirectories to create"   "parquet arrow tiles cog"
+ask SUBDIRS     "Data subdirectories to create"   "parquet arrow tiles cog pmtiles"
 ask AUTOINDEX   "Directory browsing (on/off)"      "on"
 if [ "$NO_TLS" != "1" ]; then
   ask EMAIL "Email for Let's Encrypt" ""
@@ -108,6 +108,7 @@ types {
     application/vnd.apache.parquet           parquet;
     application/vnd.apache.arrow.file        arrow geoarrow;
     application/vnd.mapbox-vector-tile        pbf;
+    application/vnd.pmtiles                   pmtiles;
     image/tiff                                tif tiff;
 }
 EOF
@@ -177,9 +178,13 @@ $CORS_HEADERS
         expires 7d;
     }
 
-    # Large binary geo blobs (incl. Cloud-Optimized GeoTIFFs): long cache,
-    # range requests, NO runtime gzip (it would disable Range).
-    location ~* \\.(parquet|arrow|geoarrow|tif|tiff)\$ {
+    # Large binary geo blobs (incl. Cloud-Optimized GeoTIFFs and PMTiles
+    # archives): long cache, range requests, NO runtime gzip (it would disable
+    # Range). PMTiles is especially strict here — its tiles, directories and
+    # metadata are each gzip-compressed INSIDE the archive, so re-compressing
+    # would both break Range reads (the only way it is read) and make clients
+    # double-decompress.
+    location ~* \\.(parquet|arrow|geoarrow|tif|tiff|pmtiles)\$ {
         expires 30d;
         add_header Cache-Control "public" always;
 $CORS_HEADERS

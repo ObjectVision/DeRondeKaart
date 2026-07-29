@@ -2,11 +2,11 @@ import type { LayerConfig, LayersFile, LayerFormat, StatisticConfig } from "./ty
 
 // "geojson" is deliberately absent: it is an in-memory format (LayerConfig.data)
 // constructed programmatically (e.g. by the Power BI bridge), never via layers.json.
-const VALID_FORMATS: LayerFormat[] = ["geoarrow", "parquet", "mvt", "cog", "flatgeobuf", "composite"];
+const VALID_FORMATS: LayerFormat[] = ["geoarrow", "parquet", "mvt", "cog", "flatgeobuf", "pmtiles", "composite"];
 
 // Formats a "composite" entry may nest. "geojson" (in-memory) and "composite"
 // itself (no nesting) are deliberately absent.
-const CHILD_FORMATS: LayerFormat[] = ["geoarrow", "parquet", "mvt", "cog", "flatgeobuf"];
+const CHILD_FORMATS: LayerFormat[] = ["geoarrow", "parquet", "mvt", "cog", "flatgeobuf", "pmtiles"];
 
 let cachedConfig: LayerConfig[] | null = null;
 

@@ -16,6 +16,7 @@ import {
   addCompositeLayer,
   removeCompositeLayer,
   childrenOf,
+  isNativeVectorFormat,
 } from "@/layers";
 import { isChildLoaded } from "@/layers/composite-manager";
 import type { CompositeHost } from "@/layers";
@@ -117,7 +118,7 @@ export function useMapLayers() {
         await loadParquetBatches(config.source, onBatch);
       } else if (config.format === "geoarrow") {
         await loadArrowBatches(config.source, onBatch);
-      } else if (config.format === "mvt") {
+      } else if (config.format === "mvt" || config.format === "pmtiles") {
         addMvtLayer(config, mapRef);
       } else if (config.format === "cog") {
         addCogLayer(config, mapRef);
@@ -316,7 +317,7 @@ export function useMapLayers() {
         // layer. Composite: forward to every child that has a same-named rule
         // (COG children skip — their color function is global per URL).
         const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
-        if (entry?.config.format === "mvt" || entry?.config.format === "flatgeobuf") {
+        if (entry && isNativeVectorFormat(entry.config.format)) {
           setNativeRuleVisibility(entry.config, ruleName, willBeVisible, mapRef);
         } else if (entry?.config.format === "composite") {
           for (const child of childrenOf(entry.config)) {
@@ -360,7 +361,7 @@ export function useMapLayers() {
   const syncImperativeLayers = useCallback(
     (mapRef: React.RefObject<MapRef | null>) => {
       for (const entry of layerEntriesRef.current) {
-        if (entry.config.format === "mvt") {
+        if (entry.config.format === "mvt" || entry.config.format === "pmtiles") {
           addMvtLayer(entry.config, mapRef);
         } else if (entry.config.format === "cog") {
           addCogLayer(entry.config, mapRef);
@@ -425,8 +426,17 @@ function absoluteTileUrl(source: string): string {
   return source;
 }
 
+/** Source id for a native vector-tile config (MVT tile template or PMTiles archive). */
+function tileSourceId(config: LayerConfig): string {
+  return config.format === "pmtiles"
+    ? `pmtiles-source-${config.id}`
+    : `mvt-source-${config.id}`;
+}
+
 /**
  * Add a native MapLibre vector-tile source + one layer per style rule.
+ * Handles both MVT (a `{z}/{x}/{y}` tile template) and PMTiles (a single
+ * archive read via the `pmtiles://` protocol registered in MapView).
  * Module-scope: depends only on the config and the target map.
  */
 function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
@@ -434,15 +444,24 @@ function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>
   if (!map) return;
 
   const beforeId = anchorForConfig(config);
-  const sourceId = `mvt-source-${config.id}`;
+  const sourceId = tileSourceId(config);
 
   if (!map.getSource(sourceId)) {
-    map.addSource(sourceId, {
-      type: "vector",
-      tiles: [absoluteTileUrl(config.source)],
-      minzoom: 0,
-      maxzoom: 14,
-    });
+    if (config.format === "pmtiles") {
+      // `url` (not `tiles`): the protocol handler reads the archive's header
+      // for its own tile scheme and zoom range, so no template is needed.
+      map.addSource(sourceId, {
+        type: "vector",
+        url: `pmtiles://${absoluteTileUrl(config.source)}`,
+      });
+    } else {
+      map.addSource(sourceId, {
+        type: "vector",
+        tiles: [absoluteTileUrl(config.source)],
+        minzoom: 0,
+        maxzoom: 14,
+      });
+    }
   }
 
   const defs = buildNativeLayerDefs(config);
@@ -538,7 +557,7 @@ function setNativeLayerVisibility(
     if (map.getLayer(cogLayerId)) {
       map.setLayoutProperty(cogLayerId, "visibility", visibility);
     }
-  } else if (config.format === "mvt" || config.format === "flatgeobuf") {
+  } else if (isNativeVectorFormat(config.format)) {
     const defs = buildNativeLayerDefs(config);
     for (const def of defs) {
       if (map.getLayer(def.id)) {
@@ -558,11 +577,11 @@ function removeNativeArtifacts(config: LayerConfig, mapRef: React.RefObject<MapR
   const map = mapRef.current?.getMap();
   if (!map) return;
 
-  if (config.format === "mvt") {
+  if (config.format === "mvt" || config.format === "pmtiles") {
     for (const def of buildNativeLayerDefs(config)) {
       if (map.getLayer(def.id)) map.removeLayer(def.id);
     }
-    const sourceId = `mvt-source-${config.id}`;
+    const sourceId = tileSourceId(config);
     if (map.getSource(sourceId)) map.removeSource(sourceId);
   } else if (config.format === "cog") {
     const cogLayerId = `cog-layer-${config.id}`;
@@ -585,7 +604,7 @@ function setNativeRuleVisibility(
   visible: boolean,
   mapRef: React.RefObject<MapRef | null>,
 ) {
-  if (config.format !== "mvt" && config.format !== "flatgeobuf") return;
+  if (!isNativeVectorFormat(config.format)) return;
   const map = mapRef.current?.getMap();
   if (!map) return;
   const ruleLayerId = buildNativeLayerDefs(config).find((d) => d.ruleName === ruleName)?.id;

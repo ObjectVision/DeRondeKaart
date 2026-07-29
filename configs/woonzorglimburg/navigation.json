@@ -196,6 +196,14 @@
             "b": false
           },
           {
+            "id": "bouwjaar_2026_pmtiles",
+            "icon": "apartment",
+            "color": "#2D6CDF",
+            "label": "bouwjaar (pmtiles)",
+            "a": false,
+            "b": false
+          },
+          {
             "id": "pandtype_lb_2026",
             "icon": "apartment",
             "color": "#2D6CDF",
