@@ -7,6 +7,7 @@ import {
   featureMatchesGeostyler,
   featureMatchesAreaFilter,
   expandForMapQueries,
+  isNativeVectorFormat,
 } from "@/layers";
 
 export interface PickedFeature {
@@ -128,7 +129,7 @@ export function useFeaturePick(
       if (map) {
         // Collect all native layer IDs for entries that have featureinfo
         const nativeEntries = infoEntries.filter(
-          (e) => e.config.format === "mvt" || e.config.format === "flatgeobuf",
+          (e) => isNativeVectorFormat(e.config.format),
         );
         const nativeLayerIds: string[] = [];
         for (const entry of nativeEntries) {
@@ -149,14 +150,11 @@ export function useFeaturePick(
             const mlLayerId = feature.layer?.id;
             if (!mlLayerId) continue;
 
-            // Match MapLibre layer ID back to config entry (id prefix is
-            // format-derived: mvt-layer-… / fgb-layer-…)
+            // Match MapLibre layer ID back to its config entry. The id prefix
+            // is format-derived (mvt-layer-… / fgb-layer-… / pmtiles-layer-…),
+            // so compare against the defs rather than rebuilding prefixes here.
             const entry = nativeEntries.find((e) =>
-              mlLayerId.startsWith(
-                e.config.format === "flatgeobuf"
-                  ? `fgb-layer-${e.config.id}`
-                  : `mvt-layer-${e.config.id}`,
-              ),
+              buildNativeLayerDefs(e.config).some((d) => d.id === mlLayerId),
             );
             if (!entry) continue;
 

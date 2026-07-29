@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
 import type { LayerEntry } from "./use-map-layers";
-import { buildNativeLayerDefs, expandForMapQueries } from "@/layers";
+import { buildNativeLayerDefs, expandForMapQueries, isNativeVectorFormat } from "@/layers";
 
 /**
  * Drives the map cursor to `pointer` over clickable features (layers with
@@ -56,7 +56,7 @@ export function useHoverCursor(
 
       const mvtLayerIds: string[] = [];
       for (const entry of clickableEntries) {
-        if (entry.config.format !== "mvt" && entry.config.format !== "flatgeobuf") continue;
+        if (!isNativeVectorFormat(entry.config.format)) continue;
         for (const def of buildNativeLayerDefs(entry.config)) {
           if (map.getLayer(def.id)) mvtLayerIds.push(def.id);
         }

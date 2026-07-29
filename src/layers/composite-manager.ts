@@ -62,7 +62,12 @@ export function childInRange(child: LayerConfig, zoom: number): boolean {
  * style, exactly like syncImperativeLayers does for standalone entries.
  */
 function isNativeFormat(config: LayerConfig): boolean {
-  return config.format === "mvt" || config.format === "cog" || config.format === "flatgeobuf";
+  return (
+    config.format === "mvt" ||
+    config.format === "cog" ||
+    config.format === "flatgeobuf" ||
+    config.format === "pmtiles"
+  );
 }
 
 function sessionFor(map: MapLibreMap, parentId: string): CompositeSession | undefined {

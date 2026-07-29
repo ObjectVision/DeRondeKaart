@@ -6,10 +6,18 @@ import { MapboxOverlay } from "@deck.gl/mapbox";
 import maplibregl from "maplibre-gl";
 import type { Map as MapLibreMap, LayerSpecification } from "maplibre-gl";
 import { cogProtocol } from "@geomatico/maplibre-cog-protocol";
+import { Protocol as PmtilesProtocol } from "pmtiles";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 // Register COG protocol once
 maplibregl.addProtocol("cog", cogProtocol);
+
+// Register the PMTiles protocol once. A PMTiles archive is a single file read
+// with HTTP Range requests; the protocol turns MapLibre's {z}/{x}/{y} tile
+// requests into range reads against it, so a `pmtiles://` source otherwise
+// behaves exactly like a normal vector source.
+const pmtilesProtocol = new PmtilesProtocol();
+maplibregl.addProtocol("pmtiles", pmtilesProtocol.tile);
 
 export const INITIAL_VIEW_STATE = {
   longitude: 5.0,
