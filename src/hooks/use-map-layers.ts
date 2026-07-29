@@ -9,7 +9,10 @@ import {
   loadArrowBatches,
   createGeoArrowLayers,
   createGeoJsonLayers,
-  buildMvtLayerDefs,
+  buildNativeLayerDefs,
+  addFlatgeobufLayer,
+  removeFlatgeobufLayer,
+  setFlatgeobufHidden,
 } from "@/layers";
 import { buildCogColorFunction } from "@/layers/cog-style";
 import type { LayerConfig } from "@/layers";
@@ -102,6 +105,9 @@ export function useMapLayers() {
         addMvtLayer(config, mapRef);
       } else if (config.format === "cog") {
         addCogLayer(config, mapRef);
+      } else if (config.format === "flatgeobuf") {
+        // Native MapLibre layers with viewport-driven bbox loading.
+        addFlatgeobufLayer(config, mapRef);
       } else if (config.format === "geojson") {
         // In-memory features (config.data) — no fetch, build synchronously.
         addDeckLayers(createGeoJsonLayers(config, beforeId));
@@ -137,7 +143,7 @@ export function useMapLayers() {
     if (!map || !entry) return;
 
     if (entry.config.format === "mvt") {
-      const defs = buildMvtLayerDefs(entry.config);
+      const defs = buildNativeLayerDefs(entry.config);
       for (const def of defs) {
         if (map.getLayer(def.id)) map.removeLayer(def.id);
       }
@@ -148,6 +154,8 @@ export function useMapLayers() {
       const cogSourceId = `cog-source-${layerId}`;
       if (map.getLayer(cogLayerId)) map.removeLayer(cogLayerId);
       if (map.getSource(cogSourceId)) map.removeSource(cogSourceId);
+    } else if (entry.config.format === "flatgeobuf") {
+      removeFlatgeobufLayer(entry.config, mapRef);
     }
   }, [updateLayerEntries]);
 
@@ -166,10 +174,13 @@ export function useMapLayers() {
       ),
     );
 
-    // Native MapLibre layers (MVT/COG)
+    // Native MapLibre layers (MVT/COG/FlatGeobuf)
     const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
     if (entry) {
       setNativeLayerVisibility(layerId, entry.config, mapRef, "none");
+      if (entry.config.format === "flatgeobuf") {
+        setFlatgeobufHidden(layerId, mapRef, true);
+      }
     }
   }, []);
 
@@ -191,7 +202,7 @@ export function useMapLayers() {
           ),
         );
 
-        // Native MapLibre layers (MVT/COG)
+        // Native MapLibre layers (MVT/COG/FlatGeobuf)
         const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
         if (entry) {
           setNativeLayerVisibility(
@@ -200,6 +211,9 @@ export function useMapLayers() {
             mapRef,
             willBeVisible ? "visible" : "none",
           );
+          if (entry.config.format === "flatgeobuf") {
+            setFlatgeobufHidden(layerId, mapRef, !willBeVisible);
+          }
         }
 
         return next;
@@ -237,13 +251,15 @@ export function useMapLayers() {
           }),
         );
 
-        // Native MapLibre layers (MVT): toggle the specific rule's layer
+        // Native MapLibre layers (MVT/FlatGeobuf): toggle the specific rule's layer
         const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
-        if (entry?.config.format === "mvt") {
+        if (entry?.config.format === "mvt" || entry?.config.format === "flatgeobuf") {
           const map = mapRef.current?.getMap();
-          const mvtLayerId = `mvt-layer-${layerId}-${ruleName}`;
-          if (map?.getLayer(mvtLayerId)) {
-            map.setLayoutProperty(mvtLayerId, "visibility", willBeVisible ? "visible" : "none");
+          const ruleLayerId = buildNativeLayerDefs(entry.config).find(
+            (d) => d.ruleName === ruleName,
+          )?.id;
+          if (ruleLayerId && map?.getLayer(ruleLayerId)) {
+            map.setLayoutProperty(ruleLayerId, "visibility", willBeVisible ? "visible" : "none");
           }
         }
 
@@ -274,10 +290,11 @@ export function useMapLayers() {
   }, []);
 
   /**
-   * Re-apply imperative MVT/COG entries to a map. Used when a map mounts
-   * after addLayer was already called (e.g. the right map becoming ready after the
-   * first layer was added to it). Safe to call repeatedly — the MVT/COG
-   * helpers skip sources/layers that already exist.
+   * Re-apply imperative MVT/COG/FlatGeobuf entries to a map. Used when a map
+   * mounts after addLayer was already called (e.g. the right map becoming ready
+   * after the first layer was added to it) and after a basemap swap wipes the
+   * style. Safe to call repeatedly — the helpers skip sources/layers that
+   * already exist.
    */
   const syncImperativeLayers = useCallback(
     (mapRef: React.RefObject<MapRef | null>) => {
@@ -286,6 +303,8 @@ export function useMapLayers() {
           addMvtLayer(entry.config, mapRef);
         } else if (entry.config.format === "cog") {
           addCogLayer(entry.config, mapRef);
+        } else if (entry.config.format === "flatgeobuf") {
+          addFlatgeobufLayer(entry.config, mapRef);
         }
       }
     },
@@ -363,7 +382,7 @@ function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>
     });
   }
 
-  const defs = buildMvtLayerDefs(config);
+  const defs = buildNativeLayerDefs(config);
   for (const def of defs) {
     if (map.getLayer(def.id)) continue;
 
@@ -448,8 +467,8 @@ function setNativeLayerVisibility(
     if (map.getLayer(cogLayerId)) {
       map.setLayoutProperty(cogLayerId, "visibility", visibility);
     }
-  } else if (config.format === "mvt") {
-    const defs = buildMvtLayerDefs(config);
+  } else if (config.format === "mvt" || config.format === "flatgeobuf") {
+    const defs = buildNativeLayerDefs(config);
     for (const def of defs) {
       if (map.getLayer(def.id)) {
         map.setLayoutProperty(def.id, "visibility", visibility);

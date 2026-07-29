@@ -5,7 +5,7 @@ import type { FeatureCollection } from "geojson";
  * (e.g. pushed by the Power BI visual via postMessage) instead of fetched from
  * `source`. It is not valid in layers.json.
  */
-export type LayerFormat = "geoarrow" | "parquet" | "mvt" | "cog" | "geojson";
+export type LayerFormat = "geoarrow" | "parquet" | "mvt" | "cog" | "geojson" | "flatgeobuf";
 
 export type GeometryType = "point" | "line" | "polygon";
 
@@ -174,6 +174,12 @@ export interface LayerConfig {
    * `foreground-layers` puts the layer above that overlay.
    */
   beforeid?: string;
+  /**
+   * "flatgeobuf" only: below this zoom level nothing is fetched or shown for
+   * the layer (viewport bbox reads over a large file would otherwise cover the
+   * whole dataset when zoomed out). Default: 12.
+   */
+  minzoom?: number;
   /** COG only: the raster already contains its colors; geostyler rules are shown in the legend but NOT applied as a per-pixel color function. */
   embeddedColors?: boolean;
   /** "geojson" format only: the in-memory features to render. `source` is unused ("") for this format. */

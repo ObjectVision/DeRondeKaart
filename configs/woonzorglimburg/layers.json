@@ -9495,6 +9495,75 @@
       }
     },
     {
+      "id": "bouwjaar_pand_2026",
+      "name": "bouwjaar pand",
+      "source": "https://data.woonzorglimburg.nl/flatgeobuf/bouwjaar_lb_2026.fgb",
+      "format": "flatgeobuf",
+      "geometryType": "polygon",
+      "minzoom": 12,
+      "geostyler": {
+        "name": "bouwjaar pand",
+        "rules": [
+          {
+            "name": "voor 1940",
+            "filter": ["==", "attr", 1],
+            "symbolizers": [{ "kind": "Fill", "color": "#a50026", "outlineWidth": 0 }]
+          },
+          {
+            "name": "1940-1950",
+            "filter": ["==", "attr", 2],
+            "symbolizers": [{ "kind": "Fill", "color": "#d73027", "outlineWidth": 0 }]
+          },
+          {
+            "name": "1950-1960",
+            "filter": ["==", "attr", 3],
+            "symbolizers": [{ "kind": "Fill", "color": "#f46d43", "outlineWidth": 0 }]
+          },
+          {
+            "name": "1960-1970",
+            "filter": ["==", "attr", 4],
+            "symbolizers": [{ "kind": "Fill", "color": "#fdae61", "outlineWidth": 0 }]
+          },
+          {
+            "name": "1970-1980",
+            "filter": ["==", "attr", 5],
+            "symbolizers": [{ "kind": "Fill", "color": "#fee08b", "outlineWidth": 0 }]
+          },
+          {
+            "name": "1980-1990",
+            "filter": ["==", "attr", 6],
+            "symbolizers": [{ "kind": "Fill", "color": "#d9ef8b", "outlineWidth": 0 }]
+          },
+          {
+            "name": "1990-2000",
+            "filter": ["==", "attr", 7],
+            "symbolizers": [{ "kind": "Fill", "color": "#a6d96a", "outlineWidth": 0 }]
+          },
+          {
+            "name": "2000-2010",
+            "filter": ["==", "attr", 8],
+            "symbolizers": [{ "kind": "Fill", "color": "#66bd63", "outlineWidth": 0 }]
+          },
+          {
+            "name": "2010-2020",
+            "filter": ["==", "attr", 9],
+            "symbolizers": [{ "kind": "Fill", "color": "#1a9850", "outlineWidth": 0 }]
+          },
+          {
+            "name": "na 2020",
+            "filter": ["==", "attr", 10],
+            "symbolizers": [{ "kind": "Fill", "color": "#006837", "outlineWidth": 0 }]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Bouwjaar klasse: [[ attr ]]</b></div>"
+      }
+    },
+    {
       "id": "pandtype_lb_2026",
       "name": "pandtype",
       "source": "https://data.woonzorglimburg.nl/cog/pandtype_lb_m5.cog.tif",

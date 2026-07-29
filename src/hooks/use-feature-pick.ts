@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
 import type { LayerEntry } from "./use-map-layers";
-import { buildMvtLayerDefs, featureMatchesGeostyler, featureMatchesAreaFilter } from "@/layers";
+import { buildNativeLayerDefs, featureMatchesGeostyler, featureMatchesAreaFilter } from "@/layers";
 
 export interface PickedFeature {
   layerConfigId: string;
@@ -115,40 +115,49 @@ export function useFeaturePick(
         }
       }
 
-      // --- MapLibre picking (MVT) ---
+      // --- MapLibre picking (MVT/FlatGeobuf) ---
       const map = mapViewRef.current?.mapRef?.current?.getMap();
       if (map) {
-        // Collect all MVT layer IDs for entries that have featureinfo
-        const mvtEntries = infoEntries.filter((e) => e.config.format === "mvt");
-        const mvtLayerIds: string[] = [];
-        for (const entry of mvtEntries) {
-          const defs = buildMvtLayerDefs(entry.config);
+        // Collect all native layer IDs for entries that have featureinfo
+        const nativeEntries = infoEntries.filter(
+          (e) => e.config.format === "mvt" || e.config.format === "flatgeobuf",
+        );
+        const nativeLayerIds: string[] = [];
+        for (const entry of nativeEntries) {
+          const defs = buildNativeLayerDefs(entry.config);
           for (const def of defs) {
             if (map.getLayer(def.id)) {
-              mvtLayerIds.push(def.id);
+              nativeLayerIds.push(def.id);
             }
           }
         }
 
-        if (mvtLayerIds.length > 0) {
+        if (nativeLayerIds.length > 0) {
           const features = map.queryRenderedFeatures(event.point, {
-            layers: mvtLayerIds,
+            layers: nativeLayerIds,
           });
 
           for (const feature of features) {
             const mlLayerId = feature.layer?.id;
             if (!mlLayerId) continue;
 
-            // Match MapLibre layer ID back to config entry
-            const entry = mvtEntries.find((e) =>
-              mlLayerId.startsWith(`mvt-layer-${e.config.id}`),
+            // Match MapLibre layer ID back to config entry (id prefix is
+            // format-derived: mvt-layer-… / fgb-layer-…)
+            const entry = nativeEntries.find((e) =>
+              mlLayerId.startsWith(
+                e.config.format === "flatgeobuf"
+                  ? `fgb-layer-${e.config.id}`
+                  : `mvt-layer-${e.config.id}`,
+              ),
             );
             if (!entry) continue;
 
             const properties = feature.properties ?? {};
-            // Same feature returned once per rule layer → duplicate (stringify
-            // once per pick, not per pair).
-            const key = `${entry.config.id}:${JSON.stringify(properties)}`;
+            // Same feature returned once per rule layer → duplicate. Prefer the
+            // feature id (flatgeobuf assigns one; MVT tiles may carry one) —
+            // property JSON alone merges distinct features that share all
+            // property values.
+            const key = `${entry.config.id}:${feature.id ?? JSON.stringify(properties)}`;
             if (seen.has(key)) continue;
             seen.add(key);
 

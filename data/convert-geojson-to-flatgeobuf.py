@@ -67,10 +67,21 @@ Serving the output: an indexed .fgb is only worth it if the host honours HTTP
 Range requests (``Accept-Ranges: bytes``) and CORS-exposes ``content-range`` —
 without that a client falls back to downloading the whole file.
 
-Note that ``format: "flatgeobuf"`` is **not** currently one of the formats the
-app's layer loader handles (see ``src/layers/``); today's layer entries use
-``parquet``/``geoparquet``/``mvt``/``cog``. Use this script for interchange with
-GIS tooling, or alongside adding a loader for it.
+The app renders these via ``format: "flatgeobuf"`` in ``layers.json`` (the
+other formats are ``geoarrow``/``parquet``/``mvt``/``cog``): native MapLibre
+layers fed by viewport-bbox Range reads against the spatial index, refreshed on
+pan/zoom, and gated by a per-layer ``minzoom`` (default 12). Example entry:
+    {
+      "id": "bouwjaar_pand_2026",
+      "name": "bouwjaar pand",
+      "source": "https://data.woonzorglimburg.nl/flatgeobuf/bouwjaar_lb_2026.fgb",
+      "format": "flatgeobuf",
+      "geometryType": "polygon",
+      "minzoom": 12,
+      "style": { "opacity": 0.8 }
+    }
+Like ``mvt``, flatgeobuf layers are not chart/statistics/area-filter eligible
+(those consume Arrow tables).
 """
 from __future__ import annotations
 

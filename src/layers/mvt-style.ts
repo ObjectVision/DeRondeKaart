@@ -29,7 +29,7 @@ function resolveColor(color: string | undefined, fallback: string): string {
   return color;
 }
 
-interface MvtLayerDef {
+interface NativeLayerDef {
   id: string;
   ruleName: string;
   type: "fill" | "line" | "circle";
@@ -39,38 +39,80 @@ interface MvtLayerDef {
 }
 
 /**
- * Build MapLibre layer definitions from a LayerConfig.
- * Returns one layer per GeoStyler rule, or a single layer for flat style.
+ * Native MapLibre layer ids are `<prefix><configId>[-<ruleName>]`. The prefix
+ * is format-derived so MVT and FlatGeobuf layers never collide and each
+ * format's pick/hover paths can recognize its own layers.
  */
-export function buildMvtLayerDefs(config: LayerConfig): MvtLayerDef[] {
+function layerId(config: LayerConfig, ruleName?: string): string {
+  const prefix = config.format === "flatgeobuf" ? "fgb-layer-" : "mvt-layer-";
+  return ruleName === undefined
+    ? `${prefix}${config.id}`
+    : `${prefix}${config.id}-${ruleName}`;
+}
+
+/**
+ * Build native MapLibre layer definitions from a LayerConfig (MVT and
+ * FlatGeobuf formats). Returns one layer per GeoStyler rule, or a single
+ * layer for flat style.
+ */
+export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
   const { geostyler, style } = config;
 
   if (geostyler && geostyler.rules.length > 0) {
     return geostyler.rules.map((rule) => buildRuleLayerDef(config, rule));
   }
 
-  // Flat style — single fill layer
+  // Flat style — single layer. MVT keeps its historical fill-only behavior;
+  // flatgeobuf picks the layer type from the configured geometry type.
   const [r, g, b, a] = style.color ?? [0, 128, 255, 100];
   const opacity = style.opacity ?? 1;
+  const rgba = `rgba(${r}, ${g}, ${b}, ${(a ?? 200) / 255})`;
+
+  if (config.format === "flatgeobuf" && config.geometryType === "point") {
+    return [{
+      id: layerId(config),
+      ruleName: "",
+      type: "circle",
+      paint: {
+        "circle-color": rgba,
+        "circle-opacity": opacity,
+        "circle-radius": style.radius ?? 5,
+      },
+      layout: {},
+    }];
+  }
+  if (config.format === "flatgeobuf" && config.geometryType === "line") {
+    return [{
+      id: layerId(config),
+      ruleName: "",
+      type: "line",
+      paint: {
+        "line-color": rgba,
+        "line-opacity": opacity,
+        "line-width": style.lineWidth ?? 2,
+      },
+      layout: {},
+    }];
+  }
 
   return [{
-    id: `mvt-layer-${config.id}`,
+    id: layerId(config),
     ruleName: "",
     type: "fill",
     paint: {
-      "fill-color": `rgba(${r}, ${g}, ${b}, ${(a ?? 200) / 255})`,
+      "fill-color": rgba,
       "fill-opacity": opacity,
-      "fill-outline-color": `rgba(${r}, ${g}, ${b}, ${(a ?? 200) / 255})`,
+      "fill-outline-color": rgba,
     },
     layout: {},
   }];
 }
 
-function buildRuleLayerDef(config: LayerConfig, rule: GeoStylerRule): MvtLayerDef {
+function buildRuleLayerDef(config: LayerConfig, rule: GeoStylerRule): NativeLayerDef {
   const sym = rule.symbolizers[0];
   if (!sym) {
     return {
-      id: `mvt-layer-${config.id}-${rule.name}`,
+      id: layerId(config, rule.name),
       ruleName: rule.name,
       type: "fill",
       filter: rule.filter ? filterToExpression(rule.filter) : undefined,
@@ -87,19 +129,19 @@ function buildRuleLayerDef(config: LayerConfig, rule: GeoStylerRule): MvtLayerDe
     case "Mark":
       return buildCircleLayerDef(config, rule, sym);
     default:
-      return buildFillLayerDef(config, rule, sym as FillSymbolizer);
+      return buildFillLayerDef(config, rule, sym as unknown as FillSymbolizer);
   }
 }
 
-function buildFillLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: FillSymbolizer): MvtLayerDef {
+function buildFillLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: FillSymbolizer): NativeLayerDef {
   const fillColor = resolveColor(sym.color, "#0080ff");
   const outlineColor = resolveColor(sym.outlineColor, "#000000");
   const opacity = config.style.opacity ?? sym.opacity ?? 1;
   const outlineWidth = sym.outlineWidth ?? 1;
   const outlineOpacity = sym.outlineOpacity ?? 1;
 
-  const def: MvtLayerDef = {
-    id: `mvt-layer-${config.id}-${rule.name}`,
+  const def: NativeLayerDef = {
+    id: layerId(config, rule.name),
     ruleName: rule.name,
     type: "fill",
     paint: {
@@ -125,13 +167,13 @@ function buildFillLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: FillSy
   return def;
 }
 
-function buildLineLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: LineSymbolizer): MvtLayerDef {
+function buildLineLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: LineSymbolizer): NativeLayerDef {
   const lineColor = resolveColor(sym.color, "#0080ff");
   const opacity = config.style.opacity ?? sym.opacity ?? 1;
   const lineWidth = sym.width ?? 2;
 
-  const def: MvtLayerDef = {
-    id: `mvt-layer-${config.id}-${rule.name}`,
+  const def: NativeLayerDef = {
+    id: layerId(config, rule.name),
     ruleName: rule.name,
     type: "line",
     paint: {
@@ -149,13 +191,13 @@ function buildLineLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: LineSy
   return def;
 }
 
-function buildCircleLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: MarkSymbolizer): MvtLayerDef {
+function buildCircleLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: MarkSymbolizer): NativeLayerDef {
   const circleColor = resolveColor(sym.color, "#0080ff");
   const opacity = config.style.opacity ?? sym.opacity ?? 1;
   const radius = sym.radius ?? 5;
 
-  const def: MvtLayerDef = {
-    id: `mvt-layer-${config.id}-${rule.name}`,
+  const def: NativeLayerDef = {
+    id: layerId(config, rule.name),
     ruleName: rule.name,
     type: "circle",
     paint: {

@@ -1,7 +1,7 @@
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
 import type { LayerEntry } from "@/hooks/use-map-layers";
-import { buildMvtLayerDefs } from "@/layers";
+import { buildNativeLayerDefs } from "@/layers";
 
 /**
  * Given a click, return the lng/lat to drop the marker at. When the click hits a
@@ -44,13 +44,13 @@ export function resolveMarkerPoint(
     }
   }
 
-  // --- MVT point layers ---
+  // --- MVT/FlatGeobuf point layers ---
   const map = mapViewRef.current?.mapRef?.current?.getMap();
   if (map) {
     const mvtLayerIds: string[] = [];
     for (const entry of pointEntries) {
-      if (entry.config.format !== "mvt") continue;
-      for (const def of buildMvtLayerDefs(entry.config)) {
+      if (entry.config.format !== "mvt" && entry.config.format !== "flatgeobuf") continue;
+      for (const def of buildNativeLayerDefs(entry.config)) {
         if (map.getLayer(def.id)) mvtLayerIds.push(def.id);
       }
     }

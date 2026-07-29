@@ -13,6 +13,19 @@
         "stroked": true,
         "lineWidth": 1
       }
+    },
+    {
+      "id": "example-flatgeobuf",
+      "name": "Example FlatGeobuf Layer",
+      "source": "https://your-server.com/data/layer.fgb",
+      "format": "flatgeobuf",
+      "geometryType": "polygon",
+      "minzoom": 12,
+      "style": {
+        "color": [0, 128, 255, 150],
+        "opacity": 0.8
+      },
+      "_comment": "flatgeobuf: native MapLibre rendering with viewport-bbox HTTP Range reads against the file's spatial index (write the .fgb with an index, see data/convert-geojson-to-flatgeobuf.py). Below `minzoom` (default 12) nothing is fetched or shown. The server must send Accept-Ranges: bytes and CORS-expose Content-Range. Not chart/statistics/area-filter eligible (like mvt); geometryType picks the flat-style layer type (point=circle, line=line, polygon=fill)."
     }
   ]
 }
