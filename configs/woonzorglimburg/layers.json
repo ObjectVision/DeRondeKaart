@@ -9973,7 +9973,7 @@
         {
           "format": "cog",
           "source": "https://data.woonzorglimburg.nl/cog/bouwjaar_lb_m5.cog.tif",
-          "maxzoom": 9,
+          "maxzoom": 15,
           "style": {
             "opacity": 0.8
           },
