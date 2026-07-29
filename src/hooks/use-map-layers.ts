@@ -13,7 +13,12 @@ import {
   addFlatgeobufLayer,
   removeFlatgeobufLayer,
   setFlatgeobufHidden,
+  addCompositeLayer,
+  removeCompositeLayer,
+  childrenOf,
 } from "@/layers";
+import { isChildLoaded } from "@/layers/composite-manager";
+import type { CompositeHost } from "@/layers";
 import { buildCogColorFunction } from "@/layers/cog-style";
 import type { LayerConfig } from "@/layers";
 
@@ -35,6 +40,11 @@ export function useMapLayers() {
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
   const [hiddenRules, setHiddenRules] = useState<globalThis.Map<string, Set<string>>>(new globalThis.Map());
   const layerEntriesRef = useRef<LayerEntry[]>([]);
+  // Ref mirrors of the hidden state, so the composite host (called from a
+  // moveend listener, outside React) can apply the parent's current state to
+  // children that load later when the zoom enters their range.
+  const hiddenIdsRef = useRef<Set<string>>(new Set());
+  const hiddenRulesRef = useRef<globalThis.Map<string, Set<string>>>(new globalThis.Map());
 
   /**
    * Add deck layers, replacing any existing layer with the same id. The
@@ -81,20 +91,26 @@ export function useMapLayers() {
     [],
   );
 
-  const addLayer = useCallback(async (config: LayerConfig, mapRef: React.RefObject<MapRef | null>) => {
-    updateLayerEntries((prev) => {
-      if (prev.some((e) => e.config.id === config.id)) return prev;
-      return [...prev, { config, visible: true }];
-    });
-
-    // Constant anchor set at layer construction from the config's `beforeid`
-    // (defaults to "map-layers", below the overlay). deck.gl (interleaved)
-    // inserts each layer against this anchor once it exists, so there's no
-    // timing dependency on when the overlay/anchors finish loading.
-    const beforeId = anchorForConfig(config);
-
-    try {
+  /**
+   * Load one config's data and put its layers on the map — the format
+   * dispatch shared by addLayer (top-level entries) and the composite host
+   * (children). `isCancelled` lets a caller drop late deck batches after the
+   * config was unloaded again (a composite child whose zoom range was left
+   * while its data was still streaming in).
+   */
+  const dispatchFormatLoad = useCallback(
+    async (
+      config: LayerConfig,
+      mapRef: React.RefObject<MapRef | null>,
+      isCancelled?: () => boolean,
+    ) => {
+      // Constant anchor set at layer construction from the config's `beforeid`
+      // (defaults to "map-layers", below the overlay). deck.gl (interleaved)
+      // inserts each layer against this anchor once it exists, so there's no
+      // timing dependency on when the overlay/anchors finish loading.
+      const beforeId = anchorForConfig(config);
       const onBatch = (_batchIndex: number, table: Table) => {
+        if (isCancelled?.()) return;
         addDeckLayers(createGeoArrowLayers(config, table, beforeId));
       };
       if (config.format === "parquet") {
@@ -112,11 +128,72 @@ export function useMapLayers() {
         // In-memory features (config.data) — no fetch, build synchronously.
         addDeckLayers(createGeoJsonLayers(config, beforeId));
       }
+    },
+    [addDeckLayers],
+  );
+
+  /**
+   * Loading/unloading callbacks handed to the composite manager. Children are
+   * never layerEntries — they exist only as deck layers / native sources on
+   * the map — so a child arriving after the user hid the parent (or some of
+   * its rules) has that state applied here, right after its load resolves.
+   */
+  const compositeHost = useMemo<CompositeHost>(
+    () => ({
+      addChild: async (child, mapRef) => {
+        const parentId = child.id.replace(/__c\d+$/, "");
+        const isCancelled = () => {
+          const map = mapRef.current?.getMap();
+          return !map || !isChildLoaded(map, parentId, child.id);
+        };
+        await dispatchFormatLoad(child, mapRef, isCancelled);
+
+        if (hiddenIdsRef.current.has(parentId)) {
+          setDeckLayers((prev) =>
+            prev.map((l) => (layerBelongsTo(l.id, child.id) ? l.clone({ visible: false }) : l)),
+          );
+          setNativeLayerVisibility(child.id, child, mapRef, "none");
+          if (child.format === "flatgeobuf") {
+            setFlatgeobufHidden(child.id, mapRef, true);
+          }
+        }
+        for (const ruleName of hiddenRulesRef.current.get(parentId) ?? []) {
+          setDeckLayers((prev) =>
+            prev.map((l) =>
+              l.id.endsWith(`-${ruleName}`) && layerBelongsTo(l.id, child.id)
+                ? l.clone({ visible: false })
+                : l,
+            ),
+          );
+          setNativeRuleVisibility(child, ruleName, false, mapRef);
+        }
+      },
+      removeChild: (child, mapRef) => {
+        setDeckLayers((prev) => prev.filter((l) => !layerBelongsTo(l.id, child.id)));
+        removeNativeArtifacts(child, mapRef);
+      },
+    }),
+    [dispatchFormatLoad],
+  );
+
+  const addLayer = useCallback(async (config: LayerConfig, mapRef: React.RefObject<MapRef | null>) => {
+    updateLayerEntries((prev) => {
+      if (prev.some((e) => e.config.id === config.id)) return prev;
+      return [...prev, { config, visible: true }];
+    });
+
+    try {
+      if (config.format === "composite") {
+        // Children load/unload with the zoom via the composite manager.
+        addCompositeLayer(config, mapRef, compositeHost);
+      } else {
+        await dispatchFormatLoad(config, mapRef);
+      }
     } catch (err) {
       console.error(`Failed to load layer "${config.id}":`, err);
       updateLayerEntries((prev) => prev.filter((e) => e.config.id !== config.id));
     }
-  }, [addDeckLayers, updateLayerEntries]);
+  }, [dispatchFormatLoad, compositeHost, updateLayerEntries]);
 
   const removeLayer = useCallback((layerId: string, mapRef: React.RefObject<MapRef | null>) => {
     const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
@@ -129,33 +206,24 @@ export function useMapLayers() {
     setHiddenIds((prev) => {
       const next = new Set(prev);
       next.delete(layerId);
+      hiddenIdsRef.current = next;
       return next;
     });
 
     setHiddenRules((prev) => {
       const next = new globalThis.Map(prev);
       next.delete(layerId);
+      hiddenRulesRef.current = next;
       return next;
     });
 
-    // Remove native MapLibre layers and sources
-    const map = mapRef.current?.getMap();
-    if (!map || !entry) return;
+    if (!entry) return;
 
-    if (entry.config.format === "mvt") {
-      const defs = buildNativeLayerDefs(entry.config);
-      for (const def of defs) {
-        if (map.getLayer(def.id)) map.removeLayer(def.id);
-      }
-      const sourceId = `mvt-source-${layerId}`;
-      if (map.getSource(sourceId)) map.removeSource(sourceId);
-    } else if (entry.config.format === "cog") {
-      const cogLayerId = `cog-layer-${layerId}`;
-      const cogSourceId = `cog-source-${layerId}`;
-      if (map.getLayer(cogLayerId)) map.removeLayer(cogLayerId);
-      if (map.getSource(cogSourceId)) map.removeSource(cogSourceId);
-    } else if (entry.config.format === "flatgeobuf") {
-      removeFlatgeobufLayer(entry.config, mapRef);
+    // Remove native MapLibre layers and sources
+    if (entry.config.format === "composite") {
+      removeCompositeLayer(entry.config, mapRef);
+    } else {
+      removeNativeArtifacts(entry.config, mapRef);
     }
   }, [updateLayerEntries]);
 
@@ -164,23 +232,21 @@ export function useMapLayers() {
       if (prev.has(layerId)) return prev;
       const next = new Set(prev);
       next.add(layerId);
+      hiddenIdsRef.current = next;
       return next;
     });
 
-    // deck.gl layers (geoarrow/parquet)
+    // deck.gl layers (geoarrow/parquet, incl. composite children via `__c`)
     setDeckLayers((prev) =>
       prev.map((l) =>
         layerBelongsTo(l.id, layerId) ? l.clone({ visible: false }) : l,
       ),
     );
 
-    // Native MapLibre layers (MVT/COG/FlatGeobuf)
+    // Native MapLibre layers (MVT/COG/FlatGeobuf/composite children)
     const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
     if (entry) {
-      setNativeLayerVisibility(layerId, entry.config, mapRef, "none");
-      if (entry.config.format === "flatgeobuf") {
-        setFlatgeobufHidden(layerId, mapRef, true);
-      }
+      setEntryNativeVisibility(entry.config, mapRef, "none");
     }
   }, []);
 
@@ -194,26 +260,19 @@ export function useMapLayers() {
         } else {
           next.add(layerId);
         }
+        hiddenIdsRef.current = next;
 
-        // deck.gl layers (geoarrow/parquet)
+        // deck.gl layers (geoarrow/parquet, incl. composite children via `__c`)
         setDeckLayers((prevLayers) =>
           prevLayers.map((l) =>
             layerBelongsTo(l.id, layerId) ? l.clone({ visible: willBeVisible }) : l,
           ),
         );
 
-        // Native MapLibre layers (MVT/COG/FlatGeobuf)
+        // Native MapLibre layers (MVT/COG/FlatGeobuf/composite children)
         const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
         if (entry) {
-          setNativeLayerVisibility(
-            layerId,
-            entry.config,
-            mapRef,
-            willBeVisible ? "visible" : "none",
-          );
-          if (entry.config.format === "flatgeobuf") {
-            setFlatgeobufHidden(layerId, mapRef, !willBeVisible);
-          }
+          setEntryNativeVisibility(entry.config, mapRef, willBeVisible ? "visible" : "none");
         }
 
         return next;
@@ -240,8 +299,10 @@ export function useMapLayers() {
         } else {
           next.set(layerId, layerRules);
         }
+        hiddenRulesRef.current = next;
 
-        // deck.gl layers (geoarrow/parquet): find child layer by rule name suffix
+        // deck.gl layers (geoarrow/parquet, incl. composite children): find
+        // child layer by rule name suffix
         setDeckLayers((prevLayers) =>
           prevLayers.map((l) => {
             if (l.id.endsWith(`-${ruleName}`) && layerBelongsTo(l.id, layerId)) {
@@ -251,15 +312,15 @@ export function useMapLayers() {
           }),
         );
 
-        // Native MapLibre layers (MVT/FlatGeobuf): toggle the specific rule's layer
+        // Native MapLibre layers (MVT/FlatGeobuf): toggle the specific rule's
+        // layer. Composite: forward to every child that has a same-named rule
+        // (COG children skip — their color function is global per URL).
         const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
         if (entry?.config.format === "mvt" || entry?.config.format === "flatgeobuf") {
-          const map = mapRef.current?.getMap();
-          const ruleLayerId = buildNativeLayerDefs(entry.config).find(
-            (d) => d.ruleName === ruleName,
-          )?.id;
-          if (ruleLayerId && map?.getLayer(ruleLayerId)) {
-            map.setLayoutProperty(ruleLayerId, "visibility", willBeVisible ? "visible" : "none");
+          setNativeRuleVisibility(entry.config, ruleName, willBeVisible, mapRef);
+        } else if (entry?.config.format === "composite") {
+          for (const child of childrenOf(entry.config)) {
+            setNativeRuleVisibility(child, ruleName, willBeVisible, mapRef);
           }
         }
 
@@ -290,11 +351,11 @@ export function useMapLayers() {
   }, []);
 
   /**
-   * Re-apply imperative MVT/COG/FlatGeobuf entries to a map. Used when a map
-   * mounts after addLayer was already called (e.g. the right map becoming ready
-   * after the first layer was added to it) and after a basemap swap wipes the
-   * style. Safe to call repeatedly — the helpers skip sources/layers that
-   * already exist.
+   * Re-apply imperative MVT/COG/FlatGeobuf/composite entries to a map. Used
+   * when a map mounts after addLayer was already called (e.g. the right map
+   * becoming ready after the first layer was added to it) and after a basemap
+   * swap wipes the style. Safe to call repeatedly — the helpers skip
+   * sources/layers that already exist.
    */
   const syncImperativeLayers = useCallback(
     (mapRef: React.RefObject<MapRef | null>) => {
@@ -305,10 +366,12 @@ export function useMapLayers() {
           addCogLayer(entry.config, mapRef);
         } else if (entry.config.format === "flatgeobuf") {
           addFlatgeobufLayer(entry.config, mapRef);
+        } else if (entry.config.format === "composite") {
+          addCompositeLayer(entry.config, mapRef, compositeHost);
         }
       }
     },
-    [],
+    [compositeHost],
   );
 
   // Stable object identity (all functions are useCallback'd): consumers'
@@ -394,6 +457,10 @@ function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>
       layout: def.layout,
     };
 
+    // Zoom bounds (composite children): exact cutoff even mid-gesture.
+    if (config.minzoom !== undefined) layerSpec.minzoom = config.minzoom;
+    if (config.maxzoom !== undefined) layerSpec.maxzoom = config.maxzoom;
+
     // Use sourceLayer from config if specified
     if (config.sourceLayer) {
       layerSpec["source-layer"] = config.sourceLayer;
@@ -439,13 +506,17 @@ function addCogLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>
       url: `cog://${config.source}`,
       tileSize: 256,
     });
+    const layerSpec: Record<string, unknown> = {
+      id: layerId,
+      source: sourceId,
+      type: "raster",
+      paint: { "raster-opacity": config.style.opacity ?? 1 },
+    };
+    // Zoom bounds (composite children): exact cutoff even mid-gesture.
+    if (config.minzoom !== undefined) layerSpec.minzoom = config.minzoom;
+    if (config.maxzoom !== undefined) layerSpec.maxzoom = config.maxzoom;
     map.addLayer(
-      {
-        id: layerId,
-        source: sourceId,
-        type: "raster",
-        paint: { "raster-opacity": config.style.opacity ?? 1 },
-      },
+      layerSpec as never,
       // Append when the anchor isn't in the style yet (see addMvtLayer note).
       map.getLayer(beforeId) ? beforeId : undefined,
     );
@@ -478,15 +549,82 @@ function setNativeLayerVisibility(
 }
 
 /**
+ * Remove the native MapLibre sources/layers a config created (MVT/COG/
+ * FlatGeobuf). Module-scope; shared by removeLayer (top-level entries) and
+ * the composite host (children). Deck layers are removed separately by the
+ * callers via setDeckLayers + layerBelongsTo.
+ */
+function removeNativeArtifacts(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
+  const map = mapRef.current?.getMap();
+  if (!map) return;
+
+  if (config.format === "mvt") {
+    for (const def of buildNativeLayerDefs(config)) {
+      if (map.getLayer(def.id)) map.removeLayer(def.id);
+    }
+    const sourceId = `mvt-source-${config.id}`;
+    if (map.getSource(sourceId)) map.removeSource(sourceId);
+  } else if (config.format === "cog") {
+    const cogLayerId = `cog-layer-${config.id}`;
+    const cogSourceId = `cog-source-${config.id}`;
+    if (map.getLayer(cogLayerId)) map.removeLayer(cogLayerId);
+    if (map.getSource(cogSourceId)) map.removeSource(cogSourceId);
+  } else if (config.format === "flatgeobuf") {
+    removeFlatgeobufLayer(config, mapRef);
+  }
+}
+
+/**
+ * Toggle one GeoStyler rule's native layer for a config (MVT/FlatGeobuf).
+ * Configs without a same-named rule (or without native rule layers at all —
+ * COG, deck formats) are a no-op.
+ */
+function setNativeRuleVisibility(
+  config: LayerConfig,
+  ruleName: string,
+  visible: boolean,
+  mapRef: React.RefObject<MapRef | null>,
+) {
+  if (config.format !== "mvt" && config.format !== "flatgeobuf") return;
+  const map = mapRef.current?.getMap();
+  if (!map) return;
+  const ruleLayerId = buildNativeLayerDefs(config).find((d) => d.ruleName === ruleName)?.id;
+  if (ruleLayerId && map.getLayer(ruleLayerId)) {
+    map.setLayoutProperty(ruleLayerId, "visibility", visible ? "visible" : "none");
+  }
+}
+
+/**
+ * Apply visibility to everything native an entry owns: the config's own
+ * MapLibre layers, a flatgeobuf's fetch loop (paused while hidden), and — for
+ * a composite — the same for every child.
+ */
+function setEntryNativeVisibility(
+  config: LayerConfig,
+  mapRef: React.RefObject<MapRef | null>,
+  visibility: "visible" | "none",
+) {
+  const targets = config.format === "composite" ? childrenOf(config) : [config];
+  for (const target of targets) {
+    setNativeLayerVisibility(target.id, target, mapRef, visibility);
+    if (target.format === "flatgeobuf") {
+      setFlatgeobufHidden(target.id, mapRef, visibility === "none");
+    }
+  }
+}
+
+/**
  * Check if a deck layer ID belongs to a given config ID. GeoArrow layers are
  * per record batch (`{configId}__b{n}` / `{configId}__b{n}-{ruleName}`);
- * GeoJson layers use `{configId}-geojson`.
+ * GeoJson layers use `{configId}-geojson`; composite children prefix their
+ * synthesized `{configId}__c{n}` id onto all of the above.
  */
 function layerBelongsTo(deckLayerId: string, configId: string): boolean {
   return (
     deckLayerId === configId ||
     deckLayerId.startsWith(configId + "-") ||
-    deckLayerId.startsWith(configId + "__b")
+    deckLayerId.startsWith(configId + "__b") ||
+    deckLayerId.startsWith(configId + "__c")
   );
 }
 

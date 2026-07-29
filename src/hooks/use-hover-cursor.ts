@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
 import type { LayerEntry } from "./use-map-layers";
-import { buildNativeLayerDefs } from "@/layers";
+import { buildNativeLayerDefs, expandForMapQueries } from "@/layers";
 
 /**
  * Drives the map cursor to `pointer` over clickable features (layers with
@@ -21,22 +21,26 @@ export function useHoverCursor(
   layerEntries: LayerEntry[],
   mapViewRef: React.RefObject<MapViewHandle | null>,
 ) {
-  // Clickable set: same filter as use-feature-pick.ts
+  // Clickable set: same filter as use-feature-pick.ts. Composite entries are
+  // expanded to their children (the configs actually on the map), with the
+  // parent's featureinfo/excludeFromPicking deciding clickability.
   const clickableEntries = useMemo(
     () =>
-      layerEntries.filter(
+      expandForMapQueries(layerEntries).filter(
         (e) =>
-          e.config.featureinfo &&
+          e.featureinfo &&
           e.config.format !== "cog" &&
-          !e.config.excludeFromPicking,
+          !e.excludeFromPicking,
       ),
     [layerEntries],
   );
 
-  // Publish clickable config ids for deck's onHover to match picked layer ids against.
+  // Publish clickable OWNER ids for deck's onHover to match picked layer ids
+  // against (child deck-layer ids start with the parent id, so a prefix match
+  // on the owner covers composite children too).
   useEffect(() => {
     const ref = mapViewRef.current?.clickableIdsRef;
-    if (ref) ref.current = clickableEntries.map((e) => e.config.id);
+    if (ref) ref.current = clickableEntries.map((e) => e.ownerId);
   }, [clickableEntries, mapViewRef]);
 
   const handleMouseMove = useCallback(
