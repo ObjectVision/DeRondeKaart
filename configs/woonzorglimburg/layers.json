@@ -3,8 +3,8 @@
     {
       "id": "huisarts",
       "name": "huisarts",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "style": {
         "color": [
@@ -37,13 +37,14 @@
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
-      }
+      },
+      "sourceLayer": "vrz_locaties_2026"
     },
     {
       "id": "supermarkt",
       "name": "supermarkt",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "beforeid": "foreground-layers",
       "style": {
@@ -82,13 +83,14 @@
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
-      }
+      },
+      "sourceLayer": "vrz_locaties_2026"
     },
     {
       "id": "dagbesteding",
       "name": "dagbesteding",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "style": {
         "color": [
@@ -121,13 +123,14 @@
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
-      }
+      },
+      "sourceLayer": "vrz_locaties_2026"
     },
     {
       "id": "ontmoeting",
       "name": "ontmoeting",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "style": {
         "color": [
@@ -160,13 +163,14 @@
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
-      }
+      },
+      "sourceLayer": "vrz_locaties_2026"
     },
     {
       "id": "tandarts",
       "name": "tandarts",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "style": {
         "color": [
@@ -199,13 +203,14 @@
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
-      }
+      },
+      "sourceLayer": "vrz_locaties_2026"
     },
     {
       "id": "ov",
       "name": "openbaar vervoer",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "style": {
         "color": [
@@ -238,13 +243,14 @@
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
-      }
+      },
+      "sourceLayer": "vrz_locaties_2026"
     },
     {
       "id": "apotheek",
       "name": "apotheek",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "style": {
         "color": [
@@ -277,13 +283,14 @@
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
-      }
+      },
+      "sourceLayer": "vrz_locaties_2026"
     },
     {
       "id": "fysiotherapeut",
       "name": "fysiotherapeut",
-      "source": "https://data.woonzorglimburg.nl/parquet/vrz_locaties_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "style": {
         "color": [
@@ -316,7 +323,8 @@
       },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
-      }
+      },
+      "sourceLayer": "vrz_locaties_2026"
     },
     {
       "id": "ziekenhuis",
@@ -1558,8 +1566,8 @@
     {
       "id": "veerkracht_limburg",
       "name": "Veerkracht",
-      "source": "https://data.woonzorglimburg.nl/parquet/veerkracht_limburg_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/veerkracht_limburg_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "",
@@ -1707,13 +1715,14 @@
       },
       "featureinfo": {
         "template": "<div><b>COMBI1824: [[ COMBI1824 ]]</b></div>"
-      }
+      },
+      "sourceLayer": "veerkracht_limburg_2026"
     },
     {
       "id": "focus_limburg",
       "name": "Focus",
-      "source": "https://data.woonzorglimburg.nl/parquet/veerkracht_limburg_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/veerkracht_limburg_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "",
@@ -1895,13 +1904,14 @@
       },
       "featureinfo": {
         "template": "<div><b>FOCUS24: [[ FOCUS24 ]]</b></div>"
-      }
+      },
+      "sourceLayer": "veerkracht_limburg_2026"
     },
     {
       "id": "Sociaal_dominante_klasse",
       "name": "Sociaal dominante klasse",
-      "source": "https://data.woonzorglimburg.nl/parquet/SDKLimburg2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/SDKLimburg2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "charts": [
         "sdk_verdeling_donut"
@@ -2143,7 +2153,8 @@
       },
       "featureinfo": {
         "template": "<div><b>SDK: [[ data ]]</b></div>"
-      }
+      },
+      "sourceLayer": "SDKLimburg2026"
     },
     {
       "id": "corp_mooiland_bat_2026",
@@ -5896,8 +5907,8 @@
     {
       "id": "verpleging_en_verzorging",
       "name": "verpleging en verzorging",
-      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/cluster_indicatiesLimburg2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "charts": [
         "vvt_verdeling_bar"
@@ -6012,13 +6023,14 @@
       },
       "style": {
         "opacity": 0.8
-      }
+      },
+      "sourceLayer": "cluster_indicatiesLimburg2026"
     },
     {
       "id": "geestelijke_gezondheidszorg_B",
       "name": "geestelijke gezondheidszorg B",
-      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/cluster_indicatiesLimburg2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "geostyler": {
         "name": "",
@@ -6100,13 +6112,14 @@
       },
       "style": {
         "opacity": 0.8
-      }
+      },
+      "sourceLayer": "cluster_indicatiesLimburg2026"
     },
     {
       "id": "geestelijke_gezondheidszorg_W",
       "name": "geestelijke gezondheidszorg W",
-      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/cluster_indicatiesLimburg2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "geostyler": {
         "name": "",
@@ -6188,13 +6201,14 @@
       },
       "style": {
         "opacity": 0.8
-      }
+      },
+      "sourceLayer": "cluster_indicatiesLimburg2026"
     },
     {
       "id": "licht_verstandelijke_beperking",
       "name": "licht verstandelijke beperking",
-      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/cluster_indicatiesLimburg2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "geostyler": {
         "name": "",
@@ -6222,13 +6236,14 @@
       },
       "style": {
         "opacity": 0.8
-      }
+      },
+      "sourceLayer": "cluster_indicatiesLimburg2026"
     },
     {
       "id": "verstandelijke_handicap",
       "name": "verstandelijke handicap",
-      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/cluster_indicatiesLimburg2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "geostyler": {
         "name": "",
@@ -6310,13 +6325,14 @@
       },
       "style": {
         "opacity": 0.8
-      }
+      },
+      "sourceLayer": "cluster_indicatiesLimburg2026"
     },
     {
       "id": "lichamelijke_handicap",
       "name": "lichamelijke handicap",
-      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/cluster_indicatiesLimburg2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "geostyler": {
         "name": "",
@@ -6398,13 +6414,14 @@
       },
       "style": {
         "opacity": 0.8
-      }
+      },
+      "sourceLayer": "cluster_indicatiesLimburg2026"
     },
     {
       "id": "zintuigelijke_handicap",
       "name": "zintuigelijke handicap",
-      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/cluster_indicatiesLimburg2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "geostyler": {
         "name": "",
@@ -6432,13 +6449,14 @@
       },
       "style": {
         "opacity": 0.8
-      }
+      },
+      "sourceLayer": "cluster_indicatiesLimburg2026"
     },
     {
       "id": "BW_MO",
       "name": "beschermd wonen en/of maatschappelijke opvang",
-      "source": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/cluster_indicatiesLimburg2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "point",
       "geostyler": {
         "name": "",
@@ -6512,7 +6530,8 @@
       },
       "style": {
         "opacity": 0.8
-      }
+      },
+      "sourceLayer": "cluster_indicatiesLimburg2026"
     },
     {
       "id": "aandeel_geschikt_2024",
@@ -7143,8 +7162,8 @@
     {
       "id": "cbsgemeente2026",
       "name": "CBS Gemeente 2026",
-      "source": "https://data.woonzorglimburg.nl/parquet/cbsgemeente2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/cbsgemeente2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "beforeid": "foreground-layers",
       "style": {
@@ -7165,13 +7184,14 @@
       },
       "featureinfo": {
         "template": "<div><b>[[ statnaam]]</b></div>"
-      }
+      },
+      "sourceLayer": "cbsgemeente2026"
     },
     {
       "id": "cbsbuurt2026",
       "name": "CBS Buurt 2026",
-      "source": "https://data.woonzorglimburg.nl/parquet/cbsbuurt2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/cbsbuurt2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "beforeid": "foreground-layers",
       "statistics": [
@@ -7201,13 +7221,14 @@
       },
       "featureinfo": {
         "template": "<div><b>[[ statnaam]]</b></div>"
-      }
+      },
+      "sourceLayer": "cbsbuurt2026"
     },
     {
       "id": "cbswijk2026",
       "name": "CBS Wijk 2026",
-      "source": "https://data.woonzorglimburg.nl/parquet/cbswijk2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/cbswijk2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "beforeid": "foreground-layers",
       "style": {
@@ -7228,13 +7249,14 @@
       },
       "featureinfo": {
         "template": "<div><b>[[ statnaam]]</b></div>"
-      }
+      },
+      "sourceLayer": "cbswijk2026"
     },
     {
       "id": "bomen_rule_3_gemeente_2026",
       "name": "3 bomen regel gemeente",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_gemeente_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_gemeente_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "3 bomen regel gemeente",
@@ -7365,13 +7387,14 @@
       },
       "featureinfo": {
         "template": "<div><b>3 bomen regel gemeente: [[ rule_3 ]]</b></div>"
-      }
+      },
+      "sourceLayer": "bomen_gemeente_lb_2026"
     },
     {
       "id": "bomen_rule_30_gemeente_2026",
       "name": "30% bladerdek gemeente",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_gemeente_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_gemeente_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "30% bladerdek gemeente",
@@ -7502,13 +7525,14 @@
       },
       "featureinfo": {
         "template": "<div><b>30% bladerdek gemeente: [[ rule_30 ]]</b></div>"
-      }
+      },
+      "sourceLayer": "bomen_gemeente_lb_2026"
     },
     {
       "id": "bomen_rule_300_gemeente_2026",
       "name": "300 meter van groen gemeente",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_gemeente_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_gemeente_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "300 meter van groen gemeente",
@@ -7639,13 +7663,14 @@
       },
       "featureinfo": {
         "template": "<div><b>300 meter van groen gemeente: [[ rule_300 ]]</b></div>"
-      }
+      },
+      "sourceLayer": "bomen_gemeente_lb_2026"
     },
     {
       "id": "bomen_rule_3_30_300_classified_gemeente_2026",
       "name": "3-30-300 vuistregel gemeente",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_gemeente_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_gemeente_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "3-30-300 vuistregel gemeente",
@@ -7776,13 +7801,14 @@
       },
       "featureinfo": {
         "template": "<div><b>3-30-300 vuistregel gemeente: [[ rule_3_30_300_classified ]]</b></div>"
-      }
+      },
+      "sourceLayer": "bomen_gemeente_lb_2026"
     },
     {
       "id": "bomen_rule_3_wijk_2026",
       "name": "3 bomen regel wijk",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_wijk_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_wijk_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "3 bomen regel wijk",
@@ -7913,13 +7939,14 @@
       },
       "featureinfo": {
         "template": "<div><b>3 bomen regel wijk: [[ rule_3 ]]</b></div>"
-      }
+      },
+      "sourceLayer": "bomen_wijk_lb_2026"
     },
     {
       "id": "bomen_rule_30_wijk_2026",
       "name": "30% bladerdek wijk",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_wijk_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_wijk_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "30% bladerdek wijk",
@@ -8050,13 +8077,14 @@
       },
       "featureinfo": {
         "template": "<div><b>30% bladerdek wijk: [[ rule_30 ]]</b></div>"
-      }
+      },
+      "sourceLayer": "bomen_wijk_lb_2026"
     },
     {
       "id": "bomen_rule_300_wijk_2026",
       "name": "300 meter van groen wijk",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_wijk_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_wijk_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "300 meter van groen wijk",
@@ -8187,13 +8215,14 @@
       },
       "featureinfo": {
         "template": "<div><b>300 meter van groen wijk: [[ rule_300 ]]</b></div>"
-      }
+      },
+      "sourceLayer": "bomen_wijk_lb_2026"
     },
     {
       "id": "bomen_rule_3_30_300_classified_wijk_2026",
       "name": "3-30-300 vuistregel wijk",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_wijk_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_wijk_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "3-30-300 vuistregel wijk",
@@ -8324,13 +8353,14 @@
       },
       "featureinfo": {
         "template": "<div><b>3-30-300 vuistregel wijk: [[ rule_3_30_300_classified ]]</b></div>"
-      }
+      },
+      "sourceLayer": "bomen_wijk_lb_2026"
     },
     {
       "id": "bomen_rule_3_buurt_2026",
       "name": "3 bomen regel buurt",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_buurt_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_buurt_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "3 bomen regel buurt",
@@ -8461,13 +8491,14 @@
       },
       "featureinfo": {
         "template": "<div><b>3 bomen regel buurt: [[ rule_3 ]]</b></div>"
-      }
+      },
+      "sourceLayer": "bomen_buurt_lb_2026"
     },
     {
       "id": "bomen_rule_30_buurt_2026",
       "name": "30% bladerdek buurt",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_buurt_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_buurt_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "30% bladerdek buurt",
@@ -8598,13 +8629,14 @@
       },
       "featureinfo": {
         "template": "<div><b>30% bladerdek buurt: [[ rule_30 ]]</b></div>"
-      }
+      },
+      "sourceLayer": "bomen_buurt_lb_2026"
     },
     {
       "id": "bomen_rule_300_buurt_2026",
       "name": "300 meter van groen buurt",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_buurt_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_buurt_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "300 meter van groen buurt",
@@ -8735,13 +8767,14 @@
       },
       "featureinfo": {
         "template": "<div><b>300 meter van groen buurt: [[ rule_300 ]]</b></div>"
-      }
+      },
+      "sourceLayer": "bomen_buurt_lb_2026"
     },
     {
       "id": "bomen_rule_3_30_300_classified_buurt_2026",
       "name": "3-30-300 vuistregel buurt",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_buurt_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_buurt_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "3-30-300 vuistregel buurt",
@@ -8872,13 +8905,14 @@
       },
       "featureinfo": {
         "template": "<div><b>3-30-300 vuistregel buurt: [[ rule_3_30_300_classified ]]</b></div>"
-      }
+      },
+      "sourceLayer": "bomen_buurt_lb_2026"
     },
     {
       "id": "corp_bat_2026",
       "name": "BAT score",
-      "source": "https://data.woonzorglimburg.nl/parquet/corp_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/corp_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "BAT score",
@@ -8992,13 +9026,14 @@
       },
       "featureinfo": {
         "template": "<div><b>BAT score: [[ bat_score ]]</b></div>"
-      }
+      },
+      "sourceLayer": "corp_lb_2026"
     },
     {
       "id": "corp_mutatiegraad_2026",
       "name": "Mutatiegraad",
-      "source": "https://data.woonzorglimburg.nl/parquet/corp_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/corp_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "Mutatiegraad",
@@ -9127,13 +9162,14 @@
       },
       "featureinfo": {
         "template": "<div><b>Mutatiegraad: [[ mutatiegraad ]]%</b></div>"
-      }
+      },
+      "sourceLayer": "corp_lb_2026"
     },
     {
       "id": "corp_senioren_2026",
       "name": "Seniorenbeleid",
-      "source": "https://data.woonzorglimburg.nl/parquet/corp_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/corp_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "Seniorenbeleid",
@@ -9179,13 +9215,14 @@
       },
       "featureinfo": {
         "template": "<div><b>Seniorenbeleid: [[ senioren ]]</b></div>"
-      }
+      },
+      "sourceLayer": "corp_lb_2026"
     },
     {
       "id": "corp_ouderen_met_indicatie_2026",
       "name": "Ouderen met indicatie",
-      "source": "https://data.woonzorglimburg.nl/parquet/corp_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/corp_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "Ouderen met indicatie",
@@ -9231,13 +9268,14 @@
       },
       "featureinfo": {
         "template": "<div><b>Ouderen met indicatie: [[ ouderen_met_indicatie ]]</b></div>"
-      }
+      },
+      "sourceLayer": "corp_lb_2026"
     },
     {
       "id": "corp_aandachtsgroepen_2026",
       "name": "Aandachtsgroepenbeleid",
-      "source": "https://data.woonzorglimburg.nl/parquet/corp_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/corp_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "Aandachtsgroepenbeleid",
@@ -9283,13 +9321,14 @@
       },
       "featureinfo": {
         "template": "<div><b>Aandachtsgroepenbeleid: [[ aandachtsgroepen ]]</b></div>"
-      }
+      },
+      "sourceLayer": "corp_lb_2026"
     },
     {
       "id": "corp_inpandige_gemsch_ruimte_2026",
       "name": "Gemeenschappelijke ruimte",
-      "source": "https://data.woonzorglimburg.nl/parquet/corp_lb_2026.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/corp_lb_2026.pmtiles",
+      "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
         "name": "Gemeenschappelijke ruimte",
@@ -9335,7 +9374,8 @@
       },
       "featureinfo": {
         "template": "<div><b>Gemeenschappelijke ruimte: [[ inpandige_gemsch_ruimte ]]</b></div>"
-      }
+      },
+      "sourceLayer": "corp_lb_2026"
     },
     {
       "id": "bouwjaar_2026",
