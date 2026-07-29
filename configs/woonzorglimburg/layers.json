@@ -9973,7 +9973,7 @@
         {
           "format": "cog",
           "source": "https://data.woonzorglimburg.nl/cog/bouwjaar_lb_m5.cog.tif",
-          "maxzoom": 15,
+          "maxzoom": 9,
           "style": {
             "opacity": 0.8
           },
@@ -10128,7 +10128,7 @@
           "source": "https://data.woonzorglimburg.nl/pmtiles/bouwjaar_lb_2026.pmtiles",
           "sourceLayer": "bouwjaar_lb_2026",
           "geometryType": "polygon",
-          "minzoom": 14,
+          "minzoom": 10,
           "style": {
             "opacity": 0.8
           },
