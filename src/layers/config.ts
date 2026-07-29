@@ -2,7 +2,7 @@ import type { LayerConfig, LayersFile, LayerFormat, StatisticConfig } from "./ty
 
 // "geojson" is deliberately absent: it is an in-memory format (LayerConfig.data)
 // constructed programmatically (e.g. by the Power BI bridge), never via layers.json.
-const VALID_FORMATS: LayerFormat[] = ["geoarrow", "parquet", "mvt", "cog"];
+const VALID_FORMATS: LayerFormat[] = ["geoarrow", "parquet", "mvt", "cog", "flatgeobuf"];
 
 let cachedConfig: LayerConfig[] | null = null;
 
@@ -43,6 +43,16 @@ function validateStatistics(raw: unknown, id: string): StatisticConfig[] | undef
   return valid.length > 0 ? valid : undefined;
 }
 
+/** "flatgeobuf" only: zoom cutoff below which nothing is fetched or shown. */
+function validateMinzoom(raw: unknown, id: string): number | undefined {
+  if (raw === undefined) return undefined;
+  if (typeof raw !== "number" || !Number.isFinite(raw) || raw < 0 || raw > 24) {
+    console.warn(`layers.json: layer "${id}" has invalid "minzoom" ${JSON.stringify(raw)}; ignoring`);
+    return undefined;
+  }
+  return raw;
+}
+
 function validateLayerConfig(layer: Record<string, unknown>, index: number): LayerConfig | null {
   if (!layer.id || typeof layer.id !== "string") {
     console.warn(`layers.json: entry ${index} missing "id", skipping`);
@@ -74,6 +84,7 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     excludeFromPicking: (layer.excludeFromPicking as boolean) ?? undefined,
     excludeFromComparison: (layer.excludeFromComparison as boolean) ?? undefined,
     beforeid: (layer.beforeid as string) ?? undefined,
+    minzoom: validateMinzoom(layer.minzoom, layer.id as string),
     embeddedColors: (layer.embeddedColors as boolean) ?? undefined,
     charts: validateCharts(layer.charts, layer.id as string),
     statistics: validateStatistics(layer.statistics, layer.id as string),
