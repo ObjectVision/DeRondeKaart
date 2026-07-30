@@ -10416,6 +10416,129 @@
       "featureinfo": {
         "template": "<div><b>Pandtype klasse: [[ band0 ]]</b></div>"
       }
+    },
+    {
+      "id": "aandeel_j0_17",
+      "name": "Aandeel 0-17 jaar",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "%YEAR%_aandeel_j0_17_m5",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2025,
+        "end": 2045,
+        "step": 5
+      },
+      "geostyler": {
+        "name": "Aandeel 0-17 jaar",
+        "rules": [
+          {
+            "name": "0-10%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4D849"
+              }
+            ]
+          },
+          {
+            "name": "10-15%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A2BC4B"
+              }
+            ]
+          },
+          {
+            "name": "15-20%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#659F4E"
+              }
+            ]
+          },
+          {
+            "name": "20-25%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#258350"
+              }
+            ]
+          },
+          {
+            "name": "25-30%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1A5D56"
+              }
+            ]
+          },
+          {
+            "name": "30-35%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#143658"
+              }
+            ]
+          },
+          {
+            "name": "35% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#070E3D"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandeel 0-17 jaar: klasse [[ class ]]</b></div>"
+      }
     }
   ]
 }

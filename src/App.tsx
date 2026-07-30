@@ -1085,6 +1085,65 @@ function App({
     [mapRightLayers],
   );
 
+  const handleTogglePlayA = useCallback(
+    (layerId: string) => {
+      mapLeftLayers.togglePlay(layerId);
+    },
+    [mapLeftLayers],
+  );
+
+  const handleTogglePlayB = useCallback(
+    (layerId: string) => {
+      mapRightLayers.togglePlay(layerId);
+    },
+    [mapRightLayers],
+  );
+
+  // Scrubbing pauses playback, so the slider and the timer can't fight over
+  // which step is rendered.
+  const handleSetStepA = useCallback(
+    (layerId: string, value: number) => {
+      mapLeftLayers.stopPlay(layerId);
+      mapLeftLayers.setLayerStep(layerId, value, [mapLeftRef.current?.mapRef ?? { current: null }]);
+    },
+    [mapLeftLayers],
+  );
+
+  const handleSetStepB = useCallback(
+    (layerId: string, value: number) => {
+      mapRightLayers.stopPlay(layerId);
+      mapRightLayers.setLayerStep(layerId, value, [mapRightRef.current?.mapRef ?? { current: null }]);
+    },
+    [mapRightLayers],
+  );
+
+  // Timeseries playback: one interval per playing layer, per map. Re-armed
+  // whenever the playing set changes; the step itself is read from the hook's
+  // ref inside advanceStep, so a tick never needs the interval rebuilt.
+  useEffect(() => {
+    if (mapLeftLayers.playingIds.size === 0) return;
+    const timers = [...mapLeftLayers.playingIds].map((layerId) => {
+      const entry = mapLeftLayers.layerEntries.find((e) => e.config.id === layerId);
+      const intervalMs = entry?.config.timeseries?.intervalMs ?? 1000;
+      return window.setInterval(() => {
+        mapLeftLayers.advanceStep(layerId, [mapLeftRef.current?.mapRef ?? { current: null }]);
+      }, intervalMs);
+    });
+    return () => timers.forEach((t) => window.clearInterval(t));
+  }, [mapLeftLayers]);
+
+  useEffect(() => {
+    if (mapRightLayers.playingIds.size === 0) return;
+    const timers = [...mapRightLayers.playingIds].map((layerId) => {
+      const entry = mapRightLayers.layerEntries.find((e) => e.config.id === layerId);
+      const intervalMs = entry?.config.timeseries?.intervalMs ?? 1000;
+      return window.setInterval(() => {
+        mapRightLayers.advanceStep(layerId, [mapRightRef.current?.mapRef ?? { current: null }]);
+      }, intervalMs);
+    });
+    return () => timers.forEach((t) => window.clearInterval(t));
+  }, [mapRightLayers]);
+
   const handleRemoveA = useCallback(
     (layerId: string) => {
       mapLeftLayers.removeLayer(layerId, mapLeftRef.current?.mapRef ?? { current: null });
@@ -1366,8 +1425,12 @@ function App({
               entries={mapRightLayers.layerEntries}
               hiddenIds={mapRightLayers.hiddenIds}
               hiddenRules={mapRightLayers.hiddenRules}
+              layerSteps={mapRightLayers.layerSteps}
+              playingIds={mapRightLayers.playingIds}
               onToggle={handleToggleB}
               onToggleRule={handleToggleRuleB}
+              onTogglePlay={handleTogglePlayB}
+              onSetStep={handleSetStepB}
               onRemove={handleRemoveB}
               onMove={handleMoveToLeft}
               moveDirection="left"
@@ -1599,8 +1662,12 @@ function App({
             entries={leftLegendUsesMapB ? mapRightLayers.layerEntries : mapLeftLayers.layerEntries}
             hiddenIds={leftLegendUsesMapB ? mapRightLayers.hiddenIds : mapLeftLayers.hiddenIds}
             hiddenRules={leftLegendUsesMapB ? mapRightLayers.hiddenRules : mapLeftLayers.hiddenRules}
+            layerSteps={leftLegendUsesMapB ? mapRightLayers.layerSteps : mapLeftLayers.layerSteps}
+            playingIds={leftLegendUsesMapB ? mapRightLayers.playingIds : mapLeftLayers.playingIds}
             onToggle={leftLegendUsesMapB ? handleToggleB : handleToggleA}
             onToggleRule={leftLegendUsesMapB ? handleToggleRuleB : handleToggleRuleA}
+            onTogglePlay={leftLegendUsesMapB ? handleTogglePlayB : handleTogglePlayA}
+            onSetStep={leftLegendUsesMapB ? handleSetStepB : handleSetStepA}
             onRemove={leftLegendUsesMapB ? handleRemoveB : handleRemoveA}
             onMove={leftLegendUsesMapB ? handleMoveToLeft : handleMoveToRight}
             moveDirection={leftLegendUsesMapB ? "left" : "right"}

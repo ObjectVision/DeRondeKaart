@@ -1,4 +1,4 @@
-import type { LayerConfig, LayersFile, LayerFormat, StatisticConfig } from "./types";
+import type { LayerConfig, LayersFile, LayerFormat, StatisticConfig, TimeseriesConfig } from "./types";
 
 // "geojson" is deliberately absent: it is an in-memory format (LayerConfig.data)
 // constructed programmatically (e.g. by the Power BI bridge), never via layers.json.
@@ -55,6 +55,58 @@ function validateZoomBound(raw: unknown, id: string, key: "minzoom" | "maxzoom")
     return undefined;
   }
   return raw;
+}
+
+const DEFAULT_TIMESERIES_PLACEHOLDER = "%YEAR%";
+const DEFAULT_TIMESERIES_INTERVAL_MS = 1000;
+
+/**
+ * Timeseries playback block. Dropped (with a warning) rather than half-applied:
+ * a layer whose `sourceLayer` lacks the placeholder would step through years
+ * without the rendered layer ever changing, which is a confusing silent no-op.
+ */
+function validateTimeseries(
+  raw: unknown,
+  id: string,
+  sourceLayer: string | undefined,
+): TimeseriesConfig | undefined {
+  if (raw === undefined) return undefined;
+
+  const drop = (why: string) => {
+    console.warn(`layers.json: layer "${id}" has invalid "timeseries" (${why}); ignoring`);
+    return undefined;
+  };
+
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+    return drop("not an object");
+  }
+
+  const ts = raw as Record<string, unknown>;
+  const num = (key: "start" | "end" | "step" | "intervalMs") => {
+    const value = ts[key];
+    return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+  };
+
+  const start = num("start");
+  const end = num("end");
+  const step = num("step");
+  if (start === undefined) return drop('"start" must be a finite number');
+  if (end === undefined) return drop('"end" must be a finite number');
+  if (step === undefined || step <= 0) return drop('"step" must be a number > 0');
+  if (end < start) return drop(`"end" ${end} is before "start" ${start}`);
+
+  const placeholder =
+    typeof ts.placeholder === "string" && ts.placeholder.length > 0
+      ? ts.placeholder
+      : DEFAULT_TIMESERIES_PLACEHOLDER;
+  if (!sourceLayer?.includes(placeholder)) {
+    return drop(`"sourceLayer" does not contain the placeholder ${placeholder}`);
+  }
+
+  const rawInterval = num("intervalMs");
+  const intervalMs = rawInterval !== undefined && rawInterval > 0 ? rawInterval : DEFAULT_TIMESERIES_INTERVAL_MS;
+
+  return { placeholder, start, end, step, intervalMs };
 }
 
 /** Validate one inline child of a "composite" entry. Returns null to drop the child. */
@@ -166,6 +218,11 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     format: layer.format as LayerFormat,
     geometryType: (layer.geometryType as LayerConfig["geometryType"]) ?? undefined,
     sourceLayer: (layer.sourceLayer as string) ?? undefined,
+    timeseries: validateTimeseries(
+      layer.timeseries,
+      layer.id as string,
+      layer.sourceLayer as string | undefined,
+    ),
     geostyler: (layer.geostyler as LayerConfig["geostyler"]) ?? undefined,
     style: (layer.style as LayerConfig["style"]) ?? {},
     featureinfo: (layer.featureinfo as LayerConfig["featureinfo"]) ?? undefined,
