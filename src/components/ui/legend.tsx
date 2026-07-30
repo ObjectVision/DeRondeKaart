@@ -339,7 +339,7 @@ export const Legend = memo(function Legend({
                 title="Kaartlagen verbergen"
                 aria-label="Kaartlagen verbergen"
               >
-                <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+                <Icon name="remove" size={chromeIconSize()} color={chromeIconColor()} />
               </Button>
             )}
           </div>
