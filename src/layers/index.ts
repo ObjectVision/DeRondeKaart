@@ -40,4 +40,4 @@ export {
   computeStatistics,
 } from "./chart-data";
 export type { ChartDatum, ResolvedChart, ResolvedStat } from "./chart-data";
-export type { LayerConfig, LayerFormat, LayerStyle, GeometryType, LayersFile, GeoStylerStyle, GeoStylerRule, FeatureInfoConfig, StatisticConfig, ChartValueFormat } from "./types";
+export type { LayerConfig, LayerFormat, LayerStyle, GeometryType, LayersFile, GeoStylerStyle, GeoStylerRule, FeatureInfoConfig, StatisticConfig, ChartValueFormat, TimeseriesConfig } from "./types";
