@@ -247,6 +247,67 @@ EOF
 }
 
 # ---------------------------------------------------------------------------
+# TLS hardening (signature algorithms)
+# ---------------------------------------------------------------------------
+# The ciphersuite list lives in certbot's options-ssl-nginx.conf, which certbot
+# OVERWRITES on update — never edit that file. This snippet is ours and is
+# included next to hsts.conf in every TLS server block.
+#
+# Why: scanners (internet.nl, NCSC 3.3.5) flag SHA224 as "uit te faseren".
+# SHA224 is not a ciphersuite property — it comes from OpenSSL's *default* TLS
+# 1.2 signature-algorithm list, so tightening ssl_ciphers does nothing. Verified
+# on this host before the fix:
+#     openssl s_client -tls1_2 -sigalgs 'ECDSA+SHA224'  -> ACCEPTED
+# Setting SignatureAlgorithms explicitly drops SHA224 (and SHA1) while keeping
+# everything a modern client offers. TLS 1.3 is unaffected (it has its own list).
+#
+# ECDSA first: the Let's Encrypt certs on this host are ECDSA (P-256), so
+# ecdsa_secp256r1_sha256 must remain available or handshakes break outright.
+# Requires OpenSSL >= 1.1.1 for ssl_conf_command (host has 3.5.5, nginx 1.28.3).
+TLS_SNIPPET="/etc/nginx/snippets/tls-hardening.conf"
+TLS_SIGALGS="${TLS_SIGALGS:-ECDSA+SHA256:ECDSA+SHA384:ECDSA+SHA512:rsa_pss_pss_sha256:rsa_pss_rsae_sha256:rsa_pss_rsae_sha384:rsa_pss_rsae_sha512:RSA+SHA256:RSA+SHA384:RSA+SHA512}"
+
+ensure_tls_hardening_snippet() {
+  write_root_file "$TLS_SNIPPET" 0644 <<EOF
+# Managed by the northwake server setup scripts — edits will be overwritten.
+# Explicit TLS 1.2 signature algorithms: excludes SHA224/SHA1 (see common.sh).
+ssl_conf_command SignatureAlgorithms ${TLS_SIGALGS};
+EOF
+  ok "TLS hardening snippet ready ($TLS_SNIPPET)"
+}
+
+# ---------------------------------------------------------------------------
+# Content-Security-Policy
+# ---------------------------------------------------------------------------
+# Only ONE Content-Security-Policy header is honoured (the most restrictive
+# wins per directive, and a second header cannot loosen the first), so a site
+# must emit exactly one — never a strict CSP *and* a separate frame-ancestors
+# header. Callers therefore build the whole policy here, frame-ancestors
+# included.
+#
+# render_csp_header <policy> [report-only] [frame-ancestors]
+#   policy          : "static" (locked down) | the literal directive string
+#   report-only     : "1" -> Content-Security-Policy-Report-Only (observe, do
+#                     not enforce). Use while validating a policy on a complex
+#                     app; violations appear in the browser console instead of
+#                     breaking the page.
+#   frame-ancestors : appended as `frame-ancestors <value>`; blank -> omitted
+#                     entirely (embeddable anywhere, the existing default).
+CSP_STATIC="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"
+
+render_csp_header() {
+  local policy="$1" report_only="${2:-}" frame_ancestors="${3:-}"
+  [ "$policy" = "static" ] && policy="$CSP_STATIC"
+  [ -z "$policy" ] && return 0
+  if [ -n "$frame_ancestors" ]; then
+    policy="$policy; frame-ancestors $frame_ancestors"
+  fi
+  local header="Content-Security-Policy"
+  [ "$report_only" = "1" ] && header="Content-Security-Policy-Report-Only"
+  printf '    add_header %s "%s" always;\n' "$header" "$policy"
+}
+
+# ---------------------------------------------------------------------------
 # security.txt (RFC 9116)
 # ---------------------------------------------------------------------------
 # Published at /.well-known/security.txt so researchers have a documented way
@@ -254,8 +315,14 @@ EOF
 # it. RFC 9116 REQUIRES `Contact` and `Expires`; an expired file is treated as
 # invalid, so `Expires` is regenerated one year out on every run — re-running
 # the setup scripts keeps it fresh.
+#
+# Deliberately NO `Encryption` field and no PGP signature. Both are RFC 9116
+# *recommendations*, not requirements — the file validates without them — and
+# both would commit the organisation to publishing and rotating a key. Set
+# SECURITYTXT_POLICY to publish a disclosure-policy URL when one exists.
 SECURITYTXT_CONTACT="${SECURITYTXT_CONTACT:-mailto:info@objectvision.nl}"
 SECURITYTXT_ORG="${SECURITYTXT_ORG:-Object Vision BV}"
+SECURITYTXT_POLICY="${SECURITYTXT_POLICY:-}"
 
 # render_security_txt <canonical-url>
 render_security_txt() {
@@ -264,13 +331,15 @@ render_security_txt() {
   local expires
   expires="$(date -u -d '+1 year' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null \
              || date -u -v+1y +%Y-%m-%dT%H:%M:%SZ)"
+  local policy_line=""
+  [ -n "$SECURITYTXT_POLICY" ] && policy_line="Policy: ${SECURITYTXT_POLICY}"$'\n'
   cat <<EOF
 # Managed by the northwake server setup scripts — edits will be overwritten.
 Contact: ${SECURITYTXT_CONTACT}
 Expires: ${expires}
 Preferred-Languages: nl, en
 Canonical: ${canonical}/.well-known/security.txt
-# ${SECURITYTXT_ORG}
+${policy_line}# ${SECURITYTXT_ORG}
 EOF
 }
 
@@ -301,11 +370,12 @@ nginx_post_tls() {
   local site="/etc/nginx/sites-available/$slug"
   [ -f "$site" ] || { warn "nginx_post_tls: $site not found"; return 0; }
 
-  sudo HSTS_SNIPPET="$HSTS_SNIPPET" PRIMARY="$primary" python3 - "$site" <<'PY'
+  sudo HSTS_SNIPPET="$HSTS_SNIPPET" TLS_SNIPPET="$TLS_SNIPPET" PRIMARY="$primary" \
+    python3 - "$site" <<'PY'
 import os, re, sys
 
 path = sys.argv[1]
-snippet = os.environ["HSTS_SNIPPET"]
+snippets = [os.environ["HSTS_SNIPPET"], os.environ["TLS_SNIPPET"]]
 primary = os.environ["PRIMARY"]
 src = open(path, encoding="utf-8").read()
 
@@ -349,12 +419,15 @@ for kind, text in blocks:
             if new != text:
                 text, _ = new, changed.append(f"alias {' '.join(names)} -> {primary} (1 hop)")
 
-        # 2. HSTS include inside every TLS block (idempotent).
-        if snippet not in text:
+        # 2. Shared snippet includes inside every TLS block (idempotent).
+        for snippet in snippets:
+            if snippet in text:
+                continue
             text = re.sub(r"\n(\s*)(listen\s+(\[::\]:)?443\b)",
                           lambda mm: f"\n{mm.group(1)}include {snippet};\n{mm.group(1)}{mm.group(2)}",
                           text, count=1)
-            changed.append(f"HSTS -> {' '.join(names) or '(unnamed)'}")
+            label = snippet.rsplit("/", 1)[-1].replace(".conf", "")
+            changed.append(f"{label} -> {' '.join(names) or '(unnamed)'}")
 
     out.append(text)
 
@@ -365,6 +438,35 @@ for c in changed:
     print("  fixed:", c)
 PY
   ok "Post-TLS fixups applied to $slug"
+}
+
+# ---------------------------------------------------------------------------
+# IPv6 reachability check
+# ---------------------------------------------------------------------------
+# This host already has a global IPv6 address and every nginx site listens on
+# [::], so IPv6 readiness is purely a DNS question: without an AAAA record the
+# site is IPv4-only and scanners (internet.nl) fail it outright. That record
+# lives at the DNS provider, not in these scripts — so warn loudly instead of
+# pretending it is fixed. See server/README.md for the records to create.
+#
+# check_aaaa <host> [host...]
+check_aaaa() {
+  local h missing=()
+  for h in "$@"; do
+    [ -n "$h" ] || continue
+    if ! getent ahostsv6 "$h" >/dev/null 2>&1; then
+      missing+=("$h")
+    fi
+  done
+  if [ "${#missing[@]}" -gt 0 ]; then
+    warn "No AAAA (IPv6) DNS record for: ${missing[*]}"
+    warn "  The server is IPv6-ready (nginx listens on [::]); only DNS is missing."
+    warn "  Publish AAAA records at the DNS provider — but pin a STATIC IPv6 on"
+    warn "  the host first: the current address is SLAAC/dynamic, and a changing"
+    warn "  address would black-hole IPv6 clients. See server/README.md."
+  else
+    ok "AAAA (IPv6) DNS records present for: $*"
+  fi
 }
 
 # ---------------------------------------------------------------------------

@@ -216,8 +216,15 @@ server {
 
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    # no-referrer: scanners (NCSC) advise against strict-origin-when-cross-origin,
+    # and nothing here needs an outbound Referer.
+    add_header Referrer-Policy "no-referrer" always;
+$(render_csp_header static "" "'none'")
 
+    # HTTP compression is intentionally ON. Scanners flag it as a BREACH risk;
+    # BREACH requires a secret (session token, CSRF token) reflected into a
+    # COMPRESSED response body, and this is a static site with no per-user
+    # secrets in any response. Do not disable without re-checking that premise.
     gzip on;
     gzip_types text/plain text/css application/javascript image/svg+xml;
     gzip_min_length 1024;
@@ -232,11 +239,13 @@ if [ "$NO_TLS" = "1" ]; then
   warn "TLS skipped (--no-tls). Site is served over plain HTTP."
 else
   ensure_hsts_snippet
+  ensure_tls_hardening_snippet
   tls_obtain "$EMAIL" "$HOST" "${ALIASES[@]}" || true
   # Adds HSTS to the TLS blocks and collapses the alias's extra redirect hop
   # that certbot's rewrite introduces (see nginx_post_tls in common.sh).
   nginx_post_tls "$SLUG" "$HOST"
   ensure_security_txt "$WEBROOT" "https://$HOST"
+  check_aaaa "$HOST" "${ALIASES[@]}"
   nginx_test_reload
 fi
 
