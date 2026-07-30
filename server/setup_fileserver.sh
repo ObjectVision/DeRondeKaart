@@ -192,6 +192,10 @@ $CORS_HEADERS
 
     location / { try_files \$uri \$uri/ =404; }
 
+    # RFC 9116 — served as plain text, not sniffed. Sits outside the geo-mime
+    # types and the binary/range location blocks above.
+    location = /.well-known/security.txt { default_type text/plain; }
+
     gzip off;
 }
 EOF
@@ -202,7 +206,11 @@ nginx_test_reload
 if [ "$NO_TLS" = "1" ]; then
   warn "TLS skipped (--no-tls). Served over plain HTTP."
 else
+  ensure_hsts_snippet
   tls_obtain "$EMAIL" "$HOST" || true
+  nginx_post_tls "$SLUG" "$HOST"
+  ensure_security_txt "$DATA_DIR" "https://$HOST"
+  nginx_test_reload
 fi
 
 SCHEME=$([ "$NO_TLS" = 1 ] && echo http || echo https)

@@ -199,6 +199,9 @@ server {
 
     location / { try_files \$uri \$uri/ =404; }
 
+    # RFC 9116 — served as plain text, not sniffed.
+    location = /.well-known/security.txt { default_type text/plain; }
+
     # Proxy deploy webhooks to the shared listener on 127.0.0.1:$WEBHOOK_PORT
     location /hooks/ {
         proxy_pass http://127.0.0.1:$WEBHOOK_PORT/hooks/;
@@ -228,7 +231,13 @@ nginx_test_reload
 if [ "$NO_TLS" = "1" ]; then
   warn "TLS skipped (--no-tls). Site is served over plain HTTP."
 else
+  ensure_hsts_snippet
   tls_obtain "$EMAIL" "$HOST" "${ALIASES[@]}" || true
+  # Adds HSTS to the TLS blocks and collapses the alias's extra redirect hop
+  # that certbot's rewrite introduces (see nginx_post_tls in common.sh).
+  nginx_post_tls "$SLUG" "$HOST"
+  ensure_security_txt "$WEBROOT" "https://$HOST"
+  nginx_test_reload
 fi
 
 echo

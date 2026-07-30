@@ -216,6 +216,158 @@ EOF
 }
 
 # ---------------------------------------------------------------------------
+# HSTS
+# ---------------------------------------------------------------------------
+# Shared Strict-Transport-Security snippet, written once and included by every
+# site's HTTPS server block (same pattern as the fileserver's geo-mime.conf).
+#
+# Without HSTS a browser that has ever seen the site over plain HTTP keeps
+# trying port 80 first, and shows the "Je verbinding met deze site is niet
+# beveiligd" panel on the http:// hop even though it 301s to https. With it,
+# the browser upgrades internally and never touches :80 again.
+#
+# max-age is 1 year (31536000). Security scanners (e.g. internet.nl) flag
+# anything shorter than a year as insufficient — a 300s test value gives
+# essentially no protection because the browser forgets within minutes.
+# Deliberately NO `preload`: preloading is a one-way commitment for the apex
+# plus every subdomain, baked into browser binaries and slow to undo.
+# `includeSubDomains` already asserts HTTPS for *.<domain>, so only include
+# this on hosts whose siblings are all HTTPS-capable.
+HSTS_SNIPPET="/etc/nginx/snippets/hsts.conf"
+HSTS_MAX_AGE="${HSTS_MAX_AGE:-31536000}"
+
+ensure_hsts_snippet() {
+  # Rewritten every run so a changed HSTS_MAX_AGE actually takes effect.
+  write_root_file "$HSTS_SNIPPET" 0644 <<EOF
+# Managed by the northwake server setup scripts — edits will be overwritten.
+# HTTPS only: browsers ignore this header when served over plain HTTP.
+add_header Strict-Transport-Security "max-age=${HSTS_MAX_AGE}; includeSubDomains" always;
+EOF
+  ok "HSTS snippet ready ($HSTS_SNIPPET, max-age=${HSTS_MAX_AGE})"
+}
+
+# ---------------------------------------------------------------------------
+# security.txt (RFC 9116)
+# ---------------------------------------------------------------------------
+# Published at /.well-known/security.txt so researchers have a documented way
+# to report vulnerabilities. Scanners (internet.nl, securitytxt.org) check for
+# it. RFC 9116 REQUIRES `Contact` and `Expires`; an expired file is treated as
+# invalid, so `Expires` is regenerated one year out on every run — re-running
+# the setup scripts keeps it fresh.
+SECURITYTXT_CONTACT="${SECURITYTXT_CONTACT:-mailto:info@objectvision.nl}"
+SECURITYTXT_ORG="${SECURITYTXT_ORG:-Object Vision BV}"
+
+# render_security_txt <canonical-url>
+render_security_txt() {
+  local canonical="$1"
+  # RFC 9116 wants an ISO 8601 / RFC 3339 UTC timestamp.
+  local expires
+  expires="$(date -u -d '+1 year' +%Y-%m-%dT%H:%M:%SZ 2>/dev/null \
+             || date -u -v+1y +%Y-%m-%dT%H:%M:%SZ)"
+  cat <<EOF
+# Managed by the northwake server setup scripts — edits will be overwritten.
+Contact: ${SECURITYTXT_CONTACT}
+Expires: ${expires}
+Preferred-Languages: nl, en
+Canonical: ${canonical}/.well-known/security.txt
+# ${SECURITYTXT_ORG}
+EOF
+}
+
+# Write security.txt into a site's webroot.
+# ensure_security_txt <webroot> <canonical-url>
+ensure_security_txt() {
+  local webroot="$1" canonical="$2"
+  render_security_txt "$canonical" \
+    | write_root_file "$webroot/.well-known/security.txt" 0644
+  ok "security.txt written ($canonical/.well-known/security.txt)"
+}
+
+# ---------------------------------------------------------------------------
+# Post-certbot fixups
+# ---------------------------------------------------------------------------
+# These scripts write HTTP-only server blocks and let certbot's nginx plugin
+# add the TLS listeners. That rewrite has two side effects we undo here:
+#
+#  1. Certbot turns each alias into its own HTTPS server whose server_name is
+#     the alias, so https://www.<host> matches it and 301s to https://www.<host>
+#     before the alias redirect applies — two hops instead of one.
+#  2. Only the block certbot upgrades in place gets the TLS listeners, so the
+#     HSTS include has to be (re-)asserted inside every `listen 443` block.
+#
+# nginx_post_tls <slug> <primary-host>
+nginx_post_tls() {
+  local slug="$1" primary="$2"
+  local site="/etc/nginx/sites-available/$slug"
+  [ -f "$site" ] || { warn "nginx_post_tls: $site not found"; return 0; }
+
+  sudo HSTS_SNIPPET="$HSTS_SNIPPET" PRIMARY="$primary" python3 - "$site" <<'PY'
+import os, re, sys
+
+path = sys.argv[1]
+snippet = os.environ["HSTS_SNIPPET"]
+primary = os.environ["PRIMARY"]
+src = open(path, encoding="utf-8").read()
+
+# Split into top-level server blocks (brace depth from each "server {").
+blocks, i = [], 0
+while True:
+    m = re.compile(r"server\s*\{").search(src, i)
+    if not m:
+        blocks.append((None, src[i:]))
+        break
+    if m.start() > i:
+        blocks.append((None, src[i:m.start()]))
+    depth, j = 0, m.start()
+    while j < len(src):
+        if src[j] == "{":
+            depth += 1
+        elif src[j] == "}":
+            depth -= 1
+            if depth == 0:
+                j += 1
+                break
+        j += 1
+    blocks.append(("server", src[m.start():j]))
+    i = j
+
+out, changed = [], []
+for kind, text in blocks:
+    if kind != "server":
+        out.append(text)
+        continue
+
+    is_tls = re.search(r"listen\s+(\[::\]:)?443\b", text) is not None
+    names = re.search(r"server_name\s+([^;]+);", text)
+    names = names.group(1).split() if names else []
+
+    if is_tls:
+        # 1. Alias HTTPS block redirecting to itself -> straight to the primary.
+        if primary not in names and "return 301" in text:
+            new = re.sub(r"return\s+301\s+https://[^;]*;",
+                         f"return 301 https://{primary}$request_uri;", text)
+            if new != text:
+                text, _ = new, changed.append(f"alias {' '.join(names)} -> {primary} (1 hop)")
+
+        # 2. HSTS include inside every TLS block (idempotent).
+        if snippet not in text:
+            text = re.sub(r"\n(\s*)(listen\s+(\[::\]:)?443\b)",
+                          lambda mm: f"\n{mm.group(1)}include {snippet};\n{mm.group(1)}{mm.group(2)}",
+                          text, count=1)
+            changed.append(f"HSTS -> {' '.join(names) or '(unnamed)'}")
+
+    out.append(text)
+
+result = "".join(out)
+if result != src:
+    open(path, "w", encoding="utf-8", newline="\n").write(result)
+for c in changed:
+    print("  fixed:", c)
+PY
+  ok "Post-TLS fixups applied to $slug"
+}
+
+# ---------------------------------------------------------------------------
 # TLS via certbot (nginx plugin). Idempotent: safe to re-run.
 # tls_obtain <email> <host> [host...]
 # The nginx site must already be enabled and serving :80 for these hosts.
