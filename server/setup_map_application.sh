@@ -280,6 +280,14 @@ server {
     # SPA fallback: unknown URLs serve index.html so the React router takes over.
     location / { try_files \$uri \$uri/ /index.html; }
 
+    # RFC 9116. Explicit block so the SPA fallback can never answer it with
+    # index.html (a 200 of HTML would look "present but malformed" to scanners),
+    # and so it is served as plain text rather than sniffed.
+    location = /.well-known/security.txt {
+        default_type text/plain;
+        try_files \$uri =404;
+    }
+
     # Hashed Vite assets are immutable.
     location ^~ /assets/ {
         expires 1y;
@@ -356,7 +364,11 @@ nginx_test_reload
 if [ "$NO_TLS" = "1" ]; then
   warn "TLS skipped (--no-tls). Served over plain HTTP."
 else
+  ensure_hsts_snippet
   tls_obtain "$EMAIL" "$HOST" || true
+  nginx_post_tls "$SLUG" "$HOST"
+  ensure_security_txt "$WEBROOT" "https://$HOST"
+  nginx_test_reload
 fi
 
 SCHEME=$([ "$NO_TLS" = 1 ] && echo http || echo https)
