@@ -172,6 +172,20 @@
             "b": false
           }
         ]
+      },
+      {
+        "label": "prognose",
+        "icon": "monitoring",
+        "color": "#3E74A7",
+        "expanded": true,
+        "children": [
+          {
+            "id": "aandeel_j0_17",
+            "label": "Aandeel 0-17 jaar",
+            "a": false,
+            "b": false
+          }
+        ]
       }
     ]
   },

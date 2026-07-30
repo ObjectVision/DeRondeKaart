@@ -2,6 +2,7 @@ import { useRef, useState, useCallback, useMemo } from "react";
 import type { Layer } from "@deck.gl/core";
 import type { Table } from "apache-arrow";
 import type { MapRef } from "react-map-gl/maplibre";
+import type { Map as MapLibreMap } from "maplibre-gl";
 import { setColorFunction } from "@geomatico/maplibre-cog-protocol";
 import { anchorForConfig } from "@/components/map/MapView";
 import {
@@ -47,6 +48,11 @@ export function useMapLayers() {
   // children that load later when the zoom enters their range.
   const hiddenIdsRef = useRef<Set<string>>(new Set());
   const hiddenRulesRef = useRef<globalThis.Map<string, Set<string>>>(new globalThis.Map());
+  // Timeseries: the step each layer currently shows, and which are playing.
+  // Ref mirrors let the interval tick read current state without re-arming.
+  const [layerSteps, setLayerSteps] = useState<globalThis.Map<string, number>>(new globalThis.Map());
+  const [playingIds, setPlayingIds] = useState<Set<string>>(new Set());
+  const layerStepsRef = useRef<globalThis.Map<string, number>>(new globalThis.Map());
 
   /**
    * Add deck layers, replacing any existing layer with the same id. The
@@ -219,6 +225,21 @@ export function useMapLayers() {
       return next;
     });
 
+    // Stop playback and forget the step, so re-adding starts fresh.
+    setPlayingIds((prev) => {
+      if (!prev.has(layerId)) return prev;
+      const next = new Set(prev);
+      next.delete(layerId);
+      return next;
+    });
+    setLayerSteps((prev) => {
+      if (!prev.has(layerId)) return prev;
+      const next = new globalThis.Map(prev);
+      next.delete(layerId);
+      layerStepsRef.current = next;
+      return next;
+    });
+
     if (!entry) return;
 
     // Remove native MapLibre layers and sources
@@ -333,6 +354,73 @@ export function useMapLayers() {
   );
 
   /**
+   * Show a specific timeseries step for a layer, on every map it is on.
+   * Rebuilds the layer's rule layers against the substituted source layer —
+   * see `applyTimeseriesStep` for why remove+re-add is the only option.
+   */
+  const setLayerStep = useCallback(
+    (layerId: string, value: number, mapRefs: React.RefObject<MapRef | null>[]) => {
+      const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
+      const ts = entry?.config.timeseries;
+      if (!entry || !ts) return;
+
+      // Clamp onto the configured grid so a slider drag can't land off-step.
+      const steps = Math.round((ts.end - ts.start) / ts.step);
+      const index = Math.min(Math.max(Math.round((value - ts.start) / ts.step), 0), steps);
+      const next = ts.start + index * ts.step;
+
+      const hidden = {
+        layerHidden: hiddenIdsRef.current.has(layerId),
+        hiddenRuleNames: hiddenRulesRef.current.get(layerId),
+      };
+      for (const mapRef of mapRefs) {
+        applyTimeseriesStep(entry.config, next, mapRef, hidden);
+      }
+
+      setLayerSteps((prev) => {
+        const updated = new globalThis.Map(prev);
+        updated.set(layerId, next);
+        layerStepsRef.current = updated;
+        return updated;
+      });
+    },
+    [],
+  );
+
+  /** Start/stop playback for one timeseries layer. */
+  const togglePlay = useCallback((layerId: string) => {
+    setPlayingIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(layerId)) next.delete(layerId);
+      else next.add(layerId);
+      return next;
+    });
+  }, []);
+
+  /** Stop playback for one layer (no-op when it isn't playing). */
+  const stopPlay = useCallback((layerId: string) => {
+    setPlayingIds((prev) => {
+      if (!prev.has(layerId)) return prev;
+      const next = new Set(prev);
+      next.delete(layerId);
+      return next;
+    });
+  }, []);
+
+  /** Advance one step, looping back to `start` past the end. Drives playback. */
+  const advanceStep = useCallback(
+    (layerId: string, mapRefs: React.RefObject<MapRef | null>[]) => {
+      const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
+      const ts = entry?.config.timeseries;
+      if (!entry || !ts) return;
+      const current = layerStepsRef.current.get(layerId) ?? ts.start;
+      const next = current + ts.step > ts.end ? ts.start : current + ts.step;
+      setLayerStep(layerId, next, mapRefs);
+    },
+    [setLayerStep],
+  );
+
+  /**
    * Re-apply the area filter to both rendering paths:
    *  - deck.gl layers are re-cloned with a bumped update trigger so their
    *    color accessors (wrapped by the layer factory) re-evaluate the
@@ -396,11 +484,17 @@ export function useMapLayers() {
       deckLayers,
       hiddenIds,
       hiddenRules,
+      layerSteps,
+      playingIds,
       addLayer,
       removeLayer,
       hideLayer,
       toggleLayer,
       toggleRule,
+      setLayerStep,
+      togglePlay,
+      stopPlay,
+      advanceStep,
       refreshAreaFilter,
       syncImperativeLayers,
     }),
@@ -409,11 +503,17 @@ export function useMapLayers() {
       deckLayers,
       hiddenIds,
       hiddenRules,
+      layerSteps,
+      playingIds,
       addLayer,
       removeLayer,
       hideLayer,
       toggleLayer,
       toggleRule,
+      setLayerStep,
+      togglePlay,
+      stopPlay,
+      advanceStep,
       refreshAreaFilter,
       syncImperativeLayers,
     ],
@@ -455,6 +555,13 @@ function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>
   const map = mapRef.current?.getMap();
   if (!map) return;
 
+  // A timeseries layer's configured `sourceLayer` is a template — resolve it to
+  // the start step before the first addLayer, or MapLibre would be handed the
+  // literal placeholder and render nothing.
+  if (config.timeseries && config.sourceLayer?.includes(config.timeseries.placeholder)) {
+    config.sourceLayer = timeseriesSourceLayer(config, config.timeseries.start);
+  }
+
   const beforeId = anchorForConfig(config);
   const sourceId = tileSourceId(config);
 
@@ -476,6 +583,22 @@ function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>
     }
   }
 
+  addRuleLayers(map, config, sourceId, beforeId);
+}
+
+/**
+ * Add one MapLibre layer per style rule for a native vector-tile config.
+ * Split out of `addMvtLayer` because the timeseries stepper rebuilds these
+ * layers (MapLibre has no setter for `source-layer`, so switching the rendered
+ * source layer means remove + re-add) and must produce identical specs.
+ * Existing layers are left alone — callers that need a rebuild remove first.
+ */
+function addRuleLayers(
+  map: MapLibreMap,
+  config: LayerConfig,
+  sourceId: string,
+  beforeId: string,
+) {
   const defs = buildNativeLayerDefs(config);
   for (const def of defs) {
     if (map.getLayer(def.id)) continue;
@@ -508,6 +631,78 @@ function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>
     // appending when the anchor isn't in the style yet (it will be once the
     // overlay/anchors finish loading; imperative layers are re-synced then).
     map.addLayer(layerSpec as any, map.getLayer(beforeId) ? beforeId : undefined);
+  }
+}
+
+/**
+ * The `sourceLayer` template a timeseries config resolves against.
+ *
+ * `config.sourceLayer` is rewritten in place as steps are applied (so a basemap
+ * swap replays the current step), which would destroy the placeholder after the
+ * first step. The original template is stashed here, keyed by the config
+ * object, the first time that layer is stepped.
+ */
+const timeseriesTemplates = new WeakMap<LayerConfig, string>();
+
+/** Substitute the timeseries placeholder in a source layer name. */
+export function timeseriesSourceLayer(config: LayerConfig, value: number): string {
+  const ts = config.timeseries;
+  if (!ts || !config.sourceLayer) return config.sourceLayer ?? "";
+  // Remember the template before the first substitution overwrites it.
+  let template = timeseriesTemplates.get(config);
+  if (template === undefined) {
+    template = config.sourceLayer;
+    timeseriesTemplates.set(config, template);
+  }
+  return template.split(ts.placeholder).join(String(value));
+}
+
+/**
+ * Point a timeseries layer at a different step by rebuilding its rule layers.
+ *
+ * MapLibre exposes no setter for `source-layer` (only filter/layout/paint/zoom),
+ * so the layers are removed and re-added. The SOURCE is deliberately left in
+ * place: the PMTiles archive header, directory cache and already-fetched tiles
+ * all live there, so stepping stays cheap.
+ *
+ * Rule layer ids are derived from `config.id` + rule name (not `sourceLayer`),
+ * so ids are stable across steps and picking/legend keep working — but the
+ * rebuilt layers arrive visible, so the caller's current hidden state has to be
+ * reapplied here.
+ */
+function applyTimeseriesStep(
+  config: LayerConfig,
+  value: number,
+  mapRef: React.RefObject<MapRef | null>,
+  hidden: { layerHidden: boolean; hiddenRuleNames: Set<string> | undefined },
+) {
+  const map = mapRef.current?.getMap();
+  if (!map || !config.timeseries) return;
+
+  const nextSourceLayer = timeseriesSourceLayer(config, value);
+  if (nextSourceLayer === config.sourceLayer) return;
+
+  const defs = buildNativeLayerDefs(config);
+  for (const def of defs) {
+    if (map.getLayer(def.id)) map.removeLayer(def.id);
+  }
+
+  // Mutated in place: `layerEntriesRef` holds this same object, so a basemap
+  // swap replays the CURRENT step rather than reverting to the start value.
+  config.sourceLayer = nextSourceLayer;
+
+  const sourceId = tileSourceId(config);
+  if (!map.getSource(sourceId)) return;
+  addRuleLayers(map, config, sourceId, anchorForConfig(config));
+
+  // Fresh layers default to visible — restore what the user had hidden.
+  for (const def of buildNativeLayerDefs(config)) {
+    if (!map.getLayer(def.id)) continue;
+    // ruleName is "" for a flat-styled layer (no per-rule toggles).
+    const ruleHidden = def.ruleName !== "" && hidden.hiddenRuleNames?.has(def.ruleName);
+    if (hidden.layerHidden || ruleHidden) {
+      map.setLayoutProperty(def.id, "visibility", "none");
+    }
   }
 }
 

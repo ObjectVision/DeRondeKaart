@@ -146,6 +146,25 @@ export interface FeatureInfoConfig {
   templateUrl?: string;
 }
 
+/**
+ * Timeseries playback over a vector-tile archive that holds the same theme at
+ * several moments in time, one source layer per step (e.g. `2025_aandeel_…`,
+ * `2030_aandeel_…`). The layer's `sourceLayer` carries `placeholder` where the
+ * step value goes, and the legend gains a play/pause control plus a slider.
+ */
+export interface TimeseriesConfig {
+  /** Token in `sourceLayer` replaced by the current step. Default "%YEAR%". */
+  placeholder: string;
+  /** First step, and the value the layer starts on. */
+  start: number;
+  /** Last step (inclusive). Playback loops back to `start` after it. */
+  end: number;
+  /** Increment between steps. Must be > 0. */
+  step: number;
+  /** Milliseconds per step while playing. Default 1000. */
+  intervalMs: number;
+}
+
 export interface LayerConfig {
   id: string;
   name: string;
@@ -154,6 +173,11 @@ export interface LayerConfig {
   geometryType?: GeometryType;
   /** For MVT/PMTiles: the source layer name within the tileset to render */
   sourceLayer?: string;
+  /**
+   * MVT/PMTiles only: step `sourceLayer` through time. Requires `sourceLayer`
+   * to contain the placeholder token.
+   */
+  timeseries?: TimeseriesConfig;
   /** GeoStyler rule-based style (preferred) */
   geostyler?: GeoStylerStyle;
   /** Legacy flat style (used as fallback, required for COG) */

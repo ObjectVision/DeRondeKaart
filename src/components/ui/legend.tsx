@@ -5,13 +5,72 @@ import { Button } from "@/components/ui/button";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 import { colorToCSS, ruleSwatchColor } from "@/lib/legend-style";
 
+/**
+ * Play/pause + scrub control for a timeseries layer, shown under its legend
+ * classes. Dragging the slider pauses playback: scrubbing and playing at the
+ * same time would fight over the rendered step.
+ */
+function TimeseriesControl({
+  config,
+  step,
+  playing,
+  onTogglePlay,
+  onSetStep,
+}: {
+  config: LayerEntry["config"];
+  step: number;
+  playing: boolean;
+  onTogglePlay: (layerId: string) => void;
+  onSetStep: (layerId: string, value: number) => void;
+}) {
+  const ts = config.timeseries;
+  if (!ts) return null;
+
+  return (
+    <div className="ml-5 flex items-center gap-2 px-1.5 py-1">
+      <button
+        onClick={() => onTogglePlay(config.id)}
+        className="flex-shrink-0 leading-none text-gray-600 hover:text-gray-900 transition-colors"
+        title={playing ? "Pauzeer" : "Afspelen"}
+        aria-label={playing ? `Pauzeer ${config.name}` : `Speel ${config.name} af`}
+      >
+        {/* Two literal `name` props, not a ternary inside one: the icon-font
+            subsetter scans for `name="…"` and would miss the second string. */}
+        {playing ? (
+          <Icon name="pause_circle" size={chromeIconSize()} color={chromeIconColor()} />
+        ) : (
+          <Icon name="play_circle" size={chromeIconSize()} color={chromeIconColor()} />
+        )}
+      </button>
+      <input
+        type="range"
+        min={ts.start}
+        max={ts.end}
+        step={ts.step}
+        value={step}
+        onChange={(e) => onSetStep(config.id, Number(e.target.value))}
+        className="h-1 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-gray-200 accent-blue-600"
+        aria-label={`Jaar ${config.name}`}
+      />
+      <span className="w-10 flex-shrink-0 text-right text-xs tabular-nums text-gray-600">
+        {step}
+      </span>
+    </div>
+  );
+}
+
 interface LegendProps {
   /** Layers for the map this legend represents. */
   entries: LayerEntry[];
   hiddenIds: Set<string>;
   hiddenRules: globalThis.Map<string, Set<string>>;
+  /** Timeseries: current step per layer id, and which layers are playing. */
+  layerSteps: globalThis.Map<string, number>;
+  playingIds: Set<string>;
   onToggle: (layerId: string) => void;
   onToggleRule: (layerId: string, ruleName: string) => void;
+  onTogglePlay: (layerId: string) => void;
+  onSetStep: (layerId: string, value: number) => void;
   onRemove: (layerId: string) => void;
   /**
    * Move a layer to the other map. Direction ("right" from the left legend,
@@ -42,8 +101,12 @@ function LayerList({
   entries,
   hiddenIds,
   hiddenRules,
+  layerSteps,
+  playingIds,
   onToggle,
   onToggleRule,
+  onTogglePlay,
+  onSetStep,
   onRemove,
   onMove,
   moveDirection,
@@ -52,8 +115,12 @@ function LayerList({
   entries: LayerEntry[];
   hiddenIds: Set<string>;
   hiddenRules: globalThis.Map<string, Set<string>>;
+  layerSteps: globalThis.Map<string, number>;
+  playingIds: Set<string>;
   onToggle: (layerId: string) => void;
   onToggleRule: (layerId: string, ruleName: string) => void;
+  onTogglePlay: (layerId: string) => void;
+  onSetStep: (layerId: string, value: number) => void;
   onRemove: (layerId: string) => void;
   onMove?: (layerId: string) => void;
   moveDirection?: "right" | "left";
@@ -202,6 +269,17 @@ function LayerList({
                   })}
                 </ul>
               )}
+
+              {/* Timeseries playback, under the classes it animates */}
+              {config.timeseries && isVisible && (
+                <TimeseriesControl
+                  config={config}
+                  step={layerSteps.get(config.id) ?? config.timeseries.start}
+                  playing={playingIds.has(config.id)}
+                  onTogglePlay={onTogglePlay}
+                  onSetStep={onSetStep}
+                />
+              )}
             </li>
           );
         })}
@@ -218,8 +296,12 @@ export const Legend = memo(function Legend({
   entries,
   hiddenIds,
   hiddenRules,
+  layerSteps,
+  playingIds,
   onToggle,
   onToggleRule,
+  onTogglePlay,
+  onSetStep,
   onRemove,
   onMove,
   moveDirection,
@@ -270,8 +352,12 @@ export const Legend = memo(function Legend({
           entries={visible}
           hiddenIds={hiddenIds}
           hiddenRules={hiddenRules}
+          layerSteps={layerSteps}
+          playingIds={playingIds}
           onToggle={onToggle}
           onToggleRule={onToggleRule}
+          onTogglePlay={onTogglePlay}
+          onSetStep={onSetStep}
           onRemove={onRemove}
           onMove={onMove}
           moveDirection={moveDirection}
