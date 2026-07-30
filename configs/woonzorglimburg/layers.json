@@ -10539,6 +10539,716 @@
       "featureinfo": {
         "template": "<div><b>Aandeel 0-17 jaar: klasse [[ class ]]</b></div>"
       }
+    },
+    {
+      "id": "aandeel_j18_29",
+      "name": "Aandeel 18-29 jaar",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "%YEAR%_aandeel_j18_29_m5",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2025,
+        "end": 2045,
+        "step": 5
+      },
+      "geostyler": {
+        "name": "Aandeel 18-29 jaar",
+        "rules": [
+          {
+            "name": "0-10%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4D849"
+              }
+            ]
+          },
+          {
+            "name": "10-15%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A2BC4B"
+              }
+            ]
+          },
+          {
+            "name": "15-20%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#659F4E"
+              }
+            ]
+          },
+          {
+            "name": "20-25%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#258350"
+              }
+            ]
+          },
+          {
+            "name": "25-30%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1A5D56"
+              }
+            ]
+          },
+          {
+            "name": "30-35%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#143658"
+              }
+            ]
+          },
+          {
+            "name": "35% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#070E3D"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandeel 18-29 jaar: [[ class ]]</b></div>"
+      }
+    },
+    {
+      "id": "aandeel_j30_44",
+      "name": "Aandeel 30-44 jaar",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "%YEAR%_aandeel_j30_44_m5",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2025,
+        "end": 2045,
+        "step": 5
+      },
+      "geostyler": {
+        "name": "Aandeel 30-44 jaar",
+        "rules": [
+          {
+            "name": "0-10%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4D849"
+              }
+            ]
+          },
+          {
+            "name": "10-15%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A2BC4B"
+              }
+            ]
+          },
+          {
+            "name": "15-20%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#659F4E"
+              }
+            ]
+          },
+          {
+            "name": "20-25%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#258350"
+              }
+            ]
+          },
+          {
+            "name": "25-30%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1A5D56"
+              }
+            ]
+          },
+          {
+            "name": "30-35%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#143658"
+              }
+            ]
+          },
+          {
+            "name": "35% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#070E3D"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandeel 30-44 jaar: [[ class ]]</b></div>"
+      }
+    },
+    {
+      "id": "aandeel_j45_66",
+      "name": "Aandeel 45-66 jaar",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "%YEAR%_aandeel_j45_66_m5",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2025,
+        "end": 2045,
+        "step": 5
+      },
+      "geostyler": {
+        "name": "Aandeel 45-66 jaar",
+        "rules": [
+          {
+            "name": "0-10%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4D849"
+              }
+            ]
+          },
+          {
+            "name": "10-15%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A2BC4B"
+              }
+            ]
+          },
+          {
+            "name": "15-20%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#659F4E"
+              }
+            ]
+          },
+          {
+            "name": "20-25%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#258350"
+              }
+            ]
+          },
+          {
+            "name": "25-30%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1A5D56"
+              }
+            ]
+          },
+          {
+            "name": "30-35%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#143658"
+              }
+            ]
+          },
+          {
+            "name": "35% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#070E3D"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandeel 45-66 jaar: [[ class ]]</b></div>"
+      }
+    },
+    {
+      "id": "aandeel_j67_74",
+      "name": "Aandeel 67-74 jaar",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "%YEAR%_aandeel_j67_74_m5",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2025,
+        "end": 2045,
+        "step": 5
+      },
+      "geostyler": {
+        "name": "Aandeel 67-74 jaar",
+        "rules": [
+          {
+            "name": "0-10%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4D849"
+              }
+            ]
+          },
+          {
+            "name": "10-15%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A2BC4B"
+              }
+            ]
+          },
+          {
+            "name": "15-20%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#659F4E"
+              }
+            ]
+          },
+          {
+            "name": "20-25%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#258350"
+              }
+            ]
+          },
+          {
+            "name": "25-30%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1A5D56"
+              }
+            ]
+          },
+          {
+            "name": "30-35%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#143658"
+              }
+            ]
+          },
+          {
+            "name": "35% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#070E3D"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandeel 67-74 jaar: [[ class ]]</b></div>"
+      }
+    },
+    {
+      "id": "aandeel_j75_plus",
+      "name": "Aandeel 75 jaar en ouder",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "%YEAR%_aandeel_j75_plus_m5",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2025,
+        "end": 2045,
+        "step": 5
+      },
+      "geostyler": {
+        "name": "Aandeel 75 jaar en ouder",
+        "rules": [
+          {
+            "name": "0-10%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4D849"
+              }
+            ]
+          },
+          {
+            "name": "10-15%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A2BC4B"
+              }
+            ]
+          },
+          {
+            "name": "15-20%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#659F4E"
+              }
+            ]
+          },
+          {
+            "name": "20-25%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#258350"
+              }
+            ]
+          },
+          {
+            "name": "25-30%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1A5D56"
+              }
+            ]
+          },
+          {
+            "name": "30-35%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#143658"
+              }
+            ]
+          },
+          {
+            "name": "35% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#070E3D"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandeel 75 jaar en ouder: [[ class ]]</b></div>"
+      }
+    },
+    {
+      "id": "oosr_2",
+      "name": "OOSR",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "%YEAR%_oosr_2_m5",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2025,
+        "end": 2045,
+        "step": 5
+      },
+      "geostyler": {
+        "name": "OOSR",
+        "rules": [
+          {
+            "name": "0-2",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF1A00"
+              }
+            ]
+          },
+          {
+            "name": "2-5",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF8300"
+              }
+            ]
+          },
+          {
+            "name": "5-8",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFF871"
+              }
+            ]
+          },
+          {
+            "name": "8-15",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#86BD00"
+              }
+            ]
+          },
+          {
+            "name": "15 of meer",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B9400"
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>OOSR: [[ class ]]</b></div>"
+      }
     }
   ]
 }
