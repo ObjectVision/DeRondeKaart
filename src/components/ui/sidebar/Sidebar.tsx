@@ -161,7 +161,7 @@ export const Sidebar = memo(function Sidebar({
                 aria-label="Navigatie verbergen"
                 className="absolute right-2 top-2 z-10 h-5 w-5"
               >
-                <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+                <Icon name="remove" size={chromeIconSize()} color={chromeIconColor()} />
               </Button>
             )}
             {filterVisible && <FilterSection areaFilter={areaFilter} />}
