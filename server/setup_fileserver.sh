@@ -207,9 +207,11 @@ if [ "$NO_TLS" = "1" ]; then
   warn "TLS skipped (--no-tls). Served over plain HTTP."
 else
   ensure_hsts_snippet
+  ensure_tls_hardening_snippet
   tls_obtain "$EMAIL" "$HOST" || true
   nginx_post_tls "$SLUG" "$HOST"
   ensure_security_txt "$DATA_DIR" "https://$HOST"
+  check_aaaa "$HOST"
   nginx_test_reload
 fi
 

@@ -38,6 +38,8 @@ $(print_kv "--branch NAME"      "git branch to deploy (default: main)")
 $(print_kv "--config-project S" "config overlay to build (configs/<S>/ over public/); blank = defaults")
 $(print_kv "--node-version N"   "Node.js major version to install if missing (default: 20)")
 $(print_kv "--frame-ancestors V" "CSP frame-ancestors value; blank = embeddable anywhere (default: blank)")
+$(print_kv "--csp-enforce"      "enforce the CSP (default: report-only — validate the console first)")
+$(print_kv "--csp-report-only"  "ship CSP as Report-Only (default)")
 $(print_kv "--collab-port N"    "proxy /collab to a collab server on 127.0.0.1:N; blank = off (default: blank)")
 $(print_kv "--secret HEX"       "GitHub webhook HMAC secret (default: generated)")
 $(print_kv "--email ADDR"       "email for Let's Encrypt registration")
@@ -48,6 +50,8 @@ EOF
 }
 
 SLUG=""; HOST=""; REPO=""; BRANCH=""; NODE_VERSION=""; FRAME_ANCESTORS=""
+# CSP starts in report-only mode; --csp-enforce flips it once validated.
+CSP_REPORT_ONLY=1
 SECRET=""; EMAIL=""; NO_TLS=0; FRAME_SET=0; COLLAB_PORT=""; COLLAB_SET=0
 CONFIG_PROJECT=""; CONFIG_PROJECT_SET=0
 
@@ -67,6 +71,8 @@ while [ $# -gt 0 ]; do
     --node-version=*)   NODE_VERSION="${1#*=}"; shift ;;
     --frame-ancestors)  FRAME_ANCESTORS="$2"; FRAME_SET=1; shift 2 ;;
     --frame-ancestors=*) FRAME_ANCESTORS="${1#*=}"; FRAME_SET=1; shift ;;
+    --csp-enforce)      CSP_REPORT_ONLY=0; shift ;;
+    --csp-report-only)  CSP_REPORT_ONLY=1; shift ;;
     --collab-port)      COLLAB_PORT="$2"; COLLAB_SET=1; shift 2 ;;
     --collab-port=*)    COLLAB_PORT="${1#*=}"; COLLAB_SET=1; shift ;;
     --secret)           SECRET="$2"; shift 2 ;;
@@ -220,10 +226,35 @@ webhook_upsert_hook "$HOOK_ID" "$DEPLOY_SCRIPT" "$REPO_DIR" "$SECRET" "$BRANCH"
 
 # --- 7. nginx site ---
 log "Writing nginx site"
+# Content-Security-Policy.
+#
+# Only ONE CSP header is honoured, so frame-ancestors and the resource policy
+# must be a single header (render_csp_header builds it).
+#
+# Shipped as Content-Security-Policy-REPORT-ONLY by default: this app pulls
+# from several third-party origins and needs 'wasm-unsafe-eval' (parquet-wasm)
+# and blob: (workers + the PNG export in src/lib/map-capture.ts). Enforcing a
+# policy with one origin missing breaks map rendering silently, so violations
+# are reported to the browser console first. Promote with --csp-enforce once
+# the console is clean under real use (add parquet + pmtiles layers, open
+# StreetView, export a PNG).
+#
+# Origins below were read out of configs/*/layers.json + map.json and src/.
+CSP_MAP="default-src 'self'; \
+script-src 'self' 'wasm-unsafe-eval' blob: https://maps.googleapis.com https://maps.gstatic.com; \
+worker-src 'self' blob:; \
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
+font-src 'self' data: https://fonts.gstatic.com; \
+img-src 'self' data: blob: https: ; \
+connect-src 'self' blob: https://data.woonzorglimburg.nl https://service.pdok.nl https://tiles.mapgallery.io https://startanalyse2025.files.mapgallery.io https://tiles.basemaps.cartocdn.com https://maps.googleapis.com; \
+frame-src 'self' https://www.google.com https://maps.googleapis.com; \
+object-src 'none'; base-uri 'self'; form-action 'self'"
+
 if [ -n "$FRAME_ANCESTORS" ]; then
-  FRAME_HEADER="    add_header Content-Security-Policy \"frame-ancestors $FRAME_ANCESTORS\" always;"
+  FRAME_HEADER="$(render_csp_header "$CSP_MAP" "$CSP_REPORT_ONLY" "$FRAME_ANCESTORS")"
 else
-  FRAME_HEADER="    # No framing restriction: embeddable in any site/dashboard (Power BI, etc.)."
+  # No framing restriction: embeddable in any site/dashboard (Power BI, etc.).
+  FRAME_HEADER="$(render_csp_header "$CSP_MAP" "$CSP_REPORT_ONLY" "")"
 fi
 
 # Collaborative-annotation WebSocket proxy. Same pattern as /hooks/: a path on
@@ -311,10 +342,20 @@ $SA_TILES_BLOCK
 
 $FRAME_HEADER
     add_header X-Content-Type-Options "nosniff" always;
-    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    # no-referrer: scanners (NCSC) advise against strict-origin-when-cross-origin.
+    # Nothing here depends on an outbound Referer — the Google Maps/StreetView
+    # embed authenticates by API key, not by referrer.
+    add_header Referrer-Policy "no-referrer" always;
     add_header Access-Control-Allow-Origin "*" always;
 
     # --- Compression (gzip + brotli) ---
+    # Intentionally ON despite scanners flagging BREACH. BREACH needs a secret
+    # (session/CSRF token) reflected into a COMPRESSED response body; this app
+    # serves static assets and public map data with no per-user secrets in any
+    # response. The bundles are large (WASM + deck.gl), so disabling this would
+    # be a real performance regression for a public site. The fileserver
+    # separately sets `gzip off` for range-read binaries — for a different
+    # reason (Range support), see setup_fileserver.sh.
     # Text types compress on the fly; the big wins are WASM (parquet reader) and
     # the icon font, previously served uncompressed. Requires the brotli modules
     # (installed by ensure_base_stack in common.sh). brotli_static/gzip_static
@@ -365,9 +406,11 @@ if [ "$NO_TLS" = "1" ]; then
   warn "TLS skipped (--no-tls). Served over plain HTTP."
 else
   ensure_hsts_snippet
+  ensure_tls_hardening_snippet
   tls_obtain "$EMAIL" "$HOST" || true
   nginx_post_tls "$SLUG" "$HOST"
   ensure_security_txt "$WEBROOT" "https://$HOST"
+  check_aaaa "$HOST"
   nginx_test_reload
 fi
 
