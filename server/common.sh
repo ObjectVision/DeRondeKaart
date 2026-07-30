@@ -454,9 +454,19 @@ check_aaaa() {
   local h missing=()
   for h in "$@"; do
     [ -n "$h" ] || continue
-    if ! getent ahostsv6 "$h" >/dev/null 2>&1; then
-      missing+=("$h")
+    # Query DNS directly. `getent ahostsv6` is NOT usable here: it consults
+    # /etc/hosts first (on this server that maps the site's own name to the
+    # host's IPv6, a false pass) and also returns IPv4-mapped ::ffff: entries,
+    # which RFC 4291 says do not provide IPv6 connectivity.
+    local answer=""
+    if command -v dig >/dev/null 2>&1; then
+      answer="$(dig +short AAAA "$h" 2>/dev/null | grep -v '^$' | grep -v '\.$' | head -1)"
+    elif command -v host >/dev/null 2>&1; then
+      answer="$(host -t AAAA "$h" 2>/dev/null | grep -i 'has IPv6 address' | head -1)"
+    else
+      continue  # no resolver tool — skip silently rather than warn wrongly
     fi
+    [ -z "$answer" ] && missing+=("$h")
   done
   if [ "${#missing[@]}" -gt 0 ]; then
     warn "No AAAA (IPv6) DNS record for: ${missing[*]}"
