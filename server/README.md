@@ -109,12 +109,17 @@ reason: runtime gzip breaks HTTP Range requests.)
 
 ## IPv6
 
-The server already has a global IPv6 address and **every nginx site listens on
-`[::]`** — so IPv6 support is purely a **DNS** matter. As of the last check, no
-hostname had an AAAA record, which internet.nl fails outright. `check_aaaa` in
-`common.sh` warns about this on every run.
+The server has a global IPv6 address and **every nginx site listens on `[::]`**,
+so IPv6 support is purely a **DNS** matter. AAAA records are in place and
+verified serving HTTPS over IPv6 (`curl -6 -sI https://<host>` → 200). The
+`www.*` names are CNAMEs to their apex, which inherits the AAAA.
 
-To fix, at the DNS provider:
+`check_aaaa` in `common.sh` re-checks this on every run and warns if a record
+disappears. It queries DNS with `dig`/`host` rather than `getent`, because
+`getent ahostsv6` consults `/etc/hosts` first — on this server that maps the
+site's own name to the host's address and yields a false pass.
+
+If a hostname is ever added, create the matching record at the DNS provider:
 
 ```
 kanskaartthuisgeven.nl.       AAAA  <server IPv6>
@@ -128,8 +133,9 @@ data.woonzorglimburg.nl.      AAAA  <server IPv6>
 
 Read the current address with `ip -6 addr show scope global`.
 
-> ⚠️ **Pin a static IPv6 first.** The current address is SLAAC/`dynamic
-> mngtmpaddr`. Publishing an AAAA record for an address that can change would
-> black-hole IPv6 clients — worse than having no record at all. Either configure
-> a static address (netplan) or confirm with the hosting provider that the
-> prefix and interface identifier are stable, *then* publish.
+> ⚠️ **The host's IPv6 is SLAAC/`dynamic mngtmpaddr`, not statically pinned.**
+> The published AAAA records point at that address. If it ever changes, IPv6
+> clients are black-holed while IPv4 keeps working — a failure mode that is easy
+> to miss. Either pin the address (netplan) or confirm with the provider that
+> the prefix and interface identifier are stable. `check_aaaa` only proves a
+> record *exists*, not that it still matches `ip -6 addr`.
