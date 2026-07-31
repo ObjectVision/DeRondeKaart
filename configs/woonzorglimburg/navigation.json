@@ -453,75 +453,10 @@
             "expanded": true,
             "children": [
               {
-                "id": "loopafstand_apotheek",
-                "icon": "local_pharmacy",
-                "color": "#8C54D6",
-                "label": "Apotheek",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_dagbesteding",
-                "icon": "groups",
-                "color": "#8C54D6",
-                "label": "Dagbesteding",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_fysiotherapeut",
-                "icon": "assist_walker",
-                "color": "#8C54D6",
-                "label": "Fysiotherapeut",
-                "a": false,
-                "b": false
-              },
-              {
                 "id": "loopafstand_gezondheidscentrum",
                 "icon": "medical_services",
                 "color": "#8C54D6",
                 "label": "Gezondheidscentrum",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_huisarts",
-                "icon": "local_hospital",
-                "color": "#8C54D6",
-                "label": "Huisarts",
-                "a": false,
-                "b": false,
-                "meta": "/data/meta/huisarts.html"
-              },
-              {
-                "id": "loopafstand_ontmoeting",
-                "icon": "diversity_3",
-                "color": "#8C54D6",
-                "label": "Ontmoeting",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_ov",
-                "icon": "directions_bus",
-                "color": "#8C54D6",
-                "label": "Openbaar vervoer",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_supermarkt",
-                "icon": "local_grocery_store",
-                "color": "#8C54D6",
-                "label": "Supermarkt",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_ziekenhuis",
-                "icon": "local_hospital",
-                "color": "#8C54D6",
-                "label": "Ziekenhuis",
                 "a": false,
                 "b": false
               }
