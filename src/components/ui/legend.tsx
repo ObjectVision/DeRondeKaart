@@ -180,7 +180,11 @@ function LayerList({
                   aria-label={`Zichtbaarheid ${config.name}`}
                 >
                   <Swatch
-                    spec={hasRules ? ruleSwatchSpec(rows[0].rule) : styleSwatchSpec(config.style)}
+                    spec={
+                      hasRules
+                        ? ruleSwatchSpec(rows[0].rule)
+                        : styleSwatchSpec(config.style, config.geometryType)
+                    }
                     size={12}
                     hidden={!isVisible}
                   />

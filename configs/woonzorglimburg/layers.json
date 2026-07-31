@@ -7125,7 +7125,7 @@
       "name": "CBS Gemeente 2026",
       "source": "https://data.woonzorglimburg.nl/pmtiles/cbsgemeente2026.pmtiles",
       "format": "pmtiles",
-      "geometryType": "polygon",
+      "geometryType": "line",
       "beforeid": "foreground-layers",
       "style": {
         "color": [
@@ -7153,7 +7153,7 @@
       "name": "CBS Buurt 2026",
       "source": "https://data.woonzorglimburg.nl/pmtiles/cbsbuurt2026.pmtiles",
       "format": "pmtiles",
-      "geometryType": "polygon",
+      "geometryType": "line",
       "beforeid": "foreground-layers",
       "statistics": [
         {
@@ -7190,7 +7190,7 @@
       "name": "CBS Wijk 2026",
       "source": "https://data.woonzorglimburg.nl/pmtiles/cbswijk2026.pmtiles",
       "format": "pmtiles",
-      "geometryType": "polygon",
+      "geometryType": "line",
       "beforeid": "foreground-layers",
       "style": {
         "color": [

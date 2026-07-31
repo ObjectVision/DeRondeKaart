@@ -1,5 +1,5 @@
 import type { LayerEntry } from "@/hooks/use-map-layers";
-import type { GeoStylerRule, LayerStyle } from "@/layers/types";
+import type { GeoStylerRule, GeometryType, LayerStyle } from "@/layers/types";
 import { compositeLegendRules } from "@/layers/composite-manager";
 
 /**
@@ -76,8 +76,23 @@ export function ruleSwatchSpec(rule: GeoStylerRule): SwatchSpec {
   }
 }
 
-/** Swatch spec for a layer without GeoStyler rules (legacy flat style). */
-export function styleSwatchSpec(style: LayerStyle): SwatchSpec {
+/**
+ * Swatch spec for a layer without GeoStyler rules (legacy flat style), matched
+ * to its geometry — so a boundary layer shows a line rather than the empty
+ * square its transparent `color` would otherwise produce.
+ */
+export function styleSwatchSpec(style: LayerStyle, geometryType?: GeometryType): SwatchSpec {
+  if (geometryType === "line") {
+    return {
+      kind: "line",
+      // Same precedence as the map (mvt-style's `lineRgba ?? rgba`).
+      color: colorToCSS(style.lineColor ?? style.color),
+      width: style.lineWidth ?? 2,
+    };
+  }
+  if (geometryType === "point") {
+    return { kind: "circle", color: colorToCSS(style.color), radius: style.radius ?? 5 };
+  }
   return { kind: "fill", color: colorToCSS(style.color) };
 }
 
@@ -124,7 +139,7 @@ export function legendItemsForEntries(
     } else if (rules.length === 1) {
       items.push({ spec: ruleSwatchSpec(rules[0].rule), label: config.name });
     } else {
-      items.push({ spec: styleSwatchSpec(config.style), label: config.name });
+      items.push({ spec: styleSwatchSpec(config.style, config.geometryType), label: config.name });
     }
   }
   return items;
