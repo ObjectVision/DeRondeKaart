@@ -5,6 +5,7 @@ import type { Annotation } from "@/types/annotation";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import type { ViewState } from "@/components/map/MapView";
 import type { ExportLegendItem } from "@/lib/legend-style";
+import { Swatch } from "@/components/ui/swatch";
 
 /**
  * The circular export view: the map clipped to a circle with the title/subtitle
@@ -150,12 +151,7 @@ export const CircularExportView = forwardRef<
           <ul className="flex flex-col gap-0.5">
             {legendItems.map((item, i) => (
               <li key={i} className="flex items-center gap-1.5">
-                {!item.heading && (
-                  <span
-                    className="inline-block h-2.5 w-2.5 flex-shrink-0 border border-gray-300"
-                    style={{ backgroundColor: item.color }}
-                  />
-                )}
+                {!item.heading && item.spec && <Swatch spec={item.spec} size={10} />}
                 <span
                   className={
                     item.heading
