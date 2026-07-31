@@ -3,7 +3,8 @@ import type { LayerEntry } from "@/hooks/use-map-layers";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
-import { colorToCSS, ruleSwatchColor } from "@/lib/legend-style";
+import { ruleSwatchSpec, styleSwatchSpec } from "@/lib/legend-style";
+import { Swatch } from "@/components/ui/swatch";
 
 /**
  * Play/pause + scrub control for a timeseries layer, shown under its legend
@@ -155,15 +156,10 @@ function LayerList({
                   title="Zichtbaarheid"
                   aria-label={`Zichtbaarheid ${config.name}`}
                 >
-                  <span
-                    className="inline-block h-3 w-3 rounded-none border border-gray-300"
-                    style={{
-                      backgroundColor: isVisible
-                        ? hasRules
-                          ? ruleSwatchColor(rules[0])
-                          : colorToCSS(config.style.color)
-                        : "transparent",
-                    }}
+                  <Swatch
+                    spec={hasRules ? ruleSwatchSpec(rules[0]) : styleSwatchSpec(config.style)}
+                    size={12}
+                    hidden={!isVisible}
                   />
                 </button>
                 <button
@@ -225,14 +221,7 @@ function LayerList({
                   {rules.map((rule) => {
                     const isRuleHidden = layerHiddenRules?.has(rule.name) ?? false;
                     const swatch = (
-                      <span
-                        className="inline-block h-2.5 w-2.5 rounded-none border border-gray-300 flex-shrink-0"
-                        style={{
-                          backgroundColor: isRuleHidden
-                            ? "transparent"
-                            : ruleSwatchColor(rule),
-                        }}
-                      />
+                      <Swatch spec={ruleSwatchSpec(rule)} size={10} hidden={isRuleHidden} />
                     );
 
                     // COG: static legend key (no per-class toggle).

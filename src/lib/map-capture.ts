@@ -1,6 +1,6 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
 import type { MapboxOverlay } from "@deck.gl/mapbox";
-import type { ExportLegendItem } from "@/lib/legend-style";
+import type { ExportLegendItem, SwatchSpec } from "@/lib/legend-style";
 
 /**
  * WebGL map capture + circular-PNG compositing utilities for the "Delen"
@@ -244,11 +244,118 @@ export interface CircularExportOptions {
  * tofu. Waits for document fonts so Geist (not a fallback) is measured and
  * drawn.
  */
+/**
+ * Preload the icon images referenced by legend rows, keyed by URL. A failed
+ * load is simply omitted — the drawing falls back to a color square rather
+ * than rejecting the whole export.
+ */
+async function preloadSwatchIcons(
+  legend: ExportLegendItem[],
+): Promise<Map<string, HTMLImageElement>> {
+  const urls = [
+    ...new Set(
+      legend.flatMap((item) => (item.spec?.kind === "icon" ? [item.spec.url] : [])),
+    ),
+  ];
+  const icons = new Map<string, HTMLImageElement>();
+  await Promise.all(
+    urls.map(
+      (url) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            icons.set(url, img);
+            resolve();
+          };
+          img.onerror = () => resolve();
+          img.src = url;
+        }),
+    ),
+  );
+  return icons;
+}
+
+/**
+ * Draw one kind-aware legend swatch (the canvas twin of the <Swatch/> React
+ * component) centered vertically on `cy`, in a `box`-sized square at `x`.
+ */
+function drawSwatch(
+  ctx: CanvasRenderingContext2D,
+  spec: SwatchSpec,
+  x: number,
+  cy: number,
+  box: number,
+  icons: Map<string, HTMLImageElement>,
+): void {
+  // The React swatch is spec'd against a 10px box; scale its px values.
+  const k = box / 10;
+  const neutral = "#d1d5db"; // gray-300, same hairline as the HTML swatches
+
+  switch (spec.kind) {
+    case "line": {
+      const barH = Math.min(Math.max(spec.width, 1), 4) * k;
+      ctx.fillStyle = spec.color;
+      ctx.fillRect(x, cy - barH / 2, box, barH);
+      return;
+    }
+    case "circle": {
+      // Map-radius-derived with the same 18px cap as the HTML <Swatch/>, so
+      // classes differing only by radius stay distinguishable in the PNG too.
+      const r = (Math.min(Math.max(2 * spec.radius, 5), 18) * k) / 2;
+      ctx.beginPath();
+      ctx.arc(x + box / 2, cy, r, 0, Math.PI * 2);
+      ctx.fillStyle = spec.color;
+      ctx.fill();
+      ctx.strokeStyle = spec.strokeColor ?? neutral;
+      ctx.lineWidth = Math.min(spec.strokeWidth ?? 1, 2) * k;
+      ctx.stroke();
+      return;
+    }
+    case "icon": {
+      const img = icons.get(spec.url);
+      if (img) {
+        if (spec.tint) {
+          // SDF-style tinting: draw the shape, then recolor its opaque pixels.
+          const tile = document.createElement("canvas");
+          tile.width = box;
+          tile.height = box;
+          const tctx = tile.getContext("2d");
+          if (tctx) {
+            tctx.drawImage(img, 0, 0, box, box);
+            tctx.globalCompositeOperation = "source-in";
+            tctx.fillStyle = spec.tint;
+            tctx.fillRect(0, 0, box, box);
+            ctx.drawImage(tile, x, cy - box / 2);
+            return;
+          }
+        }
+        ctx.drawImage(img, x, cy - box / 2, box, box);
+        return;
+      }
+      // Image failed to load — fall through to a tinted square.
+      ctx.fillStyle = spec.tint ?? "#0080ff";
+      ctx.fillRect(x, cy - box / 2, box, box);
+      return;
+    }
+    case "fill":
+    default: {
+      ctx.fillStyle = spec.color;
+      ctx.fillRect(x, cy - box / 2, box, box);
+      ctx.strokeStyle = spec.outline ?? neutral;
+      ctx.lineWidth = k;
+      ctx.strokeRect(x, cy - box / 2, box, box);
+      return;
+    }
+  }
+}
+
 export async function composeCircularExport(
   options: CircularExportOptions,
 ): Promise<HTMLCanvasElement> {
   const { mapCanvas, size, title, subtitle, legend, callouts } = options;
   await document.fonts.ready;
+  const swatchIcons = await preloadSwatchIcons(legend);
 
   const out = document.createElement("canvas");
   out.width = size;
@@ -357,11 +464,14 @@ export async function composeCircularExport(
     for (const item of legend) {
       let textX = cardX + legendPad;
       if (!item.heading) {
-        ctx.fillStyle = item.color || "#0080ff";
-        ctx.fillRect(cardX + legendPad, rowY - swatch / 2, swatch, swatch);
-        ctx.strokeStyle = "#d1d5db"; // gray-300
-        ctx.lineWidth = 2 * u;
-        ctx.strokeRect(cardX + legendPad, rowY - swatch / 2, swatch, swatch);
+        drawSwatch(
+          ctx,
+          item.spec ?? { kind: "fill", color: "#0080ff" },
+          cardX + legendPad,
+          rowY,
+          swatch,
+          swatchIcons,
+        );
         textX += swatch + swatchGap;
       }
       ctx.font = item.heading ? headingFont : rowFont;
