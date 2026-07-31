@@ -80,8 +80,8 @@ function layerId(config: LayerConfig, ruleName?: string): string {
 
 /**
  * Build native MapLibre layer definitions from a LayerConfig (MVT, PMTiles and
- * FlatGeobuf formats). Returns one layer per GeoStyler rule, or a single
- * layer for flat style.
+ * FlatGeobuf formats). Returns one layer per GeoStyler rule; for a flat style,
+ * one layer — or two when a polygon also sets `lineColor` (fill + stroke).
  */
 export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
   const { geostyler, style } = config;
@@ -96,6 +96,11 @@ export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
   const opacity = style.opacity ?? 1;
   const rgba = `rgba(${r}, ${g}, ${b}, ${(a ?? 200) / 255})`;
   const typedFlatStyle = config.format === "flatgeobuf" || config.format === "pmtiles";
+  // Stroke color, when configured separately from the fill. Same precedence as
+  // the deck.gl path (`style.lineColor ?? style.color` in layer-factory).
+  const lineRgba = style.lineColor
+    ? `rgba(${style.lineColor[0]}, ${style.lineColor[1]}, ${style.lineColor[2]}, ${(style.lineColor[3] ?? 255) / 255})`
+    : undefined;
 
   if (typedFlatStyle && config.geometryType === "point") {
     return [{
@@ -116,7 +121,9 @@ export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
       ruleName: "",
       type: "line",
       paint: {
-        "line-color": rgba,
+        // A boundary layer (transparent `color`, purple `lineColor`) must paint
+        // from lineColor — reading `color` here would render it invisible.
+        "line-color": lineRgba ?? rgba,
         "line-opacity": opacity,
         "line-width": style.lineWidth ?? 2,
       },
@@ -124,17 +131,46 @@ export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
     }];
   }
 
-  return [{
-    id: layerId(config),
-    ruleName: "",
-    type: "fill",
-    paint: {
-      "fill-color": rgba,
-      "fill-opacity": opacity,
-      "fill-outline-color": rgba,
-    },
-    layout: {},
-  }];
+  // Polygon (or untyped). `style.lineColor` draws the boundary as a real line
+  // layer rather than `fill-outline-color`, which MapLibre locks to 1px and so
+  // can't honour `lineWidth`. deck.gl already supports lineColor on this same
+  // config (layer-factory's `style.lineColor ?? style.color`), so without this
+  // a flat-styled outline layer renders as nothing once it moves to pmtiles.
+  const defs: NativeLayerDef[] = [];
+  // A fully transparent fill paints nothing — skip it and draw only the stroke.
+  const fillIsInvisible = lineRgba !== undefined && (a ?? 200) === 0;
+
+  if (!fillIsInvisible) {
+    defs.push({
+      id: layerId(config),
+      ruleName: "",
+      type: "fill",
+      paint: {
+        "fill-color": rgba,
+        "fill-opacity": opacity,
+        "fill-outline-color": rgba,
+      },
+      layout: {},
+    });
+  }
+
+  if (lineRgba) {
+    defs.push({
+      // Distinct from the fill's id (which carries no rule suffix). ruleName
+      // stays "" so per-rule visibility never targets it as a class.
+      id: layerId(config, "outline"),
+      ruleName: "",
+      type: "line",
+      paint: {
+        "line-color": lineRgba,
+        "line-opacity": opacity,
+        "line-width": style.lineWidth ?? 2,
+      },
+      layout: {},
+    });
+  }
+
+  return defs;
 }
 
 function buildRuleLayerDef(config: LayerConfig, rule: GeoStylerRule): NativeLayerDef {
