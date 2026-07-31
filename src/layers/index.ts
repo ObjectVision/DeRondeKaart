@@ -3,7 +3,7 @@ export { loadParquetBatches } from "./parquet-loader";
 export { loadArrowBatches } from "./arrow-loader";
 export { invalidateTableCache, clearTableCache } from "./table-cache";
 export { createGeoArrowLayers, createGeoJsonLayers } from "./layer-factory";
-export { buildNativeLayerDefs, isNativeVectorFormat } from "./mvt-style";
+export { buildNativeLayerDefs, isNativeVectorFormat, iconSpriteId } from "./mvt-style";
 export { addFlatgeobufLayer, removeFlatgeobufLayer, setFlatgeobufHidden } from "./flatgeobuf-loader";
 export {
   addCompositeLayer,

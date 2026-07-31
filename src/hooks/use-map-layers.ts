@@ -19,7 +19,9 @@ import {
   childrenOf,
   isNativeVectorFormat,
   areaFilterExpression,
+  iconSpriteId,
 } from "@/layers";
+import { getIconFromRule } from "@/layers/geostyler";
 import { isChildLoaded } from "@/layers/composite-manager";
 import type { CompositeHost } from "@/layers";
 import { buildCogColorFunction } from "@/layers/cog-style";
@@ -583,7 +585,85 @@ function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>
     }
   }
 
+  // Icon symbolizers need their image in the map's sprite BEFORE addLayer, and
+  // loading it is async — so layers wait for it. Layers without icons keep the
+  // synchronous path (registerRuleIcons returns null), since deferring them by
+  // even a microtask would reorder inserts against the z-order anchors.
+  const pending = registerRuleIcons(map, config);
+  if (pending) {
+    pending
+      .catch((err) => {
+        console.error(`Failed to load icon(s) for layer "${config.id}":`, err);
+      })
+      .then(() => {
+        // The style may have been swapped (or the layer removed) while the
+        // image was loading — re-check before touching the map.
+        if (!map.getSource(sourceId)) return;
+        addRuleLayers(map, config, sourceId, beforeId);
+      });
+    return;
+  }
+
   addRuleLayers(map, config, sourceId, beforeId);
+}
+
+/**
+ * Rasterize an SVG (or bitmap) URL to an ImageBitmap at the given pixel size.
+ * MapLibre's `loadImage` cannot decode SVG, so it goes through an <img> first.
+ */
+async function loadIconBitmap(url: string, width: number, height: number): Promise<ImageBitmap> {
+  const image = new Image(width, height);
+  image.crossOrigin = "anonymous";
+  await new Promise<void>((resolve, reject) => {
+    image.onload = () => resolve();
+    image.onerror = () => reject(new Error(`could not load icon image: ${url}`));
+    image.src = url;
+  });
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("could not get a 2d context to rasterize the icon");
+  ctx.drawImage(image, 0, 0, width, height);
+  return createImageBitmap(canvas);
+}
+
+/**
+ * Register every Icon symbolizer's image in the map's sprite.
+ *
+ * Returns null when the config has no icons (the common case) so the caller can
+ * stay synchronous, or a promise that settles once all images are added.
+ *
+ * `hasImage` is re-checked on every call rather than cached: a basemap swap
+ * wipes the sprite, and `addImage` throws on a duplicate id.
+ */
+function registerRuleIcons(map: MapLibreMap, config: LayerConfig): Promise<void> | null {
+  const rules = config.geostyler?.rules;
+  if (!rules?.length) return null;
+
+  const work: Promise<void>[] = [];
+  for (const rule of rules) {
+    const icon = getIconFromRule(rule);
+    if (!icon) continue;
+    const spriteId = iconSpriteId(icon);
+    if (map.hasImage(spriteId)) continue;
+
+    work.push(
+      // No origin prefix needed (unlike tile URLs): <img> resolves a
+      // root-relative path against the document, same as the deck.gl icon path.
+      loadIconBitmap(icon.image, icon.width, icon.height).then((bitmap) => {
+        // Another layer (or a re-entrant add) may have registered it while we
+        // were loading.
+        if (map.hasImage(spriteId)) return;
+        // SDF only when tinted: icon-color applies to SDF images only, and an
+        // SDF image drawn untinted would lose its own colors.
+        map.addImage(spriteId, bitmap, { sdf: Boolean(icon.color) });
+      }),
+    );
+  }
+
+  return work.length > 0 ? Promise.all(work).then(() => undefined) : null;
 }
 
 /**
