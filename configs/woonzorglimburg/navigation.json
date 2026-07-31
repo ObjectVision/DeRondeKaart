@@ -435,6 +435,14 @@
                 "label": "Tandarts",
                 "a": false,
                 "b": false
+              },
+              {
+                "id": "ziekenhuis",
+                "icon": "health_metrics",
+                "color": "#8C54D6",
+                "label": "Ziekenhuis",
+                "a": false,
+                "b": false
               }
             ]
           },

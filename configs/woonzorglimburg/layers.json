@@ -28,8 +28,58 @@
             ],
             "symbolizers": [
               {
-                "kind": "Mark",
-                "color": "#8856a7"
+                "kind": "Icon",
+                "image": "/icons/local_hospital.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#8856a7",
+                "opacity": 0.8
+              }
+            ]
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
+      },
+      "sourceLayer": "vrz_locaties_2026"
+    },
+    {
+      "id": "ziekenhuis",
+      "name": "ziekenhuis",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "point",
+      "style": {
+        "color": [
+          136,
+          86,
+          167,
+          150
+        ],
+        "opacity": 0.8,
+        "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "ziekenhuis",
+        "rules": [
+          {
+            "name": "ziekenhuis",
+            "filter": [
+              "==",
+              "type",
+              22
+            ],
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/health_metrics.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#8856a7",
+                "opacity": 0.8
               }
             ]
           }
@@ -70,9 +120,9 @@
             "symbolizers": [
               {
                 "kind": "Icon",
-                "image": "/icons/shopping_cart_filled.svg",
-                "width": 32,
-                "height": 32,
+                "image": "/icons/local_grocery_store.svg",
+                "width": 24,
+                "height": 24,
                 "size": 24,
                 "color": "#ff4500",
                 "opacity": 0.8
@@ -114,8 +164,13 @@
             ],
             "symbolizers": [
               {
-                "kind": "Mark",
-                "color": "#8856a7"
+                "kind": "Icon",
+                "image": "/icons/groups.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#8856a7",
+                "opacity": 0.8
               }
             ]
           }
@@ -154,8 +209,13 @@
             ],
             "symbolizers": [
               {
-                "kind": "Mark",
-                "color": "#2b8cbe"
+                "kind": "Icon",
+                "image": "/icons/diversity_3.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#2b8cbe",
+                "opacity": 0.8
               }
             ]
           }
@@ -194,8 +254,13 @@
             ],
             "symbolizers": [
               {
-                "kind": "Mark",
-                "color": "#fd8d3c"
+                "kind": "Icon",
+                "image": "/icons/dentistry.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#fd8d3c",
+                "opacity": 0.8
               }
             ]
           }
@@ -234,8 +299,13 @@
             ],
             "symbolizers": [
               {
-                "kind": "Mark",
-                "color": "#2c7fb8"
+                "kind": "Icon",
+                "image": "/icons/directions_bus.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#2c7fb8",
+                "opacity": 0.8
               }
             ]
           }
@@ -274,8 +344,13 @@
             ],
             "symbolizers": [
               {
-                "kind": "Mark",
-                "color": "#31a354"
+                "kind": "Icon",
+                "image": "/icons/local_pharmacy.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#31a354",
+                "opacity": 0.8
               }
             ]
           }
@@ -314,8 +389,13 @@
             ],
             "symbolizers": [
               {
-                "kind": "Mark",
-                "color": "#7fcdbb"
+                "kind": "Icon",
+                "image": "/icons/assist_walker.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#7fcdbb",
+                "opacity": 0.8
               }
             ]
           }
