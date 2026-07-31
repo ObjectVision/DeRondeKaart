@@ -1,4 +1,4 @@
-import type { LayerConfig, GeoStylerRule, GeoStylerFilter, FillSymbolizer, LineSymbolizer, MarkSymbolizer } from "./types";
+import type { LayerConfig, GeoStylerRule, GeoStylerFilter, FillSymbolizer, LineSymbolizer, MarkSymbolizer, IconSymbolizer } from "./types";
 
 /**
  * Convert a GeoStyler filter to a MapLibre expression.
@@ -42,10 +42,23 @@ export function isNativeVectorFormat(format: LayerConfig["format"]): boolean {
 interface NativeLayerDef {
   id: string;
   ruleName: string;
-  type: "fill" | "line" | "circle";
+  type: "fill" | "line" | "circle" | "symbol";
   filter?: unknown[];
   paint: Record<string, unknown>;
   layout: Record<string, unknown>;
+}
+
+/**
+ * Sprite id an Icon symbolizer's image is registered under.
+ *
+ * Keyed on tint-ness as well as the URL: a tinted icon must be added to the
+ * sprite as an SDF (only SDF images honour `icon-color`) and an SDF image
+ * renders as a flat silhouette when drawn untinted, so the two variants of the
+ * same URL cannot share one entry. The deck.gl path keys its icon atlas the
+ * same way (`layer-factory.ts`, `mask: Boolean(icon.color)`).
+ */
+export function iconSpriteId(sym: IconSymbolizer): string {
+  return `icon-${sym.image}${sym.color ? "#sdf" : ""}`;
 }
 
 /**
@@ -144,7 +157,18 @@ function buildRuleLayerDef(config: LayerConfig, rule: GeoStylerRule): NativeLaye
       return buildLineLayerDef(config, rule, sym);
     case "Mark":
       return buildCircleLayerDef(config, rule, sym);
+    case "Icon":
+      return buildSymbolLayerDef(config, rule, sym);
     default:
+      // Falling through to a fill layer renders NOTHING for point/line data,
+      // and does so silently — which is exactly how the supermarkt Icon layer
+      // stayed broken after it moved from parquet (deck.gl, which supports
+      // Icon) to pmtiles. Say so rather than drawing an invisible layer.
+      console.warn(
+        `layers.json: layer "${config.id}" (${config.format}) uses symbolizer ` +
+          `kind "${(sym as { kind?: string }).kind}", which the native vector-tile ` +
+          `renderer does not support; falling back to a Fill layer`,
+      );
       return buildFillLayerDef(config, rule, sym as unknown as FillSymbolizer);
   }
 }
@@ -231,6 +255,49 @@ function buildCircleLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: Mark
   if (sym.strokeColor) {
     def.paint["circle-stroke-color"] = resolveColor(sym.strokeColor, "#000000");
     def.paint["circle-stroke-width"] = sym.strokeWidth ?? 1;
+  }
+
+  return def;
+}
+
+/**
+ * Icon symbolizer -> MapLibre `symbol` layer.
+ *
+ * The image itself is registered in the map's sprite by the caller (see
+ * `registerRuleIcons` in use-map-layers) under `iconSpriteId(sym)`, because
+ * loading it is async while layer defs are built synchronously.
+ */
+function buildSymbolLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: IconSymbolizer): NativeLayerDef {
+  const opacity = config.style.opacity ?? sym.opacity ?? 1;
+
+  const def: NativeLayerDef = {
+    id: layerId(config, rule.name),
+    ruleName: rule.name,
+    type: "symbol",
+    paint: {
+      "icon-opacity": opacity,
+    },
+    layout: {
+      "icon-image": iconSpriteId(sym),
+      // The sprite holds the image at its source pixel size, so scale to the
+      // requested rendered size (`size` is a height in screen px, as in the
+      // deck.gl icon path).
+      "icon-size": sym.height ? (sym.size ?? sym.height) / sym.height : 1,
+      // POI markers must all stay visible: MapLibre otherwise drops symbols
+      // that collide, which thins them out heavily when zoomed out.
+      "icon-allow-overlap": true,
+      "icon-ignore-placement": true,
+    },
+  };
+
+  // Only SDF sprite entries honour icon-color; iconSpriteId() registers a
+  // separate SDF entry whenever a tint is configured.
+  if (sym.color) {
+    def.paint["icon-color"] = resolveColor(sym.color, "#000000");
+  }
+
+  if (rule.filter) {
+    def.filter = filterToExpression(rule.filter);
   }
 
   return def;
