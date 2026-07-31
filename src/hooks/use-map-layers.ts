@@ -17,6 +17,7 @@ import {
   addCompositeLayer,
   removeCompositeLayer,
   childrenOf,
+  parseRuleKey,
   isNativeVectorFormat,
   areaFilterExpression,
   iconSpriteId,
@@ -167,15 +168,23 @@ export function useMapLayers() {
             setFlatgeobufHidden(child.id, mapRef, true);
           }
         }
-        for (const ruleName of hiddenRulesRef.current.get(parentId) ?? []) {
+        // Replay hidden classes onto a child that loaded later. Keys of the
+        // form "<childIndex>:<name>" belong to one child only; bare names apply
+        // to every child (zoom-banded composites share one rule set).
+        // The synthesized child id ends in `__c<index>` (validateChildConfig).
+        const childIndex = Number(/__c(\d+)$/.exec(child.id)?.[1] ?? -1);
+        for (const key of hiddenRulesRef.current.get(parentId) ?? []) {
+          const parsed = parseRuleKey(key);
+          if (parsed && parsed.childIndex !== childIndex) continue;
+          const bareName = parsed?.ruleName ?? key;
           setDeckLayers((prev) =>
             prev.map((l) =>
-              l.id.endsWith(`-${ruleName}`) && layerBelongsTo(l.id, child.id)
+              l.id.endsWith(`-${bareName}`) && layerBelongsTo(l.id, child.id)
                 ? l.clone({ visible: false })
                 : l,
             ),
           );
-          setNativeRuleVisibility(child, ruleName, false, mapRef);
+          setNativeRuleVisibility(child, bareName, false, mapRef);
         }
       },
       removeChild: (child, mapRef) => {
@@ -326,11 +335,34 @@ export function useMapLayers() {
         }
         hiddenRulesRef.current = next;
 
+        // `ruleName` may be a composite rule KEY ("<childIndex>:<name>"): the
+        // legend keys a merged composite's classes per child, because children
+        // routinely share rule names and must toggle independently. Native
+        // layer ids carry the bare name, so unwrap it here.
+        const parsed = parseRuleKey(ruleName);
+        const bareName = parsed?.ruleName ?? ruleName;
+
+        const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
+        // Children this toggle applies to: just the keyed one for a merged
+        // composite, otherwise every child (zoom-banded composites duplicate
+        // one rule set across children, so the name targets all of them).
+        const targetChildren = entry?.config.format === "composite"
+          ? parsed
+            ? childrenOf(entry.config).filter((_, i) => i === parsed.childIndex)
+            : childrenOf(entry.config)
+          : [];
+
         // deck.gl layers (geoarrow/parquet, incl. composite children): find
         // child layer by rule name suffix
+        const deckOwnerIds = targetChildren.length
+          ? targetChildren.map((c) => c.id)
+          : [layerId];
         setDeckLayers((prevLayers) =>
           prevLayers.map((l) => {
-            if (l.id.endsWith(`-${ruleName}`) && layerBelongsTo(l.id, layerId)) {
+            if (
+              l.id.endsWith(`-${bareName}`) &&
+              deckOwnerIds.some((owner) => layerBelongsTo(l.id, owner))
+            ) {
               return l.clone({ visible: willBeVisible });
             }
             return l;
@@ -338,14 +370,13 @@ export function useMapLayers() {
         );
 
         // Native MapLibre layers (MVT/FlatGeobuf): toggle the specific rule's
-        // layer. Composite: forward to every child that has a same-named rule
-        // (COG children skip — their color function is global per URL).
-        const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
+        // layer. Composite: forward to the target child/children (COG children
+        // no-op — their color function is global per URL).
         if (entry && isNativeVectorFormat(entry.config.format)) {
-          setNativeRuleVisibility(entry.config, ruleName, willBeVisible, mapRef);
+          setNativeRuleVisibility(entry.config, bareName, willBeVisible, mapRef);
         } else if (entry?.config.format === "composite") {
-          for (const child of childrenOf(entry.config)) {
-            setNativeRuleVisibility(child, ruleName, willBeVisible, mapRef);
+          for (const child of targetChildren) {
+            setNativeRuleVisibility(child, bareName, willBeVisible, mapRef);
           }
         }
 

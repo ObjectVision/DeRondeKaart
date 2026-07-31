@@ -5,6 +5,17 @@ import { Button } from "@/components/ui/button";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 import { ruleSwatchSpec, styleSwatchSpec } from "@/lib/legend-style";
 import { Swatch } from "@/components/ui/swatch";
+import { compositeLegendRules } from "@/layers";
+import type { GeoStylerRule } from "@/layers";
+
+/** One class row in the legend, from either a layer's own rules or a composite's children. */
+interface LegendRow {
+  rule: GeoStylerRule;
+  /** Identity passed to onToggleRule — a bare rule name, or "<childIndex>:<name>". */
+  key: string;
+  /** False when the layer type can't hide a single class (COG). */
+  interactive: boolean;
+}
 
 /**
  * Play/pause + scrub control for a timeseries layer, shown under its legend
@@ -134,16 +145,28 @@ function LayerList({
       <ul className="flex flex-col gap-0.5">
         {entries.map(({ config }) => {
           const isVisible = !hiddenIds.has(config.id);
-          const rules = config.geostyler?.rules;
-          const hasRules = rules && rules.length > 0;
-          // A single rule is indistinguishable from the layer itself: the parent
-          // row already shows its swatch, so listing it again just duplicates the
-          // name. Only break out per-rule class toggles when there are ≥2 rules.
-          const showRuleList = rules && rules.length > 1;
           // COG rules are a read-only legend key: the raster is styled per-pixel
           // by a color function, so individual classes can't be toggled the way
           // deck-layer rules can. Render them as non-interactive swatches.
           const isCog = config.format === "cog";
+          // Two sources of legend classes, normalized to one shape:
+          //  - the layer's own geostyler rules (keyed by bare rule name), or
+          //  - for a composite WITHOUT its own geostyler, each child's rules in
+          //    order, keyed "<childIndex>:<name>" so same-named classes in
+          //    different children stay independent.
+          const ownRules = config.geostyler?.rules;
+          const rows: LegendRow[] = ownRules?.length
+            ? ownRules.map((rule) => ({ rule, key: rule.name, interactive: !isCog }))
+            : compositeLegendRules(config).map((ref) => ({
+                rule: ref.rule,
+                key: ref.key,
+                interactive: ref.interactive,
+              }));
+          const hasRules = rows.length > 0;
+          // A single rule is indistinguishable from the layer itself: the parent
+          // row already shows its swatch, so listing it again just duplicates the
+          // name. Only break out per-rule class toggles when there are ≥2 rules.
+          const showRuleList = rows.length > 1;
           const layerHiddenRules = hiddenRules.get(config.id);
 
           return (
@@ -157,7 +180,7 @@ function LayerList({
                   aria-label={`Zichtbaarheid ${config.name}`}
                 >
                   <Swatch
-                    spec={hasRules ? ruleSwatchSpec(rules[0]) : styleSwatchSpec(config.style)}
+                    spec={hasRules ? ruleSwatchSpec(rows[0].rule) : styleSwatchSpec(config.style)}
                     size={12}
                     hidden={!isVisible}
                   />
@@ -218,28 +241,29 @@ function LayerList({
               {/* Per-rule class toggles — only when there's more than one rule */}
               {showRuleList && isVisible && (
                 <ul className="ml-5 flex flex-col gap-0.5">
-                  {rules.map((rule) => {
-                    const isRuleHidden = layerHiddenRules?.has(rule.name) ?? false;
+                  {rows.map((row) => {
+                    const isRuleHidden = layerHiddenRules?.has(row.key) ?? false;
                     const swatch = (
-                      <Swatch spec={ruleSwatchSpec(rule)} size={10} hidden={isRuleHidden} />
+                      <Swatch spec={ruleSwatchSpec(row.rule)} size={10} hidden={isRuleHidden} />
                     );
 
-                    // COG: static legend key (no per-class toggle).
-                    if (isCog) {
+                    // Static legend key (no per-class toggle) for layer types
+                    // that can't hide one class — COG rasters.
+                    if (!row.interactive) {
                       return (
-                        <li key={rule.name}>
+                        <li key={row.key}>
                           <div className="flex w-full items-center gap-2 px-1.5 py-0.5 text-xs">
                             {swatch}
-                            <span className="text-gray-600">{rule.name}</span>
+                            <span className="text-gray-600">{row.rule.name}</span>
                           </div>
                         </li>
                       );
                     }
 
                     return (
-                      <li key={rule.name}>
+                      <li key={row.key}>
                         <button
-                          onClick={() => onToggleRule(config.id, rule.name)}
+                          onClick={() => onToggleRule(config.id, row.key)}
                           className="flex w-full items-center gap-2 rounded px-1.5 py-0.5 text-left text-xs hover:bg-gray-100 transition-colors"
                         >
                           {swatch}
@@ -250,7 +274,7 @@ function LayerList({
                                 : "text-gray-600"
                             }
                           >
-                            {rule.name}
+                            {row.rule.name}
                           </span>
                         </button>
                       </li>

@@ -12,8 +12,10 @@ export {
   childrenOf,
   childInRange,
   expandForMapQueries,
+  compositeLegendRules,
+  parseRuleKey,
 } from "./composite-manager";
-export type { CompositeHost, PickableEntry } from "./composite-manager";
+export type { CompositeHost, PickableEntry, CompositeRuleRef } from "./composite-manager";
 export { resolveTemplate, renderTemplate } from "./featureinfo-template";
 export { featureMatchesGeostyler } from "./geostyler";
 export {

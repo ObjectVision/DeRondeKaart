@@ -1,6 +1,6 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
 import type { MapRef } from "react-map-gl/maplibre";
-import type { FeatureInfoConfig, LayerConfig } from "./types";
+import type { FeatureInfoConfig, GeoStylerRule, LayerConfig } from "./types";
 
 /**
  * "composite" layers: one layers.json entry composed of inline child layer
@@ -49,6 +49,60 @@ export function isComposite(config: LayerConfig): boolean {
 
 export function childrenOf(config: LayerConfig): LayerConfig[] {
   return config.layers ?? [];
+}
+
+/** One legend row contributed by a composite child. */
+export interface CompositeRuleRef {
+  childId: string;
+  childIndex: number;
+  rule: GeoStylerRule;
+  /**
+   * Collision-free rule identity, `"<childIndex>:<ruleName>"`. Children of a
+   * merged composite routinely share rule names (every loopafstand COG uses the
+   * same six class names), so the legend and `hiddenRules` must key on the
+   * child too or one click would toggle several children at once.
+   */
+  key: string;
+  /** False for COG children: their classes are a read-only color key. */
+  interactive: boolean;
+}
+
+/** Split a rule key back into its child index and bare rule name. */
+export function parseRuleKey(key: string): { childIndex: number; ruleName: string } | null {
+  const sep = key.indexOf(":");
+  if (sep <= 0) return null;
+  const childIndex = Number(key.slice(0, sep));
+  if (!Number.isInteger(childIndex) || childIndex < 0) return null;
+  return { childIndex, ruleName: key.slice(sep + 1) };
+}
+
+/**
+ * The legend rows a composite contributes, in child order — used when the
+ * composite declares no `geostyler` of its own, i.e. children render
+ * simultaneously (no zoom bands) and each shows its own classes.
+ *
+ * Composites that DO declare a geostyler keep the original behaviour: their
+ * children are zoom-banded alternatives that duplicate one rule set, so the
+ * parent's rules are the legend and this returns nothing.
+ */
+export function compositeLegendRules(parent: LayerConfig): CompositeRuleRef[] {
+  if (!isComposite(parent) || parent.geostyler) return [];
+
+  const refs: CompositeRuleRef[] = [];
+  childrenOf(parent).forEach((child, childIndex) => {
+    for (const rule of child.geostyler?.rules ?? []) {
+      refs.push({
+        childId: child.id,
+        childIndex,
+        rule,
+        key: `${childIndex}:${rule.name}`,
+        // A COG is styled per-pixel by a color function registered globally per
+        // source URL, so single classes can't be hidden.
+        interactive: child.format !== "cog",
+      });
+    }
+  });
+  return refs;
 }
 
 /** Child load range: `minzoom <= zoom < maxzoom` (MapLibre convention). */

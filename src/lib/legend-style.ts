@@ -1,5 +1,6 @@
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import type { GeoStylerRule, LayerStyle } from "@/layers/types";
+import { compositeLegendRules } from "@/layers/composite-manager";
 
 /**
  * Legend swatch/label helpers shared by the on-map Legend component, the
@@ -106,16 +107,22 @@ export function legendItemsForEntries(
     if (config.excludeFromLegend) continue;
     if (hiddenIds.has(config.id)) continue;
 
-    const rules = config.geostyler?.rules;
-    if (rules && rules.length > 1) {
+    // Own geostyler rules, or — for a composite without one — each child's
+    // rules in order, keyed per child (see compositeLegendRules).
+    const ownRules = config.geostyler?.rules;
+    const rules: { rule: GeoStylerRule; key: string }[] = ownRules?.length
+      ? ownRules.map((rule) => ({ rule, key: rule.name }))
+      : compositeLegendRules(config).map((ref) => ({ rule: ref.rule, key: ref.key }));
+
+    if (rules.length > 1) {
       items.push({ label: config.name, heading: true });
       const layerHidden = hiddenRules.get(config.id);
-      for (const rule of rules) {
-        if (layerHidden?.has(rule.name)) continue;
+      for (const { rule, key } of rules) {
+        if (layerHidden?.has(key)) continue;
         items.push({ spec: ruleSwatchSpec(rule), label: rule.name });
       }
-    } else if (rules && rules.length === 1) {
-      items.push({ spec: ruleSwatchSpec(rules[0]), label: config.name });
+    } else if (rules.length === 1) {
+      items.push({ spec: ruleSwatchSpec(rules[0].rule), label: config.name });
     } else {
       items.push({ spec: styleSwatchSpec(config.style), label: config.name });
     }
