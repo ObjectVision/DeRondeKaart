@@ -319,10 +319,20 @@ function buildSymbolLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: Icon
       // requested rendered size (`size` is a height in screen px, as in the
       // deck.gl icon path).
       "icon-size": sym.height ? (sym.size ?? sym.height) / sym.height : 1,
-      // POI markers must all stay visible: MapLibre otherwise drops symbols
-      // that collide, which thins them out heavily when zoomed out.
-      "icon-allow-overlap": true,
-      "icon-ignore-placement": true,
+      // Let MapLibre's collision index thin overlapping markers: at province-wide
+      // zooms these layers carry thousands of points (~2.8k OV stops in
+      // vrz_locaties_2026, undiminished down to z6) that would otherwise draw on
+      // top of each other into an unreadable mass. Colliding icons are hidden
+      // outright — no count, no marker — so low zoom shows a readable subset
+      // rather than the full set.
+      //
+      // Both flags matter: `ignore-placement` files a symbol in a throwaway grid
+      // (`ignorePlacement ? this.ignoredGrid : this.grid` in MapLibre's
+      // collision index), so leaving it true means icons never block each other
+      // however `allow-overlap` is set. Both values match the style-spec
+      // defaults, kept explicit so this reasoning has somewhere to live.
+      "icon-allow-overlap": false,
+      "icon-ignore-placement": false,
     },
   };
 
