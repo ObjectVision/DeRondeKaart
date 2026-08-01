@@ -302,6 +302,14 @@
         "expanded": true,
         "children": [
           {
+            "id": "corp_corporatie_2026",
+            "icon": "apartment",
+            "color": "#2D6CDF",
+            "label": "Corporatie",
+            "a": false,
+            "b": false
+          },
+          {
             "id": "corp_bat_2026",
             "icon": "apartment",
             "color": "#2D6CDF",
