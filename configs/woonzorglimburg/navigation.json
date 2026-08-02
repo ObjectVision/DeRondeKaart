@@ -356,6 +356,54 @@
             "label": "Gemeenschappelijke ruimte",
             "a": false,
             "b": false
+          },
+          {
+            "id": "streefhuur_0_2026",
+            "icon": "apartment",
+            "color": "#2D6CDF",
+            "label": "tot kwaliteitsgrens",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "streefhuur_1_2026",
+            "icon": "apartment",
+            "color": "#2D6CDF",
+            "label": "tot lage aftoppingsgrens",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "streefhuur_2_2026",
+            "icon": "apartment",
+            "color": "#2D6CDF",
+            "label": "tot hoge aftoppingsgrens",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "streefhuur_3_2026",
+            "icon": "apartment",
+            "color": "#2D6CDF",
+            "label": "tot liberalisatiegrens",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "streefhuur_4_2026",
+            "icon": "apartment",
+            "color": "#2D6CDF",
+            "label": "boven niet-daeb grens",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "streefhuur_5_2026",
+            "icon": "apartment",
+            "color": "#2D6CDF",
+            "label": "boven liberalisatie grens",
+            "a": false,
+            "b": false
           }
         ]
       }
