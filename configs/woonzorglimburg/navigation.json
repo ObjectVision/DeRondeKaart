@@ -296,7 +296,7 @@
         ]
       },
       {
-        "label": "woningcorporaties",
+        "label": "corporaties",
         "icon": "apartment",
         "color": "#2D6CDF",
         "expanded": true,
