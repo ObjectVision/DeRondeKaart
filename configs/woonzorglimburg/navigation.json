@@ -508,14 +508,6 @@
             "color": "#8C54D6",
             "expanded": true,
             "children": [
-              {
-                "id": "loopafstand_gezondheidscentrum",
-                "icon": "medical_services",
-                "color": "#8C54D6",
-                "label": "Gezondheidscentrum",
-                "a": false,
-                "b": false
-              }
             ]
           }
         ]

@@ -13,8 +13,10 @@
       },
       "layers": [
         {
-          "format": "cog",
-          "source": "https://data.woonzorglimburg.nl/cog/huisarts_lb_m5.cog.tif",
+          "format": "pmtiles",
+          "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
+          "sourceLayer": "huisarts",
+          "geometryType": "polygon",
           "beforeid": "map-layers",
           "style": {
             "opacity": 0.8
@@ -26,7 +28,7 @@
                 "name": "minder dan 500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   0
                 ],
                 "symbolizers": [
@@ -43,7 +45,7 @@
                 "name": "500 tot 750",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   1
                 ],
                 "symbolizers": [
@@ -60,7 +62,7 @@
                 "name": "750 tot 1000",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   2
                 ],
                 "symbolizers": [
@@ -77,7 +79,7 @@
                 "name": "1000 tot 1250",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   3
                 ],
                 "symbolizers": [
@@ -94,7 +96,7 @@
                 "name": "1250 tot 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   4
                 ],
                 "symbolizers": [
@@ -111,7 +113,7 @@
                 "name": "meer dan 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   5
                 ],
                 "symbolizers": [
@@ -125,8 +127,7 @@
                 ]
               }
             ]
-          },
-          "embeddedColors": true
+          }
         },
         {
           "format": "pmtiles",
@@ -184,8 +185,10 @@
       },
       "layers": [
         {
-          "format": "cog",
-          "source": "https://data.woonzorglimburg.nl/cog/ziekenhuis_lb_m5.cog.tif",
+          "format": "pmtiles",
+          "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
+          "sourceLayer": "ziekenhuis",
+          "geometryType": "polygon",
           "beforeid": "map-layers",
           "style": {
             "opacity": 0.8
@@ -194,11 +197,11 @@
             "name": "loopafstand in meter",
             "rules": [
               {
-                "name": "minder dan 500",
+                "name": "tot 2500",
                 "filter": [
                   "==",
-                  "data",
-                  0
+                  "class",
+                  1
                 ],
                 "symbolizers": [
                   {
@@ -211,11 +214,11 @@
                 ]
               },
               {
-                "name": "500 tot 750",
+                "name": "2500 tot 5000",
                 "filter": [
                   "==",
-                  "data",
-                  1
+                  "class",
+                  2
                 ],
                 "symbolizers": [
                   {
@@ -228,11 +231,11 @@
                 ]
               },
               {
-                "name": "750 tot 1000",
+                "name": "5000 tot 7500",
                 "filter": [
                   "==",
-                  "data",
-                  2
+                  "class",
+                  3
                 ],
                 "symbolizers": [
                   {
@@ -245,11 +248,11 @@
                 ]
               },
               {
-                "name": "1000 tot 1250",
+                "name": "7500 tot 10000",
                 "filter": [
                   "==",
-                  "data",
-                  3
+                  "class",
+                  4
                 ],
                 "symbolizers": [
                   {
@@ -262,11 +265,11 @@
                 ]
               },
               {
-                "name": "1250 tot 1500",
+                "name": "10000 tot 20000",
                 "filter": [
                   "==",
-                  "data",
-                  4
+                  "class",
+                  5
                 ],
                 "symbolizers": [
                   {
@@ -279,11 +282,11 @@
                 ]
               },
               {
-                "name": "meer dan 1500",
+                "name": "20000 of meer",
                 "filter": [
                   "==",
-                  "data",
-                  5
+                  "class",
+                  6
                 ],
                 "symbolizers": [
                   {
@@ -296,8 +299,7 @@
                 ]
               }
             ]
-          },
-          "embeddedColors": true
+          }
         },
         {
           "format": "pmtiles",
@@ -355,8 +357,10 @@
       },
       "layers": [
         {
-          "format": "cog",
-          "source": "https://data.woonzorglimburg.nl/cog/supermarkt_lb_m5.cog.tif",
+          "format": "pmtiles",
+          "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
+          "sourceLayer": "supermarkt",
+          "geometryType": "polygon",
           "beforeid": "map-layers",
           "style": {
             "opacity": 0.8
@@ -368,7 +372,7 @@
                 "name": "minder dan 500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   0
                 ],
                 "symbolizers": [
@@ -385,7 +389,7 @@
                 "name": "500 tot 750",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   1
                 ],
                 "symbolizers": [
@@ -402,7 +406,7 @@
                 "name": "750 tot 1000",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   2
                 ],
                 "symbolizers": [
@@ -419,7 +423,7 @@
                 "name": "1000 tot 1250",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   3
                 ],
                 "symbolizers": [
@@ -436,7 +440,7 @@
                 "name": "1250 tot 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   4
                 ],
                 "symbolizers": [
@@ -453,7 +457,7 @@
                 "name": "meer dan 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   5
                 ],
                 "symbolizers": [
@@ -467,8 +471,7 @@
                 ]
               }
             ]
-          },
-          "embeddedColors": true
+          }
         },
         {
           "format": "pmtiles",
@@ -526,8 +529,10 @@
       },
       "layers": [
         {
-          "format": "cog",
-          "source": "https://data.woonzorglimburg.nl/cog/dagbesteding_lb_m5.cog.tif",
+          "format": "pmtiles",
+          "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
+          "sourceLayer": "dagbesteding",
+          "geometryType": "polygon",
           "beforeid": "map-layers",
           "style": {
             "opacity": 0.8
@@ -539,7 +544,7 @@
                 "name": "minder dan 500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   0
                 ],
                 "symbolizers": [
@@ -556,7 +561,7 @@
                 "name": "500 tot 750",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   1
                 ],
                 "symbolizers": [
@@ -573,7 +578,7 @@
                 "name": "750 tot 1000",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   2
                 ],
                 "symbolizers": [
@@ -590,7 +595,7 @@
                 "name": "1000 tot 1250",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   3
                 ],
                 "symbolizers": [
@@ -607,7 +612,7 @@
                 "name": "1250 tot 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   4
                 ],
                 "symbolizers": [
@@ -624,7 +629,7 @@
                 "name": "meer dan 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   5
                 ],
                 "symbolizers": [
@@ -638,8 +643,7 @@
                 ]
               }
             ]
-          },
-          "embeddedColors": true
+          }
         },
         {
           "format": "pmtiles",
@@ -697,8 +701,10 @@
       },
       "layers": [
         {
-          "format": "cog",
-          "source": "https://data.woonzorglimburg.nl/cog/ontmoeting_lb_m5.cog.tif",
+          "format": "pmtiles",
+          "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
+          "sourceLayer": "ontmoeting",
+          "geometryType": "polygon",
           "beforeid": "map-layers",
           "style": {
             "opacity": 0.8
@@ -710,7 +716,7 @@
                 "name": "minder dan 500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   0
                 ],
                 "symbolizers": [
@@ -727,7 +733,7 @@
                 "name": "500 tot 750",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   1
                 ],
                 "symbolizers": [
@@ -744,7 +750,7 @@
                 "name": "750 tot 1000",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   2
                 ],
                 "symbolizers": [
@@ -761,7 +767,7 @@
                 "name": "1000 tot 1250",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   3
                 ],
                 "symbolizers": [
@@ -778,7 +784,7 @@
                 "name": "1250 tot 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   4
                 ],
                 "symbolizers": [
@@ -795,7 +801,7 @@
                 "name": "meer dan 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   5
                 ],
                 "symbolizers": [
@@ -809,8 +815,7 @@
                 ]
               }
             ]
-          },
-          "embeddedColors": true
+          }
         },
         {
           "format": "pmtiles",
@@ -858,8 +863,7 @@
     {
       "id": "tandarts",
       "name": "tandarts",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
-      "format": "pmtiles",
+      "format": "composite",
       "geometryType": "point",
       "style": {
         "color": [
@@ -871,50 +875,15 @@
         "opacity": 0.85,
         "lineWidth": 1
       },
-      "geostyler": {
-        "name": "tandarts",
-        "rules": [
-          {
-            "name": "tandarts",
-            "filter": [
-              "==",
-              "type",
-              18
-            ],
-            "symbolizers": [
-              {
-                "kind": "Icon",
-                "image": "/icons/dentistry.svg",
-                "width": 24,
-                "height": 24,
-                "size": 24,
-                "color": "#8C54D6",
-                "opacity": 0.85
-              }
-            ]
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
-      },
-      "sourceLayer": "vrz_locaties_2026"
-    },
-    {
-      "id": "ov",
-      "name": "openbaar vervoer",
-      "format": "composite",
-      "geometryType": "point",
-      "style": {
-        "opacity": 0.8
-      },
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
       },
       "layers": [
         {
-          "format": "cog",
-          "source": "https://data.woonzorglimburg.nl/cog/ov_lb_m5.cog.tif",
+          "format": "pmtiles",
+          "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
+          "sourceLayer": "tandarts",
+          "geometryType": "polygon",
           "beforeid": "map-layers",
           "style": {
             "opacity": 0.8
@@ -926,7 +895,7 @@
                 "name": "minder dan 500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   0
                 ],
                 "symbolizers": [
@@ -943,7 +912,7 @@
                 "name": "500 tot 750",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   1
                 ],
                 "symbolizers": [
@@ -960,7 +929,7 @@
                 "name": "750 tot 1000",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   2
                 ],
                 "symbolizers": [
@@ -977,7 +946,7 @@
                 "name": "1000 tot 1250",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   3
                 ],
                 "symbolizers": [
@@ -994,7 +963,7 @@
                 "name": "1250 tot 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   4
                 ],
                 "symbolizers": [
@@ -1011,7 +980,7 @@
                 "name": "meer dan 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   5
                 ],
                 "symbolizers": [
@@ -1025,8 +994,179 @@
                 ]
               }
             ]
+          }
+        },
+        {
+          "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+          "geometryType": "point",
+          "style": {
+            "color": [
+              253,
+              141,
+              60,
+              150
+            ],
+            "opacity": 0.85,
+            "lineWidth": 1
           },
-          "embeddedColors": true
+          "geostyler": {
+            "name": "tandarts",
+            "rules": [
+              {
+                "name": "tandarts",
+                "filter": [
+                  "==",
+                  "type",
+                  18
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Icon",
+                    "image": "/icons/dentistry.svg",
+                    "width": 24,
+                    "height": 24,
+                    "size": 24,
+                    "color": "#8C54D6",
+                    "opacity": 0.85
+                  }
+                ]
+              }
+            ]
+          },
+          "sourceLayer": "vrz_locaties_2026",
+          "format": "pmtiles",
+          "beforeid": "foreground-layers"
+        }
+      ]
+    },
+    {
+      "id": "ov",
+      "name": "openbaar vervoer",
+      "format": "composite",
+      "geometryType": "point",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
+      },
+      "layers": [
+        {
+          "format": "pmtiles",
+          "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
+          "sourceLayer": "ov",
+          "geometryType": "polygon",
+          "beforeid": "map-layers",
+          "style": {
+            "opacity": 0.8
+          },
+          "geostyler": {
+            "name": "loopafstand in meter",
+            "rules": [
+              {
+                "name": "minder dan 500",
+                "filter": [
+                  "==",
+                  "class",
+                  0
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Fill",
+                    "color": "#61BE7B",
+                    "outlineColor": "black",
+                    "outlineWidth": 0,
+                    "outlineOpacity": 0.2
+                  }
+                ]
+              },
+              {
+                "name": "500 tot 750",
+                "filter": [
+                  "==",
+                  "class",
+                  1
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Fill",
+                    "color": "#A0D392",
+                    "outlineColor": "black",
+                    "outlineWidth": 0,
+                    "outlineOpacity": 0.2
+                  }
+                ]
+              },
+              {
+                "name": "750 tot 1000",
+                "filter": [
+                  "==",
+                  "class",
+                  2
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Fill",
+                    "color": "#FDEAB6",
+                    "outlineColor": "black",
+                    "outlineWidth": 0,
+                    "outlineOpacity": 0.2
+                  }
+                ]
+              },
+              {
+                "name": "1000 tot 1250",
+                "filter": [
+                  "==",
+                  "class",
+                  3
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Fill",
+                    "color": "#F8D8AF",
+                    "outlineColor": "black",
+                    "outlineWidth": 0,
+                    "outlineOpacity": 0.2
+                  }
+                ]
+              },
+              {
+                "name": "1250 tot 1500",
+                "filter": [
+                  "==",
+                  "class",
+                  4
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Fill",
+                    "color": "#FFAF92",
+                    "outlineColor": "black",
+                    "outlineWidth": 0,
+                    "outlineOpacity": 0.2
+                  }
+                ]
+              },
+              {
+                "name": "meer dan 1500",
+                "filter": [
+                  "==",
+                  "class",
+                  5
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Fill",
+                    "color": "#FF6024",
+                    "outlineColor": "black",
+                    "outlineWidth": 0,
+                    "outlineOpacity": 0.2
+                  }
+                ]
+              }
+            ]
+          }
         },
         {
           "format": "pmtiles",
@@ -1084,8 +1224,10 @@
       },
       "layers": [
         {
-          "format": "cog",
-          "source": "https://data.woonzorglimburg.nl/cog/apotheek_lb_m5.cog.tif",
+          "format": "pmtiles",
+          "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
+          "sourceLayer": "apotheek",
+          "geometryType": "polygon",
           "beforeid": "map-layers",
           "style": {
             "opacity": 0.8
@@ -1097,7 +1239,7 @@
                 "name": "minder dan 500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   0
                 ],
                 "symbolizers": [
@@ -1114,7 +1256,7 @@
                 "name": "500 tot 750",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   1
                 ],
                 "symbolizers": [
@@ -1131,7 +1273,7 @@
                 "name": "750 tot 1000",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   2
                 ],
                 "symbolizers": [
@@ -1148,7 +1290,7 @@
                 "name": "1000 tot 1250",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   3
                 ],
                 "symbolizers": [
@@ -1165,7 +1307,7 @@
                 "name": "1250 tot 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   4
                 ],
                 "symbolizers": [
@@ -1182,7 +1324,7 @@
                 "name": "meer dan 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   5
                 ],
                 "symbolizers": [
@@ -1196,8 +1338,7 @@
                 ]
               }
             ]
-          },
-          "embeddedColors": true
+          }
         },
         {
           "format": "pmtiles",
@@ -1255,8 +1396,10 @@
       },
       "layers": [
         {
-          "format": "cog",
-          "source": "https://data.woonzorglimburg.nl/cog/fysiotherapeut_lb_m5.cog.tif",
+          "format": "pmtiles",
+          "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
+          "sourceLayer": "fysiotherapeut",
+          "geometryType": "polygon",
           "beforeid": "map-layers",
           "style": {
             "opacity": 0.8
@@ -1268,7 +1411,7 @@
                 "name": "minder dan 500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   0
                 ],
                 "symbolizers": [
@@ -1285,7 +1428,7 @@
                 "name": "500 tot 750",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   1
                 ],
                 "symbolizers": [
@@ -1302,7 +1445,7 @@
                 "name": "750 tot 1000",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   2
                 ],
                 "symbolizers": [
@@ -1319,7 +1462,7 @@
                 "name": "1000 tot 1250",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   3
                 ],
                 "symbolizers": [
@@ -1336,7 +1479,7 @@
                 "name": "1250 tot 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   4
                 ],
                 "symbolizers": [
@@ -1353,7 +1496,7 @@
                 "name": "meer dan 1500",
                 "filter": [
                   "==",
-                  "data",
+                  "class",
                   5
                 ],
                 "symbolizers": [
@@ -1367,8 +1510,7 @@
                 ]
               }
             ]
-          },
-          "embeddedColors": true
+          }
         },
         {
           "format": "pmtiles",
