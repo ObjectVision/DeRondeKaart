@@ -420,6 +420,14 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         mapStyle={basemap.base}
         dragRotate={false}
         pitchWithRotate={false}
+        // Run collision detection per source rather than in one global arena,
+        // so a layer's icons only thin against their own. Since tileSourceId
+        // keys each layer's source on its config id (`pmtiles-source-<id>`),
+        // one-source-per-collision-group is effectively one *layer* per group:
+        // switching `apotheek` on can no longer suppress `huisarts` icons.
+        // Constructor-only — MapLibre reads it once, so it cannot be toggled
+        // at runtime without recreating the map.
+        crossSourceCollisions={false}
         // The default bottom-right attribution control is replaced by the
         // app's own info button (MapAttribution in App.tsx).
         attributionControl={false}
