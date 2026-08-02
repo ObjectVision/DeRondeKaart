@@ -3071,12 +3071,10 @@
     {
       "id": "aandeel_geschikt_2024",
       "name": "Aandeel geschikt 2024",
-      "source": "https://data.woonzorglimburg.nl/cog/aandeel_geschikt.cog.tif",
-      "format": "cog",
-      "embeddedColors": true,
-      "style": {
-        "opacity": 0.8
-      },
+      "source": "https://data.woonzorglimburg.nl/pmtiles/geschiktheid_lb_2024.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "geschikt",
       "geostyler": {
         "name": "Aandeel geschikt",
         "rules": [
@@ -3084,13 +3082,16 @@
             "name": "tot 10%",
             "filter": [
               "==",
-              "band0",
-              0
+              "class",
+              1
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#d7f0b2"
+                "color": "#d7f0b2",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3098,13 +3099,16 @@
             "name": "10% tot 20%",
             "filter": [
               "==",
-              "band0",
-              1
+              "class",
+              2
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#c1d699"
+                "color": "#c1d699",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3112,13 +3116,16 @@
             "name": "20% tot 40%",
             "filter": [
               "==",
-              "band0",
-              2
+              "class",
+              3
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#acbf81"
+                "color": "#acbf81",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3126,13 +3133,16 @@
             "name": "40% tot 60%",
             "filter": [
               "==",
-              "band0",
-              3
+              "class",
+              4
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#98a86a"
+                "color": "#98a86a",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3140,13 +3150,16 @@
             "name": "60% tot 80%",
             "filter": [
               "==",
-              "band0",
-              4
+              "class",
+              5
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#829154"
+                "color": "#829154",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3154,13 +3167,16 @@
             "name": "80% tot 90%",
             "filter": [
               "==",
-              "band0",
-              5
+              "class",
+              6
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#707d41"
+                "color": "#707d41",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3168,28 +3184,32 @@
             "name": "meer dan 90%",
             "filter": [
               "==",
-              "band0",
-              6
+              "class",
+              7
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#606b31"
+                "color": "#606b31",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           }
         ]
+      },
+      "style": {
+        "opacity": 0.8
       }
     },
     {
       "id": "aandeel_ongeschikt_2024",
       "name": "Aandeel ongeschikt 2024",
-      "source": "https://data.woonzorglimburg.nl/cog/aandeel_ongeschikt.cog.tif",
-      "format": "cog",
-      "embeddedColors": true,
-      "style": {
-        "opacity": 0.8
-      },
+      "source": "https://data.woonzorglimburg.nl/pmtiles/geschiktheid_lb_2024.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "ongeschikt",
       "geostyler": {
         "name": "Aandeel ongeschikt",
         "rules": [
@@ -3197,13 +3217,16 @@
             "name": "tot 10%",
             "filter": [
               "==",
-              "band0",
-              0
+              "class",
+              1
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#ffebcd"
+                "color": "#ffebcd",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3211,13 +3234,16 @@
             "name": "10% tot 20%",
             "filter": [
               "==",
-              "band0",
-              1
+              "class",
+              2
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#fed7aa"
+                "color": "#fed7aa",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3225,13 +3251,16 @@
             "name": "20% tot 40%",
             "filter": [
               "==",
-              "band0",
-              2
+              "class",
+              3
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#fec18a"
+                "color": "#fec18a",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3239,13 +3268,16 @@
             "name": "40% tot 60%",
             "filter": [
               "==",
-              "band0",
-              3
+              "class",
+              4
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#feac6b"
+                "color": "#feac6b",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3253,13 +3285,16 @@
             "name": "60% tot 80%",
             "filter": [
               "==",
-              "band0",
-              4
+              "class",
+              5
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#fb9c51"
+                "color": "#fb9c51",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3267,13 +3302,16 @@
             "name": "80% tot 90%",
             "filter": [
               "==",
-              "band0",
-              5
+              "class",
+              6
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#f68738"
+                "color": "#f68738",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3281,17 +3319,23 @@
             "name": "meer dan 90%",
             "filter": [
               "==",
-              "band0",
-              6
+              "class",
+              7
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#ef751f"
+                "color": "#ef751f",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           }
         ]
+      },
+      "style": {
+        "opacity": 0.8
       }
     },
     {
@@ -3584,12 +3628,10 @@
     {
       "id": "aandeel_aanpasbaar_2024",
       "name": "Aandeel aanpasbaar 2024",
-      "source": "https://data.woonzorglimburg.nl/cog/aandeel_aanpasbaar.cog.tif",
-      "format": "cog",
-      "embeddedColors": true,
-      "style": {
-        "opacity": 0.8
-      },
+      "source": "https://data.woonzorglimburg.nl/pmtiles/geschiktheid_lb_2024.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "aanpasbaar",
       "geostyler": {
         "name": "Aandeel aanpasbaar",
         "rules": [
@@ -3597,13 +3639,16 @@
             "name": "tot 10%",
             "filter": [
               "==",
-              "band0",
-              0
+              "class",
+              1
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#feebe2"
+                "color": "#feebe2",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3611,13 +3656,16 @@
             "name": "10% tot 20%",
             "filter": [
               "==",
-              "band0",
-              1
+              "class",
+              2
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#fcc5c0"
+                "color": "#fcc5c0",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3625,13 +3673,16 @@
             "name": "20% tot 40%",
             "filter": [
               "==",
-              "band0",
-              2
+              "class",
+              3
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#fa9fb6"
+                "color": "#fa9fb6",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3639,13 +3690,16 @@
             "name": "40% tot 60%",
             "filter": [
               "==",
-              "band0",
-              3
+              "class",
+              4
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#f768a6"
+                "color": "#f768a6",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3653,13 +3707,16 @@
             "name": "60% tot 80%",
             "filter": [
               "==",
-              "band0",
-              4
+              "class",
+              5
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#dd3497"
+                "color": "#dd3497",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3667,13 +3724,16 @@
             "name": "80% tot 90%",
             "filter": [
               "==",
-              "band0",
-              5
+              "class",
+              6
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#ae017d"
+                "color": "#ae017d",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           },
@@ -3681,17 +3741,23 @@
             "name": "meer dan 90%",
             "filter": [
               "==",
-              "band0",
-              6
+              "class",
+              7
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#7a0177"
+                "color": "#7a0177",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
               }
             ]
           }
         ]
+      },
+      "style": {
+        "opacity": 0.8
       }
     },
     {
