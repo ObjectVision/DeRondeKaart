@@ -6064,6 +6064,630 @@
       "sourceLayer": "corporaties_lb_2026"
     },
     {
+      "id": "streefhuur_0_2026",
+      "name": "tot kwaliteitsgrens",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "tot kwaliteitsgrens",
+        "rules": [
+          {
+            "name": "tot 20%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#DCF5E9",
+                "outlineColor": "#DCF5E9",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "20% tot 40%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A7CFB5",
+                "outlineColor": "#A7CFB5",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77A883",
+                "outlineColor": "#77A883",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "60% tot 80%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4B875A",
+                "outlineColor": "#4B875A",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 80%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#236635",
+                "outlineColor": "#236635",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>tot kwaliteitsgrens: [[ class ]]</b></div>"
+      },
+      "sourceLayer": "streefhuur_0"
+    },
+    {
+      "id": "streefhuur_1_2026",
+      "name": "tot lage aftoppingsgrens",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "tot lage aftoppingsgrens",
+        "rules": [
+          {
+            "name": "tot 20%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#DCF5E9",
+                "outlineColor": "#DCF5E9",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "20% tot 40%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A7CFB5",
+                "outlineColor": "#A7CFB5",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77A883",
+                "outlineColor": "#77A883",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "60% tot 80%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4B875A",
+                "outlineColor": "#4B875A",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 80%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#236635",
+                "outlineColor": "#236635",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>tot lage aftoppingsgrens: [[ class ]]</b></div>"
+      },
+      "sourceLayer": "streefhuur_1"
+    },
+    {
+      "id": "streefhuur_2_2026",
+      "name": "tot hoge aftoppingsgrens",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "tot hoge aftoppingsgrens",
+        "rules": [
+          {
+            "name": "tot 20%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#DCF5E9",
+                "outlineColor": "#DCF5E9",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "20% tot 40%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A7CFB5",
+                "outlineColor": "#A7CFB5",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77A883",
+                "outlineColor": "#77A883",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "60% tot 80%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4B875A",
+                "outlineColor": "#4B875A",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 80%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#236635",
+                "outlineColor": "#236635",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>tot hoge aftoppingsgrens: [[ class ]]</b></div>"
+      },
+      "sourceLayer": "streefhuur_2"
+    },
+    {
+      "id": "streefhuur_3_2026",
+      "name": "tot liberalisatiegrens",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "tot liberalisatiegrens",
+        "rules": [
+          {
+            "name": "tot 20%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#DCF5E9",
+                "outlineColor": "#DCF5E9",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "20% tot 40%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A7CFB5",
+                "outlineColor": "#A7CFB5",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77A883",
+                "outlineColor": "#77A883",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "60% tot 80%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4B875A",
+                "outlineColor": "#4B875A",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 80%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#236635",
+                "outlineColor": "#236635",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>tot liberalisatiegrens: [[ class ]]</b></div>"
+      },
+      "sourceLayer": "streefhuur_3"
+    },
+    {
+      "id": "streefhuur_4_2026",
+      "name": "boven niet-daeb grens",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "boven niet-daeb grens",
+        "rules": [
+          {
+            "name": "tot 20%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#DCF5E9",
+                "outlineColor": "#DCF5E9",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "20% tot 40%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A7CFB5",
+                "outlineColor": "#A7CFB5",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77A883",
+                "outlineColor": "#77A883",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "60% tot 80%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4B875A",
+                "outlineColor": "#4B875A",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 80%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#236635",
+                "outlineColor": "#236635",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>boven niet-daeb grens: [[ class ]]</b></div>"
+      },
+      "sourceLayer": "streefhuur_4"
+    },
+    {
+      "id": "streefhuur_5_2026",
+      "name": "boven liberalisatie grens",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "boven liberalisatie grens",
+        "rules": [
+          {
+            "name": "tot 20%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#DCF5E9",
+                "outlineColor": "#DCF5E9",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "20% tot 40%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A7CFB5",
+                "outlineColor": "#A7CFB5",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77A883",
+                "outlineColor": "#77A883",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "60% tot 80%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4B875A",
+                "outlineColor": "#4B875A",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 80%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#236635",
+                "outlineColor": "#236635",
+                "outlineWidth": 3,
+                "outlineOpacity": 1.0
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>boven liberalisatie grens: [[ class ]]</b></div>"
+      },
+      "sourceLayer": "streefhuur_5"
+    },
+    {
       "id": "bouwjaar_2026",
       "name": "bouwjaar",
       "format": "composite",
