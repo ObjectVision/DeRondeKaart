@@ -28,7 +28,7 @@ export function LeafDetail({ leaf, path, nav, onBack }: LeafDetailProps) {
           className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-gray-100"
           title="Terug"
         >
-          <Icon name="arrow_back" size={16} />
+          <Icon name="chevron_left" size={16} />
         </button>
         <span className="truncate">{path.join(" › ")}</span>
       </div>
