@@ -170,15 +170,16 @@ export const Sidebar = memo(function Sidebar({
                 // Category content tree — overlays the Navigatie section in
                 // the same card slot; the back header restores the grid.
                 <div className="flex flex-col gap-2">
-                  <div className="flex items-center gap-2 border-b border-gray-100 pb-2">
-                    <button
-                      onClick={closeCategory}
-                      className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-gray-100"
-                      title="Terug naar thema's"
-                      aria-label="Terug naar thema's"
-                    >
-                      <Icon name="arrow_back" size={16} />
-                    </button>
+                  {/* The whole header row is the back affordance — a 4px icon
+                      was a needlessly small target for the only way out of a
+                      category. Mirrors NavTree's chevron, flipped to point back. */}
+                  <button
+                    onClick={closeCategory}
+                    title="Terug naar thema's"
+                    aria-label="Terug naar thema's"
+                    className="flex w-full items-center gap-2 rounded border-b border-gray-100 px-1 pb-2 text-left transition-colors hover:bg-gray-100"
+                  >
+                    <Icon name="chevron_left" size={18} className="flex-shrink-0 text-gray-400" />
                     <NavIcon
                       name={activeNode.icon}
                       color={activeNode.color}
@@ -188,7 +189,7 @@ export const Sidebar = memo(function Sidebar({
                     <span className="text-sm font-semibold text-gray-900">
                       {activeNode.label}
                     </span>
-                  </div>
+                  </button>
                   <NavTree
                     items={activeNode.children}
                     query=""
