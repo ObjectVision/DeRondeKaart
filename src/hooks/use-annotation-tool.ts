@@ -371,7 +371,7 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
         lat: p.lat + dLat,
       }));
       optionsRef.current.onEditPoints(drag.id, points, centroid(points));
-    } else {
+    } else if (drag.mode === "vertex") {
       const points = drag.points.map((p, i) =>
         i === drag.index ? { lng: e.lngLat.lng, lat: e.lngLat.lat } : p,
       );
@@ -467,7 +467,7 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
           lat: p.lat + dLat,
         }));
         optionsRef.current.onEditPoints(drag.id, points, centroid(points));
-      } else {
+      } else if (drag.mode === "vertex") {
         const points = drag.points.map((p, i) =>
           i === drag.index ? { lng: e.lngLat.lng, lat: e.lngLat.lat } : p,
         );
