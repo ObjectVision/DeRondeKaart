@@ -8744,6 +8744,127 @@
       "featureinfo": {
         "template": "<div><b>OOSR: [[ class ]]</b></div>"
       }
+    },
+    {
+      "id": "stijgingspercentage_lb_2026",
+      "name": "Stijgingspercentage",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/stijgingspercentage_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "stijgingspercentage",
+      "geostyler": {
+        "name": "Stijgingspercentage",
+        "rules": [
+          {
+            "name": "exactly 0.0%",
+            "filter": [
+              "==",
+              "class",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3288bd",
+                "outlineColor": "#3288bd",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "0% up to 2%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#99d594",
+                "outlineColor": "#99d594",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "2% up to 4%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#e6f598",
+                "outlineColor": "#e6f598",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "4% up to 8%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fee08b",
+                "outlineColor": "#fee08b",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "8% up to 12%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fc8d59",
+                "outlineColor": "#fc8d59",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "12% of meer",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#d53e4f",
+                "outlineColor": "#d53e4f",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Stijgingspercentage klasse: [[ class ]]</b></div>"
+      }
     }
   ]
 }
