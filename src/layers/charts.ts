@@ -5,13 +5,19 @@
  */
 import type { ChartValueFormat, LayerConfig } from "./types";
 
-/** Formats whose attribute table can feed the analytics panel. */
+/** Formats whose own `source` is an attribute table the panel can read. */
 const CHART_FORMATS = ["geoarrow", "parquet"];
 
-/** Can this layer open the analytics panel? */
+/**
+ * Can this layer open the analytics panel?
+ *
+ * Either its `source` is itself a readable table, or it names an
+ * `attributeSource` sidecar — the pmtiles case, where the tiles render the map
+ * but cannot supply whole-dataset aggregates.
+ */
 export function isChartEligible(config: LayerConfig): boolean {
   return (
-    CHART_FORMATS.includes(config.format) &&
+    (CHART_FORMATS.includes(config.format) || Boolean(config.attributeSource)) &&
     Boolean(config.charts?.length || config.statistics?.length)
   );
 }

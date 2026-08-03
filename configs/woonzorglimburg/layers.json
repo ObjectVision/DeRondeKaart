@@ -2090,6 +2090,7 @@
       "id": "Sociaal_dominante_klasse",
       "name": "Sociaal dominante klasse",
       "source": "https://data.woonzorglimburg.nl/pmtiles/SDKLimburg2026.pmtiles",
+      "attributeSource": "https://data.woonzorglimburg.nl/parquet/SDKLimburg2026.parquet",
       "format": "pmtiles",
       "geometryType": "polygon",
       "charts": [
@@ -2443,6 +2444,7 @@
       "id": "verpleging_en_verzorging",
       "name": "verpleging en verzorging",
       "source": "https://data.woonzorglimburg.nl/pmtiles/cluster_indicatiesLimburg2026.pmtiles",
+      "attributeSource": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
       "format": "pmtiles",
       "geometryType": "point",
       "charts": [
@@ -3792,6 +3794,7 @@
       "id": "cbsbuurt2026",
       "name": "CBS Buurt 2026",
       "source": "https://data.woonzorglimburg.nl/pmtiles/cbsbuurt2026.pmtiles",
+      "attributeSource": "https://data.woonzorglimburg.nl/parquet/cbsbuurt2026.parquet",
       "format": "pmtiles",
       "geometryType": "line",
       "beforeid": "foreground-layers",
