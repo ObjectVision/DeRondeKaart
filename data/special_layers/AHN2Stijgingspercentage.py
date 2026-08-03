@@ -60,6 +60,23 @@ sentinel is 3.4e38, so letting it into the arithmetic would produce enormous
 bogus slopes rather than an obvious failure. A 5 m output cell is nodata only
 when ALL 100 of its sub-pixels are nodata; partial coverage uses the valid ones.
 
+Speckle and resolution
+----------------------
+A 0.5 m DTM resolves ditches, kerbs and field boundaries, each a genuine steep
+face. Classified at 5 m the result fragments into ~16 million polygons (7.4
+cells per polygon measured) — hours to vectorise and unusable as a tile archive.
+Three settings control that, in descending order of effect:
+
+* ``--cell`` (default 30 m) — by far the strongest lever, since fragmentation
+  scales with cell count. 5 m -> 30 m takes the estimate to ~180-370k polygons.
+* ``--smooth`` (default 9 px = 4.5 m) — smooths the DEM before differentiating,
+  so microrelief never becomes a class. On its own it fixes the class
+  distribution but barely dents the polygon count.
+* ``--sieve`` (default 8 cells) — folds residual specks into their neighbours.
+
+The signal survives: at these defaults Vaals is ~44% class 5 while the Roermond
+floodplain is ~4%.
+
 Output classes (uint8, nodata 255)
 ----------------------------------
     exactly 0.0% (dead flat) -> 0
@@ -112,6 +129,8 @@ from pathlib import Path
 
 import numpy as np
 import rasterio
+from numpy.lib.stride_tricks import sliding_window_view
+from rasterio.features import sieve
 from rasterio.windows import Window
 
 try:
@@ -157,15 +176,29 @@ SOURCE_CELL = 0.5
 # PDOK rejects any request whose result would exceed 4000x4000 px. At 0.5 m that
 # caps a tile at 2 km; going smaller only multiplies request count and runtime.
 MAX_REQUEST_PX = 4000
-# The halo counts against that budget, so the tile itself must be smaller than
-# the 2 km the limit suggests: 1900 m = 3800 px + 2*10 px halo = 3820 px. Also a
-# whole number of 5 m cells (380), which keeps tiles aligned to the output grid.
-DEFAULT_TILE_M = 1900.0
+# The halo counts against that budget, so the tile must be smaller than the 2 km
+# the limit alone suggests, and a whole number of output cells so tiles stay
+# aligned to the grid. 1860 m = 62 cells of 30 m = 3720 px + halo.
+DEFAULT_TILE_M = 1860.0
 
-# Extra source pixels fetched around each tile so the 3x3 slope kernel has real
-# neighbours at the tile border. One output cell (10 px) is more than the kernel
-# needs and keeps the halo aligned to the 5 m grid.
-HALO_PX = 10
+# Base halo: extra source pixels fetched around each tile so the 3x3 slope kernel
+# has real neighbours at the border. Smoothing widens the neighbourhood further,
+# so the effective halo is this plus half the smoothing kernel (see halo_for) —
+# too small a halo shows up as a grid of seams across the whole raster.
+BASE_HALO_PX = 10
+
+# Output cell size. Deliberately NOT the 5 m of the reference raster: at 5 m the
+# classified slope field fragments into ~16 M polygons (0.5 m AHN resolves every
+# ditch and kerb as a real steep face), which cannot be vectorised usefully.
+# Coarsening is by far the strongest lever on that count — see the project plan.
+DEFAULT_CELL_M = 30.0
+
+# Box-mean kernel applied to the DEM before the slope kernel, in source pixels.
+# 9 px = 4.5 m suppresses kerb/ditch-scale relief while preserving real slopes.
+DEFAULT_SMOOTH_PX = 9
+
+# Minimum patch size kept by the post-classification sieve, in output cells.
+DEFAULT_SIEVE = 8
 
 NODATA_OUT = 255
 # Class upper bounds in percent; index into these gives the class number.
@@ -175,12 +208,21 @@ DEFAULT_RETRIES = 4
 DEFAULT_TIMEOUT = 300
 
 
-def reference_grid(path: Path):
-    """Read the target grid (transform/crs/shape) from the reference raster.
+def halo_for(smooth_px: int) -> int:
+    """Source pixels to over-fetch per side: slope kernel plus smoothing reach."""
+    return BASE_HALO_PX + smooth_px // 2
 
-    Read rather than hardcoded so the output stays aligned if the reference grid
-    ever changes — grid identity with the other analysis rasters is the whole
-    point of this script.
+
+def reference_grid(path: Path, cell: float):
+    """Build the output grid from the reference raster's BOUNDS and CRS.
+
+    The extent and projection are copied so the layer overlays the other
+    analysis rasters exactly, but the cell size is our own: the app composes
+    layers by CRS rather than by a shared grid, and slope has to be coarser than
+    5 m to vectorise at all (see DEFAULT_CELL_M).
+
+    Read from the file rather than hardcoded so the output follows if the
+    reference extent ever changes.
     """
     with rasterio.open(path) as src:
         if src.transform.a != -src.transform.e:
@@ -188,13 +230,21 @@ def reference_grid(path: Path):
                 f"error: {path.name} has non-square cells "
                 f"({src.transform.a} x {-src.transform.e}); this script assumes square."
             )
-        return {
-            "transform": src.transform,
-            "crs": src.crs,
-            "width": src.width,
-            "height": src.height,
-            "cell": src.transform.a,
-        }
+        bounds = src.bounds
+        crs = src.crs
+
+    # Round outwards so the output covers the reference extent completely; a
+    # partial last row/column would silently clip the south and east edges.
+    width = int(np.ceil((bounds.right - bounds.left) / cell))
+    height = int(np.ceil((bounds.top - bounds.bottom) / cell))
+    return {
+        "transform": rasterio.transform.from_origin(bounds.left, bounds.top, cell, cell),
+        "crs": crs,
+        "width": width,
+        "height": height,
+        "cell": cell,
+        "bounds": bounds,
+    }
 
 
 def fetch_dem(
@@ -259,6 +309,34 @@ def fetch_dem(
     band[~np.isfinite(band)] = np.nan
     band[np.abs(band) > 1e30] = np.nan
     return band, SOURCE_CELL
+
+
+def boxblur(dem: np.ndarray, k: int) -> np.ndarray:
+    """NaN-aware k x k box mean over the DEM, k odd and in source pixels.
+
+    Applied BEFORE the slope kernel. Without it the 0.5 m DTM turns every ditch,
+    kerb and field boundary into a genuine steep face, and the classified result
+    fragments into millions of specks that cannot be vectorised. Smoothing the
+    elevation first keeps the hillsides and drops the microrelief.
+
+    Cells that were nodata stay nodata: this may average only within known data,
+    never fill an AHN gap. That keeps the script's no-interpolation guarantee.
+
+    Implemented as an explicit windowed nanmean rather than the tempting
+    summed-area-table trick — a cumsum grows monotonically, so edge-padding the
+    cumulative arrays corrupts the table and yields "averages" outside the input
+    range (observed: 16-40 m from a 19.4-30.5 m DEM, inflating slope to 66%
+    class 5). The assertion below would catch a regression of that kind.
+    """
+    if k <= 1:
+        return dem
+    padded = np.pad(dem, k // 2, mode="reflect")
+    with warnings.catch_warnings():
+        # All-NaN windows return NaN, which is the intended nodata outcome.
+        warnings.simplefilter("ignore", category=RuntimeWarning)
+        out = np.nanmean(sliding_window_view(padded, (k, k)), axis=(2, 3))
+    out[~np.isfinite(dem)] = np.nan
+    return out.astype("float32")
 
 
 def horn_slope_percent(dem: np.ndarray, cell: float) -> np.ndarray:
@@ -393,12 +471,24 @@ def process(args, grid) -> int:
     cell = grid["cell"]
     factor = int(round(cell / SOURCE_CELL))
     per_tile = int(round(args.tile_size / cell))
+    halo_px = halo_for(args.smooth)
     src_px = per_tile * factor
-    if src_px + 2 * HALO_PX > MAX_REQUEST_PX:
+    if src_px + 2 * halo_px > MAX_REQUEST_PX:
+        usable = (MAX_REQUEST_PX - 2 * halo_px) * SOURCE_CELL
+        # Round down to a whole number of output cells: a partial cell would
+        # break the reshape in aggregate_mean.
+        usable = (usable // cell) * cell
         print(
-            f"error: --tile-size {args.tile_size} m needs {src_px + 2 * HALO_PX} px "
-            f"per request, over the service limit of {MAX_REQUEST_PX}. "
-            f"Use {(MAX_REQUEST_PX - 2 * HALO_PX) * SOURCE_CELL:.0f} m or less.",
+            f"error: --tile-size {args.tile_size} m needs {src_px + 2 * halo_px} px "
+            f"per request (incl. {halo_px} px halo for --smooth {args.smooth}), "
+            f"over the service limit of {MAX_REQUEST_PX}. Use {usable:.0f} m or less.",
+            file=sys.stderr,
+        )
+        return 2
+    if per_tile * cell != args.tile_size:
+        print(
+            f"error: --tile-size {args.tile_size} m is not a whole number of "
+            f"{cell:.0f} m cells; use a multiple of the cell size.",
             file=sys.stderr,
         )
         return 2
@@ -424,13 +514,17 @@ def process(args, grid) -> int:
     else:
         print(f"Resuming into {out_path}")
 
-    halo_m = HALO_PX * SOURCE_CELL
+    halo_m = halo_px * SOURCE_CELL
     counts = np.zeros(257, dtype="int64")
     fetched = skipped = empty = 0
 
     print(
         f"Fetching {len(tiles)} tile(s) of {args.tile_size:.0f} m "
-        f"({src_px}+{2 * HALO_PX} px per request) from {args.coverage}"
+        f"({src_px}+{2 * halo_px} px per request) from {args.coverage}"
+    )
+    print(
+        f"  smoothing {args.smooth} px ({args.smooth * SOURCE_CELL:.1f} m), "
+        f"sieve {args.sieve} cell(s), output {cell:.0f} m"
     )
 
     with rasterio.open(out_path, "r+") as dst:
@@ -463,7 +557,7 @@ def process(args, grid) -> int:
                 continue
 
             dem, src_cell = result
-            expected = (height * factor + 2 * HALO_PX, width * factor + 2 * HALO_PX)
+            expected = (height * factor + 2 * halo_px, width * factor + 2 * halo_px)
             if dem.shape != expected:
                 # The service occasionally returns an off-by-one grid; crop or
                 # pad rather than abort, so one odd tile can't kill a long run.
@@ -477,11 +571,18 @@ def process(args, grid) -> int:
                 empty += 1
                 continue
 
-            slope = horn_slope_percent(dem, src_cell)
-            # Drop the halo: those cells exist only to give the kernel real
+            # Smooth the elevation BEFORE differentiating it — see boxblur().
+            slope = horn_slope_percent(boxblur(dem, args.smooth), src_cell)
+            # Drop the halo: those cells exist only to give the kernels real
             # neighbours and belong to the adjacent tiles.
-            slope = slope[HALO_PX:-HALO_PX, HALO_PX:-HALO_PX]
+            slope = slope[halo_px:-halo_px, halo_px:-halo_px]
             classes = classify(aggregate_mean(slope, factor))
+            if args.sieve:
+                # Remove the residual specks left along class boundaries, folding
+                # each into its largest neighbour. Runs per tile: patches
+                # straddling a tile edge are only partly seen, which is
+                # acceptable for sub-8-cell noise.
+                classes = sieve(classes, size=args.sieve, connectivity=8)
 
             dst.write(classes, 1, window=window)
             counts += np.bincount(classes.ravel(), minlength=257)
@@ -546,11 +647,39 @@ def main(argv: list[str]) -> int:
         help="WCS coverage: dtm = terrain (default), dsm = surface incl. buildings",
     )
     parser.add_argument(
+        "--cell",
+        type=float,
+        default=DEFAULT_CELL_M,
+        metavar="M",
+        help=(
+            f"Output cell size in metres (default: {DEFAULT_CELL_M:.0f}). Coarser "
+            "cells are the strongest lever on polygon count when vectorising."
+        ),
+    )
+    parser.add_argument(
+        "--smooth",
+        type=int,
+        default=DEFAULT_SMOOTH_PX,
+        metavar="PX",
+        help=(
+            f"Box-mean kernel applied to the DEM before the slope kernel, in "
+            f"0.5 m pixels, odd (default: {DEFAULT_SMOOTH_PX} = "
+            f"{DEFAULT_SMOOTH_PX * SOURCE_CELL:.1f} m). 0/1 disables."
+        ),
+    )
+    parser.add_argument(
+        "--sieve",
+        type=int,
+        default=DEFAULT_SIEVE,
+        metavar="N",
+        help=f"Drop classified patches under N cells (default: {DEFAULT_SIEVE}; 0 disables)",
+    )
+    parser.add_argument(
         "--tile-size",
         type=float,
         default=DEFAULT_TILE_M,
         metavar="M",
-        help=f"Tile edge in metres (default: {DEFAULT_TILE_M:.0f}; service caps at ~2000)",
+        help=f"Tile edge in metres (default: {DEFAULT_TILE_M:.0f}; must be a multiple of --cell)",
     )
     parser.add_argument(
         "--window",
@@ -596,17 +725,31 @@ def main(argv: list[str]) -> int:
     if args.tile_size <= 0:
         print("error: --tile-size must be positive", file=sys.stderr)
         return 2
-
-    grid = reference_grid(reference)
-    if grid["cell"] % SOURCE_CELL:
+    if args.cell <= 0:
+        print("error: --cell must be positive", file=sys.stderr)
+        return 2
+    if args.cell % SOURCE_CELL:
         print(
-            f"error: reference cell {grid['cell']} m is not a multiple of the "
-            f"{SOURCE_CELL} m source resolution",
+            f"error: --cell {args.cell} m is not a multiple of the {SOURCE_CELL} m "
+            "source resolution",
             file=sys.stderr,
         )
         return 2
+    if args.smooth > 1 and args.smooth % 2 == 0:
+        # An even kernel has no centre pixel, so the blur would shift the terrain
+        # half a cell sideways — a silent georeferencing error.
+        print(f"error: --smooth must be odd, got {args.smooth}", file=sys.stderr)
+        return 2
+    if args.sieve < 0:
+        print("error: --sieve must be >= 0", file=sys.stderr)
+        return 2
 
-    print(f"Reference {reference.name}: {grid['width']} x {grid['height']} @ {grid['cell']} m, {grid['crs']}")
+    grid = reference_grid(reference, args.cell)
+
+    print(
+        f"Reference {reference.name} -> {grid['width']} x {grid['height']} "
+        f"@ {grid['cell']:.0f} m, {grid['crs']}"
+    )
     try:
         return process(args, grid)
     except RuntimeError as err:

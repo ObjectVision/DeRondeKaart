@@ -711,6 +711,22 @@
             ]
           }
         ]
+      },
+      {
+        "label": "reliëf",
+        "icon": "landscape",
+        "color": "#7A5C3E",
+        "expanded": true,
+        "children": [
+          {
+            "id": "stijgingspercentage_lb_2026",
+            "icon": "landscape",
+            "color": "#7A5C3E",
+            "label": "Stijgingspercentage",
+            "a": false,
+            "b": false
+          }
+        ]
       }
     ]
   },
