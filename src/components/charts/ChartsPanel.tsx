@@ -29,7 +29,7 @@ export const ChartsPanel = memo(function ChartsPanel({
   /** Arm/disarm the box-select tool (drag a rectangle to filter statistics). */
   onToggleAreaSelect: () => void;
 }) {
-  const { charts, stats, loading } = useChartData(config, version);
+  const { charts, stats, unavailable, loading } = useChartData(config, version);
 
   return (
     <div className="absolute right-2 top-2 z-30 max-h-[calc(100%-1rem)] w-[min(30rem,90vw)] sm:right-4 sm:top-4 sm:max-h-[calc(100%-2rem)]">
@@ -80,6 +80,13 @@ export const ChartsPanel = memo(function ChartsPanel({
         {loading ? (
           <div className="flex items-center justify-center py-10 text-sm text-gray-400">
             Laden…
+          </div>
+        ) : unavailable ? (
+          // No attribute table could be loaded. Saying so beats a blank card —
+          // an unexplained empty panel is what let this go unnoticed after the
+          // layers moved to pmtiles.
+          <div className="flex items-center justify-center py-10 text-center text-sm text-gray-400">
+            Geen gegevens beschikbaar voor dit thema
           </div>
         ) : (
           <>

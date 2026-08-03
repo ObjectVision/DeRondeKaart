@@ -32,18 +32,57 @@ export interface ResolvedStat {
 
 /**
  * Fetch the attribute table for a layer. The loaders are URL-cached, so for a
- * layer already on the map this resolves without a second download. Returns
- * null for formats without an attribute table (mvt/cog/geojson).
+ * layer already on the map — or a sidecar shared by several layers — this
+ * resolves without a second download.
+ *
+ * An `attributeSource` wins over `source`: it exists precisely because the
+ * layer's own format (pmtiles/mvt/cog) serves tiles rather than a table.
+ * Returns null when no table can be resolved.
  */
 export function loadTableForConfig(config: LayerConfig): Promise<Table | null> {
+  const sidecar = config.attributeSource;
+  if (sidecar) {
+    // Dispatch on the sidecar's own extension, not the layer's format — the
+    // whole point is that the two differ.
+    const url = sidecar.split("?")[0].toLowerCase();
+    if (url.endsWith(".parquet")) return loadParquetBatches(sidecar, () => {});
+    if (url.endsWith(".arrow") || url.endsWith(".feather")) {
+      return loadArrowBatches(sidecar, () => {});
+    }
+    warnNoTable(
+      config,
+      `attributeSource "${sidecar}" is not a .parquet/.arrow/.feather file`,
+    );
+    return Promise.resolve(null);
+  }
+
   switch (config.format) {
     case "parquet":
       return loadParquetBatches(config.source, () => {});
     case "geoarrow":
       return loadArrowBatches(config.source, () => {});
     default:
+      // Declaring charts on a tile format without a sidecar renders an empty
+      // panel and nothing else — say so, since that silence is exactly what hid
+      // this after the layers moved from parquet to pmtiles.
+      if (config.charts?.length || config.statistics?.length) {
+        warnNoTable(
+          config,
+          `format "${config.format}" has no attribute table; add an ` +
+            `"attributeSource" pointing at a .parquet/.arrow sidecar`,
+        );
+      }
       return Promise.resolve(null);
   }
+}
+
+const warnedNoTable = new Set<string>();
+
+/** Warn once per layer that its analytics panel has no data to read. */
+function warnNoTable(config: LayerConfig, reason: string) {
+  if (warnedNoTable.has(config.id)) return;
+  warnedNoTable.add(config.id);
+  console.warn(`charts: layer "${config.id}" declares charts/statistics but ${reason}`);
 }
 
 /** Wrap a Table as the accessor-info shape arrowRowMatchesAreaFilter expects. */

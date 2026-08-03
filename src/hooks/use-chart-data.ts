@@ -9,10 +9,19 @@ import {
 } from "@/layers/chart-data";
 import type { LayerConfig } from "@/layers/types";
 
-const EMPTY: { charts: ResolvedChart[]; stats: ResolvedStat[] } = {
-  charts: [],
-  stats: [],
-};
+interface ChartDataState {
+  charts: ResolvedChart[];
+  stats: ResolvedStat[];
+  /**
+   * True when no attribute table could be loaded at all — distinct from a table
+   * that simply yielded no rows, so the panel can explain itself instead of
+   * rendering blank.
+   */
+  unavailable: boolean;
+}
+
+const EMPTY: ChartDataState = { charts: [], stats: [], unavailable: false };
+const UNAVAILABLE: ChartDataState = { charts: [], stats: [], unavailable: true };
 
 /**
  * Chart data + statistics for the analytics panel of one layer, restricted to
@@ -40,9 +49,13 @@ export function useChartData(config: LayerConfig | null, version: number) {
         ]);
         if (cancelled) return;
         if (!table) {
-          setResult(EMPTY);
+          setResult(UNAVAILABLE);
           return;
         }
+        // Memo key must identify the TABLE, not the layer: two layers sharing
+        // one sidecar have different `source` values but identical data, and
+        // keying on `source` would compute it twice under different keys.
+        const tableKey = config.attributeSource ?? config.source;
 
         const charts = (config.charts ?? [])
           .map((id) => {
@@ -52,13 +65,13 @@ export function useChartData(config: LayerConfig | null, version: number) {
           })
           .filter((c): c is NonNullable<typeof c> => c !== undefined)
           .slice(0, 4)
-          .map((chart) => computeChartData(table, chart, config.source, version));
+          .map((chart) => computeChartData(table, chart, tableKey, version));
 
-        const stats = computeStatistics(table, config.statistics ?? [], config.source, version);
-        setResult({ charts, stats });
+        const stats = computeStatistics(table, config.statistics ?? [], tableKey, version);
+        setResult({ charts, stats, unavailable: false });
       } catch (err) {
         console.warn(`charts: failed to compute data for "${config.id}"`, err);
-        if (!cancelled) setResult(EMPTY);
+        if (!cancelled) setResult(UNAVAILABLE);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -69,5 +82,10 @@ export function useChartData(config: LayerConfig | null, version: number) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [configId, version]);
 
-  return { charts: result.charts, stats: result.stats, loading };
+  return {
+    charts: result.charts,
+    stats: result.stats,
+    unavailable: result.unavailable,
+    loading,
+  };
 }

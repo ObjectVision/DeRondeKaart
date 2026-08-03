@@ -224,6 +224,17 @@ export interface LayerConfig {
   embeddedColors?: boolean;
   /** "geojson" format only: the in-memory features to render. `source` is unused ("") for this format. */
   data?: FeatureCollection;
+  /**
+   * Attribute table for the analytics panel, when `source` is a format that has
+   * none the app can read whole (pmtiles/mvt/cog serve tiles, not tables).
+   *
+   * Charts aggregate the ENTIRE dataset, so they cannot be computed from vector
+   * tiles: those only hold the current viewport at the current zoom, and the
+   * numbers would silently change as the user pans. Point this at a `.parquet`
+   * (or `.arrow`) sidecar carrying the same rows and the panel reads that
+   * instead, while the map keeps rendering from `source`.
+   */
+  attributeSource?: string;
   /** Ids of charts.json chart definitions shown in the analytics panel (max 4 used). */
   charts?: string[];
   /** Statistic cards ("Kerncijfers") shown in the analytics panel. */
