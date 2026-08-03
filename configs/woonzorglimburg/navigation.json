@@ -238,18 +238,10 @@
         "expanded": true,
         "children": [
           {
-            "id": "bouwjaar_2026",
-            "icon": "apartment",
-            "color": "#2D6CDF",
-            "label": "bouwjaar",
-            "a": false,
-            "b": false
-          },
-          {
             "id": "bouwjaar_2026_pmtiles",
             "icon": "apartment",
             "color": "#2D6CDF",
-            "label": "bouwjaar (pmtiles)",
+            "label": "bouwjaar",
             "a": false,
             "b": false
           },
@@ -506,7 +498,7 @@
             "label": "loopafstanden",
             "icon": "storefront",
             "color": "#8C54D6",
-            "expanded": true,
+            "expanded": false,
             "children": [
               {
                 "id": "loopafstand_apotheek",
