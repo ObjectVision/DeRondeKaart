@@ -27,7 +27,7 @@ export function resolveMarkerPoint(
   // --- deck.gl point layers (GeoArrow/Parquet) ---
   const overlay = mapViewRef.current?.overlayRef?.current;
   if (overlay) {
-    const info = (overlay as any).pickObject({
+    const info = overlay.pickObject({
       x: event.point.x,
       y: event.point.y,
       radius: 4,

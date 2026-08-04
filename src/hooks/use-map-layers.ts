@@ -2,9 +2,9 @@ import { useRef, useState, useCallback, useMemo } from "react";
 import type { Layer } from "@deck.gl/core";
 import type { Table } from "apache-arrow";
 import type { MapRef } from "react-map-gl/maplibre";
-import type { Map as MapLibreMap } from "maplibre-gl";
+import type { Map as MapLibreMap, AddLayerObject } from "maplibre-gl";
 import { setColorFunction } from "@geomatico/maplibre-cog-protocol";
-import { anchorForConfig } from "@/components/map/MapView";
+import { anchorForConfig } from "@/components/map/map-view-config";
 import {
   loadParquetBatches,
   loadArrowBatches,
@@ -741,7 +741,13 @@ function addRuleLayers(
     // Native addLayer throws if beforeId names a missing layer — fall back to
     // appending when the anchor isn't in the style yet (it will be once the
     // overlay/anchors finish loading; imperative layers are re-synced then).
-    map.addLayer(layerSpec as any, map.getLayer(beforeId) ? beforeId : undefined);
+    // `layerSpec` is assembled field-by-field above, so it cannot be narrowed to
+    // one arm of MapLibre's discriminated LayerSpecification union; `def.type`
+    // is what actually selects the arm at runtime.
+    map.addLayer(
+      layerSpec as unknown as AddLayerObject,
+      map.getLayer(beforeId) ? beforeId : undefined,
+    );
   }
 }
 
