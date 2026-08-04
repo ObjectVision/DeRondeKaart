@@ -94,11 +94,11 @@ so confidentiality never depends on the transfer.
 
 All env-tunable via systemd `Environment=` lines (see the unit written by the
 setup script); safe finite defaults apply when unset. nginx adds an outer wall
-(`client_max_body_size 26m`, `limit_req zone=drop`).
+(`client_max_body_size 201m`, `limit_req zone=drop`).
 
 | guard | env | default |
 |---|---|---|
-| P0 max upload size | `MAX_DROP_BYTES` | 25 MB (declared length checked, stream cut off if it lies) |
+| P0 max upload size | `MAX_DROP_BYTES` | 200 MB (declared length checked, stream cut off if it lies) |
 | P1 input hygiene | `MAX_FILENAME_LEN` | octet-stream only; ≥ 48 bytes (sealed-box overhead); filename sanitized, 200 chars |
 | P2 rate limit | `RATE_WINDOW_MS`, `RATE_MAX_DROPS_PER_WINDOW` | 10 drops / 60 s per IP (plus nginx 6r/m) |
 | P3 retention | `DROP_MAX_AGE_WARN_DAYS`, `DROP_TTL_DAYS`, `SWEEP_INTERVAL_MS` | warn after 30 d awaiting pickup; TTL off (0) — enable to enforce a bewaartermijn |
