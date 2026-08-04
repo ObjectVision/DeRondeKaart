@@ -30,7 +30,6 @@ import type { LayerConfig } from "@/layers";
 
 export interface LayerEntry {
   config: LayerConfig;
-  visible: boolean;
 }
 
 /**
@@ -198,7 +197,7 @@ export function useMapLayers() {
   const addLayer = useCallback(async (config: LayerConfig, mapRef: React.RefObject<MapRef | null>) => {
     updateLayerEntries((prev) => {
       if (prev.some((e) => e.config.id === config.id)) return prev;
-      return [...prev, { config, visible: true }];
+      return [...prev, { config }];
     });
 
     try {
@@ -490,6 +489,11 @@ export function useMapLayers() {
    * becoming ready after the first layer was added to it) and after a basemap
    * swap wipes the style. Safe to call repeatedly — the helpers skip
    * sources/layers that already exist.
+   *
+   * Re-added native layers default to visible (`buildNativeLayerDefs` emits an
+   * empty `layout`), so hidden state has to be replayed here: unlike deck.gl
+   * layers, whose `visible` prop lives in React state and survives `setStyle`,
+   * a MapLibre `visibility: "none"` is wiped along with the layer it sat on.
    */
   const syncImperativeLayers = useCallback(
     (mapRef: React.RefObject<MapRef | null>) => {
@@ -502,6 +506,32 @@ export function useMapLayers() {
           addFlatgeobufLayer(entry.config, mapRef);
         } else if (entry.config.format === "composite") {
           addCompositeLayer(entry.config, mapRef, compositeHost);
+        }
+
+        if (hiddenIdsRef.current.has(entry.config.id)) {
+          setEntryNativeVisibility(entry.config, mapRef, "none");
+        }
+
+        // Replay hidden classes. Keys of the form "<childIndex>:<name>" belong
+        // to one composite child; bare names apply to the entry itself (or, for
+        // a zoom-banded composite, to every child). Mirrors addChild.
+        const hiddenRuleKeys = hiddenRulesRef.current.get(entry.config.id);
+        if (!hiddenRuleKeys?.size) continue;
+
+        const targets =
+          entry.config.format === "composite" ? childrenOf(entry.config) : [entry.config];
+        for (const key of hiddenRuleKeys) {
+          const parsed = parseRuleKey(key);
+          const bareName = parsed?.ruleName ?? key;
+          for (const target of targets) {
+            // Read the index off the synthesized `__c<index>` id rather than the
+            // array position: a child dropped by validateChildConfig would shift
+            // the latter out of step with the keys the legend emitted.
+            if (parsed && Number(/__c(\d+)$/.exec(target.id)?.[1] ?? -1) !== parsed.childIndex) {
+              continue;
+            }
+            setNativeRuleVisibility(target, bareName, false, mapRef);
+          }
         }
       }
     },

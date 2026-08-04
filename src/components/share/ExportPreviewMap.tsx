@@ -154,17 +154,14 @@ export const ExportPreviewMap = forwardRef<
   }, [entryIds]);
 
   // MVT/COG layers are native MapLibre layers — re-add them once the style
-  // (and after any basemap logic) is ready, then reapply hidden visibility
-  // (a hide replayed before the map existed couldn't reach native layers).
+  // (and after any basemap logic) is ready. syncImperativeLayers also replays
+  // hidden layers and hidden classes, which fresh native layers don't carry.
   const handleLabelsReady = useCallback(() => {
     const mapRef = mapHandle.current?.mapRef;
     if (!mapRef) return;
     layers.syncImperativeLayers(mapRef);
-    for (const id of hiddenIds) {
-      layers.hideLayer(id, mapRef);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layers.syncImperativeLayers, hiddenIds]);
+  }, [layers.syncImperativeLayers]);
 
   const handleMove = useCallback((evt: ViewStateChangeEvent) => {
     setViewState((prev) => ({ ...prev, ...evt.viewState, pitch: 0, bearing: 0 }));
