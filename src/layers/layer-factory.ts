@@ -240,12 +240,16 @@ function createIconPointLayer(
     // for binary-attribute data. The shared rule/area-filter accessors expect
     // the GeoArrow single-argument shape {index, data: {data: batch}}, which
     // `info` already matches (data = our data prop) — adapt the convention.
-    getColor: (_object: unknown, info: { index: number; data: { data: RecordBatch } }) =>
-      getColor(info),
+    //
+    // Cast scoped to this one prop: deck's `Accessor<DataT, Color>` models an
+    // accessor as either a plain color tuple or a ONE-argument callback, so the
+    // two-argument core-layer form above is unrepresentable in its types.
+    getColor: ((_object: unknown, info: { index: number; data: { data: RecordBatch } }) =>
+      getColor(info)) as unknown as Color,
     opacity,
     updateTriggers: areaFilterTriggers(),
     beforeId,
-  } as any);
+  });
 }
 
 /** Extract all field names referenced in a filter tree */
@@ -343,7 +347,7 @@ function createFlatGeoArrowLayer(
         opacity: style.opacity ?? 1,
         updateTriggers: areaFilterTriggers(),
         beforeId,
-      } as any);
+      });
     }
 
     case "line":
@@ -357,7 +361,7 @@ function createFlatGeoArrowLayer(
         opacity: style.opacity ?? 1,
         updateTriggers: areaFilterTriggers(),
         beforeId,
-      } as any);
+      });
 
     case "polygon":
       return new GeoArrowPolygonLayer({
@@ -373,7 +377,7 @@ function createFlatGeoArrowLayer(
         opacity: style.opacity ?? 1,
         updateTriggers: areaFilterTriggers(),
         beforeId,
-      } as any);
+      });
 
     default:
       throw new Error(
@@ -432,7 +436,7 @@ function createRuleGeoArrowLayer(
         opacity,
         updateTriggers: areaFilterTriggers(),
         beforeId,
-      } as any);
+      });
     }
 
     case "line":
@@ -446,7 +450,7 @@ function createRuleGeoArrowLayer(
         opacity,
         updateTriggers: areaFilterTriggers(),
         beforeId,
-      } as any);
+      });
 
     case "polygon":
       return new GeoArrowPolygonLayer({
@@ -462,7 +466,7 @@ function createRuleGeoArrowLayer(
         opacity,
         updateTriggers: areaFilterTriggers(),
         beforeId,
-      } as any);
+      });
 
     default:
       throw new Error(

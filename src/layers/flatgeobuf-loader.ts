@@ -4,7 +4,7 @@ import type { Feature } from "geojson";
 import type { MapRef } from "react-map-gl/maplibre";
 import type { LayerConfig } from "./types";
 import { buildNativeLayerDefs } from "./mvt-style";
-import { anchorForConfig } from "@/components/map/MapView";
+import { anchorForConfig } from "@/components/map/map-view-config";
 
 /**
  * FlatGeobuf layers: native MapLibre GeoJSON source + layers, fed by

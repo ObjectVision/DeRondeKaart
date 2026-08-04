@@ -57,7 +57,7 @@ export function useFeaturePick(
       // --- deck.gl picking (GeoArrow/Parquet) ---
       const overlay = mapViewRef.current?.overlayRef?.current;
       if (overlay) {
-        const picks = (overlay as any).pickMultipleObjects({
+        const picks = overlay.pickMultipleObjects({
           x: event.point.x,
           y: event.point.y,
           radius: 2,

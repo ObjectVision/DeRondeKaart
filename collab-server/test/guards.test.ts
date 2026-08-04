@@ -61,14 +61,14 @@ test("doc-size gate accepts under and rejects over the cap", () => {
 // --- P2: rate limiter ---------------------------------------------------------
 
 test("rate limiter trips on byte volume within the window", () => {
-  let now = 1_000;
+  const now = 1_000;
   const rl = new RateLimiter(10_000, 1_000, 1_000_000, () => now);
   assert.equal(rl.record("s1", 600).allowed, true);
   assert.equal(rl.record("s1", 600).allowed, false); // 1200 > 1000
 });
 
 test("rate limiter trips on message count within the window", () => {
-  let now = 1_000;
+  const now = 1_000;
   const rl = new RateLimiter(10_000, 1_000_000, 3, () => now);
   assert.equal(rl.record("s1", 1).allowed, true);
   assert.equal(rl.record("s1", 1).allowed, true);
@@ -85,7 +85,7 @@ test("rate limiter resets after the window elapses", () => {
 });
 
 test("rate limiter tracks connections independently", () => {
-  let now = 1_000;
+  const now = 1_000;
   const rl = new RateLimiter(10_000, 1_000, 1_000_000, () => now);
   assert.equal(rl.record("s1", 1_100).allowed, false);
   assert.equal(rl.record("s2", 100).allowed, true);
@@ -124,7 +124,7 @@ test("GC deletes idle rooms, keeps active and fresh ones", () => {
   const remaining = db
     .prepare(`SELECT name FROM "documents" ORDER BY name`)
     .all()
-    .map((r: any) => r.name);
+    .map((r) => (r as { name: string }).name);
   assert.equal(deleted, 1);
   assert.deepEqual(remaining, ["active", "fresh"]);
   db.close();
@@ -143,7 +143,7 @@ test("GC leaves rooms without an activity row untouched", () => {
   now += limits.roomTtlDays * 24 * 60 * 60 * 1000 + 60_000;
 
   assert.equal(storage.runGc(), 0);
-  const count = (db.prepare(`SELECT COUNT(*) c FROM "documents"`).get() as any).c;
+  const count = (db.prepare(`SELECT COUNT(*) c FROM "documents"`).get() as { c: number }).c;
   assert.equal(count, 1);
   db.close();
 });

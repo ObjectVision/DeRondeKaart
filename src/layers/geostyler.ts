@@ -44,8 +44,10 @@ export function evaluateFilter(
   const actual = properties[propName];
 
   switch (op) {
-    case "==": return actual == expected; // eslint-disable-line eqeqeq
-    case "!=": return actual != expected; // eslint-disable-line eqeqeq
+    // Loose comparison is deliberate: geostyler filter values arrive from JSON
+    // as strings/numbers interchangeably (e.g. class "3" vs 3).
+    case "==": return actual == expected;
+    case "!=": return actual != expected;
     case "<":  return (actual as number) < (expected as number);
     case "<=": return (actual as number) <= (expected as number);
     case ">":  return (actual as number) > (expected as number);

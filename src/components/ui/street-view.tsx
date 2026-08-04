@@ -56,7 +56,7 @@ async function waitForGoogleMaps(signal: { cancelled: boolean }): Promise<boolea
 
 export function StreetView({ lng, lat, onClose, embedded = false }: StreetViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const panoramaRef = useRef<any>(null);
+  const panoramaRef = useRef<GoogleStreetViewPanorama | null>(null);
   const [status, setStatus] = useState<"loading" | "ok" | "unavailable">(
     "loading",
   );
@@ -80,7 +80,7 @@ export function StreetView({ lng, lat, onClose, embedded = false }: StreetViewPr
 
       service.getPanorama(
         { location, radius: 50 },
-        (data: any, svStatus: string) => {
+        (data: GoogleStreetViewPanoramaData | null, svStatus: string) => {
           if (signal.cancelled) return;
 
           if (svStatus !== "OK" || !data?.location?.pano) {
@@ -90,9 +90,14 @@ export function StreetView({ lng, lat, onClose, embedded = false }: StreetViewPr
 
           setStatus("ok");
 
+          // Re-check: getPanorama is async, so the panel may have unmounted
+          // between the request and this callback.
+          const container = containerRef.current;
+          if (!container) return;
+
           if (!panoramaRef.current) {
             panoramaRef.current = new google.maps.StreetViewPanorama(
-              containerRef.current,
+              container,
               {
                 addressControl: false,
                 fullscreenControl: false,

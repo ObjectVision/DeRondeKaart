@@ -341,7 +341,6 @@ export class Visual implements IVisual {
 
     // Diagnostic: reveal which geometry path is active and a sample of the raw
     // cell values/types, so skipped-row causes are visible instead of guessed.
-    // eslint-disable-next-line no-console
     const sampleGeom = table.rows[0]?.[geomIdx];
     console.log(
       "[nwviz] buildDataset",

@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import type { ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
-import { MapView, BASEMAPS, DEFAULT_BASEMAP_ID } from "@/components/map/MapView";
+import { MapView } from "@/components/map/MapView";
+import { BASEMAPS, DEFAULT_BASEMAP_ID } from "@/components/map/map-view-config";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
