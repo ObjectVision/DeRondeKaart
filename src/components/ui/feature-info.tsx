@@ -13,16 +13,16 @@ interface FeatureInfoProps {
 
 export function FeatureInfo({ result, layerEntries, onClose, embedded = false }: FeatureInfoProps) {
   const layerIds = Array.from(result.featuresByLayer.keys());
-  const [activeTab, setActiveTab] = useState(layerIds[0]);
+  const [selectedTab, setSelectedTab] = useState(layerIds[0]);
   const [templates, setTemplates] = useState<Map<string, string>>(new Map());
 
-  // Reset active tab when result changes
-  useEffect(() => {
-    const ids = Array.from(result.featuresByLayer.keys());
-    if (ids.length > 0 && !result.featuresByLayer.has(activeTab)) {
-      setActiveTab(ids[0]);
-    }
-  }, [result, activeTab]);
+  // Derived, not synced through an effect: when a new pick result no longer
+  // contains the selected tab, fall back to the first one during THIS render
+  // instead of rendering an empty tab and correcting it in a second pass.
+  const activeTab =
+    result.featuresByLayer.has(selectedTab) || layerIds.length === 0
+      ? selectedTab
+      : layerIds[0];
 
   // Resolve templates for all layers in the result
   useEffect(() => {
@@ -85,7 +85,7 @@ export function FeatureInfo({ result, layerEntries, onClose, embedded = false }:
             return (
               <button
                 key={id}
-                onClick={() => setActiveTab(id)}
+                onClick={() => setSelectedTab(id)}
                 className={`px-2 py-1 text-xs transition-colors ${
                   isActive
                     ? "border-b-2 border-blue-500 text-blue-600 font-medium"

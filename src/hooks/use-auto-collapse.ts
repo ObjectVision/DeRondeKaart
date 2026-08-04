@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 
 /**
  * Width buckets for small-screen auto-collapse, widest → narrowest. Each bucket
@@ -40,8 +40,9 @@ function bucketKey(t: AutoCollapseTargets): string {
  * into the corresponding session flags.
  */
 export function useAutoCollapse(apply: (targets: AutoCollapseTargets) => void): void {
-  const applyRef = useRef(apply);
-  applyRef.current = apply;
+  // useEffectEvent keeps `apply` out of the dep array without a ref mirror, so
+  // the resize listener is wired once but always calls the latest callback.
+  const onApply = useEffectEvent(apply);
 
   const lastKeyRef = useRef<string | null>(null);
 
@@ -51,7 +52,7 @@ export function useAutoCollapse(apply: (targets: AutoCollapseTargets) => void): 
       const key = bucketKey(targets);
       if (key === lastKeyRef.current) return; // same bucket — respect manual state
       lastKeyRef.current = key;
-      applyRef.current(targets);
+      onApply(targets);
     }
 
     evaluate(); // apply the initial bucket on mount

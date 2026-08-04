@@ -721,10 +721,11 @@ function App({
         mapRightLayers.layerEntries.find((e) => e.config.id === selectedChartLayerId)?.config)) ||
     null;
   const handleChartsClose = useCallback(() => setChartsMinimized(true), [setChartsMinimized]);
-  // The selected layer was removed from both maps — close the panel.
-  useEffect(() => {
-    if (selectedChartLayerId && !chartLayerConfig) setSelectedChartLayerId(null);
-  }, [selectedChartLayerId, chartLayerConfig]);
+  // The selected layer being removed from both maps needs no effect to "close"
+  // the panel: `chartLayerConfig` above already resolves to null in that case,
+  // and every consumer gates on it. Clearing the id in an effect only forced a
+  // second render pass to reach the state the first one had already derived.
+  // The id is kept as-is so re-adding the same layer restores the selection.
 
   // Auto-open the panel when a layer with charts/statistics is added (via
   // navigation, URL command or embed host) — the newest eligible layer wins.
@@ -741,6 +742,11 @@ function App({
     }
     knownLayerIdsRef.current = next;
     if (added) {
+      // Genuinely event-like ("an eligible layer just appeared"), not derived
+      // state: it depends on diffing against the previously-seen id set, which
+      // no render-time expression can reconstruct. An effect is the right tool
+      // here, so the rule is suppressed rather than the code restructured.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedChartLayerId(added);
       setChartsMinimized(false);
     }
@@ -808,9 +814,12 @@ function App({
 
   // The chart layer went away while the tool was armed: turn it off so the box
   // doesn't linger invisibly in the filter behind a disabled button.
+  // Gated on the resolved config, not the raw id: the id is deliberately kept
+  // when the layer is removed (see the panel selection above), so it is
+  // `chartLayerConfig` that reports "the layer is actually gone".
   useEffect(() => {
-    if (boxSelectActive && !selectedChartLayerId) boxSelectToggle();
-  }, [boxSelectActive, boxSelectToggle, selectedChartLayerId]);
+    if (boxSelectActive && !chartLayerConfig) boxSelectToggle();
+  }, [boxSelectActive, boxSelectToggle, chartLayerConfig]);
 
   const refreshLeft = mapLeftLayers.refreshAreaFilter;
   const refreshRight = mapRightLayers.refreshAreaFilter;
@@ -1612,6 +1621,10 @@ function App({
           Escape deselects. */}
       {annotationsVisible && selectedAnnotation && annotationPopupPos && (
         <AnnotationEditPopup
+          // Remount on selection change so the editor's local draft state
+          // (title/description/panel flags) resets with the annotation, instead
+          // of being re-synced by an effect after a stale first render.
+          key={selectedAnnotation.id}
           annotation={selectedAnnotation}
           x={annotationPopupPos.x}
           y={annotationPopupPos.y}

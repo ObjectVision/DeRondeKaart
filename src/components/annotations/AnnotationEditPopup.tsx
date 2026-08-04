@@ -54,18 +54,21 @@ export function AnnotationEditPopup({
   const [description, setDescription] = useState(annotation.description);
   const commitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingRef = useRef<Partial<Pick<Annotation, "title" | "description">>>({});
+  // The debounced commit fires from a timer / blur handler / unmount cleanup and
+  // must call the LATEST onChange without that callback's identity re-arming the
+  // timer.
+  //
+  // Not useEffectEvent: `commit` is invoked from plain event handlers and a
+  // setTimeout, and effect events may only be called from effects — doing so
+  // trips react-hooks/rules-of-hooks. The render-time write is the documented
+  // "latest value" idiom and is read only later, never during render.
   const onChangeRef = useRef(onChange);
+  // eslint-disable-next-line react-hooks/refs
   onChangeRef.current = onChange;
 
-  // Selection switched to another annotation: load its text, close the panel.
-  useEffect(() => {
-    setTitle(annotation.title);
-    setDescription(annotation.description);
-    pendingRef.current = {};
-    setInfoOpen(false);
-    setEditingDescription(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [annotation.id]);
+  // No "selection switched" reset effect: App keys this component on
+  // `annotation.id`, so selecting another annotation remounts it and every
+  // useState above re-initialises from the new props automatically.
 
   // Remote edits (a peer typing in the same annotation): adopt them unless the
   // local field is focused — the focused editor's keystrokes win locally.

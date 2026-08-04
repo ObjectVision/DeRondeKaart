@@ -31,6 +31,10 @@ export function useStudyAreaLayer(studyAreaId: string | undefined): Layer[] {
 
   useEffect(() => {
     if (!studyAreaId) {
+      // Synchronous clear on the "no study area" path. Flagged by
+      // react-hooks/set-state-in-effect, but the layers are built from an async
+      // load below — there is no render-time value to derive instead.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLayers([]);
       return;
     }

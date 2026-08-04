@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useEffectEvent, useRef } from "react";
 import type { MapViewHandle } from "@/components/map/MapView";
 import { captureMapCanvas, compositeComparison } from "@/lib/map-capture";
 
@@ -33,11 +33,47 @@ export function useMapSnapshot({
   sliderPosition,
   ready,
 }: UseMapSnapshotOptions) {
-  // Live values for the capture closure — snapshots read the state at capture
-  // time without re-wiring map listeners on every slider move.
-  const stateRef = useRef({ comparisonMode, sliderPosition });
-  stateRef.current = { comparisonMode, sliderPosition };
   const busyRef = useRef(false);
+
+  // An effect event: reads `comparisonMode`/`sliderPosition` at CAPTURE time
+  // (not at listener-wiring time) without a ref mirror, so the map listeners
+  // below stay wired across slider moves.
+  const sendSnapshot = useEffectEvent(async () => {
+    if (busyRef.current) return;
+    const leftMap = mapLeftRef.current?.mapRef.current?.getMap();
+    if (!leftMap) return;
+    busyRef.current = true;
+    try {
+      let canvas = await captureMapCanvas(leftMap);
+      const rightMap = mapRightRef.current?.mapRef.current?.getMap();
+      if (comparisonMode && rightMap) {
+        const right = await captureMapCanvas(rightMap);
+        canvas = compositeComparison(canvas, right, sliderPosition);
+      }
+
+      // Downscale to CSS-pixel size and JPEG-encode (the map is opaque) to
+      // keep the postMessage payload small (~100-300 kB, not multi-MB PNG).
+      const container = leftMap.getContainer();
+      const w = Math.max(1, container.clientWidth);
+      const h = Math.max(1, container.clientHeight);
+      const scaled = document.createElement("canvas");
+      scaled.width = w;
+      scaled.height = h;
+      const ctx = scaled.getContext("2d");
+      if (!ctx) return;
+      ctx.drawImage(canvas, 0, 0, w, h);
+      const dataUrl = scaled.toDataURL("image/jpeg", 0.85);
+
+      window.parent.postMessage(
+        { type: "map-snapshot", v: 1, dataUrl, width: w, height: h },
+        "*",
+      );
+    } catch (err) {
+      console.warn("map-snapshot capture failed:", err);
+    } finally {
+      busyRef.current = false;
+    }
+  });
 
   useEffect(() => {
     const embedded = window.parent && window.parent !== window;
@@ -45,43 +81,6 @@ export function useMapSnapshot({
 
     const map = mapLeftRef.current?.mapRef.current?.getMap();
     if (!map) return;
-
-    async function sendSnapshot() {
-      if (busyRef.current) return;
-      const leftMap = mapLeftRef.current?.mapRef.current?.getMap();
-      if (!leftMap) return;
-      busyRef.current = true;
-      try {
-        let canvas = await captureMapCanvas(leftMap);
-        const rightMap = mapRightRef.current?.mapRef.current?.getMap();
-        if (stateRef.current.comparisonMode && rightMap) {
-          const right = await captureMapCanvas(rightMap);
-          canvas = compositeComparison(canvas, right, stateRef.current.sliderPosition);
-        }
-
-        // Downscale to CSS-pixel size and JPEG-encode (the map is opaque) to
-        // keep the postMessage payload small (~100-300 kB, not multi-MB PNG).
-        const container = leftMap.getContainer();
-        const w = Math.max(1, container.clientWidth);
-        const h = Math.max(1, container.clientHeight);
-        const scaled = document.createElement("canvas");
-        scaled.width = w;
-        scaled.height = h;
-        const ctx = scaled.getContext("2d");
-        if (!ctx) return;
-        ctx.drawImage(canvas, 0, 0, w, h);
-        const dataUrl = scaled.toDataURL("image/jpeg", 0.85);
-
-        window.parent.postMessage(
-          { type: "map-snapshot", v: 1, dataUrl, width: w, height: h },
-          "*",
-        );
-      } catch (err) {
-        console.warn("map-snapshot capture failed:", err);
-      } finally {
-        busyRef.current = false;
-      }
-    }
 
     // Initial snapshot + debounced refresh whenever the map settles.
     let timer: ReturnType<typeof setTimeout> | null = null;
@@ -103,6 +102,5 @@ export function useMapSnapshot({
       map.off("idle", scheduleSnapshot);
       window.removeEventListener("message", handleMessage);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready]);
+  }, [ready, mapLeftRef]);
 }

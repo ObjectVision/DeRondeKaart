@@ -35,6 +35,10 @@ export function useChartData(config: LayerConfig | null, version: number) {
   const configId = config?.id;
   useEffect(() => {
     if (!config) {
+      // Synchronous reset on the "no layer selected" path. Flagged by
+      // react-hooks/set-state-in-effect, but this hook's whole job is to turn an
+      // async table load into state; there is nothing to derive during render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setResult(EMPTY);
       setLoading(false);
       return;

@@ -38,8 +38,16 @@ export function useHoverCursor(
   // Publish clickable OWNER ids for deck's onHover to match picked layer ids
   // against (child deck-layer ids start with the parent id, so a prefix match
   // on the owner covers composite children too).
+  //
+  // react-hooks/immutability flags writing through a ref owned by another
+  // component. That is the intent: MapViewHandle deliberately exposes these
+  // refs as an imperative channel to deck's render loop, which reads them at
+  // 60fps and must never trigger a React re-render. The write happens in an
+  // effect (not during render), so it is safe — just not expressible in the
+  // ownership model the rule enforces.
   useEffect(() => {
     const ref = mapViewRef.current?.clickableIdsRef;
+    // eslint-disable-next-line react-hooks/immutability
     if (ref) ref.current = clickableEntries.map((e) => e.ownerId);
   }, [clickableEntries, mapViewRef]);
 
@@ -50,6 +58,8 @@ export function useHoverCursor(
 
       const map = mapViewRef.current?.mapRef?.current?.getMap();
       if (!map) {
+        // Same imperative channel as above; written from an event handler.
+        // eslint-disable-next-line react-hooks/immutability
         mvtHoverRef.current = false;
         return;
       }

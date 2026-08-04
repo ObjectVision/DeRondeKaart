@@ -46,10 +46,31 @@ declare class GoogleStreetViewService {
   ): void;
 }
 
+/** Classes returned by `importLibrary("streetView")`. */
+interface GoogleStreetViewLibrary {
+  StreetViewService: typeof GoogleStreetViewService;
+  StreetViewPanorama: typeof GoogleStreetViewPanorama;
+}
+
 interface GoogleMapsNamespace {
   maps: {
-    StreetViewService: typeof GoogleStreetViewService;
-    StreetViewPanorama: typeof GoogleStreetViewPanorama;
+    /**
+     * The API's readiness contract. With `loading=async` the bootstrap script
+     * synchronously creates `google.maps` as a near-empty object and fetches the
+     * real classes afterwards, so testing `window.google.maps` for truthiness
+     * says nothing about whether a constructor exists yet. `importLibrary`
+     * resolves only once the requested library is actually attached.
+     *
+     * Overloaded on the library name so a typo is a compile error rather than a
+     * promise that never resolves.
+     */
+    importLibrary(name: "streetView"): Promise<GoogleStreetViewLibrary>;
+    /**
+     * Present only after the corresponding library has loaded — prefer the
+     * classes returned by `importLibrary` over reaching for these.
+     */
+    StreetViewService?: typeof GoogleStreetViewService;
+    StreetViewPanorama?: typeof GoogleStreetViewPanorama;
   };
 }
 
