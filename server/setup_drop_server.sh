@@ -204,7 +204,9 @@ ProtectKernelTunables=true
 ProtectControlGroups=true
 RestrictAddressFamilies=AF_INET AF_INET6
 CapabilityBoundingSet=
-SystemCallFilter=@system-service
+# @system-service alone SIGSYS-kills Node at startup: V8 (Node >= 20) uses
+# memory protection keys (pkey_alloc, syscall 330) which the group omits.
+SystemCallFilter=@system-service pkey_alloc pkey_free pkey_mprotect
 UMask=0077
 
 [Install]
