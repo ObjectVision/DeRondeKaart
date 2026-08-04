@@ -226,8 +226,16 @@ export function useAreaFilter(options?: {
   const flyToEnabled = options?.flyTo ?? true;
   // Held in a ref so a caller passing an inline callback doesn't change
   // setValue's identity on every render.
+  //
+  // Not useEffectEvent: this is consumed from useCallback bodies (setValue /
+  // applySelections), and effect events may only be called from effects —
+  // doing so trips react-hooks/rules-of-hooks. The render-time write is the
+  // documented "latest value" idiom and is safe here because the value is only
+  // ever read later, from a user-triggered callback.
   const onFlyToBboxRef = useRef(options?.onFlyToBbox);
+  // eslint-disable-next-line react-hooks/refs
   onFlyToBboxRef.current = options?.onFlyToBbox;
+  const onFlyToBbox = (bbox: BBox) => onFlyToBboxRef.current?.(bbox);
   const [entries, setEntries] = useState<AreaFilterEntry[]>([]);
   const [optionsByKey, setOptionsByKey] = useState<Map<string, AreaFilterOption[]>>(
     new Map(),
@@ -346,7 +354,7 @@ export function useAreaFilter(options?: {
 
       commit(next);
       if (flyToEnabled) {
-        void flyToSelection(entries, next, (bbox) => onFlyToBboxRef.current?.(bbox));
+        void flyToSelection(entries, next, onFlyToBbox);
       }
     },
     [selections, entries, optionsByKey, commit, flyToEnabled],
@@ -370,7 +378,7 @@ export function useAreaFilter(options?: {
       const copy = new Map(next);
       commit(copy);
       if (opts?.fly && flyToEnabled) {
-        void flyToSelection(entries, copy, (bbox) => onFlyToBboxRef.current?.(bbox));
+        void flyToSelection(entries, copy, onFlyToBbox);
       }
     },
     [commit, entries, flyToEnabled],

@@ -112,7 +112,15 @@ function DeckGLOverlay(props: {
                 : "grab",
       }),
   );
-  props.overlayRef.current = overlay;
+  // Publish the overlay in an effect, not the render body: `useControl` returns
+  // a stable instance, so committing it after render is equivalent and keeps
+  // render pure (a render-time ref write is unsafe under concurrent rendering,
+  // where an abandoned attempt would still have mutated the parent's ref).
+  const { overlayRef } = props;
+  useEffect(() => {
+    overlayRef.current = overlay;
+  }, [overlay, overlayRef]);
+
   // Push layers in an effect, not the render body: onMove re-renders this
   // component ~60×/sec during a pan, and setProps → deck's full layer-diff pass
   // is not free even when every layer instance is identical.
