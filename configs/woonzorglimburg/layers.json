@@ -3859,7 +3859,7 @@
     {
       "id": "bomen_rule_3_gemeente_2026",
       "name": "3 bomen regel gemeente",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_gemeente_lb_2026.pmtiles",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -3992,12 +3992,12 @@
       "featureinfo": {
         "template": "<div><b>3 bomen regel gemeente: [[ rule_3 ]]</b></div>"
       },
-      "sourceLayer": "bomen_gemeente_lb_2026"
+      "sourceLayer": "gemeente"
     },
     {
       "id": "bomen_rule_30_gemeente_2026",
       "name": "30% bladerdek gemeente",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_gemeente_lb_2026.pmtiles",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -4130,12 +4130,12 @@
       "featureinfo": {
         "template": "<div><b>30% bladerdek gemeente: [[ rule_30 ]]</b></div>"
       },
-      "sourceLayer": "bomen_gemeente_lb_2026"
+      "sourceLayer": "gemeente"
     },
     {
       "id": "bomen_rule_300_gemeente_2026",
       "name": "300 meter van groen gemeente",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_gemeente_lb_2026.pmtiles",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -4268,12 +4268,12 @@
       "featureinfo": {
         "template": "<div><b>300 meter van groen gemeente: [[ rule_300 ]]</b></div>"
       },
-      "sourceLayer": "bomen_gemeente_lb_2026"
+      "sourceLayer": "gemeente"
     },
     {
       "id": "bomen_rule_3_30_300_classified_gemeente_2026",
       "name": "3-30-300 vuistregel gemeente",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_gemeente_lb_2026.pmtiles",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -4406,12 +4406,12 @@
       "featureinfo": {
         "template": "<div><b>3-30-300 vuistregel gemeente: [[ rule_3_30_300_classified ]]</b></div>"
       },
-      "sourceLayer": "bomen_gemeente_lb_2026"
+      "sourceLayer": "gemeente"
     },
     {
       "id": "bomen_rule_3_wijk_2026",
       "name": "3 bomen regel wijk",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_wijk_lb_2026.pmtiles",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -4544,12 +4544,12 @@
       "featureinfo": {
         "template": "<div><b>3 bomen regel wijk: [[ rule_3 ]]</b></div>"
       },
-      "sourceLayer": "bomen_wijk_lb_2026"
+      "sourceLayer": "wijk"
     },
     {
       "id": "bomen_rule_30_wijk_2026",
       "name": "30% bladerdek wijk",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_wijk_lb_2026.pmtiles",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -4682,12 +4682,12 @@
       "featureinfo": {
         "template": "<div><b>30% bladerdek wijk: [[ rule_30 ]]</b></div>"
       },
-      "sourceLayer": "bomen_wijk_lb_2026"
+      "sourceLayer": "wijk"
     },
     {
       "id": "bomen_rule_300_wijk_2026",
       "name": "300 meter van groen wijk",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_wijk_lb_2026.pmtiles",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -4820,12 +4820,12 @@
       "featureinfo": {
         "template": "<div><b>300 meter van groen wijk: [[ rule_300 ]]</b></div>"
       },
-      "sourceLayer": "bomen_wijk_lb_2026"
+      "sourceLayer": "wijk"
     },
     {
       "id": "bomen_rule_3_30_300_classified_wijk_2026",
       "name": "3-30-300 vuistregel wijk",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_wijk_lb_2026.pmtiles",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -4958,12 +4958,12 @@
       "featureinfo": {
         "template": "<div><b>3-30-300 vuistregel wijk: [[ rule_3_30_300_classified ]]</b></div>"
       },
-      "sourceLayer": "bomen_wijk_lb_2026"
+      "sourceLayer": "wijk"
     },
     {
       "id": "bomen_rule_3_buurt_2026",
       "name": "3 bomen regel buurt",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_buurt_lb_2026.pmtiles",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -5096,12 +5096,12 @@
       "featureinfo": {
         "template": "<div><b>3 bomen regel buurt: [[ rule_3 ]]</b></div>"
       },
-      "sourceLayer": "bomen_buurt_lb_2026"
+      "sourceLayer": "buurt"
     },
     {
       "id": "bomen_rule_30_buurt_2026",
       "name": "30% bladerdek buurt",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_buurt_lb_2026.pmtiles",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -5234,12 +5234,12 @@
       "featureinfo": {
         "template": "<div><b>30% bladerdek buurt: [[ rule_30 ]]</b></div>"
       },
-      "sourceLayer": "bomen_buurt_lb_2026"
+      "sourceLayer": "buurt"
     },
     {
       "id": "bomen_rule_300_buurt_2026",
       "name": "300 meter van groen buurt",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_buurt_lb_2026.pmtiles",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -5372,12 +5372,12 @@
       "featureinfo": {
         "template": "<div><b>300 meter van groen buurt: [[ rule_300 ]]</b></div>"
       },
-      "sourceLayer": "bomen_buurt_lb_2026"
+      "sourceLayer": "buurt"
     },
     {
       "id": "bomen_rule_3_30_300_classified_buurt_2026",
       "name": "3-30-300 vuistregel buurt",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_buurt_lb_2026.pmtiles",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -5510,7 +5510,7 @@
       "featureinfo": {
         "template": "<div><b>3-30-300 vuistregel buurt: [[ rule_3_30_300_classified ]]</b></div>"
       },
-      "sourceLayer": "bomen_buurt_lb_2026"
+      "sourceLayer": "buurt"
     },
     {
       "id": "corp_bat_2026",
