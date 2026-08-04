@@ -239,6 +239,13 @@ export interface LayerConfig {
   charts?: string[];
   /** Statistic cards ("Kerncijfers") shown in the analytics panel. */
   statistics?: StatisticConfig[];
+  /**
+   * Path to an HTML fragment describing the dataset, e.g.
+   * "/data/meta/huisarts.html". Fetched on demand and rendered in the
+   * navigation info panel (see LeafMeta). Describes the data, not the menu
+   * position — which is why it lives here and not on a navigation leaf.
+   */
+  meta?: string;
 }
 
 export interface LayersFile {

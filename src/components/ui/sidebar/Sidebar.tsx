@@ -6,6 +6,7 @@ import { LeafMeta } from "@/components/ui/navigation/LeafMeta";
 import { FilterSection } from "./FilterSection";
 import { NavigationSection } from "./NavigationSection";
 import { loadNavigation, type NavLeaf, type NavNode } from "@/layers/navigation";
+import { loadLayerConfigs } from "@/layers";
 import type { NavigationApi } from "@/hooks/use-navigation";
 import type { AreaFilterState } from "@/hooks/use-area-filter";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
@@ -85,11 +86,19 @@ export const Sidebar = memo(function Sidebar({
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   // The row whose meta info panel is currently open (null = none open).
   const [metaOpenLeafId, setMetaOpenLeafId] = useState<string | null>(null);
+  // Layer ids that have a `meta` description. handleRowClick decides whether to
+  // open the info panel synchronously, so the ids are preloaded here rather
+  // than resolved per click — a layer without meta must not open an empty panel.
+  const [metaIds, setMetaIds] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
     loadNavigation()
       .then(setTree)
       .catch((err) => console.error("Failed to load navigation.json:", err));
+    // loadLayerConfigs memoizes, so this shares the parse with useNavigation.
+    loadLayerConfigs()
+      .then((configs) => setMetaIds(new Set(configs.filter((c) => c.meta).map((c) => c.id))))
+      .catch((err) => console.error("Failed to load layers.json:", err));
   }, []);
 
   const filterVisible = showFilter && areaFilter.entries.length > 0;
@@ -128,7 +137,7 @@ export const Sidebar = memo(function Sidebar({
 
     if (!onA && !onB) {
       nav.toggleOnMap(leaf.id, "a");
-      setMetaOpenLeafId(leaf.meta ? leaf.id : null);
+      setMetaOpenLeafId(metaIds.has(leaf.id) ? leaf.id : null);
       return;
     }
 
@@ -197,7 +206,7 @@ export const Sidebar = memo(function Sidebar({
                     onSelectLeaf={handleRowClick}
                     leafDetail={(leaf) => (
                       <div className="ml-7 mt-0.5 max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-2 text-sm leading-relaxed text-gray-600">
-                        <LeafMeta leaf={leaf} />
+                        <LeafMeta layerId={leaf.id} />
                       </div>
                     )}
                     leafStatus={(leaf) => <LeafStateToggle leaf={leaf} nav={nav} />}
