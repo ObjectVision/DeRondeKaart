@@ -37,7 +37,7 @@ export function LeafDetail({ leaf, path, nav, onBack }: LeafDetailProps) {
 
       {/* Description / meta */}
       <div className="text-sm leading-relaxed text-gray-600">
-        <LeafMeta leaf={leaf} />
+        <LeafMeta layerId={leaf.id} />
       </div>
 
       {/* Add to map */}

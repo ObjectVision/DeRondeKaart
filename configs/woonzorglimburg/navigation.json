@@ -449,8 +449,7 @@
                 "color": "#8C54D6",
                 "label": "Huisarts",
                 "a": false,
-                "b": false,
-                "meta": "/data/meta/huisarts.html"
+                "b": false
               },
               {
                 "id": "ontmoeting",

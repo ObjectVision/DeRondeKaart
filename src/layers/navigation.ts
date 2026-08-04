@@ -14,8 +14,6 @@ export interface NavLeaf {
   /** Default-add to the left map / right map (informational; not auto-applied). */
   a?: boolean;
   b?: boolean;
-  /** Path to an HTML metadata file, e.g. "/data/meta/huisarts.html". */
-  meta?: string;
 }
 
 /** A category / sub-category branch in the navigation tree. */
