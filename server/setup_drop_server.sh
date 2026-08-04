@@ -184,7 +184,7 @@ Environment=DATA_DIR=${DATA_DIR}/drops
 Environment=DROP_PUBLIC_KEY=${PUBKEY}
 # Overload / storage guards — all optional; safe finite defaults apply if
 # unset. See drop-server/README.md "Abuse & overload guards".
-#Environment=MAX_DROP_BYTES=26214400
+#Environment=MAX_DROP_BYTES=209715200
 #Environment=RATE_MAX_DROPS_PER_WINDOW=10
 #Environment=DROP_MAX_AGE_WARN_DAYS=30
 #Environment=DROP_TTL_DAYS=0
@@ -283,7 +283,7 @@ $(render_csp_header "$CSP_DROP" 0 "'none'")
     # of the access log (AVG data minimization) — errors still log.
     location /drop {
         proxy_pass http://127.0.0.1:$PORT;
-        client_max_body_size 26m;
+        client_max_body_size 201m;
         limit_req zone=drop burst=5 nodelay;
         proxy_request_buffering on;
         access_log off;

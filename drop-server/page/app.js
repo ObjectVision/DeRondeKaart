@@ -15,7 +15,7 @@
 (() => {
   "use strict";
 
-  const MAX_BYTES = 25 * 1024 * 1024; // mirror of the server's MAX_DROP_BYTES
+  const MAX_BYTES = 200 * 1024 * 1024; // mirror of the server's MAX_DROP_BYTES
 
   const dropzone = document.getElementById("dropzone");
   const chooseBtn = document.getElementById("choose");
@@ -42,7 +42,7 @@
   /** Map an HTTP status to the Dutch message shown next to the file. */
   function reasonFor(status) {
     switch (status) {
-      case 413: return "Te groot (max. 25 MB)";
+      case 413: return "Te groot (max. 200 MB)";
       case 429: return "Te veel pogingen — wacht een minuut";
       case 507: return "Opslag vol — neem contact op met de beheerder";
       default: return "Verzenden mislukt — probeer opnieuw";
@@ -126,7 +126,7 @@
       // Sealed-box overhead is 48 bytes; checking the plaintext against the
       // cap client-side avoids uploading megabytes only to get a 413.
       if (file.size + 48 > MAX_BYTES) {
-        row.fail(`Te groot (${Math.round(file.size / 1024 / 1024)} MB, max. 25 MB)`);
+        row.fail(`Te groot (${Math.round(file.size / 1024 / 1024)} MB, max. 200 MB)`);
         continue;
       }
       try {

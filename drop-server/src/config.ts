@@ -23,7 +23,7 @@ const MB = 1024 * 1024;
 
 export const limits = {
   /** P0 — maximum accepted upload size (ciphertext bytes). */
-  maxDropBytes: num("MAX_DROP_BYTES", 25 * MB),
+  maxDropBytes: num("MAX_DROP_BYTES", 200 * MB),
 
   /**
    * P1 — minimum plausible ciphertext. A sealed box is 48 bytes of overhead

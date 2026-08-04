@@ -10,7 +10,11 @@
       --ink: #111827;
       --muted: #6b7280;
       --line: #e5e7eb;
-      --accent: #ea580c;
+      /* Woonzorg Limburg brand greens (used by the logo and the accents). */
+      --green-700: #15803d;
+      --green-500: #22c55e;
+      --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --accent: var(--green-700);
       --ok: #16a34a;
       --err: #dc2626;
       --card: #ffffff;
@@ -35,8 +39,9 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
       padding: 2rem;
     }
+    .brand { margin-bottom: 1.5rem; }
+    .brand__logo { display: block; max-width: 100%; height: auto; }
     h1 { font-size: 1.4rem; margin: 0 0 0.75rem; }
-    .brand { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; }
     .intro { color: var(--muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
     .dropzone {
       border: 2px dashed var(--line);
@@ -47,7 +52,7 @@
       transition: border-color 0.15s, background 0.15s;
       cursor: pointer;
     }
-    .dropzone.dragover { border-color: var(--accent); background: #fff7ed; }
+    .dropzone.dragover { border-color: var(--accent); background: #f0fdf4; }
     .dropzone .hint { font-size: 0.8rem; margin-top: 0.75rem; }
     .choose {
       display: inline-block;
@@ -101,7 +106,9 @@
 <body>
   <main>
     <div class="card">
-      <div class="brand">Woonzorg Limburg</div>
+      <div class="brand">
+        <svg class="brand__logo" viewBox="0 0 300 64" aria-hidden="true" height="46" style="font-family:var(--font-sans);overflow:visible"><path d="M7 30l9-8V12h5v6L31 9 55 30V49q0 6-6 6H17q-6 0-6-6V30z" fill="none" stroke="var(--green-700)" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"></path><path d="M33 43s-9-6-9-10.8c0-2.8 2.6-4.4 5-3.2C30.5 29.7 31.9 31 33 32.5c1.1-1.5 2.5-2.8 4-3.5C39.4 27.8 42 29.4 42 32.2 42 37 33 43 33 43z" fill="none" stroke="var(--green-500)" stroke-width="2.2" stroke-linejoin="round"></path><path d="M15 60S0 50 0 41c0-5 3.6-7.4 7.8-5.9 2.8 1 5.5 3.7 7.2 6.4 1.7-2.7 4.4-5.4 7.2-6.4C26.4 33.6 30 36 30 41c0 9-15 19-15 19z" fill="var(--green-500)"></path><text x="70" y="29" font-size="22" font-weight="700" letter-spacing="1"><tspan fill="var(--green-700)">WOON</tspan><tspan fill="var(--green-500)">ZORG</tspan></text><text x="70" y="49" font-size="14" font-weight="600" letter-spacing="2.8"><tspan fill="var(--green-700)">ANALYSE</tspan><tspan fill="var(--green-500)">LIMBURG</tspan></text></svg>
+      </div>
       <h1>Bestanden veilig aanleveren</h1>
       <p class="intro">
         Bestanden worden <strong>in uw browser versleuteld</strong> voordat ze
@@ -113,7 +120,7 @@
         <div>Sleep bestanden hierheen</div>
         <div>of</div>
         <button type="button" class="choose" id="choose">Bestanden kiezen</button>
-        <div class="hint" id="sizehint">Max. 25&nbsp;MB per bestand</div>
+        <div class="hint" id="sizehint">Max. 200&nbsp;MB per bestand</div>
       </div>
       <input type="file" id="fileinput" multiple />
       <div class="unavailable" id="unavailable">
