@@ -16,6 +16,9 @@ export default defineConfig([
     // tsc output of collab-server's src and its test build.
     'collab-server/dist',
     'collab-server/dist-test',
+    // tsc output of drop-server's src and its test build.
+    'drop-server/dist',
+    'drop-server/dist-test',
     // wasm-bindgen output for the slim parquet-wasm build (see scripts/build-parquet-wasm.sh).
     'src/vendor',
   ]),
