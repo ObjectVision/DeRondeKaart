@@ -27,3 +27,9 @@ dist-ssr
 data/**
 !data/**/
 !data/**/*.py
+
+# Secrets: the drop-server admin keypair (tools/drop_keygen.py) and any env
+# files must never be committed. The private key decrypts ALL received drops.
+*.key
+.env
+.env.*
