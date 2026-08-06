@@ -37,6 +37,16 @@ export function evaluateFilter(
       evaluateFilter(f as GeoStylerFilter, properties),
     );
   }
+  if (op === "!") {
+    return !evaluateFilter(filter[1] as GeoStylerFilter, properties);
+  }
+
+  // Presence: ["has", property]. Distinct from `== ""` — an unset attribute is
+  // absent from the properties bag entirely, which no comparison can detect.
+  if (op === "has") {
+    const value = properties[filter[1] as string];
+    return value !== undefined && value !== null;
+  }
 
   // Comparison filters: [op, property, value]
   const propName = filter[1] as string;

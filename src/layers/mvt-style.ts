@@ -14,6 +14,14 @@ function filterToExpression(filter: GeoStylerFilter): unknown[] {
     const subFilters = (filter as unknown[]).slice(1).map((f) => filterToExpression(f as GeoStylerFilter));
     return ["any", ...subFilters];
   }
+  if (op === "!") {
+    return ["!", filterToExpression(filter[1] as GeoStylerFilter)];
+  }
+  // ["has", prop] maps straight onto MapLibre's own `has`, which tests the
+  // feature's tags rather than a value — see the PresenceFilter note in types.ts.
+  if (op === "has") {
+    return ["has", filter[1] as string];
+  }
 
   const propName = filter[1] as string;
   const value = filter[2];

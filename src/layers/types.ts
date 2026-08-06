@@ -19,7 +19,23 @@ export type ComparisonFilter = [FilterOperator, string, string | number | boolea
 /** GeoStyler combination filter: ["&&" | "||", ...filters] */
 export type CombinationFilter = ["&&" | "||", ...GeoStylerFilter[]];
 
-export type GeoStylerFilter = ComparisonFilter | CombinationFilter;
+/**
+ * Presence filter: ["has", propertyName] — true when the feature carries the
+ * property at all. A comparison cannot stand in for this: a vector tile simply
+ * omits the tag for an unset attribute, so `["==", prop, ""]` is false for a
+ * feature that has no such attribute AND for one whose value is genuinely
+ * empty. Source data that distinguishes "no value" from "no data" needs both.
+ */
+export type PresenceFilter = ["has", string];
+
+/** Negation filter: ["!", filter] */
+export type NegationFilter = ["!", GeoStylerFilter];
+
+export type GeoStylerFilter =
+  | ComparisonFilter
+  | CombinationFilter
+  | PresenceFilter
+  | NegationFilter;
 
 export interface FillSymbolizer {
   kind: "Fill";

@@ -61,13 +61,27 @@ target layer's bands (a 6-11 + 12-14 split is advertised as ``6-14``), not the
 per-band split. The banding is real — it governs which source contributes tiles
 at which zoom — it is simply not visible in that metadata field.
 
-Attributes are copied as-is apart from lowercasing field names. Unlike the
+Attributes are copied as-is apart from lowercasing field names (and, with
+``--unquote``, stripping quote characters that some exports bake into string
+*values* — see below). Unlike the
 sibling converters there is NO numeric downcasting and NO ring-winding
 normalization, deliberately: MVT stores attributes as varints (so a narrower
 integer dtype costs exactly the same bytes), and GDAL re-clips and
 re-tessellates every polygon per tile (so input winding does not survive).
 Expect an extra ``mvt_id`` field in the output, and features that straddle a
 tile boundary to appear once per tile they touch — both are normal for MVT.
+
+Quoted string values (--unquote)
+--------------------------------
+Some exports write string attributes with the quote characters *inside* the
+value: ``"V01_Strategievariant": "'s1a'"``, ``"provincienaam": "'Limburg'"``.
+The GeoDMS/Startanalyse exports do this throughout. Those quotes are not part of
+the data — they reach the map style (where every ``==`` comparison then has to
+match ``'s1a'`` rather than ``s1a``) and the featureinfo templates (which render
+them verbatim). ``--unquote`` strips ONE matching leading/trailing ``'`` from
+every string value during staging, so ``'s1a'`` becomes ``s1a`` and the
+empty-marker ``''`` becomes an empty string. It is opt-in: a value that
+legitimately starts and ends with an apostrophe would otherwise be mangled.
 
 Usage:
     # Single file -> single layer named after the file stem
@@ -104,10 +118,10 @@ carry their own gzip). The server must therefore serve ``.pmtiles`` with
 ``Accept-Ranges: bytes``, CORS-exposed ``Content-Range``, and **runtime gzip
 switched off** — re-compressing would disable Range requests (which the format
 depends on entirely) and make clients double-decompress. That is the same
-treatment ``.parquet``/``.tif`` already get in ``server/setup_fileserver.sh``;
-``.pmtiles`` still needs adding to that location block and to the MIME types.
+treatment ``.parquet``/``.tif`` already get in ``server/setup_fileserver.sh``, which
+covers ``.pmtiles`` in that location block and in the MIME types.
 
-After conversion, a layer entry would look like:
+After conversion, a layer entry looks like:
     {
       "id": "panden",
       "name": "Panden",
@@ -117,12 +131,6 @@ After conversion, a layer entry would look like:
       "geometryType": "polygon",
       "style": { "opacity": 0.8 }
     }
-...except ``format: "pmtiles"`` is NOT supported by the app yet. It needs a
-``"pmtiles"`` member in ``LayerFormat`` (``src/layers/types.ts``) and
-``VALID_FORMATS`` (``src/layers/config.ts``), the ``pmtiles`` npm package, and a
-``maplibregl.addProtocol("pmtiles", ...)`` registration — modelled on the COG
-protocol wiring in ``src/hooks/use-map-layers.ts``. Until then this script is
-for producing/inspecting archives and for serving them to other clients.
 """
 from __future__ import annotations
 
@@ -382,11 +390,54 @@ def _lowercased_layer(dataset, layer):
     return result, result
 
 
+def _unquote_layer(layer, ogr) -> int:
+    """Strip one matching pair of surrounding ``'`` from every string value.
+
+    Runs on the staged in-memory copy, so the input files are untouched. FIDs
+    are collected up front rather than editing during iteration: ``SetFeature``
+    on a layer being read is not something the Memory driver promises to keep
+    stable. Returns the number of features changed.
+    """
+    defn = layer.GetLayerDefn()
+    string_fields = [
+        i
+        for i in range(defn.GetFieldCount())
+        if defn.GetFieldDefn(i).GetType() == ogr.OFTString
+    ]
+    if not string_fields:
+        return 0
+
+    layer.ResetReading()
+    fids = [feature.GetFID() for feature in layer]
+    layer.ResetReading()
+
+    changed = 0
+    for fid in fids:
+        feature = layer.GetFeature(fid)
+        if feature is None:
+            continue
+        touched = False
+        for i in string_fields:
+            if not feature.IsFieldSetAndNotNull(i):
+                continue
+            value = feature.GetFieldAsString(i)
+            # len >= 2 so a lone apostrophe is left alone, and "''" collapses to "".
+            if len(value) >= 2 and value.startswith("'") and value.endswith("'"):
+                feature.SetField(i, value[1:-1])
+                touched = True
+        if touched:
+            layer.SetFeature(feature)
+            changed += 1
+
+    return changed
+
+
 def stage_sources(
     grouped: dict[str, list[LayerSource]],
     staged_names: dict[str, str],
     ogr,
     log=print,
+    unquote: bool = False,
 ) -> tuple[object, list[object], int]:
     """Copy every input into one in-memory OGR dataset, one layer per source.
 
@@ -429,9 +480,17 @@ def stage_sources(
             if out_layer is None:
                 raise RuntimeError(f"failed to stage {src.path.name} as {layer_name!r}")
 
+            note = ""
+            if unquote:
+                touched = _unquote_layer(out_layer, ogr)
+                note = f", unquoted {touched}"
+
             count = out_layer.GetFeatureCount()
             total += count
-            log(f"  {layer_name}: {count} feature(s) from {src.path.name} [{src.band}]")
+            log(
+                f"  {layer_name}: {count} feature(s) from {src.path.name} "
+                f"[{src.band}{note}]"
+            )
 
     return mem_ds, keep_alive, total
 
@@ -447,6 +506,7 @@ def convert(
     simplification: float | None = None,
     max_size: int | None = None,
     max_features: int | None = None,
+    unquote: bool = False,
 ) -> None:
     """Build one PMTiles archive from the grouped layer sources.
 
@@ -459,7 +519,9 @@ def convert(
     log(f"Reading  {n_sources} input file(s) -> {len(grouped)} layer(s)")
 
     staged_names, conf = build_conf(grouped)
-    mem_ds, keep_alive, total = stage_sources(grouped, staged_names, ogr, log=log)
+    mem_ds, keep_alive, total = stage_sources(
+        grouped, staged_names, ogr, log=log, unquote=unquote
+    )
 
     options = [
         f"MINZOOM={minzoom}",
@@ -651,6 +713,14 @@ def main(argv: list[str]) -> int:
         metavar="N",
         help="Maximum features per tile; the rest are dropped (GDAL default: 200000)",
     )
+    parser.add_argument(
+        "--unquote",
+        action="store_true",
+        help=(
+            "Strip one surrounding pair of single quotes from string VALUES "
+            "(e.g. \"'s1a'\" -> s1a), an artefact of some GeoDMS exports"
+        ),
+    )
     args = parser.parse_args(argv[1:])
 
     if not 0 <= args.minzoom <= 22 or not 0 <= args.maxzoom <= 22:
@@ -663,12 +733,15 @@ def main(argv: list[str]) -> int:
         print("error: --layer and --spec are mutually exclusive", file=sys.stderr)
         return 2
 
-    creation = {
+    # Everything convert() takes beyond the layers and the zoom range: dataset
+    # creation options, plus --unquote which acts during staging instead.
+    passthrough = {
         "name": args.name,
         "description": args.description,
         "simplification": args.simplification,
         "max_size": args.max_size,
         "max_features": args.max_features,
+        "unquote": args.unquote,
     }
 
     # Explicit composition mode: --layer flags or a --spec file.
@@ -706,7 +779,7 @@ def main(argv: list[str]) -> int:
                 print(f"error: {err}", file=sys.stderr)
             return 2
 
-        convert(grouped, output_path, args.minzoom, args.maxzoom, **creation)
+        convert(grouped, output_path, args.minzoom, args.maxzoom, **passthrough)
         return 0
 
     # Path mode: a single GeoJSON or a folder of them.
@@ -731,12 +804,12 @@ def main(argv: list[str]) -> int:
     # Folder mode: every GeoJSON becomes a layer in one archive.
     if input_path.is_dir():
         return convert_folder(
-            input_path, output_path, args.minzoom, args.maxzoom, **creation
+            input_path, output_path, args.minzoom, args.maxzoom, **passthrough
         )
 
     # Single-file mode.
     grouped = group_sources([LayerSource(name=input_path.stem.lower(), path=input_path)])
-    convert(grouped, output_path, args.minzoom, args.maxzoom, **creation)
+    convert(grouped, output_path, args.minzoom, args.maxzoom, **passthrough)
     return 0
 
 
