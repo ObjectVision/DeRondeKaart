@@ -258,6 +258,12 @@ function extractFilterFields(filter: unknown[]): string[] {
   if (op === "&&" || op === "||") {
     return filter.slice(1).flatMap((f) => extractFilterFields(f as unknown[]));
   }
+  // ["!", filter] wraps a filter, not a field name — recurse rather than
+  // reading filter[1] as one. ["has", prop] needs no case: filter[1] is the
+  // field, same as a comparison.
+  if (op === "!") {
+    return extractFilterFields(filter[1] as unknown[]);
+  }
   return [filter[1] as string];
 }
 
