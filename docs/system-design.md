@@ -231,6 +231,9 @@ drilling a filter into all four would be both verbose and easy to desynchronise.
 
 ## 5. Module structure
 
+Code is split by responsibility, not by feature: one hook per capability, with
+presentation kept out of the data engine.
+
 `src/` holds **17,375 lines across 91 TypeScript files**.
 
 | Directory | Files | Responsibility |
