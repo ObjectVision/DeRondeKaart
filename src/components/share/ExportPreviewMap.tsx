@@ -63,13 +63,13 @@ export const ExportPreviewMap = forwardRef<
   ref,
 ) {
   const layers = useMapLayers();
+  const mapHandle = useRef<MapViewHandle>(null);
   // Same swap as the main maps: a gebiedsfilter selection replaces the
   // configured studyarea (skip loading it entirely — the dialog is a per-open
-  // snapshot, so the choice never flips while mounted). Own layer instances:
-  // deck Layers can't be shared across overlays.
-  const studyLayers = useStudyAreaLayer(filteredStudy ? undefined : studyAreaId);
+  // snapshot, so the choice never flips while mounted). Native MapLibre layers
+  // on this map's own style, re-added by handleLabelsReady.
+  const studyArea = useStudyAreaLayer(filteredStudy ? undefined : studyAreaId, mapHandle);
   const filteredStudyLayers = useFilteredStudyAreaLayers(filteredStudy ?? null, "export");
-  const mapHandle = useRef<MapViewHandle>(null);
   const [viewState, setViewState] = useState<ViewState>(initialViewState);
   // Bumped per reconcile run so a superseded (StrictMode double-invoke, or a
   // fast layer switch) run stops applying mid-loop. See the effect below.
@@ -160,8 +160,10 @@ export const ExportPreviewMap = forwardRef<
     const mapRef = mapHandle.current?.mapRef;
     if (!mapRef) return;
     layers.syncImperativeLayers(mapRef);
+    // The study area lives outside useMapLayers, so it needs its own re-add.
+    studyArea.resync();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layers.syncImperativeLayers]);
+  }, [layers.syncImperativeLayers, studyArea]);
 
   const handleMove = useCallback((evt: ViewStateChangeEvent) => {
     setViewState((prev) => ({ ...prev, ...evt.viewState, pitch: 0, bearing: 0 }));
@@ -207,10 +209,11 @@ export const ExportPreviewMap = forwardRef<
     // The live maps use iconScale 4 — a clean 2× step down from 192.)
     iconScale: 8,
   });
-  const studyOrFiltered = filteredStudy ? filteredStudyLayers : studyLayers;
+  // The configured studyarea renders as native MapLibre layers (see
+  // useStudyAreaLayer); only the gebiedsfilter's mask+outline is a deck layer.
   const topLayers = useMemo(
-    () => [...studyOrFiltered, ...annotLayers],
-    [studyOrFiltered, annotLayers],
+    () => [...filteredStudyLayers, ...annotLayers],
+    [filteredStudyLayers, annotLayers],
   );
 
   // The dialog portal mounts the container in one commit — make sure MapLibre

@@ -1,77 +1,97 @@
-import { useEffect, useState } from "react";
-import type { Layer } from "@deck.gl/core";
-import type { Table } from "apache-arrow";
+import { useCallback, useEffect, useRef } from "react";
+import type { MapViewHandle } from "@/components/map/MapView";
 import {
   loadLayerConfigs,
   getLayerConfigById,
-  loadParquetBatches,
-  loadArrowBatches,
-  createGeoArrowLayers,
+  isNativeVectorFormat,
+  buildNativeLayerDefs,
 } from "@/layers";
+import { addMvtLayer, tileSourceId } from "./use-map-layers";
 import type { LayerConfig } from "@/layers";
 
 /**
- * Load the configured "study area" layer as a set of deck.gl layers that are
- * always active and pinned on top. They carry no `beforeId`, so deck appends
- * them above every anchor — the topmost band. (They deliberately do NOT target
- * the `studyarea-layers` anchor: deck's interleaved insert passes `beforeId`
- * straight to `map.addLayer`, which throws if that anchor isn't present yet, and
- * the study area can reach deck before the anchors are injected. `undefined`
- * never throws. The `studyarea-layers` anchor still exists so other layers can
- * target that band via `beforeid`.)
- * The layers are made non-pickable so the always-on-top layer never swallows
- * clicks intended for the data layers beneath it (matches `excludeFromPicking`).
+ * Load the configured "study area" layer as native MapLibre layers, always
+ * active and pinned to the `studyarea-layers` anchor band.
  *
  * Loaded through its own channel (not `useMapLayers`) so it stays out of the
- * legend, feature-picking, and comparison logic. Returns `[]` until loaded, or
- * when `studyAreaId` is undefined / not found / an unsupported format.
+ * legend, feature-picking, and comparison logic — the config carries
+ * `excludeFromLegend` / `excludeFromPicking` / `excludeFromComparison` to match.
+ * Picking is opt-in (it needs `featureinfo` plus registration as a layer entry),
+ * so these layers never swallow clicks meant for the data layers beneath.
+ *
+ * Returns a `resync` callback that re-adds the layers after a basemap swap:
+ * `setStyle()` wipes every source and layer, and unlike the old deck.gl overlay
+ * — which re-resolved its own interleaved layers — native layers have to be
+ * rebuilt by hand. Call it from the map's `onLabelsReady`, which fires after
+ * the anchors have been re-created.
+ *
+ * Passing `undefined` for `studyAreaId` REMOVES the layers. Callers rely on
+ * this to hand the band over to the filtered study area while a gebiedsfilter
+ * selection is active — with deck that was a matter of picking one array over
+ * another, but native layers persist on the map until removed.
  */
-export function useStudyAreaLayer(studyAreaId: string | undefined): Layer[] {
-  const [layers, setLayers] = useState<Layer[]>([]);
+export function useStudyAreaLayer(
+  studyAreaId: string | undefined,
+  mapViewRef: React.RefObject<MapViewHandle | null>,
+): { resync: () => void } {
+  // The resolved config, kept for `resync` (which must not re-fetch) and for
+  // removal (the id alone can't name the layers to remove).
+  const configRef = useRef<LayerConfig | null>(null);
+
+  const apply = useCallback(() => {
+    const config = configRef.current;
+    const mapRef = mapViewRef.current?.mapRef;
+    const map = mapRef?.current?.getMap();
+    if (!config || !mapRef || !map) return;
+    // `addSource` throws "Style is not done loading" if the style JSON hasn't
+    // landed yet — and the config fetch usually wins that race on first load.
+    // Skipping here is safe: `resync` runs from onLabelsReady once the style
+    // (and the anchors) are ready, which is what actually puts the layers up.
+    if (!map.style || !(map.style as unknown as { _loaded?: boolean })._loaded) return;
+    addMvtLayer(config, mapRef);
+  }, [mapViewRef]);
+
+  const remove = useCallback(() => {
+    const config = configRef.current;
+    const map = mapViewRef.current?.mapRef.current?.getMap();
+    configRef.current = null;
+    if (!config || !map) return;
+    for (const def of buildNativeLayerDefs(config)) {
+      if (map.getLayer(def.id)) map.removeLayer(def.id);
+    }
+    const sourceId = tileSourceId(config);
+    if (map.getSource(sourceId)) map.removeSource(sourceId);
+  }, [mapViewRef]);
 
   useEffect(() => {
     if (!studyAreaId) {
-      // Synchronous clear on the "no study area" path. Flagged by
-      // react-hooks/set-state-in-effect, but the layers are built from an async
-      // load below — there is no render-time value to derive instead.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setLayers([]);
+      remove();
       return;
     }
 
     let cancelled = false;
 
-    function addBatch(config: LayerConfig, table: Table) {
-      // beforeId omitted → deck appends above every anchor (topmost, never throws).
-      // The loaders emit cumulative tables under stable layer ids, so each batch
-      // REPLACES the previous layer set instead of accumulating duplicates.
-      const built = createGeoArrowLayers(config, table).map((l) =>
-        l.clone({ pickable: false }),
-      );
-      if (!cancelled) setLayers(built);
-    }
-
     (async () => {
       try {
         const configs = await loadLayerConfigs();
         const config = getLayerConfigById(configs, studyAreaId);
+        if (cancelled) return;
         if (!config) {
           console.warn(`map.json: studyarea "${studyAreaId}" not found in layers.json`);
           return;
         }
-
-        const onBatch = (_batchIndex: number, table: Table) =>
-          addBatch(config, table);
-
-        if (config.format === "parquet") {
-          await loadParquetBatches(config.source, onBatch);
-        } else if (config.format === "geoarrow") {
-          await loadArrowBatches(config.source, onBatch);
-        } else {
+        // Native vector formats only. A COG/composite study area would need a
+        // different add path, and the parquet/geoarrow formats this hook used
+        // to accept no longer render at all.
+        if (!isNativeVectorFormat(config.format)) {
           console.warn(
-            `map.json: studyarea "${studyAreaId}" has unsupported format "${config.format}" (expected parquet/geoarrow)`,
+            `map.json: studyarea "${studyAreaId}" has unsupported format "${config.format}" ` +
+              `(expected mvt/pmtiles/flatgeobuf)`,
           );
+          return;
         }
+        configRef.current = config;
+        apply();
       } catch (err) {
         if (!cancelled) console.error(`Failed to load studyarea "${studyAreaId}":`, err);
       }
@@ -80,7 +100,7 @@ export function useStudyAreaLayer(studyAreaId: string | undefined): Layer[] {
     return () => {
       cancelled = true;
     };
-  }, [studyAreaId]);
+  }, [studyAreaId, apply, remove]);
 
-  return layers;
+  return { resync: apply };
 }

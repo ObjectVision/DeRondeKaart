@@ -153,21 +153,28 @@ function App({
     onFlyToBbox: (bbox) => filterFlyToBboxRef.current?.(bbox),
   });
 
-  // Always-on study area, pinned above everything (incl. labels) on both maps.
-  // Separate instances — Layer objects must not be shared across two Deck overlays.
-  // While a gebiedsfilter selection is active, the configured studyarea is
+  const mapLeftRef = useRef<MapViewHandle>(null);
+  const mapRightRef = useRef<MapViewHandle>(null);
+
+  // Always-on study area, pinned to the `studyarea-layers` anchor band on both
+  // maps. While a gebiedsfilter selection is active the configured studyarea is
   // replaced by the selected gebied (finest level): a 200 km mask disc around
-  // it plus the gebied outline.
-  const studyLayersA = useStudyAreaLayer(studyAreaId);
-  const studyLayersB = useStudyAreaLayer(showMapRight ? studyAreaId : undefined);
+  // it plus the gebied outline — so the configured one is removed by passing
+  // `undefined`, which native layers (unlike deck's arrays) require.
   const filteredStudy = useFilteredStudyArea(areaFilter);
+  const studyAreaA = useStudyAreaLayer(
+    filteredStudy ? undefined : studyAreaId,
+    mapLeftRef,
+  );
+  const studyAreaB = useStudyAreaLayer(
+    showMapRight && !filteredStudy ? studyAreaId : undefined,
+    mapRightRef,
+  );
   const filteredStudyLayersA = useFilteredStudyAreaLayers(filteredStudy, "a");
   const filteredStudyLayersB = useFilteredStudyAreaLayers(
     showMapRight ? filteredStudy : null,
     "b",
   );
-  const mapLeftRef = useRef<MapViewHandle>(null);
-  const mapRightRef = useRef<MapViewHandle>(null);
   const [mapLeftReady, setMapLeftReady] = useState(false);
 
   const [viewState, setViewState] = useState(initialViewState);
@@ -542,29 +549,16 @@ function App({
 
   // Stable topLayers arrays — inline `[...a, ...b, ...c]` would feed MapView a
   // new array every render (60×/sec while panning), defeating its layer memo.
-  // The configured studyarea layers are CLONED on every evaluation: the stored
-  // instances get finalized (GL programs deleted) while a gebied selection
-  // replaces them, and handing a finalized instance back to deck draws against
-  // dead programs ("getUniformBlockIndex ... not an object" floods). A clone is
-  // a fresh unfinalized instance; deck matches it by id, so while the layers
-  // stay mounted the clone is a cheap no-op state transfer.
+  // The configured studyarea is no longer here: it renders as native MapLibre
+  // layers in the `studyarea-layers` band (see useStudyAreaLayer). Only the
+  // gebiedsfilter's own mask+outline still comes through this channel.
   const topLayersA = useMemo(
-    () => [
-      ...(filteredStudy ? filteredStudyLayersA : studyLayersA.map((l) => l.clone({}))),
-      ...markerLayersA,
-      ...boxLayersA,
-      ...annotLayersA,
-    ],
-    [filteredStudy, filteredStudyLayersA, studyLayersA, markerLayersA, boxLayersA, annotLayersA],
+    () => [...filteredStudyLayersA, ...markerLayersA, ...boxLayersA, ...annotLayersA],
+    [filteredStudyLayersA, markerLayersA, boxLayersA, annotLayersA],
   );
   const topLayersB = useMemo(
-    () => [
-      ...(filteredStudy ? filteredStudyLayersB : studyLayersB.map((l) => l.clone({}))),
-      ...markerLayersB,
-      ...boxLayersB,
-      ...annotLayersB,
-    ],
-    [filteredStudy, filteredStudyLayersB, studyLayersB, markerLayersB, boxLayersB, annotLayersB],
+    () => [...filteredStudyLayersB, ...markerLayersB, ...boxLayersB, ...annotLayersB],
+    [filteredStudyLayersB, markerLayersB, boxLayersB, annotLayersB],
   );
 
   // Mirror the tool state into both maps' cursor flags (crosshair while armed).
@@ -1197,12 +1191,15 @@ function App({
   const handleMapLeftLabelsReady = useCallback(() => {
     const ref = mapLeftRef.current?.mapRef;
     if (ref) mapLeftLayers.syncImperativeLayers(ref);
-  }, [mapLeftLayers]);
+    // The study area lives outside useMapLayers, so it needs its own re-add.
+    studyAreaA.resync();
+  }, [mapLeftLayers, studyAreaA]);
 
   const handleMapRightLabelsReady = useCallback(() => {
     const ref = mapRightRef.current?.mapRef;
     if (ref) mapRightLayers.syncImperativeLayers(ref);
-  }, [mapRightLayers]);
+    studyAreaB.resync();
+  }, [mapRightLayers, studyAreaB]);
 
   // One shared popup: the latest click's pick result (the other map's pick is
   // cleared on click) plus Street View, closed together by its single button.

@@ -601,8 +601,12 @@ function absoluteTileUrl(source: string): string {
   return source;
 }
 
-/** Source id for a native vector-tile config (MVT tile template or PMTiles archive). */
-function tileSourceId(config: LayerConfig): string {
+/**
+ * Source id for a native vector-tile config (MVT tile template or PMTiles
+ * archive). Exported alongside {@link addMvtLayer} for `useStudyAreaLayer`,
+ * which adds and removes its layer outside this hook.
+ */
+export function tileSourceId(config: LayerConfig): string {
   return config.format === "pmtiles"
     ? `pmtiles-source-${config.id}`
     : `mvt-source-${config.id}`;
@@ -613,8 +617,13 @@ function tileSourceId(config: LayerConfig): string {
  * Handles both MVT (a `{z}/{x}/{y}` tile template) and PMTiles (a single
  * archive read via the `pmtiles://` protocol registered in MapView).
  * Module-scope: depends only on the config and the target map.
+ *
+ * Exported for `useStudyAreaLayer`, which loads the configured study area
+ * through its own channel (deliberately outside this hook, so it stays out of
+ * the legend, picking and comparison logic) but needs the identical source +
+ * rule-layer construction.
  */
-function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
+export function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
   const map = mapRef.current?.getMap();
   if (!map) return;
 

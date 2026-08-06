@@ -1624,126 +1624,6 @@
       }
     },
     {
-      "id": "loopafstand_gezondheidscentrum",
-      "name": "loopafstand gezondheidscentrum",
-      "source": "https://data.woonzorglimburg.nl/parquet/loopafstand_gezondheidscentrum_2026.parquet",
-      "format": "parquet",
-      "geometryType": "polygon",
-      "geostyler": {
-        "name": "loopafstand in meter",
-        "rules": [
-          {
-            "name": "minder dan 500",
-            "filter": [
-              "==",
-              "data",
-              0
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#61BE7B",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "500 tot 750",
-            "filter": [
-              "==",
-              "data",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#A0D392",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "750 tot 1000",
-            "filter": [
-              "==",
-              "data",
-              2
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#FDEAB6",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "1000 tot 1250",
-            "filter": [
-              "==",
-              "data",
-              3
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#F8D8AF",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "1250 tot 1500",
-            "filter": [
-              "==",
-              "data",
-              4
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#FFAF92",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          },
-          {
-            "name": "meer dan 1500",
-            "filter": [
-              "==",
-              "data",
-              5
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#FF6024",
-                "outlineColor": "black",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          }
-        ]
-      },
-      "style": {
-        "opacity": 0.8
-      },
-      "featureinfo": {
-        "template": "<div><b>Loopafstand gezondheidscentrum klasse: [[ data ]]</b></div>"
-      }
-    },
-    {
       "id": "veerkracht_limburg",
       "name": "Veerkracht",
       "source": "https://data.woonzorglimburg.nl/pmtiles/veerkracht_limburg_2026.pmtiles",
@@ -2340,9 +2220,11 @@
     {
       "id": "studiegebied_limburg",
       "name": "Studiegebied Noord- en Midden-Limburg",
-      "source": "https://data.woonzorglimburg.nl/parquet/studyarea_NoordMiddenLimburg.parquet",
-      "format": "parquet",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/studyarea_NoordMiddenLimburg.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "studyarea",
       "geometryType": "polygon",
+      "beforeid": "studyarea-layers",
       "excludeFromComparison": true,
       "excludeFromLegend": true,
       "excludeFromPicking": true,
@@ -3591,37 +3473,6 @@
               {
                 "kind": "Fill",
                 "color": "#1E6299"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "id": "bomen_limburg_2026",
-      "name": "bomen_limburg_2026",
-      "source": "https://data.woonzorglimburg.nl/parquet/bomen_lb_2026.parquet",
-      "format": "parquet",
-      "geometryType": "point",
-      "style": {
-        "color": [
-          46,
-          139,
-          87,
-          150
-        ],
-        "opacity": 0.8,
-        "lineWidth": 1
-      },
-      "geostyler": {
-        "name": "bomen_limburg_2026",
-        "rules": [
-          {
-            "name": "boom",
-            "symbolizers": [
-              {
-                "kind": "Mark",
-                "color": "#2E8B57"
               }
             ]
           }
