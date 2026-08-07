@@ -18,7 +18,7 @@ import {
   useFilteredStudyAreaLayers,
   type FilteredStudyArea,
 } from "@/hooks/use-filtered-study-area";
-import { useAnnotationLayers } from "@/hooks/use-annotation-layers";
+import { useAnnotationSource } from "@/hooks/use-annotation-source";
 import type { Annotation } from "@/types/annotation";
 
 export interface ExportPreviewHandle {
@@ -71,6 +71,26 @@ export const ExportPreviewMap = forwardRef<
   const studyArea = useStudyAreaLayer(filteredStudy ? undefined : studyAreaId, mapHandle);
   const filteredStudyOverlay = useFilteredStudyAreaLayers(filteredStudy ?? null, mapHandle);
   const [viewState, setViewState] = useState<ViewState>(initialViewState);
+  // Annotations on the export: native MapLibre sources on this map's own
+  // style, static view — no draft, selection, or peers (so no drag handles
+  // either, which is why nothing here needs the deck layer hook).
+  const annotationList = useMemo(() => annotations ?? [], [annotations]);
+  const annotSource = useAnnotationSource(mapHandle, {
+    annotations: annotationList,
+    draft: null,
+    selectedId: null,
+    peers: [],
+    identityColor: "#000000",
+    visible: annotationList.length > 0,
+    zoom: viewState.zoom,
+    // Titles become callout labels below the exported circle (map-capture.ts).
+    showLabels: false,
+    // The 2048px capture scales the ~430px preview ~5×. Rasterizing the sprite
+    // images at 8× (24 → 192px, the SVGs' intrinsic raster size) and declaring
+    // that back as `pixelRatio` keeps pins/icons crisp at the capture scale
+    // without changing their drawn size. Live maps use 4.
+    iconScale: 8,
+  });
   // Bumped per reconcile run so a superseded (StrictMode double-invoke, or a
   // fast layer switch) run stops applying mid-loop. See the effect below.
   const replayGeneration = useRef(0);
@@ -163,8 +183,9 @@ export const ExportPreviewMap = forwardRef<
     // These overlays live outside useMapLayers, so they need their own re-add.
     studyArea.resync();
     filteredStudyOverlay.resync();
+    annotSource.resync();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layers.syncImperativeLayers, studyArea, filteredStudyOverlay]);
+  }, [layers.syncImperativeLayers, studyArea, filteredStudyOverlay, annotSource]);
 
   const handleMove = useCallback((evt: ViewStateChangeEvent) => {
     setViewState((prev) => ({ ...prev, ...evt.viewState, pitch: 0, bearing: 0 }));
@@ -188,31 +209,9 @@ export const ExportPreviewMap = forwardRef<
     setViewState((prev) => ({ ...prev, ...initialViewState }));
   }, [initialViewState]);
 
-  // Annotations on the export: own layer instances (deck Layers can't be
-  // shared across overlays), static view — no draft, selection, or peers.
-  const annotationList = annotations ?? [];
-  const annotLayers = useAnnotationLayers({
-    annotations: annotationList,
-    draft: null,
-    selectedId: null,
-    peers: [],
-    identityColor: "#000000",
-    visible: annotationList.length > 0,
-    zoom: viewState.zoom,
-    suffix: "export",
-    // Titles become callout labels below the exported circle (map-capture.ts).
-    showLabels: false,
-    // The 2048px capture scales the ~430px preview ~5×. 8× atlas cells
-    // (24 → 192px) match the SVGs' intrinsic 192px raster size — the decoded
-    // bitmap lands 1:1 in the atlas, so pins/icons stay crisp in the export.
-    // (deck decodes an SVG at the FILE's width/height; the icon-def size only
-    // sets the atlas cell, so both must stay in step for a sharp texture.
-    // The live maps use iconScale 4 — a clean 2× step down from 192.)
-    iconScale: 8,
-  });
-  // The study area and the gebiedsfilter mask are native MapLibre overlays on
-  // this map's own style; only the annotations still ride the deck channel.
-  const topLayers = useMemo(() => [...annotLayers], [annotLayers]);
+  // Everything on this map is now a native overlay; nothing rides the deck
+  // topLayers channel.
+  const topLayers = useMemo(() => [], []);
 
   // The dialog portal mounts the container in one commit — make sure MapLibre
   // measures the final layout box.
