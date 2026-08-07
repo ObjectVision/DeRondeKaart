@@ -1,6 +1,11 @@
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { Map } from "react-map-gl/maplibre";
-import type { MapRef, ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
+import type {
+  MapRef,
+  ViewStateChangeEvent,
+  MapLayerMouseEvent,
+  ErrorEvent,
+} from "react-map-gl/maplibre";
 // MapLibre 6 is ESM-only and has no default export — `addProtocol` is imported
 // by name. (In v5 this was `maplibregl.addProtocol`.)
 import { addProtocol, setWorkerUrl } from "maplibre-gl";
@@ -188,6 +193,26 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       onLoad?.();
     }
 
+    /**
+     * MapLibre's own failures — tile fetches, style JSON, source loads, missing
+     * sprite images — are otherwise swallowed: without a listener they go to
+     * MapLibre's default handler and are easy to miss entirely. Two blank-map
+     * regressions during the v6 upgrade produced *no* console output at all,
+     * which is exactly what this exists to prevent.
+     *
+     * Deliberately log-only. A tile 404 on one source is not worth surfacing to
+     * a user mid-session, and retry policy belongs to the loaders, not here.
+     * `sourceId` is present on source-related errors and is usually the single
+     * most useful field for working out which layer is at fault.
+     */
+    function handleError(evt: ErrorEvent) {
+      const sourceId = (evt as { sourceId?: string }).sourceId;
+      console.error(
+        `MapLibre error${sourceId ? ` [source: ${sourceId}]` : ""}:`,
+        evt.error ?? evt,
+      );
+    }
+
     // Basemap swap: changing `basemapId` re-points the <Map mapStyle> prop, which
     // makes react-map-gl call setStyle() and reload the base — wiping the anchors,
     // the appended overlay (labels/roads/water), and any imperative MVT/COG layers.
@@ -262,6 +287,7 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
           preserveDrawingBuffer ? { preserveDrawingBuffer: true } : undefined
         }
         onLoad={handleLoad}
+        onError={handleError}
         onStyleData={handleStyleData}
         onMove={onMove}
         onClick={onClick}
