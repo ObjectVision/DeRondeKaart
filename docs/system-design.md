@@ -94,7 +94,7 @@ ranges; consult `package-lock.json` for exact resolutions.
 
 | Group | Packages |
 |---|---|
-| **Rendering** | `maplibre-gl` ^5.21, `react-map-gl` ^8.1 |
+| **Rendering** | `maplibre-gl` ^6.2, `react-map-gl` ^8.1 |
 | **Data formats** | `apache-arrow` ^21.1, `flatgeobuf` ^4.4, `pmtiles` ^4.4, `@geomatico/maplibre-cog-protocol` ^0.9, plus vendored `parquet-wasm` |
 | **Collaboration** | `yjs` ^13.6, `@hocuspocus/provider` ^4.4 |
 | **UI** | `react`·`react-dom` ^19.2, `@base-ui/react` ^1.3, `tailwindcss` ^4.2, `material-symbols` ^0.45, `lucide-react` ^1.7, `class-variance-authority`, `clsx`, `tailwind-merge` |
@@ -117,11 +117,23 @@ generated code, so it is excluded from linting in
 
 ### Version constraints worth knowing
 
-- **`maplibre-gl` is held at v5**, but no longer blocked. The v6 upgrade was
-  previously impossible because `@deck.gl/mapbox` read `map.transform`, which
-  v6 removed; deck.gl is gone, so this is now a normal upgrade — deferred
-  because v6 also changes `queryRenderedFeatures`, which all picking and hover
-  now depends on, and that deserves its own change.
+- **`maplibre-gl` is on v6.** The upgrade was previously impossible because
+  `@deck.gl/mapbox` read `map.transform`, which v6 removed; once deck.gl was
+  gone it became a normal version bump. Two things about it are load-bearing
+  and easy to undo by accident:
+  - **`setWorkerUrl` + the `?worker&url` import must stay**
+    ([MapView.tsx](../src/components/map/MapView.tsx)). v6 splits the worker
+    into its own ESM file located relative to the module URL; Vite's
+    dependency optimizer rewrites the entry into `.vite/deps/`, where that
+    sibling does not exist, so the worker 404s and no tile is ever parsed.
+    The import suffix matters as much as the call: the worker itself imports
+    `./maplibre-gl-shared.mjs`, so a bare `?url` copies one file and leaves
+    that import dangling — which works in dev but ships a **production build
+    whose worker boots and dies instantly**. `?worker&url` makes Vite bundle
+    the worker with its dependencies. Both failure modes are blank maps with
+    **no error in the console**, so test `npm run build` + `vite preview`, not
+    just dev.
+  - **`zoomLevelsToOverscale={undefined}` must stay** — see §6.3.
 - **TypeScript is held at 5.x.** `typescript-eslint` hard-throws on TS 7
   (`"typescript-eslint does not support TS 7.0"`), which would disable linting
   entirely.
@@ -347,6 +359,25 @@ streaming throws (e.g. a host without range support). The WASM init is a
 memoized promise rather than a boolean flag — wasm-bindgen sets its own guard
 only after fetch and compile resolve, so concurrent callers each downloaded the
 ~1.6 MB module.
+
+**Tile overscaling vs splitting** — MapLibre 6 introduced
+`zoomLevelsToOverscale`, defaulting to `4`: past a source's maxzoom, only the
+top 4 zoom levels are overscaled and the levels between are *split*. MapLibre's
+own documentation notes this "changes the results of query rendered features",
+and the app is unusually exposed to that, because **all** picking — feature
+info, hover cursor, marker snap, annotation select/drag — runs through
+`queryRenderedFeatures`, while the PMTiles archives cap at z12–z14 and users
+routinely zoom past z16.
+
+Measured on the v6 default, `line` layers from z12 archives became
+**rendered but unpickable** above their cap (`cbsgemeente2026` from z14,
+`cbswijk2026` from z17); `fill` and `symbol` layers were unaffected. The map is
+therefore constructed with `zoomLevelsToOverscale={undefined}`
+([MapView.tsx](../src/components/map/MapView.tsx)), restoring v5 semantics.
+This is a **silent, zoom-dependent** failure — nothing throws, and it is
+invisible to `tsc` — so verify picking across z11–z18 on a z12-capped *line*
+layer before changing it. The proper fix is re-tiling those archives deeper,
+which would then allow v6's default and its high-zoom performance benefit.
 
 **FlatGeobuf sessions** ([flatgeobuf-loader.ts](../src/layers/flatgeobuf-loader.ts))
 — deliberately *not* URL-cached, because what is loaded depends on the camera.
@@ -769,7 +800,10 @@ that way.
   [street-view.tsx](../src/components/ui/street-view.tsx). This is normal for
   Maps JS (the key is necessarily public) but it should be HTTP-referrer
   restricted in the Google Cloud console.
-- **`maplibre-gl` v6 is unblocked but deferred** — see §3.
+- **PMTiles archives cap at z12–z14**, which forces
+  `zoomLevelsToOverscale={undefined}` on MapLibre 6 to keep `line` layers
+  pickable above their cap (§3, §6.3). Re-tiling the z12 archives deeper would
+  let the app take v6's default and its high-zoom performance benefit.
 - **TypeScript cannot move to v7** until `typescript-eslint` supports it (§3).
 - **Per-rule visibility is not shareable** — share URLs encode layer and hidden
   state, but there is no rule-level command, so per-rule toggles are dropped.
