@@ -112,6 +112,7 @@ SERVICE_NAME="drop-$SLUG"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
 DEPLOY_SCRIPT="/usr/local/bin/deploy-$SLUG.sh"
 DEPLOY_LOG="/var/log/$SLUG-deploy.log"
+TOGGLE_SCRIPT="/usr/local/bin/drop-toggle-$SLUG"
 HOOK_ID="deploy-$SLUG"
 
 echo
@@ -248,6 +249,20 @@ ${DEPLOY_USER} ALL=(root) NOPASSWD: /usr/bin/systemctl restart ${SERVICE_NAME}
 EOF
 ok "Deploy script and log ready"
 
+# --- 6b. open/close switch ---
+# Flips a state file the service reads per request; the unit keeps running (and
+# keeps answering healthz) while closed, so no sudo and no systemctl involved —
+# the invoking user already owns $DATA_DIR. State survives deploys and reboots
+# because it lives in $DATA_DIR, which the deploy's `git reset --hard` never
+# touches.
+log "Writing open/close switch $TOGGLE_SCRIPT"
+write_root_file "$TOGGLE_SCRIPT" 0755 <<EOF
+#!/usr/bin/env bash
+# Open or close the secure drop for $SLUG. Usage: $(basename "$TOGGLE_SCRIPT") <status|open|close> [--reason "<text>"]
+exec env DATA_DIR=${DATA_DIR}/drops $(command -v node) ${REPO_DIR}/drop-server/dist/cli.js "\$@"
+EOF
+ok "Open/close switch ready ($TOGGLE_SCRIPT)"
+
 ensure_webhook_daemon
 webhook_upsert_hook "$HOOK_ID" "$DEPLOY_SCRIPT" "$REPO_DIR" "$SECRET" "$BRANCH"
 
@@ -331,6 +346,7 @@ info "Upload page  : $SCHEME://$HOST_FQDN/"
 info "Endpoint     : $SCHEME://$HOST_FQDN/drop   (pubkey: $SCHEME://$HOST_FQDN/drop/pubkey)"
 info "Data dir     : $DATA_DIR/drops  (retrieve: scp -r $DEPLOY_USER@$HOST_FQDN:$DATA_DIR/drops .)"
 info "Decrypt with : uv run drop-server/tools/drop_decrypt.py --key drop-secret.key ./drops"
+info "Open/close   : $(basename "$TOGGLE_SCRIPT") <status|open|close> [--reason \"<text>\"]  (over ssh, no sudo)"
 echo
 log "Configure the GitHub webhook on the source repo:"
 info "Payload URL  : https://$HOST_FQDN/hooks/$HOOK_ID"

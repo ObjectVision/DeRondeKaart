@@ -22,7 +22,7 @@ admin's private key.
 
 | piece | what |
 |---|---|
-| `src/` | zero-dependency `node:http` service: `POST /drop`, `GET /drop/pubkey`, `GET /drop/healthz`, bound to 127.0.0.1 behind nginx |
+| `src/` | zero-dependency `node:http` service: `POST /drop`, `GET /drop/pubkey`, `GET /drop/healthz`, bound to 127.0.0.1 behind nginx; plus `cli.ts`, the open/close switch |
 | `page/` | standalone Dutch upload page served at the site root (`https://aanleveren.woonzorglimburg.nl/`); seals with a locally vendored `libsodium-wrappers` — no CDN |
 | `tools/` | admin-side Python (PyNaCl, PEP 723 — run with `uv run`): `drop_keygen.py`, `drop_encrypt.py`, `drop_decrypt.py` |
 | `test/` | `node:test` suite (`npm test`): guards, HTTP integration, crypto round trip |
@@ -75,6 +75,31 @@ uv run tools/drop_encrypt.py \
     report.xlsx
 ```
 
+### 3b. Ongoing: open and close the drop
+
+The drop can be closed when no delivery is expected, so it never accumulates
+personal data nobody is watching for. Over ssh, no sudo:
+
+```sh
+drop-toggle-<slug> status
+drop-toggle-<slug> close --reason "Wij verwachten uw bestanden na 1 september."
+drop-toggle-<slug> open
+```
+
+Closed means a **polite refusal, not an outage**: the service keeps running,
+`/drop/healthz` still answers 200 (with `accepting: false`, so monitoring does
+not page), `/drop/pubkey` and `POST /drop` answer 503, and the page shows a
+Dutch "gesloten" message carrying the `--reason` verbatim. Because the POST is
+refused before the body is read, a closed drop never buffers an upload it will
+discard.
+
+State is `closed.json` in the data root — beside `drops/`, never inside it, so
+`scp -r` and the sweep never see it. It survives restarts and deploys, and
+changes take effect on the next request: **nothing to restart**. Closing never
+touches already-stored drops; retrieve those the usual way (below). An
+unreadable state file fails **open** — better an unintended open drop than
+silently swallowing deliveries a sender believes succeeded.
+
 ### 4. Ongoing: admin retrieves and decrypts (admin machine)
 
 ```sh
@@ -103,6 +128,7 @@ setup script); safe finite defaults apply when unset. nginx adds an outer wall
 | P2 rate limit | `RATE_WINDOW_MS`, `RATE_MAX_DROPS_PER_WINDOW` | 10 drops / 60 s per IP (plus nginx 6r/m) |
 | P3 retention | `DROP_MAX_AGE_WARN_DAYS`, `DROP_TTL_DAYS`, `SWEEP_INTERVAL_MS` | warn after 30 d awaiting pickup; TTL off (0) — enable to enforce a bewaartermijn |
 | P4 total storage | `STORAGE_WARN_BYTES`, `STORAGE_MAX_BYTES` | warn at 1 GB, refuse (HTTP 507) at 2 GB |
+| P5 open/closed | none (state file, see §3b) | open; `drop-toggle` closes it — refuses everything (HTTP 503) until reopened |
 
 ## Security model & AVG (GDPR)
 
@@ -143,9 +169,13 @@ in-transit path is doubly covered (TLS around an already-sealed payload).
 ```sh
 cd drop-server
 npm install
-npm test                      # 19 tests: guards, HTTP integration, crypto round trip
+npm test                      # 30 tests: guards, HTTP integration, open/close gate, crypto round trip
 npm run page:vendor           # copy libsodium UMD builds into page/vendor/
 DROP_PUBLIC_KEY=<b64> npm run dev
+
+# open/close locally (same CLI the server wrapper execs)
+DATA_DIR=./data/drops npm run toggle -- close --reason "test"
+DATA_DIR=./data/drops npm run toggle -- status
 ```
 
 Cross-language check (proves PyNaCl ↔ libsodium-wrappers interop locally):
