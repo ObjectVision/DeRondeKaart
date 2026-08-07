@@ -4,6 +4,7 @@ import type { Feature, MultiPolygon, Polygon, Position } from "geojson";
 import { loadParquetBatches } from "@/layers";
 import { extendRowBbox, rowGeometryToGeoJson, type BBox } from "@/layers/box-filter";
 import type { AreaFilterState } from "@/hooks/use-area-filter";
+import { geodesicRing } from "@/lib/geo";
 import type { MapViewHandle } from "@/components/map/MapView";
 import { styleReady, syncGeoJsonOverlay } from "@/layers/geojson-overlay";
 
@@ -19,41 +20,13 @@ export interface FilteredStudyArea {
   area: Feature<Polygon | MultiPolygon>[];
 }
 
-/** Mean Earth radius (km), for the spherical destination formula. */
-const EARTH_RADIUS_KM = 6371;
-const BUFFER_RADIUS_KM = 200;
+const BUFFER_RADIUS_M = 200_000;
+/** Coarser than the annotation default: this disc is 200 km across. */
 const CIRCLE_SEGMENTS = 64;
 
-/** Great-circle destination point from (lng, lat) along a bearing (radians). */
-function destination(
-  lng: number,
-  lat: number,
-  bearingRad: number,
-  distanceKm: number,
-): Position {
-  const δ = distanceKm / EARTH_RADIUS_KM;
-  const φ1 = (lat * Math.PI) / 180;
-  const λ1 = (lng * Math.PI) / 180;
-  const φ2 = Math.asin(
-    Math.sin(φ1) * Math.cos(δ) + Math.cos(φ1) * Math.sin(δ) * Math.cos(bearingRad),
-  );
-  const λ2 =
-    λ1 +
-    Math.atan2(
-      Math.sin(bearingRad) * Math.sin(δ) * Math.cos(φ1),
-      Math.cos(δ) - Math.sin(φ1) * Math.sin(φ2),
-    );
-  return [(λ2 * 180) / Math.PI, (φ2 * 180) / Math.PI];
-}
-
-/** Closed ring approximating a circle of `radiusKm` around a center. */
-function circleRing(centerLng: number, centerLat: number, radiusKm: number): Position[] {
-  const ring: Position[] = [];
-  for (let i = 0; i <= CIRCLE_SEGMENTS; i++) {
-    const bearing = (2 * Math.PI * i) / CIRCLE_SEGMENTS;
-    ring.push(destination(centerLng, centerLat, bearing, radiusKm));
-  }
-  return ring;
+/** Closed ring approximating a circle of `radiusM` around a center. */
+function circleRing(centerLng: number, centerLat: number, radiusM: number): Position[] {
+  return geodesicRing({ lng: centerLng, lat: centerLat }, radiusM, CIRCLE_SEGMENTS);
 }
 
 /** The outer ring of every polygon part, used to punch the gebied out of the disc. */
@@ -122,7 +95,7 @@ export function useFilteredStudyArea(areaFilter: AreaFilterState): FilteredStudy
           type: "Feature",
           geometry: {
             type: "Polygon",
-            coordinates: [circleRing(centerLng, centerLat, BUFFER_RADIUS_KM), ...holes],
+            coordinates: [circleRing(centerLng, centerLat, BUFFER_RADIUS_M), ...holes],
           },
           properties: {},
         };

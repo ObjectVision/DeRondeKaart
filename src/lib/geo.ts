@@ -29,6 +29,52 @@ export function metersPerPixel(lat: number, zoom: number): number {
 }
 
 /**
+ * Great-circle destination point from (lng, lat) along a bearing (radians).
+ * Spherical model, matching {@link distanceMeters}.
+ */
+export function destination(
+  lng: number,
+  lat: number,
+  bearingRad: number,
+  distanceM: number,
+): [number, number] {
+  const δ = distanceM / EARTH_RADIUS_M;
+  const φ1 = (lat * Math.PI) / 180;
+  const λ1 = (lng * Math.PI) / 180;
+  const φ2 = Math.asin(
+    Math.sin(φ1) * Math.cos(δ) + Math.cos(φ1) * Math.sin(δ) * Math.cos(bearingRad),
+  );
+  const λ2 =
+    λ1 +
+    Math.atan2(
+      Math.sin(bearingRad) * Math.sin(δ) * Math.cos(φ1),
+      Math.cos(δ) - Math.sin(φ1) * Math.sin(φ2),
+    );
+  return [(λ2 * 180) / Math.PI, (φ2 * 180) / Math.PI];
+}
+
+/**
+ * Closed ring approximating a circle of `radiusM` around a center.
+ *
+ * MapLibre has no meters-radius circle primitive (`circle-radius` is pixels),
+ * so a ground-truth circle has to be emitted as a polygon. 96 segments holds
+ * up to roughly a 2000px on-screen diameter without visible faceting; the
+ * count is deliberately NOT zoom-adaptive, since that would force the ring to
+ * be regenerated on every map move.
+ */
+export function geodesicRing(
+  center: { lng: number; lat: number },
+  radiusM: number,
+  segments = 96,
+): [number, number][] {
+  const ring: [number, number][] = [];
+  for (let i = 0; i <= segments; i++) {
+    ring.push(destination(center.lng, center.lat, (2 * Math.PI * i) / segments, radiusM));
+  }
+  return ring;
+}
+
+/**
  * Vertex-average centroid of a polygon ring — the anchor for its label/popup,
  * not an exact area centroid (fine at annotation scale).
  */

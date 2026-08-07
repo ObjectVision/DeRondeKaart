@@ -33,12 +33,12 @@ import { useSelectionBoxLayers } from "@/hooks/use-selection-box-layer";
 import { useAnnotations } from "@/hooks/use-annotations";
 import { useCollab } from "@/hooks/use-collab";
 import { useAnnotationTool, type AnnotationHit } from "@/hooks/use-annotation-tool";
+import { useAnnotationSource } from "@/hooks/use-annotation-source";
 import {
-  useAnnotationLayers,
+  ANNOT_LAYERS,
   isAnnotationIconified,
   PIN_SIZE_ACTIVE_PX,
-  type PolygonHandleDatum,
-} from "@/hooks/use-annotation-layers";
+} from "@/layers/annotation-style";
 import { centroid, METERS_PER_DEGREE_LAT } from "@/lib/geo";
 import { AnnotationEditPopup } from "@/components/annotations/AnnotationEditPopup";
 import { PresenceBadge } from "@/components/annotations/PresenceBadge";
@@ -410,45 +410,70 @@ function App({
     );
   }, []);
 
-  // Synchronous deck pick against a side's annotation layers, deciding at
-  // mousedown what the gesture edits. Handles (vertices, then edges) win over
-  // shape bodies, with a wider pick radius so they're easy to grab.
+  // Synchronous pick against a side's annotation layers, deciding at mousedown
+  // what the gesture edits. Handles (vertices, then edges) win over shape
+  // bodies, with a wider pick box so they're easy to grab.
+  //
+  // `queryRenderedFeatures` takes a point or a BOX, never deck's radius — so a
+  // radius becomes a square, marginally more permissive at the corners. It also
+  // only returns features that actually DREW: the annotation layers set
+  // `icon-allow-overlap` / `text-ignore-placement` so MapLibre's collision
+  // engine can never cull a symbol out of pickability (deck's layers had no
+  // collision detection at all, so everything was always pickable).
   const pickAnnotationAt = useCallback(
     (side: "a" | "b", point: { x: number; y: number }): AnnotationHit | null => {
-      const handle = side === "a" ? mapLeftRef.current : mapRightRef.current;
-      const overlay = handle?.overlayRef.current;
-      if (!overlay) return null;
-      const pick = (layerIds: string[], radius: number) =>
-        overlay.pickObject({ x: point.x, y: point.y, radius, layerIds });
+      const map = (side === "a" ? mapLeftRef.current : mapRightRef.current)
+        ?.mapRef.current?.getMap();
+      if (!map) return null;
 
-      const vertex = pick([`annotations-vertices-${side}`], 6);
-      if (vertex?.object) {
-        const d = vertex.object as PolygonHandleDatum;
-        return { type: "vertex", annotation: d.annotation, index: d.index };
-      }
-      const edge = pick([`annotations-edges-${side}`], 4);
-      if (edge?.object) {
-        const d = edge.object as PolygonHandleDatum;
-        return { type: "edge", annotation: d.annotation, index: d.index };
-      }
-      const body = pick(
-        [
-          `annotations-shape-icons-${side}`,
-          `annotations-pins-${side}`,
-          `annotations-circles-${side}`,
-          `annotations-polygons-${side}`,
-        ],
-        2,
-      );
-      if (body?.object) {
-        const annotation = body.object as Annotation;
-        if (body.layer?.id.startsWith("annotations-shape-icons")) {
-          return { type: "icon", annotation };
+      const query = (layerIds: string[], radius: number) => {
+        const present = layerIds.filter((id) => map.getLayer(id));
+        if (present.length === 0) return [];
+        return map.queryRenderedFeatures(
+          [
+            [point.x - radius, point.y - radius],
+            [point.x + radius, point.y + radius],
+          ],
+          { layers: present },
+        );
+      };
+      // MapLibre carries no datum, so features reference their annotation by
+      // id and it is resolved against the live list.
+      const byId = (id: unknown): Annotation | null =>
+        annotationListRef.current.find((a) => a.id === id) ?? null;
+
+      const vertex = query([ANNOT_LAYERS.vertices], 6)[0];
+      if (vertex) {
+        const annotation = byId(vertex.properties?.annotationId);
+        if (annotation) {
+          return { type: "vertex", annotation, index: Number(vertex.properties?.index) };
         }
-        return {
-          type: annotation.pin ? "pin" : annotation.points ? "polygon" : "circle",
-          annotation,
-        };
+      }
+      const edge = query([ANNOT_LAYERS.edges], 4)[0];
+      if (edge) {
+        const annotation = byId(edge.properties?.annotationId);
+        if (annotation) {
+          return { type: "edge", annotation, index: Number(edge.properties?.index) };
+        }
+      }
+
+      const body = query(
+        [ANNOT_LAYERS.icons, ANNOT_LAYERS.shapesFill, ANNOT_LAYERS.shapesLine],
+        2,
+      )[0];
+      if (body) {
+        const annotation = byId(body.properties?.annotationId);
+        if (annotation) {
+          // The icon layer carries pins AND iconified shapes; `pin` is what
+          // distinguishes them (deck used separate layers for the same split).
+          if (body.layer?.id === ANNOT_LAYERS.icons && !annotation.pin) {
+            return { type: "icon", annotation };
+          }
+          return {
+            type: annotation.pin ? "pin" : annotation.points ? "polygon" : "circle",
+            annotation,
+          };
+        }
       }
       return null;
     },
@@ -524,10 +549,11 @@ function App({
   }, [selectedAnnotation, viewState]);
 
   const annotationsVisible = annotationsEnabled && annotationActive;
-  // iconScale 4: 96px atlas cells — a clean 2× step down from the SVGs'
-  // intrinsic 192px raster, and ≥ the 32-38px draw size on hi-DPI screens,
-  // so pins render crisp without a jagged single-step downscale.
-  const annotLayersA = useAnnotationLayers({
+  // Annotation bodies (shapes, icons, labels, peer cursors) render as native
+  // MapLibre sources on each map's own style. iconScale 4 supersamples the
+  // sprite images, declared back as `pixelRatio` — ≥ the 32-38px draw size on
+  // hi-DPI screens, so pins stay crisp without a jagged downscale.
+  const annotSourceA = useAnnotationSource(mapLeftRef, {
     annotations: annotations.annotations,
     draft: annotationTool.draft,
     selectedId: annotationSelectedId,
@@ -535,10 +561,9 @@ function App({
     identityColor: collab.identity.color,
     visible: annotationsVisible,
     zoom: viewState.zoom,
-    suffix: "a",
     iconScale: 4,
   });
-  const annotLayersB = useAnnotationLayers({
+  const annotSourceB = useAnnotationSource(mapRightRef, {
     annotations: annotations.annotations,
     draft: annotationTool.draft,
     selectedId: annotationSelectedId,
@@ -546,17 +571,14 @@ function App({
     identityColor: collab.identity.color,
     visible: annotationsVisible && showMapRight,
     zoom: viewState.zoom,
-    suffix: "b",
     iconScale: 4,
   });
-
-  // Stable topLayers arrays — inline `[...a]` would feed MapView a new array
-  // every render (60×/sec while panning), defeating its layer memo. Only the
-  // annotations still ride this deck channel: the study area, gebiedsfilter
-  // mask, click marker and selection box are all native MapLibre overlays now,
-  // drawn directly onto each map's style.
-  const topLayersA = useMemo(() => [...annotLayersA], [annotLayersA]);
-  const topLayersB = useMemo(() => [...annotLayersB], [annotLayersB]);
+  // Nothing rides the deck topLayers channel any more: the annotations (with
+  // their drag handles), study area, gebiedsfilter mask, click marker and
+  // selection box are all native MapLibre overlays drawn onto each map's own
+  // style. Kept as stable empty arrays until the overlay itself is removed.
+  const topLayersA = useMemo(() => [], []);
+  const topLayersB = useMemo(() => [], []);
 
   // Mirror the tool state into both maps' cursor flags (crosshair while armed).
   // Annotation mode alone doesn't claim the crosshair — only an armed drawing
@@ -1195,7 +1217,8 @@ function App({
     filteredStudyA.resync();
     markerA.resync();
     boxA.resync();
-  }, [mapLeftLayers, studyAreaA, filteredStudyA, markerA, boxA]);
+    annotSourceA.resync();
+  }, [mapLeftLayers, studyAreaA, filteredStudyA, markerA, boxA, annotSourceA]);
 
   const handleMapRightLabelsReady = useCallback(() => {
     const ref = mapRightRef.current?.mapRef;
@@ -1204,7 +1227,8 @@ function App({
     filteredStudyB.resync();
     markerB.resync();
     boxB.resync();
-  }, [mapRightLayers, studyAreaB, filteredStudyB, markerB, boxB]);
+    annotSourceB.resync();
+  }, [mapRightLayers, studyAreaB, filteredStudyB, markerB, boxB, annotSourceB]);
 
   // One shared popup: the latest click's pick result (the other map's pick is
   // cleared on click) plus Street View, closed together by its single button.
