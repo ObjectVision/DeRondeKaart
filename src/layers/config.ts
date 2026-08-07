@@ -2,11 +2,11 @@ import type { LayerConfig, LayersFile, LayerFormat, StatisticConfig, TimeseriesC
 
 // "geojson" is deliberately absent: it is an in-memory format (LayerConfig.data)
 // constructed programmatically (e.g. by the Power BI bridge), never via layers.json.
-const VALID_FORMATS: LayerFormat[] = ["geoarrow", "parquet", "mvt", "cog", "flatgeobuf", "pmtiles", "composite"];
+const VALID_FORMATS: LayerFormat[] = ["mvt", "cog", "flatgeobuf", "pmtiles", "composite"];
 
 // Formats a "composite" entry may nest. "geojson" (in-memory) and "composite"
 // itself (no nesting) are deliberately absent.
-const CHILD_FORMATS: LayerFormat[] = ["geoarrow", "parquet", "mvt", "cog", "flatgeobuf", "pmtiles"];
+const CHILD_FORMATS: LayerFormat[] = ["mvt", "cog", "flatgeobuf", "pmtiles"];
 
 let cachedConfig: LayerConfig[] | null = null;
 
@@ -189,7 +189,17 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     return null;
   }
   if (!layer.format || !VALID_FORMATS.includes(layer.format as LayerFormat)) {
-    console.warn(`layers.json: layer "${layer.id}" has invalid format "${layer.format}", skipping`);
+    // Call out the two retired formats by name: they were valid until the
+    // renderer became MapLibre-only, so a stale config would otherwise just
+    // lose the layer with a generic "invalid format".
+    if (layer.format === "parquet" || layer.format === "geoarrow") {
+      console.warn(
+        `layers.json: layer "${layer.id}" uses format "${layer.format}", which is no ` +
+          `longer supported — convert the data to pmtiles/flatgeobuf and update the entry. Skipping.`,
+      );
+    } else {
+      console.warn(`layers.json: layer "${layer.id}" has invalid format "${layer.format}", skipping`);
+    }
     return null;
   }
   const isComposite = layer.format === "composite";

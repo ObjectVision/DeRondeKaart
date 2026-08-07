@@ -26,12 +26,6 @@ const SOFTWARE_CREDITS = [
     license: "MIT",
     href: "https://visgl.github.io/react-map-gl/",
   },
-  { label: "deck.gl", license: "MIT", href: "https://deck.gl/" },
-  {
-    label: "GeoArrow layers",
-    license: "MIT",
-    href: "https://github.com/geoarrow/deck.gl-geoarrow",
-  },
   { label: "Apache Arrow", license: "Apache-2.0", href: "https://arrow.apache.org/" },
   {
     label: "parquet-wasm",

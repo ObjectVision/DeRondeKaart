@@ -24,28 +24,7 @@ export function resolveMarkerPoint(
   );
   if (pointEntries.length === 0) return null;
 
-  // --- deck.gl point layers (GeoArrow/Parquet) ---
-  const overlay = mapViewRef.current?.overlayRef?.current;
-  if (overlay) {
-    const info = overlay.pickObject({
-      x: event.point.x,
-      y: event.point.y,
-      radius: 4,
-    });
-    const deckLayerId: string | undefined = info?.layer?.id;
-    if (info?.object && deckLayerId) {
-      const entry = pointEntries.find(
-        (e) =>
-          (e.config.format === "geoarrow" || e.config.format === "parquet") &&
-          deckLayerId.startsWith(e.config.id),
-      );
-      if (entry && Array.isArray(info.coordinate) && info.coordinate.length >= 2) {
-        return { lng: info.coordinate[0], lat: info.coordinate[1] };
-      }
-    }
-  }
-
-  // --- MVT/FlatGeobuf point layers ---
+  // --- Native point layers (MVT/PMTiles/FlatGeobuf) ---
   const map = mapViewRef.current?.mapRef?.current?.getMap();
   if (map) {
     const mvtLayerIds: string[] = [];

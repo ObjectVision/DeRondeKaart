@@ -103,7 +103,7 @@ origin short breaks map rendering *silently*. To promote it:
 gzip/brotli stay **on**. Scanners flag compression as a BREACH risk, but BREACH
 needs a secret (session or CSRF token) reflected into a *compressed response
 body*; these sites serve static assets and public map data with no per-user
-secrets. The map app's bundles are large (WASM + deck.gl), so disabling it would
+secrets. The map app's bundles are large (WASM + MapLibre), so disabling it would
 be a real regression. (`setup_fileserver.sh` sets `gzip off` for a different
 reason: runtime gzip breaks HTTP Range requests.)
 

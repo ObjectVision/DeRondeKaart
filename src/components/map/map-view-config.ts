@@ -5,8 +5,6 @@
  * component and non-component exports breaks React Fast Refresh, which then
  * full-reloads the page (and drops all map state) on every edit.
  */
-import type { Layer } from "@deck.gl/core";
-import type { MapboxOverlay } from "@deck.gl/mapbox";
 
 export const INITIAL_VIEW_STATE = {
   longitude: 5.0,
@@ -116,29 +114,3 @@ export const ANCHOR_ORDER = [
   ANCHORS.studyarea,
 ];
 
-/**
- * Read current layers from a MapboxOverlay.
- *
- * MapboxOverlay keeps its props in a private `_props` field and exposes only
- * `setProps`, so there is no supported way to read them back; the cast reaches
- * past that. Narrowed to the one field we touch rather than `any`, so a shape
- * change upstream surfaces here instead of silently yielding undefined.
- */
-export function getDeckLayers(overlayRef: React.RefObject<MapboxOverlay | null>): Layer[] {
-  if (!overlayRef.current) return [];
-  const overlay = overlayRef.current as unknown as { props?: { layers?: Layer[] } };
-  return overlay.props?.layers ?? [];
-}
-
-/** Clone a specific layer with new props and push the updated array to the overlay */
-export function updateDeckLayer(
-  overlayRef: React.RefObject<MapboxOverlay | null>,
-  layerId: string,
-  newProps: Record<string, unknown>,
-) {
-  if (!overlayRef.current) return;
-  const updatedLayers = getDeckLayers(overlayRef).map((layer: Layer) =>
-    layer.id === layerId ? layer.clone(newProps) : layer,
-  );
-  overlayRef.current.setProps({ layers: updatedLayers });
-}

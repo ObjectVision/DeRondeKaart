@@ -4,7 +4,7 @@
 #
 # Serves .parquet / .arrow / .geoarrow / .pbf(.gz) / .tif(f) over HTTPS with
 # open CORS, byte-range support and correct MIME types, for consumption by
-# deck.gl, MapLibre, DuckDB-WASM and COG readers in the browser.
+# MapLibre, DuckDB-WASM and COG readers in the browser.
 #
 # Run ON the target server. Any number of file servers can coexist: each is
 # namespaced by its own --slug and served on its own --host. Content is put in

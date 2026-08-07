@@ -4,8 +4,6 @@ import type { MapViewHandle } from "@/components/map/MapView";
 import type { LayerEntry } from "./use-map-layers";
 import {
   buildNativeLayerDefs,
-  featureMatchesGeostyler,
-  featureMatchesAreaFilter,
   expandForMapQueries,
   isNativeVectorFormat,
 } from "@/layers";
@@ -54,77 +52,7 @@ export function useFeaturePick(
         return;
       }
 
-      // --- deck.gl picking (GeoArrow/Parquet) ---
-      const overlay = mapViewRef.current?.overlayRef?.current;
-      if (overlay) {
-        const picks = overlay.pickMultipleObjects({
-          x: event.point.x,
-          y: event.point.y,
-          radius: 2,
-        });
-
-        if (picks && Array.isArray(picks)) {
-          for (const info of picks) {
-            if (!info.layer) continue;
-            // Icon layers feed positions as binary attributes, so deck has no
-            // row object to attach — resolve it from the record batch riding
-            // on the layer's data (see createIconPointLayer).
-            let object = info.object;
-            if (!object && typeof info.index === "number" && info.index >= 0) {
-              const data = (info.layer.props as { data?: { data?: unknown } }).data;
-              const batch = data?.data as { get?: (i: number) => unknown } | undefined;
-              if (batch?.get) object = batch.get(info.index);
-            }
-            if (!object) continue;
-            const deckLayerId: string = info.layer.id;
-
-            // Match deck layer ID to a config entry
-            const entry = infoEntries.find(
-              (e) =>
-                (e.config.format === "geoarrow" || e.config.format === "parquet") &&
-                deckLayerId.startsWith(e.config.id),
-            );
-            if (!entry) continue;
-
-            // The picked object is an arrow.StructRowProxy — toJSON() for a plain object
-            const props =
-              typeof (object as { toJSON?: () => unknown }).toJSON === "function"
-                ? (object as { toJSON: () => unknown }).toJSON()
-                : object;
-
-            // Same feature picked via another rule layer → duplicate. Keyed on
-            // the stringified property bag ONCE per pick (info.index can't be
-            // used: it is per record batch, so it collides across batches).
-            const key = `${entry.ownerId}:${JSON.stringify(props)}`;
-            if (seen.has(key)) continue;
-            seen.add(key);
-
-            // Rule-filtered layers render non-matching features transparent;
-            // treat them as dropped — not interactive — so clicks ignore them.
-            if (!featureMatchesGeostyler(entry.config.geostyler, props as Record<string, unknown>)) {
-              continue;
-            }
-
-            // Area-filtered features render transparent; treat them as dropped
-            // too. (TODO: the hover pointer cursor may still appear over them.)
-            if (!featureMatchesAreaFilter(props as Record<string, unknown>)) {
-              continue;
-            }
-
-            const feature: PickedFeature = {
-              layerConfigId: entry.ownerId,
-              layerName: entry.ownerName,
-              properties: props as Record<string, unknown>,
-            };
-
-            const existing = featuresByLayer.get(entry.ownerId) ?? [];
-            existing.push(feature);
-            featuresByLayer.set(entry.ownerId, existing);
-          }
-        }
-      }
-
-      // --- MapLibre picking (MVT/FlatGeobuf) ---
+      // --- MapLibre picking (MVT/PMTiles/FlatGeobuf/GeoJSON) ---
       const map = mapViewRef.current?.mapRef?.current?.getMap();
       if (map) {
         // Collect all native layer IDs for entries that have featureinfo

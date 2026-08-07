@@ -221,8 +221,7 @@ export function ShareDialog({
             Math.hypot(c.x - EXPORT_SIZE / 2, c.y - EXPORT_SIZE / 2) < EXPORT_SIZE / 2,
         );
 
-      const overlay = previewRef.current?.getOverlay() ?? null;
-      const mapCanvas = await captureMapAtResolution(map, overlay, EXPORT_SIZE);
+      const mapCanvas = await captureMapAtResolution(map, EXPORT_SIZE);
       const composed = await composeCircularExport({
         mapCanvas,
         size: EXPORT_SIZE,
