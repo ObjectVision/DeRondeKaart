@@ -1,8 +1,6 @@
-import { useEffect, useMemo, useRef, forwardRef, useImperativeHandle } from "react";
-import type { Layer } from "@deck.gl/core";
-import { Map, useControl } from "react-map-gl/maplibre";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
+import { Map } from "react-map-gl/maplibre";
 import type { MapRef, ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
-import { MapboxOverlay } from "@deck.gl/mapbox";
 import maplibregl from "maplibre-gl";
 import type { Map as MapLibreMap, LayerSpecification } from "maplibre-gl";
 import { cogProtocol } from "@geomatico/maplibre-cog-protocol";
@@ -32,9 +30,9 @@ export type { ViewState, Basemap } from "./map-view-config";
 
 /**
  * Add all four anchors, contiguous at the top of the current stack and in the
- * correct bottom→top order. Idempotent. Adding them all up front (before the
- * overlay) means every anchor exists from the first deck sync, so deck layers
- * resolve into the right band immediately — no dependency on load timing.
+ * correct bottom→top order. Idempotent. Adding them all up front means every
+ * anchor exists before any layer targets it as a `beforeId`, so layers resolve
+ * into the right band immediately — no dependency on load timing.
  */
 function ensureAnchors(map: MapLibreMap) {
   for (const id of ANCHOR_ORDER) {
@@ -75,84 +73,14 @@ async function ensureAnchorsAndOverlay(map: MapLibreMap, overlayUrl: string) {
   }
 }
 
-function DeckGLOverlay(props: {
-  layers: Layer[];
-  overlayRef: React.RefObject<MapboxOverlay | null>;
-  hoverRef: React.RefObject<boolean>;
-  mvtHoverRef: React.RefObject<boolean>;
-  clickableIdsRef: React.RefObject<string[]>;
-  drawModeRef: React.RefObject<boolean>;
-  panningRef: React.RefObject<boolean>;
-}) {
-  const { hoverRef, mvtHoverRef, clickableIdsRef, drawModeRef, panningRef } = props;
-  const overlay = useControl(
-    () =>
-      new MapboxOverlay({
-        interleaved: true,
-        // Use deck's built-in async hover (from its existing picking pass) rather
-        // than a synchronous pickObject per mousemove — the latter stalls the main
-        // thread and makes Chromium flash the blue "progress" cursor.
-        onHover: (info) => {
-          const id = info?.layer?.id;
-          hoverRef.current = id
-            ? clickableIdsRef.current.some((cid) => id.startsWith(cid))
-            : false;
-        },
-        // deck owns the canvas cursor in interleaved mode; read the live hover
-        // flags so a pointer shows over clickable features, grabbing while panning,
-        // crosshair while the area-select tool is armed. `isDragging` only covers
-        // deck's own drags — MapLibre handles drag-pan, tracked via panningRef.
-        getCursor: ({ isDragging }) =>
-          drawModeRef.current
-            ? "crosshair"
-            : isDragging || panningRef.current
-              ? "grabbing"
-              : hoverRef.current || mvtHoverRef.current
-                ? "pointer"
-                : "grab",
-      }),
-  );
-  // Publish the overlay in an effect, not the render body: `useControl` returns
-  // a stable instance, so committing it after render is equivalent and keeps
-  // render pure (a render-time ref write is unsafe under concurrent rendering,
-  // where an abandoned attempt would still have mutated the parent's ref).
-  const { overlayRef } = props;
-  useEffect(() => {
-    overlayRef.current = overlay;
-  }, [overlay, overlayRef]);
-
-  // Push layers in an effect, not the render body: onMove re-renders this
-  // component ~60×/sec during a pan, and setProps → deck's full layer-diff pass
-  // is not free even when every layer instance is identical.
-  const { layers } = props;
-  useEffect(() => {
-    overlay.setProps({ layers });
-  }, [overlay, layers]);
-  return null;
-}
-
 export interface MapViewHandle {
   mapRef: React.RefObject<MapRef | null>;
-  overlayRef: React.RefObject<MapboxOverlay | null>;
-  /** Live flag: mouse is over a clickable deck (GeoArrow/Parquet) feature. */
-  hoverRef: React.RefObject<boolean>;
-  /** Live flag: mouse is over a clickable MVT feature (set from MapLibre hover). */
-  mvtHoverRef: React.RefObject<boolean>;
-  /** Config ids of clickable layers; deck onHover matches picked layer ids against these. */
-  clickableIdsRef: React.RefObject<string[]>;
   /** Live flag: the area-select draw mode is armed (crosshair cursor). */
   drawModeRef: React.RefObject<boolean>;
 }
 
 
 interface MapViewProps {
-  layers: Layer[];
-  /**
-   * Always-on-top layers (study area, click marker, selection box). They carry
-   * no `beforeId`, so deck appends them above the `foreground-layers` anchor —
-   * i.e. above everything else.
-   */
-  topLayers?: Layer[];
   /** Selected background basemap; changing it swaps only the base style. */
   basemapId?: string;
   style?: React.CSSProperties;
@@ -174,23 +102,14 @@ interface MapViewProps {
 }
 
 export const MapView = forwardRef<MapViewHandle, MapViewProps>(
-  function MapView({ layers, topLayers, basemapId, style, viewState, onMove, onClick, onMouseMove, onMouseDown, onMouseUp, onLoad, onLabelsReady, preserveDrawingBuffer }, ref) {
+  function MapView({ basemapId, style, viewState, onMove, onClick, onMouseMove, onMouseDown, onMouseUp, onLoad, onLabelsReady, preserveDrawingBuffer }, ref) {
     const mapRef = useRef<MapRef>(null);
-    const overlayRef = useRef<MapboxOverlay | null>(null);
-    const hoverRef = useRef<boolean>(false);
-    const mvtHoverRef = useRef<boolean>(false);
-    const clickableIdsRef = useRef<string[]>([]);
     const drawModeRef = useRef<boolean>(false);
-    const panningRef = useRef<boolean>(false);
     const basemap = basemapById(basemapId ?? DEFAULT_BASEMAP_ID);
     // The basemap applied on the last completed (re)load — used to detect a swap.
     const appliedBasemapRef = useRef<string>(basemap.id);
 
-    useImperativeHandle(
-      ref,
-      () => ({ mapRef, overlayRef, hoverRef, mvtHoverRef, clickableIdsRef, drawModeRef }),
-      [],
-    );
+    useImperativeHandle(ref, () => ({ mapRef, drawModeRef }), []);
 
     useEffect(() => {
       function onFlyTo(e: Event) {
@@ -204,30 +123,28 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
     // (MapLibre keeps its own ResizeObserver on the container, so no manual
     // resize handling is needed here — the root fills the viewport via CSS.)
     //
-    // Note: there is no longer a "re-hoist layers on every change" effect. The
-    // anchor layers give each added layer a stable `beforeId`, so deck.gl
-    // (interleaved) and native addLayer place everything in the right band
-    // natively — no post-hoc moveLayer shuffling needed.
+    // Note: there is no "re-hoist layers on every change" effect. The anchor
+    // layers give each added layer a stable `beforeId`, so `addLayer` places
+    // everything in the right band natively — no post-hoc moveLayer shuffling.
 
     // Keep the anchors present for the whole map lifetime. A basemap swap calls
-    // setStyle(), which wipes the anchors; deck.gl's own `styledata` handler then
-    // re-resolves its interleaved layers and calls `map.addLayer(layer, beforeId)`
-    // — which THROWS if the `beforeId` anchor isn't in the style yet. So we must
-    // recreate the anchors on `styledata` too, before deck's handler runs a resolve
-    // against a missing anchor. This is wired via the <Map onStyleData> prop (not a
-    // manual map.on in an effect): react-map-gl registers its event forwarding when
-    // the map instance is created — before useControl adds the deck overlay — so it
-    // works for a late-mounting map (the right map, whose maplibre instance doesn't
-    // exist yet when a mount effect would try to attach a listener) AND runs before
-    // deck's styledata handler on the same event. `ensureAnchors` is guarded
-    // per-anchor (skips ones already present), so the `styledata` it re-fires is a
-    // no-op → no feedback loop.
-    // Readiness check: deliberately NOT `map.isStyleLoaded()`. That also waits for
-    // sources/sprites, but maplibre's `addLayer` (and deck's resolve) only require
-    // the style JSON itself (`style._loaded`). On the right map — which mounts with
-    // deck layers already queued — deck resolves in that window where `_loaded` is
-    // true but `isStyleLoaded()` is false, so an isStyleLoaded guard would skip
-    // creating the anchors exactly when deck needs them.
+    // setStyle(), which wipes them — and the anchors ARE the z-order mechanism
+    // (`anchorForConfig`), so every imperative re-add that follows needs them
+    // back first. A missing anchor is not fatal (each add falls back to
+    // appending, see `addMvtLayer`) but it silently lands the layer in the
+    // wrong band, which is a far more confusing bug than a throw.
+    //
+    // Wired via the <Map onStyleData> prop rather than a manual map.on in an
+    // effect: react-map-gl registers its event forwarding when the map instance
+    // is created, so this also works for a late-mounting map (the right map,
+    // whose maplibre instance doesn't exist yet when a mount effect would try
+    // to attach a listener). `ensureAnchors` is guarded per-anchor, so the
+    // `styledata` it re-fires is a no-op → no feedback loop.
+    //
+    // Readiness check: deliberately NOT `map.isStyleLoaded()`. That also waits
+    // for sources and sprites, while `addLayer` only needs the style JSON
+    // itself (`style._loaded`) — the stricter guard would skip creating the
+    // anchors in exactly the window where the first layers want them.
     function handleStyleData() {
       const map = mapRef.current?.getMap();
       if (!map || !map.style) return;
@@ -235,24 +152,12 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       if (styleLoaded) ensureAnchors(map);
     }
 
-    // MapLibre drag-pan (deck's `isDragging` only tracks deck's own drags):
-    // flip panningRef for getCursor and set the canvas cursor directly — deck
-    // suspends hover picking during a drag, so getCursor alone may not re-run
-    // until the next mousemove after the drag ends.
-    function handleDragStart() {
-      panningRef.current = true;
-      const canvas = mapRef.current?.getMap().getCanvas();
-      if (canvas && !drawModeRef.current) canvas.style.cursor = "grabbing";
-    }
-
-    function handleDragEnd() {
-      panningRef.current = false;
-      const canvas = mapRef.current?.getMap().getCanvas();
-      if (canvas && !drawModeRef.current) {
-        canvas.style.cursor =
-          hoverRef.current || mvtHoverRef.current ? "pointer" : "grab";
-      }
-    }
+    // Cursors are MapLibre's own: it sets grab/grabbing on the canvas for
+    // drag-pan as long as nothing overwrites `canvas.style.cursor`. The two
+    // app-specific cursors are written imperatively elsewhere — pointer over a
+    // clickable feature (use-hover-cursor.ts) and crosshair while a draw tool
+    // is armed (App). Both restore `""` rather than "grab", which is what hands
+    // control back to MapLibre's stylesheet.
 
     function handleLoad() {
       const map = mapRef.current?.getMap();
@@ -298,13 +203,6 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
       mapProps.initialViewState = INITIAL_VIEW_STATE;
     }
 
-    // Stable merged array — building it inline would hand DeckGLOverlay a new
-    // array (→ a full deck setProps diff) on every view-state render.
-    const overlayLayers = useMemo(
-      () => (topLayers && topLayers.length > 0 ? [...layers, ...topLayers] : layers),
-      [layers, topLayers],
-    );
-
     return (
       <Map
         ref={mapRef}
@@ -330,24 +228,12 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         }
         onLoad={handleLoad}
         onStyleData={handleStyleData}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
         onMove={onMove}
         onClick={onClick}
         onMouseMove={onMouseMove}
         onMouseDown={onMouseDown}
         onMouseUp={onMouseUp}
-      >
-        <DeckGLOverlay
-          layers={overlayLayers}
-          overlayRef={overlayRef}
-          hoverRef={hoverRef}
-          mvtHoverRef={mvtHoverRef}
-          clickableIdsRef={clickableIdsRef}
-          drawModeRef={drawModeRef}
-          panningRef={panningRef}
-        />
-      </Map>
+      />
     );
   },
 );

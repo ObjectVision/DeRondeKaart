@@ -1,11 +1,11 @@
 import type { FeatureCollection } from "geojson";
 
 /**
- * "geojson" is an in-memory format: features are provided on `LayerConfig.data`
+ * `geojson` is an in-memory format: features are provided on `LayerConfig.data`
  * (e.g. pushed by the Power BI visual via postMessage) instead of fetched from
  * `source`. It is not valid in layers.json.
  */
-export type LayerFormat = "geoarrow" | "parquet" | "mvt" | "cog" | "geojson" | "flatgeobuf" | "pmtiles" | "composite";
+export type LayerFormat = "mvt" | "cog" | "geojson" | "flatgeobuf" | "pmtiles" | "composite";
 
 export type GeometryType = "point" | "line" | "polygon";
 

@@ -1,5 +1,4 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
-import type { MapboxOverlay } from "@deck.gl/mapbox";
 import type { ExportLegendItem, SwatchSpec } from "@/lib/legend-style";
 
 /**
@@ -39,30 +38,6 @@ export function captureMapCanvas(map: MapLibreMap): Promise<HTMLCanvasElement> {
     });
     map.triggerRepaint();
   });
-}
-
-/**
- * Sync luma.gl's cached drawing-buffer size with the canvas's actual size.
- *
- * deck.gl derives its GL viewport from `canvasContext.cssToDeviceRatio()` =
- * cached drawingBufferWidth ÷ CSS width. luma only refreshes that cache from
- * a ResizeObserver on the canvas's CSS size — `map.setPixelRatio()` resizes
- * the buffer WITHOUT touching CSS size, so the cache goes stale and deck
- * draws its layers into a fraction of the framebuffer (they effectively
- * vanish from a hi-res capture while native MapLibre layers look fine).
- * Reaches through the overlay's private deck instance; silently no-ops if
- * the internals move.
- */
-function syncDeckBufferSize(overlay: MapboxOverlay | null, map: MapLibreMap): void {
-  const canvasContext = (
-    overlay as unknown as {
-      _deck?: { device?: { canvasContext?: { drawingBufferWidth: number; drawingBufferHeight: number } } };
-    } | null
-  )?._deck?.device?.canvasContext;
-  if (!canvasContext) return;
-  const canvas = map.getCanvas();
-  canvasContext.drawingBufferWidth = canvas.width;
-  canvasContext.drawingBufferHeight = canvas.height;
 }
 
 /**
@@ -158,16 +133,12 @@ function boostRasterSources(map: MapLibreMap, ratio: number): () => void {
  * bump, the pixel ratio scales label/symbol rendering too, so text in the
  * export keeps the same proportions the user sees in the preview.
  *
- * deck.gl must be told about the buffer change (see syncDeckBufferSize) —
- * without the sync its layers mis-viewport and drop out of the capture.
- *
  * Requires `preserveDrawingBuffer: true` (the export preview map sets it):
  * the canvas is read synchronously inside the `idle` handler — the moment
- * every tile AND deck layer has finished drawing.
+ * every tile has finished drawing.
  */
 export async function captureMapAtResolution(
   map: MapLibreMap,
-  overlay: MapboxOverlay | null,
   targetPx: number,
 ): Promise<HTMLCanvasElement> {
   const container = map.getContainer();
@@ -179,7 +150,6 @@ export async function captureMapAtResolution(
   // the current tiles. Restored in the finally below.
   const restoreRasters = boostRasterSources(map, ratio);
   map.setPixelRatio(ratio);
-  syncDeckBufferSize(overlay, map);
   try {
     return await new Promise<HTMLCanvasElement>((resolve, reject) => {
       map.once("idle", () => {
@@ -203,7 +173,6 @@ export async function captureMapAtResolution(
   } finally {
     map.setPixelRatio(window.devicePixelRatio);
     restoreRasters();
-    syncDeckBufferSize(overlay, map);
   }
 }
 

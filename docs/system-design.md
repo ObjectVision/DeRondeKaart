@@ -56,7 +56,7 @@ collaboration server for shared annotations, and a Power BI host that embeds it.
 ```mermaid
 flowchart LR
     subgraph browser["Browser"]
-        app["De Ronde kaart SPA<br/>React + MapLibre + deck.gl"]
+        app["De Ronde kaart SPA<br/>React + MapLibre"]
     end
 
     subgraph static["Static hosting (nginx)"]
@@ -94,7 +94,7 @@ ranges; consult `package-lock.json` for exact resolutions.
 
 | Group | Packages |
 |---|---|
-| **Rendering** | `maplibre-gl` ^5.21, `react-map-gl` ^8.1, `@deck.gl/core`·`layers`·`geo-layers`·`mapbox`·`aggregation-layers` ^9.2, `@geoarrow/deck.gl-geoarrow` ^0.4 |
+| **Rendering** | `maplibre-gl` ^5.21, `react-map-gl` ^8.1 |
 | **Data formats** | `apache-arrow` ^21.1, `flatgeobuf` ^4.4, `pmtiles` ^4.4, `@geomatico/maplibre-cog-protocol` ^0.9, plus vendored `parquet-wasm` |
 | **Collaboration** | `yjs` ^13.6, `@hocuspocus/provider` ^4.4 |
 | **UI** | `react`·`react-dom` ^19.2, `@base-ui/react` ^1.3, `tailwindcss` ^4.2, `material-symbols` ^0.45, `lucide-react` ^1.7, `class-variance-authority`, `clsx`, `tailwind-merge` |
@@ -117,10 +117,11 @@ generated code, so it is excluded from linting in
 
 ### Version constraints worth knowing
 
-- **`maplibre-gl` is held at v5.** MapLibre 6 removed `map.transform`, which
-  `@deck.gl/mapbox` still reads internally (`deck-utils.ts`, guarded by
-  `@ts-ignore`). Upgrading breaks the deck.gl overlay at runtime while
-  compiling cleanly. Revisit when deck.gl stops using that property.
+- **`maplibre-gl` is held at v5**, but no longer blocked. The v6 upgrade was
+  previously impossible because `@deck.gl/mapbox` read `map.transform`, which
+  v6 removed; deck.gl is gone, so this is now a normal upgrade — deferred
+  because v6 also changes `queryRenderedFeatures`, which all picking and hover
+  now depends on, and that deserves its own change.
 - **TypeScript is held at 5.x.** `typescript-eslint` hard-throws on TS 7
   (`"typescript-eslint does not support TS 7.0"`), which would disable linting
   entirely.
@@ -150,23 +151,19 @@ flowchart TD
     end
 
     subgraph render["Rendering"]
-        deck["deck.gl overlay<br/>GeoArrow layers"]
-        ml["MapLibre native layers<br/>vector / raster"]
+        ml["MapLibre layers<br/>vector / raster / geojson"]
     end
 
-    canvas["Shared MapLibre canvas<br/>(deck interleaved)"]
+    canvas["MapLibre canvas"]
     charts["Charts + statistics"]
     pick["Feature picking"]
 
     lj --> uml
     nj --> app
     mj --> app
-    uml -->|"format dispatch"| deck
     uml -->|"format dispatch"| ml
-    deck --> canvas
     ml --> canvas
-    af -.->|"accessors / setFilter"| deck
-    af -.-> ml
+    af -.->|"setFilter"| ml
     af -.-> pick
     af -.-> charts
     bf -.-> charts
@@ -183,35 +180,36 @@ Five JSON files define behaviour (§12). The app ships with empty stubs in
 or dev time by a Vite plugin keyed on `VITE_CONFIG_PROJECT`. Two projects exist
 today: `woonzorglimburg` (79 layers) and `startanalyse2026` (199 layers).
 
-### 4.2 Dual renderer, one style model
+### 4.2 One renderer, one style model
 
-The app runs **two rendering engines simultaneously against one canvas**:
-deck.gl (as an interleaved `MapboxOverlay`) for Arrow-backed tabular data, and
-native MapLibre layers for tiles and raster. This is not incidental — each
-engine is better at a different job:
+Everything draws through **MapLibre**: tiled vector sources (MVT/PMTiles),
+raster (COG), viewport-loaded FlatGeobuf, and GeoJSON sources for host-pushed
+data and the on-map overlays (study area, annotations, click marker, selection
+box).
 
-- deck.gl reads Apache Arrow columnar data directly on the GPU, so a
-  million-row Parquet file renders without ever becoming GeoJSON.
-- MapLibre handles tiled sources (MVT/PMTiles), raster (COG), and symbol
-  collision natively, with a mature style spec.
+This was not always so. The app previously ran deck.gl as an interleaved
+`MapboxOverlay` alongside MapLibre, to render Arrow/Parquet tables on the GPU
+without materialising GeoJSON. That data has since moved to pre-tiled PMTiles,
+which removed the reason for the second engine — and with it a duplicated style
+translation, a second picking path, and a documented divergence in how the two
+engines applied filters.
 
-The cost is that styling must be expressed once and translated twice. That is
-what [geostyler.ts](../src/layers/geostyler.ts) exists for: a renderer-neutral
-rule engine whose output feeds deck.gl colour accessors, MapLibre filter
-expressions, and a COG per-pixel colour function alike (§6.4).
+Styling is still expressed once and translated per target by
+[geostyler.ts](../src/layers/geostyler.ts): MapLibre paint/filter expressions
+for vector layers and a per-pixel colour function for COG (§6.4).
 
 ### 4.3 Module stores for cross-cutting filter state
 
 Filter selections live in **module-level stores**, not React state
 ([area-filter.ts](../src/layers/area-filter.ts),
-[box-filter.ts](../src/layers/box-filter.ts)). deck.gl accessors, MapLibre
-filter expressions, feature picking and chart aggregation all read the same
-store directly. React mirrors only a `version` counter, used as a deck.gl
-`updateTriggers` key and a memo-cache key.
+[box-filter.ts](../src/layers/box-filter.ts)). MapLibre filter expressions,
+feature picking and chart aggregation all read the same store directly. React
+mirrors only a `version` counter, used as a memo-cache key.
 
-The reason is that the consumers are not all React components — deck accessors
-run per row on the GPU path, and picking runs from an event handler. Prop
-drilling a filter into all four would be both verbose and easy to desynchronise.
+The reason is that the consumers are not all React components — picking runs
+from an event handler, and chart aggregation walks an Arrow table outside the
+render path. Prop drilling a filter into each would be both verbose and easy to
+desynchronise.
 
 ### 4.4 Single source of truth per concern
 
@@ -253,7 +251,6 @@ presentation kept out of the data engine.
 | 1721 | [App.tsx](../src/App.tsx) | Composition root — **the main structural weak point** |
 | 1014 | [use-map-layers.ts](../src/hooks/use-map-layers.ts) | Layer engine |
 | 706 | [map-capture.ts](../src/lib/map-capture.ts) | WebGL capture and PNG compositing |
-| 543 | [layer-factory.ts](../src/layers/layer-factory.ts) | deck.gl layer construction |
 | 540 | [use-annotation-tool.ts](../src/hooks/use-annotation-tool.ts) | Drawing interaction model |
 | 447 | [map-config.ts](../src/config/map-config.ts) | `map.json` validation |
 
@@ -284,17 +281,18 @@ The deepest part of the system, and where most complexity lives.
 
 | Format | What it is | Loader | Renderer |
 |---|---|---|---|
-| `parquet` | Parquet with GeoArrow-encoded geometry, read by range requests | [parquet-loader.ts](../src/layers/parquet-loader.ts) | deck.gl |
-| `geoarrow` | Arrow IPC (`.arrow`/`.feather`) | [arrow-loader.ts](../src/layers/arrow-loader.ts) | deck.gl |
-| `geojson` | In-memory `FeatureCollection` (Power BI push) | none — `config.data` | deck.gl |
+| `geojson` | In-memory `FeatureCollection` (Power BI push) | none — `config.data` | MapLibre (GeoJSON source) |
 | `pmtiles` | Single-file vector tile archive, `pmtiles://` protocol | MapLibre source | MapLibre (vector) |
 | `mvt` | Vector tile template `{z}/{x}/{y}.pbf` | MapLibre source | MapLibre (vector) |
 | `flatgeobuf` | FGB with packed Hilbert R-tree, bbox-filtered range reads | [flatgeobuf-loader.ts](../src/layers/flatgeobuf-loader.ts) | MapLibre (GeoJSON source) |
 | `cog` | Cloud-Optimized GeoTIFF, `cog://` protocol | protocol handler | MapLibre (raster) |
 | `composite` | Zoom-banded children under one legend entry | [composite-manager.ts](../src/layers/composite-manager.ts) | delegates per child |
 
-In the `woonzorglimburg` project the mix is 68 pmtiles, 5 cog, 3 parquet,
-2 composite, 1 mvt — tiles dominate because they scale to province-wide extents.
+In the `woonzorglimburg` project the mix is 68 pmtiles, 7 cog, 2 composite,
+1 mvt, 1 flatgeobuf — tiles dominate because they scale to province-wide
+extents. `parquet`/`geoarrow` were retired when the renderer became
+MapLibre-only; `.parquet` files live on as **attribute sidecars** for the
+charts panel and the filter dropdowns (§6.1, `attributeSource`).
 
 ### 6.2 Format dispatch
 
@@ -315,12 +313,9 @@ flowchart TD
     fmt -->|flatgeobuf| fgb["addFlatgeobufLayer"]
 
     pq --> onbatch["onBatch(table)"]
-    ar --> onbatch
-    onbatch --> geoarrow["createGeoArrowLayers"]
-    geoarrow --> deckout["deck.gl overlay"]
-    gj --> deckout
+    gj --> mlout
 
-    mvt --> mlout["native MapLibre layers"]
+    mvt --> mlout["MapLibre layers"]
     cog --> mlout
     fgb --> mlout
 ```
@@ -345,8 +340,9 @@ loads are evicted so a retry is possible.
 
 **Parquet streaming** ([parquet-loader.ts](../src/layers/parquet-loader.ts)) —
 reads the footer, then fetches column chunks on demand via HTTP 206. Each
-`RecordBatch` is emitted as a *cumulative* table so deck.gl paints progressively,
-yielding to the event loop between batches. Falls back to a whole-file read if
+`RecordBatch` is emitted as a *cumulative* table, yielding to the event loop
+between batches. (This now feeds the charts/statistics panel and the filter
+dropdowns; it no longer drives any map rendering.) Falls back to a whole-file read if
 streaming throws (e.g. a host without range support). The WASM init is a
 memoized promise rather than a boolean flag — wasm-bindgen sets its own guard
 only after fetch and compile resolve, so concurrent callers each downloaded the
@@ -368,13 +364,6 @@ source.
 `evaluateFilter`, `matchRule` (first match wins), and per-symbolizer extractors.
 Filter comparison is deliberately loose (`==`), because JSON config values
 arrive as strings or numbers interchangeably.
-
-**→ deck.gl** ([layer-factory.ts](../src/layers/layer-factory.ts)): one layer per
-record batch × per rule. Rules are applied by **transparency, not row dropping**
-— each rule's layer returns its colour only for rows whose *winning* rule is
-that one, else transparent. The performance mechanism is `ruleIndexColumn`, a
-`WeakMap` memo of the winning rule index per row, computed once per batch and
-shared across rule layers, both maps, and filter re-evaluations.
 
 **→ MapLibre** ([mvt-style.ts](../src/layers/mvt-style.ts)): rules become
 MapLibre filter expressions (`&&`→`all`, `||`→`any`) and symbolizers map by kind
@@ -401,16 +390,18 @@ export const ANCHORS = {
 } as const;
 ```
 
-A layer's `beforeid` selects its band. Because deck.gl (interleaved) and
-`map.addLayer` both honour the same anchors, ordering is correct without any
-post-hoc `moveLayer` shuffling, and without depending on load timing.
+A layer's `beforeid` selects its band. `map.addLayer` honours the anchor, so
+ordering is correct without any post-hoc `moveLayer` shuffling and without
+depending on load timing. A missing anchor is not fatal — each add falls back
+to appending — but the layer then lands in the wrong band, which is why
+`ensureAnchors` re-runs on every `styledata`.
 
 ### 6.6 Composites
 
 A composite is one legend/navigation entry wrapping inline child configs, each
 active over a `[minzoom, maxzoom)` band. `composite-manager.ts` watches
 `moveend` and loads/unloads children as the zoom crosses band edges, delegating
-the actual work to a host implemented in `useMapLayers` (deck-rendered children
+the actual work to a host implemented in `useMapLayers` (children
 need React state setters that module scope cannot reach).
 
 Two flavours: a parent **with** `geostyler` means zoom-banded alternatives
@@ -426,7 +417,6 @@ Two independent systems with different scopes.
 | | Area filter | Box filter |
 |---|---|---|
 | Source | `filter.json` dropdowns (Gemeente/Wijk/Buurt) | User-drawn rectangle |
-| deck.gl rendering | ✅ (non-matching → transparent) | ❌ |
 | MapLibre rendering | ✅ (`setFilter`) | ❌ |
 | Feature picking | ✅ | ❌ |
 | Charts / statistics | ✅ | ✅ |
@@ -435,14 +425,13 @@ Two independent systems with different scopes.
 **Area filter** ([area-filter.ts](../src/layers/area-filter.ts)) — cascading
 administrative selection. Semantics are *AND across levels, OR within a level,
 inapplicable levels skipped, empty selection passes everything*. It exists in
-four implementations, one per consumer: an Arrow row predicate for deck
-accessors, a MapLibre filter expression for native layers, a plain-props
-predicate for picking, and the aggregation path.
+three implementations, one per consumer: a MapLibre filter expression for
+vector layers, a plain-props predicate for picking, and an Arrow row predicate
+for the charts/statistics aggregation over the sidecar tables.
 
-Note a deliberate behavioural asymmetry: **deck.gl renders non-matching rows
-transparent, while MapLibre removes them from the layer entirely**. Visually
-equivalent, cheaper on the MapLibre side, and it makes them unpickable — which
-matches what the picking predicate already enforced.
+`setFilter` removes non-matching features from the layer entirely, so they are
+neither drawn nor pickable — there is no "rendered but transparent" state to
+special-case anywhere.
 
 Because CBS area codes nest (`GM0882` ⊂ `WK088200` ⊂ `BU08820000`), a layer
 without the exact key column falls back to digit-prefix matching over
@@ -509,12 +498,12 @@ unnoticed.
 | **Dual map / comparison** | [App.tsx](../src/App.tsx), [comparison-slider.tsx](../src/components/ui/comparison-slider.tsx) | Two `MapView`s, shared camera, CSS `clipPath` split. Right map mounts only when it holds a comparable layer |
 | **Navigation tree** | [use-navigation.ts](../src/hooks/use-navigation.ts), [navigation/](../src/components/ui/navigation/) | `top` or `sidebar` mode, chosen in `map.json` |
 | **Legend** | [legend.tsx](../src/components/ui/legend.tsx), [legend-style.ts](../src/lib/legend-style.ts) | Per-layer and per-rule toggles, move between maps, basemap cycling |
-| **Feature info** | [use-feature-pick.ts](../src/hooks/use-feature-pick.ts), [feature-info.tsx](../src/components/ui/feature-info.tsx) | Dual picking: deck `pickMultipleObjects` + `queryRenderedFeatures` |
+| **Feature info** | [use-feature-pick.ts](../src/hooks/use-feature-pick.ts), [feature-info.tsx](../src/components/ui/feature-info.tsx) | `queryRenderedFeatures` over the clickable layers |
 | **Street View** | [street-view.tsx](../src/components/ui/street-view.tsx) | Lazy Google Maps load via `callback=` readiness signal |
 | **Area filter** | [use-area-filter.ts](../src/hooks/use-area-filter.ts), [FilterSection.tsx](../src/components/ui/sidebar/FilterSection.tsx) | Also replaces the study area and flies to the selection |
 | **Box selection** | [use-box-select.ts](../src/hooks/use-box-select.ts) | Scopes statistics only |
 | **Charts panel** | [charts/](../src/components/charts/), [use-chart-data.ts](../src/hooks/use-chart-data.ts) | Up to 4 charts + Kerncijfers |
-| **Annotations** | [use-annotation-tool.ts](../src/hooks/use-annotation-tool.ts), [use-annotation-layers.ts](../src/hooks/use-annotation-layers.ts) | Circle / polygon / pin, each carrying a session snapshot |
+| **Annotations** | [use-annotation-tool.ts](../src/hooks/use-annotation-tool.ts), [use-annotation-source.ts](../src/hooks/use-annotation-source.ts) | Circle / polygon / pin, each carrying a session snapshot |
 | **Timeseries** | [use-map-layers.ts](../src/hooks/use-map-layers.ts), `TimeseriesControl` | Play/scrub over a `%YEAR%` placeholder in `sourceLayer` |
 | **Sharing** | [share-url.ts](../src/lib/share-url.ts), [ShareDialog.tsx](../src/components/share/ShareDialog.tsx) | Hash-encoded state, QR, social intents |
 | **PNG export** | [map-capture.ts](../src/lib/map-capture.ts) | 2048² circular export with legend and callouts |
@@ -697,7 +686,7 @@ sources for icon names and ships only those glyphs), and **dist precompression**
 nginx serves precompressed assets).
 
 Manual chunking splits the heavy stacks so they cache independently:
-`vendor-parquet`, `vendor-arrow`, `vendor-deck`, `vendor-maplibre`.
+`vendor-parquet`, `vendor-arrow`, `vendor-maplibre`.
 
 `npm run build` is `tsc -b && vite build` — typecheck gates the bundle.
 
@@ -761,14 +750,16 @@ Workflow: convert → upload to the data host → reference the URL from
 
 The most common source of subtle breakage, and heavily commented in the source:
 
-- **Never share deck.gl `Layer` instances across the two overlays.** Each map
-  owns its own deck instance; a shared layer draws against a finalized GL
-  program. Per-side hooks are duplicated for this reason, and study-area layers
-  are `.clone({})`d before reuse.
-- Gate B-side layer hooks on the right map being mounted, so instances die with
-  their deck.
-- Keep `topLayers` arrays memoized — panning at 60 fps otherwise defeats the
-  layer memo.
+- **Every imperative overlay must be re-added after a basemap swap.**
+  `setStyle()` wipes all sources, layers AND sprite images. Each overlay hook
+  therefore returns a `resync`, called from `onLabelsReady`. (deck.gl used to
+  re-resolve its own layers for free; nothing does that now.)
+- **Symbol layers that must stay clickable need `icon-allow-overlap` /
+  `text-ignore-placement`.** `queryRenderedFeatures` only returns features that
+  actually drew, so a collision-culled symbol is silently unpickable — see the
+  annotation layers.
+- Sources and layers belong to one map's style, so per-side hooks are called
+  once per map. This is bookkeeping, not a GL-resource hazard.
 - MapLibre's canvas has no `preserveDrawingBuffer`, so pixels are readable
   **only** synchronously inside a `render` event, never after an `await`. This
   shapes the whole of [map-capture.ts](../src/lib/map-capture.ts).
@@ -794,8 +785,7 @@ that way.
   [street-view.tsx](../src/components/ui/street-view.tsx). This is normal for
   Maps JS (the key is necessarily public) but it should be HTTP-referrer
   restricted in the Google Cloud console.
-- **`maplibre-gl` cannot move to v6** until deck.gl stops reading
-  `map.transform` (§3).
+- **`maplibre-gl` v6 is unblocked but deferred** — see §3.
 - **TypeScript cannot move to v7** until `typescript-eslint` supports it (§3).
 - **Per-rule visibility is not shareable** — share URLs encode layer and hidden
   state, but there is no rule-level command, so per-rule toggles are dropped.
@@ -812,7 +802,6 @@ that way.
 | `layers.json` validation | [src/layers/config.ts](../src/layers/config.ts) |
 | Layer engine / orchestrator | [src/hooks/use-map-layers.ts](../src/hooks/use-map-layers.ts) |
 | Format dispatch | [use-map-layers.ts:112](../src/hooks/use-map-layers.ts#L112) |
-| deck.gl layer construction | [src/layers/layer-factory.ts](../src/layers/layer-factory.ts) |
 | GeoStyler → MapLibre | [src/layers/mvt-style.ts](../src/layers/mvt-style.ts) |
 | GeoStyler → COG | [src/layers/cog-style.ts](../src/layers/cog-style.ts) |
 | Shared style engine | [src/layers/geostyler.ts](../src/layers/geostyler.ts) |

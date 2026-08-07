@@ -1,21 +1,22 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
 import type { LayerEntry } from "./use-map-layers";
 import { buildNativeLayerDefs, expandForMapQueries, isNativeVectorFormat } from "@/layers";
+import { geojsonLayerIds } from "@/layers/geojson-layer";
 
 /**
  * Drives the map cursor to `pointer` over clickable features (layers with
- * `featureinfo` and not excluded from picking), `grab` otherwise.
+ * `featureinfo` and not excluded from picking).
  *
- * The cursor is applied via deck.gl's `getCursor` (deck owns the canvas cursor in
- * interleaved mode). Two sources feed it:
- *  - **deck layers (GeoArrow/Parquet):** deck's own `onHover` sets `hoverRef` from
- *    its existing picking pass — we publish the clickable config ids here so it can
- *    match. We deliberately avoid a synchronous `pickObject` per mousemove, which
- *    stalls the main thread and makes Chromium flash a blue "progress" cursor.
- *  - **MVT layers:** deck's picking doesn't cover native MapLibre layers, so we do a
- *    cheap `queryRenderedFeatures` on mousemove and set `mvtHoverRef`.
+ * The cursor is written straight onto the canvas: a cheap
+ * `queryRenderedFeatures` per mousemove decides, and clearing it back to `""`
+ * (NOT "grab") hands control to MapLibre's own stylesheet, which is what draws
+ * grab/grabbing during a drag-pan. Writing "grab" explicitly would freeze the
+ * cursor and break `grabbing`.
+ *
+ * A crosshair while a draw tool is armed outranks this and is applied by App;
+ * `drawModeRef` is checked here so a hover never overwrites it.
  */
 export function useHoverCursor(
   layerEntries: LayerEntry[],
@@ -35,52 +36,36 @@ export function useHoverCursor(
     [layerEntries],
   );
 
-  // Publish clickable OWNER ids for deck's onHover to match picked layer ids
-  // against (child deck-layer ids start with the parent id, so a prefix match
-  // on the owner covers composite children too).
-  //
-  // react-hooks/immutability flags writing through a ref owned by another
-  // component. That is the intent: MapViewHandle deliberately exposes these
-  // refs as an imperative channel to deck's render loop, which reads them at
-  // 60fps and must never trigger a React re-render. The write happens in an
-  // effect (not during render), so it is safe — just not expressible in the
-  // ownership model the rule enforces.
-  useEffect(() => {
-    const ref = mapViewRef.current?.clickableIdsRef;
-    // eslint-disable-next-line react-hooks/immutability
-    if (ref) ref.current = clickableEntries.map((e) => e.ownerId);
-  }, [clickableEntries, mapViewRef]);
-
   const handleMouseMove = useCallback(
     (event: MapLayerMouseEvent) => {
-      const mvtHoverRef = mapViewRef.current?.mvtHoverRef;
-      if (!mvtHoverRef) return;
+      const handle = mapViewRef.current;
+      const map = handle?.mapRef?.current?.getMap();
+      if (!map) return;
 
-      const map = mapViewRef.current?.mapRef?.current?.getMap();
-      if (!map) {
-        // Same imperative channel as above; written from an event handler.
-        // eslint-disable-next-line react-hooks/immutability
-        mvtHoverRef.current = false;
-        return;
-      }
+      // An armed draw tool owns the cursor; don't fight it.
+      if (handle?.drawModeRef.current) return;
 
-      const mvtLayerIds: string[] = [];
+      const canvas = map.getCanvas();
+      const layerIds: string[] = [];
       for (const entry of clickableEntries) {
-        if (!isNativeVectorFormat(entry.config.format)) continue;
-        for (const def of buildNativeLayerDefs(entry.config)) {
-          if (map.getLayer(def.id)) mvtLayerIds.push(def.id);
+        if (isNativeVectorFormat(entry.config.format)) {
+          for (const def of buildNativeLayerDefs(entry.config)) {
+            if (map.getLayer(def.id)) layerIds.push(def.id);
+          }
+        } else if (entry.config.format === "geojson") {
+          for (const id of geojsonLayerIds(entry.config)) {
+            if (map.getLayer(id)) layerIds.push(id);
+          }
         }
       }
 
-      if (mvtLayerIds.length === 0) {
-        mvtHoverRef.current = false;
+      if (layerIds.length === 0) {
+        canvas.style.cursor = "";
         return;
       }
 
-      const features = map.queryRenderedFeatures(event.point, {
-        layers: mvtLayerIds,
-      });
-      mvtHoverRef.current = features.length > 0;
+      const features = map.queryRenderedFeatures(event.point, { layers: layerIds });
+      canvas.style.cursor = features.length > 0 ? "pointer" : "";
     },
     [clickableEntries, mapViewRef],
   );

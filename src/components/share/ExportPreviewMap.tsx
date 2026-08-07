@@ -9,7 +9,6 @@ import {
 } from "react";
 import type { ViewStateChangeEvent } from "react-map-gl/maplibre";
 import type { Map as MapLibreMap } from "maplibre-gl";
-import type { MapboxOverlay } from "@deck.gl/mapbox";
 import { MapView } from "@/components/map/MapView";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers, type LayerEntry } from "@/hooks/use-map-layers";
@@ -24,16 +23,13 @@ import type { Annotation } from "@/types/annotation";
 export interface ExportPreviewHandle {
   /** The preview's raw MapLibre map (null until loaded). */
   getMap(): MapLibreMap | null;
-  /** The preview's deck.gl overlay — hi-res capture must sync its buffer size. */
-  getOverlay(): MapboxOverlay | null;
 }
 
 /**
  * The circular export preview: a third MapView instance that mirrors the main
  * map's layers so the user can fine-tune the PNG framing without disturbing
- * the live map. deck.gl Layer instances cannot be shared across Deck overlays
- * (GL resources are per-instance — see App.tsx), so this component replays the
- * source entries into its own useMapLayers() and rebuilds every layer.
+ * the live map. Sources and layers belong to a map's own style, so this
+ * component replays the source entries into its own useMapLayers().
  */
 export const ExportPreviewMap = forwardRef<
   ExportPreviewHandle,
@@ -103,7 +99,6 @@ export const ExportPreviewMap = forwardRef<
     ref,
     () => ({
       getMap: () => mapHandle.current?.mapRef.current?.getMap() ?? null,
-      getOverlay: () => mapHandle.current?.overlayRef.current ?? null,
     }),
     [],
   );
@@ -209,10 +204,6 @@ export const ExportPreviewMap = forwardRef<
     setViewState((prev) => ({ ...prev, ...initialViewState }));
   }, [initialViewState]);
 
-  // Everything on this map is now a native overlay; nothing rides the deck
-  // topLayers channel.
-  const topLayers = useMemo(() => [], []);
-
   // The dialog portal mounts the container in one commit — make sure MapLibre
   // measures the final layout box.
   useEffect(() => {
@@ -225,8 +216,6 @@ export const ExportPreviewMap = forwardRef<
   return (
     <MapView
       ref={mapHandle}
-      layers={layers.deckLayers}
-      topLayers={topLayers}
       basemapId={basemapId}
       style={{ width: "100%", height: "100%" }}
       viewState={viewState}

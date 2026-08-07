@@ -573,13 +573,6 @@ function App({
     zoom: viewState.zoom,
     iconScale: 4,
   });
-  // Nothing rides the deck topLayers channel any more: the annotations (with
-  // their drag handles), study area, gebiedsfilter mask, click marker and
-  // selection box are all native MapLibre overlays drawn onto each map's own
-  // style. Kept as stable empty arrays until the overlay itself is removed.
-  const topLayersA = useMemo(() => [], []);
-  const topLayersB = useMemo(() => [], []);
-
   // Mirror the tool state into both maps' cursor flags (crosshair while armed).
   // Annotation mode alone doesn't claim the crosshair — only an armed drawing
   // tool does; without one the map navigates (and shows cursors) as usual.
@@ -1375,9 +1368,7 @@ function App({
         }
       >
         <MapView
-          ref={mapLeftRef}
-          layers={mapLeftLayers.deckLayers}
-          topLayers={topLayersA}
+          ref={mapLeftRef}
           basemapId={basemapId}
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
@@ -1403,9 +1394,7 @@ function App({
           }
         >
           <MapView
-            ref={mapRightRef}
-            layers={mapRightLayers.deckLayers}
-            topLayers={topLayersB}
+            ref={mapRightRef}
             basemapId={basemapId}
             style={{ width: "100%", height: "100%" }}
             viewState={viewState}

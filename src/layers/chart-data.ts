@@ -56,24 +56,18 @@ export function loadTableForConfig(config: LayerConfig): Promise<Table | null> {
     return Promise.resolve(null);
   }
 
-  switch (config.format) {
-    case "parquet":
-      return loadParquetBatches(config.source, () => {});
-    case "geoarrow":
-      return loadArrowBatches(config.source, () => {});
-    default:
-      // Declaring charts on a tile format without a sidecar renders an empty
-      // panel and nothing else — say so, since that silence is exactly what hid
-      // this after the layers moved from parquet to pmtiles.
-      if (config.charts?.length || config.statistics?.length) {
-        warnNoTable(
-          config,
-          `format "${config.format}" has no attribute table; add an ` +
-            `"attributeSource" pointing at a .parquet/.arrow sidecar`,
-        );
-      }
-      return Promise.resolve(null);
+  // Every remaining format serves tiles or raster, never a table, so charts
+  // always need a sidecar. Declaring them without one renders an empty panel
+  // and nothing else — say so, since that silence is exactly what hid this
+  // when layers moved from parquet to pmtiles.
+  if (config.charts?.length || config.statistics?.length) {
+    warnNoTable(
+      config,
+      `format "${config.format}" has no attribute table; add an ` +
+        `"attributeSource" pointing at a .parquet/.arrow sidecar`,
+    );
   }
+  return Promise.resolve(null);
 }
 
 const warnedNoTable = new Set<string>();

@@ -2,7 +2,6 @@ export { loadLayerConfigs, getLayerConfigById } from "./config";
 export { loadParquetBatches } from "./parquet-loader";
 export { loadArrowBatches } from "./arrow-loader";
 export { invalidateTableCache, clearTableCache } from "./table-cache";
-export { createGeoArrowLayers, createGeoJsonLayers } from "./layer-factory";
 export { buildNativeLayerDefs, isNativeVectorFormat, iconSpriteId } from "./mvt-style";
 export { addFlatgeobufLayer, removeFlatgeobufLayer, setFlatgeobufHidden } from "./flatgeobuf-loader";
 export {
@@ -24,7 +23,6 @@ export {
   getAreaFilterVersion,
   isAreaFilterActive,
   featureMatchesAreaFilter,
-  arrowRowMatchesAreaFilter,
   areaFilterExpression,
 } from "./area-filter";
 export type { AreaFilterEntry } from "./area-filter";

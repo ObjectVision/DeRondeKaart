@@ -137,7 +137,9 @@ export function isAreaFilterActive(): boolean {
 }
 
 // ---------------------------------------------------------------------------
-// Arrow-row predicate, used by the layer-factory color accessors.
+// Arrow-row predicate. The map no longer renders from Arrow, but the charts
+// and statistics panel still reads the parquet/arrow sidecar tables directly
+// (see chart-data.ts), and its rows have to honour the same selection.
 // ---------------------------------------------------------------------------
 
 interface ArrowColumn {
@@ -148,7 +150,7 @@ interface ArrowBatch {
   getChild(name: string): ArrowColumn | null;
 }
 
-/** Accessor info shape passed by @geoarrow/deck.gl-geoarrow accessors. */
+/** `{ index, data: { data: table } }` — how chart-data wraps a row. */
 export interface ArrowFilterInfo {
   index: number;
   data: { data: ArrowBatch };
@@ -185,7 +187,7 @@ function resolveColumns(batch: ArrowBatch): (ResolvedColumn | null)[] {
 }
 
 /**
- * Whether the arrow row behind an accessor `info` passes the active filter.
+ * Whether the arrow row named by `info` passes the active filter.
  * AND across levels, OR within a level; inapplicable levels are skipped;
  * an empty selection passes everything.
  */
@@ -221,18 +223,15 @@ export function arrowRowMatchesAreaFilter(info: ArrowFilterInfo): boolean {
  * The active selection as a MapLibre filter expression, or `null` when nothing
  * is selected (the caller then applies only the layer's own rule filter).
  *
- * Native layers have no Arrow table, so they can't use
- * {@link arrowRowMatchesAreaFilter}; the same semantics are expressed against
- * tile attributes instead: AND across levels, OR within a level, levels whose
- * columns the layer lacks are skipped, and a level falls back to a coarser CBS
- * code column with digit-prefix matching (a buurt code starts with its wijk's
- * digits, which start with the gemeente's).
+ * Tile layers have no Arrow table, so the same semantics are expressed
+ * against tile attributes instead: AND across levels, OR within a level,
+ * levels whose columns the layer lacks are skipped, and a level falls back to
+ * a coarser CBS code column with digit-prefix matching (a buurt code starts
+ * with its wijk's digits, which start with the gemeente's).
  *
- * Unlike the deck.gl path — which renders non-matching rows transparent — a
- * MapLibre filter removes them from the layer entirely. Visually equivalent
- * here (both hide the feature) and cheaper, but it also means filtered-out
- * features stop being pickable, matching what featureMatchesAreaFilter
- * already enforced for picks.
+ * A MapLibre filter removes non-matching features from the layer entirely, so
+ * they are neither drawn nor pickable — there is no separate "rendered but
+ * transparent" state to suppress in the pick path.
  */
 export function areaFilterExpression(): unknown[] | null {
   if (store.levels.length === 0) return null;

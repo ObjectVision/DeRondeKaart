@@ -157,7 +157,6 @@ export default defineConfig(({ mode }) => {
             if (!id.includes("node_modules")) return
             if (id.includes("parquet-wasm")) return "vendor-parquet"
             if (id.includes("apache-arrow")) return "vendor-arrow"
-            if (id.includes("deck.gl")) return "vendor-deck"
             if (id.includes("maplibre") || id.includes("react-map-gl")) {
               return "vendor-maplibre"
             }

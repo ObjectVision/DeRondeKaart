@@ -24,8 +24,8 @@ export interface CompositeHost {
    * Load one child (dispatch on its format) and apply the parent's current
    * hidden/rule-visibility state to whatever it created.
    */
-  addChild(config: LayerConfig, mapRef: React.RefObject<MapRef | null>): Promise<void>;
-  /** Remove a child's deck layers and native sources/layers. */
+  addChild(config: LayerConfig, mapRef: React.RefObject<MapRef | null>): void;
+  /** Remove a child's native sources/layers. */
   removeChild(config: LayerConfig, mapRef: React.RefObject<MapRef | null>): void;
 }
 
@@ -144,18 +144,22 @@ function sync(session: CompositeSession): void {
     const inRange = childInRange(child, zoom);
     const loaded = session.loaded.has(child.id);
     if (inRange && !loaded) {
-      // Mark before the await so a re-entrant sync doesn't double-load; unmark
-      // on failure so the next zoom-in retries.
+      // Mark first so a re-entrant sync doesn't double-load; unmark on failure
+      // so the next zoom-in retries.
       session.loaded.add(child.id);
-      session.host.addChild(child, session.mapRef).catch((err) => {
+      try {
+        session.host.addChild(child, session.mapRef);
+      } catch (err) {
         session.loaded.delete(child.id);
         console.error(`Failed to load composite child "${child.id}":`, err);
-      });
+      }
     } else if (inRange && loaded && isNativeFormat(child)) {
       // Idempotent native re-add (skips sources/layers that already exist).
-      void session.host.addChild(child, session.mapRef).catch((err) => {
+      try {
+        session.host.addChild(child, session.mapRef);
+      } catch (err) {
         console.error(`Failed to re-sync composite child "${child.id}":`, err);
-      });
+      }
     } else if (!inRange && loaded) {
       session.loaded.delete(child.id);
       session.host.removeChild(child, session.mapRef);

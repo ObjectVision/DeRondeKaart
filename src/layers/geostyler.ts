@@ -1,4 +1,9 @@
-import type { Color } from "@deck.gl/core";
+/**
+ * RGBA tuple, 0–255 per channel. Alpha is optional (defaults to opaque at the
+ * point of use). Previously deck.gl's `Color`; kept as the shared shape for
+ * the flat `LayerStyle` colors that layers.json still uses.
+ */
+export type Color = [number, number, number] | [number, number, number, number];
 import type {
   GeoStylerFilter,
   GeoStylerRule,

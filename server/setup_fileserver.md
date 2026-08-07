@@ -1,7 +1,7 @@
 # Setting up a file server
 
 Provisions one **geospatial file-server** instance behind nginx: a static,
-read-only HTTPS host tuned for browser-side geodata consumed by deck.gl,
+read-only HTTPS host tuned for browser-side geodata consumed by
 MapLibre, DuckDB-WASM and COG readers. Automated by
 [`setup_fileserver.sh`](setup_fileserver.sh).
 
