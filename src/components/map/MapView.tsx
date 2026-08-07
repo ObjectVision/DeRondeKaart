@@ -1,8 +1,24 @@
 import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import { Map } from "react-map-gl/maplibre";
 import type { MapRef, ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
-import maplibregl from "maplibre-gl";
+// MapLibre 6 is ESM-only and has no default export — `addProtocol` is imported
+// by name. (In v5 this was `maplibregl.addProtocol`.)
+import { addProtocol, setWorkerUrl } from "maplibre-gl";
 import type { Map as MapLibreMap, LayerSpecification } from "maplibre-gl";
+// MapLibre 6 splits the worker into its own ESM file and locates it with
+// `new URL("./maplibre-gl-worker.mjs", import.meta.url)`. Vite's dependency
+// optimizer rewrites the maplibre entry into `.vite/deps/`, where that sibling
+// does not exist — the worker 404s, no tile is ever parsed, and the style
+// never finishes loading (a silent blank map, not an error). In v5 the worker
+// was inlined, so this had no equivalent.
+//
+// `?worker&url` — NOT a bare `?url`. The worker itself imports
+// `./maplibre-gl-shared.mjs`; `?url` copies the single file and leaves that
+// import dangling, so in a production build the worker boots and dies
+// instantly (again silently — the map just never renders). `?worker` makes
+// Vite bundle the worker with its dependencies, and `&url` yields the string
+// `setWorkerUrl` wants rather than a constructor.
+import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import { cogProtocol } from "@geomatico/maplibre-cog-protocol";
 import { Protocol as PmtilesProtocol } from "pmtiles";
 import {
@@ -14,15 +30,18 @@ import {
 } from "./map-view-config";
 import "maplibre-gl/dist/maplibre-gl.css";
 
+// Point MapLibre at its worker before any map is constructed (see import).
+setWorkerUrl(maplibreWorkerUrl);
+
 // Register COG protocol once
-maplibregl.addProtocol("cog", cogProtocol);
+addProtocol("cog", cogProtocol);
 
 // Register the PMTiles protocol once. A PMTiles archive is a single file read
 // with HTTP Range requests; the protocol turns MapLibre's {z}/{x}/{y} tile
 // requests into range reads against it, so a `pmtiles://` source otherwise
 // behaves exactly like a normal vector source.
 const pmtilesProtocol = new PmtilesProtocol();
-maplibregl.addProtocol("pmtiles", pmtilesProtocol.tile);
+addProtocol("pmtiles", pmtilesProtocol.tile);
 
 // Types are re-exported (type-only re-exports don't affect Fast Refresh) so
 // existing `import type { ViewState } from ".../MapView"` sites keep working.
@@ -219,6 +238,22 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
         // Constructor-only — MapLibre reads it once, so it cannot be toggled
         // at runtime without recreating the map.
         crossSourceCollisions={false}
+        // Keep MapLibre 5's overscaling behaviour. v6 defaults this to 4,
+        // which splits tiles between a source's maxzoom and the top 4 zoom
+        // levels instead of overscaling them — and, per MapLibre's own docs,
+        // "changes the results of query rendered features".
+        //
+        // That is not academic here: ALL picking (feature info, hover cursor,
+        // marker snap, annotation select/drag) goes through
+        // queryRenderedFeatures, and the PMTiles archives cap at z12-z14 while
+        // users routinely zoom past z16. Measured on the v6 default, `line`
+        // layers from z12 archives became rendered-but-unpickable above their
+        // cap — cbsgemeente2026 from z14 up, cbswijk2026 from z17 up — while
+        // fill and symbol layers were unaffected. Setting this back to
+        // undefined restores picking at every zoom.
+        //
+        // Revisit only alongside re-tiling the archives to deeper maxzooms.
+        zoomLevelsToOverscale={undefined}
         // The default bottom-right attribution control is replaced by the
         // app's own info button (MapAttribution in App.tsx).
         attributionControl={false}
