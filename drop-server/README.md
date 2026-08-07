@@ -86,6 +86,10 @@ drop-toggle-<slug> close --reason "Wij verwachten uw bestanden na 1 september."
 drop-toggle-<slug> open
 ```
 
+Direct commands for open/close:
+DATA_DIR=/var/lib/woonzorglimburg_drop/drops   node /srv/woonzorglimburg_drop/drop-server/dist/cli.js close --reason "..."
+DATA_DIR=/var/lib/woonzorglimburg_drop/drops   node /srv/woonzorglimburg_drop/drop-server/dist/cli.js open
+
 Closed means a **polite refusal, not an outage**: the service keeps running,
 `/drop/healthz` still answers 200 (with `accepting: false`, so monitoring does
 not page), `/drop/pubkey` and `POST /drop` answer 503, and the page shows a
