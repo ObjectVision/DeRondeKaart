@@ -24,8 +24,7 @@ not duplicate the task-scoped documentation that already exists:
 | For | Read |
 |---|---|
 | Running the collaboration server, its guards and operations | [collab-server/README.md](../collab-server/README.md) |
-| Building and publishing the Power BI visual | [powerbi-visual/README.md](../powerbi-visual/README.md) |
-| Power BI hosting gotchas (CSP, frame-ancestors) | [powerbi-visual/known_issues.md](../powerbi-visual/known_issues.md) |
+| The Power BI visual — building, publishing, hosting gotchas | [powerbi-visual/README.md](../powerbi-visual/README.md), [known_issues.md](../powerbi-visual/known_issues.md) |
 | Per-tenant configuration projects | [configs/README.md](../configs/README.md) |
 | Docker/nginx deployment | [deploy/README.md](../deploy/README.md) |
 | Server provisioning scripts | [server/README.md](../server/README.md) |
@@ -50,8 +49,11 @@ not duplicate the task-scoped documentation that already exists:
 De Ronde kaart serves thematic analysis maps (housing, care, demographics,
 accessibility, green space) for Dutch regional data — principally Limburg. It
 runs as a static single-page application, reads its data from a plain HTTP file
-host over range requests, and optionally connects to two auxiliary services: a
-collaboration server for shared annotations, and a Power BI host that embeds it.
+host over range requests, and optionally connects to a collaboration server for
+shared annotations.
+
+(The app can also be embedded in a Power BI dashboard by a small custom visual.
+That is a peripheral integration, not part of the core system — see §11.)
 
 ```mermaid
 flowchart LR
@@ -64,17 +66,15 @@ flowchart LR
     end
 
     subgraph datahost["Data host (nginx, range requests)"]
-        tiles["PMTiles / COG /<br/>Parquet / Arrow"]
+        tiles["PMTiles / COG / FGB<br/>+ Parquet attribute sidecars"]
     end
 
     collab["Collab server<br/>Hocuspocus + Yjs + SQLite"]
-    pbi["Power BI<br/>custom visual"]
     basemap["Basemap tiles<br/>MapTiler / PDOK"]
 
     app -->|"HTTP"| html
     app -->|"HTTP 206 range"| tiles
     app <-->|"WebSocket /collab"| collab
-    pbi <-->|"postMessage (iframe)"| app
     app -->|"HTTP"| basemap
 ```
 
@@ -590,47 +590,31 @@ edit.
 
 ## 11. Power BI integration
 
-[powerbi-visual/](../powerbi-visual/) is a thin custom visual that **embeds the
-hosted app in an iframe** and drives it via `postMessage`. It renders no map
-itself. Data flows one way: Power BI → map (no cross-filtering back).
+A **peripheral integration**, not part of the core system: the app neither
+knows nor cares whether it is embedded, beyond a `postMessage` listener and a
+snapshot hook. Nothing in §§4–10 depends on it.
 
-### Message protocol
+[powerbi-visual/](../powerbi-visual/) is a thin custom visual that embeds the
+hosted app in an iframe and drives it via `postMessage`. It renders no map
+itself, and data flows one way (Power BI → map, no cross-filtering back).
 
-| Direction | Message | Payload |
-|---|---|---|
-| → app | `map-config` | UI flag overrides (searchbar, navigation, streetview, share, annotations) |
-| → app | `map-command` | `{commands?, view?, filter?}` |
-| → app | `map-data` | `{dataset: {id, name?, geometryType?, style?, features}}` |
-| → app | `map-data-remove` | `{id}` |
-| → app | `request-snapshot` | — |
-| → app | `open-circular` | `{layers?, view?, title?, subtitle?, filter?}` |
-| → host | `map-ready` | sent once the left map is ready |
-| → host | `map-snapshot` | `{dataUrl, width, height}` |
+Two things about it leak into the app and are worth knowing:
 
-The visual keeps `desired*` vs `sent*` state and reconciles on every update and
-on `map-ready` (resetting the `sent*` trackers, since a fresh app instance has
-nothing on it) — so an iframe reload re-syncs declaratively.
+- **The `geojson` layer format exists for this.** Features arrive on
+  `config.data` instead of being fetched from `source` (§6.1), pushed by
+  [use-embed-data.ts](../src/hooks/use-embed-data.ts). It is deliberately absent
+  from `VALID_FORMATS`, so it can never appear in a `layers.json`.
+- **The snapshot bridge** ([use-map-snapshot.ts](../src/hooks/use-map-snapshot.ts))
+  pushes a JPEG of the canvas to the parent, because Power BI's PDF/PowerPoint
+  export does not rasterize cross-origin sandboxed iframes — without it the map
+  exports blank. Gated on being embedded, not on the `share` flag, so export
+  works even where the share UI is off.
 
-Data mapping supports lng/lat columns or base64 WKB
-([wkb.ts](../powerbi-visual/src/wkb.ts) handles Point/LineString/Polygon plus
-Multi*, ISO Z/M and EWKB), capped at 30,000 rows.
-
-### Why the snapshot bridge exists
-
-Power BI's PDF/PowerPoint export **does not rasterize cross-origin sandboxed
-iframes** — the map would export blank. So while embedded, the app pushes a JPEG
-snapshot of the composited canvas to the parent
-([use-map-snapshot.ts](../src/hooks/use-map-snapshot.ts)), and the visual paints
-it into an `<img>` in its own DOM, which the export path *does* capture. Sent on
-ready, debounced on map idle, and on request. Gated on being embedded rather
-than on the `share` flag, because export must work even where the share UI is
-disabled.
-
-Two independent hosting gates (see
-[known_issues.md](../powerbi-visual/known_issues.md)): the app host must be in
-the visual's `WebAccess` privilege, **and** the app must send no
-`X-Frame-Options` / `frame-ancestors` at all — the sandbox gives the iframe an
-opaque origin that `frame-ancestors` cannot match, not even with `*`.
+The message protocol, the WKB column mapping, and the two hosting gates (host
+`WebAccess` privilege, and no `X-Frame-Options`/`frame-ancestors` at all) are
+documented where they are maintained:
+[powerbi-visual/README.md](../powerbi-visual/README.md) and
+[known_issues.md](../powerbi-visual/known_issues.md).
 
 ---
 
