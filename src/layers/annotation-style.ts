@@ -394,7 +394,9 @@ export const LABEL_LAYERS: AddLayerObject[] = [
     },
     paint: {
       "text-color": "#282828",
-      "icon-color": "#ffffff",
+      // No `icon-color`: the pill image is white already and is registered
+      // NON-SDF so its rounded corners stay anti-aliased (see
+      // annotation-icons.ts). icon-color would be ignored here anyway.
       "icon-opacity": 220 / 255,
     },
   } as AddLayerObject,
