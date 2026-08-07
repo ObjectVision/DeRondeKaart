@@ -120,6 +120,84 @@
       border-left: 3px solid var(--green-500);
       font-style: italic;
     }
+
+    /* "Route van een bestand" — explains the encryption flow to the sender. */
+    .route { margin-top: 2.5rem; }
+    .route h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--green-700);
+      margin: 0 0 1.25rem;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+      gap: 0.75rem;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 1rem 0.75rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    .step__num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 999px;
+      background: var(--green-700);
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .step__title {
+      display: block;
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 0.88rem;
+      margin-bottom: 0.4rem;
+    }
+    .step__icon { font-size: 1.5rem; line-height: 1.4; display: block; }
+    .step code {
+      display: block;
+      font-size: 0.7rem;
+      color: #ea580c;
+      word-break: break-all;
+      margin-top: 0.35rem;
+    }
+    .notes {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .note {
+      border: 1px solid var(--line);
+      border-radius: 0.75rem;
+      padding: 1rem 1.1rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      background: #f0fdf4;
+    }
+    .note--info { background: #eff6ff; }
+    .note--seal { background: #f0fdf4; grid-column: 1 / -1; }
+    .note h3 {
+      font-size: 0.95rem;
+      margin: 0 0 0.5rem;
+      color: var(--ink);
+    }
+    .note p { margin: 0 0 0.6rem; }
+    .note p:last-child { margin-bottom: 0; }
+    .note .pub { color: var(--green-700); font-weight: 600; }
+    .note .priv { color: #7c3aed; font-weight: 600; }
   </style>
 </head>
 <body>
@@ -154,6 +232,72 @@
       </div>
 
       <ul class="files" id="files"></ul>
+
+      <section class="route">
+        <h2>Route van een bestand</h2>
+        <ol class="steps">
+          <li class="step">
+            <span class="step__num">1</span>
+            <span class="step__title">Bestand</span>
+            <span class="step__icon" aria-hidden="true">📄</span>
+          </li>
+          <li class="step">
+            <span class="step__num">2</span>
+            <span class="step__title">Versleutelen</span>
+            <span class="step__icon" aria-hidden="true">🔑</span>
+            Publieke sleutel ontvanger + tijdelijk sleutelpaar
+          </li>
+          <li class="step">
+            <span class="step__num">3</span>
+            <span class="step__title">Sealed box</span>
+            <span class="step__icon" aria-hidden="true">🔒</span>
+            <code>1010 1101 0101 0110 1010 1100 …</code>
+          </li>
+          <li class="step">
+            <span class="step__num">4</span>
+            <span class="step__title">Verzenden via server</span>
+            <span class="step__icon" aria-hidden="true">☁️</span>
+            Server ziet alleen versleutelde data
+          </li>
+          <li class="step">
+            <span class="step__num">5</span>
+            <span class="step__title">Ontsleutelen</span>
+            <span class="step__icon" aria-hidden="true">🗝️</span>
+            Met de privésleutel van de ontvanger
+          </li>
+          <li class="step">
+            <span class="step__num">6</span>
+            <span class="step__title">Bestand</span>
+            <span class="step__icon" aria-hidden="true">📄</span>
+          </li>
+        </ol>
+
+        <div class="notes">
+          <div class="note">
+            <h3>Hoe wordt de publieke sleutel van de ontvanger gebruikt?</h3>
+            <p>
+              De <span class="pub">publieke sleutel</span> van de ontvanger wordt
+              gebruikt tijdens het versleutelen. Daarmee wordt van het bestand een
+              sealed box gemaakt.
+            </p>
+            <p>
+              De publieke sleutel <strong>vergrendelt</strong> dus het bestand, maar
+              kan het <strong>niet</strong> openen. Alleen de bijbehorende
+              <span class="priv">privésleutel</span> van de ontvanger kan het bestand
+              weer ontsleutelen.
+            </p>
+          </div>
+          <div class="note note--info">
+            <h3>Tijdelijk sleutelpaar</h3>
+            <p>Voor elk bestand wordt een tijdelijk sleutelpaar gebruikt.</p>
+            <p>De geheime tijdelijke sleutel wordt direct na het versleutelen gewist.</p>
+          </div>
+          <div class="note note--seal">
+            <h3>🛡️ Versleuteld met NaCl sealed boxes (X25519/Poly1305).</h3>
+            <p>De server kan de inhoud niet openen.</p>
+          </div>
+        </div>
+      </section>
 
       <footer>
         🔒 Versleuteld met NaCl sealed boxes (X25519). Uw IP-adres wordt niet
