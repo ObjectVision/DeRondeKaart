@@ -70,7 +70,13 @@ export function Icon({
 
 /**
  * Convenience wrapper for category/leaf icons whose name + color come from
- * navigation.json. Falls back to a neutral dot when no icon is set.
+ * navigation.json.
+ *
+ * Renders **nothing** when no icon is configured, rather than substituting a
+ * placeholder glyph: an absent `icon` in navigation.json means "no icon here",
+ * and a stand-in dot reads as a real (but meaningless) icon. Returning null
+ * also lets the surrounding flex `gap` collapse, so the label sits flush
+ * instead of being indented by an invisible box.
  */
 export function NavIcon({
   name,
@@ -83,5 +89,6 @@ export function NavIcon({
   color?: string;
   className?: string;
 }) {
-  return <Icon name={name || "circle"} size={size} color={color} className={className} />;
+  if (!name) return null;
+  return <Icon name={name} size={size} color={color} className={className} />;
 }

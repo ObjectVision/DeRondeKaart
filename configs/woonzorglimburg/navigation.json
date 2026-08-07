@@ -7,7 +7,6 @@
     "children": [
       {
         "label": "woningvoorraad",
-        "icon": "diversity_1",
         "color": "#EB5BA6",
         "expanded": false,
         "children": [
@@ -21,7 +20,6 @@
       },
       {
         "label": "kwetsbare ouderen",
-        "icon": "elderly",
         "color": "#EB5BA6",
         "expanded": false,
         "children": [
@@ -35,7 +33,6 @@
       },
       {
         "label": "aandachtsgroepen",
-        "icon": "diversity_1",
         "color": "#EB5BA6",
         "expanded": false,
         "children": [
@@ -239,7 +236,6 @@
         "children": [
           {
             "id": "bouwjaar_2026_pmtiles",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "bouwjaar",
             "a": false,
@@ -247,7 +243,6 @@
           },
           {
             "id": "pandtype_lb_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "pandtype",
             "a": false,
@@ -263,7 +258,6 @@
         "children": [
           {
             "id": "aandeel_geschikt_2024",
-            "icon": "apartment",
             "color": "#8C54D6",
             "label": "Nultrede",
             "a": false,
@@ -271,7 +265,6 @@
           },
           {
             "id": "aandeel_ongeschikt_2024",
-            "icon": "apartment",
             "color": "#8C54D6",
             "label": "Ongeschikt",
             "a": false,
@@ -279,7 +272,6 @@
           },
           {
             "id": "aandeel_aanpasbaar_2024",
-            "icon": "apartment",
             "color": "#8C54D6",
             "label": "Aanpasbaar",
             "a": false,
@@ -295,7 +287,6 @@
         "children": [
           {
             "id": "corp_corporatie_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "Corporatie",
             "a": false,
@@ -303,7 +294,6 @@
           },
           {
             "id": "corp_bat_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "BAT score",
             "a": false,
@@ -311,7 +301,6 @@
           },
           {
             "id": "corp_mutatiegraad_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "Mutatiegraad",
             "a": false,
@@ -319,7 +308,6 @@
           },
           {
             "id": "corp_senioren_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "Seniorenbeleid",
             "a": false,
@@ -327,7 +315,6 @@
           },
           {
             "id": "corp_ouderen_met_indicatie_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "Ouderen met indicatie",
             "a": false,
@@ -335,7 +322,6 @@
           },
           {
             "id": "corp_aandachtsgroepen_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "Aandachtsgroepenbeleid",
             "a": false,
@@ -343,7 +329,6 @@
           },
           {
             "id": "corp_inpandige_gemsch_ruimte_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "Gemeenschappelijke ruimte",
             "a": false,
@@ -351,7 +336,6 @@
           },
           {
             "id": "streefhuur_0_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "tot kwaliteitsgrens",
             "a": false,
@@ -359,7 +343,6 @@
           },
           {
             "id": "streefhuur_1_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "tot lage aftoppingsgrens",
             "a": false,
@@ -367,7 +350,6 @@
           },
           {
             "id": "streefhuur_2_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "tot hoge aftoppingsgrens",
             "a": false,
@@ -375,7 +357,6 @@
           },
           {
             "id": "streefhuur_3_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "tot liberalisatiegrens",
             "a": false,
@@ -383,7 +364,6 @@
           },
           {
             "id": "streefhuur_4_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "boven niet-daeb grens",
             "a": false,
@@ -391,7 +371,6 @@
           },
           {
             "id": "streefhuur_5_2026",
-            "icon": "apartment",
             "color": "#2D6CDF",
             "label": "boven liberalisatie grens",
             "a": false,
@@ -421,7 +400,6 @@
             "children": [
               {
                 "id": "apotheek",
-                "icon": "local_pharmacy",
                 "color": "#8C54D6",
                 "label": "Apotheek",
                 "a": false,
@@ -429,7 +407,6 @@
               },
               {
                 "id": "dagbesteding",
-                "icon": "groups",
                 "color": "#8C54D6",
                 "label": "Dagbesteding",
                 "a": false,
@@ -437,7 +414,6 @@
               },
               {
                 "id": "fysiotherapeut",
-                "icon": "assist_walker",
                 "color": "#8C54D6",
                 "label": "Fysiotherapeut",
                 "a": false,
@@ -445,7 +421,6 @@
               },
               {
                 "id": "huisarts",
-                "icon": "local_hospital",
                 "color": "#8C54D6",
                 "label": "Huisarts",
                 "a": false,
@@ -453,7 +428,6 @@
               },
               {
                 "id": "ontmoeting",
-                "icon": "diversity_3",
                 "color": "#8C54D6",
                 "label": "Ontmoeting",
                 "a": false,
@@ -461,7 +435,6 @@
               },
               {
                 "id": "ov",
-                "icon": "directions_bus",
                 "color": "#8C54D6",
                 "label": "Openbaar vervoer",
                 "a": false,
@@ -469,7 +442,6 @@
               },
               {
                 "id": "supermarkt",
-                "icon": "local_grocery_store",
                 "color": "#8C54D6",
                 "label": "Supermarkt",
                 "a": false,
@@ -477,7 +449,6 @@
               },
               {
                 "id": "tandarts",
-                "icon": "dentistry",
                 "color": "#8C54D6",
                 "label": "Tandarts",
                 "a": false,
@@ -485,7 +456,6 @@
               },
               {
                 "id": "ziekenhuis",
-                "icon": "health_metrics",
                 "color": "#8C54D6",
                 "label": "Ziekenhuis",
                 "a": false,
@@ -501,7 +471,6 @@
             "children": [
               {
                 "id": "loopafstand_apotheek",
-                "icon": "local_pharmacy",
                 "color": "#8C54D6",
                 "label": "Apotheek",
                 "a": false,
@@ -509,7 +478,6 @@
               },
               {
                 "id": "loopafstand_dagbesteding",
-                "icon": "groups",
                 "color": "#8C54D6",
                 "label": "Dagbesteding",
                 "a": false,
@@ -517,7 +485,6 @@
               },
               {
                 "id": "loopafstand_fysiotherapeut",
-                "icon": "assist_walker",
                 "color": "#8C54D6",
                 "label": "Fysiotherapeut",
                 "a": false,
@@ -525,7 +492,6 @@
               },
               {
                 "id": "loopafstand_huisarts",
-                "icon": "local_hospital",
                 "color": "#8C54D6",
                 "label": "Huisarts",
                 "a": false,
@@ -533,7 +499,6 @@
               },
               {
                 "id": "loopafstand_ontmoeting",
-                "icon": "diversity_3",
                 "color": "#8C54D6",
                 "label": "Ontmoeting",
                 "a": false,
@@ -541,7 +506,6 @@
               },
               {
                 "id": "loopafstand_ov",
-                "icon": "directions_bus",
                 "color": "#8C54D6",
                 "label": "Openbaar vervoer",
                 "a": false,
@@ -549,7 +513,6 @@
               },
               {
                 "id": "loopafstand_supermarkt",
-                "icon": "local_grocery_store",
                 "color": "#8C54D6",
                 "label": "Supermarkt",
                 "a": false,
@@ -557,7 +520,6 @@
               },
               {
                 "id": "loopafstand_tandarts",
-                "icon": "dentistry",
                 "color": "#8C54D6",
                 "label": "Tandarts",
                 "a": false,
@@ -565,7 +527,6 @@
               },
               {
                 "id": "loopafstand_ziekenhuis",
-                "icon": "health_metrics",
                 "color": "#8C54D6",
                 "label": "Ziekenhuis",
                 "a": false,
@@ -589,7 +550,6 @@
             "children": [
               {
                 "id": "bomen_rule_3_gemeente_2026",
-                "icon": "forest",
                 "color": "#54B6C0",
                 "label": "3 bomen",
                 "a": false,
@@ -597,7 +557,6 @@
               },
               {
                 "id": "bomen_rule_30_gemeente_2026",
-                "icon": "forest",
                 "color": "#54B6C0",
                 "label": "30% bladerdek",
                 "a": false,
@@ -605,7 +564,6 @@
               },
               {
                 "id": "bomen_rule_300_gemeente_2026",
-                "icon": "forest",
                 "color": "#54B6C0",
                 "label": "300 meter van groen",
                 "a": false,
@@ -613,7 +571,6 @@
               },
               {
                 "id": "bomen_rule_3_30_300_classified_gemeente_2026",
-                "icon": "forest",
                 "color": "#54B6C0",
                 "label": "3-30-300 vuistregels",
                 "a": false,
@@ -629,7 +586,6 @@
             "children": [
               {
                 "id": "bomen_rule_3_wijk_2026",
-                "icon": "forest",
                 "color": "#54B6C0",
                 "label": "3 bomen",
                 "a": false,
@@ -637,7 +593,6 @@
               },
               {
                 "id": "bomen_rule_30_wijk_2026",
-                "icon": "forest",
                 "color": "#54B6C0",
                 "label": "30% bladerdek",
                 "a": false,
@@ -645,7 +600,6 @@
               },
               {
                 "id": "bomen_rule_300_wijk_2026",
-                "icon": "forest",
                 "color": "#54B6C0",
                 "label": "300 meter van groen",
                 "a": false,
@@ -653,7 +607,6 @@
               },
               {
                 "id": "bomen_rule_3_30_300_classified_wijk_2026",
-                "icon": "forest",
                 "color": "#54B6C0",
                 "label": "3-30-300 vuistregels",
                 "a": false,
@@ -669,7 +622,6 @@
             "children": [
               {
                 "id": "bomen_rule_3_buurt_2026",
-                "icon": "forest",
                 "color": "#54B6C0",
                 "label": "3 bomen",
                 "a": false,
@@ -677,7 +629,6 @@
               },
               {
                 "id": "bomen_rule_30_buurt_2026",
-                "icon": "forest",
                 "color": "#54B6C0",
                 "label": "30% bladerdek",
                 "a": false,
@@ -685,7 +636,6 @@
               },
               {
                 "id": "bomen_rule_300_buurt_2026",
-                "icon": "forest",
                 "color": "#54B6C0",
                 "label": "300 meter van groen",
                 "a": false,
@@ -693,7 +643,6 @@
               },
               {
                 "id": "bomen_rule_3_30_300_classified_buurt_2026",
-                "icon": "forest",
                 "color": "#54B6C0",
                 "label": "3-30-300 vuistregels",
                 "a": false,
@@ -711,7 +660,6 @@
         "children": [
           {
             "id": "stijgingspercentage_lb_2026",
-            "icon": "landscape",
             "color": "#7A5C3E",
             "label": "Stijgingspercentage",
             "a": false,
@@ -729,7 +677,6 @@
     "children": [
       {
         "id": "cbsgemeente2026",
-        "icon": "border_all",
         "color": "#F2994A",
         "label": "gemeente",
         "a": false,
@@ -737,7 +684,6 @@
       },
       {
         "id": "cbswijk2026",
-        "icon": "border_all",
         "color": "#F2994A",
         "label": "wijk",
         "a": false,
@@ -745,7 +691,6 @@
       },
       {
         "id": "cbsbuurt2026",
-        "icon": "border_all",
         "color": "#F2994A",
         "label": "buurt",
         "a": false,
