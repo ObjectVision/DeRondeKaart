@@ -335,7 +335,7 @@ export const Legend = memo(function Legend({
     <div className="w-72 max-h-[50vh] overflow-y-auto rounded-lg bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3">
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Kaartlagen
+          Legenda
         </h3>
         {showChrome && (
           <div className="flex items-center">
