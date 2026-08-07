@@ -20,13 +20,11 @@ import { ANNOT_ICON_IDS } from "./annotation-style";
 
 const ICON_BASE_PX = 24;
 
-/** The label pill: a 20×20 rounded rect, corners preserved by the stretch box. */
+/** The label pill: a 32×32 white rounded rect with a 10px corner radius. */
 const LABEL_BOX_ID = "annot-label-box";
-const LABEL_BOX_PX = 20;
-/** Stretch only the middle band, so the 6px corners stay square-ish. */
-const LABEL_BOX_STRETCH: [number, number][] = [[8, 12]];
-/** Text is placed inside this content box. */
-const LABEL_BOX_CONTENT: [number, number, number, number] = [6, 6, 14, 14];
+const LABEL_BOX_PX = 32;
+/** Corner radius in the source image's own pixels. */
+const LABEL_BOX_RADIUS = 10;
 
 const MASK_ICONS: Array<{ id: string; url: string }> = [
   { id: ANNOT_ICON_IDS.pin, url: "/location-pin.svg" },
@@ -71,12 +69,25 @@ export function registerAnnotationIcons(
       loadIconBitmap("/label-box.png", LABEL_BOX_PX * scale, LABEL_BOX_PX * scale).then(
         (bitmap) => {
           if (map.hasImage(LABEL_BOX_ID)) return;
+          // NOT sdf. The pill is a fixed white, so it needs no `icon-color`,
+          // and SDF is actively wrong here: MapLibre treats an SDF image's
+          // alpha as a *distance field* and thresholds it at ~50%, which turns
+          // an ordinary anti-aliased shape into hard, jagged edges. Registered
+          // as a plain RGBA image, the rounded corners render smoothly.
+          //
+          // stretchX/stretchY/content are in the BITMAP's own pixels, not the
+          // logical (pixelRatio-divided) size — so they scale with `scale`.
+          // Getting this wrong puts the stretch band and the content box near
+          // the top-left corner, which stretches the wrong region and renders
+          // the text off-centre inside a lopsided pill.
+          const r = LABEL_BOX_RADIUS * scale;
+          const size = LABEL_BOX_PX * scale;
+          const band: [number, number][] = [[r, size - r]];
           map.addImage(LABEL_BOX_ID, bitmap, {
-            sdf: true,
             pixelRatio: scale,
-            stretchX: LABEL_BOX_STRETCH,
-            stretchY: LABEL_BOX_STRETCH,
-            content: LABEL_BOX_CONTENT,
+            stretchX: band,
+            stretchY: band,
+            content: [r, r, size - r, size - r],
           });
         },
       ),
