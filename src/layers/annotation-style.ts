@@ -317,7 +317,18 @@ export const SHAPE_LAYERS: AddLayerObject[] = [
     paint: {
       "fill-color": ["get", "color"],
       // deck used alpha 30/255 over the annotation's own color.
-      "fill-opacity": 30 / 255,
+      //
+      // `fill-LAYER-opacity` (MapLibre 6), not `fill-opacity`: every annotation
+      // is a feature in this one layer, so per-feature opacity accumulates and
+      // two overlapping annotations render a visibly darker lens where they
+      // cross. Layer opacity composites the layer's output once, so overlaps
+      // read as a single surface — which is what the flat alpha intends.
+      // Users draw overlapping areas routinely when comparing catchments.
+      //
+      // Only the *opacity* is restricted to a constant; `fill-color` stays
+      // data-driven. That is why `shapesLine` below cannot use the line
+      // equivalent — its opacity is a data-driven `["case", ...]`.
+      "fill-layer-opacity": 30 / 255,
     },
   } as AddLayerObject,
   {
@@ -337,7 +348,10 @@ export const DRAFT_LAYERS: AddLayerObject[] = [
     id: ANNOT_LAYERS.draftFill,
     type: "fill",
     source: ANNOT_SOURCES.draft,
-    paint: { "fill-color": ["get", "color"], "fill-opacity": 15 / 255 },
+    // Layer opacity for consistency with `shapesFill`. The draft source holds
+    // at most one in-progress shape, so there is nothing to overlap here — it
+    // matters only if a future draft ever draws more than one feature.
+    paint: { "fill-color": ["get", "color"], "fill-layer-opacity": 15 / 255 },
   } as AddLayerObject,
   {
     id: ANNOT_LAYERS.draftLine,
