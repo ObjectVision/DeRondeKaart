@@ -181,6 +181,25 @@ export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
   return defs;
 }
 
+/**
+ * Opacity for one rule's layer.
+ *
+ * The **symbolizer wins** over the layer-level `style.opacity`. `style` is the
+ * legacy flat style (see `LayerStyle`) and applies to the layer as a whole,
+ * while a geostyler symbolizer is the more specific, per-rule intent — so a
+ * rule that asks for 0.5 must get 0.5 even when the layer also carries an
+ * `opacity`.
+ *
+ * This was previously `config.style.opacity ?? sym.opacity ?? 1`, which had it
+ * backwards: `??` only falls through on null/undefined, so an explicit
+ * `"opacity": 1` on the layer silently overrode every per-rule opacity. It hid
+ * `studiegebied_limburg`'s translucent outer mask (0.5) and its faint
+ * Midden-Limburg fill (0.1), plus six rules in startanalyse2026.
+ */
+function ruleOpacity(config: LayerConfig, symOpacity: number | undefined): number {
+  return symOpacity ?? config.style.opacity ?? 1;
+}
+
 function buildRuleLayerDef(config: LayerConfig, rule: GeoStylerRule): NativeLayerDef {
   const sym = rule.symbolizers[0];
   if (!sym) {
@@ -220,7 +239,7 @@ function buildRuleLayerDef(config: LayerConfig, rule: GeoStylerRule): NativeLaye
 function buildFillLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: FillSymbolizer): NativeLayerDef {
   const fillColor = resolveColor(sym.color, "#0080ff");
   const outlineColor = resolveColor(sym.outlineColor, "#000000");
-  const opacity = config.style.opacity ?? sym.opacity ?? 1;
+  const opacity = ruleOpacity(config, sym.opacity);
   const outlineWidth = sym.outlineWidth ?? 1;
   const outlineOpacity = sym.outlineOpacity ?? 1;
 
@@ -253,7 +272,7 @@ function buildFillLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: FillSy
 
 function buildLineLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: LineSymbolizer): NativeLayerDef {
   const lineColor = resolveColor(sym.color, "#0080ff");
-  const opacity = config.style.opacity ?? sym.opacity ?? 1;
+  const opacity = ruleOpacity(config, sym.opacity);
   const lineWidth = sym.width ?? 2;
 
   const def: NativeLayerDef = {
@@ -277,7 +296,7 @@ function buildLineLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: LineSy
 
 function buildCircleLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: MarkSymbolizer): NativeLayerDef {
   const circleColor = resolveColor(sym.color, "#0080ff");
-  const opacity = config.style.opacity ?? sym.opacity ?? 1;
+  const opacity = ruleOpacity(config, sym.opacity);
   const radius = sym.radius ?? 5;
 
   const def: NativeLayerDef = {
@@ -312,7 +331,7 @@ function buildCircleLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: Mark
  * loading it is async while layer defs are built synchronously.
  */
 function buildSymbolLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: IconSymbolizer): NativeLayerDef {
-  const opacity = config.style.opacity ?? sym.opacity ?? 1;
+  const opacity = ruleOpacity(config, sym.opacity);
 
   const def: NativeLayerDef = {
     id: layerId(config, rule.name),
