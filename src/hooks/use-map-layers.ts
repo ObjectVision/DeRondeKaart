@@ -23,6 +23,7 @@ import {
   iconSpriteId,
 } from "@/layers";
 import { getIconFromRule } from "@/layers/geostyler";
+import { loadIconBitmap } from "@/layers/icon-sprite";
 import { isChildLoaded } from "@/layers/composite-manager";
 import type { CompositeHost } from "@/layers";
 import { buildCogColorFunction } from "@/layers/cog-style";
@@ -675,28 +676,6 @@ export function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef 
   }
 
   addRuleLayers(map, config, sourceId, beforeId);
-}
-
-/**
- * Rasterize an SVG (or bitmap) URL to an ImageBitmap at the given pixel size.
- * MapLibre's `loadImage` cannot decode SVG, so it goes through an <img> first.
- */
-async function loadIconBitmap(url: string, width: number, height: number): Promise<ImageBitmap> {
-  const image = new Image(width, height);
-  image.crossOrigin = "anonymous";
-  await new Promise<void>((resolve, reject) => {
-    image.onload = () => resolve();
-    image.onerror = () => reject(new Error(`could not load icon image: ${url}`));
-    image.src = url;
-  });
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("could not get a 2d context to rasterize the icon");
-  ctx.drawImage(image, 0, 0, width, height);
-  return createImageBitmap(canvas);
 }
 
 /**

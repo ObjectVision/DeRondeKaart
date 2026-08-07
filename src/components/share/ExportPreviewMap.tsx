@@ -69,7 +69,7 @@ export const ExportPreviewMap = forwardRef<
   // snapshot, so the choice never flips while mounted). Native MapLibre layers
   // on this map's own style, re-added by handleLabelsReady.
   const studyArea = useStudyAreaLayer(filteredStudy ? undefined : studyAreaId, mapHandle);
-  const filteredStudyLayers = useFilteredStudyAreaLayers(filteredStudy ?? null, "export");
+  const filteredStudyOverlay = useFilteredStudyAreaLayers(filteredStudy ?? null, mapHandle);
   const [viewState, setViewState] = useState<ViewState>(initialViewState);
   // Bumped per reconcile run so a superseded (StrictMode double-invoke, or a
   // fast layer switch) run stops applying mid-loop. See the effect below.
@@ -160,10 +160,11 @@ export const ExportPreviewMap = forwardRef<
     const mapRef = mapHandle.current?.mapRef;
     if (!mapRef) return;
     layers.syncImperativeLayers(mapRef);
-    // The study area lives outside useMapLayers, so it needs its own re-add.
+    // These overlays live outside useMapLayers, so they need their own re-add.
     studyArea.resync();
+    filteredStudyOverlay.resync();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layers.syncImperativeLayers, studyArea]);
+  }, [layers.syncImperativeLayers, studyArea, filteredStudyOverlay]);
 
   const handleMove = useCallback((evt: ViewStateChangeEvent) => {
     setViewState((prev) => ({ ...prev, ...evt.viewState, pitch: 0, bearing: 0 }));
@@ -209,12 +210,9 @@ export const ExportPreviewMap = forwardRef<
     // The live maps use iconScale 4 — a clean 2× step down from 192.)
     iconScale: 8,
   });
-  // The configured studyarea renders as native MapLibre layers (see
-  // useStudyAreaLayer); only the gebiedsfilter's mask+outline is a deck layer.
-  const topLayers = useMemo(
-    () => [...filteredStudyLayers, ...annotLayers],
-    [filteredStudyLayers, annotLayers],
-  );
+  // The study area and the gebiedsfilter mask are native MapLibre overlays on
+  // this map's own style; only the annotations still ride the deck channel.
+  const topLayers = useMemo(() => [...annotLayers], [annotLayers]);
 
   // The dialog portal mounts the container in one commit — make sure MapLibre
   // measures the final layout box.
