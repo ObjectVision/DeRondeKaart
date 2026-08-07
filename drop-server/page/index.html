@@ -101,6 +101,25 @@
       color: var(--muted);
     }
     .unavailable { color: var(--err); font-size: 0.9rem; margin-top: 1rem; display: none; }
+    /* Closed is a deliberate state, not a fault — muted, not red. */
+    .closed {
+      display: none;
+      margin-top: 1rem;
+      padding: 1.25rem;
+      border: 1px solid var(--line);
+      border-radius: 0.75rem;
+      background: var(--bg);
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .closed strong { color: var(--ink); }
+    .closed .reason {
+      display: none;
+      margin-top: 0.6rem;
+      padding-left: 0.75rem;
+      border-left: 3px solid var(--green-500);
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -126,6 +145,12 @@
       <div class="unavailable" id="unavailable">
         De dienst is momenteel niet beschikbaar. Probeer het later opnieuw of
         neem contact op met de beheerder.
+      </div>
+      <div class="closed" id="closed">
+        <strong>Aanleveren is momenteel gesloten.</strong>
+        Er kunnen op dit moment geen bestanden worden verzonden. Neem contact op
+        met uw contactpersoon om af te stemmen wanneer u kunt aanleveren.
+        <div class="reason" id="closed-reason"></div>
       </div>
 
       <ul class="files" id="files"></ul>

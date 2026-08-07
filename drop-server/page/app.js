@@ -22,21 +22,43 @@
   const fileInput = document.getElementById("fileinput");
   const list = document.getElementById("files");
   const unavailable = document.getElementById("unavailable");
+  const closed = document.getElementById("closed");
+  const closedReason = document.getElementById("closed-reason");
 
-  /** Resolved once: the X25519 key uploads are sealed to. */
+  /**
+   * Resolved once: the X25519 key uploads are sealed to. A closed drop answers
+   * 503 here — carrying the operator's reason — which is what disarms the page.
+   */
   const publicKeyPromise = (async () => {
     await sodium.ready;
     const res = await fetch("/drop/pubkey", { cache: "no-store" });
-    if (!res.ok) throw new Error(`pubkey fetch failed: ${res.status}`);
+    if (!res.ok) {
+      const err = new Error(`pubkey fetch failed: ${res.status}`);
+      if (res.status === 503) {
+        err.closed = true;
+        // Body is advisory: a reason-less close still shows the generic copy.
+        try { err.reason = (await res.json()).reason || ""; } catch { err.reason = ""; }
+      }
+      throw err;
+    }
     const { publicKey } = await res.json();
     return sodium.from_base64(publicKey, sodium.base64_variants.ORIGINAL);
   })();
 
-  publicKeyPromise.catch(() => {
+  publicKeyPromise.catch((err) => {
     // No key, no encryption, no uploads — disable the whole surface rather
-    // than failing per file.
+    // than failing per file. Closed gets its own message: telling someone to
+    // "try again later" is wrong when the drop is deliberately shut.
     dropzone.style.display = "none";
-    unavailable.style.display = "block";
+    if (err && err.closed) {
+      if (err.reason) {
+        closedReason.textContent = err.reason;
+        closedReason.style.display = "block";
+      }
+      closed.style.display = "block";
+    } else {
+      unavailable.style.display = "block";
+    }
   });
 
   /** Map an HTTP status to the Dutch message shown next to the file. */
@@ -44,6 +66,7 @@
     switch (status) {
       case 413: return "Te groot (max. 200 MB)";
       case 429: return "Te veel pogingen — wacht een minuut";
+      case 503: return "Aanleveren is gesloten";
       case 507: return "Opslag vol — neem contact op met de beheerder";
       default: return "Verzenden mislukt — probeer opnieuw";
     }

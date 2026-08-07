@@ -5,6 +5,9 @@
  *   GET  /drop/pubkey  — the public key uploads must be sealed to
  *   GET  /drop/healthz — liveness for systemd/monitoring
  *
+ * When the drop is closed (see gate.ts) the first two answer 503 while healthz
+ * stays 200 — a deliberate close is not an outage and must not page anyone.
+ *
  * Upload-only by construction: there is no route that reads a stored drop
  * back out. The server cannot decrypt what it stores (it only ever holds the
  * public key), so a compromise of this process or its disk discloses nothing.
@@ -17,6 +20,7 @@
 
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { limits } from "./config.js";
+import { readGate } from "./gate.js";
 import { RateLimiter } from "./rate-limiter.js";
 import { sanitizeFilename } from "./sanitize.js";
 import type { Storage } from "./storage.js";
@@ -25,9 +29,19 @@ export interface DropServerOptions {
   storage: Storage;
   publicKeyB64: string;
   rateLimiter?: RateLimiter;
+  /** Data dir the gate file is resolved against; defaults to config's. */
+  dataDir?: string;
 }
 
-function send(res: ServerResponse, status: number, body: object): void {
+/** Hint for clients backing off a closed drop (tools/drop_encrypt.py, curl). */
+const CLOSED_RETRY_AFTER = "3600";
+
+function send(
+  res: ServerResponse,
+  status: number,
+  body: object,
+  extraHeaders: Record<string, string> = {},
+): void {
   const json = JSON.stringify(body);
   res.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
@@ -35,6 +49,7 @@ function send(res: ServerResponse, status: number, body: object): void {
     // Belt-and-braces on an internet-facing endpoint; nginx adds the rest.
     "X-Content-Type-Options": "nosniff",
     "Cache-Control": "no-store",
+    ...extraHeaders,
   });
   res.end(json);
 }
@@ -55,12 +70,28 @@ export function createDropServer(opts: DropServerOptions) {
 
   return createServer((req, res) => {
     const url = (req.url ?? "").split("?")[0];
+    // Per-request so `drop-toggle` takes effect without a restart.
+    const closed = readGate(opts.dataDir);
 
     if (url === "/drop/healthz" && req.method === "GET") {
-      return send(res, 200, { ok: true, storedBytes: opts.storage.storedBytes });
+      // Always 200: a closed drop is a healthy process, not a failure.
+      return send(res, 200, {
+        ok: true,
+        accepting: closed === null,
+        storedBytes: opts.storage.storedBytes,
+      });
     }
 
     if (url === "/drop/pubkey" && req.method === "GET") {
+      // Withholding the key is what disarms the upload page.
+      if (closed) {
+        return send(
+          res,
+          503,
+          { error: "closed", reason: closed.reason },
+          { "Retry-After": CLOSED_RETRY_AFTER },
+        );
+      }
       return send(res, 200, { publicKey: opts.publicKeyB64, algorithm: "x25519-sealedbox" });
     }
 
@@ -73,6 +104,17 @@ export function createDropServer(opts: DropServerOptions) {
     }
 
     // ---- POST /drop ----
+
+    // Before the rate limiter and before a single body byte is read: a closed
+    // server must never buffer an upload it has already decided to discard.
+    if (closed) {
+      return send(
+        res,
+        503,
+        { error: "closed", reason: closed.reason },
+        { "Retry-After": CLOSED_RETRY_AFTER },
+      );
+    }
 
     const decision = rate.record(clientIp(req));
     if (!decision.allowed) {
