@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
-import type { Layer } from "@deck.gl/core";
-import { GeoJsonLayer } from "@deck.gl/layers";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { AddLayerObject } from "maplibre-gl";
 import type { Feature, MultiPolygon, Polygon, Position } from "geojson";
 import { loadParquetBatches } from "@/layers";
 import { extendRowBbox, rowGeometryToGeoJson, type BBox } from "@/layers/box-filter";
 import type { AreaFilterState } from "@/hooks/use-area-filter";
+import type { MapViewHandle } from "@/components/map/MapView";
+import { styleReady, syncGeoJsonOverlay } from "@/layers/geojson-overlay";
 
 /**
  * The gebiedsfilter-driven replacement for the fixed study area: while a
@@ -141,38 +142,72 @@ export function useFilteredStudyArea(areaFilter: AreaFilterState): FilteredStudy
   return finest && result && result.token === finest.token ? result.data : null;
 }
 
+const BUFFER_SOURCE_ID = "filtered-study-buffer";
+const BUFFER_LAYER_ID = "filtered-study-buffer-fill";
+const AREA_SOURCE_ID = "filtered-study-area";
+const AREA_LAYER_ID = "filtered-study-area-line";
+
+/** Outside mask: #EBECF0 @ 0.5, no outline. */
+const BUFFER_LAYERS: AddLayerObject[] = [
+  {
+    id: BUFFER_LAYER_ID,
+    type: "fill",
+    source: BUFFER_SOURCE_ID,
+    paint: { "fill-color": "#EBECF0", "fill-opacity": 128 / 255 },
+  },
+];
+
+/** Gebied outline: no fill, #00498D @ 1.0, 2px. */
+const AREA_LAYERS: AddLayerObject[] = [
+  {
+    id: AREA_LAYER_ID,
+    type: "line",
+    source: AREA_SOURCE_ID,
+    paint: { "line-color": "#00498D", "line-width": 2 },
+  },
+];
+
 /**
- * Build the filtered study area as deck.gl layers, styled like the configured
- * studyarea's mask + outline rules. Returns `[]` when there is no data. Call
- * once per map — Layer instances must not be shared across two Deck overlays.
+ * Draw the filtered study area as MapLibre GeoJSON overlays, styled like the
+ * configured studyarea's mask + outline rules. `data` of `null` clears them.
+ *
+ * Two sources rather than one: the mask and the outline need different
+ * geometry (the disc-with-hole vs. the gebied itself) and are drawn by
+ * different layer types, so they never share a feature set.
+ *
+ * Returns a `resync` to re-add the layers after a basemap swap (`setStyle()`
+ * wipes them); call it from the map's `onLabelsReady`.
  */
 export function useFilteredStudyAreaLayers(
   data: FilteredStudyArea | null,
-  suffix: string,
-): Layer[] {
-  return useMemo(() => {
-    if (!data) return [];
-    return [
-      // Outside mask: #EBECF0 @ 0.5, no outline.
-      new GeoJsonLayer({
-        id: `filtered-study-buffer-${suffix}`,
-        data: { type: "FeatureCollection" as const, features: [data.buffer] },
-        pickable: false,
-        filled: true,
-        stroked: false,
-        getFillColor: [235, 236, 240, 128],
-      }),
-      // Gebied outline: transparent fill, #00498D @ 1.0, 2px.
-      new GeoJsonLayer({
-        id: `filtered-study-area-${suffix}`,
-        data: { type: "FeatureCollection" as const, features: data.area },
-        pickable: false,
-        filled: false,
-        stroked: true,
-        getLineColor: [0, 73, 141, 255],
-        getLineWidth: 2,
-        lineWidthUnits: "pixels",
-      }),
-    ];
-  }, [data, suffix]);
+  mapViewRef: React.RefObject<MapViewHandle | null>,
+): { resync: () => void } {
+  // The latest data, read by `resync` — which fires from a map event, long
+  // after the render that produced it. Written in an effect, never in render.
+  const dataRef = useRef<FilteredStudyArea | null>(data);
+
+  const draw = useCallback(
+    (current: FilteredStudyArea | null) => {
+      const map = mapViewRef.current?.mapRef.current?.getMap();
+      if (!styleReady(map)) return;
+
+      syncGeoJsonOverlay(map, BUFFER_SOURCE_ID, BUFFER_LAYERS, {
+        type: "FeatureCollection",
+        features: current ? [current.buffer] : [],
+      });
+      syncGeoJsonOverlay(map, AREA_SOURCE_ID, AREA_LAYERS, {
+        type: "FeatureCollection",
+        features: current ? current.area : [],
+      });
+    },
+    [mapViewRef],
+  );
+
+  useEffect(() => {
+    dataRef.current = data;
+    draw(data);
+  }, [data, draw]);
+
+  const resync = useCallback(() => draw(dataRef.current), [draw]);
+  return useMemo(() => ({ resync }), [resync]);
 }

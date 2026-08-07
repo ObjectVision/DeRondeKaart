@@ -170,10 +170,10 @@ function App({
     showMapRight && !filteredStudy ? studyAreaId : undefined,
     mapRightRef,
   );
-  const filteredStudyLayersA = useFilteredStudyAreaLayers(filteredStudy, "a");
-  const filteredStudyLayersB = useFilteredStudyAreaLayers(
+  const filteredStudyA = useFilteredStudyAreaLayers(filteredStudy, mapLeftRef);
+  const filteredStudyB = useFilteredStudyAreaLayers(
     showMapRight ? filteredStudy : null,
-    "b",
+    mapRightRef,
   );
   const [mapLeftReady, setMapLeftReady] = useState(false);
 
@@ -225,13 +225,16 @@ function App({
     [streetview],
   );
 
-  // Per-map marker layers (separate instances — Layer objects can't be shared
-  // across two Deck overlays). Appended to each map's always-on-top topLayers.
-  // map.json `clickMarker.enabled: false` (or `clickMarker: false`) suppresses
-  // the marker; clicks still open popups/Street View.
+  // Per-map marker overlays, drawn as MapLibre symbol layers on each map's own
+  // style. map.json `clickMarker.enabled: false` (or `clickMarker: false`)
+  // suppresses the marker; clicks still open popups/Street View.
   const markerPoint = clickMarkerConfig.enabled ? clickMarker : null;
-  const markerLayersA = useClickMarkerLayers(markerPoint, clickMarkerConfig);
-  const markerLayersB = useClickMarkerLayers(showMapRight ? markerPoint : null, clickMarkerConfig);
+  const markerA = useClickMarkerLayers(markerPoint, mapLeftRef, clickMarkerConfig);
+  const markerB = useClickMarkerLayers(
+    showMapRight ? markerPoint : null,
+    mapRightRef,
+    clickMarkerConfig,
+  );
 
   // Area-select tool: a drawn rectangle restricting the charts/statistics to
   // rows inside it (ANDed with the area filter). One shared instance — the box
@@ -239,8 +242,8 @@ function App({
   const boxSelect = useBoxSelect();
   const { active: boxSelectActive, toggle: boxSelectToggle } = boxSelect;
   const selectionBox = boxSelect.draft ?? boxSelect.box;
-  const boxLayersA = useSelectionBoxLayers(selectionBox, "a");
-  const boxLayersB = useSelectionBoxLayers(showMapRight ? selectionBox : null, "b");
+  const boxA = useSelectionBoxLayers(selectionBox, mapLeftRef);
+  const boxB = useSelectionBoxLayers(showMapRight ? selectionBox : null, mapRightRef);
 
   // Annotation tool: circles around areas of interest, each carrying a
   // title/description and a snapshot of the session (gebiedsfilters, both
@@ -547,19 +550,13 @@ function App({
     iconScale: 4,
   });
 
-  // Stable topLayers arrays — inline `[...a, ...b, ...c]` would feed MapView a
-  // new array every render (60×/sec while panning), defeating its layer memo.
-  // The configured studyarea is no longer here: it renders as native MapLibre
-  // layers in the `studyarea-layers` band (see useStudyAreaLayer). Only the
-  // gebiedsfilter's own mask+outline still comes through this channel.
-  const topLayersA = useMemo(
-    () => [...filteredStudyLayersA, ...markerLayersA, ...boxLayersA, ...annotLayersA],
-    [filteredStudyLayersA, markerLayersA, boxLayersA, annotLayersA],
-  );
-  const topLayersB = useMemo(
-    () => [...filteredStudyLayersB, ...markerLayersB, ...boxLayersB, ...annotLayersB],
-    [filteredStudyLayersB, markerLayersB, boxLayersB, annotLayersB],
-  );
+  // Stable topLayers arrays — inline `[...a]` would feed MapView a new array
+  // every render (60×/sec while panning), defeating its layer memo. Only the
+  // annotations still ride this deck channel: the study area, gebiedsfilter
+  // mask, click marker and selection box are all native MapLibre overlays now,
+  // drawn directly onto each map's style.
+  const topLayersA = useMemo(() => [...annotLayersA], [annotLayersA]);
+  const topLayersB = useMemo(() => [...annotLayersB], [annotLayersB]);
 
   // Mirror the tool state into both maps' cursor flags (crosshair while armed).
   // Annotation mode alone doesn't claim the crosshair — only an armed drawing
@@ -1188,18 +1185,26 @@ function App({
   // Fired once anchors + overlay are (re)loaded — on initial load and after a
   // basemap swap. setStyle wipes native MVT/COG layers, so re-add them; the
   // helpers are idempotent and skip layers/sources that already exist.
+  // Each imperative overlay owns its own re-add: they live outside
+  // useMapLayers (and outside deck, which used to re-resolve its layers for
+  // free), so a basemap swap would otherwise drop them silently.
   const handleMapLeftLabelsReady = useCallback(() => {
     const ref = mapLeftRef.current?.mapRef;
     if (ref) mapLeftLayers.syncImperativeLayers(ref);
-    // The study area lives outside useMapLayers, so it needs its own re-add.
     studyAreaA.resync();
-  }, [mapLeftLayers, studyAreaA]);
+    filteredStudyA.resync();
+    markerA.resync();
+    boxA.resync();
+  }, [mapLeftLayers, studyAreaA, filteredStudyA, markerA, boxA]);
 
   const handleMapRightLabelsReady = useCallback(() => {
     const ref = mapRightRef.current?.mapRef;
     if (ref) mapRightLayers.syncImperativeLayers(ref);
     studyAreaB.resync();
-  }, [mapRightLayers, studyAreaB]);
+    filteredStudyB.resync();
+    markerB.resync();
+    boxB.resync();
+  }, [mapRightLayers, studyAreaB, filteredStudyB, markerB, boxB]);
 
   // One shared popup: the latest click's pick result (the other map's pick is
   // cleared on click) plus Street View, closed together by its single button.
