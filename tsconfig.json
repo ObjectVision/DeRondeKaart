@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    // No `baseUrl`: it was removed in TypeScript 7, and `paths` is already
+    // resolved relative to this file, so the alias works without it.
     "paths": {
       "@/*": ["./src/*"]
     }

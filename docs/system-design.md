@@ -134,9 +134,28 @@ generated code, so it is excluded from linting in
     **no error in the console**, so test `npm run build` + `vite preview`, not
     just dev.
   - **`zoomLevelsToOverscale={undefined}` must stay** — see §6.3.
-- **TypeScript is held at 5.x.** `typescript-eslint` hard-throws on TS 7
-  (`"typescript-eslint does not support TS 7.0"`), which would disable linting
-  entirely.
+- **TypeScript is held at 5.x**, blocked by `typescript-eslint`. The mechanism
+  is worth stating precisely, because it is not a conservative version guard
+  that could be configured away:
+  - TS 7's npm package exports exactly **two** symbols (`version`,
+    `versionMajorMinor`). The compiler is a Go binary, and the JS API —
+    `createSourceFile`, `SyntaxKind`, `forEachChild`, `createProgram` — is
+    simply absent until **TS 7.1**. `@typescript-eslint/parser` calls dozens of
+    those, so it throws unconditionally on load
+    (`"typescript-eslint does not support TS 7.0"`).
+  - The separate TS-*version-range* check (`>=4.8.4 <6.1.0`) defaults to
+    `warn`, not `error`, and is overridable via
+    `onUnsupportedTypeScriptVersion`. It is **not** what blocks the upgrade.
+  - Dropping `typescript-eslint` does **not** trade 20 TS rules for TS 7: it
+    removes the only TypeScript **parser**, so ESLint cannot read `.ts`/`.tsx`
+    at all and *every* rule stops running — including
+    `eslint-plugin-react-hooks`, which has caught real bugs here (the
+    "cannot update ref during render" class). Measured: TS 7 cuts `tsc -b`
+    from ~3.0s to ~0.2s, which is ~20% of a 14.2s build whose slowest step is
+    ~9s of brotli/font work. Not a trade worth making.
+  - There is no runtime or bundle-size dimension to this: `tsconfig.app.json`
+    sets `noEmit`, esbuild does all transpilation, and `typescript` is a
+    devDependency absent from every shipped bundle.
 
 ---
 
@@ -804,7 +823,9 @@ that way.
   `zoomLevelsToOverscale={undefined}` on MapLibre 6 to keep `line` layers
   pickable above their cap (§3, §6.3). Re-tiling the z12 archives deeper would
   let the app take v6's default and its high-zoom performance benefit.
-- **TypeScript cannot move to v7** until `typescript-eslint` supports it (§3).
+- **TypeScript cannot move to v7** until `typescript-eslint` supports it, which
+  needs the stable compiler API landing in **TS 7.1** (§3). The tsconfigs are
+  otherwise already TS 7-clean — `tsgo` reports 0 type errors.
 - **Per-rule visibility is not shareable** — share URLs encode layer and hidden
   state, but there is no rule-level command, so per-rule toggles are dropped.
 
