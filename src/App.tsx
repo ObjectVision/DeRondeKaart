@@ -1174,6 +1174,23 @@ function App({
     [mapRightLayers],
   );
 
+  // Drag-reorder in the legend. `toIndex` is already in draw-order space (the
+  // Legend converts from its reversed display order), and overrides the layer's
+  // `beforeid` band.
+  const handleReorderA = useCallback(
+    (layerId: string, toIndex: number) => {
+      mapLeftLayers.reorderLayer(layerId, toIndex, mapLeftRef.current?.mapRef ?? { current: null });
+    },
+    [mapLeftLayers],
+  );
+
+  const handleReorderB = useCallback(
+    (layerId: string, toIndex: number) => {
+      mapRightLayers.reorderLayer(layerId, toIndex, mapRightRef.current?.mapRef ?? { current: null });
+    },
+    [mapRightLayers],
+  );
+
   // Move a layer between maps: re-add its config to the destination map, then
   // remove it from the source. The layer's config is the source of truth for
   // which map it lives on, so the legend button icon follows automatically.
@@ -1368,7 +1385,7 @@ function App({
         }
       >
         <MapView
-          ref={mapLeftRef}
+          ref={mapLeftRef}
           basemapId={basemapId}
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
@@ -1394,7 +1411,7 @@ function App({
           }
         >
           <MapView
-            ref={mapRightRef}
+            ref={mapRightRef}
             basemapId={basemapId}
             style={{ width: "100%", height: "100%" }}
             viewState={viewState}
@@ -1459,6 +1476,7 @@ function App({
               onRemove={handleRemoveB}
               onMove={handleMoveToLeft}
               moveDirection="left"
+              onReorder={handleReorderB}
             />
           )}
           <MapAttribution />
@@ -1704,6 +1722,7 @@ function App({
               onTogglePlay={leftLegendUsesMapB ? handleTogglePlayB : handleTogglePlayA}
               onSetStep={leftLegendUsesMapB ? handleSetStepB : handleSetStepA}
               onRemove={leftLegendUsesMapB ? handleRemoveB : handleRemoveA}
+              onReorder={leftLegendUsesMapB ? handleReorderB : handleReorderA}
               onMove={leftLegendUsesMapB ? handleMoveToLeft : handleMoveToRight}
               moveDirection={leftLegendUsesMapB ? "left" : "right"}
               // Moving the left map's only layer to the right map would empty the

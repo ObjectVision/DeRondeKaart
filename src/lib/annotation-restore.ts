@@ -71,7 +71,9 @@ export async function restoreSnapshot(
     for (const id of targetIds) {
       if (currentIds.has(id)) continue;
       const config = getLayerConfigById(configs, id);
-      if (config) await getSide().layers.addLayer(config, getSide().mapRef);
+      // atEnd: `layerIds` is a stored draw order, so append verbatim rather than
+      // re-seeding by band (which would undo a dragged order on restore).
+      if (config) await getSide().layers.addLayer(config, getSide().mapRef, { atEnd: true });
       if (isCancelled()) return;
     }
 

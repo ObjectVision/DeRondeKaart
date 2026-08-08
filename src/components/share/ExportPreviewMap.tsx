@@ -150,7 +150,9 @@ export const ExportPreviewMap = forwardRef<
           // doesn't add the same layer twice. addLayer is itself idempotent on
           // id and rolls back its own entry if loading throws.
           presentIdsRef.current.add(id);
-          await layers.addLayer(entry.config, previewMapRef());
+          // atEnd: `want` mirrors the live map's draw order, so append verbatim —
+          // re-seeding by band would make the preview's z-order differ from the map.
+          await layers.addLayer(entry.config, previewMapRef(), { atEnd: true });
           if (generation !== replayGeneration.current) return;
         }
         if (hidden.has(id)) {

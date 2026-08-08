@@ -115,15 +115,17 @@ export const ANCHOR_ORDER = [
 ];
 
 /**
- * A layer's z-band rank: higher paints over lower, regardless of when the layer
- * was added. Derived from the config's `beforeid` band (see anchorForConfig), so
- * a `foreground-layers` point layer outranks every default-band layer.
+ * Which side of the basemap's label/road overlay a layer draws on: 1 for a
+ * `beforeid: "foreground-layers"` config (above the labels), 0 for everything
+ * else (below them, so place names stay readable over data).
  *
- * The legend sorts on this before insertion order so its top-to-bottom reading
- * matches what actually covers what on the map.
+ * This is the one z-order fact that outranks draw order: the labels must keep
+ * drawing over ordinary data layers, so restackNativeLayers restacks in two
+ * passes split on this value, and the legend sorts on it before array order — a
+ * drag reorders freely within a group but cannot lift a default-band layer over
+ * the labels. Keep the two in step; they describe the same split.
  */
-export function bandRankForConfig(config: { beforeid?: string }): number {
-  const order: readonly string[] = ANCHOR_ORDER;
-  return order.indexOf(anchorForConfig(config));
+export function foregroundRank(config: { beforeid?: string }): number {
+  return anchorForConfig(config) === ANCHORS.foreground ? 1 : 0;
 }
 
