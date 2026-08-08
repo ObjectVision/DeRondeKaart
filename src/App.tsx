@@ -1465,19 +1465,6 @@ function App({
         </div>
       </div>
 
-      {/* Sidebar mode: toolbar (search, zoom, section toggles) top left above
-          the Filter + Navigatie sections */}
-      {sidebarActive && (
-        <Sidebar
-          nav={nav}
-          areaFilter={areaFilter}
-          showFilter={filterAvailable && !navMinimized}
-          showNavigation={navAvailable && !navMinimized}
-          onClose={toggleNavMinimized}
-          toolbar={sidebarToolbar}
-        />
-      )}
-
       {/* Share button — standalone top-left when the sidebar toolbar isn't
           there to host it. */}
       {!sidebarActive && shareButton && (
@@ -1657,57 +1644,81 @@ function App({
         />
       )}
 
-      {/* Legend + FeatureInfo — bottom left, side by side with icon-button gap.
-          Left edge aligns with the sidebar (Filter/Navigatie) column so the
-          Kaartlagen box sits directly below them. */}
-      <div
-        className="absolute bottom-2 left-2 z-30 flex items-end gap-2 sm:bottom-4 sm:left-4"
-      >
-        {legendMinimized ? (
-          // Collapsed bar (bottom-left → right): show-Kaartlagen toggle, then
-          // the basemap toggle. Restoring re-opens the Kaartlagen window.
-          <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={toggleLegendMinimized}
-              title="Kaartlagen tonen"
-              aria-label="Kaartlagen tonen"
-            >
-              <Icon name="legend_toggle" size={chromeIconSize()} color={chromeIconColor()} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              onClick={cycleBasemap}
-              title={`Achtergrondkaart: ${nextBasemap.label}`}
-              aria-label="Achtergrondkaart wisselen"
-            >
-              <Icon name="cached" size={chromeIconSize()} color={chromeIconColor()} />
-            </Button>
-          </div>
-        ) : (
-          <Legend
-            entries={leftLegendUsesMapB ? mapRightLayers.layerEntries : mapLeftLayers.layerEntries}
-            hiddenIds={leftLegendUsesMapB ? mapRightLayers.hiddenIds : mapLeftLayers.hiddenIds}
-            hiddenRules={leftLegendUsesMapB ? mapRightLayers.hiddenRules : mapLeftLayers.hiddenRules}
-            layerSteps={leftLegendUsesMapB ? mapRightLayers.layerSteps : mapLeftLayers.layerSteps}
-            playingIds={leftLegendUsesMapB ? mapRightLayers.playingIds : mapLeftLayers.playingIds}
-            onToggle={leftLegendUsesMapB ? handleToggleB : handleToggleA}
-            onToggleRule={leftLegendUsesMapB ? handleToggleRuleB : handleToggleRuleA}
-            onTogglePlay={leftLegendUsesMapB ? handleTogglePlayB : handleTogglePlayA}
-            onSetStep={leftLegendUsesMapB ? handleSetStepB : handleSetStepA}
-            onRemove={leftLegendUsesMapB ? handleRemoveB : handleRemoveA}
-            onMove={leftLegendUsesMapB ? handleMoveToLeft : handleMoveToRight}
-            moveDirection={leftLegendUsesMapB ? "left" : "right"}
-            // Moving the left map's only layer to the right map would empty the
-            // left map (which anchors the comparison) — grey the button out.
-            moveDisabled={!leftLegendUsesMapB && mapLeftLayers.layerEntries.length <= 1}
-            nextBasemapLabel={nextBasemap.label}
-            onCycleBasemap={cycleBasemap}
-            onClose={toggleLegendMinimized}
+      {/* Left column: in sidebar mode the toolbar + Filter/Navigatie card sit at
+          the top and the Legenda at the bottom, in one flex column so the two
+          can never overlap. The navigation's height leads; the legend takes the
+          space left over below it (shrinking and scrolling inside) with the
+          column's gap between them. In top mode the column holds the legend
+          alone, which the spacer keeps pinned bottom-left as before.
+          pointer-events-none so the empty space around the cards doesn't
+          swallow map clicks — each card re-enables its own. */}
+      <div className="pointer-events-none absolute bottom-2 left-2 top-2 z-30 flex flex-col items-start gap-2 sm:bottom-4 sm:left-4 sm:top-4">
+        {sidebarActive && (
+          <Sidebar
+            nav={nav}
+            areaFilter={areaFilter}
+            showFilter={filterAvailable && !navMinimized}
+            showNavigation={navAvailable && !navMinimized}
+            onClose={toggleNavMinimized}
+            toolbar={sidebarToolbar}
           />
         )}
+
+        {/* Absorbs the slack when both cards fit (legend pinned to the bottom,
+            nav to the top) and collapses to zero when they don't. */}
+        <div className="min-h-0 flex-1" aria-hidden />
+
+        <div className="pointer-events-auto flex min-h-0 flex-shrink flex-col items-start">
+          {legendMinimized ? (
+            // Collapsed bar (bottom-left → right): show-Kaartlagen toggle, then
+            // the basemap toggle. Restoring re-opens the Kaartlagen window.
+            <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={toggleLegendMinimized}
+                title="Kaartlagen tonen"
+                aria-label="Kaartlagen tonen"
+              >
+                <Icon name="legend_toggle" size={chromeIconSize()} color={chromeIconColor()} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={cycleBasemap}
+                title={`Achtergrondkaart: ${nextBasemap.label}`}
+                aria-label="Achtergrondkaart wisselen"
+              >
+                <Icon name="cached" size={chromeIconSize()} color={chromeIconColor()} />
+              </Button>
+            </div>
+          ) : (
+            <Legend
+              entries={leftLegendUsesMapB ? mapRightLayers.layerEntries : mapLeftLayers.layerEntries}
+              hiddenIds={leftLegendUsesMapB ? mapRightLayers.hiddenIds : mapLeftLayers.hiddenIds}
+              hiddenRules={leftLegendUsesMapB ? mapRightLayers.hiddenRules : mapLeftLayers.hiddenRules}
+              layerSteps={leftLegendUsesMapB ? mapRightLayers.layerSteps : mapLeftLayers.layerSteps}
+              playingIds={leftLegendUsesMapB ? mapRightLayers.playingIds : mapLeftLayers.playingIds}
+              onToggle={leftLegendUsesMapB ? handleToggleB : handleToggleA}
+              onToggleRule={leftLegendUsesMapB ? handleToggleRuleB : handleToggleRuleA}
+              onTogglePlay={leftLegendUsesMapB ? handleTogglePlayB : handleTogglePlayA}
+              onSetStep={leftLegendUsesMapB ? handleSetStepB : handleSetStepA}
+              onRemove={leftLegendUsesMapB ? handleRemoveB : handleRemoveA}
+              onMove={leftLegendUsesMapB ? handleMoveToLeft : handleMoveToRight}
+              moveDirection={leftLegendUsesMapB ? "left" : "right"}
+              // Moving the left map's only layer to the right map would empty the
+              // left map (which anchors the comparison) — grey the button out.
+              moveDisabled={!leftLegendUsesMapB && mapLeftLayers.layerEntries.length <= 1}
+              nextBasemapLabel={nextBasemap.label}
+              onCycleBasemap={cycleBasemap}
+              onClose={toggleLegendMinimized}
+              // The column above has already sized this slot to the space left
+              // over below the navigation — let that bind instead of a second,
+              // independent 50vh cap (the two together caused the overlap).
+              maxHeightClass="max-h-full"
+            />
+          )}
+        </div>
       </div>
 
       {/* Details + Street View — one window below the click, single close button */}
