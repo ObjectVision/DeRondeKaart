@@ -342,7 +342,7 @@ export const Legend = memo(function Legend({
 
   return (
     <div
-      className={`w-72 ${maxHeightClass} overflow-y-auto rounded-lg bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3`}
+      className={`app-scrollbar w-72 ${maxHeightClass} overflow-y-auto rounded-2xl bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3`}
     >
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
