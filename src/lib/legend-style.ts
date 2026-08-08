@@ -1,6 +1,7 @@
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import type { GeoStylerRule, GeometryType, LayerStyle } from "@/layers/types";
 import { compositeLegendRules } from "@/layers/composite-manager";
+import { resolveHatch, type HatchColors } from "@/layers/hatch-pattern";
 
 /**
  * Legend swatch/label helpers shared by the on-map Legend component, the
@@ -24,8 +25,12 @@ export function colorToCSS(
  * shared <Swatch/> component (HTML surfaces) and the PNG-export canvas drawing.
  */
 export type SwatchSpec =
-  /** `outline` undefined → the map draws no outline; swatch uses a neutral hairline. */
-  | { kind: "fill"; color: string; outline?: string }
+  /**
+   * `outline` undefined → the map draws no outline; swatch uses a neutral hairline.
+   * `hatch` set → draw the diagonal hatch the map paints via `fill-pattern`
+   * instead of a flat `color`, from the shared geometry in hatch-pattern.ts.
+   */
+  | { kind: "fill"; color: string; outline?: string; hatch?: HatchColors }
   /** `width` in map px. */
   | { kind: "line"; color: string; width: number }
   /** `radius` in map px, as MapLibre circle-radius / deck point radius. */
@@ -67,6 +72,9 @@ export function ruleSwatchSpec(rule: GeoStylerRule): SwatchSpec {
         kind: "fill",
         color: sym.color ?? DEFAULT_COLOR,
         outline: hasOutline ? resolveColor(sym.outlineColor, "#000000") : undefined,
+        // Same resolution the map's fill-pattern uses, so the swatch shows the
+        // hatch at the same angle and spacing the map paints.
+        hatch: resolveHatch(sym.hatch),
       };
     }
     case "Line":

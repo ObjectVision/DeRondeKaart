@@ -2,6 +2,7 @@ import type { MapRef } from "react-map-gl/maplibre";
 import type { AddLayerObject } from "maplibre-gl";
 import { anchorForConfig } from "@/components/map/map-view-config";
 import { buildNativeLayerDefs } from "./mvt-style";
+import { ensureHatchImages } from "./hatch-pattern";
 import type { LayerConfig } from "./types";
 
 /**
@@ -64,6 +65,9 @@ export function addGeoJsonLayer(
   } else if (!source) {
     map.addSource(sourceId, { type: "geojson", data: config.data });
   }
+
+  // Any hatched rule needs its pattern image in the sprite before addLayer.
+  ensureHatchImages(map, config);
 
   const beforeId = anchorForConfig(config);
   for (const spec of layerDefsFor(config)) {

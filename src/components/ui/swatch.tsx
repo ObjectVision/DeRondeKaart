@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { SwatchSpec } from "@/lib/legend-style";
+import { hatchCSS } from "@/layers/hatch-pattern";
 
 /** The neutral hairline used when the map draws no outline of its own (gray-300). */
 const NEUTRAL_OUTLINE = "#d1d5db";
@@ -118,7 +119,12 @@ export function Swatch({
           aria-hidden
           style={{
             ...box,
-            backgroundColor: hidden ? "transparent" : spec.color,
+            // A hatched fill draws stripes rather than a flat colour, matching
+            // the map's fill-pattern. Hollow state keeps clearing the interior,
+            // so the toggle still reads the same for hatched and flat classes.
+            ...(spec.hatch && !hidden
+              ? { backgroundImage: hatchCSS(spec.hatch) }
+              : { backgroundColor: hidden ? "transparent" : spec.color }),
             border: `1px solid ${spec.outline ?? NEUTRAL_OUTLINE}`,
           }}
         />

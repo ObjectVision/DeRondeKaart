@@ -23,6 +23,7 @@ import {
 } from "@/layers";
 import { getIconFromRule } from "@/layers/geostyler";
 import { loadIconBitmap } from "@/layers/icon-sprite";
+import { ensureHatchImages } from "@/layers/hatch-pattern";
 import { addGeoJsonLayer, removeGeoJsonLayer } from "@/layers/geojson-layer";
 import type { CompositeHost } from "@/layers";
 import { buildCogColorFunction } from "@/layers/cog-style";
@@ -627,6 +628,11 @@ export function addMvtLayer(
       });
     }
   }
+
+  // Hatch fills also need a sprite image before addLayer, but theirs is drawn
+  // rather than fetched — so this stays synchronous and the layer keeps the fast
+  // path below.
+  ensureHatchImages(map, config);
 
   // Icon symbolizers need their image in the map's sprite BEFORE addLayer, and
   // loading it is async — so layers wait for it. Layers without icons keep the

@@ -101,6 +101,19 @@ export interface FillSymbolizer extends RawStyleOverrides {
   outlineWidth?: number;
   /** Like `outlineWidth`, only `0` has an effect. */
   outlineOpacity?: number;
+  /**
+   * Draw a diagonal hatch instead of a flat fill, so the class reads as "no
+   * value here" rather than as a value of its own. `true` takes the red-on-white
+   * defaults in hatch-pattern.ts; an object overrides either colour.
+   *
+   * `color` is still honoured and stays the rule's declared colour — the hatch
+   * paints over it via `fill-pattern`, and it shows through only if the sprite
+   * image is missing. Opacity and the outline fields keep working unchanged.
+   *
+   * The legend swatch renders the same geometry from the same constants, so the
+   * map and the legend cannot drift.
+   */
+  hatch?: boolean | { color?: string; background?: string };
 }
 
 export interface LineSymbolizer extends RawStyleOverrides {
