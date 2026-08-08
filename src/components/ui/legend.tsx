@@ -336,7 +336,11 @@ export const Legend = memo(function Legend({
   onClose,
   maxHeightClass = "max-h-[50vh]",
 }: LegendProps) {
-  const visible = entries.filter((e) => !e.config.excludeFromLegend);
+  // Reversed so the legend reflects the map's z-order: `entries` is in draw
+  // order (bottom-to-top, the order MapLibre paints within a band), so the LAST
+  // entry is the layer drawn on top and belongs in the FIRST row. Reading the
+  // legend top-down therefore matches what covers what on the map.
+  const visible = entries.filter((e) => !e.config.excludeFromLegend).reverse();
   // Only the left-map legend hosts the basemap toggle + collapse button.
   const showChrome = Boolean(onCycleBasemap);
 

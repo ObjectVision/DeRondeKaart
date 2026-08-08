@@ -126,6 +126,11 @@ export function useMapLayers() {
   const addLayer = useCallback(async (config: LayerConfig, mapRef: React.RefObject<MapRef | null>) => {
     updateLayerEntries((prev) => {
       if (prev.some((e) => e.config.id === config.id)) return prev;
+      // Appended, so `layerEntries` stays in bottom-to-top DRAW order: MapLibre
+      // paints in insertion order within a band, and each native add targets its
+      // band anchor, so the newest layer lands on top. The legend renders this
+      // array reversed (see Legend), which is what puts the topmost-drawn layer
+      // in the first row.
       return [...prev, { config }];
     });
 
@@ -698,6 +703,18 @@ function applyTimeseriesStep(
   if (nextSourceLayer === config.sourceLayer) return;
 
   const defs = buildNativeLayerDefs(config);
+
+  // Where this layer group currently sits, captured BEFORE the removal: stepping
+  // must put the group back in its own slot. Re-adding at the band anchor would
+  // hoist it above every layer added after it, silently changing the z-order
+  // (and the legend) mid-playback. The successor is the first style layer after
+  // the group that the group itself does not own.
+  const ownIds = new Set(defs.map((d) => d.id));
+  const styleLayers = map.getStyle()?.layers ?? [];
+  const firstAt = styleLayers.findIndex((l) => ownIds.has(l.id));
+  const successor =
+    firstAt >= 0 ? styleLayers.slice(firstAt).find((l) => !ownIds.has(l.id))?.id : undefined;
+
   for (const def of defs) {
     if (map.getLayer(def.id)) map.removeLayer(def.id);
   }
@@ -708,7 +725,7 @@ function applyTimeseriesStep(
 
   const sourceId = tileSourceId(config);
   if (!map.getSource(sourceId)) return;
-  addRuleLayers(map, config, sourceId, anchorForConfig(config));
+  addRuleLayers(map, config, sourceId, successor ?? anchorForConfig(config));
 
   // Fresh layers default to visible — restore what the user had hidden.
   for (const def of buildNativeLayerDefs(config)) {
