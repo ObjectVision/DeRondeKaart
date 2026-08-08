@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
@@ -169,6 +169,11 @@ function LayerList({
     scrollRef,
   );
 
+  // Which row has its actions revealed. A single id rather than a set: only one
+  // row expands at a time, so opening another implicitly closes the previous one.
+  // A removed row unmounts, leaving a stale id that matches nothing — no cleanup.
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   if (entries.length === 0) return null;
 
   return (
@@ -200,6 +205,7 @@ function LayerList({
           // name. Only break out per-rule class toggles when there are ≥2 rules.
           const showRuleList = rows.length > 1;
           const layerHiddenRules = hiddenRules.get(config.id);
+          const isExpanded = expandedId === config.id;
 
           return (
             <li key={config.id} ref={drag.rowRef(config.id)}>
@@ -254,51 +260,103 @@ function LayerList({
                   title="Zichtbaarheid"
                 >
                   <span
-                    className={
+                    // truncate: with the actions expanded the row has less room,
+                    // so a long name must ellipsize rather than push them out.
+                    className={`truncate ${
                       isVisible
                         ? "text-gray-800 font-medium"
                         : "text-gray-400 line-through"
-                    }
+                    }`}
                   >
                     {config.name}
                   </span>
                 </button>
+                {/* Layer actions, revealed to the LEFT of the chevron so it keeps
+                    its place at the row's right edge. The name (min-w-0 flex-1)
+                    truncates to make room, so the row never grows wider than the
+                    288px card. */}
+                {isExpanded && (
+                  <>
+                    {/* Placeholders: the handlers land when opacity control and the
+                        metadata window are built. Rendered (not hidden) so the row
+                        layout is final, and disabled so they cannot be clicked
+                        before they do anything. */}
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      disabled
+                      aria-label={`Transparantie ${config.name}`}
+                      title="Transparantie (nog niet beschikbaar)"
+                    >
+                      {/* Colour left to the button's own disabled:opacity-50 —
+                          stacking text-gray-300 on top renders it near-invisible. */}
+                      <Icon name="opacity" size={chromeIconSize()} color={chromeIconColor()} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      disabled
+                      aria-label={`Informatie ${config.name}`}
+                      title="Metadata (nog niet beschikbaar)"
+                    >
+                      <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => onRemove(config.id)}
+                      aria-label={`Verwijder ${config.name}`}
+                      title="Laag verwijderen"
+                    >
+                      <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+                    </Button>
+                    {onMove && (
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        disabled={moveDisabled}
+                        onClick={() => onMove(config.id)}
+                        aria-label={
+                          moveDirection === "left"
+                            ? `Verplaats ${config.name} naar linker kaart`
+                            : `Verplaats ${config.name} naar rechter kaart`
+                        }
+                        title={
+                          moveDisabled
+                            ? "Voeg eerst een laag toe aan de linker kaart"
+                            : moveDirection === "left"
+                              ? "Naar linker kaart"
+                              : "Naar rechter kaart"
+                        }
+                      >
+                        <Icon
+                          name={moveDirection === "left" ? "arrow_circle_left" : "arrow_circle_right"}
+                          size={chromeIconSize()}
+                          color={moveDisabled ? undefined : chromeIconColor()}
+                          className={moveDisabled ? "text-gray-300" : undefined}
+                        />
+                      </Button>
+                    )}
+                  </>
+                )}
+                {/* Toggles those actions, so removal and the cross-map move
+                    aren't a stray click away in a narrow card. */}
                 <Button
                   variant="ghost"
                   size="icon-sm"
-                  onClick={() => onRemove(config.id)}
-                  aria-label={`Verwijder ${config.name}`}
-                  title="Laag verwijderen"
+                  onClick={() =>
+                    setExpandedId((cur) => (cur === config.id ? null : config.id))
+                  }
+                  aria-expanded={isExpanded}
+                  aria-label={`Acties voor ${config.name}`}
+                  title={isExpanded ? "Acties verbergen" : "Acties tonen"}
                 >
-                  <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+                  <Icon
+                    name={isExpanded ? "chevron_left" : "chevron_right"}
+                    size={chromeIconSize()}
+                    color={chromeIconColor()}
+                  />
                 </Button>
-                {onMove && (
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    disabled={moveDisabled}
-                    onClick={() => onMove(config.id)}
-                    aria-label={
-                      moveDirection === "left"
-                        ? `Verplaats ${config.name} naar linker kaart`
-                        : `Verplaats ${config.name} naar rechter kaart`
-                    }
-                    title={
-                      moveDisabled
-                        ? "Voeg eerst een laag toe aan de linker kaart"
-                        : moveDirection === "left"
-                          ? "Naar linker kaart"
-                          : "Naar rechter kaart"
-                    }
-                  >
-                    <Icon
-                      name={moveDirection === "left" ? "arrow_circle_left" : "arrow_circle_right"}
-                      size={chromeIconSize()}
-                      color={moveDisabled ? undefined : chromeIconColor()}
-                      className={moveDisabled ? "text-gray-300" : undefined}
-                    />
-                  </Button>
-                )}
               </div>
 
               {/* Per-rule class toggles — only when there's more than one rule */}
