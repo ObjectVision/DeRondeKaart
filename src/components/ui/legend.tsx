@@ -1,9 +1,10 @@
-import { memo } from "react";
+import { memo, useCallback, useRef } from "react";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
-import { bandRankForConfig } from "@/components/map/map-view-config";
+import { useRowDrag } from "@/components/ui/use-row-drag";
+import { foregroundRank } from "@/components/map/map-view-config";
 import { ruleSwatchSpec, styleSwatchSpec } from "@/lib/legend-style";
 import { Swatch } from "@/components/ui/swatch";
 import { compositeLegendRules } from "@/layers";
@@ -116,7 +117,16 @@ interface LegendProps {
    * navigation — there it passes `max-h-full` so that parent binds instead.
    */
   maxHeightClass?: string;
+  /**
+   * Reorder draw order by dragging a row's handle. `toIndex` is in DRAW-ORDER
+   * space (0 = bottom), already converted from the reversed display order.
+   * Omit to render the list without drag handles.
+   */
+  onReorder?: (layerId: string, toIndex: number) => void;
 }
+
+/** Stable identity, so a drag-less list doesn't re-bind the drag effect. */
+const noop = () => {};
 
 function LayerList({
   entries,
@@ -132,6 +142,8 @@ function LayerList({
   onMove,
   moveDirection,
   moveDisabled,
+  onReorder,
+  scrollRef,
 }: {
   entries: LayerEntry[];
   hiddenIds: Set<string>;
@@ -146,14 +158,25 @@ function LayerList({
   onMove?: (layerId: string) => void;
   moveDirection?: "right" | "left";
   moveDisabled?: boolean;
+  onReorder?: (layerId: string, toDisplayIndex: number) => void;
+  scrollRef?: React.RefObject<HTMLElement | null>;
 }) {
+  // `entries` is display order (top of map first). The hook reports the slot in
+  // that same space; Legend converts to draw order.
+  const drag = useRowDrag(
+    entries.map((e) => e.config.id),
+    onReorder ?? noop,
+    scrollRef,
+  );
+
   if (entries.length === 0) return null;
 
   return (
     <div>
       <ul className="flex flex-col gap-0.5">
-        {entries.map(({ config }) => {
+        {entries.map(({ config }, rowIndex) => {
           const isVisible = !hiddenIds.has(config.id);
+          const isDragging = drag.draggingId === config.id;
           // COG rules are a read-only legend key: the raster is styled per-pixel
           // by a color function, so individual classes can't be toggled the way
           // deck-layer rules can. Render them as non-interactive swatches.
@@ -179,9 +202,36 @@ function LayerList({
           const layerHiddenRules = hiddenRules.get(config.id);
 
           return (
-            <li key={config.id}>
+            <li key={config.id} ref={drag.rowRef(config.id)}>
+              {/* Where the dragged row would land. Rendered inside the row it
+                  precedes so it needs no extra list item. */}
+              {drag.overIndex === rowIndex && (
+                <div className="-mt-px mb-px h-0.5 rounded-full bg-[#3E74A7]" />
+              )}
               {/* Layer row: swatch = visibility; name = visibility; × = remove */}
-              <div className="group flex items-center rounded hover:bg-gray-100 transition-colors">
+              <div
+                className={`group flex items-center rounded transition-colors ${
+                  isDragging ? "bg-gray-100 opacity-60" : "hover:bg-gray-100"
+                }`}
+              >
+                {onReorder && (
+                  <span
+                    // A dedicated handle: the rest of the row toggles visibility,
+                    // so dragging from anywhere would fight that. Not a <button>
+                    // — it has no click action and must not take Enter/Space.
+                    role="separator"
+                    aria-label={`Versleep ${config.name} om de tekenorde te wijzigen`}
+                    title="Versleep om de tekenorde te wijzigen"
+                    className="flex-shrink-0 cursor-grab touch-none pl-0.5 pr-0.5 text-gray-300 hover:text-gray-500 active:cursor-grabbing"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      drag.start(config.id, e.clientY);
+                    }}
+                    onTouchStart={(e) => drag.start(config.id, e.touches[0].clientY)}
+                  >
+                    <Icon name="drag_indicator" size={14} />
+                  </span>
+                )}
                 <button
                   onClick={() => onToggle(config.id)}
                   className="flex-shrink-0 px-1.5 py-1"
@@ -309,6 +359,10 @@ function LayerList({
             </li>
           );
         })}
+        {/* Drop slot past the last row = the bottom of the draw order. */}
+        {drag.overIndex === entries.length && (
+          <li aria-hidden className="-mt-px h-0.5 rounded-full bg-[#3E74A7]" />
+        )}
       </ul>
     </div>
   );
@@ -336,24 +390,60 @@ export const Legend = memo(function Legend({
   onCycleBasemap,
   onClose,
   maxHeightClass = "max-h-[50vh]",
+  onReorder,
 }: LegendProps) {
-  // Ordered top-of-map first, so reading the legend top-down matches what covers
-  // what. Two keys, because z-order has two levels:
-  //  1. the `beforeid` z-band (a "foreground-layers" point layer paints over
-  //     every default-band layer no matter when either was added), then
-  //  2. insertion order within a band, which is the order MapLibre paints.
-  // `entries` is bottom-to-top draw order, so both keys sort descending. Array
-  // .sort is stable, so reversing first is what makes equal-band layers come out
-  // newest-first rather than merely unsorted.
+  // Top-of-map first, so reading the legend top-down matches what covers what.
+  //
+  // `entries` is bottom-to-top draw order, hence the reverse. The extra sort
+  // mirrors restackNativeLayers, which restacks in two passes split at the
+  // basemap's label overlay so labels and roads keep drawing over ordinary data:
+  // a `foreground-layers` config always paints above a default-band one, whatever
+  // their array positions. Array order still decides everything within a group,
+  // which is what a drag changes. Array .sort is stable, so the reverse supplies
+  // that within-group ordering.
   const visible = entries
     .filter((e) => !e.config.excludeFromLegend)
     .reverse()
-    .sort((a, b) => bandRankForConfig(b.config) - bandRankForConfig(a.config));
+    .sort((a, b) => foregroundRank(b.config) - foregroundRank(a.config));
   // Only the left-map legend hosts the basemap toggle + collapse button.
   const showChrome = Boolean(onCycleBasemap);
+  // Shared with LayerList so a drag can auto-scroll the card.
+  const cardRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Translate a drop slot in display space (0 = top row) into an index in
+   * `entries`' draw-order space (0 = bottom).
+   *
+   * Three things to undo at once: the display list is reversed; it can be shorter
+   * than `entries` (excludeFromLegend rows are filtered out), so the slot is
+   * resolved via a neighbouring visible row's real position rather than by
+   * arithmetic; and reorderLayer splices into the array with the dragged entry
+   * already removed, so both spaces are computed without it. Exhaustively checked
+   * against reorderLayer's semantics for every list size and drop slot.
+   */
+  const handleReorder = useCallback(
+    (layerId: string, toDisplayIndex: number) => {
+      if (!onReorder) return;
+      const displayIds = visible.map((e) => e.config.id);
+      const fromDisplay = displayIds.indexOf(layerId);
+      // Dropping below your own row shifts every slot up by one once you're gone.
+      const slot = toDisplayIndex > fromDisplay ? toDisplayIndex - 1 : toDisplayIndex;
+
+      const without = entries.filter((e) => e.config.id !== layerId);
+      const below = displayIds.filter((id) => id !== layerId)[slot];
+      // The row that will sit just below the dragged one fixes the target; no row
+      // means it was dropped past the last display row, i.e. the map's bottom.
+      const target = below
+        ? without.findIndex((e) => e.config.id === below) + 1
+        : 0;
+      onReorder(layerId, target);
+    },
+    [onReorder, visible, entries],
+  );
 
   return (
     <div
+      ref={cardRef}
       className={`app-scrollbar w-72 ${maxHeightClass} overflow-y-auto rounded-2xl bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3`}
     >
       <div className="mb-2 flex items-center justify-between">
@@ -402,6 +492,8 @@ export const Legend = memo(function Legend({
           onMove={onMove}
           moveDirection={moveDirection}
           moveDisabled={moveDisabled}
+          onReorder={onReorder ? handleReorder : undefined}
+          scrollRef={cardRef}
         />
       )}
     </div>

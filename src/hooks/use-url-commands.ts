@@ -149,7 +149,10 @@ export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotati
 
         switch (command.cmd) {
           case "add":
-            if (config) await side.layers.addLayer(config, ref);
+            // atEnd: the command sequence is already in draw order (share links
+            // emit bottom-up), so append verbatim. Band seeding would re-lift a
+            // foreground layer above one the user dragged on top of it.
+            if (config) await side.layers.addLayer(config, ref, { atEnd: true });
             break;
           case "remove":
             if (command.layer) side.layers.removeLayer(command.layer, ref);

@@ -1,12 +1,12 @@
 [
   {
-    "label": "woonzorganalyse",
+    "label": "Woonzorganalyse",
     "icon": "diversity_1",
     "color": "#3E74A7",
     "expanded": true,
     "children": [
       {
-        "label": "woningvoorraad",
+        "label": "Woningvoorraad",
         "color": "#EB5BA6",
         "expanded": false,
         "children": [
@@ -19,7 +19,7 @@
         ]
       },
       {
-        "label": "kwetsbare ouderen",
+        "label": "Kwetsbare ouderen",
         "color": "#EB5BA6",
         "expanded": false,
         "children": [
@@ -32,7 +32,7 @@
         ]
       },
       {
-        "label": "aandachtsgroepen",
+        "label": "Aandachtsgroepen",
         "color": "#EB5BA6",
         "expanded": false,
         "children": [
@@ -45,63 +45,63 @@
         ]
       },
       {
-        "label": "clusters van indicaties",
+        "label": "Clusters van indicaties",
         "icon": "location_on",
         "color": "#E0457B",
         "expanded": true,
         "children": [
           {
             "id": "verpleging_en_verzorging",
-            "label": "Verpleging en verzorging",
+            "label": "verpleging en verzorging",
             "a": false,
             "b": false
           },
           {
             "id": "geestelijke_gezondheidszorg_B",
-            "label": "Geestelijke gezondheidszorg B",
+            "label": "geestelijke gezondheidszorg B",
             "a": false,
             "b": false
           },
           {
             "id": "geestelijke_gezondheidszorg_W",
-            "label": "Geestelijke gezondheidszorg W",
+            "label": "geestelijke gezondheidszorg W",
             "a": false,
             "b": false
           },
           {
             "id": "licht_verstandelijke_beperking",
-            "label": "Licht verstandelijke beperking",
+            "label": "licht verstandelijke beperking",
             "a": false,
             "b": false
           },
           {
             "id": "verstandelijke_handicap",
-            "label": "Verstandelijke handicap",
+            "label": "verstandelijke handicap",
             "a": false,
             "b": false
           },
           {
             "id": "lichamelijke_handicap",
-            "label": "Lichamelijke handicap",
+            "label": "lichamelijke handicap",
             "a": false,
             "b": false
           },
           {
             "id": "zintuigelijke_handicap",
-            "label": "Zintuigelijke handicap",
+            "label": "zintuigelijke handicap",
             "a": false,
             "b": false
           },
           {
             "id": "BW_MO",
-            "label": "Beschermd wonen/MO",
+            "label": "beschermd wonen/MO",
             "a": false,
             "b": false
           }
         ]
       },
       {
-        "label": "complexanalyse",
+        "label": "Complexanalyse",
         "icon": "grid_view",
         "color": "#5B8DEF",
         "expanded": false,
@@ -115,7 +115,7 @@
         ]
       },
       {
-        "label": "woonzorgwijzer",
+        "label": "Woonzorgwijzer",
         "icon": "explore",
         "color": "#6B7280",
         "expanded": false,
@@ -129,20 +129,20 @@
         ]
       },
       {
-        "label": "veerkrachtanalyse",
+        "label": "Veerkrachtanalyse",
         "icon": "monitor_heart",
         "color": "#3DB6B0",
         "expanded": true,
         "children": [
           {
             "id": "veerkracht_limburg",
-            "label": "Veerkracht tov NL",
+            "label": "veerkracht tov NL",
             "a": false,
             "b": false
           },
           {
             "id": "focus_limburg",
-            "label": "Focus tov NL",
+            "label": "focus tov NL",
             "a": false,
             "b": false
           }
@@ -151,70 +151,70 @@
     ]
   },
   {
-    "label": "bevolking",
+    "label": "Bevolking",
     "icon": "groups",
     "color": "#3E74A7",
     "expanded": true,
     "children": [
       {
-        "label": "sociaal economisch",
+        "label": "Sociaal economisch",
         "icon": "trending_up",
         "color": "#22A06B",
         "expanded": true,
         "children": [
           {
             "id": "Sociaal_dominante_klasse",
-            "label": "Sociaal dominante klasse",
+            "label": "sociaal dominante klasse",
             "a": false,
             "b": false
           }
         ]
       },
       {
-        "label": "prognose",
+        "label": "Verdeling",
         "icon": "monitoring",
         "color": "#3E74A7",
         "expanded": true,
         "children": [
           {
             "id": "aandeel_j0_17",
-            "label": "Aandeel 0-17 jaar",
+            "label": "aandeel 0-17 jaar",
             "a": false,
             "b": false
           },
           {
             "id": "aandeel_j18_29",
-            "label": "Aandeel 18-29 jaar",
+            "label": "aandeel 18-29 jaar",
             "a": false,
             "b": false
           },
           {
             "id": "aandeel_j30_44",
-            "label": "Aandeel 30-44 jaar",
+            "label": "aandeel 30-44 jaar",
             "a": false,
             "b": false
           },
           {
             "id": "aandeel_j45_66",
-            "label": "Aandeel 45-66 jaar",
+            "label": "aandeel 45-66 jaar",
             "a": false,
             "b": false
           },
           {
             "id": "aandeel_j67_74",
-            "label": "Aandeel 67-74 jaar",
+            "label": "aandeel 67-74 jaar",
             "a": false,
             "b": false
           },
           {
             "id": "aandeel_j75_plus",
-            "label": "Aandeel 75 jaar en ouder",
+            "label": "aandeel 75 jaar en ouder",
             "a": false,
             "b": false
           },
           {
             "id": "oosr_2",
-            "label": "OOSR",
+            "label": "mantelzorg (OOSR)",
             "a": false,
             "b": false
           }

@@ -2,7 +2,12 @@ import { useRef, useState, useCallback, useMemo } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 import type { Map as MapLibreMap, AddLayerObject } from "maplibre-gl";
 import { setColorFunction } from "@geomatico/maplibre-cog-protocol";
-import { anchorForConfig } from "@/components/map/map-view-config";
+import {
+  anchorForConfig,
+  foregroundRank,
+  ANCHORS,
+  ANCHOR_ORDER,
+} from "@/components/map/map-view-config";
 import {
   buildNativeLayerDefs,
   addFlatgeobufLayer,
@@ -72,7 +77,11 @@ export function useMapLayers() {
   const dispatchFormatLoad = useCallback(
     (config: LayerConfig, mapRef: React.RefObject<MapRef | null>) => {
       if (config.format === "mvt" || config.format === "pmtiles") {
-        addMvtLayer(config, mapRef);
+        // Icon-bearing layers add asynchronously (sprite load), landing at their
+        // band anchor after the caller already restacked — restack again then.
+        addMvtLayer(config, mapRef, () =>
+          restackNativeLayers(layerEntriesRef.current, mapRef),
+        );
       } else if (config.format === "cog") {
         addCogLayer(config, mapRef);
       } else if (config.format === "flatgeobuf") {
@@ -115,6 +124,11 @@ export function useMapLayers() {
           const bareName = parsed?.ruleName ?? key;
           setNativeRuleVisibility(child, bareName, false, mapRef);
         }
+
+        // A child loads on zoom, long after its parent's addLayer restacked, and
+        // arrives at its own band anchor — restack so it takes the parent's place
+        // in the array's draw order.
+        restackNativeLayers(layerEntriesRef.current, mapRef);
       },
       removeChild: (child, mapRef) => {
         removeNativeArtifacts(child, mapRef);
@@ -123,15 +137,42 @@ export function useMapLayers() {
     [dispatchFormatLoad],
   );
 
-  const addLayer = useCallback(async (config: LayerConfig, mapRef: React.RefObject<MapRef | null>) => {
+  /**
+   * Put a layer on the map.
+   *
+   * `layerEntries` is bottom-to-top DRAW order and is the single source of truth
+   * for z-order (the legend renders it reversed; reorderLayer restacks MapLibre
+   * to match). A new entry is seeded to the position its `beforeid` band implies,
+   * so a "foreground-layers" point layer still arrives above the default-band
+   * layers already present — but only as a starting point: once placed, only
+   * array position matters and a drag may move it anywhere.
+   *
+   * `atEnd` appends verbatim, skipping that seeding. Replay paths (share-link and
+   * hash commands, annotation snapshots, the export preview) pass it because they
+   * feed an already-ordered sequence: re-seeding would lift a foreground layer
+   * back above a layer the user had deliberately dragged on top of it.
+   */
+  const addLayer = useCallback(async (
+    config: LayerConfig,
+    mapRef: React.RefObject<MapRef | null>,
+    opts?: { atEnd?: boolean },
+  ) => {
+    // Inside the updater, so concurrent adds compose: several `add` commands in
+    // one hash are dispatched together and each must see the others' entries.
+    // (updateLayerEntries keeps layerEntriesRef in step, which the restack below
+    // then reads back.)
     updateLayerEntries((prev) => {
       if (prev.some((e) => e.config.id === config.id)) return prev;
-      // Appended, so `layerEntries` stays in bottom-to-top DRAW order: MapLibre
-      // paints in insertion order within a band, and each native add targets its
-      // band anchor, so the newest layer lands on top. The legend renders this
-      // array reversed (see Legend), which is what puts the topmost-drawn layer
-      // in the first row.
-      return [...prev, { config }];
+      if (opts?.atEnd) return [...prev, { config }];
+
+      // Seed above the layers this one will paint over anyway, and below any that
+      // outrank it: a default-band layer goes under the foreground ones, matching
+      // where restackNativeLayers puts it. Only a starting point — a drag then
+      // reorders freely within the group.
+      const rank = foregroundRank(config);
+      let at = prev.length;
+      while (at > 0 && foregroundRank(prev[at - 1].config) > rank) at--;
+      return [...prev.slice(0, at), { config }, ...prev.slice(at)];
     });
 
     try {
@@ -141,6 +182,10 @@ export function useMapLayers() {
       } else {
         await dispatchFormatLoad(config, mapRef);
       }
+      // The native add above targeted the config's band anchor, which agrees with
+      // the array position only while no drag has overridden the bands. Restack so
+      // the array stays the single source of truth either way.
+      restackNativeLayers(layerEntriesRef.current, mapRef);
     } catch (err) {
       console.error(`Failed to load layer "${config.id}":`, err);
       updateLayerEntries((prev) => prev.filter((e) => e.config.id !== config.id));
@@ -190,6 +235,32 @@ export function useMapLayers() {
       removeNativeArtifacts(entry.config, mapRef);
     }
   }, [updateLayerEntries]);
+
+  /**
+   * Move a layer to `toIndex` in draw order (0 = bottom) and restack MapLibre to
+   * match. Overrides the config's `beforeid` band: after a reorder, array
+   * position alone decides what paints over what.
+   */
+  const reorderLayer = useCallback(
+    (layerId: string, toIndex: number, mapRef: React.RefObject<MapRef | null>) => {
+      // Computed from the ref, not inside the state updater: the updater must stay
+      // pure (StrictMode double-invokes it) and the native restack is a side effect.
+      const prev = layerEntriesRef.current;
+      const from = prev.findIndex((e) => e.config.id === layerId);
+      if (from < 0) return;
+
+      const without = prev.filter((_, i) => i !== from);
+      // Clamp against the post-removal length, so dragging past the end lands at
+      // the top instead of splicing beyond it.
+      const to = Math.max(0, Math.min(toIndex, without.length));
+      if (to === from) return;
+
+      const next = [...without.slice(0, to), prev[from], ...without.slice(to)];
+      updateLayerEntries(() => next);
+      restackNativeLayers(next, mapRef);
+    },
+    [updateLayerEntries],
+  );
 
   const hideLayer = useCallback((layerId: string, mapRef: React.RefObject<MapRef | null>) => {
     setHiddenIds((prev) => {
@@ -422,6 +493,11 @@ export function useMapLayers() {
           }
         }
       }
+
+      // Each re-add above targeted the config's `beforeid` band, which a drag may
+      // have overridden — restack so the rebuilt stack matches the array order the
+      // user actually set.
+      restackNativeLayers(layerEntriesRef.current, mapRef);
     },
     [compositeHost, dispatchFormatLoad],
   );
@@ -438,6 +514,7 @@ export function useMapLayers() {
       playingIds,
       addLayer,
       removeLayer,
+      reorderLayer,
       hideLayer,
       toggleLayer,
       toggleRule,
@@ -456,6 +533,7 @@ export function useMapLayers() {
       playingIds,
       addLayer,
       removeLayer,
+      reorderLayer,
       hideLayer,
       toggleLayer,
       toggleRule,
@@ -509,7 +587,16 @@ export function tileSourceId(config: LayerConfig): string {
  * the legend, picking and comparison logic) but needs the identical source +
  * rule-layer construction.
  */
-export function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
+export function addMvtLayer(
+  config: LayerConfig,
+  mapRef: React.RefObject<MapRef | null>,
+  /**
+   * Called once icon-bearing rule layers have been added asynchronously, so the
+   * caller can restack them into the array's draw order. Omit for layers that
+   * must stay in their configured band (e.g. the study area).
+   */
+  onLate?: () => void,
+) {
   const map = mapRef.current?.getMap();
   if (!map) return;
 
@@ -556,6 +643,11 @@ export function addMvtLayer(config: LayerConfig, mapRef: React.RefObject<MapRef 
         // image was loading — re-check before touching the map.
         if (!map.getSource(sourceId)) return;
         addRuleLayers(map, config, sourceId, beforeId);
+        // These layers arrive after the caller's restack, at their band anchor
+        // rather than the array's draw position — let the caller restack now that
+        // they exist. (The study-area layer passes nothing: it is chrome and must
+        // stay in its own band.)
+        onLate?.();
       });
     return;
   }
@@ -781,6 +873,96 @@ function addCogLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>
       // Append when the anchor isn't in the style yet (see addMvtLayer note).
       map.getLayer(beforeId) ? beforeId : undefined,
     );
+  }
+}
+
+/**
+ * Every native MapLibre layer id a config owns, in bottom-to-top draw order.
+ *
+ * One entry fans out to several native layers — one per GeoStyler rule, or a
+ * fill plus a stroke for a flat-styled polygon — and that internal order is
+ * meaningful (a stroke must stay above its own fill), so restacking has to move
+ * the whole group as a block, in this order. A composite contributes each
+ * child's layers in child order.
+ *
+ * Ids are returned whether or not they are currently in the style; callers that
+ * touch MapLibre must still check `map.getLayer(id)`, since flatgeobuf layers
+ * come and go with the viewport and composite children load by zoom.
+ */
+function nativeLayerIdsFor(config: LayerConfig): string[] {
+  if (config.format === "composite") {
+    return childrenOf(config).flatMap((child) => nativeLayerIdsFor(child));
+  }
+  if (config.format === "cog") return [`cog-layer-${config.id}`];
+  return buildNativeLayerDefs(config).map((def) => def.id);
+}
+
+/**
+ * Restack MapLibre so painting order matches `entries` (bottom-to-top).
+ *
+ * `entries` is the source of truth for z-order, which a drag-reorder can put in
+ * conflict with each config's `beforeid` band. Rather than compute minimal moves,
+ * walk the layers bottom-up and move each to a fixed anchor: every successive
+ * `moveLayer` lands its layer above the previously moved one, so the final stack
+ * is exactly `entries` order. Cheap next to getting the arithmetic subtly wrong,
+ * and it makes the array authoritative by construction.
+ *
+ * The basemap's label/road overlay must keep drawing over ordinary data layers,
+ * so this is done in TWO passes against two anchors, splitting the entries at
+ * that overlay:
+ *
+ *   - `beforeid: "foreground-layers"` configs → moved before `studyarea-layers`,
+ *     i.e. above the labels (and still below the study area / click marker).
+ *   - everything else → moved before `overlay-layers`, i.e. below the labels.
+ *
+ * Within each group the array's relative order is preserved, so a drag reorders
+ * freely — it just cannot lift a default-band layer over the labels. Dragging a
+ * layer across the boundary changes its position among its own group; the
+ * foreground/background split itself stays config-driven.
+ */
+function restackNativeLayers(
+  entries: LayerEntry[],
+  mapRef: React.RefObject<MapRef | null>,
+) {
+  const map = mapRef.current?.getMap();
+  if (!map) return;
+  // Without the anchors there is no stable bound; a bare moveLayer would send
+  // layers above the click marker. Anchors are re-created on styledata, so
+  // skipping here just defers to the next restack.
+  if (!map.getLayer(ANCHORS.studyarea) || !map.getLayer(ANCHORS.overlay)) return;
+
+  // The basemap's label/road layers are inserted with `beforeId: overlay-layers`,
+  // i.e. BELOW that anchor — so targeting the anchor would stack data on top of
+  // them. Aim at the lowest of those overlay layers instead: the first layer above
+  // `map-layers` that no entry owns. Falls back to the anchor when the overlay has
+  // not loaded yet (a swap in flight), which the next restack corrects.
+  const style = map.getStyle()?.layers ?? [];
+  const owned = new Set(entries.flatMap((e) => nativeLayerIdsFor(e.config)));
+  const anchorIds = new Set<string>(ANCHOR_ORDER);
+  const mapAt = style.findIndex((l) => l.id === ANCHORS.map);
+  const overlayAt = style.findIndex((l) => l.id === ANCHORS.overlay);
+  let belowLabels: string = ANCHORS.overlay;
+  for (let i = mapAt + 1; i < overlayAt; i++) {
+    const id = style[i].id;
+    if (owned.has(id) || anchorIds.has(id)) continue;
+    belowLabels = id;
+    break;
+  }
+
+  const isForeground = (entry: LayerEntry) =>
+    anchorForConfig(entry.config) === ANCHORS.foreground;
+
+  // Below the labels first, then above them — each pass bottom-up.
+  for (const [group, anchor] of [
+    [entries.filter((e) => !isForeground(e)), belowLabels],
+    [entries.filter(isForeground), ANCHORS.studyarea],
+  ] as const) {
+    for (const entry of group) {
+      for (const id of nativeLayerIdsFor(entry.config)) {
+        if (!map.getLayer(id)) continue;
+        map.moveLayer(id, anchor);
+      }
+    }
   }
 }
 
