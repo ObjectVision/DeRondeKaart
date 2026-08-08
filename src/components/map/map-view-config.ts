@@ -114,3 +114,16 @@ export const ANCHOR_ORDER = [
   ANCHORS.studyarea,
 ];
 
+/**
+ * A layer's z-band rank: higher paints over lower, regardless of when the layer
+ * was added. Derived from the config's `beforeid` band (see anchorForConfig), so
+ * a `foreground-layers` point layer outranks every default-band layer.
+ *
+ * The legend sorts on this before insertion order so its top-to-bottom reading
+ * matches what actually covers what on the map.
+ */
+export function bandRankForConfig(config: { beforeid?: string }): number {
+  const order: readonly string[] = ANCHOR_ORDER;
+  return order.indexOf(anchorForConfig(config));
+}
+

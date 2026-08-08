@@ -3,6 +3,7 @@ import type { LayerEntry } from "@/hooks/use-map-layers";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
+import { bandRankForConfig } from "@/components/map/map-view-config";
 import { ruleSwatchSpec, styleSwatchSpec } from "@/lib/legend-style";
 import { Swatch } from "@/components/ui/swatch";
 import { compositeLegendRules } from "@/layers";
@@ -336,11 +337,18 @@ export const Legend = memo(function Legend({
   onClose,
   maxHeightClass = "max-h-[50vh]",
 }: LegendProps) {
-  // Reversed so the legend reflects the map's z-order: `entries` is in draw
-  // order (bottom-to-top, the order MapLibre paints within a band), so the LAST
-  // entry is the layer drawn on top and belongs in the FIRST row. Reading the
-  // legend top-down therefore matches what covers what on the map.
-  const visible = entries.filter((e) => !e.config.excludeFromLegend).reverse();
+  // Ordered top-of-map first, so reading the legend top-down matches what covers
+  // what. Two keys, because z-order has two levels:
+  //  1. the `beforeid` z-band (a "foreground-layers" point layer paints over
+  //     every default-band layer no matter when either was added), then
+  //  2. insertion order within a band, which is the order MapLibre paints.
+  // `entries` is bottom-to-top draw order, so both keys sort descending. Array
+  // .sort is stable, so reversing first is what makes equal-band layers come out
+  // newest-first rather than merely unsorted.
+  const visible = entries
+    .filter((e) => !e.config.excludeFromLegend)
+    .reverse()
+    .sort((a, b) => bandRankForConfig(b.config) - bandRankForConfig(a.config));
   // Only the left-map legend hosts the basemap toggle + collapse button.
   const showChrome = Boolean(onCycleBasemap);
 
