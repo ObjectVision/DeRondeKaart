@@ -24,13 +24,19 @@
   const unavailable = document.getElementById("unavailable");
   const closed = document.getElementById("closed");
   const closedReason = document.getElementById("closed-reason");
+  const checking = document.getElementById("checking");
 
   /**
    * Resolved once: the X25519 key uploads are sealed to. A closed drop answers
    * 503 here — carrying the operator's reason — which is what disarms the page.
+   *
+   * The fetch goes FIRST, before `sodium.ready`. Awaiting libsodium first meant
+   * the gate wasn't consulted until its WASM bundle had loaded and initialised —
+   * measured at ~15s on a throttled connection — during which a closed service
+   * showed a live dropzone. The key is only decoded after sodium is ready, which
+   * every caller already awaits via this promise.
    */
   const publicKeyPromise = (async () => {
-    await sodium.ready;
     const res = await fetch("/drop/pubkey", { cache: "no-store" });
     if (!res.ok) {
       const err = new Error(`pubkey fetch failed: ${res.status}`);
@@ -42,24 +48,33 @@
       throw err;
     }
     const { publicKey } = await res.json();
+    await sodium.ready;
     return sodium.from_base64(publicKey, sodium.base64_variants.ORIGINAL);
   })();
 
-  publicKeyPromise.catch((err) => {
-    // No key, no encryption, no uploads — disable the whole surface rather
-    // than failing per file. Closed gets its own message: telling someone to
-    // "try again later" is wrong when the drop is deliberately shut.
-    dropzone.style.display = "none";
-    if (err && err.closed) {
-      if (err.reason) {
-        closedReason.textContent = err.reason;
-        closedReason.style.display = "block";
+  publicKeyPromise.then(
+    () => {
+      // Open: only now is the drop known to accept files, so reveal the surface.
+      checking.hidden = true;
+      dropzone.hidden = false;
+    },
+    (err) => {
+      // No key, no encryption, no uploads — disable the whole surface rather
+      // than failing per file. Closed gets its own message: telling someone to
+      // "try again later" is wrong when the drop is deliberately shut.
+      checking.hidden = true;
+      dropzone.hidden = true;
+      if (err && err.closed) {
+        if (err.reason) {
+          closedReason.textContent = err.reason;
+          closedReason.style.display = "block";
+        }
+        closed.style.display = "block";
+      } else {
+        unavailable.style.display = "block";
       }
-      closed.style.display = "block";
-    } else {
-      unavailable.style.display = "block";
-    }
-  });
+    },
+  );
 
   /** Map an HTTP status to the Dutch message shown next to the file. */
   function reasonFor(status) {

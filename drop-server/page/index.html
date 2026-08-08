@@ -100,6 +100,18 @@
       font-size: 0.8rem;
       color: var(--muted);
     }
+    /* `hidden` must win over the .dropzone display above, which would otherwise
+       override the UA's [hidden] rule and show a closed drop's dropzone. */
+    [hidden] { display: none !important; }
+    /* Shown until the gate check resolves; app.js swaps it for the dropzone or
+       one of the messages below. */
+    .checking {
+      margin-top: 1rem;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
     .unavailable { color: var(--err); font-size: 0.9rem; margin-top: 1rem; display: none; }
     /* Closed is a deliberate state, not a fault — muted, not red. */
     .closed {
@@ -247,12 +259,19 @@
         openen — de server zelf niet.
       </p>
 
-      <div class="dropzone" id="dropzone">
+      <!-- Hidden until /drop/pubkey confirms the drop is open (app.js reveals it).
+           Rendering it visible first meant a closed service still showed a working
+           dropzone until the fetch resolved — ~15s on a slow connection, long
+           enough to pick files and believe an upload was possible. -->
+      <div class="dropzone" id="dropzone" hidden>
         <div>Sleep bestanden hierheen</div>
         <div>of</div>
         <button type="button" class="choose" id="choose">Bestanden kiezen</button>
         <div class="hint" id="sizehint">Max. 200&nbsp;MB per bestand</div>
       </div>
+      <!-- Neutral placeholder while the gate is being checked, so the card isn't
+           empty and nothing claims the service is available yet. -->
+      <div class="checking" id="checking">Beschikbaarheid controleren…</div>
       <input type="file" id="fileinput" multiple />
       <div class="unavailable" id="unavailable">
         De dienst is momenteel niet beschikbaar. Probeer het later opnieuw of
