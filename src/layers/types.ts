@@ -37,23 +37,80 @@ export type GeoStylerFilter =
   | PresenceFilter
   | NegationFilter;
 
-export interface FillSymbolizer {
+/**
+ * MapLibre layer types a rule can render as. The first four are what the
+ * symbolizer kinds map to; the rest are only reachable via a `type` override.
+ */
+export type NativeLayerType =
+  | "fill"
+  | "line"
+  | "circle"
+  | "symbol"
+  | "fill-extrusion"
+  | "heatmap"
+  | "raster";
+
+/**
+ * Raw MapLibre escape hatch, available on every symbolizer.
+ *
+ * The symbolizer fields above cover only a small, literal-valued slice of the
+ * style spec: no expressions, no dashes or patterns, no text, no extrusion or
+ * heatmap. Anything outside that slice goes here and is merged over whatever
+ * the symbolizer produced, key by key — so a rule can add `line-dasharray`
+ * without restating its colour.
+ *
+ * Keys are MapLibre style-spec names verbatim ("line-dasharray", not
+ * "dashArray"). Values pass through unchanged and UNVALIDATED, matching how the
+ * rest of `geostyler` is handled (config.ts casts it without validation).
+ *
+ * Be aware that MapLibre SILENTLY IGNORES a paint key that doesn't belong to the
+ * layer type — a misspelled key renders nothing and reports nothing, so check
+ * spelling against the style spec rather than expecting an error. (A malformed
+ * *expression* under a valid key does throw at `addLayer`.) Keys left over from
+ * the generated paint are harmless for the same reason: a `type: "fill-extrusion"`
+ * override keeps its inherited `fill-color` without complaint.
+ *
+ * Note the legend swatch still reflects the symbolizer's DECLARED colour, not
+ * the effective paint — an expression cannot be reduced to one colour. See
+ * ruleSwatchSpec in src/lib/legend-style.ts.
+ */
+export interface RawStyleOverrides {
+  /** Merged over the generated `paint`, key by key. */
+  paint?: Record<string, unknown>;
+  /** Merged over the generated `layout`, key by key. */
+  layout?: Record<string, unknown>;
+  /**
+   * Render as a different MapLibre layer type than the kind implies — the only
+   * way to reach `fill-extrusion` or `heatmap`. Must still suit the source's
+   * geometry; an unusable pairing is warned about in mvt-style.ts.
+   */
+  type?: NativeLayerType;
+}
+
+export interface FillSymbolizer extends RawStyleOverrides {
   kind: "Fill";
   color?: string;
   opacity?: number;
   outlineColor?: string;
+  /**
+   * Only `0` has any effect (it makes the outline transparent). MapLibre's
+   * `fill-outline-color` is locked to 1px, so any other value renders the same
+   * as 1 — a real outline width needs a companion line layer, or a
+   * `type: "line"` override with `line-width` here.
+   */
   outlineWidth?: number;
+  /** Like `outlineWidth`, only `0` has an effect. */
   outlineOpacity?: number;
 }
 
-export interface LineSymbolizer {
+export interface LineSymbolizer extends RawStyleOverrides {
   kind: "Line";
   color?: string;
   width?: number;
   opacity?: number;
 }
 
-export interface MarkSymbolizer {
+export interface MarkSymbolizer extends RawStyleOverrides {
   kind: "Mark";
   color?: string;
   radius?: number;
@@ -68,7 +125,7 @@ export interface MarkSymbolizer {
  * width/height attributes to rasterize; `width`/`height` here are the source
  * image's pixel dimensions (required by deck.gl to size the texture).
  */
-export interface IconSymbolizer {
+export interface IconSymbolizer extends RawStyleOverrides {
   kind: "Icon";
   /** Image URL (absolute or app-public path, e.g. "/poi-school.svg"). */
   image: string;
@@ -98,7 +155,20 @@ export type GeoStylerSymbolizer =
   | MarkSymbolizer
   | IconSymbolizer;
 
-export interface GeoStylerRule {
+/**
+ * One legend class: a name, an optional filter selecting its features, and the
+ * symbolizer that draws them.
+ *
+ * `name` is load-bearing well beyond styling — it is the legend label, the key
+ * for per-class visibility toggles, and (via layerId) the suffix of the MapLibre
+ * layer id that picking, restacking and the timeseries rebuild all derive.
+ * It must stay stable and unique within its layer.
+ *
+ * Rule-level `paint`/`layout`/`type` are read only when `symbolizers` is empty,
+ * which is how a layer is hand-written in raw MapLibre while keeping a legend
+ * entry; otherwise put overrides on the symbolizer.
+ */
+export interface GeoStylerRule extends RawStyleOverrides {
   name: string;
   filter?: GeoStylerFilter;
   symbolizers: GeoStylerSymbolizer[];
