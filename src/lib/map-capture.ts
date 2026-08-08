@@ -1,5 +1,6 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
 import type { ExportLegendItem, SwatchSpec } from "@/lib/legend-style";
+import { HATCH, renderHatchTile, type HatchColors } from "@/layers/hatch-pattern";
 
 /**
  * WebGL map capture + circular-PNG compositing utilities for the "Delen"
@@ -246,6 +247,32 @@ async function preloadSwatchIcons(
 }
 
 /**
+ * The hatch tile as a canvas pattern, at the same logical scale the CSS swatch
+ * uses (HATCH.size px per repeat) so the exported PNG matches the on-screen
+ * legend. `renderHatchTile` returns ImageData, which createPattern won't take —
+ * so it goes onto an intermediate canvas, downscaled from its supersampled size.
+ */
+function hatchCanvasPattern(
+  ctx: CanvasRenderingContext2D,
+  colors: HatchColors,
+): CanvasPattern | null {
+  const data = renderHatchTile(colors);
+  const src = document.createElement("canvas");
+  src.width = data.width;
+  src.height = data.height;
+  src.getContext("2d")?.putImageData(data, 0, 0);
+
+  const tile = document.createElement("canvas");
+  tile.width = HATCH.size;
+  tile.height = HATCH.size;
+  const tctx = tile.getContext("2d");
+  if (!tctx) return null;
+  tctx.drawImage(src, 0, 0, HATCH.size, HATCH.size);
+
+  return ctx.createPattern(tile, "repeat");
+}
+
+/**
  * Draw one kind-aware legend swatch (the canvas twin of the <Swatch/> React
  * component) centered vertically on `cy`, in a `box`-sized square at `x`.
  */
@@ -309,7 +336,10 @@ function drawSwatch(
     }
     case "fill":
     default: {
-      ctx.fillStyle = spec.color;
+      // Hatched classes get the same tile the map's sprite uses, scaled down to
+      // the swatch box so the stripe spacing matches the HTML <Swatch/>.
+      const pattern = spec.hatch ? hatchCanvasPattern(ctx, spec.hatch) : null;
+      ctx.fillStyle = pattern ?? spec.color;
       ctx.fillRect(x, cy - box / 2, box, box);
       ctx.strokeStyle = spec.outline ?? neutral;
       ctx.lineWidth = k;

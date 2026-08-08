@@ -4,6 +4,7 @@ import type { Feature } from "geojson";
 import type { MapRef } from "react-map-gl/maplibre";
 import type { LayerConfig } from "./types";
 import { buildNativeLayerDefs } from "./mvt-style";
+import { ensureHatchImages } from "./hatch-pattern";
 import { anchorForConfig } from "@/components/map/map-view-config";
 
 /**
@@ -185,6 +186,9 @@ export function addFlatgeobufLayer(config: LayerConfig, mapRef: React.RefObject<
       data: { type: "FeatureCollection", features: session?.features ?? [] },
     });
   }
+
+  // Any hatched rule needs its pattern image in the sprite before addLayer.
+  ensureHatchImages(map, config);
 
   const minzoom = config.minzoom ?? FGB_DEFAULT_MINZOOM;
   for (const def of buildNativeLayerDefs(config)) {

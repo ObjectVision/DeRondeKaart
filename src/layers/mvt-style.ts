@@ -1,4 +1,5 @@
 import type { LayerConfig, GeoStylerRule, GeoStylerFilter, FillSymbolizer, LineSymbolizer, MarkSymbolizer, IconSymbolizer, NativeLayerType, RawStyleOverrides } from "./types";
+import { hatchPatternId, resolveHatch } from "./hatch-pattern";
 
 /**
  * Convert a GeoStyler filter to a MapLibre expression.
@@ -305,6 +306,15 @@ function buildFillLayerDef(config: LayerConfig, rule: GeoStylerRule, sym: FillSy
     },
     layout: {},
   };
+
+  // A hatch paints over fill-color via the sprite image registered under this
+  // id (see ensureHatchImages). fill-color is deliberately left in place: it
+  // still applies where the pattern image is missing, so a failed registration
+  // degrades to the old solid fill instead of an invisible layer.
+  const hatch = resolveHatch(sym.hatch);
+  if (hatch) {
+    def.paint["fill-pattern"] = hatchPatternId(hatch);
+  }
 
   if (rule.filter) {
     def.filter = filterToExpression(rule.filter);
