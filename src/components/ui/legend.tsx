@@ -107,6 +107,14 @@ interface LegendProps {
   onCycleBasemap?: () => void;
   /** Collapse the Kaartlagen window (restored from the bottom-left bar). */
   onClose?: () => void;
+  /**
+   * Height cap for the card. Defaults to half the viewport, which suits the
+   * right-map legend in the bottom-right stack (an unbounded parent, so the
+   * card must cap itself). The left-map legend lives in the left column, whose
+   * flex parent has already been sized to the space left over below the
+   * navigation — there it passes `max-h-full` so that parent binds instead.
+   */
+  maxHeightClass?: string;
 }
 
 function LayerList({
@@ -326,13 +334,16 @@ export const Legend = memo(function Legend({
   nextBasemapLabel,
   onCycleBasemap,
   onClose,
+  maxHeightClass = "max-h-[50vh]",
 }: LegendProps) {
   const visible = entries.filter((e) => !e.config.excludeFromLegend);
   // Only the left-map legend hosts the basemap toggle + collapse button.
   const showChrome = Boolean(onCycleBasemap);
 
   return (
-    <div className="w-72 max-h-[50vh] overflow-y-auto rounded-lg bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3">
+    <div
+      className={`w-72 ${maxHeightClass} overflow-y-auto rounded-lg bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3`}
+    >
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
           Legenda

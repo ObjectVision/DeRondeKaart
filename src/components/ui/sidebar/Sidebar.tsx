@@ -148,80 +148,79 @@ export const Sidebar = memo(function Sidebar({
   }
 
   return (
-    // Column: toolbar row on top, then the sections card. The wrapper spans
-    // the full height for max-h sizing but must not swallow map clicks around
-    // the cards.
-    <div className="pointer-events-none absolute bottom-2 left-2 top-2 z-30 flex flex-col items-start gap-2 sm:bottom-4 sm:left-4 sm:top-4">
+    // Toolbar row on top, then the sections card. Positioning is the left
+    // column's job (see App.tsx) — this component only stacks its own content,
+    // and its natural height leads: the legend below takes what is left over.
+    <div className="flex flex-shrink-0 flex-col items-start gap-2">
       {toolbar && (
         <div className="pointer-events-auto flex items-center gap-2">{toolbar}</div>
       )}
 
-      <div className="flex min-h-0 flex-1 items-start">
-        {sectionsVisible && (
-          // Capped at half the viewport height — longer content (category
-          // trees, info panels) scrolls inside the card.
-          <div className="app-scrollbar pointer-events-auto relative flex max-h-[50vh] w-72 flex-col gap-4 overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
-            {onClose && (
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={onClose}
-                title="Navigatie verbergen"
-                aria-label="Navigatie verbergen"
-                className="absolute right-2 top-2 z-10 h-5 w-5"
-              >
-                <Icon name="remove" size={chromeIconSize()} color={chromeIconColor()} />
-              </Button>
-            )}
-            {filterVisible && <FilterSection areaFilter={areaFilter} />}
-            {showNavigation &&
-              (activeNode ? (
-                // Category content tree — overlays the Navigatie section in
-                // the same card slot; the back header restores the grid.
-                <div className="flex flex-col gap-2">
-                  {/* The whole header row is the back affordance — a 4px icon
-                      was a needlessly small target for the only way out of a
-                      category. Mirrors NavTree's chevron, flipped to point back. */}
-                  <button
-                    onClick={closeCategory}
-                    title="Terug naar thema's"
-                    aria-label="Terug naar thema's"
-                    className="flex w-full items-center gap-2 rounded border-b border-gray-100 px-1 pb-2 text-left transition-colors hover:bg-gray-100"
-                  >
-                    <Icon name="chevron_left" size={18} className="flex-shrink-0 text-gray-400" />
-                    <NavIcon
-                      name={activeNode.icon}
-                      color={activeNode.color}
-                      size={chromeIconSize()}
-                      className="text-orange-500"
-                    />
-                    <span className="text-sm font-semibold text-gray-900">
-                      {activeNode.label}
-                    </span>
-                  </button>
-                  <NavTree
-                    items={activeNode.children}
-                    query=""
-                    selectedLeafId={metaOpenLeafId ?? undefined}
-                    onSelectLeaf={handleRowClick}
-                    leafDetail={(leaf) => (
-                      <div className="ml-7 mt-0.5 max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-2 text-sm leading-relaxed text-gray-600">
-                        <LeafMeta layerId={leaf.id} />
-                      </div>
-                    )}
-                    leafStatus={(leaf) => <LeafStateToggle leaf={leaf} nav={nav} />}
+      {sectionsVisible && (
+        // Capped at half the viewport height — longer content (category
+        // trees, info panels) scrolls inside the card. The cap also
+        // guarantees the legend below always keeps ~half the viewport.
+        <div className="app-scrollbar pointer-events-auto relative flex max-h-[50vh] w-72 flex-col gap-4 overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
+          {onClose && (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={onClose}
+              title="Navigatie verbergen"
+              aria-label="Navigatie verbergen"
+              className="absolute right-2 top-2 z-10 h-5 w-5"
+            >
+              <Icon name="remove" size={chromeIconSize()} color={chromeIconColor()} />
+            </Button>
+          )}
+          {filterVisible && <FilterSection areaFilter={areaFilter} />}
+          {showNavigation &&
+            (activeNode ? (
+              // Category content tree — overlays the Navigatie section in
+              // the same card slot; the back header restores the grid.
+              <div className="flex flex-col gap-2">
+                {/* The whole header row is the back affordance — a 4px icon
+                    was a needlessly small target for the only way out of a
+                    category. Mirrors NavTree's chevron, flipped to point back. */}
+                <button
+                  onClick={closeCategory}
+                  title="Terug naar thema's"
+                  aria-label="Terug naar thema's"
+                  className="flex w-full items-center gap-2 rounded border-b border-gray-100 px-1 pb-2 text-left transition-colors hover:bg-gray-100"
+                >
+                  <Icon name="chevron_left" size={18} className="flex-shrink-0 text-gray-400" />
+                  <NavIcon
+                    name={activeNode.icon}
+                    color={activeNode.color}
+                    size={chromeIconSize()}
+                    className="text-orange-500"
                   />
-                </div>
-              ) : (
-                <NavigationSection
-                  tree={tree}
-                  activeCategory={activeCategory}
-                  onSelectCategory={selectCategory}
+                  <span className="text-sm font-semibold text-gray-900">
+                    {activeNode.label}
+                  </span>
+                </button>
+                <NavTree
+                  items={activeNode.children}
+                  query=""
+                  selectedLeafId={metaOpenLeafId ?? undefined}
+                  onSelectLeaf={handleRowClick}
+                  leafDetail={(leaf) => (
+                    <div className="ml-7 mt-0.5 max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-2 text-sm leading-relaxed text-gray-600">
+                      <LeafMeta layerId={leaf.id} />
+                    </div>
+                  )}
+                  leafStatus={(leaf) => <LeafStateToggle leaf={leaf} nav={nav} />}
                 />
-              ))}
-          </div>
-        )}
-      </div>
+              </div>
+            ) : (
+              <NavigationSection
+                tree={tree}
+                activeCategory={activeCategory}
+                onSelectCategory={selectCategory}
+              />
+            ))}
+        </div>
+      )}
     </div>
   );
 });
