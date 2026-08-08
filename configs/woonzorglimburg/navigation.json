@@ -151,7 +151,7 @@
     ]
   },
   {
-    "label": "Bevolking",
+    "label": "Bewoners",
     "icon": "groups",
     "color": "#3E74A7",
     "expanded": true,
@@ -223,7 +223,7 @@
     ]
   },
   {
-    "label": "woningen",
+    "label": "Gebouwen",
     "icon": "home_work",
     "color": "#3E74A7",
     "expanded": true,
@@ -381,7 +381,7 @@
     ]
   },
   {
-    "label": "omgeving",
+    "label": "Omgeving",
     "icon": "nature_people",
     "color": "#3E74A7",
     "expanded": true,
