@@ -1,4 +1,4 @@
-import type { LayerConfig, GeoStylerRule, GeoStylerFilter, FillSymbolizer, LineSymbolizer, MarkSymbolizer, IconSymbolizer } from "./types";
+import type { LayerConfig, GeoStylerRule, GeoStylerFilter, FillSymbolizer, LineSymbolizer, MarkSymbolizer, IconSymbolizer, NativeLayerType, RawStyleOverrides } from "./types";
 
 /**
  * Convert a GeoStyler filter to a MapLibre expression.
@@ -50,10 +50,55 @@ export function isNativeVectorFormat(format: LayerConfig["format"]): boolean {
 interface NativeLayerDef {
   id: string;
   ruleName: string;
-  type: "fill" | "line" | "circle" | "symbol";
+  /**
+   * Wider than the four kinds map to: a symbolizer's `type` override can select
+   * `fill-extrusion`, `heatmap` or `raster` (see RawStyleOverrides).
+   */
+  type: NativeLayerType;
   filter?: unknown[];
   paint: Record<string, unknown>;
   layout: Record<string, unknown>;
+}
+
+/** Layer types that can render from a vector source (mvt/pmtiles/flatgeobuf). */
+const VECTOR_LAYER_TYPES = new Set<NativeLayerType>([
+  "fill",
+  "line",
+  "circle",
+  "symbol",
+  "fill-extrusion",
+  "heatmap",
+]);
+
+/**
+ * Merge a symbolizer's raw MapLibre overrides over the generated def.
+ *
+ * Shallow and last, so an override wins key by key while everything it doesn't
+ * mention survives — the point is to extend a generated layer, not replace it.
+ */
+function applyRawOverrides(
+  def: NativeLayerDef,
+  sym: RawStyleOverrides,
+  config: LayerConfig,
+): NativeLayerDef {
+  if (sym.paint) def.paint = { ...def.paint, ...sym.paint };
+  if (sym.layout) def.layout = { ...def.layout, ...sym.layout };
+
+  if (sym.type && sym.type !== def.type) {
+    // A vector source cannot feed a raster layer; MapLibre would throw at
+    // addLayer with a message that doesn't name the config. Say which layer.
+    if (isNativeVectorFormat(config.format) && !VECTOR_LAYER_TYPES.has(sym.type)) {
+      console.warn(
+        `layers.json: layer "${config.id}" (${config.format}) overrides a rule's ` +
+          `type to "${sym.type}", which cannot render from a vector source; ` +
+          `keeping "${def.type}"`,
+      );
+    } else {
+      def.type = sym.type;
+    }
+  }
+
+  return def;
 }
 
 /**
@@ -203,25 +248,32 @@ function ruleOpacity(config: LayerConfig, symOpacity: number | undefined): numbe
 function buildRuleLayerDef(config: LayerConfig, rule: GeoStylerRule): NativeLayerDef {
   const sym = rule.symbolizers[0];
   if (!sym) {
-    return {
-      id: layerId(config, rule.name),
-      ruleName: rule.name,
-      type: "fill",
-      filter: rule.filter ? filterToExpression(rule.filter) : undefined,
-      paint: {},
-      layout: {},
-    };
+    // No symbolizer + raw overrides is the way to hand-write a layer outright
+    // while keeping a rule name for the legend and the per-class toggle. The
+    // rule may still carry `paint`/`type`, so run the merge here too.
+    return applyRawOverrides(
+      {
+        id: layerId(config, rule.name),
+        ruleName: rule.name,
+        type: "fill",
+        filter: rule.filter ? filterToExpression(rule.filter) : undefined,
+        paint: {},
+        layout: {},
+      },
+      rule as RawStyleOverrides,
+      config,
+    );
   }
 
   switch (sym.kind) {
     case "Fill":
-      return buildFillLayerDef(config, rule, sym);
+      return applyRawOverrides(buildFillLayerDef(config, rule, sym), sym, config);
     case "Line":
-      return buildLineLayerDef(config, rule, sym);
+      return applyRawOverrides(buildLineLayerDef(config, rule, sym), sym, config);
     case "Mark":
-      return buildCircleLayerDef(config, rule, sym);
+      return applyRawOverrides(buildCircleLayerDef(config, rule, sym), sym, config);
     case "Icon":
-      return buildSymbolLayerDef(config, rule, sym);
+      return applyRawOverrides(buildSymbolLayerDef(config, rule, sym), sym, config);
     default:
       // Falling through to a fill layer renders NOTHING for point/line data,
       // and does so silently — which is exactly how the supermarkt Icon layer

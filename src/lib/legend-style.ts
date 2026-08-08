@@ -42,7 +42,17 @@ function resolveColor(color: string | undefined, fallback: string): string {
   return color;
 }
 
-/** Swatch spec for a GeoStyler rule, from its first symbolizer. */
+/**
+ * Swatch spec for a GeoStyler rule, from its first symbolizer.
+ *
+ * Shows the symbolizer's DECLARED colour, which is not always the colour the
+ * map paints: a rule's raw `paint` override (RawStyleOverrides) wins on the map
+ * but is deliberately ignored here. An override is typically an expression —
+ * `["interpolate", …]` over a data value has no single colour to draw — so
+ * reducing one to a swatch is not well defined. A rule using overrides should
+ * keep its symbolizer's colour roughly representative, or carry no symbolizer
+ * at all and accept the neutral default below.
+ */
 export function ruleSwatchSpec(rule: GeoStylerRule): SwatchSpec {
   const sym = rule.symbolizers[0];
   if (!sym) return { kind: "fill", color: DEFAULT_COLOR };
