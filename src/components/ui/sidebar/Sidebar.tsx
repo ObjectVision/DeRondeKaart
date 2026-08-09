@@ -150,7 +150,7 @@ export const Sidebar = memo(function Sidebar({
   return (
     // Toolbar row on top, then the sections card. Positioning is the left
     // column's job (see App.tsx) — this component only stacks its own content.
-    // It takes the space the legend's 20vh cap leaves over, so it shrinks
+    // It takes the space the legend's 25vh cap leaves over, so it shrinks
     // (min-h-0) rather than pushing the legend out of the column.
     <div className="flex min-h-0 flex-col items-start gap-2">
       {toolbar && (
@@ -165,7 +165,7 @@ export const Sidebar = memo(function Sidebar({
         // between them. Longer content (category trees, info panels) scrolls
         // inside the card; `min-h-0` lets it shrink further inside the flex
         // column rather than pushing the legend off-screen.
-        <div className="app-scrollbar pointer-events-auto relative flex max-h-[70vh] min-h-0 w-72 flex-col gap-4 overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
+        <div className="app-scrollbar pointer-events-auto relative flex max-h-[70vh] min-h-0 w-panel flex-col gap-4 overflow-y-auto rounded-2xl bg-white/95 p-3 shadow-md backdrop-blur-sm">
           {onClose && (
             <Button
               variant="ghost"

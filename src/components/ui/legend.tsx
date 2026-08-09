@@ -274,7 +274,7 @@ function LayerList({
                 {/* Layer actions, revealed to the LEFT of the chevron so it keeps
                     its place at the row's right edge. The name (min-w-0 flex-1)
                     truncates to make room, so the row never grows wider than the
-                    288px card. */}
+                    card (see --width-panel in index.css). */}
                 {isExpanded && (
                   <>
                     {/* Placeholders: the handlers land when opacity control and the
@@ -502,7 +502,7 @@ export const Legend = memo(function Legend({
   return (
     <div
       ref={cardRef}
-      className={`app-scrollbar w-72 ${maxHeightClass} overflow-y-auto rounded-2xl bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3`}
+      className={`app-scrollbar w-panel ${maxHeightClass} overflow-y-auto rounded-2xl bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3`}
     >
       <div className="mb-2 flex items-center justify-between">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
