@@ -255,8 +255,8 @@
       <h1>Bestanden veilig aanleveren</h1>
       <p class="intro">
         Bestanden worden <strong>in uw browser versleuteld</strong> voordat ze
-        worden verzonden. Alleen de toegewezen verwerker bij Object Vision kan ze
-        openen — de server zelf niet.
+        worden verzonden. Alleen de toegewezen verwerker bij Object Vision is in staat ze
+        te ontsleutelen — de server zelf niet.
       </p>
 
       <!-- Hidden until /drop/pubkey confirms the drop is open (app.js reveals it).
@@ -389,20 +389,6 @@
         </ol>
 
         <div class="notes">
-          <div class="note">
-            <h3>Hoe wordt de publieke sleutel van de ontvanger gebruikt?</h3>
-            <p>
-              De <span class="pub">publieke sleutel</span> van de ontvanger wordt
-              gebruikt tijdens het versleutelen. Daarmee wordt van het bestand een
-              sealed box gemaakt.
-            </p>
-            <p>
-              De publieke sleutel <strong>vergrendelt</strong> dus het bestand, maar
-              kan het <strong>niet</strong> openen. Alleen de bijbehorende
-              <span class="priv">privésleutel</span> van de ontvanger kan het bestand
-              weer ontsleutelen.
-            </p>
-          </div>
           <div class="note note--seal">
             <h3>Versleuteld met NaCl sealed boxes (X25519/Poly1305).</h3>
             <p>Vragen? <a href="mailto:info@objectvision.nl">info@objectvision.nl</a></p>
