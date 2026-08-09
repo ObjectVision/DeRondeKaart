@@ -1,12 +1,12 @@
 import { memo, useEffect, useState } from "react";
-import { NavIcon, Icon } from "@/components/ui/nav-icon";
+import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
-import { NavTree } from "@/components/ui/navigation/NavTree";
 import { LeafMeta } from "@/components/ui/navigation/LeafMeta";
 import { FilterSection } from "./FilterSection";
 import { NavigationSection } from "./NavigationSection";
 import { loadNavigation, type NavLeaf, type NavNode } from "@/layers/navigation";
 import { loadLayerConfigs } from "@/layers";
+import { useNavExpansion } from "@/hooks/use-nav-expansion";
 import type { NavigationApi } from "@/hooks/use-navigation";
 import type { AreaFilterState } from "@/hooks/use-area-filter";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
@@ -53,11 +53,12 @@ function LeafStateToggle({ leaf, nav }: { leaf: NavLeaf; nav: NavigationApi }) {
 
 /**
  * Left sidebar (map.json `navigationMode: "sidebar"`): the Filter section on
- * top of a Navigatie grid of category buttons. Clicking a category overlays
- * that category's content tree over the Navigatie section (inside the same
- * card, with a back header). Each layer row carries a permanent on-map state
- * toggle (LeafStateToggle); clicking the rest of the row adds the layer and/or
- * toggles its meta info panel below the row (see handleRowClick).
+ * top of the Navigatie treeview. The top level is the category rows; clicking
+ * one expands its branches and leaves in place beneath it, leaving the sibling
+ * categories visible so the user keeps their bearings. Each layer row carries a
+ * permanent on-map state toggle (LeafStateToggle); clicking the rest of the row
+ * adds the layer and/or toggles its meta info panel below the row (see
+ * handleRowClick).
  */
 export const Sidebar = memo(function Sidebar({
   nav,
@@ -83,7 +84,6 @@ export const Sidebar = memo(function Sidebar({
   toolbar?: React.ReactNode;
 }) {
   const [tree, setTree] = useState<NavNode[]>([]);
-  const [activeCategory, setActiveCategory] = useState<number | null>(null);
   // The row whose meta info panel is currently open (null = none open).
   const [metaOpenLeafId, setMetaOpenLeafId] = useState<string | null>(null);
   // Layer ids that have a `meta` description. handleRowClick decides whether to
@@ -101,25 +101,18 @@ export const Sidebar = memo(function Sidebar({
       .catch((err) => console.error("Failed to load layers.json:", err));
   }, []);
 
+  // Branch expansion is remembered for the session and seeded from each node's
+  // `expanded` in navigation.json. Lifted out of the rows because collapsing a
+  // theme unmounts its subtree — see use-nav-expansion.ts.
+  const { isOpen, toggle } = useNavExpansion(tree);
+
   const filterVisible = showFilter && areaFilter.entries.length > 0;
-  // The category tree only makes sense while the Navigatie section is shown.
-  const activeNode = showNavigation && activeCategory !== null ? tree[activeCategory] : null;
   const sectionsVisible = filterVisible || showNavigation;
 
   // Nothing at all to show — don't render an empty wrapper (and let map
   // clicks through). The toolbar alone still renders: it is how minimized
   // sections are restored.
   if (!sectionsVisible && !toolbar) return null;
-
-  function selectCategory(index: number) {
-    setActiveCategory((current) => (current === index ? null : index));
-    setMetaOpenLeafId(null);
-  }
-
-  function closeCategory() {
-    setActiveCategory(null);
-    setMetaOpenLeafId(null);
-  }
 
   // Row click (anywhere except the on-map state toggle). One combined gesture:
   //  - meta panel open → close it (whether or not the layer is on a map).
@@ -179,51 +172,21 @@ export const Sidebar = memo(function Sidebar({
             </Button>
           )}
           {filterVisible && <FilterSection areaFilter={areaFilter} />}
-          {showNavigation &&
-            (activeNode ? (
-              // Category content tree — overlays the Navigatie section in
-              // the same card slot; the back header restores the grid.
-              <div className="flex flex-col gap-2">
-                {/* The whole header row is the back affordance — a 4px icon
-                    was a needlessly small target for the only way out of a
-                    category. Mirrors NavTree's chevron, flipped to point back. */}
-                <button
-                  onClick={closeCategory}
-                  title="Terug naar thema's"
-                  aria-label="Terug naar thema's"
-                  className="flex w-full items-center gap-2 rounded border-b border-gray-100 px-1 pb-2 text-left transition-colors hover:bg-gray-100"
-                >
-                  <Icon name="chevron_left" size={18} className="flex-shrink-0 text-gray-400" />
-                  <NavIcon
-                    name={activeNode.icon}
-                    color={activeNode.color}
-                    size={chromeIconSize()}
-                    className="text-orange-500"
-                  />
-                  <span className="text-sm font-semibold text-gray-900">
-                    {activeNode.label}
-                  </span>
-                </button>
-                <NavTree
-                  items={activeNode.children}
-                  query=""
-                  selectedLeafId={metaOpenLeafId ?? undefined}
-                  onSelectLeaf={handleRowClick}
-                  leafDetail={(leaf) => (
-                    <div className="ml-7 mt-0.5 max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-2 text-sm leading-relaxed text-gray-600">
-                      <LeafMeta layerId={leaf.id} />
-                    </div>
-                  )}
-                  leafStatus={(leaf) => <LeafStateToggle leaf={leaf} nav={nav} />}
-                />
-              </div>
-            ) : (
-              <NavigationSection
-                tree={tree}
-                activeCategory={activeCategory}
-                onSelectCategory={selectCategory}
-              />
-            ))}
+          {showNavigation && (
+            <NavigationSection
+              tree={tree}
+              isOpen={isOpen}
+              onToggle={toggle}
+              selectedLeafId={metaOpenLeafId ?? undefined}
+              onSelectLeaf={handleRowClick}
+              leafDetail={(leaf) => (
+                <div className="ml-7 mt-0.5 max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-2 text-sm leading-relaxed text-gray-600">
+                  <LeafMeta layerId={leaf.id} />
+                </div>
+              )}
+              leafStatus={(leaf) => <LeafStateToggle leaf={leaf} nav={nav} />}
+            />
+          )}
         </div>
       )}
     </div>

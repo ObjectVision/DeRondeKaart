@@ -9,6 +9,21 @@ interface NavTreeProps {
   selectedLeafId?: string;
   onSelectLeaf: (leaf: NavLeaf, path: string[]) => void;
   /**
+   * Label path of the node these items hang under, used to build each branch's
+   * identity for `isOpen`/`onToggle`. Empty at the root; the sidebar passes the
+   * theme's label so branch keys match the tree as a whole.
+   */
+  path?: string[];
+  /**
+   * Controlled expansion. Supply BOTH to lift branch open/closed state out of
+   * the rows (the sidebar does, so state survives a branch unmounting and
+   * persists for the session — see use-nav-expansion.ts). Omit both and each
+   * branch keeps its own local state seeded from `node.expanded`, which is what
+   * the top-mode popover wants: a transient view that resets when reopened.
+   */
+  isOpen?: (path: string[]) => boolean;
+  onToggle?: (path: string[]) => void;
+  /**
    * Actions rendered to the RIGHT of a leaf row (the sidebar's three-button
    * menu) — always visible on the selected row, shown on hover for the rest.
    * When omitted, selecting a leaf is the caller's business entirely (top
@@ -37,6 +52,9 @@ export function NavTree({
   query,
   selectedLeafId,
   onSelectLeaf,
+  path = [],
+  isOpen,
+  onToggle,
   leafActions,
   leafDetail,
   leafStatus,
@@ -62,7 +80,10 @@ export function NavTree({
               node={item}
               query={query}
               selectedLeafId={selectedLeafId}
-              onSelectLeaf={(leaf, path) => onSelectLeaf(leaf, [item.label, ...path])}
+              onSelectLeaf={(leaf, leafPath) => onSelectLeaf(leaf, [item.label, ...leafPath])}
+              path={[...path, item.label]}
+              isOpen={isOpen}
+              onToggle={onToggle}
               leafActions={leafActions}
               leafDetail={leafDetail}
               leafStatus={leafStatus}
@@ -78,6 +99,9 @@ function BranchRow({
   query,
   selectedLeafId,
   onSelectLeaf,
+  path,
+  isOpen,
+  onToggle,
   leafActions,
   leafDetail,
   leafStatus,
@@ -86,18 +110,27 @@ function BranchRow({
   query: string;
   selectedLeafId?: string;
   onSelectLeaf: (leaf: NavLeaf, path: string[]) => void;
+  path: string[];
+  isOpen?: (path: string[]) => boolean;
+  onToggle?: (path: string[]) => void;
   leafActions?: (leaf: NavLeaf) => React.ReactNode;
   leafDetail?: (leaf: NavLeaf) => React.ReactNode;
   leafStatus?: (leaf: NavLeaf) => React.ReactNode;
 }) {
-  const [open, setOpen] = useState(node.expanded ?? false);
-  // A non-empty query force-expands matching branches.
+  // Always declared (hooks can't be conditional); ignored when controlled.
+  const [localOpen, setLocalOpen] = useState(node.expanded ?? false);
+  const controlled = isOpen !== undefined && onToggle !== undefined;
+  const open = controlled ? isOpen(path) : localOpen;
+  // A non-empty query force-expands matching branches. Deliberately does NOT
+  // write through to the controlled state: clearing the search must return the
+  // tree to what the user actually left open, not to all-expanded.
   const expanded = query ? true : open;
 
   return (
     <li>
       <button
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => (controlled ? onToggle(path) : setLocalOpen((v) => !v))}
+        aria-expanded={expanded}
         className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-sm transition-colors hover:bg-gray-100"
       >
         <Icon
@@ -120,6 +153,9 @@ function BranchRow({
             query={query}
             selectedLeafId={selectedLeafId}
             onSelectLeaf={onSelectLeaf}
+            path={path}
+            isOpen={isOpen}
+            onToggle={onToggle}
             leafActions={leafActions}
             leafDetail={leafDetail}
             leafStatus={leafStatus}
