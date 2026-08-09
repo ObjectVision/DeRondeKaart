@@ -1682,11 +1682,15 @@ function App({
           />
         )}
 
-        {/* Absorbs the slack when both cards fit (legend pinned to the bottom,
-            nav to the top) and collapses to zero when they don't. */}
+        {/* Pushes the legend to the bottom of the column: it absorbs whatever
+            the two capped cards leave over, and collapses to zero when they
+            together need the full height. */}
         <div className="min-h-0 flex-1" aria-hidden />
 
-        <div className="pointer-events-auto flex min-h-0 flex-shrink flex-col items-start">
+        {/* Bottom-left, at most a quarter of the viewport. `flex-shrink` still
+            lets it give way below that cap if the column runs out of room, so
+            it can never overlap the navigation above. */}
+        <div className="pointer-events-auto flex max-h-[25vh] min-h-0 flex-shrink flex-col items-start">
           {legendMinimized ? (
             // Collapsed bar (bottom-left → right): show-Kaartlagen toggle, then
             // the basemap toggle. Restoring re-opens the Kaartlagen window.
@@ -1731,9 +1735,8 @@ function App({
               nextBasemapLabel={nextBasemap.label}
               onCycleBasemap={cycleBasemap}
               onClose={toggleLegendMinimized}
-              // The column above has already sized this slot to the space left
-              // over below the navigation — let that bind instead of a second,
-              // independent 50vh cap (the two together caused the overlap).
+              // The slot above already applies the 20vh cap and the shrink —
+              // let that bind rather than a second, independent cap here.
               maxHeightClass="max-h-full"
             />
           )}
