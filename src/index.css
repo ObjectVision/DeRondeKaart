@@ -96,6 +96,14 @@ html, body {
   --color-card: var(--card);
   --color-foreground: var(--foreground);
   --color-background: var(--background);
+  /* Shared width of the floating chrome cards (Legenda, Navigatie) so the two
+     cannot drift apart. Clamped to the viewport: the cards sit in a
+     `left-2`-anchored column, so on a very narrow window a fixed 300px would
+     run off the right edge rather than shrink. Use the generated `w-panel`
+     utility — this block is `@theme inline`, which bakes the value into the
+     utility instead of emitting a live custom property, so the
+     `w-(--width-panel)` shorthand would resolve to nothing. */
+  --width-panel: min(350px, 88vw);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
