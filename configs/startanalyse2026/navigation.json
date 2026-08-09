@@ -2,7 +2,7 @@
   {
     "label": "Kernkaarten",
     "icon": "LN.svg",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "Laagste nationale kosten",
@@ -156,7 +156,7 @@
   {
     "label": "Laagste nationale kosten",
     "icon": "LN.svg",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "Nationale kosten",
@@ -352,7 +352,7 @@
   {
     "label": "Basisgegevens",
     "icon": "BG.svg",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "Pand",
@@ -443,7 +443,7 @@
   {
     "label": "Strategie 1: eWP",
     "icon": "S1.svg",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "Nationale kosten",
@@ -618,7 +618,7 @@
   {
     "label": "Strategie 2: MT-warmtenet",
     "icon": "S2.svg",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "Nationale kosten",
@@ -807,7 +807,7 @@
   {
     "label": "Strategie 3: Combi LT-WN & eWP",
     "icon": "S3.svg",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "Nationale kosten",
@@ -1003,7 +1003,7 @@
   {
     "label": "Strategie 4: hWP met klimaatneutraal gas",
     "icon": "S4.svg",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "Nationale kosten",
@@ -1178,7 +1178,7 @@
   {
     "label": "Referentie 2023",
     "icon": "R23.svg",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "Verbruik totaal",
@@ -1325,7 +1325,7 @@
   {
     "label": "Referentie 2030",
     "icon": "R30.svg",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "Verbruik totaal",
@@ -1472,7 +1472,7 @@
   {
     "label": "Gevoeligheidsanalyses",
     "icon": "GLN.svg",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "GA01",

@@ -3,7 +3,7 @@
     "label": "Woonzorganalyse",
     "icon": "diversity_1",
     "color": "#3E74A7",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "Woningvoorraad",
@@ -154,7 +154,7 @@
     "label": "Bewoners",
     "icon": "groups",
     "color": "#3E74A7",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "Sociaal economisch",
@@ -226,7 +226,7 @@
     "label": "Gebouwen",
     "icon": "home_work",
     "color": "#3E74A7",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "pandkenmerken",
@@ -384,7 +384,7 @@
     "label": "Omgeving",
     "icon": "nature_people",
     "color": "#3E74A7",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "voorzieningen",
@@ -673,7 +673,7 @@
     "label": "gebiedsindelingen",
     "icon": "border_all",
     "color": "#3E74A7",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "id": "cbsgemeente2026",
