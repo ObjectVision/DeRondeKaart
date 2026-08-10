@@ -603,15 +603,77 @@ to appending — but the layer then lands in the wrong band, which is why
 
 ### 6.6 Composites
 
-A composite is one legend/navigation entry wrapping inline child configs, each
-active over a `[minzoom, maxzoom)` band. `composite-manager.ts` watches
-`moveend` and loads/unloads children as the zoom crosses band edges, delegating
-the actual work to a host implemented in `useMapLayers` (children
-need React state setters that module scope cannot reach).
+A composite is **one `layers.json` entry** holding inline child configs, each
+active over a `[minzoom, maxzoom)` band.
+[composite-manager.ts](../src/layers/composite-manager.ts) watches `moveend` and
+loads/unloads children as the zoom crosses band edges, delegating the actual
+work to a host implemented in `useMapLayers` (children need React state setters
+that module scope cannot reach).
 
-Two flavours: a parent **with** `geostyler` means zoom-banded alternatives
-sharing one legend; a parent **without** means children render simultaneously
-and each contributes its own legend classes.
+The fan-out is one-to-many in exactly one direction: the composite is a single
+legend row, a single share id, and a single thing a navigation leaf can point
+at, while putting N sets of native MapLibre layers on the map. Children are
+never `layerEntries` — they "exist only as native sources on the map"
+([use-map-layers.ts](../src/hooks/use-map-layers.ts)). Note that
+`navigation.json` knows nothing about any of this: `navigation.ts` contains no
+composite handling, and a composite is simply what a leaf's `id` happens to
+resolve to.
+
+#### What a child config *is*
+
+`LayerConfig.layers` is typed `LayerConfig[]`, and **that type is looser than
+the contract**. `validateChildConfig` ([config.ts](../src/layers/config.ts))
+reads a fixed set of keys off the raw JSON and discards everything else, so a
+child carrying `charts` or `excludeFromPicking` is accepted by `tsc` and
+silently dropped at load.
+
+| | Keys |
+|---|---|
+| **Read from the child** | `source` (required), `format` (required), `geometryType`, `sourceLayer`, `geostyler`, `style`, `beforeid`, `embeddedColors`, `minzoom`, `maxzoom` |
+| **Synthesized from the parent** | `id` = `` `${parent.id}__c${index}` ``, `name` = the parent's `name` |
+| **Refused** | `featureinfo` — warns, then ignored; popups use the composite's |
+| **Dropped silently** | everything else: `charts`, `statistics`, `attributeSource`, `meta`, `timeseries`, `excludeFrom*`, a nested `layers` |
+
+A child's `format` is checked against `CHILD_FORMATS` — `mvt`, `cog`,
+`flatgeobuf`, `pmtiles`. `composite` is deliberately absent, so **composites do
+not nest**; `geojson` is absent because it is in-memory only (§6.1).
+
+#### Which property lives where
+
+| Property | Lives on | Note |
+|---|---|---|
+| `id`, `name` | composite | children derive both |
+| `source`, `format`, `sourceLayer`, `embeddedColors` | **child** | a composite has no source of its own; its `source` is forced to `""` |
+| `minzoom` / `maxzoom` | **child** | the load band, `minzoom <= zoom < maxzoom`; also stamped on the native layer spec so the cutoff is exact mid-gesture |
+| `beforeid` | **child, falling back to the parent's** | the only inherited-with-override property |
+| `style`, `geometryType` | child for rendering; parent only as a **fallback legend swatch** | the parent's pair is read solely when neither it nor any child yields legend rows, so on a styled composite it is dead config. Child `style` defaults to `{}` |
+| `geostyler` | **either — and which one decides the flavour** | see below |
+| `featureinfo` | composite | picks report the parent's id and name and render the parent's template (`expandForMapQueries`) |
+| `excludeFromLegend`, `excludeFromPicking`, `excludeFromComparison`, `meta` | composite | |
+| `charts`, `statistics`, `attributeSource` | **neither** | forced `undefined` with a warning — composites are not chart-eligible |
+
+`geostyler` is the one property meaningful in both places, and where it sits
+selects between the two flavours:
+
+- **Parent has `geostyler`** — children are zoom-banded alternatives sharing one
+  rule set. The parent's rules are the legend, and a rule toggle applies to
+  *every* child.
+- **Parent has none** — children render simultaneously and each contributes its
+  own legend rows via `compositeLegendRules`. Those rows are keyed
+  `"<childIndex>:<ruleName>"`, because children routinely share rule names —
+  every loopafstand COG uses the same six class names, and a bare name would
+  toggle all of them at once. COG rows are non-interactive: a per-pixel colour
+  function registered per source URL cannot hide one class.
+
+#### Two traps
+
+- **A composite's own `minzoom`/`maxzoom` do nothing.** They are validated and
+  stored like any layer's, but the composite branch never reaches
+  `buildNativeLayerDefs`, and `childInRange` reads the *child's* bounds. A band
+  written on the parent is inert, not inherited.
+- **`__c` is reserved in ids.** A top-level id containing it warns, because the
+  host recovers the parent id by stripping `/__c\d+$/`, and the child index
+  parsed from that same suffix is what routes a hidden-rule key to one child.
 
 ---
 
@@ -896,6 +958,7 @@ For non-Docker hosts, [server/](../server/) holds provisioning scripts:
 ---
 
 ## 14. Data pipeline
+The initial datapipeline makes use of GeoDMS where sourcedata is translated to intermediate .geojson files, where simplification can be included with preservation of topology to simplify for various zoomlevels of a pmtiles file. These .geojson files then go into external converters.
 
 [data/](../data/) holds eight Python converters that turn source rasters and
 vectors into the formats the app reads. They use PEP 723 inline dependency
@@ -923,13 +986,6 @@ Choosing an output: **COG** for continuous surfaces (elevation, imagery);
 **PMTiles** for classified polygons at province scale; **Parquet/Arrow** when
 charts need whole-dataset attributes; **FlatGeobuf** for large vector data
 browsed at high zoom.
-
-Two prerequisites are not pip-installable: **GDAL** (Python bindings, for the
-PMTiles/COG writers — an OSGeo4W or conda environment) and **mapshaper** (Node,
-via `npx`) for topology-preserving simplification. `convert-tif-to-geojson.py`
-delegates simplification to mapshaper specifically because neighbouring polygons
-share borders: simplifying each polygon independently would produce slivers and
-gaps along every internal boundary.
 
 Workflow: convert → upload to the data host → reference the URL from
 `layers.json`.
