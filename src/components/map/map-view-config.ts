@@ -31,18 +31,25 @@ export interface Basemap {
 
 export const BASEMAPS: Basemap[] = [
   {
-    id: "maptiler-basic",
-    label: "MapTiler Basic",
-    base: "/maptiler-basic-base.json",
-    overlay: "/maptiler-basic-overlay.json",
+    // Default. Same OpenMapTiles schema the Carto-hosted styles used, so the
+    // layer definitions carried over unchanged — only the source, glyphs and
+    // sprite differ.
+    //
+    // Two provider quirks are baked into the style files, and both fail
+    // SILENTLY (missing labels, or a source that never loads) if reintroduced:
+    //  - The source is the UNVERSIONED `/planet` TileJSON, not a pinned build
+    //    path. A versioned path serves tiles but no tiles.json — it answers any
+    //    unknown path with an empty 200 and `x-ofm-debug: empty tile`, which
+    //    MapLibre cannot read. `/planet` currently resolves to build
+    //    20260802_080001_pt.
+    //  - Fonts are single-name Noto stacks. OpenFreeMap has no Open Sans, and
+    //    404s any comma-joined fontstack, so the usual "preferred, fallback"
+    //    pair does not work.
+    id: "openfreemap",
+    label: "OpenFreeMap",
+    base: "/openfreemap-base.json",
+    overlay: "/openfreemap-overlay.json",
   },
-  // Positron is temporarily removed from the cycle (kept here for easy restore).
-  // {
-  //   id: "positron",
-  //   label: "Positron",
-  //   base: "/positron-base.json",
-  //   overlay: "/positron-overlay.json",
-  // },
   {
     // PDOK aerial photography (RGB 8cm). The imagery replaces the vector base;
     // only the labels (no roads/water) are drawn on top so place names stay
@@ -50,7 +57,7 @@ export const BASEMAPS: Basemap[] = [
     id: "luchtfoto",
     label: "Luchtfoto",
     base: "/pdok-luchtfoto-base.json",
-    overlay: "/maptiler-basic-labels.json",
+    overlay: "/openfreemap-labels.json",
   },
 ];
 

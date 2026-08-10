@@ -12,14 +12,10 @@
       "minzoom": 0,
       "maxzoom": 21,
       "attribution": "Luchtfoto &copy; PDOK / Beeldmateriaal Nederland"
-    },
-    "carto": {
-      "type": "vector",
-      "url": "https://tiles.basemaps.cartocdn.com/vector/carto.streets/v1/tiles.json"
     }
   },
-  "sprite": "https://tiles.basemaps.cartocdn.com/gl/positron-gl-style/sprite",
-  "glyphs": "https://tiles.basemaps.cartocdn.com/fonts/{fontstack}/{range}.pbf",
+  "sprite": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm",
+  "glyphs": "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
   "layers": [
     {
       "id": "background",
