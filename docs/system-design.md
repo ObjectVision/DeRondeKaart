@@ -958,7 +958,7 @@ For non-Docker hosts, [server/](../server/) holds provisioning scripts:
 ---
 
 ## 14. Data pipeline
-The initial datapipeline makes use of GeoDMS where sourcedata is translated to intermediate .geojson files, where simplification can be included with preservation of topology to simplify for various zoomlevels of a pmtiles file. These .geojson files then go into external converters.
+The initial datapipeline makes use of GeoDMS where sourcedata is translated to intermediate .geojson files, where simplification can be included with preservation of topology to simplify for various zoomlevels of a pmtiles file. Another route for simplification is experimentally tomake use of **mapshaper** using script `convert-tif-to-geojson.py`. These .geojson files then go into external converters. 
 
 [data/](../data/) holds eight Python converters that turn source rasters and
 vectors into the formats the app reads. They use PEP 723 inline dependency
