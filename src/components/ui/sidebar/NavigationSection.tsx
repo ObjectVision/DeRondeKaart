@@ -92,7 +92,11 @@ export function NavigationSection({
                     size={navIconSize(24)}
                     className="flex-shrink-0"
                   />
-                  <span className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-gray-900">
+                  {/* whitespace-normal is load-bearing: buttonVariants sets
+                      whitespace-nowrap on the Button itself, so dropping the
+                      truncate alone would leave the label on one overflowing
+                      line rather than wrapping. */}
+                  <span className="min-w-0 flex-1 whitespace-normal break-words text-left text-sm font-semibold text-gray-900">
                     {node.label}
                   </span>
                   {/* Rotates rather than pointing right: the row expands in
