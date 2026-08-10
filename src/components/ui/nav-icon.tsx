@@ -30,7 +30,12 @@ function svgIconUrl(name: string): string {
  *   `<img>`. These SVGs carry their own fill color, so `color` is ignored for
  *   them (it can't retint an `<img>`).
  *
- * Pass a pixel `size` rather than a Tailwind size-* class either way.
+ * Pass a pixel `size` rather than a Tailwind size-* class either way. `size` is
+ * the icon's **height**: a Material glyph's font-size, and an SVG's rendered
+ * height with its width following the asset's aspect ratio. A square box would
+ * letterbox a non-square asset — a 200x133 icon in a 24x24 box draws 24w x 16h,
+ * two thirds the height of the glyphs beside it, which reads as "the icon is
+ * too small" rather than "the box is the wrong shape".
  */
 export function Icon({
   name,
@@ -49,10 +54,16 @@ export function Icon({
         aria-hidden
         alt=""
         src={svgIconUrl(name)}
+        // Attributes are the pre-load intrinsic-size hint (square is the right
+        // guess: most assets here are). The style below is what actually sizes
+        // it, so a wide asset only reflows the row once, before first paint.
         width={size}
         height={size}
         className={cn("inline-block select-none", className)}
-        style={{ width: size, height: size }}
+        // `maxWidth: none` overrides Tailwind preflight's `img { max-width: 100% }`,
+        // which would otherwise re-clamp a wide icon inside a narrow flex row —
+        // reintroducing the squashing this avoids.
+        style={{ height: size, width: "auto", maxWidth: "none" }}
         draggable={false}
       />
     );

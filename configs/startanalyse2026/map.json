@@ -16,6 +16,7 @@
   },
   "chromeIconSize": 22,
   "chromeIconColor": "#3E74A7",
+  "navIconSize": 32,
   "share": true,
   "annotations": false,
   "clickMarker": {

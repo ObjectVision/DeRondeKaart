@@ -1,6 +1,7 @@
 import { useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { NavIcon, Icon } from "@/components/ui/nav-icon";
+import { navIconSize } from "@/config/map-config";
 import { NavTree } from "@/components/ui/navigation/NavTree";
 import { withAlpha } from "@/lib/utils";
 import type { NavLeaf, NavNode } from "@/layers/navigation";
@@ -85,7 +86,12 @@ export function NavigationSection({
                   onClick={() => handleToggle(node.label)}
                   title={node.label}
                 >
-                  <NavIcon name={node.icon} color={node.color} size={24} className="flex-shrink-0" />
+                  <NavIcon
+                    name={node.icon}
+                    color={node.color}
+                    size={navIconSize(24)}
+                    className="flex-shrink-0"
+                  />
                   <span className="min-w-0 flex-1 truncate text-left text-sm font-semibold text-gray-900">
                     {node.label}
                   </span>
