@@ -119,6 +119,84 @@ truncated copies), opens the sealed box, and writes plaintext to
 Note that scp is a convenience, not the safeguard: the blobs are ciphertext,
 so confidentiality never depends on the transfer.
 
+### 5. Periodically: roll the keypair
+
+Rotate on a schedule (yearly is a reasonable default) and **immediately** on:
+suspected exposure of `drop-secret.key`, loss or reinstall of the admin
+machine, or a change of key custodian.
+
+Only one thing has to change: the `DROP_PUBLIC_KEY` line in the systemd unit.
+The public key is not baked into the page, the repo, or any config — the page
+fetches it from `/drop/pubkey` at load time — so **no redeploy is involved**.
+
+Rotation protects *future* drops only. Anything already sealed to the old key
+stays readable only with the old private key, so the safe order is
+**drain first, then switch**:
+
+```sh
+# 1. Admin machine — new keypair beside the old one. Note the dated filename:
+#    drop_keygen.py REFUSES to overwrite an existing key file, by design.
+uv run tools/drop_keygen.py --out drop-secret-$(date +%Y%m%d).key   # prints <newpub>
+
+# 2. Close the drop, so nothing arrives mid-switch and every stored blob
+#    belongs to exactly one key generation.
+ssh deploy@<host> drop-toggle-woonzorglimburg_drop close \
+    --reason "Onderhoud, probeert u het over een uur opnieuw."
+
+# 3. Drain: retrieve everything sealed to the OLD key, decrypt, then delete it
+#    from the server. After this, the old key has no blobs left to open.
+scp -r deploy@<host>:/var/lib/woonzorglimburg_drop/drops ./drops-$(date +%Y%m%d)/
+uv run tools/drop_decrypt.py --key drop-secret.key ./drops-*/
+ssh deploy@<host> 'rm -f /var/lib/woonzorglimburg_drop/drops/*.bin \
+                        /var/lib/woonzorglimburg_drop/drops/*.json'
+
+# 4. Server — swap the key in the unit and restart.
+sudo sed -i 's|^Environment=DROP_PUBLIC_KEY=.*|Environment=DROP_PUBLIC_KEY=<newpub>|' \
+    /etc/systemd/system/drop-woonzorglimburg_drop.service
+sudo systemctl daemon-reload
+sudo systemctl restart drop-woonzorglimburg_drop
+
+# 5. Verify BEFORE reopening — see the note below on why this step is not optional.
+systemctl is-active drop-woonzorglimburg_drop
+curl -s https://aanleveren.woonzorglimburg.nl/drop/healthz
+
+# 6. Reopen, then prove the new key end to end with a throwaway file.
+ssh deploy@<host> drop-toggle-woonzorglimburg_drop open
+curl -s https://aanleveren.woonzorglimburg.nl/drop/pubkey    # must equal <newpub>
+uv run tools/drop_encrypt.py \
+    --pubkey https://aanleveren.woonzorglimburg.nl/drop/pubkey \
+    --upload https://aanleveren.woonzorglimburg.nl/drop  rotation-test.txt
+# then scp + drop_decrypt.py --key drop-secret-<date>.key, and delete the test drop
+```
+
+Finally, rename the new key to `drop-secret.key`, back it up, record the
+changeover date in your key-custody note, and destroy the old key **and its
+backups** — but only once step 3 confirms nothing sealed to it remains.
+
+Four things to know before you run this:
+
+- **A bad key value is an outage, not a warning.** `publicKey()` in
+  [src/config.ts](src/config.ts) base64-decodes `DROP_PUBLIC_KEY`, requires
+  exactly 32 bytes, and re-encodes to check the round trip; anything else
+  throws at startup and the service will not come up. Hence step 5 before
+  step 6 — a closed drop is a polite message, a crashed one is a broken site.
+- **Already-open browser tabs keep the old key.** The page fetches
+  `/drop/pubkey` once per page load (`cache: "no-store"`, so nothing is cached
+  at the HTTP layer, but the value is held for the tab's lifetime). A sender
+  who loaded the page before the switch and uploads after it produces a blob
+  sealed to the *old* key. Closing the drop across the switch (step 2) makes
+  those tabs fail loudly instead; if you skip the close, keep the old key until
+  you have decrypted everything received around the changeover.
+- **`drop_decrypt.py` takes one `--key`.** With a mixed directory, run it once
+  per key over the same directory. Blobs from the other generation report
+  `sealed box would not open (wrong key or tampered blob)` and the run exits 1
+  — expected in that situation, but it means the exit code cannot be trusted as
+  a "nothing failed" signal.
+- **Re-running `setup_drop_server.sh --pubkey <newpub>` also works** and is
+  idempotent, but it rewrites the unit, the nginx site and the deploy hook.
+  Prefer the two-line edit above for a key change; keep the full script for
+  when the whole instance is being reprovisioned.
+
 ## Abuse & overload guards
 
 All env-tunable via systemd `Environment=` lines (see the unit written by the
@@ -147,8 +225,8 @@ in-transit path is doubly covered (TLS around an already-sealed payload).
   responsibility — moves to the admin machine. Decrypt onto an encrypted disk;
   honour the retention policy; delete server-side copies once processed.
 - A leaked private key exposes **everything sealed to it, past and future**.
-  Rotation (new keypair, update `DROP_PUBLIC_KEY`, restart) protects future
-  drops only. Treat a leak as an incident: retrieve + delete stored blobs.
+  Rotation (§5) protects future drops only. Treat a leak as an incident:
+  retrieve + delete stored blobs, then roll the keypair immediately.
 - Nothing authenticates *senders*: anyone with the URL can upload. That is by
   design (guards bound the abuse) — the service accepts data, it never returns
   any.
@@ -166,7 +244,7 @@ in-transit path is doubly covered (TLS around an already-sealed payload).
 - Define a **bewaartermijn** and either enforce it operationally (delete after
   pickup) or via `DROP_TTL_DAYS`.
 - Key custody: document who holds `drop-secret.key`, where its backup lives,
-  and the rotation procedure above.
+  when it was last rolled, and on what cadence (§5).
 
 ## Development
 
