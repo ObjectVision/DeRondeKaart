@@ -71009,6 +71009,53 @@
       "featureinfo": {
         "template": "<table class=\"table\"> <tr><td rowspan=100> <img style=\"max-width: 80px; height: auto\" src=\"https://startanalyse2025.files.mapgallery.io/symbolen/LN.png\"></td></tr> <tr><th scope=\"col\">Attribuut</th><th scope=\"col\">Waarde</th> <th scope=\"col\">Eenheid</th></tr> <tr><td>Buurt</td><td>[[ buurtnaam ]]</td><td></td></tr> <tr><td>Wijk</td><td>[[ wijknaam ]]</td><td></td></tr> <tr><td>Gemeente</td><td>[[ gemeentenaam ]]</td><td></td></tr> <tr><td>Energieregio</td><td>[[ energieregionaam ]]</td><td></td></tr> <tr><td>Variant</td><td>[[ v01_strategievariant ]]</td><td></td></tr> <tr><td>Aantal woningen</td><td>[[ aantalwoningen ]]</td><td>woning</td></tr> <tr><td>Aantal utiliteiten</td><td>[[ aantalutiliteiten ]]</td><td>utiliteit</td></tr> <tr><td>Aantal woning equivalenten</td><td>[[ woningequivalenten ]]</td><td>WEQ</td></tr> <tr><td>Nationale meerkosten <img src=\"https://startanalyse2025.files.mapgallery.io/symbolen/S1.png\" style=\"width: 40px; height: auto;\" alt=\"S1\"></td><td>[[ s1h17_nationale_meerkosten_co2 ]] </td><td>€/ton CO<sub>2</sub></td></tr> <tr><td>Nationale meerkosten <img src=\"https://startanalyse2025.files.mapgallery.io/symbolen/S2.png\" style=\"width: 40px; height: auto;\" alt=\"S2\"></td><td>[[ s2h17_nationale_meerkosten_co2 ]] </td><td>€/ton CO<sub>2</sub></td></tr> <tr><td>Nationale meerkosten <img src=\"https://startanalyse2025.files.mapgallery.io/symbolen/S3.png\" style=\"width: 40px; height: auto;\" alt=\"S3\"></td><td>[[ s3h17_nationale_meerkosten_co2 ]] </td><td>€/ton CO<sub>2</sub></td></tr> <tr><td>Nationale meerkosten <img src=\"https://startanalyse2025.files.mapgallery.io/symbolen/S4.png\" style=\"width: 40px; height: auto;\" alt=\"S4\"></td><td>[[ s4h17_nationale_meerkosten_co2 ]] </td><td>€/ton CO<sub>2</sub></td></tr> <tr><td>Toekenning klimaatneutraal gas (H20)</td><td>[[ h20_toekenning_klimaatneutraal_gas ]]</td><td></td></tr> <tr><td>Nationale kosten per woningequivalent (H18)</td><td>[[ h18_nationale_meerkosten_extra ]]</td><td>€/jaar per WEQ</td></tr> <tr><td><details><summary>Energieverbruik (H01)</summary><p><table class=\"table\"> <tr><td>Ruimteverwarming (H02)</td><td>[[ h02_energieverbruik_ruimteverwarming ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>Warmtapwater (H03)</td><td>[[ h03_energieverbruik_warmtapwater ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>Ventilatie (H04)</td><td>[[ h04_energieverbruik_ventilatie ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>Koude (H05)</td><td>[[ h05_energieverbruik_koude ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>Apparaten en licht (H06)</td><td>[[ h06_energieverbruik_apparaten_en_licht ]]</td><td>GJ/jaar per WEQ</td></tr></table></p></details></td><td>[[ h01_energieverbruik ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td><details><summary>Energielevering (H08)</summary><p><table class=\"table\"> <tr><td>Klimaatneutraal gas (H10)</td><td>[[ h10_energielevering_duurzaamgas ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>Elektriciteit (H11)</td><td>[[ h11_energielevering_elektriciteit ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>MT warmtebron (H12)</td><td>[[ h12_energielevering_mtwarmtebronnen ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>LT warmtebron (H13)</td><td>[[ h13_energielevering_ltwarmtebronnen ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>Energielevering overig (H14)</td><td>[[ h14_energielevering_overig ]]</td><td>GJ/jaar per WEQ</td></tr></table></p></details></td><td>[[ h01_energieverbruik ]]</td><td>GJ/jaar per WEQ</td></tr> <tr><td>CO<sub>2</sub> uitstoot (H15)</td><td>[[ h15_co2_uitstoot ]]</td><td>ton CO<sub>2</sub>/jaar</td></tr> <tr><td>Dichtheid warmteverbruik (H07)</td><td>[[ h07_warmteverbruik ]]</td><td>GJ/jaar per ha</td></tr> <tr><td>Nationale meerkosten (H16)</td><td>[[ h16_nationale_meerkosten ]]</td><td>€/jaar</td></tr> </table>"
       }
+    },
+    {
+      "id": "studiegebied_nederland",
+      "name": "Studiegebied Nederland",
+      "source": "https://data.startanalyse2026.nl/pmtiles/studyarea_nederland.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "studyarea",
+      "geometryType": "polygon",
+      "beforeid": "studyarea-layers",
+      "excludeFromComparison": true,
+      "excludeFromLegend": true,
+      "excludeFromPicking": true,
+      "geostyler": {
+        "name": "Studiegebied",
+        "rules": [
+          {
+            "name": "buiten",
+            "filter": [
+              "==",
+              "id",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EBECF0",
+                "opacity": 0.7,
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Nederland",
+            "filter": [
+              "==",
+              "id",
+              2
+            ],
+            "type": "line",
+            "paint": {
+              "line-color": "#E5484D",
+              "line-width": 2,
+              "line-opacity": 0.3
+            }
+          }
+        ]
+      }
     }
   ]
 }

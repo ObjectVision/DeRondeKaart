@@ -150,7 +150,10 @@ export function renderHatchTile(colors: HatchColors, scale = HATCH_SCALE): Image
  */
 export function ensureHatchImages(map: MapLibreMap, config: LayerConfig): void {
   for (const rule of config.geostyler?.rules ?? []) {
-    const sym = rule.symbolizers[0];
+    // `symbolizers` is optional: a rule may carry raw `type`/`paint` overrides
+    // and no symbolizer at all (see buildRuleLayerDef), so index defensively —
+    // reading [0] off a missing array threw here and aborted the whole layer.
+    const sym = rule.symbolizers?.[0];
     if (!sym || sym.kind !== "Fill") continue;
     const hatch = resolveHatch(sym.hatch);
     if (!hatch) continue;

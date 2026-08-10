@@ -59,7 +59,8 @@ function resolveColor(color: string | undefined, fallback: string): string {
  * at all and accept the neutral default below.
  */
 export function ruleSwatchSpec(rule: GeoStylerRule): SwatchSpec {
-  const sym = rule.symbolizers[0];
+  // Optional: a rule may carry raw `type`/`paint` overrides and no symbolizer.
+  const sym = rule.symbolizers?.[0];
   if (!sym) return { kind: "fill", color: DEFAULT_COLOR };
 
   switch (sym.kind) {
