@@ -54,6 +54,12 @@ export const BASEMAPS: Basemap[] = [
     // PDOK aerial photography (RGB 8cm). The imagery replaces the vector base;
     // only the labels (no roads/water) are drawn on top so place names stay
     // readable over the photo.
+    //
+    // Its base style therefore declares the `openmaptiles` vector source even
+    // though it draws nothing from it itself: ensureAnchorsAndOverlay copies an
+    // overlay's LAYERS but not its SOURCES, so a label layer whose source is
+    // missing from the base is dropped with "source not found" and the photo
+    // silently loses every place name.
     id: "luchtfoto",
     label: "Luchtfoto",
     base: "/pdok-luchtfoto-base.json",
