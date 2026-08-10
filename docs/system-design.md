@@ -176,7 +176,7 @@ flowchart TD
         app["App.tsx<br/>(composition root)"]
     end
 
-    subgraph stores["Module-level stores"]
+    subgraph stores["Module-level stores (read §4.3)"]
         af["area-filter store"]
         bf["box-filter store"]
     end
@@ -232,6 +232,87 @@ engines applied filters.
 Styling is still expressed once and translated per target by
 [geostyler.ts](../src/layers/geostyler.ts): MapLibre paint/filter expressions
 for vector layers and a per-pixel colour function for COG (§6.4).
+
+#### The MapLibre object model in brief
+
+Enough of `maplibre-gl`'s own model to read §6 and §7. Everything below is what
+the app actually drives; MapLibre has more surface than this.
+
+```
+Map  ──owns──▶  Style ──▶ sources { id: Source }   data, no appearance
+                      ├──▶ layers  [ Layer, … ]    appearance, ordered
+                      ├──▶ sprite                  image atlas (icons, hatches)
+                      └──▶ glyphs                  font atlas (labels)
+```
+
+**Map** — one instance per map view; this app runs two side by side for the
+compare mode. It is created declaratively by `react-map-gl`'s `<Map>`
+([MapView.tsx](../src/components/map/MapView.tsx)), but every layer operation
+afterwards is imperative against the underlying instance
+(`mapRef.current.getMap()`).
+
+**Style** — one JSON document the map owns, and the single container for
+everything drawable. Consequences worth internalising: a basemap change is
+`setStyle()`, which replaces the whole document, so **every source, layer,
+sprite image and anchor the app added is destroyed** and has to be re-applied
+(§15, GL lifecycle hazards).
+
+**Source** — a named data provider in `style.sources`. Three types are used
+here: `vector` (an `{z}/{x}/{y}` template, or a `pmtiles://` URL whose handler
+reads the archive header instead), `raster` (`cog://`), and `geojson` (in-memory
+— FlatGeobuf results, Power BI pushes, and the overlays). A source carries data
+and nothing about appearance, and is shared: `tileSourceId(config)` keys it
+`pmtiles-source-<configId>`.
+
+**Layer** — a named draw pass over exactly one source, in `style.layers`. The
+types this app emits are `fill`, `line`, `circle`, `symbol`, `fill-extrusion`,
+`heatmap` and `raster`. For vector sources, `source-layer` picks one named layer
+*inside* the tiles; MapLibre has no setter for it, which is why the timeseries
+stepper removes and re-adds layers rather than mutating them.
+
+**One config is not one layer.** `buildNativeLayerDefs`
+([mvt-style.ts](../src/layers/mvt-style.ts)) emits one MapLibre layer per
+GeoStyler rule, id `<format-prefix>-layer-<configId>-<ruleName>`. A 17-rule
+strategy layer is 17 MapLibre layers over one shared source. Add, remove,
+visibility, filtering and picking all enumerate that same id list (§4.4).
+
+**Order is the array.** `style.layers` is ordered bottom-to-top and that *is*
+the draw order. `addLayer(spec, beforeId)` inserts directly below the named
+layer; the app never reshuffles afterwards, because five invisible `background`
+anchor layers permanently partition the stack into bands and each config picks
+its band (§6.5).
+
+**Three property bags per layer**, each with an in-place setter, so appearance
+changes never require re-adding a layer:
+
+| Bag | Holds | Setter |
+|---|---|---|
+| `paint` | Colour, width, opacity, radius — pure appearance | `setPaintProperty` |
+| `layout` | Whether/how geometry becomes drawable: `visibility`, `icon-image`, label placement | `setLayoutProperty` |
+| `filter` | Which features enter the layer at all | `setFilter` |
+
+`filter` is the one that matters for §7: a filtered-out feature is not drawn
+**and not queryable**, so filtering the map and filtering picking are the same
+act, not two.
+
+**Expressions** are the style language — JSON arrays evaluated per feature and
+per zoom, e.g. `["==", ["get", "gm_code"], "GM0882"]`. They are what both
+translations in this app produce: GeoStyler rules become `paint` and `filter`
+expressions, and the area filter compiles its selection into one (§7).
+
+**Sprite and glyphs** are style-owned atlases. Icon symbolizers must
+`addImage()` before `addLayer()`, and since `setStyle` wipes the sprite,
+`hasImage` is re-checked on every add rather than cached.
+
+**Querying is a render-time operation.** `queryRenderedFeatures(point | box,
+{ layers })` reports what is currently drawn — tile-clipped, style-filtered,
+viewport-limited. It is not a data API: a feature outside the viewport or above
+the source's max zoom simply is not there (§9, feature picking).
+
+**Protocols are global, not per map.** `addProtocol("pmtiles", …)` and
+`addProtocol("cog", …)` register at module scope in
+[MapView.tsx](../src/components/map/MapView.tsx), so both maps and any later
+instance share them; registering per map would double-register.
 
 ### 4.3 Module stores for cross-cutting filter state
 
