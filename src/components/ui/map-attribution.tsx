@@ -5,7 +5,8 @@ import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 
 /** Map data / imagery credits — attribution required by the providers. */
 const DATA_CREDITS = [
-  { label: "© CARTO", href: "https://carto.com/attributions" },
+  { label: "© OpenFreeMap", href: "https://openfreemap.org/" },
+  { label: "© OpenMapTiles", href: "https://openmaptiles.org/" },
   {
     label: "© OpenStreetMap contributors",
     href: "https://www.openstreetmap.org/copyright",
