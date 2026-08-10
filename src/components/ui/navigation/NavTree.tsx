@@ -131,20 +131,20 @@ function BranchRow({
       <button
         onClick={() => (controlled ? onToggle(path) : setLocalOpen((v) => !v))}
         aria-expanded={expanded}
-        className="flex w-full items-center gap-2 rounded px-1.5 py-1 text-left text-sm transition-colors hover:bg-gray-100"
+        className="flex w-full items-start gap-2 rounded px-1.5 py-1 text-left text-sm transition-colors hover:bg-gray-100"
       >
         <Icon
           name={expanded ? "expand_more" : "chevron_right"}
           size={18}
-          className="flex-shrink-0 text-gray-400"
+          className="mt-px flex-shrink-0 text-gray-400"
         />
         <NavIcon
           name={node.icon}
           color={node.color}
           size={18}
-          className="flex-shrink-0 text-gray-500"
+          className="mt-px flex-shrink-0 text-gray-500"
         />
-        <span className="font-medium text-gray-800">{node.label}</span>
+        <span className="break-words font-medium text-gray-800">{node.label}</span>
       </button>
       {expanded && (
         <div className="ml-3 border-l border-gray-100 pl-1">
@@ -196,17 +196,24 @@ function LeafRow({
           onClick={onSelect}
           aria-expanded={actions ? selected : undefined}
           className={
-            "flex min-w-0 flex-1 items-center gap-2 px-1.5 py-1 pl-7 text-left text-sm " +
+            "flex min-w-0 flex-1 items-start gap-2 px-1.5 py-1 pl-7 text-left text-sm " +
             (selected ? "text-blue-700" : "text-gray-700")
           }
         >
+          {/* items-start, not items-center: a label that wraps to two lines would
+              otherwise centre the icon against the whole block, belonging to
+              neither line. mt-px centres the 18px icon on the 20px first line. */}
           <NavIcon
             name={leaf.icon}
             color={leaf.color}
             size={18}
-            className="flex-shrink-0 text-orange-400"
+            className="mt-px flex-shrink-0 text-orange-400"
           />
-          <span className="truncate">{leaf.label}</span>
+          {/* Wraps rather than truncating: labels that differ only in their tail
+              ("… <10%", "… <20%") are indistinguishable once elided. break-words
+              catches a long unbroken token, which would widen the fixed-width
+              panel instead. */}
+          <span className="break-words">{leaf.label}</span>
         </button>
         {/* The action menu's map buttons already reflect the on-map state, so
             the status check is redundant (and would duplicate) while the menu
