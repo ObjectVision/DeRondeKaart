@@ -6,39 +6,33 @@
     "children": [
       {
         "label": "Laagste nationale kosten",
-        "icon": "LN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "LN.svg",
             "id": "374",
             "label": "Laagste nationale kosten <10% kostenverschil (LN)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "357",
             "label": "Laagste nationale kosten <20% kostenverschil (LN)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "375",
             "label": "Laagste nationale kosten <30% kostenverschil (LN)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "207",
             "label": "Laagste nationale kosten zonder kostenverschil(LN)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "394",
             "label": "Laagste nationale kosten zonder KN gas (LNGA08)",
             "a": false,
@@ -48,25 +42,21 @@
       },
       {
         "label": "Energieverbruik LN",
-        "icon": "LN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "LN.svg",
             "id": "226",
             "label": "Energieverbruik (LN H01)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "227",
             "label": "Energieverbruik ruimteverwarming (LN H02)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "252",
             "label": "Energieverbruik warm tapwater (LN H03)",
             "a": false,
@@ -76,11 +66,9 @@
       },
       {
         "label": "Pand",
-        "icon": "LN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "LN.svg",
             "id": "314",
             "label": "Pand energielabel totaal (BG)",
             "a": false,
@@ -90,25 +78,21 @@
       },
       {
         "label": "Referentie 2030",
-        "icon": "LN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "LN.svg",
             "id": "251",
             "label": "CO₂-uitstoot (R30 H15)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "261",
             "label": "Energielevering aardgas (R30 H09)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "248",
             "label": "Energielevering elektriciteit (R30 H11)",
             "a": false,
@@ -118,11 +102,9 @@
       },
       {
         "label": "Overig",
-        "icon": "LN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "LN.svg",
             "id": "230",
             "label": "Aantal woningequivalenten (BG)",
             "a": false,
@@ -132,18 +114,15 @@
       },
       {
         "label": "Gevoeligheidsanalyses",
-        "icon": "LN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "LN.svg",
             "id": "387",
             "label": "Laagste nationale kosten (LNGA01)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "388",
             "label": "Laagste nationale kosten (LNGA02)",
             "a": false,
@@ -160,46 +139,39 @@
     "children": [
       {
         "label": "Nationale kosten",
-        "icon": "LN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "LN.svg",
             "id": "357",
             "label": "Laagste nationale kosten start (LN)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "207",
             "label": "Strategie met laagste nationale kosten (LN)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "356",
             "label": "Strategie varianten (LN)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "212",
             "label": "Nationale kosten per ton CO2 reductie (LN H17)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "305",
             "label": "Nationale kosten per woningequivalent (LN H18)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "300",
             "label": "Nationale meerkosten (LN H16)",
             "a": false,
@@ -209,11 +181,9 @@
       },
       {
         "label": "Verbruik totaal",
-        "icon": "LN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "LN.svg",
             "id": "226",
             "label": "Energieverbruik (LN H01)",
             "a": false,
@@ -223,46 +193,39 @@
       },
       {
         "label": "Verbruikscomponenten",
-        "icon": "LN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "LN.svg",
             "id": "227",
             "label": "Ruimteverwarming (LN H02)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "252",
             "label": "Warm tapwater (LN H03)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "253",
             "label": "Ventilatie (LN H04)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "254",
             "label": "Koude (LN H05)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "255",
             "label": "Apparaten en licht (LN H06)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "256",
             "label": "Warmteverbruik (LN H07)",
             "a": false,
@@ -272,11 +235,9 @@
       },
       {
         "label": "Levering totaal",
-        "icon": "LN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "LN.svg",
             "id": "275",
             "label": "Energielevering (LN H08)",
             "a": false,
@@ -286,39 +247,33 @@
       },
       {
         "label": "Leveringscomponenten",
-        "icon": "LN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "LN.svg",
             "id": "257",
             "label": "Duurzaam gas (LN H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "258",
             "label": "Electriciteit (LN H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "259",
             "label": "MT-warmtebron (LN H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "260",
             "label": "LT-warmtebron (LN H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "290",
             "label": "Overig (LN H14)",
             "a": false,
@@ -328,18 +283,15 @@
       },
       {
         "label": "Overig",
-        "icon": "LN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "LN.svg",
             "id": "355",
             "label": "Toekenning klimaat neutraal gas (LN H20)",
             "a": false,
             "b": false
           },
           {
-            "icon": "LN.svg",
             "id": "295",
             "label": "CO2-uitstoot (LN H15)",
             "a": false,
@@ -356,39 +308,33 @@
     "children": [
       {
         "label": "Pand",
-        "icon": "BG.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "BG.svg",
             "id": "224",
             "label": "Pand bouwjaar (BG)",
             "a": false,
             "b": false
           },
           {
-            "icon": "BG.svg",
             "id": "314",
             "label": "Pand energielabel totaal (BG)",
             "a": false,
             "b": false
           },
           {
-            "icon": "BG.svg",
             "id": "316",
             "label": "Pand energielabel utiliteit (BG)",
             "a": false,
             "b": false
           },
           {
-            "icon": "BG.svg",
             "id": "317",
             "label": "Pand energielabel wonen (BG)",
             "a": false,
             "b": false
           },
           {
-            "icon": "BG.svg",
             "id": "315",
             "label": "Pand dominant gebruiksdoel (BG)",
             "a": false,
@@ -398,18 +344,15 @@
       },
       {
         "label": "Bronnen",
-        "icon": "BG.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "BG.svg",
             "id": "267",
             "label": "Aquathermie contour (BG)",
             "a": false,
             "b": false
           },
           {
-            "icon": "BG.svg",
             "id": "263",
             "label": "Geothermie contour (BG)",
             "a": false,
@@ -419,18 +362,15 @@
       },
       {
         "label": "Overig",
-        "icon": "BG.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "BG.svg",
             "id": "230",
             "label": "Aantal woningequivalenten (BG)",
             "a": false,
             "b": false
           },
           {
-            "icon": "BG.svg",
             "id": "229",
             "label": "Aantal Utiliteitsgebouwen (BG)",
             "a": false,
@@ -447,32 +387,27 @@
     "children": [
       {
         "label": "Nationale kosten",
-        "icon": "S1.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S1.svg",
             "id": "350",
             "label": "Strategie varianten (S1)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S1.svg",
             "id": "279",
             "label": "Nationale meerkosten (S1 H16)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S1.svg",
             "id": "143",
             "label": "Nationale kosten per ton CO2 reductie (S1 H17)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S1.svg",
             "id": "280",
             "label": "Nationale kosten per woningequivalent (S1 H18)",
             "a": false,
@@ -482,11 +417,9 @@
       },
       {
         "label": "Verbruik totaal",
-        "icon": "S1.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S1.svg",
             "id": "148",
             "label": "Energieverbruik (S1 H01)",
             "a": false,
@@ -496,46 +429,39 @@
       },
       {
         "label": "Verbruikscomponenten",
-        "icon": "S1.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S1.svg",
             "id": "157",
             "label": "Ruimteverwarming (S1 H02)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S1.svg",
             "id": "268",
             "label": "Warm tapwater (S1 H03)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S1.svg",
             "id": "159",
             "label": "Ventilatie (S1 H04)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S1.svg",
             "id": "160",
             "label": "Koude (S1 H05)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S1.svg",
             "id": "269",
             "label": "Apparaten en licht (S1 H06)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S1.svg",
             "id": "162",
             "label": "Warmteverbruik (S1 H07)",
             "a": false,
@@ -545,11 +471,9 @@
       },
       {
         "label": "Levering totaal",
-        "icon": "S1.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S1.svg",
             "id": "270",
             "label": "Energielevering (S1 H08)",
             "a": false,
@@ -559,39 +483,33 @@
       },
       {
         "label": "Leveringscomponenten",
-        "icon": "S1.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S1.svg",
             "id": "163",
             "label": "Duurzaam gas (S1 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S1.svg",
             "id": "277",
             "label": "Elektriciteit (S1 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S1.svg",
             "id": "165",
             "label": "MT-warmtebron (S1 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S1.svg",
             "id": "166",
             "label": "LT-warmtebron (S1 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S1.svg",
             "id": "164",
             "label": "Overig (S1 H14)",
             "a": false,
@@ -601,11 +519,9 @@
       },
       {
         "label": "Overig",
-        "icon": "S1.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S1.svg",
             "id": "278",
             "label": "S1 H15: CO2-uitstoot",
             "a": false,
@@ -622,32 +538,27 @@
     "children": [
       {
         "label": "Nationale kosten",
-        "icon": "S2.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S2.svg",
             "id": "349",
             "label": "Strategie varianten (S2)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S2.svg",
             "id": "296",
             "label": "Nationale meerkosten (S2 H16)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S2.svg",
             "id": "144",
             "label": "Nationale kosten per ton CO2 reductie (S2 H17)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S2.svg",
             "id": "301",
             "label": "Nationale kosten per woningequivalent (S2 H18)",
             "a": false,
@@ -657,11 +568,9 @@
       },
       {
         "label": "Verbruik totaal",
-        "icon": "S2.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S2.svg",
             "id": "153",
             "label": "Energieverbruik (S2 H01)",
             "a": false,
@@ -671,46 +580,39 @@
       },
       {
         "label": "Verbruikscomponenten",
-        "icon": "S2.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S2.svg",
             "id": "167",
             "label": "Ruimteverwarming (S2 H02)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S2.svg",
             "id": "168",
             "label": "Warm tapwater (S2 H03)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S2.svg",
             "id": "169",
             "label": "Ventilatie (S2 H04)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S2.svg",
             "id": "170",
             "label": "Koude (S2 H05)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S2.svg",
             "id": "171",
             "label": "Apparaten en licht (S2 H06)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S2.svg",
             "id": "172",
             "label": "Warmteverbruik (S2 H07)",
             "a": false,
@@ -720,11 +622,9 @@
       },
       {
         "label": "Levering totaal",
-        "icon": "S2.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S2.svg",
             "id": "271",
             "label": "Energielevering (S2 H08)",
             "a": false,
@@ -734,39 +634,33 @@
       },
       {
         "label": "Leveringscomponenten",
-        "icon": "S2.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S2.svg",
             "id": "173",
             "label": "Duurzaam gas (S2 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S2.svg",
             "id": "174",
             "label": "Elektriciteit (S2 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S2.svg",
             "id": "175",
             "label": "MT-warmtebron (S2 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S2.svg",
             "id": "176",
             "label": "LT-warmtebron (S2 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S2.svg",
             "id": "286",
             "label": "Overig (S2 H14)",
             "a": false,
@@ -776,11 +670,9 @@
       },
       {
         "label": "Bronnen",
-        "icon": "S2.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S2.svg",
             "id": "266",
             "label": "Warmte-koude opslag (BG)",
             "a": false,
@@ -790,11 +682,9 @@
       },
       {
         "label": "Overig",
-        "icon": "S2.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S2.svg",
             "id": "291",
             "label": "S2 H15: CO2-uitstoot",
             "a": false,
@@ -811,32 +701,27 @@
     "children": [
       {
         "label": "Nationale kosten",
-        "icon": "S3.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S3.svg",
             "id": "351",
             "label": "Strategie varianten (S3)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "297",
             "label": "Nationale meerkosten (S3 H16)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "145",
             "label": "Nationale kosten per ton CO2 reductie (S3 H17)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "302",
             "label": "Nationale kosten per woningequivalent (S3 H18)",
             "a": false,
@@ -846,11 +731,9 @@
       },
       {
         "label": "Verbruik totaal",
-        "icon": "S3.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S3.svg",
             "id": "154",
             "label": "Energieverbruik (S3 H01)",
             "a": false,
@@ -860,46 +743,39 @@
       },
       {
         "label": "Verbruikscomponenten",
-        "icon": "S3.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S3.svg",
             "id": "177",
             "label": "Ruimteverwarming (S3 H02)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "178",
             "label": "Warm tapwater (S3 H03)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "179",
             "label": "Ventilatie (S3 H04)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "180",
             "label": "Koude (S2 H05)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "181",
             "label": "Apparaten en licht (S3 H06)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "182",
             "label": "Warmteverbruik (S3 H07)",
             "a": false,
@@ -909,11 +785,9 @@
       },
       {
         "label": "Levering totaal",
-        "icon": "S3.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S3.svg",
             "id": "272",
             "label": "Energielevering (S3 H08)",
             "a": false,
@@ -923,39 +797,33 @@
       },
       {
         "label": "Leveringscomponenten",
-        "icon": "S3.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S3.svg",
             "id": "183",
             "label": "Duurzaam gas (S3 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "184",
             "label": "Elektriciteit (S3 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "185",
             "label": "MT-warmtebron (S3 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "186",
             "label": "LT-warmtebron (S3 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "287",
             "label": "Overig (S3 H14)",
             "a": false,
@@ -965,18 +833,15 @@
       },
       {
         "label": "Bronnen",
-        "icon": "S3.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S3.svg",
             "id": "267",
             "label": "Aquathermie contour (BG)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S3.svg",
             "id": "263",
             "label": "Geothermie contour (BG)",
             "a": false,
@@ -986,11 +851,9 @@
       },
       {
         "label": "Overig",
-        "icon": "S3.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S3.svg",
             "id": "292",
             "label": "S2 H15: CO2-uitstoot",
             "a": false,
@@ -1007,32 +870,27 @@
     "children": [
       {
         "label": "Nationale kosten",
-        "icon": "S4.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S4.svg",
             "id": "352",
             "label": "Strategie varianten (S4)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S4.svg",
             "id": "298",
             "label": "Nationale meerkosten (S4 H16)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S4.svg",
             "id": "146",
             "label": "Nationale kosten per ton CO2 reductie (S4 H17)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S4.svg",
             "id": "303",
             "label": "Nationale kosten per woningequivalent (S4 H18)",
             "a": false,
@@ -1042,11 +900,9 @@
       },
       {
         "label": "Verbruik totaal",
-        "icon": "S4.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S4.svg",
             "id": "155",
             "label": "Energieverbruik (S4 H01)",
             "a": false,
@@ -1056,46 +912,39 @@
       },
       {
         "label": "Verbruikscomponenten",
-        "icon": "S4.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S4.svg",
             "id": "187",
             "label": "Ruimteverwarming (S4 H02)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S4.svg",
             "id": "188",
             "label": "Warm tapwater (S4 H03)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S4.svg",
             "id": "189",
             "label": "Ventilatie (S4 H04)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S4.svg",
             "id": "190",
             "label": "Koude (S4 H05)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S4.svg",
             "id": "191",
             "label": "Apparaten en licht (S4 H06)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S4.svg",
             "id": "192",
             "label": "Warmteverbruik (S4 H07)",
             "a": false,
@@ -1105,11 +954,9 @@
       },
       {
         "label": "Levering totaal",
-        "icon": "S4.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S4.svg",
             "id": "273",
             "label": "Energielevering (S4 H08)",
             "a": false,
@@ -1119,39 +966,33 @@
       },
       {
         "label": "Leveringscomponenten",
-        "icon": "S4.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S4.svg",
             "id": "193",
             "label": "Duurzaam gas (S4 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S4.svg",
             "id": "194",
             "label": "Elektriciteit (S4 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S4.svg",
             "id": "195",
             "label": "MT-warmtebron (S4 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S4.svg",
             "id": "196",
             "label": "LT-warmtebron (S4 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "S4.svg",
             "id": "288",
             "label": "Overig (S4 H14)",
             "a": false,
@@ -1161,11 +1002,9 @@
       },
       {
         "label": "Overig",
-        "icon": "S4.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "S4.svg",
             "id": "293",
             "label": "S4 H15: CO2-uitstoot",
             "a": false,
@@ -1182,11 +1021,9 @@
     "children": [
       {
         "label": "Verbruik totaal",
-        "icon": "R23.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "R23.svg",
             "id": "235",
             "label": "Energieverbruik (R23 H01)",
             "a": false,
@@ -1196,46 +1033,39 @@
       },
       {
         "label": "Verbruikscomponenten",
-        "icon": "R23.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "R23.svg",
             "id": "236",
             "label": "Ruimteverwarming (R23 H02)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R23.svg",
             "id": "158",
             "label": "Warm tapwater (R23 H03)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R23.svg",
             "id": "237",
             "label": "Ventilatie (R23 H04)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R23.svg",
             "id": "238",
             "label": "Koude (R23 H05)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R23.svg",
             "id": "161",
             "label": "Apparaten en licht (R23 H06)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R23.svg",
             "id": "239",
             "label": "Warmteverbruik (R23 H07)",
             "a": false,
@@ -1245,11 +1075,9 @@
       },
       {
         "label": "Levering totaal",
-        "icon": "R23.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "R23.svg",
             "id": "306",
             "label": "Energielevering (R23 H08)",
             "a": false,
@@ -1259,46 +1087,39 @@
       },
       {
         "label": "Leveringscomponenten",
-        "icon": "R23.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "R23.svg",
             "id": "228",
             "label": "Aardgas (R23 H09)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R23.svg",
             "id": "309",
             "label": "Duurzaam gas (R23 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R23.svg",
             "id": "232",
             "label": "Elektriciteit (R23 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R23.svg",
             "id": "233",
             "label": "MT-warmtebron (R23 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R23.svg",
             "id": "234",
             "label": "LT-warmtebron (R23 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R23.svg",
             "id": "308",
             "label": "Overig (R23 H14)",
             "a": false,
@@ -1308,11 +1129,9 @@
       },
       {
         "label": "Overig",
-        "icon": "R23.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "R23.svg",
             "id": "310",
             "label": "CO₂-uitstoot (R23 H15)",
             "a": false,
@@ -1329,11 +1148,9 @@
     "children": [
       {
         "label": "Verbruik totaal",
-        "icon": "R30.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "R30.svg",
             "id": "240",
             "label": "Energieverbruik (R30 H01)",
             "a": false,
@@ -1343,46 +1160,39 @@
       },
       {
         "label": "Verbruikscomponenten",
-        "icon": "R30.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "R30.svg",
             "id": "241",
             "label": "Ruimteverwarming (R30 H02)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R30.svg",
             "id": "242",
             "label": "Warm tapwater (R30 H03)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R30.svg",
             "id": "243",
             "label": "Ventilatie (R30 H04)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R30.svg",
             "id": "244",
             "label": "Koude (R30 H05)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R30.svg",
             "id": "245",
             "label": "Apparaten en licht (R30 H06)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R30.svg",
             "id": "246",
             "label": "Warmteverbruik (R30 H07)",
             "a": false,
@@ -1392,11 +1202,9 @@
       },
       {
         "label": "Levering totaal",
-        "icon": "R30.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "R30.svg",
             "id": "307",
             "label": "Energielevering (R30 H08)",
             "a": false,
@@ -1406,46 +1214,39 @@
       },
       {
         "label": "Leveringscomponenten",
-        "icon": "R30.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "R30.svg",
             "id": "261",
             "label": "Aardgas (R30 H09)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R30.svg",
             "id": "312",
             "label": "Duurzaam gas (R30 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R30.svg",
             "id": "248",
             "label": "Elektriciteit (R30 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R30.svg",
             "id": "249",
             "label": "MT-warmtebron (R30 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R30.svg",
             "id": "250",
             "label": "LT-warmtebron (R30 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "R30.svg",
             "id": "311",
             "label": "Overig (R30 H14)",
             "a": false,
@@ -1455,11 +1256,9 @@
       },
       {
         "label": "Overig",
-        "icon": "R30.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "R30.svg",
             "id": "251",
             "label": "CO2-uitstoot (R30 H15)",
             "a": false,
@@ -1476,67 +1275,57 @@
     "children": [
       {
         "label": "GA01",
-        "icon": "GLN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "GLN.svg",
             "id": "420",
             "label": "Energielevering elektriciteit (LNGA01 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "409",
             "label": "Energielevering klimaatneutraal gas (LNGA01 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "442",
             "label": "Energielevering LT-warmtebron (LNGA01 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "431",
             "label": "Energielevering MT-warmtebron (LNGA01 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "453",
             "label": "Energielevering overig (LNGA01 H14)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "398",
             "label": "Energieverbruik (LNGA01 H01)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "376",
             "label": "Laagste nationale kosten <20% verschil (LNGA01)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "387",
             "label": "Laagste nationale kosten (LNGA01)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "362",
             "label": "Strategie varianten (LNGA01)",
             "a": false,
@@ -1546,67 +1335,57 @@
       },
       {
         "label": "GA02",
-        "icon": "GLN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "GLN.svg",
             "id": "421",
             "label": "Energielevering elektriciteit (LNGA02 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "410",
             "label": "Energielevering klimaatneutraal gas (LNGA02 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "443",
             "label": "Energielevering LT-warmtebron (LNGA02 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "432",
             "label": "Energielevering MT-warmtebron (LNGA02 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "454",
             "label": "Energielevering overig (LNGA02 H14)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "399",
             "label": "Energieverbruik (LNGA02 H01)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "377",
             "label": "Laagste nationale kosten <20% verschil (LNGA02)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "388",
             "label": "Laagste nationale kosten (LNGA02)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "363",
             "label": "Strategie varianten (LNGA02)",
             "a": false,
@@ -1616,67 +1395,57 @@
       },
       {
         "label": "GA03",
-        "icon": "GLN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "GLN.svg",
             "id": "422",
             "label": "Energielevering elektriciteit (LNGA03 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "411",
             "label": "Energielevering klimaatneutraal gas (LNGA03 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "445",
             "label": "Energielevering LT-warmtebron (LNGA03 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "433",
             "label": "Energielevering MT-warmtebron (LNGA03 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "455",
             "label": "Energielevering overig (LNGA03 H14)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "400",
             "label": "Energieverbruik (LNGA03 H01)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "378",
             "label": "Laagste nationale kosten <20% verschil (LNGA03)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "389",
             "label": "Laagste nationale kosten (LNGA03)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "364",
             "label": "Strategie varianten (LNGA03)",
             "a": false,
@@ -1686,67 +1455,57 @@
       },
       {
         "label": "GA04",
-        "icon": "GLN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "GLN.svg",
             "id": "423",
             "label": "Energielevering elektriciteit (LNGA04 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "412",
             "label": "Energielevering klimaatneutraal gas (LNGA04 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "446",
             "label": "Energielevering LT-warmtebron (LNGA04 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "434",
             "label": "Energielevering MT-warmtebron (LNGA04 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "456",
             "label": "Energielevering overig (LNGA04 H14)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "401",
             "label": "Energieverbruik (LNGA04 H01)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "379",
             "label": "Laagste nationale kosten <20% verschil (LNGA04)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "390",
             "label": "Laagste nationale kosten (LNGA04)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "365",
             "label": "Strategie varianten (LNGA04)",
             "a": false,
@@ -1756,67 +1515,57 @@
       },
       {
         "label": "GA05",
-        "icon": "GLN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "GLN.svg",
             "id": "424",
             "label": "Energielevering elektriciteit (LNGA05 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "413",
             "label": "Energielevering klimaatneutraal gas (LNGA05 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "444",
             "label": "Energielevering LT-warmtebron (LNGA05 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "435",
             "label": "Energielevering MT-warmtebron (LNGA05 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "457",
             "label": "Energielevering overig (LNGA05 H14)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "402",
             "label": "Energieverbruik (LNGA05 H01)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "380",
             "label": "Laagste nationale kosten <20% verschil (LNGA05)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "391",
             "label": "Laagste nationale kosten (LNGA05)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "366",
             "label": "Strategie varianten (LNGA05)",
             "a": false,
@@ -1826,67 +1575,57 @@
       },
       {
         "label": "GA06",
-        "icon": "GLN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "GLN.svg",
             "id": "425",
             "label": "Energielevering elektriciteit (LNGA06 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "414",
             "label": "Energielevering klimaatneutraal gas (LNGA06 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "447",
             "label": "Energielevering LT-warmtebron (LNGA06 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "436",
             "label": "Energielevering MT-warmtebron (LNGA06 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "458",
             "label": "Energielevering overig (LNGA06 H14)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "403",
             "label": "Energieverbruik (LNGA06 H01)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "381",
             "label": "Laagste nationale kosten <20% verschil (LNGA06)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "392",
             "label": "Laagste nationale kosten (LNGA06)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "367",
             "label": "Strategie varianten (LNGA06)",
             "a": false,
@@ -1896,67 +1635,57 @@
       },
       {
         "label": "GA07",
-        "icon": "GLN.svg",
         "expanded": false,
         "children": [
           {
-            "icon": "GLN.svg",
             "id": "426",
             "label": "Energielevering elektriciteit (LNGA07 H11)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "415",
             "label": "Energielevering klimaatneutraal gas (LNGA07 H10)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "448",
             "label": "Energielevering LT-warmtebron (LNGA07 H13)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "437",
             "label": "Energielevering MT-warmtebron (LNGA07 H12)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "459",
             "label": "Energielevering overig (LNGA07 H14)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "404",
             "label": "Energieverbruik (LNGA07 H01)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "382",
             "label": "Laagste nationale kosten <20% verschil (LNGA07)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "393",
             "label": "Laagste nationale kosten (LNGA07)",
             "a": false,
             "b": false
           },
           {
-            "icon": "GLN.svg",
             "id": "368",
             "label": "Strategie varianten (LNGA07)",
             "a": false,

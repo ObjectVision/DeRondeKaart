@@ -78,8 +78,7 @@ export function MapAttribution() {
           <p className="mb-3 leading-snug">
             De Ronde kaart is het startpunt van gesprek, maakt het mogelijk
             ruimtelijke vraagstukken op inzichtelijke wijze samen aan te
-            vliegen en te delen. En is ontwikkeld door Object Vision in
-            samenwerking met InnDev en Faire Consultancy.
+            vliegen en te delen.
           </p>
           <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
             Kaartgegevens
