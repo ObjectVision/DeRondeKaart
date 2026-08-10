@@ -59,6 +59,7 @@ const SOFTWARE_CREDITS = [
     license: "Apache-2.0",
     href: "https://fonts.google.com/icons",
   },
+  { label: "Maptiler basic style", license: "BSD-3", href: "https://github.com/openmaptiles/maptiler-basic-gl-style/blob/master/LICENSE.md" }
 ];
 
 /**
