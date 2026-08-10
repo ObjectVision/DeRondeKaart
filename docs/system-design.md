@@ -200,6 +200,10 @@ flowchart TD
     bf -.-> charts
     cj --> charts
     fj --> af
+
+    %% Layout only: invisible edges putting the three outputs on one rank.
+    ml ~~~ charts
+    ml ~~~ pick
 ```
 
 Four principles organise the system.
@@ -241,6 +245,47 @@ The reason is that the consumers are not all React components — picking runs
 from an event handler, and chart aggregation walks an Arrow table outside the
 render path. Prop drilling a filter into each would be both verbose and easy to
 desynchronise.
+
+**What a "store" is here.** Not a library and not a subscription mechanism: one
+`const store` object at module scope, private to its file, plus the exported
+functions that read and replace it. Both are one object per module — the module
+is a singleton, so both maps in the compare view and every non-React consumer
+see the same selection by construction.
+
+| | Area filter | Box filter |
+|---|---|---|
+| Shape | `{ version, levels: [{ key, codes: Set<string>, digits: string[] }] }` | `{ version, bbox: [minLng, minLat, maxLng, maxLat] \| null }` |
+| Written by | `setAreaFilterSelection(Map<key, Set<code>>)` | `setBoxFilter(bbox \| null)` |
+| Owning hook | [use-area-filter.ts](../src/hooks/use-area-filter.ts) | [use-box-select.ts](../src/hooks/use-box-select.ts) |
+| Inactive when | `levels` is empty | `bbox` is `null` |
+
+Each store exposes exactly one **writer**, which replaces the state wholesale
+rather than mutating part of it, bumps `version`, and returns the new value.
+Everything else is a **reader**, and there is one reader per consumer *shape* —
+the same predicate expressed against whatever the consumer holds: a MapLibre
+expression (`areaFilterExpression`), an Arrow row
+(`arrowRowMatchesAreaFilter`, `arrowRowMatchesBoxFilter`), or a plain property
+bag (`featureMatchesAreaFilter`). §7 covers the semantics they share.
+
+Some derived state is precomputed into the store rather than recomputed per
+row, because the readers run across ~14k rows per redraw: the area filter keeps
+each code's digit prefix alongside the raw code, and both modules memoize
+column resolution in a `WeakMap` keyed on the Arrow batch or `Table`, keyed
+open by `version` so a new selection invalidates it.
+
+**The `version` counter is the whole React bridge.** The writer returns it and
+the owning hook parks it in state — `setVersion(setBoxFilter(next))` — so it is
+the only piece of store state React holds, and it is a cache key, never data.
+Two consumers act on a bump: `useChartData` clears its memo of aggregates, and
+[App.tsx](../src/App.tsx) re-runs `setFilter` over the live MapLibre layers.
+Charts get `areaFilter.version + boxSelect.version` as a single key; the sum
+is sound because both counters only ever increase, so any change to either
+changes the sum.
+
+The cost of this design is that a store write is invisible to React on its own.
+Nothing re-renders unless the owning hook's `setVersion` runs, so a caller that
+reaches past the hook into the store directly would filter the map but leave
+the sidebar showing a stale selection.
 
 ### 4.4 Single source of truth per concern
 
@@ -475,9 +520,12 @@ Two independent systems with different scopes.
 **Area filter** ([area-filter.ts](../src/layers/area-filter.ts)) — cascading
 administrative selection. Semantics are *AND across levels, OR within a level,
 inapplicable levels skipped, empty selection passes everything*. It exists in
-three implementations, one per consumer: a MapLibre filter expression for
-vector layers, a plain-props predicate for picking, and an Arrow row predicate
-for the charts/statistics aggregation over the sidecar tables.
+three implementations, one per consumer shape: a MapLibre filter expression for
+vector layers, an Arrow row predicate for the charts/statistics aggregation
+over the sidecar tables, and a plain-props predicate (`featureMatchesAreaFilter`)
+for anything holding a picked feature's properties. The last one currently has
+no caller — picking gets filtering for free, see below — but it is the reference
+statement of the semantics in plain JavaScript.
 
 `setFilter` removes non-matching features from the layer entirely, so they are
 neither drawn nor pickable — there is no "rendered but transparent" state to
