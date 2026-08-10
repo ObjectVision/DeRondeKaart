@@ -103,14 +103,6 @@ used at all.
 | `maplibre-gl` ^6.2 | `addProtocol`, `setWorkerUrl` as named imports; everything else through the map instance | The renderer. v6 is ESM-only with no default export, so these are imported by name (in v5 it was `maplibregl.addProtocol`) |
 | `react-map-gl` ^8.1 | **one runtime import** — the `<Map>` component in [MapView.tsx](../src/components/map/MapView.tsx). All 16 other importing files take *types only* (`MapRef`, `MapLayerMouseEvent`, `ViewStateChangeEvent`, `ErrorEvent`) | Declarative mount, camera props and event props. Imperative work goes through `mapRef.current.getMap()` — the raw MapLibre instance — so the wrapper is a thin shell over an otherwise direct dependency |
 
-**No GPU compute is involved anywhere.** The GPU is used only for WebGL2
-rasterisation, by MapLibre. `OpenCL` is not reachable from a web page at all,
-and `WebCL` is a Khronos proposal that no browser ever shipped — neither is, or
-could be, part of this stack. WebGPU is likewise absent (see *Indirect
-dependencies* below). Everything that crunches data does so on the CPU: WASM for
-Parquet decoding, and a plain single pass in JavaScript for chart aggregation
-(§8).
-
 #### Data formats
 
 One package per format the map can read; the *format* rationale (when to reach
