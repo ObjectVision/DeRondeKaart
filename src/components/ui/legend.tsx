@@ -351,11 +351,11 @@ function LayerList({
                   aria-label={`Acties voor ${config.name}`}
                   title={isExpanded ? "Acties verbergen" : "Acties tonen"}
                 >
-                  <Icon
-                    name={isExpanded ? "chevron_left" : "chevron_right"}
-                    size={chromeIconSize()}
-                    color={chromeIconColor()}
-                  />
+                  {/* Kebab rather than a chevron: the actions appear beside it
+                      rather than in a panel it points at, so a directional arrow
+                      misdescribed the gesture. Same glyph either way — the
+                      aria-expanded state carries open/closed. */}
+                  <Icon name="more_vert" size={chromeIconSize()} color={chromeIconColor()} />
                 </Button>
               </div>
 
