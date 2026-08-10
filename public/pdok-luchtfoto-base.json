@@ -12,6 +12,10 @@
       "minzoom": 0,
       "maxzoom": 21,
       "attribution": "Luchtfoto &copy; PDOK / Beeldmateriaal Nederland"
+    },
+    "openmaptiles": {
+      "type": "vector",
+      "url": "https://tiles.openfreemap.org/planet"
     }
   },
   "sprite": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm",
