@@ -115,11 +115,49 @@ generated code, so it is excluded from linting in
 [eslint.config.js](../eslint.config.js) and given its own Rollup chunk
 (`vendor-parquet`).
 
+### Indirect dependencies
+
+Nothing below appears in `package.json`, and all of it is load-bearing. These
+are the browser capabilities and third-party endpoints the app assumes at
+runtime; each row names what breaks without it, because most of these fail as a
+blank map rather than as an error.
+
+| Capability | Role | Without it |
+|---|---|---|
+| **WebGL2** | The renderer. MapLibre 6 calls `getContext("webgl2")` and has no WebGL1 path | No map at all |
+| **Canvas 2D** | PNG export and the Power BI snapshot ([map-capture.ts](../src/lib/map-capture.ts)), hatch-pattern sprites ([hatch-pattern.ts](../src/layers/hatch-pattern.ts)), icon sprites, QR codes | Export and hatch fills fail; the map still renders |
+| **Module Web Workers** | MapLibre parses tiles off-thread; the worker is a separate ESM file located via `import.meta.url` | No tile is ever parsed — see the `setWorkerUrl` note above |
+| **WebAssembly** | Vendored `parquet-wasm` decodes the attribute sidecars | Charts, Kerncijfers and filter dropdowns go empty; map layers are unaffected (§8) |
+| **HTTP range requests (206)** | PMTiles, COG and FlatGeobuf read slices of one large file; Parquet streams column chunks | PMTiles/COG/FGB layers fail outright; Parquet falls back to a whole-file read (§6.3) |
+| **CORS on the data host** | Every layer, sidecar and basemap is cross-origin | Layers fail with opaque network errors |
+| **WebSocket** | Collaborative annotations via Hocuspocus/Yjs (§10) | Annotations become local-only; nothing else degrades |
+| **`postMessage` + iframe embedding** | The Power BI visual and the circular embed drive the app through it (§11) | Embedded deployments lose all external control |
+| **Secure context (HTTPS)** | `crypto.randomUUID()` mints annotation ids; `navigator.clipboard` backs the share dialog's copy button | Both are `undefined` off HTTPS/localhost — annotation creation throws |
+| **`Content-Encoding: br`/`gzip`** | `dist/` ships precompressed; nginx serves the `.br`/`.gz` siblings (§13) | Assets still serve, uncompressed and several times larger |
+
+**WebGPU is *not* a dependency.** MapLibre 6.2's bundle contains zero
+references to it. Worth stating because the assumption is easy to make of a
+modern GL map, and it would change the browser support floor if it were true.
+
+### External runtime services
+
+| Endpoint | Role |
+|---|---|
+| `tiles.basemaps.cartocdn.com` | Vector basemap tiles, **glyph PBFs** (all map label text) and the sprite sheet — used by every one of the three basemap styles |
+| `service.pdok.nl` | Aerial imagery WMTS behind the "luchtfoto" basemap |
+| `maps.googleapis.com` | Street View panel, loaded lazily via the `callback=` readiness signal ([street-view.tsx](../src/components/ui/street-view.tsx)) |
+| `fonts.gstatic.com` | Material Symbols SVG for a `map.json` `clickMarker.icon` given by name ([map-config.ts](../src/config/map-config.ts)) |
+| The tenant data host | Every layer, sidecar and metadata fragment (`data.woonzorglimburg.nl`, `data.startanalyse2026.nl`) |
+
+Two traps in that table. The basemap style files are named
+`maptiler-basic-*.json` but every endpoint inside them is **CARTO** — the names
+are historical and misleading. And the glyph URL is a dependency of its own
+kind: it is not a fallback for missing fonts, it is where *all* basemap label
+text comes from, so losing that host leaves a rendered but unlabelled map.
+
 ### Version constraints worth knowing
 
-- **`maplibre-gl` is on v6.** The upgrade was previously impossible because
-  `@deck.gl/mapbox` read `map.transform`, which v6 removed; once deck.gl was
-  gone it became a normal version bump. Two things about it are load-bearing
+- **`maplibre-gl` is on v6.**. Two things about it are load-bearing
   and easy to undo by accident:
   - **`setWorkerUrl` + the `?worker&url` import must stay**
     ([MapView.tsx](../src/components/map/MapView.tsx)). v6 splits the worker
@@ -171,7 +209,7 @@ flowchart TD
         mj["map.json"]
     end
 
-    subgraph state["Orchestration"]
+    subgraph state["Composition"]
         uml["useMapLayers<br/>(layer engine, per map)"]
         app["App.tsx<br/>(composition root)"]
     end
@@ -217,17 +255,10 @@ today: `woonzorglimburg` (79 layers) and `startanalyse2026` (199 layers).
 
 ### 4.2 One renderer, one style model
 
-Everything draws through **MapLibre**: tiled vector sources (MVT/PMTiles),
+All layers draw through **MapLibre**: tiled vector sources (MVT/PMTiles),
 raster (COG), viewport-loaded FlatGeobuf, and GeoJSON sources for host-pushed
 data and the on-map overlays (study area, annotations, click marker, selection
 box).
-
-This was not always so. The app previously ran deck.gl as an interleaved
-`MapboxOverlay` alongside MapLibre, to render Arrow/Parquet tables on the GPU
-without materialising GeoJSON. That data has since moved to pre-tiled PMTiles,
-which removed the reason for the second engine — and with it a duplicated style
-translation, a second picking path, and a documented divergence in how the two
-engines applied filters.
 
 Styling is still expressed once and translated per target by
 [geostyler.ts](../src/layers/geostyler.ts): MapLibre paint/filter expressions
@@ -398,7 +429,7 @@ presentation kept out of the data engine.
 | [src/components/](../src/components/) | 36 | Presentation (map, legend, navigation, charts, annotations, share) |
 | [src/lib/](../src/lib/) | 10 | Pure utilities: capture, geometry, share URLs, formatting |
 | [src/config/](../src/config/) | 1 | `map.json` loading, UI flags, initial view |
-| [src/types/](../src/types/) | 2 | Ambient declarations (annotations, Google Maps) |
+| [src/types/](../src/types/) | 2 | Ambient declarations (annotations, Google Streetview) |
 | [src/vendor/](../src/vendor/) | 2 | Generated parquet-wasm bindings |
 
 ### Largest modules
@@ -447,8 +478,7 @@ The deepest part of the system, and where most complexity lives.
 
 In the `woonzorglimburg` project the mix is 68 pmtiles, 7 cog, 2 composite,
 1 mvt, 1 flatgeobuf — tiles dominate because they scale to province-wide
-extents. `parquet`/`geoarrow` were retired when the renderer became
-MapLibre-only; `.parquet` files live on as **attribute sidecars** for the
+extents. `.parquet` files live on as **attribute sidecars** for the
 charts panel and the filter dropdowns (§6.1, `attributeSource`).
 
 ### 6.2 Format dispatch
@@ -463,7 +493,6 @@ flowchart TD
     anchor --> fmt{"config.format"}
 
     fmt -->|parquet| pq["loadParquetBatches"]
-    fmt -->|geoarrow| ar["loadArrowBatches"]
     fmt -->|geojson| gj["createGeoJsonLayers"]
     fmt -->|"mvt / pmtiles"| mvt["addMvtLayer"]
     fmt -->|cog| cog["addCogLayer"]
@@ -553,7 +582,7 @@ syntax to a vector layer.
 
 ### 6.5 Z-ordering
 
-Both renderers insert against **named invisible anchor layers**
+Maplibre.gl insert against **named invisible anchor layers**
 ([map-view-config.ts](../src/components/map/map-view-config.ts)):
 
 ```ts
@@ -915,8 +944,7 @@ The most common source of subtle breakage, and heavily commented in the source:
 
 - **Every imperative overlay must be re-added after a basemap swap.**
   `setStyle()` wipes all sources, layers AND sprite images. Each overlay hook
-  therefore returns a `resync`, called from `onLabelsReady`. (deck.gl used to
-  re-resolve its own layers for free; nothing does that now.)
+  therefore returns a `resync`, called from `onLabelsReady`.
 - **Symbol layers that must stay clickable need `icon-allow-overlap` /
   `text-ignore-placement`.** `queryRenderedFeatures` only returns features that
   actually drew, so a collision-culled symbol is silently unpickable — see the
