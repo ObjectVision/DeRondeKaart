@@ -101,14 +101,14 @@ export function featureMatchesGeostyler(
 
 /** Extract fill color from the first Fill symbolizer in a rule */
 export function getFillColorFromRule(rule: GeoStylerRule): Color {
-  const sym = rule.symbolizers.find((s) => s.kind === "Fill") as FillSymbolizer | undefined;
+  const sym = rule.symbolizers?.find((s) => s.kind === "Fill") as FillSymbolizer | undefined;
   if (sym?.color) return hexToColor(sym.color);
   return [0, 128, 255, 100];
 }
 
 /** Extract outline color from the first Fill symbolizer in a rule */
 export function getOutlineColorFromRule(rule: GeoStylerRule): Color {
-  const sym = rule.symbolizers.find((s) => s.kind === "Fill") as FillSymbolizer | undefined;
+  const sym = rule.symbolizers?.find((s) => s.kind === "Fill") as FillSymbolizer | undefined;
   if (sym?.outlineColor) {
     const alpha = sym.outlineOpacity !== undefined ? Math.round(sym.outlineOpacity * 255) : 255;
     return hexToColor(sym.outlineColor, alpha);
@@ -118,45 +118,45 @@ export function getOutlineColorFromRule(rule: GeoStylerRule): Color {
 
 /** Extract outline width from the first Fill symbolizer */
 export function getOutlineWidthFromRule(rule: GeoStylerRule): number {
-  const sym = rule.symbolizers.find((s) => s.kind === "Fill") as FillSymbolizer | undefined;
+  const sym = rule.symbolizers?.find((s) => s.kind === "Fill") as FillSymbolizer | undefined;
   return sym?.outlineWidth ?? 1;
 }
 
 /** Extract line color from the first Line symbolizer */
 export function getLineColorFromRule(rule: GeoStylerRule): Color {
-  const sym = rule.symbolizers.find((s) => s.kind === "Line") as LineSymbolizer | undefined;
+  const sym = rule.symbolizers?.find((s) => s.kind === "Line") as LineSymbolizer | undefined;
   if (sym?.color) return hexToColor(sym.color);
   return [0, 128, 255, 200];
 }
 
 /** Extract line width from the first Line symbolizer */
 export function getLineWidthFromRule(rule: GeoStylerRule): number {
-  const sym = rule.symbolizers.find((s) => s.kind === "Line") as LineSymbolizer | undefined;
+  const sym = rule.symbolizers?.find((s) => s.kind === "Line") as LineSymbolizer | undefined;
   return sym?.width ?? 2;
 }
 
 /** Extract mark color from the first Mark symbolizer */
 export function getMarkColorFromRule(rule: GeoStylerRule): Color {
-  const sym = rule.symbolizers.find((s) => s.kind === "Mark") as MarkSymbolizer | undefined;
+  const sym = rule.symbolizers?.find((s) => s.kind === "Mark") as MarkSymbolizer | undefined;
   if (sym?.color) return hexToColor(sym.color);
   return [0, 128, 255, 200];
 }
 
 /** Extract mark radius from the first Mark symbolizer */
 export function getMarkRadiusFromRule(rule: GeoStylerRule): number {
-  const sym = rule.symbolizers.find((s) => s.kind === "Mark") as MarkSymbolizer | undefined;
+  const sym = rule.symbolizers?.find((s) => s.kind === "Mark") as MarkSymbolizer | undefined;
   return sym?.radius ?? 5;
 }
 
 /** The first Icon symbolizer of a rule, if any (point icon symbology). */
 export function getIconFromRule(rule: GeoStylerRule): IconSymbolizer | undefined {
-  return rule.symbolizers.find((s) => s.kind === "Icon") as IconSymbolizer | undefined;
+  return rule.symbolizers?.find((s) => s.kind === "Icon") as IconSymbolizer | undefined;
 }
 
 /** Get opacity from the first symbolizer of any kind */
 export function getOpacityFromStyle(style: GeoStylerStyle): number {
   if (style.rules.length === 0) return 1;
-  const sym = style.rules[0].symbolizers[0];
+  const sym = style.rules[0].symbolizers?.[0];
   if (!sym) return 1;
   if ("opacity" in sym && sym.opacity !== undefined) return sym.opacity;
   return 1;

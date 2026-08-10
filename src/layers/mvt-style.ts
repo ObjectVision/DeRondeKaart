@@ -247,7 +247,9 @@ function ruleOpacity(config: LayerConfig, symOpacity: number | undefined): numbe
 }
 
 function buildRuleLayerDef(config: LayerConfig, rule: GeoStylerRule): NativeLayerDef {
-  const sym = rule.symbolizers[0];
+  // Indexed defensively: `symbolizers` is optional, and omitting it entirely is
+  // the documented way to hand-write a layer (see the branch below).
+  const sym = rule.symbolizers?.[0];
   if (!sym) {
     // No symbolizer + raw overrides is the way to hand-write a layer outright
     // while keeping a rule name for the legend and the per-class toggle. The

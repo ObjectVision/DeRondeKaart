@@ -180,11 +180,18 @@ export type GeoStylerSymbolizer =
  * Rule-level `paint`/`layout`/`type` are read only when `symbolizers` is empty,
  * which is how a layer is hand-written in raw MapLibre while keeping a legend
  * entry; otherwise put overrides on the symbolizer.
+ *
+ * `symbolizers` is therefore OPTIONAL, and omitting it is the supported way to
+ * write that raw form — a `type: "line"` override needs it, since a Fill
+ * symbolizer's generated `fill-*` paint keys are rejected by a line layer. It
+ * was previously typed as required, which told every call site that
+ * `rule.symbolizers[0]` was safe; several then threw on a rule that legitimately
+ * had none. Index it with `?.[0]`.
  */
 export interface GeoStylerRule extends RawStyleOverrides {
   name: string;
   filter?: GeoStylerFilter;
-  symbolizers: GeoStylerSymbolizer[];
+  symbolizers?: GeoStylerSymbolizer[];
 }
 
 export interface GeoStylerStyle {
