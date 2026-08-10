@@ -92,13 +92,70 @@ ranges; consult `package-lock.json` for exact resolutions.
 
 ### Runtime dependencies
 
-| Group | Packages |
-|---|---|
-| **Rendering** | `maplibre-gl` ^6.2, `react-map-gl` ^8.1 |
-| **Data formats** | `apache-arrow` ^21.1, `flatgeobuf` ^4.4, `pmtiles` ^4.4, `@geomatico/maplibre-cog-protocol` ^0.9, plus vendored `parquet-wasm` |
-| **Collaboration** | `yjs` ^13.6, `@hocuspocus/provider` ^4.4 |
-| **UI** | `react`·`react-dom` ^19.2, `@base-ui/react` ^1.3, `tailwindcss` ^4.2, `material-symbols` ^0.45, `lucide-react` ^1.7, `class-variance-authority`, `clsx`, `tailwind-merge` |
-| **Charts / util** | `d3-array` ^3.2, `d3-scale` ^4.0, `d3-shape` ^3.2, `qrcode` ^1.5 |
+Grouped by role. "We use" lists what is actually imported — several of these
+packages are used far more narrowly than their size suggests, and two are not
+used at all.
+
+#### Rendering
+
+| Package | We use | Why |
+|---|---|---|
+| `maplibre-gl` ^6.2 | `addProtocol`, `setWorkerUrl` as named imports; everything else through the map instance | The renderer. v6 is ESM-only with no default export, so these are imported by name (in v5 it was `maplibregl.addProtocol`) |
+| `react-map-gl` ^8.1 | **one runtime import** — the `<Map>` component in [MapView.tsx](../src/components/map/MapView.tsx). All 16 other importing files take *types only* (`MapRef`, `MapLayerMouseEvent`, `ViewStateChangeEvent`, `ErrorEvent`) | Declarative mount, camera props and event props. Imperative work goes through `mapRef.current.getMap()` — the raw MapLibre instance — so the wrapper is a thin shell over an otherwise direct dependency |
+
+**No GPU compute is involved anywhere.** The GPU is used only for WebGL2
+rasterisation, by MapLibre. `OpenCL` is not reachable from a web page at all,
+and `WebCL` is a Khronos proposal that no browser ever shipped — neither is, or
+could be, part of this stack. WebGPU is likewise absent (see *Indirect
+dependencies* below). Everything that crunches data does so on the CPU: WASM for
+Parquet decoding, and a plain single pass in JavaScript for chart aggregation
+(§8).
+
+#### Data formats
+
+One package per format the map can read; the *format* rationale (when to reach
+for which) is §6.1, and the loading mechanics are §6.3.
+
+| Package | We use | Why |
+|---|---|---|
+| `pmtiles` ^4.4 | `Protocol`, registered as `pmtiles://` | Serves a whole vector tileset from one file over range requests — no tile server (§2) |
+| `@geomatico/maplibre-cog-protocol` ^0.9 | `cogProtocol` (registered as `cog://`), `setColorFunction` | Cloud-Optimized GeoTIFF as a MapLibre raster source. `setColorFunction` is the hook §6.4 uses to classify raster pixels through the same GeoStyler rules a vector layer uses |
+| `flatgeobuf` ^4.4 | `deserialize` from the ESM build (`flatgeobuf/lib/mjs/geojson.js`) | Bbox-filtered streaming reads against the file's packed Hilbert R-tree — large vector data browsed at high zoom without tiling it first (§6.3) |
+| `apache-arrow` ^21.1 | `Table`, `tableFromIPC` | The in-memory columnar table every analytics path consumes: chart aggregation, statistics and the filter dropdowns all read Arrow (§8) |
+| vendored `parquet-wasm` | `readParquet`, `readParquetStream`, plus the init promise | Decodes the Parquet attribute sidecars to Arrow IPC. Vendored rather than depended on — see below |
+
+#### Collaboration
+
+Both packages exist for one feature, shared annotations (§10).
+
+| Package | We use | Why |
+|---|---|---|
+| `yjs` ^13.6 | `Y.Doc` (one per session), `Y.Map` (annotations keyed by id, plain-JSON values), `Y.encodeStateAsUpdate` (server-side size guard and validation) | A CRDT merges concurrent edits without a central authority, so there is no server-side merge or operational-transform logic to maintain. It also collapses the offline case: the `Y.Doc` exists from mount, and "local mode" is the same code path with no provider attached — not a separate branch |
+| `@hocuspocus/provider` ^4.4 | `HocuspocusProvider`; `provider.setAwarenessField(…)` for user identity, cursor and `activeAnnotationId`; `provider.awareness` for peer ids | The WebSocket client for the Yjs sync protocol: connection, reconnect and resync. It also carries **awareness** — ephemeral per-client state that is broadcast to peers but never written into the document, which is exactly what live cursors and presence need. The alternative is hand-rolling the sync protocol over a raw socket |
+
+#### UI
+
+| Package | We use | Why |
+|---|---|---|
+| `react`·`react-dom` ^19.2 | — | |
+| `@base-ui/react` ^1.3 | exactly two primitives: `Button` and `Dialog` | Unstyled, accessible behaviour (focus trap, ARIA, dismiss semantics) with the styling left entirely to Tailwind |
+| `tailwindcss` ^4.2 | — | v4, configured **in CSS** (`@theme inline` in [index.css](../src/index.css)); there is no `tailwind.config.js` to look for |
+| `material-symbols` ^0.45 | `@import "material-symbols/outlined.css"`, rendered as ligature text by `Icon`/`NavIcon` | Icon names can then come straight out of `navigation.json` as strings. The package ships the entire ~3.9 MB face, which is why the build subsets it (§13) |
+| `class-variance-authority`, `clsx`, `tailwind-merge` | `cva` builds the variant matrix in [button-variants.ts](../src/components/ui/button-variants.ts); `cn = twMerge(clsx(…))` in [utils.ts](../src/lib/utils.ts) | `twMerge` is what makes a caller's utility class win over the base string instead of both landing in `class` and losing to CSS source order |
+| `lucide-react` ^1.7 | **nothing** | Not imported anywhere in `src/`; its only trace is a credit line in the attribution list. Left over from the shadcn scaffolding — a removal candidate |
+
+#### Charts / util
+
+The charts are hand-written SVG in React. d3 is used **purely as maths** — scales
+and path generators — with no `d3-selection`, no data-join and no transitions,
+so React keeps sole ownership of the DOM.
+
+| Package | We use | Why |
+|---|---|---|
+| `d3-shape` ^3.2 | `arc`, `pie` (donut); `line`, `area`, `curveMonotoneX` (line chart) | Path-`d` generation, which is tedious and easy to get subtly wrong by hand |
+| `d3-scale` ^4.0 | `scaleLinear`, `scaleBand` (bar), `scalePoint` (line) | Domain→range mapping including the band/point padding rules |
+| `qrcode` ^1.5 | `QRCode.toDataURL` | The share dialog's QR code |
+| `d3-array` ^3.2 | **nothing** | Not imported anywhere. Aggregation is hand-rolled in [chart-data.ts](../src/layers/chart-data.ts) (one pass, Welford variance) — a removal candidate |
 
 ### Build tooling
 
