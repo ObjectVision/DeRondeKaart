@@ -142,6 +142,20 @@ export interface MapConfig {
    * {@link chromeIconColor}.
    */
   chromeIconColor: string;
+  /**
+   * Pixel size of the MAIN-level navigation icons — the sidebar's theme rows
+   * and, in `top` mode, the category cards. Branch and leaf rows inside the
+   * tree are not affected.
+   *
+   * `undefined` when the key is absent, which means "leave every call site at
+   * its own default" rather than any one number — the two main-level sites
+   * disagree (24 sidebar, 32 panel). Read at runtime via {@link navIconSize},
+   * which takes that per-site default as its argument.
+   *
+   * Worth raising for configs whose icons are wide: the value is the icon's
+   * height, so a 3:2 asset renders 1.5x as wide as it is tall.
+   */
+  navIconSize?: number;
 }
 
 /** Default pixel size of the UI-chrome toggle/header icons. */
@@ -171,6 +185,25 @@ let chromeIconColorValue = DEFAULT_CHROME_ICON_COLOR;
 /** Current UI-chrome icon color, configurable via `map.json`'s `chromeIconColor`. */
 export function chromeIconColor(): string {
   return chromeIconColorValue;
+}
+
+/**
+ * Module-level cache of the configured main-level nav icon size, set by
+ * {@link loadMapConfig}. Stays `undefined` when `map.json` omits the key.
+ */
+let navIconSizeValue: number | undefined;
+
+/**
+ * Main-level navigation icon size (px) from `map.json`, or `fallback` when the
+ * key is absent.
+ *
+ * Unlike {@link chromeIconSize} this takes the caller's own default rather than
+ * owning one: the sidebar's theme rows use 24 and the top-mode category cards
+ * use 32, so a single module-level default could not leave both untouched for
+ * configs that never set the key.
+ */
+export function navIconSize(fallback: number): number {
+  return navIconSizeValue ?? fallback;
 }
 
 /** Default map controls: both search and zoom visible. */
@@ -414,6 +447,19 @@ export async function loadMapConfig(): Promise<MapConfig> {
   }
   chromeIconColorValue = chromeColor;
 
+  // Absent stays undefined (each call site keeps its own default); a bad value
+  // warns and does the same, rather than substituting a number nobody asked for.
+  let navIcon: number | undefined;
+  const ni = Number(data.navIconSize);
+  if (Number.isFinite(ni) && ni > 0) {
+    navIcon = ni;
+  } else if (data.navIconSize !== undefined) {
+    console.warn(
+      `map.json: invalid "navIconSize" ${JSON.stringify(data.navIconSize)}; using default`,
+    );
+  }
+  navIconSizeValue = navIcon;
+
   return {
     center: center ?? DEFAULT_MAP_CONFIG.center,
     zoom: zoom ?? DEFAULT_MAP_CONFIG.zoom,
@@ -432,6 +478,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     clickMarker,
     chromeIconSize: chromeIcon,
     chromeIconColor: chromeColor,
+    navIconSize: navIcon,
   };
 }
 
