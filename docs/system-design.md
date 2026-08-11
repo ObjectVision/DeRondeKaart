@@ -137,7 +137,6 @@ Shared annotations on the map. See [system-design-collaboration.md](system-desig
 | **Module Web Workers** | MapLibre parses tiles off-thread; the worker is a separate ESM file located via `import.meta.url` | No tile is ever parsed — see the `setWorkerUrl` note above |
 | **WebAssembly** | Slim adaptation `parquet-wasm` decodes the attribute sidecars | Charts, Kerncijfers and filter dropdowns go empty; map layers are unaffected (§8) |
 | **HTTP range requests (206)** | PMTiles, COG and FlatGeobuf read slices of one large file; Parquet streams column chunks | PMTiles/COG/FGB layers fail outright; Parquet falls back to a whole-file read (§6.3) |
-| **WebSocket** | Collaborative annotations via Hocuspocus/Yjs (§10) | Annotations become local-only; nothing else degrades |
 | **`postMessage` + iframe embedding** | The Power BI visual and the circular embed drive the app through it (§11) | Embedded deployments lose all external control |
 | **Secure context (HTTPS)** | `crypto.randomUUID()` mints annotation ids; `navigator.clipboard` backs the share dialog's copy button | Both are `undefined` off HTTPS/localhost — annotation creation throws |
 | **`Content-Encoding: br`/`gzip`** | `dist/` ships precompressed; nginx serves the `.br`/`.gz` siblings (§13) | Assets still serve, uncompressed and several times larger |
