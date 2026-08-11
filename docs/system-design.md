@@ -87,7 +87,7 @@ The data host is deliberately dumb — no tile server, no database, no API, just
 
 | Package | We use | Why |
 |---|---|---|
-| `maplibre-gl` ^6.2 | `addProtocol`, `setWorkerUrl` as named imports; everything else through the map instance | Drawing geographical data |
+| `maplibre-gl` ^6.2 | `addProtocol`, `setWorkerUrl` as named imports; everything else through the map instance | Drawing geographic data |
 | `react-map-gl` ^8.1 | **one runtime import** — the `<Map>` component in [MapView.tsx](../src/components/map/MapView.tsx). All 16 other importing files take *types only* (`MapRef`, `MapLayerMouseEvent`, `ViewStateChangeEvent`, `ErrorEvent`) | Declarative mount, camera props and event props. Imperative work goes through `mapRef.current.getMap()` — the raw MapLibre instance — so the wrapper is a thin shell over an otherwise direct dependency |
 
 #### Data formats
