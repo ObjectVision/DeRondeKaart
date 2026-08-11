@@ -28,6 +28,7 @@ async function bootstrap() {
         annotationsEnabled={mapConfig.annotations}
         mapControls={mapConfig.mapControls}
         clickMarker={mapConfig.clickMarker}
+        basemapDefault={mapConfig.basemap}
       />
     </StrictMode>,
   )

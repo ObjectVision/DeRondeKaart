@@ -3,6 +3,7 @@ import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import type { LayerConfig } from "@/layers";
 import type { MapRef } from "react-map-gl/maplibre";
 import { isUrlAddressable } from "@/lib/share-url";
+import { isBasemapId } from "@/components/map/map-view-config";
 import type { useMapLayers } from "./use-map-layers";
 
 interface MapSide {
@@ -28,6 +29,8 @@ interface UseUrlCommandsOptions {
   applyView: (view: ViewUpdate) => void;
   /** A share link carried an `annot` room id — join that collab session. */
   onAnnotationRoom?: (roomId: string) => void;
+  /** A share link carried a `basemap` id — switch to it. Already validated. */
+  onBasemap?: (basemapId: string) => void;
   /**
    * An `open-circular` message asked to show the circular-only view. The
    * layers/view/filter have already been reconciled by the time this fires; the
@@ -120,6 +123,7 @@ export function useUrlCommands({
   ready,
   applyView,
   onAnnotationRoom,
+  onBasemap,
   onOpenCircular,
   onSetFilter,
 }: UseUrlCommandsOptions): void {
@@ -223,16 +227,24 @@ export function useUrlCommands({
       console.warn(`Invalid annot room id: "${annotRaw}"`);
     }
 
-    if (commands.length > 0 || hasView || annotRoom) {
+    const basemapRaw = params.get("basemap");
+    const basemap = basemapRaw && isBasemapId(basemapRaw) ? basemapRaw : null;
+    if (basemapRaw && !basemap) {
+      console.warn(`Unknown basemap id: "${basemapRaw}"`);
+    }
+
+    if (commands.length > 0 || hasView || annotRoom || basemap) {
       if (hasView) applyView(view);
       if (commands.length > 0) processCommands(commands);
       // The joined room lives on in state — the hash is still cleared below,
       // like every other processed command.
       if (annotRoom) onAnnotationRoom?.(annotRoom);
+      // Applied after the session's own stored choice, so a shared link wins.
+      if (basemap) onBasemap?.(basemap);
       // Clear the hash after processing (without reload or hashchange event)
       window.history.replaceState({}, "", window.location.pathname + window.location.search);
     }
-  }, [processCommands, applyView, onAnnotationRoom]);
+  }, [processCommands, applyView, onAnnotationRoom, onBasemap]);
 
   // Process hash params on mount (once ready) and on hashchange
   useEffect(() => {

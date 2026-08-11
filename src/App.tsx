@@ -56,6 +56,7 @@ import { MapAttribution } from "@/components/ui/map-attribution";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
 import { InfoPopup } from "@/components/ui/info-popup";
+import { BasemapDialog } from "@/components/ui/BasemapDialog";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 import { ChartsPanel } from "@/components/charts/ChartsPanel";
 import { ShareDialog } from "@/components/share/ShareDialog";
@@ -77,6 +78,7 @@ function App({
   annotationsEnabled: annotationsEnabledProp = false,
   mapControls = DEFAULT_MAP_CONTROLS,
   clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
+  basemapDefault,
   embedCircular = false,
 }: {
   initialViewState: ViewState;
@@ -93,6 +95,8 @@ function App({
   annotationsEnabled?: boolean;
   mapControls?: MapControlsConfig;
   clickMarker?: ClickMarkerConfig;
+  /** map.json `basemap` — the basemap a fresh session starts on. */
+  basemapDefault?: string;
   /**
    * Boot straight into the standalone circular-export view (only the circular
    * map + legend + title, no chrome/dialog) — set from the `?embed=circular`
@@ -173,9 +177,11 @@ function App({
   const [sliderPosition, setSliderPosition] = useState(50);
 
   // Selected background basemap (shared by both maps). The legend's map button
-  // cycles through BASEMAPS; only the base style swaps — user layers stay, re-added
+  // opens the picker; only the base style swaps — user layers stay, re-added
   // by each map's onLabelsReady below.
-  const { basemapId, nextBasemap, cycleBasemap } = useBasemap();
+  const { basemapId, setBasemap } = useBasemap({ configDefault: basemapDefault });
+  const [basemapDialogOpen, setBasemapDialogOpen] = useState(false);
+  const openBasemapDialog = useCallback(() => setBasemapDialogOpen(true), []);
 
   // Feature picking for each map
   const pickA = useFeaturePick(mapLeftLayers.layerEntries, mapLeftRef);
@@ -532,6 +538,7 @@ function App({
     ready: mapLeftReady || embedCircular,
     applyView,
     onAnnotationRoom: handleAnnotationRoom,
+    onBasemap: setBasemap,
     onOpenCircular: openCircular,
     onSetFilter: setFilterFromHost,
   });
@@ -1040,9 +1047,9 @@ function App({
               <Button
                 variant="ghost"
                 size="icon-sm"
-                onClick={cycleBasemap}
-                title={`Achtergrondkaart: ${nextBasemap.label}`}
-                aria-label="Achtergrondkaart wisselen"
+                onClick={openBasemapDialog}
+                title="Achtergrondkaart kiezen"
+                aria-label="Achtergrondkaart kiezen"
               >
                 <Icon name="map" size={chromeIconSize()} color={chromeIconColor()} />
               </Button>
@@ -1065,8 +1072,7 @@ function App({
               // Moving the left map's only layer to the right map would empty the
               // left map (which anchors the comparison) — grey the button out.
               moveDisabled={!leftLegendUsesMapB && mapLeftLayers.layerEntries.length <= 1}
-              nextBasemapLabel={nextBasemap.label}
-              onCycleBasemap={cycleBasemap}
+              onOpenBasemaps={openBasemapDialog}
               onClose={toggleLegendMinimized}
               // The slot above already applies the 20vh cap and the shrink —
               // let that bind rather than a second, independent cap here.
@@ -1092,6 +1098,13 @@ function App({
           )}
         </InfoPopup>
       )}
+
+      <BasemapDialog
+        open={basemapDialogOpen}
+        onOpenChange={setBasemapDialogOpen}
+        basemapId={basemapId}
+        onSelect={setBasemap}
+      />
     </div>
   );
 }

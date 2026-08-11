@@ -105,8 +105,8 @@ interface LegendProps {
    * a title-only header. Its position (bottom-left vs bottom-right) identifies
    * which map it belongs to, so no per-map label is needed.
    */
-  nextBasemapLabel?: string;
-  onCycleBasemap?: () => void;
+  /** Opens the basemap picker. Its presence also gates the whole chrome row. */
+  onOpenBasemaps?: () => void;
   /** Collapse the Kaartlagen window (restored from the bottom-left bar). */
   onClose?: () => void;
   /**
@@ -447,8 +447,7 @@ export const Legend = memo(function Legend({
   onMove,
   moveDirection,
   moveDisabled,
-  nextBasemapLabel,
-  onCycleBasemap,
+  onOpenBasemaps,
   onClose,
   maxHeightClass = "max-h-[50vh]",
   onReorder,
@@ -466,8 +465,8 @@ export const Legend = memo(function Legend({
     .filter((e) => !e.config.excludeFromLegend)
     .reverse()
     .sort((a, b) => foregroundRank(b.config) - foregroundRank(a.config));
-  // Only the left-map legend hosts the basemap toggle + collapse button.
-  const showChrome = Boolean(onCycleBasemap);
+  // Only the left-map legend hosts the basemap picker + collapse button.
+  const showChrome = Boolean(onOpenBasemaps);
   // Shared with LayerList so a drag can auto-scroll the card.
   const cardRef = useRef<HTMLDivElement>(null);
 
@@ -516,9 +515,9 @@ export const Legend = memo(function Legend({
             <Button
               variant="ghost"
               size="icon-sm"
-              onClick={onCycleBasemap}
-              title={`Achtergrondkaart: ${nextBasemapLabel}`}
-              aria-label="Achtergrondkaart wisselen"
+              onClick={onOpenBasemaps}
+              title="Achtergrondkaart kiezen"
+              aria-label="Achtergrondkaart kiezen"
             >
               <Icon name="map" size={chromeIconSize()} color={chromeIconColor()} />
             </Button>
