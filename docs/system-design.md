@@ -50,8 +50,8 @@ not duplicate the task-scoped documentation that already exists:
 
 De Ronde kaart serves thematic analysis maps (housing, care, demographics,
 accessibility, green space) for Dutch regional data. It
-runs as a static single-page application, reads its data from a plain HTTPS file
-(host over range requests), and optionally connects to a collaboration server for
+runs as a static single-page application, reads its data from a plain HTTPS file host
+(over range requests), and optionally connects to a collaboration server for
 shared annotations.
 
 ```mermaid
@@ -77,9 +77,7 @@ flowchart LR
     app -->|"HTTPS"| basemap
 ```
 
-The data host is deliberately dumb — no tile server, no database, no API. Every
-format the app reads is a single file addressed by range requests, so the whole
-data tier is `nginx` serving static files.
+The data host is deliberately dumb — no tile server, no database, no API, just a file server. Every format the app reads is a single file addressed by range requests, so the whole data tier is `nginx` serving static files.
 
 ---
 
