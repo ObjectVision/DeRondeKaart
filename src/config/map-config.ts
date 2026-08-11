@@ -1,4 +1,5 @@
 import type { ViewState } from "@/components/map/MapView";
+import { isBasemapId } from "@/components/map/map-view-config";
 
 /** Appearance of the marker dropped where the user clicks the map. */
 export interface ClickMarkerConfig {
@@ -89,6 +90,12 @@ export interface MapConfig {
    * Defaults to `"top"` when omitted.
    */
   navigationMode: "top" | "sidebar";
+  /**
+   * Id of the basemap a fresh session starts on (see BASEMAPS). Omitted or
+   * unknown falls back to DEFAULT_BASEMAP_ID. A stored session choice wins over
+   * this; a basemap in a share URL wins over both.
+   */
+  basemap?: string;
   /**
    * Whether the sidebar's Filter section is available. Only meaningful in
    * sidebar mode when `navigation` is true. Defaults to `true`. Set to `false`
@@ -423,6 +430,15 @@ export async function loadMapConfig(): Promise<MapConfig> {
     );
   }
 
+  let basemap: string | undefined;
+  if (typeof data.basemap === "string" && isBasemapId(data.basemap)) {
+    basemap = data.basemap;
+  } else if (data.basemap !== undefined) {
+    console.warn(
+      `map.json: unknown "basemap" ${JSON.stringify(data.basemap)}; using the default basemap`,
+    );
+  }
+
   const mapControls = validateMapControls(data.mapControls);
   const clickMarker = validateClickMarker(data.clickMarker);
 
@@ -468,6 +484,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     searchbar,
     navigation,
     navigationMode,
+    basemap,
     filterSection,
     navigationSection,
     chartsPanel,

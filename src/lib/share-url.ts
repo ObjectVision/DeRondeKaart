@@ -1,4 +1,5 @@
 import type { LayerEntry } from "@/hooks/use-map-layers";
+import { DEFAULT_BASEMAP_ID } from "@/components/map/map-view-config";
 
 /**
  * State serialized into a share URL. Mirrors (in reverse) what
@@ -16,6 +17,11 @@ export interface ShareUrlState {
    * `annot` param: recipients auto-enter annotation mode and join the room.
    */
   annotRoomId?: string | null;
+  /**
+   * Selected basemap. Emitted only when it differs from the default, so ordinary
+   * links stay short.
+   */
+  basemapId?: string;
 }
 
 /**
@@ -43,6 +49,9 @@ export function buildShareUrl(state: ShareUrlState, base?: string): string {
     `${state.viewState.longitude.toFixed(5)},${state.viewState.latitude.toFixed(5)}`,
   );
   if (state.annotRoomId) params.set("annot", state.annotRoomId);
+  if (state.basemapId && state.basemapId !== DEFAULT_BASEMAP_ID) {
+    params.set("basemap", state.basemapId);
+  }
 
   // The parser index-aligns getAll("cmd")/getAll("map")/getAll("layer"), so
   // every command must append all three keys.

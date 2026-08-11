@@ -18,59 +18,121 @@ export type ViewState = typeof INITIAL_VIEW_STATE;
 
 /**
  * Selectable background basemaps. Each entry pairs a base style (background +
- * geometry, no labels — rendered under user data) with the matching overlay
- * (labels, roads, water — inserted into the overlay band by ensureAnchorsAndOverlay).
- * The `label` is what the legend's basemap toggle shows.
+ * geometry, no labels — rendered under user data) with an optional overlay
+ * (labels, roads, water — inserted into the overlay band by
+ * ensureAnchorsAndOverlay). `label` names the option in the basemap picker and
+ * `thumb` is its preview image.
+ *
+ * Three provider quirks are baked into every style file here, and all three fail
+ * SILENTLY (missing labels, dropped icons, or a source that never loads) if
+ * reintroduced:
+ *  - The vector source is the UNVERSIONED `/planet` TileJSON, not a pinned build
+ *    path. A versioned path serves tiles but no tiles.json — it answers any
+ *    unknown path with an empty 200 and `x-ofm-debug: empty tile`, which
+ *    MapLibre cannot read.
+ *  - Fonts are single-name Noto stacks (Regular, Bold, Italic — the only three
+ *    OpenFreeMap serves). It has no Open Sans and no Metropolis, and 404s any
+ *    comma-joined fontstack, so the usual "preferred, fallback" pair fails.
+ *  - Sprite ids use underscores (`circle_11`), not the hyphens the upstream
+ *    OpenMapTiles styles ship (`circle-11`).
+ *
+ * Every base style must also declare the `openmaptiles` source even when it
+ * draws nothing from it: ensureAnchorsAndOverlay copies an overlay's LAYERS but
+ * not its SOURCES, so a label layer whose source is missing from the base is
+ * dropped with "source not found".
  */
 export interface Basemap {
   id: string;
   label: string;
   base: string;
-  overlay: string;
+  /**
+   * Layers drawn over user data. The `-overlay` files carry water + roads and
+   * the `-overlay-labels` files add the text on top, so the "met labels" pairs
+   * differ only by their symbol layers. Omitted only for bare aerial imagery.
+   */
+  overlay?: string;
+  /** Preview image in the picker. See BasemapDialog for how these are made. */
+  thumb: string;
 }
 
+/**
+ * Ordered for the picker's 3×2 grid, NOT by precedence — the default is the
+ * explicit id below, never `BASEMAPS[0]`.
+ *
+ * The "kleur" pair is maptiler-basic and the "grijs" pair is positron, each
+ * split into a geometry base and a labels+roads overlay; the bare variants reuse
+ * the same base with no overlay at all.
+ */
 export const BASEMAPS: Basemap[] = [
   {
-    // Default. Same OpenMapTiles schema the Carto-hosted styles used, so the
-    // layer definitions carried over unchanged — only the source, glyphs and
-    // sprite differ.
-    //
-    // Two provider quirks are baked into the style files, and both fail
-    // SILENTLY (missing labels, or a source that never loads) if reintroduced:
-    //  - The source is the UNVERSIONED `/planet` TileJSON, not a pinned build
-    //    path. A versioned path serves tiles but no tiles.json — it answers any
-    //    unknown path with an empty 200 and `x-ofm-debug: empty tile`, which
-    //    MapLibre cannot read. `/planet` currently resolves to build
-    //    20260802_080001_pt.
-    //  - Fonts are single-name Noto stacks. OpenFreeMap has no Open Sans, and
-    //    404s any comma-joined fontstack, so the usual "preferred, fallback"
-    //    pair does not work.
-    id: "openfreemap",
-    label: "OpenFreeMap",
-    base: "/openfreemap-base.json",
-    overlay: "/openfreemap-overlay.json",
-  },
-  {
-    // PDOK aerial photography (RGB 8cm). The imagery replaces the vector base;
-    // only the labels (no roads/water) are drawn on top so place names stay
-    // readable over the photo.
-    //
-    // Its base style therefore declares the `openmaptiles` vector source even
-    // though it draws nothing from it itself: ensureAnchorsAndOverlay copies an
-    // overlay's LAYERS but not its SOURCES, so a label layer whose source is
-    // missing from the base is dropped with "source not found" and the photo
-    // silently loses every place name.
+    // PDOK aerial photography (RGB 8cm) — the imagery replaces the vector base.
     id: "luchtfoto",
     label: "Luchtfoto",
     base: "/pdok-luchtfoto-base.json",
+    thumb: "/basemap-thumb-luchtfoto.png",
+  },
+  {
+    // Labels only (no roads/water) so place names stay readable over the photo.
+    id: "luchtfoto-labels",
+    label: "Luchtfoto met labels",
+    base: "/pdok-luchtfoto-base.json",
     overlay: "/openfreemap-labels.json",
+    thumb: "/basemap-thumb-luchtfoto-labels.png",
+  },
+  {
+    // maptiler-basic with the text layers dropped — water and the road network
+    // stay, since "geen labels" means labels off, not a bare landcover map.
+    id: "kleur",
+    label: "Kleur",
+    base: "/openfreemap-base.json",
+    overlay: "/openfreemap-overlay.json",
+    thumb: "/basemap-thumb-kleur.png",
+  },
+  {
+    id: "kleur-labels",
+    label: "Kleur met labels",
+    base: "/openfreemap-base.json",
+    overlay: "/openfreemap-overlay-labels.json",
+    thumb: "/basemap-thumb-kleur-labels.png",
+  },
+  {
+    id: "grijs",
+    label: "Grijs",
+    base: "/positron-base.json",
+    overlay: "/positron-overlay.json",
+    thumb: "/basemap-thumb-grijs.png",
+  },
+  {
+    id: "grijs-labels",
+    label: "Grijs met labels",
+    base: "/positron-base.json",
+    overlay: "/positron-overlay-labels.json",
+    thumb: "/basemap-thumb-grijs-labels.png",
   },
 ];
 
-export const DEFAULT_BASEMAP_ID = BASEMAPS[0].id;
+/**
+ * Spelled out rather than derived from `BASEMAPS[0]`: the array order is the
+ * picker's display order and may be rearranged, which must not silently move
+ * the default.
+ */
+export const DEFAULT_BASEMAP_ID = "kleur-labels";
 
+/** Falls back to the default basemap, not to `BASEMAPS[0]` (a display slot). */
 export function basemapById(id: string): Basemap {
-  return BASEMAPS.find((b) => b.id === id) ?? BASEMAPS[0];
+  return (
+    BASEMAPS.find((b) => b.id === id) ??
+    BASEMAPS.find((b) => b.id === DEFAULT_BASEMAP_ID) ??
+    BASEMAPS[0]
+  );
+}
+
+/**
+ * Whether `id` names a basemap. Ids arrive from sessionStorage, share URLs and
+ * map.json, all of which can carry a stale value from an older build.
+ */
+export function isBasemapId(id: string): boolean {
+  return BASEMAPS.some((b) => b.id === id);
 }
 
 /**

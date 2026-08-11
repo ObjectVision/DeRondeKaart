@@ -97,8 +97,9 @@ export function ShareDialog({
         hiddenIdsA,
         hiddenIdsB,
         annotRoomId,
+        basemapId,
       }),
-    [viewState, entriesA, entriesB, hiddenIdsA, hiddenIdsB, annotRoomId],
+    [viewState, entriesA, entriesB, hiddenIdsA, hiddenIdsB, annotRoomId, basemapId],
   );
 
   const legendItems = useMemo(

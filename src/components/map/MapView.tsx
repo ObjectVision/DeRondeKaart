@@ -85,16 +85,35 @@ async function fetchOverlayLayers(overlayUrl: string): Promise<LayerSpecificatio
  * concurrent setStyle diff wipe the anchors mid-flight → "non-existing layer"
  * errors on a basemap swap). Safe to call on initial load and after a swap.
  * Deck's interleaved layers re-sync against the anchors automatically.
+ *
+ * A basemap without an overlay (the bare "no labels" variants) still needs the
+ * anchors: every added layer's `beforeId` targets one, so skipping them would
+ * break layer insertion entirely, not just the labels.
  */
-async function ensureAnchorsAndOverlay(map: MapLibreMap, overlayUrl: string) {
-  const overlayLayers = await fetchOverlayLayers(overlayUrl);
+async function ensureAnchorsAndOverlay(
+  map: MapLibreMap,
+  overlayUrl?: string,
+  staleOverlayIds?: string[],
+): Promise<string[]> {
+  const overlayLayers = overlayUrl ? await fetchOverlayLayers(overlayUrl) : null;
   // Synchronous from here — no await splits the anchor/overlay insertion.
   ensureAnchors(map);
-  if (!overlayLayers) return;
+  // Two basemaps can share a base style and differ only in their overlay (the
+  // "met labels" pairs). Switching between those never re-points `mapStyle`, so
+  // setStyle() does not fire and the previous overlay's layers are still in the
+  // stack — drop the ones the new overlay will not re-add, or turning labels off
+  // leaves them drawn.
+  const keep = new Set(overlayLayers?.map((l) => l.id) ?? []);
+  for (const id of staleOverlayIds ?? []) {
+    if (keep.has(id)) continue;
+    if (map.getLayer(id)) map.removeLayer(id);
+  }
+  if (!overlayLayers) return [];
   for (const layer of overlayLayers) {
     if (map.getLayer(layer.id)) continue;
     map.addLayer(layer, ANCHORS.overlay);
   }
+  return overlayLayers.map((l) => l.id);
 }
 
 export interface MapViewHandle {
@@ -132,6 +151,9 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
     const basemap = basemapById(basemapId ?? DEFAULT_BASEMAP_ID);
     // The basemap applied on the last completed (re)load — used to detect a swap.
     const appliedBasemapRef = useRef<string>(basemap.id);
+    // Ids of the overlay layers currently in the stack, so a swap that keeps the
+    // same base style (the "met labels" pairs) can remove the ones it drops.
+    const appliedOverlayIdsRef = useRef<string[]>([]);
 
     useImperativeHandle(ref, () => ({ mapRef, drawModeRef }), []);
 
@@ -186,7 +208,8 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
     function handleLoad() {
       const map = mapRef.current?.getMap();
       if (map) {
-        ensureAnchorsAndOverlay(map, basemap.overlay).then(() => {
+        ensureAnchorsAndOverlay(map, basemap.overlay, appliedOverlayIdsRef.current).then((ids) => {
+          appliedOverlayIdsRef.current = ids;
           onLabelsReady?.(map);
         });
       }
@@ -219,18 +242,38 @@ export const MapView = forwardRef<MapViewHandle, MapViewProps>(
     // Wait for the new style to finish, then re-add the anchors + overlay and let
     // App re-sync its imperative layers via onLabelsReady. Deck's interleaved
     // overlay re-syncs its own layers against the anchors automatically.
+    //
+    // Two basemaps can share a base style and differ only in their overlay (the
+    // "met labels" pairs). Then `mapStyle` does NOT change, so setStyle() never
+    // runs and no further `idle` is guaranteed to arrive — waiting for one would
+    // hang and the overlay would never be swapped. Detect that case and apply the
+    // overlay immediately instead.
     useEffect(() => {
       if (appliedBasemapRef.current === basemap.id) return;
       const map = mapRef.current?.getMap();
       if (!map) return;
 
-      function onStyleReady() {
-        if (!map || !map.isStyleLoaded()) return;
-        map.off("idle", onStyleReady);
-        ensureAnchorsAndOverlay(map, basemap.overlay).then(() => {
+      const previous = basemapById(appliedBasemapRef.current);
+      const baseUnchanged = previous.base === basemap.base;
+
+      function applyOverlay() {
+        if (!map) return;
+        ensureAnchorsAndOverlay(map, basemap.overlay, appliedOverlayIdsRef.current).then((ids) => {
+          appliedOverlayIdsRef.current = ids;
           onLabelsReady?.(map);
         });
         appliedBasemapRef.current = basemap.id;
+      }
+
+      if (baseUnchanged) {
+        applyOverlay();
+        return;
+      }
+
+      function onStyleReady() {
+        if (!map || !map.isStyleLoaded()) return;
+        map.off("idle", onStyleReady);
+        applyOverlay();
       }
 
       map.on("idle", onStyleReady);
