@@ -49,8 +49,8 @@ not duplicate the task-scoped documentation that already exists:
 ## 2. System context
 
 De Ronde kaart serves thematic analysis maps (housing, care, demographics,
-accessibility, green space) for Dutch regional data — principally Limburg. It
-runs as a static single-page application, reads its data from a plain HTTP file
+accessibility, green space) for Dutch regional data. It
+runs as a static single-page application, reads its data from a plain HTTPS file
 host over range requests, and optionally connects to a collaboration server for
 shared annotations.
 
@@ -74,10 +74,10 @@ flowchart LR
     collab["Collab server<br/>Hocuspocus + Yjs + SQLite"]
     basemap["Basemap tiles<br/>MapTiler / PDOK"]
 
-    app -->|"HTTP"| html
-    app -->|"HTTP 206 range"| tiles
+    app -->|"HTTPS"| html
+    app -->|"HTTPS 206 range"| tiles
     app <-->|"WebSocket /collab"| collab
-    app -->|"HTTP"| basemap
+    app -->|"HTTPS"| basemap
 ```
 
 The data host is deliberately dumb — no tile server, no database, no API. Every
