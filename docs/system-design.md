@@ -103,14 +103,11 @@ for which) is §6.1, and the loading mechanics are §6.3.
 | `apache-arrow` ^21.1 | `Table`, `tableFromIPC` | The in-memory columnar table every analytics path consumes: chart aggregation, statistics and the filter dropdowns all read Arrow (§8) |
 | vendored `parquet-wasm` | `readParquet`, `readParquetStream`, plus the init promise | Decodes the Parquet attribute sidecars to Arrow IPC. Vendored rather than depended on — see below |
 
-#### Collaboration
+#### Collaboration (optional)
 
-Both packages exist for one feature, shared annotations (§10).
+**Moved to [system-design-collaboration.md](system-design-collaboration.md).**
 
-| Package | We use | Why |
-|---|---|---|
-| `yjs` ^13.6 | `Y.Doc` (one per session), `Y.Map` (annotations keyed by id, plain-JSON values), `Y.encodeStateAsUpdate` (server-side size guard and validation) | A CRDT merges concurrent edits without a central authority, so there is no server-side merge or operational-transform logic to maintain. It also collapses the offline case: the `Y.Doc` exists from mount, and "local mode" is the same code path with no provider attached — not a separate branch |
-| `@hocuspocus/provider` ^4.4 | `HocuspocusProvider`; `provider.setAwarenessField(…)` for user identity, cursor and `activeAnnotationId`; `provider.awareness` for peer ids | The WebSocket client for the Yjs sync protocol: connection, reconnect and resync. It also carries **awareness** — ephemeral per-client state that is broadcast to peers but never written into the document, which is exactly what live cursors and presence need. The alternative is hand-rolling the sync protocol over a raw socket |
+Shared annotations on the map.
 
 #### UI
 

@@ -1,7 +1,8 @@
 # De Ronde kaart — Collaboration subsystem
 
 **Audience:** developers and maintainers. Companion to
-[system-design.md](system-design.md) §10, which this file replaces in full.
+[system-design.md](system-design.md) §10 and the Collaboration subsection of §3,
+both of which this file replaces in full.
 
 **This subsystem is optional.** It is gated on the `annotations` flag in
 `map.json` (default `false`), and collaborative *sessions* additionally require
@@ -11,6 +12,16 @@ the rest of the app is unaffected: annotations simply stay local to the browser.
 Of the shipped configurations, only `woonzorglimburg` turns it on.
 
 ---
+
+## Dependencies
+
+Both packages exist for one feature, shared annotations. The rest of the stack
+is [system-design.md](system-design.md) §3.
+
+| Package | We use | Why |
+|---|---|---|
+| `yjs` ^13.6 | `Y.Doc` (one per session), `Y.Map` (annotations keyed by id, plain-JSON values), `Y.encodeStateAsUpdate` (server-side size guard and validation) | A CRDT merges concurrent edits without a central authority, so there is no server-side merge or operational-transform logic to maintain. It also collapses the offline case: the `Y.Doc` exists from mount, and "local mode" is the same code path with no provider attached — not a separate branch |
+| `@hocuspocus/provider` ^4.4 | `HocuspocusProvider`; `provider.setAwarenessField(…)` for user identity, cursor and `activeAnnotationId`; `provider.awareness` for peer ids | The WebSocket client for the Yjs sync protocol: connection, reconnect and resync. It also carries **awareness** — ephemeral per-client state that is broadcast to peers but never written into the document, which is exactly what live cursors and presence need. The alternative is hand-rolling the sync protocol over a raw socket |
 
 ## Client
 
@@ -80,4 +91,3 @@ edit.
 |---|---|
 | Running the server, its guards and operations | [collab-server/README.md](../collab-server/README.md) |
 | The annotation tool itself (shapes, direct manipulation, session snapshots) | [system-design.md](system-design.md) §9 |
-| Where `yjs` and `@hocuspocus/provider` are used, and why | [system-design.md](system-design.md) §3 |
