@@ -26,6 +26,7 @@ not duplicate the task-scoped documentation that already exists:
 | The collaboration subsystem — client, server, guards (§10, **optional feature**) | [system-design-collaboration.md](system-design-collaboration.md) |
 | The Power BI integration (§11, **optional**) | [system-design-power-bi.md](system-design-power-bi.md) |
 | Why `maplibre-gl` and `typescript` are pinned (§3) — read before upgrading either | [system-design-version-constraints.md](system-design-version-constraints.md) |
+| How layer styling is authored and translated per target (§6.4) | [system-design-styling.md](system-design-styling.md) |
 | Running the collaboration server, its guards and operations | [collab-server/README.md](../collab-server/README.md) |
 | The Power BI visual — building, publishing, hosting gotchas | [powerbi-visual/README.md](../powerbi-visual/README.md), [known_issues.md](../powerbi-visual/known_issues.md) |
 | Per-tenant configuration projects | [configs/README.md](../configs/README.md) |
@@ -39,7 +40,7 @@ not duplicate the task-scoped documentation that already exists:
 |---|---|
 | Add a layer to an existing deployment | §12 Configuration, then `configs/<project>/layers.json` |
 | Add support for a new data format | §6.1–6.2, then [use-map-layers.ts:112](../src/hooks/use-map-layers.ts#L112) |
-| Change how a layer is styled | §6.4, then [geostyler.ts](../src/layers/geostyler.ts) |
+| Change how a layer is styled | [system-design-styling.md](system-design-styling.md), then [geostyler.ts](../src/layers/geostyler.ts) |
 | Understand why a filter isn't applying | §7 |
 | Work out why charts show no data | §8 (`attributeSource`) |
 | Prepare source data for upload | §14 Data pipeline |
@@ -99,7 +100,7 @@ for which) is §6.1, and the loading mechanics are §6.3.
 | Package | We use | Why |
 |---|---|---|
 | `pmtiles` ^4.4 | `Protocol`, registered as `pmtiles://` | Serves a whole vector tileset from one file over range requests — no tile server (§2) |
-| `@geomatico/maplibre-cog-protocol` ^0.9 | `cogProtocol` (registered as `cog://`), `setColorFunction` | Cloud-Optimized GeoTIFF as a MapLibre raster source. `setColorFunction` is the hook §6.4 uses to classify raster pixels through the same GeoStyler rules a vector layer uses |
+| `@geomatico/maplibre-cog-protocol` ^0.9 | `cogProtocol` (registered as `cog://`), `setColorFunction` | Cloud-Optimized GeoTIFF as a MapLibre raster source. `setColorFunction` is the hook [system-design-styling.md](system-design-styling.md) uses to classify raster pixels through the same GeoStyler rules a vector layer uses |
 | `flatgeobuf` ^4.4 | `deserialize` from the ESM build (`flatgeobuf/lib/mjs/geojson.js`) | Bbox-filtered streaming reads against the file's packed Hilbert R-tree — large vector data browsed at high zoom without tiling it first (§6.3) |
 | `apache-arrow` ^21.1 | `Table`, `tableFromIPC` | The in-memory columnar table every analytics path consumes: chart aggregation, statistics and the filter dropdowns all read Arrow (§8) |
 | slim adaptation of `parquet-wasm` | `readParquet`, `readParquetStream`, plus the init promise | Decodes the Parquet attribute sidecars to Arrow IPC.|
@@ -232,7 +233,8 @@ box).
 
 Styling is still expressed once and translated per target by
 [geostyler.ts](../src/layers/geostyler.ts): MapLibre paint/filter expressions
-for vector layers and a per-pixel colour function for COG (§6.4).
+for vector layers and a per-pixel colour function for COG
+([system-design-styling.md](system-design-styling.md)).
 
 #### The MapLibre object model in brief
 
@@ -535,119 +537,30 @@ source.
 
 ### 6.4 Styling: one model, three translations
 
-[geostyler.ts](../src/layers/geostyler.ts) holds the shared engine —
-`evaluateFilter`, `matchRule` (first match wins), and per-symbolizer extractors.
-Filter comparison is deliberately loose (`==`), because JSON config values
-arrive as strings or numbers interchangeably.
+**Moved to [system-design-styling.md](system-design-styling.md).**
 
-**→ MapLibre** ([mvt-style.ts](../src/layers/mvt-style.ts)): rules become
-MapLibre filter expressions (`&&`→`all`, `||`→`any`) and symbolizers map by kind
-(`Fill`→`fill`, `Line`→`line`, `Mark`→`circle`, `Icon`→`symbol`). Unsupported
-kinds warn loudly rather than drawing an invisible layer.
-
-**→ COG** ([cog-style.ts](../src/layers/cog-style.ts)): a per-pixel colour
-function where raster bands are exposed as `band0`, `band1`, … and run through
-**the same `evaluateFilter`** — so a raster classifies with identical rule
-syntax to a vector layer.
+Style is authored once per layer as GeoStyler rules and translated per render
+target by [geostyler.ts](../src/layers/geostyler.ts): MapLibre paint/filter
+expressions for vector layers, and a per-pixel colour function for COG that runs
+raster bands through the same `evaluateFilter` a vector layer uses.
 
 ### 6.5 Z-ordering
 
-Maplibre.gl insert against **named invisible anchor layers**
+TODO: spits toe op wat het werkelijk doet, welke indeling mogelijk is etc
+Z-order for layers is   Maplibre.gl insert against **named invisible anchor layers**
 ([map-view-config.ts](../src/components/map/map-view-config.ts)):
 
 ```ts
 export const ANCHORS = {
-  background: "background-layers",
+  background: "background-layers", // for instance meadows or water
   map: "map-layers",        // default
-  overlay: "overlay-layers",
   foreground: "foreground-layers",
-  studyarea: "studyarea-layers",
+  overlay: "overlay-layers", // topographic elements such as roads and labels
+  studyarea: "studyarea-layers"
 } as const;
 ```
 
-A layer's `beforeid` selects its band. `map.addLayer` honours the anchor, so
-ordering is correct without any post-hoc `moveLayer` shuffling and without
-depending on load timing. A missing anchor is not fatal — each add falls back
-to appending — but the layer then lands in the wrong band, which is why
-`ensureAnchors` re-runs on every `styledata`.
-
-### 6.6 Composites
-
-A composite is **one `layers.json` entry** holding inline child configs, each
-active over a `[minzoom, maxzoom)` band.
-[composite-manager.ts](../src/layers/composite-manager.ts) watches `moveend` and
-loads/unloads children as the zoom crosses band edges, delegating the actual
-work to a host implemented in `useMapLayers` (children need React state setters
-that module scope cannot reach).
-
-The fan-out is one-to-many in exactly one direction: the composite is a single
-legend row, a single share id, and a single thing a navigation leaf can point
-at, while putting N sets of native MapLibre layers on the map. Children are
-never `layerEntries` — they "exist only as native sources on the map"
-([use-map-layers.ts](../src/hooks/use-map-layers.ts)). Note that
-`navigation.json` knows nothing about any of this: `navigation.ts` contains no
-composite handling, and a composite is simply what a leaf's `id` happens to
-resolve to.
-
-#### What a child config *is*
-
-`LayerConfig.layers` is typed `LayerConfig[]`, and **that type is looser than
-the contract**. `validateChildConfig` ([config.ts](../src/layers/config.ts))
-reads a fixed set of keys off the raw JSON and discards everything else, so a
-child carrying `charts` or `excludeFromPicking` is accepted by `tsc` and
-silently dropped at load.
-
-| | Keys |
-|---|---|
-| **Read from the child** | `source` (required), `format` (required), `geometryType`, `sourceLayer`, `geostyler`, `style`, `beforeid`, `embeddedColors`, `minzoom`, `maxzoom` |
-| **Synthesized from the parent** | `id` = `` `${parent.id}__c${index}` ``, `name` = the parent's `name` |
-| **Refused** | `featureinfo` — warns, then ignored; popups use the composite's |
-| **Dropped silently** | everything else: `charts`, `statistics`, `attributeSource`, `meta`, `timeseries`, `excludeFrom*`, a nested `layers` |
-
-A child's `format` is checked against `CHILD_FORMATS` — `mvt`, `cog`,
-`flatgeobuf`, `pmtiles`. `composite` is deliberately absent, so **composites do
-not nest**; `geojson` is absent because it is in-memory only (§6.1).
-
-#### Which property lives where
-
-| Property | Lives on | Note |
-|---|---|---|
-| `id`, `name` | composite | children derive both |
-| `source`, `format`, `sourceLayer`, `embeddedColors` | **child** | a composite has no source of its own; its `source` is forced to `""` |
-| `minzoom` / `maxzoom` | **child** | the load band, `minzoom <= zoom < maxzoom`; also stamped on the native layer spec so the cutoff is exact mid-gesture |
-| `beforeid` | **child, falling back to the parent's** | the only inherited-with-override property |
-| `style`, `geometryType` | child for rendering; parent only as a **fallback legend swatch** | the parent's pair is read solely when neither it nor any child yields legend rows, so on a styled composite it is dead config. Child `style` defaults to `{}` |
-| `geostyler` | **either — and which one decides the flavour** | see below |
-| `featureinfo` | composite | picks report the parent's id and name and render the parent's template (`expandForMapQueries`) |
-| `excludeFromLegend`, `excludeFromPicking`, `excludeFromComparison`, `meta` | composite | |
-| `charts`, `statistics`, `attributeSource` | **neither** | forced `undefined` with a warning — composites are not chart-eligible |
-
-`geostyler` is the one property meaningful in both places, and where it sits
-selects between the two flavours:
-
-- **Parent has `geostyler`** — children are zoom-banded alternatives sharing one
-  rule set. The parent's rules are the legend, and a rule toggle applies to
-  *every* child.
-- **Parent has none** — children render simultaneously and each contributes its
-  own legend rows via `compositeLegendRules`. Those rows are keyed
-  `"<childIndex>:<ruleName>"`, because children routinely share rule names —
-  every loopafstand COG uses the same six class names, and a bare name would
-  toggle all of them at once. COG rows are non-interactive: a per-pixel colour
-  function registered per source URL cannot hide one class.
-
-#### Two traps
-
-- **A composite's own `minzoom`/`maxzoom` do nothing.** They are validated and
-  stored like any layer's, but the composite branch never reaches
-  `buildNativeLayerDefs`, and `childInRange` reads the *child's* bounds. A band
-  written on the parent is inert, not inherited.
-- **`__c` is reserved in ids.** A top-level id containing it warns, because the
-  host recovers the parent id by stripping `/__c\d+$/`, and the child index
-  parsed from that same suffix is what routes a hidden-rule key to one child.
-
----
-
-## 7. Filtering
+## 6. Filtering
 
 Two independent systems with different scopes.
 
@@ -699,7 +612,7 @@ changing invalidates memoized aggregates.
 
 ---
 
-## 8. Charts and statistics
+## 7. Charts and statistics
 
 [charts.json](../configs/woonzorglimburg/charts.json) is a **library** of chart
 definitions referenced by id from a layer's `charts` array. Types: donut, bar,
@@ -731,7 +644,7 @@ unnoticed.
 
 ---
 
-## 9. Feature catalogue
+## 8. Feature catalogue
 
 | Capability | Implemented in | Notes |
 |---|---|---|
@@ -764,7 +677,7 @@ skips layers no longer present in `layers.json`.
 
 ---
 
-## 10. Collaboration subsystem
+## 9. Collaboration subsystem
 
 **Moved to [system-design-collaboration.md](system-design-collaboration.md).**
 
@@ -781,7 +694,7 @@ the app changes.
 
 ---
 
-## 11. Power BI integration
+## 10. Power BI integration
 
 **Moved to [system-design-power-bi.md](system-design-power-bi.md).**
 
@@ -796,7 +709,7 @@ Both are explained in the companion document.
 
 ---
 
-## 12. Configuration system
+## 11. Configuration system
 
 | File | Loader | Drives |
 |---|---|---|
@@ -837,7 +750,7 @@ the plain `public/` content. See [configs/README.md](../configs/README.md).
 
 ---
 
-## 13. Build and deployment
+## 12. Build and deployment
 
 ### Vite pipeline
 
@@ -865,7 +778,7 @@ For non-Docker hosts, [server/](../server/) holds provisioning scripts:
 
 ---
 
-## 14. Data pipeline
+## 13. Data pipeline
 The initial datapipeline makes use of GeoDMS where sourcedata is translated to intermediate .geojson files, where simplification can be included with preservation of topology to simplify for various zoomlevels of a pmtiles file. Another route for simplification is experimentally tomake use of **mapshaper** using script `convert-tif-to-geojson.py`. These .geojson files then go into external converters. 
 
 [data/](../data/) holds eight Python converters that turn source rasters and
@@ -900,7 +813,7 @@ Workflow: convert → upload to the data host → reference the URL from
 
 ---
 
-## 15. Cross-cutting concerns and known constraints
+## 14. Cross-cutting concerns and known constraints
 
 ### GL lifecycle hazards
 
@@ -952,7 +865,7 @@ that way.
 
 ---
 
-## 16. Appendices
+## 15. Appendices
 
 ### A. File index
 
