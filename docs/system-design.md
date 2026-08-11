@@ -701,35 +701,7 @@ the plain `public/` content. See [configs/README.md](../configs/README.md).
 
 ---
 
-## 11. Build and deployment
-
-### Vite pipeline
-
-Four plugins: React, Tailwind, the config overlay (§12), an **icon-font
-subsetter** ([subset-icon-font.ts](../scripts/subset-icon-font.ts) — scans
-sources for icon names and ships only those glyphs), and **dist precompression**
-([precompress-dist.ts](../scripts/precompress-dist.ts) — Brotli q11 + gzip, so
-nginx serves precompressed assets).
-
-Manual chunking splits `vendor-parquet`, `vendor-arrow` and `vendor-maplibre`
-so they cache independently of app changes.
-
-`npm run build` is `tsc -b && vite build` — the typecheck gates the bundle.
-
-### Deployment
-
-[Dockerfile](../Dockerfile) is a two-stage build (`node:20-alpine` →
-`nginx:alpine`, port 80). [docker-compose.yml](../docker-compose.yml) adds the
-`collab` service. nginx configs live in [deploy/](../deploy/).
-
-For non-Docker hosts, [server/](../server/) holds provisioning scripts:
-`setup_map_application.sh` (app + nginx + `/collab` proxy),
-`setup_collab_server.sh` (systemd unit), `setup_fileserver.sh` (the data host),
-`setup_landing_page.sh`.
-
----
-
-## 12. Data pipeline
+## 11. Data pipeline
 
 The first stage uses GeoDMS to translate source data into intermediate
 `.geojson` files. Simplification can happen here, preserving topology so shapes
@@ -771,7 +743,7 @@ Workflow: convert → upload to the data host → reference the URL from
 
 ---
 
-## 13. (optional) subsystems
+## 12. (optional) subsystems
 
 **Collaboration on the map see [system-design-collaboration.md](system-design-collaboration.md).**
 **Power-Bi custom visual see [system-design-power-bi.md](system-design-power-bi.md).**
