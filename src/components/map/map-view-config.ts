@@ -46,9 +46,14 @@ export interface Basemap {
   label: string;
   base: string;
   /**
-   * Layers drawn over user data. The `-overlay` files carry water + roads and
-   * the `-overlay-labels` files add the text on top, so the "met labels" pairs
-   * differ only by their symbol layers. Omitted only for bare aerial imagery.
+   * Layers drawn ABOVE user data. Omitted by the label-less variants, which are
+   * the base style alone — their roads and water draw *under* added layers.
+   *
+   * The `-roads-labels` overlays deliberately REPEAT the base's water and road
+   * layers alongside the text, so the "met labels" variants show the network over
+   * data as well as under it. Those copies carry an `__ovl` id suffix: MapLibre
+   * would reject a duplicate id, and ensureAnchorsAndOverlay skips any layer whose
+   * id already exists, so same-id copies would be silently dropped.
    */
   overlay?: string;
   /** Preview image in the picker. See BasemapDialog for how these are made. */
@@ -59,9 +64,11 @@ export interface Basemap {
  * Ordered for the picker's 3×2 grid, NOT by precedence — the default is the
  * explicit id below, never `BASEMAPS[0]`.
  *
- * The "kleur" pair is maptiler-basic and the "grijs" pair is positron, each
- * split into a geometry base and a labels+roads overlay; the bare variants reuse
- * the same base with no overlay at all.
+ * The "kleur" pair is maptiler-basic and the "grijs" pair is positron. The base is
+ * the complete published style minus its text (40 and 36 layers, in upstream
+ * order), so a label-less variant is the base alone. The "met labels" variants add
+ * an overlay holding the text plus a second copy of the water/road layers, which
+ * is what puts the network back on top of user data.
  */
 export const BASEMAPS: Basemap[] = [
   {
@@ -80,33 +87,31 @@ export const BASEMAPS: Basemap[] = [
     thumb: "/basemap-thumb-luchtfoto-labels.png",
   },
   {
-    // maptiler-basic with the text layers dropped — water and the road network
-    // stay, since "geen labels" means labels off, not a bare landcover map.
+    // maptiler-basic, complete except for its text layers — no overlay at all.
     id: "kleur",
     label: "Kleur",
     base: "/openfreemap-base.json",
-    overlay: "/openfreemap-overlay.json",
     thumb: "/basemap-thumb-kleur.png",
   },
   {
+    // The same base, plus water/roads AND labels drawn again above user data.
     id: "kleur-labels",
     label: "Kleur met labels",
     base: "/openfreemap-base.json",
-    overlay: "/openfreemap-overlay-labels.json",
+    overlay: "/openfreemap-roads-labels.json",
     thumb: "/basemap-thumb-kleur-labels.png",
   },
   {
     id: "grijs",
     label: "Grijs",
     base: "/positron-base.json",
-    overlay: "/positron-overlay.json",
     thumb: "/basemap-thumb-grijs.png",
   },
   {
     id: "grijs-labels",
     label: "Grijs met labels",
     base: "/positron-base.json",
-    overlay: "/positron-overlay-labels.json",
+    overlay: "/positron-roads-labels.json",
     thumb: "/basemap-thumb-grijs-labels.png",
   },
 ];
