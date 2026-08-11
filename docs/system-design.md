@@ -23,6 +23,8 @@ not duplicate the task-scoped documentation that already exists:
 
 | For | Read |
 |---|---|
+| The collaboration subsystem — client, server, guards (§10, **optional feature**) | [system-design-collaboration.md](system-design-collaboration.md) |
+| The Power BI integration (§11, **optional**) | [system-design-power-bi.md](system-design-power-bi.md) |
 | Running the collaboration server, its guards and operations | [collab-server/README.md](../collab-server/README.md) |
 | The Power BI visual — building, publishing, hosting gotchas | [powerbi-visual/README.md](../powerbi-visual/README.md), [known_issues.md](../powerbi-visual/known_issues.md) |
 | Per-tenant configuration projects | [configs/README.md](../configs/README.md) |
@@ -845,95 +847,33 @@ skips layers no longer present in `layers.json`.
 
 ## 10. Collaboration subsystem
 
-### Client
+**Moved to [system-design-collaboration.md](system-design-collaboration.md).**
 
-The design decision that shapes everything: **annotations live in a `Y.Doc` from
-app mount, not from room join**. "Local mode" is simply that doc without a
-provider. Joining a room attaches a provider to the *same* doc, so Yjs's initial
-sync merges pre-existing local annotations into the room — ids are UUIDs, so
-there are no collisions.
+Shared annotations over a Yjs/Hocuspocus WebSocket session: the client lifecycle
+and its Awareness handling, the capability-URL security model, and the
+server-side guards.
 
-[use-collab.ts](../src/hooks/use-collab.ts) owns the lifecycle. Live cursors and
-"who is looking at which annotation" are **Yjs Awareness** state — ephemeral,
-never persisted. Cursor updates throttle to ~25 Hz with a trailing send so the
-final resting position always arrives, and awareness→React updates are batched
-per animation frame so several peers do not cause hundreds of re-renders per
-second.
-
-Identity ([collab-identity.ts](../src/lib/collab-identity.ts)) is a
-`localStorage`-persisted pseudonym drawn from a Dutch flora/fauna list plus a
-colour. **Nothing is verified** — names are self-chosen.
-
-Conflict semantics: `update` replaces the whole per-annotation value, so
-concurrent edits to the *same* annotation are last-writer-wins. Accepted for
-now, mitigated in practice by the active-annotation highlight.
-
-### Server
-
-[collab-server/](../collab-server/) is a Hocuspocus (Yjs) WebSocket server with
-SQLite persistence — 7 TypeScript modules and the repo's only automated tests
-(16, via `node:test`).
-
-**Security model: capability URLs.** The unguessable room UUID in the share link
-is the only key. `onConnect` rejects any document name that is not a UUID, so
-arbitrary names cannot be probed, and **no endpoint lists rooms**. The id
-travels in the URL *hash fragment*, which browsers never send to servers, so it
-stays out of access logs and `Referer` headers.
-
-Documented limitations: anyone with the link has full read+write, author names
-are unverified, and the SQLite file is plaintext.
-
-**Guards** (all server-side — a client can call the Yjs API directly and bypass
-any browser-side throttle). Every limit is env-tunable; defaults from
-[config.ts](../collab-server/src/config.ts):
-
-| Guard | Mechanism | Default |
-|---|---|---|
-| P0 document size | Reject oversized doc in `onStoreDocument` | 2 MB |
-| P1 content caps | Per-annotation validation | 300 annotations, 200-char title, 2000-char description, 500 polygon points, 128 KB snapshot |
-| P2 flood limiter | Sliding window on bytes and message count | 10 s window, 8 MB, 2000 messages |
-| P3 room TTL + GC | Activity sidecar table, periodic delete + `VACUUM` | 90 days, daily |
-| P4 size monitoring | Warn past DB file threshold | 512 MB |
-
-**A load-bearing constraint:** Hocuspocus runs `onStoreDocument` as a sequential
-promise chain ordered by `priority`, and a throw aborts the rest.
-`GuardExtension.priority = 1000` (default 100) so validation runs **before** the
-SQLite extension writes. A server-config hook would not work — config hooks are
-appended last, by which point the bad document is already on disk.
-
-Because a CRDT update is already merged into the in-memory document by the time
-any hook runs, a validation failure aborts the *persist*; it cannot undo the
-edit.
+**The subsystem is optional.** It is gated on the `annotations` flag in
+`map.json` (default `false`; collaborative *sessions* additionally require
+`share`), and the collab server is a separate deployable rather than part of the
+static bundle. Switched off — as in the default configuration and in
+`startanalyse2026` — annotations stay local to the browser and nothing else in
+the app changes.
 
 ---
 
 ## 11. Power BI integration
 
-A **peripheral integration**, not part of the core system: the app neither
-knows nor cares whether it is embedded, beyond a `postMessage` listener and a
-snapshot hook. Nothing in §§4–10 depends on it.
+**Moved to [system-design-power-bi.md](system-design-power-bi.md).**
 
-[powerbi-visual/](../powerbi-visual/) is a thin custom visual that embeds the
-hosted app in an iframe and drives it via `postMessage`. It renders no map
-itself, and data flows one way (Power BI → map, no cross-filtering back).
+A thin custom visual that embeds the hosted app in an iframe and drives it via
+`postMessage`.
 
-Two things about it leak into the app and are worth knowing:
-
-- **The `geojson` layer format exists for this.** Features arrive on
-  `config.data` instead of being fetched from `source` (§6.1), pushed by
-  [use-embed-data.ts](../src/hooks/use-embed-data.ts). It is deliberately absent
-  from `VALID_FORMATS`, so it can never appear in a `layers.json`.
-- **The snapshot bridge** ([use-map-snapshot.ts](../src/hooks/use-map-snapshot.ts))
-  pushes a JPEG of the canvas to the parent, because Power BI's PDF/PowerPoint
-  export does not rasterize cross-origin sandboxed iframes — without it the map
-  exports blank. Gated on being embedded, not on the `share` flag, so export
-  works even where the share UI is off.
-
-The message protocol, the WKB column mapping, and the two hosting gates (host
-`WebAccess` privilege, and no `X-Frame-Options`/`frame-ancestors` at all) are
-documented where they are maintained:
-[powerbi-visual/README.md](../powerbi-visual/README.md) and
-[known_issues.md](../powerbi-visual/known_issues.md).
+**The integration is optional and peripheral** — the app neither knows nor cares
+whether it is embedded. Nothing in §§4–10 depends on it. Only two things leak
+back into the core: the in-memory `geojson` layer format (§6.1) and the snapshot
+bridge that keeps Power BI's PDF/PowerPoint export from rendering the map blank.
+Both are explained in the companion document.
 
 ---
 
