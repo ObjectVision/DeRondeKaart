@@ -380,40 +380,80 @@ the store would filter the map but leave the sidebar showing a stale selection.
 Code is split by responsibility, not by feature: one hook per capability, with
 presentation kept out of the data engine.
 
-`src/` holds **17,375 lines across 91 TypeScript files**.
+`src/` holds **18,713 lines across 101 TypeScript files**.
 
-| Directory | Files | Responsibility |
-|---|---|---|
-| [src/layers/](../src/layers/) | 18 | The data engine: formats, loaders, styling, filtering, aggregation |
-| [src/hooks/](../src/hooks/) | 20 | Feature logic — one hook per capability |
-| [src/components/](../src/components/) | 36 | Presentation (map, legend, navigation, charts, annotations, share) |
-| [src/lib/](../src/lib/) | 10 | Pure utilities: capture, geometry, share URLs, formatting |
-| [src/config/](../src/config/) | 1 | `map.json` loading, UI flags, initial view |
-| [src/types/](../src/types/) | 2 | Ambient declarations (annotations, Google Streetview) |
-| [src/vendor/](../src/vendor/) | 2 | Generated parquet-wasm bindings |
+| Directory | Files | Lines | Responsibility |
+|---|---|---|---|
+| [src/hooks/](../src/hooks/) | 25 | 4,986 | Feature logic — one hook per capability |
+| [src/components/](../src/components/) | 35 | 4,951 | Presentation (map, legend, navigation, charts, annotations, share) |
+| [src/layers/](../src/layers/) | 23 | 4,304 | The data engine: formats, loaders, styling, filtering, aggregation |
+| [src/lib/](../src/lib/) | 11 | 1,388 | Pure utilities: capture, geometry, share URLs, formatting |
+| [src/vendor/](../src/vendor/) | 2 | 1,082 | Generated parquet-wasm bindings |
+| [src/config/](../src/config/) | 1 | 494 | `map.json` loading, UI flags, initial view |
+| [src/types/](../src/types/) | 2 | 143 | Ambient declarations (annotations, Google Streetview) |
+
+The remaining 1,365 lines are the two files at the root of `src/`: `App.tsx` and
+`main.tsx`.
+
+Most files are small — the median is 110 lines, 73% are under 200, and only six
+exceed 500 — so the directory counts are dominated by single-purpose support
+modules rather than by a few large ones. In `src/layers/` those are the per-format
+loaders
+([flatgeobuf-loader](../src/layers/flatgeobuf-loader.ts),
+[parquet-loader](../src/layers/parquet-loader.ts),
+[arrow-loader](../src/layers/arrow-loader.ts)) plus the pieces they share:
+[table-cache](../src/layers/table-cache.ts) (URL-keyed Arrow tables, so a file
+added to both maps is fetched and parsed once),
+[icon-sprite](../src/layers/icon-sprite.ts) and
+[hatch-pattern](../src/layers/hatch-pattern.ts) (sprite images — an icon or a
+hatch fill needs an image registered in the map's sprite before its layer is
+added, and a missing one renders the geometry *invisible* rather than unstyled),
+[geojson-overlay](../src/layers/geojson-overlay.ts) (the always-on-top chrome:
+click marker, selection box, gebiedsfilter mask) and
+[featureinfo-template](../src/layers/featureinfo-template.ts).
 
 ### Largest modules
 
 | Lines | File | Note |
 |---|---|---|
-| 1721 | [App.tsx](../src/App.tsx) | Composition root — **the main structural weak point** |
-| 1014 | [use-map-layers.ts](../src/hooks/use-map-layers.ts) | Layer engine |
-| 706 | [map-capture.ts](../src/lib/map-capture.ts) | WebGL capture and PNG compositing |
+| 1329 | [App.tsx](../src/App.tsx) | Composition root — **still the main structural weak point** |
+| 1126 | [use-map-layers.ts](../src/hooks/use-map-layers.ts) | Layer engine |
+| 977 | [parquet_wasm.d.ts](../src/vendor/parquet-wasm/parquet_wasm.d.ts) | Generated bindings — not hand-maintained |
+| 697 | [map-capture.ts](../src/lib/map-capture.ts) | WebGL capture and PNG compositing |
+| 562 | [legend.tsx](../src/components/ui/legend.tsx) | Legend rows, per-class toggles, drag reorder |
 | 540 | [use-annotation-tool.ts](../src/hooks/use-annotation-tool.ts) | Drawing interaction model |
-| 447 | [map-config.ts](../src/config/map-config.ts) | `map.json` validation |
+| 494 | [map-config.ts](../src/config/map-config.ts) | `map.json` validation |
+| 489 | [annotation-style.ts](../src/layers/annotation-style.ts) | Annotation symbolizers |
+| 446 | [mvt-style.ts](../src/layers/mvt-style.ts) | GeoStyler → MapLibre paint translation |
 
-`App.tsx` wires roughly twenty hooks, owns the dual-map layout, and holds the
-annotation, box-select and share state. It is the file most in need of splitting
-up; nothing about the architecture requires it to be this large.
+`App.tsx` wires roughly thirty hooks, owns the dual-map layout, and still holds
+the annotation and box-select state. It is the file most in need of splitting up;
+nothing about the architecture requires it to be this large. It has come down
+from ~1,720 lines as share state and the per-map layer callbacks moved out into
+[use-share-state.ts](../src/hooks/use-share-state.ts) and
+[use-layer-handlers.ts](../src/hooks/use-layer-handlers.ts) — the same treatment
+applied to what remains would shrink it further.
 
 ### The hooks layer
 
-Twenty hooks, each owning one capability: `use-map-layers`, `use-navigation`,
-`use-area-filter`, `use-box-select`, `use-chart-data`, `use-feature-pick`,
-`use-annotations`, `use-annotation-tool`, `use-annotation-layers`, `use-collab`,
-`use-url-commands`, `use-embed-data`, `use-map-snapshot`, `use-study-area-layer`,
+Twenty-five hooks, each owning one capability: `use-map-layers`,
+`use-layer-handlers`, `use-navigation`, `use-nav-expansion`, `use-area-filter`,
+`use-host-filter`, `use-box-select`, `use-chart-data`, `use-feature-pick`,
+`use-annotations`, `use-annotation-tool`, `use-annotation-commands`,
+`use-annotation-source`, `use-collab`, `use-url-commands`, `use-embed-data`,
+`use-map-snapshot`, `use-share-state`, `use-study-area-layer`,
 `use-filtered-study-area`, `use-click-marker-layer`, `use-selection-box-layer`,
 `use-hover-cursor`, `use-auto-collapse`, `use-session-flag`.
+
+Most of the recent additions are extractions rather than new features:
+`use-share-state`, `use-layer-handlers` and `use-annotation-commands` all came
+out of `App.tsx` (the last holding the annotation write/pick operations, while
+`App` keeps the parts that interleave with rendering), and
+`use-annotation-source` is the former `use-annotation-layers`, renamed for what
+it owns — the annotation GeoJSON sources and their layers. `use-nav-expansion`
+holds the sidebar treeview's expand/collapse state in `sessionStorage`, lifted
+out of the tree rows because collapsing a branch unmounts its subtree, which
+would otherwise discard the state of everything inside it.
 
 ---
 
