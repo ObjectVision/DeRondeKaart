@@ -7,7 +7,6 @@ import type { ExportPreviewHandle } from "@/components/share/ExportPreviewMap";
 import { CircularExportView } from "@/components/share/CircularExportView";
 import type { FilteredStudyArea } from "@/hooks/use-filtered-study-area";
 import type { Annotation } from "@/types/annotation";
-import { SocialIcon, type SocialPlatform } from "@/components/share/social-icons";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import type { ViewState } from "@/components/map/MapView";
 import { buildShareUrl } from "@/lib/share-url";
@@ -20,49 +19,6 @@ import {
 
 const EXPORT_SIZE = 2048;
 
-/** Platforms with a web share-intent endpoint, and the two clipboard-only ones. */
-const SOCIAL_PLATFORMS: SocialPlatform[] = [
-  "linkedin",
-  "x",
-  "instagram",
-  "facebook",
-  "signal",
-  "whatsapp",
-  "reddit",
-];
-
-const PLATFORM_LABELS: Record<SocialPlatform, string> = {
-  linkedin: "LinkedIn",
-  x: "X",
-  instagram: "Instagram",
-  facebook: "Facebook",
-  signal: "Signal",
-  whatsapp: "WhatsApp",
-  reddit: "Reddit",
-};
-
-/** Share-intent URL for a platform, or null when it has no web endpoint. */
-function shareIntentUrl(platform: SocialPlatform, url: string, title: string): string | null {
-  const u = encodeURIComponent(url);
-  const t = encodeURIComponent(title);
-  switch (platform) {
-    case "linkedin":
-      return `https://www.linkedin.com/sharing/share-offsite/?url=${u}`;
-    case "x":
-      return `https://x.com/intent/tweet?url=${u}${title ? `&text=${t}` : ""}`;
-    case "facebook":
-      return `https://www.facebook.com/sharer/sharer.php?u=${u}`;
-    case "whatsapp":
-      return `https://wa.me/?text=${encodeURIComponent(title ? `${title} ${url}` : url)}`;
-    case "reddit":
-      return `https://www.reddit.com/submit?url=${u}${title ? `&title=${t}` : ""}`;
-    // No web share endpoint — the button copies the link instead.
-    case "instagram":
-    case "signal":
-      return null;
-  }
-}
-
 function filenameSlug(title: string, fallback: string): string {
   const slug = title
     .toLowerCase()
@@ -73,8 +29,8 @@ function filenameSlug(title: string, fallback: string): string {
 
 /**
  * "Delen" dialog: circular map preview (pan/zoom to fine-tune the PNG
- * framing), social-media share intents, the share link, and the circular
- * 2048×2048 PNG download with title + legend composited in.
+ * framing), the share link, and the circular 2048×2048 PNG download with
+ * title + legend composited in.
  */
 export function ShareDialog({
   open,
@@ -167,22 +123,6 @@ export function ShareDialog({
       }
     },
     [shareUrl, showCopied],
-  );
-
-  const handleSocialClick = useCallback(
-    (platform: SocialPlatform) => {
-      const intent = shareIntentUrl(platform, shareUrl, title);
-      if (!intent) {
-        void copyShareUrl(platform);
-        return;
-      }
-      try {
-        window.open(intent, "_blank", "noopener,noreferrer");
-      } catch {
-        void copyShareUrl(platform);
-      }
-    },
-    [shareUrl, title, copyShareUrl],
   );
 
   const handleDownloadPng = useCallback(async () => {
@@ -288,37 +228,6 @@ export function ShareDialog({
 
           {/* Right column */}
           <div className="flex flex-col gap-4">
-            {/* Social media */}
-            <div className="rounded-2xl border border-gray-100 p-4 shadow-sm">
-              <h3 className="mb-3 text-sm font-semibold text-gray-900">
-                Delen op social media
-              </h3>
-              <div className="flex flex-wrap items-center gap-1">
-                {SOCIAL_PLATFORMS.map((platform) => (
-                  <Button
-                    key={platform}
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() => handleSocialClick(platform)}
-                    title={
-                      copied === platform
-                        ? "Link gekopieerd!"
-                        : `Delen via ${PLATFORM_LABELS[platform]}`
-                    }
-                    aria-label={`Delen via ${PLATFORM_LABELS[platform]}`}
-                    style={{ color: chromeIconColor() }}
-                  >
-                    <SocialIcon platform={platform} size={chromeIconSize()} />
-                  </Button>
-                ))}
-              </div>
-              {(copied === "instagram" || copied === "signal") && (
-                <p className="mt-2 text-xs text-gray-500">
-                  Link gekopieerd — plak deze in {PLATFORM_LABELS[copied as SocialPlatform]}.
-                </p>
-              )}
-            </div>
-
             {/* Link */}
             <div className="rounded-2xl border border-gray-100 p-4 shadow-sm">
               <h3 className="text-sm font-semibold text-gray-900">Delen via link</h3>
