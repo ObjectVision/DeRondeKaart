@@ -47,11 +47,6 @@ const SOFTWARE_CREDITS = [
   { label: "D3", license: "ISC", href: "https://d3js.org/" },
   { label: "Tailwind CSS", license: "MIT", href: "https://tailwindcss.com/" },
   { label: "Base UI", license: "MIT", href: "https://base-ui.com/" },
-  {
-    label: "node-qrcode",
-    license: "MIT",
-    href: "https://github.com/soldair/node-qrcode",
-  },
   { label: "Geist (font)", license: "OFL-1.1", href: "https://vercel.com/font" },
   {
     label: "Material Symbols",

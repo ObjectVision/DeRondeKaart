@@ -285,7 +285,7 @@
     }
 
     // Replace the running app with only the circular map + legend + title (no
-    // map chrome, no dialog/social/QR).
+    // map chrome, no dialog/social).
     function sendOpenCircular(opts = {}) {
       const message = buildOpenCircular(opts);
       iframe.contentWindow.postMessage(message, '*');
