@@ -51,11 +51,8 @@ not duplicate the task-scoped documentation that already exists:
 De Ronde kaart serves thematic analysis maps (housing, care, demographics,
 accessibility, green space) for Dutch regional data. It
 runs as a static single-page application, reads its data from a plain HTTPS file
-host over range requests, and optionally connects to a collaboration server for
+(host over range requests), and optionally connects to a collaboration server for
 shared annotations.
-
-(The app can also be embedded in a Power BI dashboard by a small custom visual.
-That is a peripheral integration, not part of the core system — see §11.)
 
 ```mermaid
 flowchart LR
