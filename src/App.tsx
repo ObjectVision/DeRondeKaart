@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
-import type { ViewStateChangeEvent, MapLayerMouseEvent } from "react-map-gl/maplibre";
+import type { ViewStateChangeEvent } from "react-map-gl/maplibre";
 import { MapView } from "@/components/map/MapView";
-import { BASEMAPS, DEFAULT_BASEMAP_ID } from "@/components/map/map-view-config";
+import { useBasemap } from "@/hooks/use-basemap";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
 import { useLayerHandlers } from "@/hooks/use-layer-handlers";
@@ -11,7 +11,7 @@ import {
   useFilteredStudyAreaLayers,
 } from "@/hooks/use-filtered-study-area";
 import { useClickMarkerLayers } from "@/hooks/use-click-marker-layer";
-import { resolveMarkerPoint } from "@/lib/marker-snap";
+import { useMapPointer } from "@/hooks/use-map-pointer";
 import { viewForBbox } from "@/lib/fly-to";
 import type { BBox } from "@/layers/box-filter";
 import {
@@ -23,6 +23,7 @@ import {
   type MapControlsConfig,
 } from "@/config/map-config";
 import { useFeaturePick } from "@/hooks/use-feature-pick";
+import { useClickPopup } from "@/hooks/use-click-popup";
 import { useHoverCursor } from "@/hooks/use-hover-cursor";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
 import { useEmbedData, type EmbedConfig } from "@/hooks/use-embed-data";
@@ -41,16 +42,15 @@ import { useAnnotationSource } from "@/hooks/use-annotation-source";
 import { isAnnotationIconified, PIN_SIZE_ACTIVE_PX } from "@/layers/annotation-style";
 import { METERS_PER_DEGREE_LAT } from "@/lib/geo";
 import { AnnotationEditPopup } from "@/components/annotations/AnnotationEditPopup";
-import { PresenceBadge } from "@/components/annotations/PresenceBadge";
-import { isChartEligible } from "@/layers/charts";
+import { AnnotationToolbar } from "@/components/ui/AnnotationToolbar";
+import { useChartsPanel } from "@/hooks/use-charts-panel";
 import { Legend } from "@/components/ui/legend";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
 import { Sidebar } from "@/components/ui/sidebar/Sidebar";
 import { SectionToggleBar, type SectionToggle } from "@/components/ui/sidebar/SectionToggleBar";
-import { useSessionFlag } from "@/hooks/use-session-flag";
-import { useAutoCollapse } from "@/hooks/use-auto-collapse";
+import { usePanelMinimize } from "@/hooks/use-panel-minimize";
 import { MapControls } from "@/components/ui/map-controls";
 import { MapAttribution } from "@/components/ui/map-attribution";
 import { FeatureInfo } from "@/components/ui/feature-info";
@@ -173,16 +173,9 @@ function App({
   const [sliderPosition, setSliderPosition] = useState(50);
 
   // Selected background basemap (shared by both maps). The legend's map button
-  // cycles through BASEMAPS; only the base style swaps — user layers stay.
-  const [basemapId, setBasemapId] = useState(DEFAULT_BASEMAP_ID);
-  const basemapIndex = Math.max(0, BASEMAPS.findIndex((b) => b.id === basemapId));
-  const nextBasemap = BASEMAPS[(basemapIndex + 1) % BASEMAPS.length];
-  const cycleBasemap = useCallback(() => {
-    setBasemapId((prev) => {
-      const i = Math.max(0, BASEMAPS.findIndex((b) => b.id === prev));
-      return BASEMAPS[(i + 1) % BASEMAPS.length].id;
-    });
-  }, []);
+  // cycles through BASEMAPS; only the base style swaps — user layers stay, re-added
+  // by each map's onLabelsReady below.
+  const { basemapId, nextBasemap, cycleBasemap } = useBasemap();
 
   // Feature picking for each map
   const pickA = useFeaturePick(mapLeftLayers.layerEntries, mapLeftRef);
@@ -192,30 +185,25 @@ function App({
   const hoverA = useHoverCursor(mapLeftLayers.layerEntries, mapLeftRef);
   const hoverB = useHoverCursor(mapRightLayers.layerEntries, mapRightRef);
 
-  // Shared Street View panel — reflects the most recent click on either map
-  const [streetView, setStreetView] = useState<{ lng: number; lat: number } | null>(
-    null,
-  );
-  // Shared click marker — a single dot dropped at the most recent click on either map
-  const [clickMarker, setClickMarker] = useState<{ lng: number; lat: number } | null>(
-    null,
-  );
-  // Screen position of the most recent click — anchors the Details/Street View
-  // popup just below the pointer. Both maps fill the app root, so the map-local
-  // point doubles as a root-relative position.
-  const [popupPoint, setPopupPoint] = useState<{ x: number; y: number } | null>(null);
-  // Drop the marker (and optional Street View) at a click. When the click hit a
-  // point feature, `snapped` carries that feature's location so the marker lands
-  // exactly on the point; otherwise we use the raw cursor lngLat.
-  const handleMapClick = useCallback(
-    (e: MapLayerMouseEvent, snapped: { lng: number; lat: number } | null) => {
-      const point = snapped ?? { lng: e.lngLat.lng, lat: e.lngLat.lat };
-      setClickMarker(point);
-      if (!streetview) return;
-      setStreetView(point);
-    },
-    [streetview],
-  );
+  // The shared click popup: marker point, Street View target, popup anchor, and
+  // which map's pick is on show. Shared across both maps — a click on either one
+  // replaces the popup, and closing it clears both picks.
+  const {
+    popupPoint,
+    setPopupPoint,
+    clickMarker,
+    streetView,
+    handleMapClick,
+    pickResult,
+    pickEntries,
+    closePopup,
+  } = useClickPopup({
+    streetviewEnabled: streetview,
+    pickA,
+    pickB,
+    leftEntries: mapLeftLayers.layerEntries,
+    rightEntries: mapRightLayers.layerEntries,
+  });
 
   // Per-map marker overlays, drawn as MapLibre symbol layers on each map's own
   // style. map.json `clickMarker.enabled: false` (or `clickMarker: false`)
@@ -373,182 +361,55 @@ function App({
     }
   }, [drawToolArmed]);
 
-  // Compose feature picking with Street View capture so both run per click
-  const pickAClick = pickA.handleClick;
-  const pickBClick = pickB.handleClick;
-  const pickAClear = pickA.clear;
-  const pickBClear = pickB.clear;
-  const onClickA = useCallback(
-    (e: MapLayerMouseEvent) => {
-      // While a draw tool is armed, clicks belong to its gesture (MapLibre
-      // fires click after mouseup) — don't drop the marker or open FeatureInfo.
-      if (boxSelectActive || annotationActive) return;
-      pickAClick(e);
-      pickBClear(); // one popup: the latest click wins
-      setPopupPoint({ x: e.point.x, y: e.point.y });
-      handleMapClick(e, resolveMarkerPoint(e, mapLeftRef, mapLeftLayers.layerEntries));
-    },
-    [boxSelectActive, annotationActive, pickAClick, pickBClear, handleMapClick, mapLeftLayers.layerEntries],
-  );
-  const onClickB = useCallback(
-    (e: MapLayerMouseEvent) => {
-      if (boxSelectActive || annotationActive) return;
-      pickBClick(e);
-      pickAClear();
-      setPopupPoint({ x: e.point.x, y: e.point.y });
-      handleMapClick(e, resolveMarkerPoint(e, mapRightRef, mapRightLayers.layerEntries));
-    },
-    [boxSelectActive, annotationActive, pickBClick, pickAClear, handleMapClick, mapRightLayers.layerEntries],
-  );
-
-  const hoverAMove = hoverA.handleMouseMove;
-  const hoverBMove = hoverB.handleMouseMove;
-  const boxSelectMove = boxSelect.handleMouseMove;
-  const annotationMove = annotationTool.handleMouseMove;
-  const onMouseMoveA = useCallback(
-    (e: MapLayerMouseEvent) => {
-      hoverAMove(e);
-      boxSelectMove(e);
-      annotationMove(e);
-      // Broadcast the live cursor to collab peers (no-op outside a room).
-      setCursor({ lng: e.lngLat.lng, lat: e.lngLat.lat });
-    },
-    [hoverAMove, boxSelectMove, annotationMove, setCursor],
-  );
-  const onMouseMoveB = useCallback(
-    (e: MapLayerMouseEvent) => {
-      hoverBMove(e);
-      boxSelectMove(e);
-      annotationMove(e);
-      setCursor({ lng: e.lngLat.lng, lat: e.lngLat.lat });
-    },
-    [hoverBMove, boxSelectMove, annotationMove, setCursor],
-  );
-
-  // Mouse down/up dispatch to whichever draw tool is armed (they're mutually
-  // exclusive; see the toggle wrappers below). The annotation gesture needs to
-  // know which map it started on — picks must hit that side's deck overlay.
-  const boxSelectDown = boxSelect.handleMouseDown;
-  const boxSelectUp = boxSelect.handleMouseUp;
-  const annotationDown = annotationTool.handleMouseDown;
-  const annotationUp = annotationTool.handleMouseUp;
-  const onMouseDownA = useCallback(
-    (e: MapLayerMouseEvent) => {
-      if (annotationActive) annotationDown(e, "a");
-      else boxSelectDown(e);
-    },
-    [annotationActive, annotationDown, boxSelectDown],
-  );
-  const onMouseDownB = useCallback(
-    (e: MapLayerMouseEvent) => {
-      if (annotationActive) annotationDown(e, "b");
-      else boxSelectDown(e);
-    },
-    [annotationActive, annotationDown, boxSelectDown],
-  );
-  const onMouseUpAB = useCallback(
-    (e: MapLayerMouseEvent) => {
-      if (annotationActive) annotationUp(e);
-      else boxSelectUp(e);
-    },
-    [annotationActive, annotationUp, boxSelectUp],
-  );
-
-  // The two draw tools both claim mousedown + the crosshair — arming one
-  // disarms the other.
-  const handleAnnotationToolToggle = useCallback(() => {
-    if (!annotationActive && boxSelectActive) boxSelectToggle();
-    annotationToggle();
-  }, [annotationActive, boxSelectActive, boxSelectToggle, annotationToggle]);
-  const handleAreaSelectToggle = useCallback(() => {
-    if (!boxSelectActive && annotationActive) annotationToggle();
-    boxSelectToggle();
-  }, [boxSelectActive, annotationActive, annotationToggle, boxSelectToggle]);
+  // One click, move or drag fanned out across picking, hover, area-select,
+  // annotation drawing, the click marker and collab presence — plus the mutual
+  // exclusion between the two draw tools.
+  const pointer = useMapPointer({
+    mapLeftRef,
+    mapRightRef,
+    leftEntries: mapLeftLayers.layerEntries,
+    rightEntries: mapRightLayers.layerEntries,
+    pickA,
+    pickB,
+    hoverA,
+    hoverB,
+    boxSelect,
+    annotationTool,
+    annotationActive,
+    annotationToggle,
+    setCursor,
+    setPopupPoint,
+    handleMapClick,
+  });
+  const handleAnnotationToolToggle = pointer.toggleAnnotationTool;
+  const handleAreaSelectToggle = pointer.toggleAreaSelect;
 
   // Navigation menu: add/remove layers against the shared per-map state
   const nav = useNavigation({ mapLeftLayers, mapRightLayers, mapLeftRef, mapRightRef });
 
-  // Minimize state for the whole navigation UI (Filter + Navigatie together,
-  // persisted for the session). Collapsed via the close button inside the
-  // navigation window, restored via the "Navigatie tonen" toolbar icon (which
-  // only appears while minimized). Only relevant in sidebar mode;
-  // `*SectionEnabled` (from map.json) gates availability entirely.
-  const [navMinimized, setNavMinimized, toggleNavMinimized] = useSessionFlag(
-    "sidebar.nav.min",
-    false,
-  );
-  const [chartsMinimized, setChartsMinimized, toggleChartsMinimized] = useSessionFlag(
-    "sidebar.charts.min",
-    false,
-  );
-  // Minimize state for the Kaartlagen (legend) window, persisted for the
-  // session. Collapsed via the close button in the window header, restored via
-  // the "Kaartlagen tonen" icon in the collapsed bottom-left bar.
-  const [legendMinimized, setLegendMinimized, toggleLegendMinimized] = useSessionFlag(
-    "legend.min",
-    false,
-  );
-
-  // On small screens, auto-collapse windows in the priority order
-  // Navigatie → Statistieken → Kaartlagen as the viewport narrows. Only fires
-  // when the width crosses a breakpoint, so manual toggles within a size band
-  // are preserved.
-  useAutoCollapse(
-    useCallback(
-      (t) => {
-        setNavMinimized(t.nav);
-        setChartsMinimized(t.charts);
-        setLegendMinimized(t.legend);
-      },
-      [setNavMinimized, setChartsMinimized, setLegendMinimized],
-    ),
-  );
+  // Minimize state for the navigation, statistics and legend windows (persisted
+  // for the session) plus the small-screen auto-collapse that drives all three.
+  const {
+    navMinimized,
+    toggleNavMinimized,
+    chartsMinimized,
+    setChartsMinimized,
+    toggleChartsMinimized,
+    legendMinimized,
+    toggleLegendMinimized,
+  } = usePanelMinimize();
 
   // Analytics ("Analyse & statistieken") panel: selected via a layer-name
   // click in the legend; fed by the layer's attribute table restricted to the
   // current area filter.
-  const [selectedChartLayerId, setSelectedChartLayerId] = useState<string | null>(null);
-  const chartLayerConfig =
-    (selectedChartLayerId &&
-      (mapLeftLayers.layerEntries.find((e) => e.config.id === selectedChartLayerId)?.config ??
-        mapRightLayers.layerEntries.find((e) => e.config.id === selectedChartLayerId)?.config)) ||
-    null;
-  const handleChartsClose = useCallback(() => setChartsMinimized(true), [setChartsMinimized]);
-  // The selected layer being removed from both maps needs no effect to "close"
-  // the panel: `chartLayerConfig` above already resolves to null in that case,
-  // and every consumer gates on it. Clearing the id in an effect only forced a
-  // second render pass to reach the state the first one had already derived.
-  // The id is kept as-is so re-adding the same layer restores the selection.
-
-  // Auto-open the panel when a layer with charts/statistics is added (via
-  // navigation, URL command or embed host) — the newest eligible layer wins.
-  const knownLayerIdsRef = useRef<Set<string>>(new Set());
-  useEffect(() => {
-    const known = knownLayerIdsRef.current;
-    const next = new Set<string>();
-    let added: string | null = null;
-    for (const entry of [...mapLeftLayers.layerEntries, ...mapRightLayers.layerEntries]) {
-      next.add(entry.config.id);
-      if (!known.has(entry.config.id) && chartsPanelEnabled && isChartEligible(entry.config)) {
-        added = entry.config.id;
-      }
-    }
-    knownLayerIdsRef.current = next;
-    if (added) {
-      // Genuinely event-like ("an eligible layer just appeared"), not derived
-      // state: it depends on diffing against the previously-seen id set, which
-      // no render-time expression can reconstruct. An effect is the right tool
-      // here, so the rule is suppressed rather than the code restructured.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSelectedChartLayerId(added);
-      setChartsMinimized(false);
-    }
-  }, [
-    mapLeftLayers.layerEntries,
-    mapRightLayers.layerEntries,
+  const { chartLayerConfig, handleChartsClose } = useChartsPanel({
+    mapLeftLayers,
+    mapRightLayers,
     chartsPanelEnabled,
     setChartsMinimized,
-  ]);
+    boxSelectActive,
+    boxSelectToggle,
+  });
 
   // "Delen" (share/export) dialog. The circular preview mirrors the on-screen
   // map side: B when the right map renders full-width on top (same rule as the
@@ -603,15 +464,6 @@ function App({
   );
   // The statistics-panel restore button lives top-right (next to where the
   // panel itself docks), not in this top-left toolbar — see the render below.
-
-  // The chart layer went away while the tool was armed: turn it off so the box
-  // doesn't linger invisibly in the filter behind a disabled button.
-  // Gated on the resolved config, not the raw id: the id is deliberately kept
-  // when the layer is removed (see the panel selection above), so it is
-  // `chartLayerConfig` that reports "the layer is actually gone".
-  useEffect(() => {
-    if (boxSelectActive && !chartLayerConfig) boxSelectToggle();
-  }, [boxSelectActive, boxSelectToggle, chartLayerConfig]);
 
   const refreshLeft = mapLeftLayers.refreshAreaFilter;
   const refreshRight = mapRightLayers.refreshAreaFilter;
@@ -801,19 +653,6 @@ function App({
     annotSourceB.resync();
   }, [mapRightLayers, studyAreaB, filteredStudyB, markerB, boxB, annotSourceB]);
 
-  // One shared popup: the latest click's pick result (the other map's pick is
-  // cleared on click) plus Street View, closed together by its single button.
-  const pickResult = pickA.result ?? pickB.result;
-  const pickEntries = pickA.result
-    ? mapLeftLayers.layerEntries
-    : mapRightLayers.layerEntries;
-  const closePopup = useCallback(() => {
-    pickAClear();
-    pickBClear();
-    setStreetView(null);
-    setPopupPoint(null);
-  }, [pickAClear, pickBClear]);
-
   // The share toolbutton, rendered as its own card so it matches the sibling
   // toolbar cards. In sidebar mode it slots into the toolbar row (after the
   // nav-restore toggle, before the map controls); otherwise it stands alone
@@ -951,10 +790,10 @@ function App({
           style={{ width: "100%", height: "100%" }}
           viewState={viewState}
           onMove={handleMove}
-          onClick={onClickA}
-          onMouseMove={onMouseMoveA}
-          onMouseDown={onMouseDownA}
-          onMouseUp={onMouseUpAB}
+          onClick={pointer.a.onClick}
+          onMouseMove={pointer.a.onMouseMove}
+          onMouseDown={pointer.a.onMouseDown}
+          onMouseUp={pointer.onMouseUp}
           onLoad={() => setMapLeftReady(true)}
           onLabelsReady={handleMapLeftLabelsReady}
         />
@@ -977,10 +816,10 @@ function App({
             style={{ width: "100%", height: "100%" }}
             viewState={viewState}
             onMove={handleMove}
-            onClick={onClickB}
-            onMouseMove={onMouseMoveB}
-            onMouseDown={onMouseDownB}
-            onMouseUp={onMouseUpAB}
+            onClick={pointer.b.onClick}
+            onMouseMove={pointer.b.onMouseMove}
+            onMouseDown={pointer.b.onMouseDown}
+            onMouseUp={pointer.onMouseUp}
             onLoad={handleMapRightLoad}
             onLabelsReady={handleMapRightLabelsReady}
           />
@@ -1102,84 +941,15 @@ function App({
           }
         >
           {annotationsEnabled && (
-            <div className="flex flex-shrink-0 items-center gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
-              {/* Drawing toolbar — left of the mode toggle, only in the mode.
-                  Arming the circle tool places one circle, then disarms. */}
-              {annotationActive && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() =>
-                      annotationSetTool(annotationDrawTool === "circle" ? null : "circle")
-                    }
-                    title="Cirkel plaatsen"
-                    aria-label="Cirkel plaatsen"
-                    aria-pressed={annotationDrawTool === "circle"}
-                  >
-                    <Icon
-                      name="circle"
-                      size={chromeIconSize()}
-                      color={annotationDrawTool === "circle" ? chromeIconColor() : undefined}
-                      className={annotationDrawTool === "circle" ? undefined : "text-gray-400"}
-                    />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() =>
-                      annotationSetTool(annotationDrawTool === "polygon" ? null : "polygon")
-                    }
-                    title="Polygoon plaatsen"
-                    aria-label="Polygoon plaatsen"
-                    aria-pressed={annotationDrawTool === "polygon"}
-                  >
-                    <Icon
-                      name="pentagon"
-                      size={chromeIconSize()}
-                      color={annotationDrawTool === "polygon" ? chromeIconColor() : undefined}
-                      className={annotationDrawTool === "polygon" ? undefined : "text-gray-400"}
-                    />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    onClick={() =>
-                      annotationSetTool(annotationDrawTool === "pin" ? null : "pin")
-                    }
-                    title="Pin plaatsen"
-                    aria-label="Pin plaatsen"
-                    aria-pressed={annotationDrawTool === "pin"}
-                  >
-                    <Icon
-                      name="location_on"
-                      size={chromeIconSize()}
-                      color={annotationDrawTool === "pin" ? chromeIconColor() : undefined}
-                      className={annotationDrawTool === "pin" ? undefined : "text-gray-400"}
-                    />
-                  </Button>
-                  <div className="h-4 w-px bg-gray-200" aria-hidden />
-                </>
-              )}
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={handleAnnotationToolToggle}
-                title={annotationActive ? "Annotaties sluiten" : "Annotaties"}
-                aria-label={annotationActive ? "Annotaties sluiten" : "Annotaties"}
-                aria-pressed={annotationActive}
-              >
-                <Icon
-                  name={annotationActive ? "edit_off" : "edit"}
-                  size={chromeIconSize()}
-                  color={annotationActive ? chromeIconColor() : undefined}
-                  className={annotationActive ? undefined : "text-gray-400"}
-                />
-              </Button>
-              {annotationActive && collab.roomId && (
-                <PresenceBadge peers={collab.peers} connected={collab.connected} />
-              )}
-            </div>
+            <AnnotationToolbar
+              active={annotationActive}
+              drawTool={annotationDrawTool}
+              onSetTool={annotationSetTool}
+              onToggleMode={handleAnnotationToolToggle}
+              collabRoomId={collab.roomId}
+              collabPeers={collab.peers}
+              collabConnected={collab.connected}
+            />
           )}
           {chartsPanelEnabled && chartLayerConfig && chartsMinimized && !annotationActive && (
             <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
