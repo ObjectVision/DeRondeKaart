@@ -21,8 +21,8 @@ export interface BasemapDialogProps {
  * snapshots: change a style file in public/ and the matching thumbnail silently
  * stops matching what the map draws, so regenerate them alongside such a change.
  *
- * Picking an option applies it immediately and leaves the dialog open, so the
- * user can compare without reopening; the map is visible around the modal.
+ * Picking an option applies it and closes the dialog, so the newly chosen
+ * basemap is immediately visible rather than sitting behind the modal.
  */
 export function BasemapDialog({
   open,
@@ -30,11 +30,19 @@ export function BasemapDialog({
   basemapId,
   onSelect,
 }: BasemapDialogProps): React.JSX.Element {
+  function handleSelect(id: string) {
+    onSelect(id);
+    onOpenChange(false);
+  }
+
   return (
     <DialogRoot open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[min(34rem,calc(100vw-2rem))]">
-        <div className="mb-5 flex items-start justify-between gap-2">
-          <DialogTitle>Achtergrondkaart</DialogTitle>
+        <div className="mb-5 flex items-center justify-between gap-2">
+          {/* Same treatment as the "Themas" and "Legenda" panel headings. */}
+          <DialogTitle className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Achtergrondkaart
+          </DialogTitle>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -54,7 +62,7 @@ export function BasemapDialog({
                 type="button"
                 role="radio"
                 aria-checked={checked}
-                onClick={() => onSelect(basemap.id)}
+                onClick={() => handleSelect(basemap.id)}
                 className="flex cursor-pointer flex-col items-center gap-2 rounded-lg p-2 text-left transition-colors hover:bg-gray-100"
               >
                 <img
