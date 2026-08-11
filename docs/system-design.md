@@ -88,7 +88,7 @@ data tier is `nginx` serving static files.
 
 ## 3. Technology stack and major dependencies
 
-Versions below are the **declared semver ranges** from
+Versions below are the **declared semantic versioning ranges** from
 [package.json](../package.json). The lockfile resolves higher within those
 ranges; consult `package-lock.json` for exact resolutions.
 
