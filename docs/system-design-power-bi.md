@@ -20,11 +20,13 @@ itself, and data flows one way (Power BI → map, no cross-filtering back).
 
 Two things, and both are worth knowing before touching the code they live in:
 
-- **The `geojson` layer format exists for this.** Features arrive on
-  `config.data` instead of being fetched from `source`
+- **The `geojson` layer format exists for this.** Power BI data is already in
+  memory in the host, so there is nothing to fetch: features arrive on
+  `config.data` instead of being loaded from `source`
   ([system-design.md](system-design.md) §6.1), pushed by
   [use-embed-data.ts](../src/hooks/use-embed-data.ts). It is deliberately absent
-  from `VALID_FORMATS`, so it can never appear in a `layers.json`.
+  from `VALID_FORMATS`, so it can never appear in a `layers.json` — outside the
+  embed there would be no data to render.
 - **The snapshot bridge** ([use-map-snapshot.ts](../src/hooks/use-map-snapshot.ts))
   pushes a JPEG of the canvas to the parent, because Power BI's PDF/PowerPoint
   export does not rasterize cross-origin sandboxed iframes — without it the map
@@ -35,7 +37,8 @@ Two things, and both are worth knowing before touching the code they live in:
 
 The message protocol, the WKB column mapping, and the two hosting gates (host
 `WebAccess` privilege, and no `X-Frame-Options`/`frame-ancestors` at all) are
-documented where they are maintained:
+documented where they are maintained. Both hosting gates must pass or the
+iframe never loads:
 
 | For | Read |
 |---|---|
