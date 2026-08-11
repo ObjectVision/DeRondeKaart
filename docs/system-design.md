@@ -1,7 +1,7 @@
 # De Ronde kaart — System Design Document
 
-**Audience:** developers and maintainers. Assumes familiarity with React and
-general GIS concepts (tiles, projections, vector vs raster).
+**Audience:** developers and maintainers. Assumes ordinary programming
+knowledge; React and GIS specifics are explained where they matter.
 
 **Status:** describes the system as it stands at the time of writing. Figures
 (line counts, layer counts) were measured against the working tree, not
@@ -11,15 +11,14 @@ estimated.
 
 ## 1. Purpose, scope, and how to read this
 
-De Ronde kaart is a configuration-driven web map for thematic geospatial data. A
-deployment is defined almost entirely by JSON: which layers exist, how they are
-styled, how they are grouped in the navigation tree, which charts they support,
-and which UI features are switched on. Adding a layer is normally a config edit
-and a data upload, not a code change.
+De Ronde kaart is a web map for thematic geospatial data. Almost everything
+about a deployment comes from JSON files: which layers exist, how they are
+styled, how they are grouped in the menu, which charts they support, and which
+UI features are on. Adding a layer means editing config and uploading data, not
+changing code.
 
-This document covers **architecture and rationale** — how the system is divided,
-why the divisions are where they are, and which constraints shaped them. It does
-not duplicate the task-scoped documentation that already exists:
+This document explains how the system is split up and why. Task-specific
+documentation lives elsewhere:
 
 | For | Read |
 |---|---|
@@ -50,11 +49,10 @@ not duplicate the task-scoped documentation that already exists:
 
 ## 2. System context
 
-De Ronde kaart serves thematic analysis maps (housing, care, demographics,
-accessibility, green space) for Dutch regional data. It
-runs as a static single-page application, reads its data from a plain HTTPS file host
-(over range requests), and optionally connects to a collaboration server for
-shared annotations.
+The app shows analysis maps of Dutch regional data — housing, care,
+demographics, accessibility, green space. It is a static web page. It reads its
+data straight off a file server, and optionally connects to a collaboration
+server for shared annotations.
 
 ```mermaid
 flowchart LR
@@ -79,7 +77,11 @@ flowchart LR
     app -->|"HTTPS"| basemap
 ```
 
-The data host is deliberately dumb — no tile server, no database, no API, just a file server. Every format the app reads is a single file addressed by range requests, so the whole data tier is `nginx` serving static files.
+The data host is deliberately dumb — no tile server, no database, no API, just a
+file server. Every format the app reads is one file that the browser fetches
+*byte ranges* out of, so the whole data tier is `nginx` serving static files.
+That removes a service that would otherwise need installing, securing and
+monitoring.
 
 ---
 
@@ -132,6 +134,8 @@ Shared annotations on the map. See [system-design-collaboration.md](system-desig
 
 ### Indirect dependencies
 
+Browser features the app needs, and what breaks without each:
+
 | Capability | Role | Without it |
 |---|---|---|
 | **WebGL2** | The renderer. MapLibre 6 calls `getContext("webgl2")` and has no WebGL1 path | No map at all |
@@ -161,10 +165,9 @@ modern GL map, and it would change the browser support floor if it were true.
 **Moved to [system-design-version-constraints.md](system-design-version-constraints.md).**
 
 Why `maplibre-gl` stays on v6 with its worker import spelled exactly as it is,
-and why `typescript` is held at 5.x by `typescript-eslint`. Read it before
-upgrading either: the MapLibre constraint fails as a blank map with no console
-error, and the TypeScript one is not the configurable version guard it appears
-to be.
+and why `typescript` is held at 5.x. Read it before upgrading either: the
+MapLibre constraint fails as a blank map with no console error, and the
+TypeScript one is not the configurable version guard it appears to be.
 
 ---
 
@@ -220,26 +223,24 @@ Four principles organise the system.
 ### 4.1 Config-driven
 
 Five JSON files define behaviour (§12). The app ships with empty stubs in
-`public/`; a tenant configuration in `configs/<project>/` is overlaid at build
-or dev time by a Vite plugin keyed on `VITE_CONFIG_PROJECT`. Two projects exist
-today: `woonzorglimburg` (79 layers) and `startanalyse2026` (199 layers).
+`public/`; a tenant's real files in `configs/<project>/` are swapped in at build
+or dev time, selected by the `VITE_CONFIG_PROJECT` environment variable. Two
+projects exist today: `woonzorglimburg` (79 layers) and `startanalyse2026`
+(199 layers).
 
 ### 4.2 One renderer, one style model
 
-All layers draw through **MapLibre**: tiled vector sources (MVT/PMTiles),
-raster (COG), viewport-loaded FlatGeobuf, and GeoJSON sources for host-pushed
-data and the on-map overlays (study area, annotations, click marker, selection
-box).
+Everything draws through MapLibre: tiled vector data (MVT/PMTiles), rasters
+(COG), viewport-loaded FlatGeobuf, and in-memory GeoJSON for host-pushed data
+and the overlays (study area, annotations, click marker, selection box).
 
-Styling is still expressed once and translated per target by
-[geostyler.ts](../src/layers/geostyler.ts): MapLibre paint/filter expressions
-for vector layers and a per-pixel colour function for COG
-([system-design-styling.md](system-design-styling.md)).
+Styling is written once per layer and translated per target — MapLibre paint and
+filter expressions for vector layers, a per-pixel colour function for COG. See
+[system-design-styling.md](system-design-styling.md).
 
 #### The MapLibre object model in brief
 
-Enough of `maplibre-gl`'s own model to read §6 and §7. Everything below is what
-the app actually drives; MapLibre has more surface than this.
+Enough of MapLibre's own model to read §6 and §7.
 
 ```
 Map  ──owns──▶  Style ──▶ sources { id: Source }   data, no appearance
@@ -248,42 +249,36 @@ Map  ──owns──▶  Style ──▶ sources { id: Source }   data, no appe
                       └──▶ glyphs                  font atlas (labels)
 ```
 
-**Map** — one instance per map view; this app runs two side by side for the
-compare mode. It is created declaratively by `react-map-gl`'s `<Map>`
-([MapView.tsx](../src/components/map/MapView.tsx)), but every layer operation
-afterwards is imperative against the underlying instance
-(`mapRef.current.getMap()`).
+**Map** — one per map view; this app runs two side by side for compare mode.
+`react-map-gl` creates it, but every layer operation afterwards calls MapLibre
+directly through `mapRef.current.getMap()`.
 
-**Style** — one JSON document the map owns, and the single container for
-everything drawable. Consequences worth internalising: a basemap change is
-`setStyle()`, which replaces the whole document, so **every source, layer,
-sprite image and anchor the app added is destroyed** and has to be re-applied
-(§15, GL lifecycle hazards).
+**Style** — one JSON document holding everything drawable. The consequence that
+bites: changing basemap calls `setStyle()`, which replaces that document, so
+**every source, layer, sprite image and anchor the app added is destroyed** and
+must be re-applied (§15).
 
-**Source** — a named data provider in `style.sources`. Three types are used
-here: `vector` (an `{z}/{x}/{y}` template, or a `pmtiles://` URL whose handler
-reads the archive header instead), `raster` (`cog://`), and `geojson` (in-memory
-— FlatGeobuf results, Power BI pushes, and the overlays). A source carries data
-and nothing about appearance, and is shared: `tileSourceId(config)` keys it
-`pmtiles-source-<configId>`.
+**Source** — data, no appearance. Three types: `vector` (a `{z}/{x}/{y}`
+template, or a `pmtiles://` URL whose handler reads the archive header instead),
+`raster` (`cog://`), and `geojson` (in-memory). Sources are shared between
+layers.
 
-**Layer** — a named draw pass over exactly one source, in `style.layers`. The
-types this app emits are `fill`, `line`, `circle`, `symbol`, `fill-extrusion`,
-`heatmap` and `raster`. For vector sources, `source-layer` picks one named layer
-*inside* the tiles; MapLibre has no setter for it, which is why the timeseries
-stepper removes and re-adds layers rather than mutating them.
+**Layer** — one draw pass over one source. The app emits `fill`, `line`,
+`circle`, `symbol`, `fill-extrusion`, `heatmap` and `raster`. For vector
+sources, `source-layer` picks one layer *inside* the tiles; MapLibre has no
+setter for it, which is why the timeseries stepper removes and re-adds layers
+instead of mutating them.
 
 **One config is not one layer.** `buildNativeLayerDefs`
 ([mvt-style.ts](../src/layers/mvt-style.ts)) emits one MapLibre layer per
 GeoStyler rule, id `<format-prefix>-layer-<configId>-<ruleName>`. A 17-rule
-strategy layer is 17 MapLibre layers over one shared source. Add, remove,
-visibility, filtering and picking all enumerate that same id list (§4.4).
+layer is 17 MapLibre layers over one shared source, and add, remove, visibility,
+filtering and picking all walk that same id list (§4.4).
 
-**Order is the array.** `style.layers` is ordered bottom-to-top and that *is*
-the draw order. `addLayer(spec, beforeId)` inserts directly below the named
-layer; the app never reshuffles afterwards, because five invisible `background`
-anchor layers permanently partition the stack into bands and each config picks
-its band (§6.5).
+**Order is the array.** `style.layers` is bottom-to-top, and that *is* the draw
+order. `addLayer(spec, beforeId)` inserts directly below the named layer. The
+app never reshuffles, because five invisible `background` anchor layers
+partition the stack into bands and each config picks its band (§6.5).
 
 **Three property bags per layer**, each with an in-place setter, so appearance
 changes never require re-adding a layer:
@@ -294,47 +289,44 @@ changes never require re-adding a layer:
 | `layout` | Whether/how geometry becomes drawable: `visibility`, `icon-image`, label placement | `setLayoutProperty` |
 | `filter` | Which features enter the layer at all | `setFilter` |
 
-`filter` is the one that matters for §7: a filtered-out feature is not drawn
-**and not queryable**, so filtering the map and filtering picking are the same
-act, not two.
+`filter` matters most for §7: a filtered-out feature is not drawn **and not
+queryable**, so filtering the map and filtering picking are one act, not two.
 
 **Expressions** are the style language — JSON arrays evaluated per feature and
-per zoom, e.g. `["==", ["get", "gm_code"], "GM0882"]`. They are what both
-translations in this app produce: GeoStyler rules become `paint` and `filter`
-expressions, and the area filter compiles its selection into one (§7).
+zoom, e.g. `["==", ["get", "gm_code"], "GM0882"]`. Both translations produce
+them: GeoStyler rules become `paint` and `filter` expressions, and the area
+filter compiles its selection into one (§7).
 
-**Sprite and glyphs** are style-owned atlases. Icon symbolizers must
-`addImage()` before `addLayer()`, and since `setStyle` wipes the sprite,
+**Sprite and glyphs** are style-owned image and font atlases. Icon symbolizers
+must `addImage()` before `addLayer()`, and since `setStyle` wipes the sprite,
 `hasImage` is re-checked on every add rather than cached.
 
-**Querying is a render-time operation.** `queryRenderedFeatures(point | box,
-{ layers })` reports what is currently drawn — tile-clipped, style-filtered,
-viewport-limited. It is not a data API: a feature outside the viewport or above
-the source's max zoom simply is not there (§9, feature picking).
+**Querying only sees what is drawn.** `queryRenderedFeatures` is tile-clipped,
+style-filtered and viewport-limited — not a data API. A feature outside the
+viewport or above the source's max zoom is simply absent (§9).
 
 **Protocols are global, not per map.** `addProtocol("pmtiles", …)` and
-`addProtocol("cog", …)` register at module scope in
-[MapView.tsx](../src/components/map/MapView.tsx), so both maps and any later
-instance share them; registering per map would double-register.
+`addProtocol("cog", …)` are called at module scope in
+[MapView.tsx](../src/components/map/MapView.tsx), so both maps share them;
+registering per map would double-register.
 
 ### 4.3 Module stores for cross-cutting filter state
 
 Filter selections live in **module-level stores**, not React state
 ([area-filter.ts](../src/layers/area-filter.ts),
 [box-filter.ts](../src/layers/box-filter.ts)). MapLibre filter expressions,
-feature picking and chart aggregation all read the same store directly. React
-mirrors only a `version` counter, used as a memo-cache key.
+feature picking and chart aggregation all read the same store directly; React
+holds only a `version` counter, used as a cache key.
 
-The reason is that the consumers are not all React components — picking runs
-from an event handler, and chart aggregation walks an Arrow table outside the
-render path. Prop drilling a filter into each would be both verbose and easy to
-desynchronise.
+The reason: not all consumers are UI components. Picking runs from an event
+handler, and chart aggregation walks an Arrow table outside the render path.
+Threading a filter down to each through the component tree would be verbose and
+easy to let drift out of sync.
 
 **What a "store" is here.** Not a library and not a subscription mechanism: one
 `const store` object at module scope, private to its file, plus the exported
-functions that read and replace it. Both are one object per module — the module
-is a singleton, so both maps in the compare view and every non-React consumer
-see the same selection by construction.
+functions that read and replace it. The module is a singleton, so both maps and
+every non-React consumer see the same selection.
 
 | | Area filter | Box filter |
 |---|---|---|
@@ -343,47 +335,43 @@ see the same selection by construction.
 | Owning hook | [use-area-filter.ts](../src/hooks/use-area-filter.ts) | [use-box-select.ts](../src/hooks/use-box-select.ts) |
 | Inactive when | `levels` is empty | `bbox` is `null` |
 
-Each store exposes exactly one **writer**, which replaces the state wholesale
-rather than mutating part of it, bumps `version`, and returns the new value.
-Everything else is a **reader**, and there is one reader per consumer *shape* —
-the same predicate expressed against whatever the consumer holds: a MapLibre
-expression (`areaFilterExpression`), an Arrow row
+Each store has one **writer**, which replaces the state wholesale rather than
+mutating part of it, bumps `version`, and returns it. Everything else is a
+**reader**, one per consumer *shape* — the same predicate against whatever that
+consumer holds: a MapLibre expression (`areaFilterExpression`), an Arrow row
 (`arrowRowMatchesAreaFilter`, `arrowRowMatchesBoxFilter`), or a plain property
-bag (`featureMatchesAreaFilter`). §7 covers the semantics they share.
+bag (`featureMatchesAreaFilter`). §7 covers the shared semantics.
 
-Some derived state is precomputed into the store rather than recomputed per
-row, because the readers run across ~14k rows per redraw: the area filter keeps
-each code's digit prefix alongside the raw code, and both modules memoize
-column resolution in a `WeakMap` keyed on the Arrow batch or `Table`, keyed
-open by `version` so a new selection invalidates it.
+Readers run across ~14k rows per redraw, so some derived state is precomputed
+into the store: the area filter keeps each code's digit prefix alongside the raw
+code, and both modules cache column resolution in a `WeakMap` keyed on the Arrow
+batch or `Table`, invalidated by `version`.
 
 **The `version` counter is the whole React bridge.** The writer returns it and
 the owning hook parks it in state — `setVersion(setBoxFilter(next))` — so it is
-the only piece of store state React holds, and it is a cache key, never data.
-Two consumers act on a bump: `useChartData` clears its memo of aggregates, and
-[App.tsx](../src/App.tsx) re-runs `setFilter` over the live MapLibre layers.
-Charts get `areaFilter.version + boxSelect.version` as a single key; the sum
-is sound because both counters only ever increase, so any change to either
-changes the sum.
+the only store state React holds, and it is a cache key, never data. A bump does
+two things: `useChartData` clears its cached aggregates, and
+[App.tsx](../src/App.tsx) re-runs `setFilter` over the live layers. Charts use
+`areaFilter.version + boxSelect.version` as one key; the sum works because both
+counters only increase.
 
-The cost of this design is that a store write is invisible to React on its own.
-Nothing re-renders unless the owning hook's `setVersion` runs, so a caller that
-reaches past the hook into the store directly would filter the map but leave
-the sidebar showing a stale selection.
+The cost: a store write is invisible to React on its own. Nothing re-renders
+unless the owning hook's `setVersion` runs, so code reaching past the hook into
+the store would filter the map but leave the sidebar showing a stale selection.
 
 ### 4.4 Single source of truth per concern
 
-- **All layer mutation** funnels through `useMapLayers`
-  (`addLayer`/`removeLayer`/`hideLayer`/`toggleLayer`), whether it originates
-  from the navigation tree, the legend, a URL command, a Power BI message, or an
+- **All layer mutation** goes through `useMapLayers`
+  (`addLayer`/`removeLayer`/`hideLayer`/`toggleLayer`), whether it came from the
+  navigation tree, the legend, a URL command, a Power BI message, or an
   annotation snapshot restore.
 - **All camera framing** goes through [fly-to.ts](../src/lib/fly-to.ts)
-  (`viewForBbox`, `flyToBbox`, `flyToView`), so bbox→zoom heuristics are never
-  duplicated — notably, the Power BI visual sends a raw bbox and lets the app
-  resolve it.
+  (`viewForBbox`, `flyToBbox`, `flyToView`), so the bbox→zoom heuristic is never
+  duplicated. The Power BI visual relies on this: it sends a raw bbox and lets
+  the app resolve it.
 - **All native layer identity** comes from `buildNativeLayerDefs`
-  ([mvt-style.ts](../src/layers/mvt-style.ts)), used for add, remove, visibility,
-  filtering and picking alike.
+  ([mvt-style.ts](../src/layers/mvt-style.ts)), used for add, remove,
+  visibility, filtering and picking alike.
 
 ---
 
@@ -414,9 +402,9 @@ presentation kept out of the data engine.
 | 540 | [use-annotation-tool.ts](../src/hooks/use-annotation-tool.ts) | Drawing interaction model |
 | 447 | [map-config.ts](../src/config/map-config.ts) | `map.json` validation |
 
-`App.tsx` wires roughly twenty hooks, owns the dual-map composition, and holds
-the annotation/box-select/share interaction state. It is the file most in need
-of decomposition; nothing about the architecture requires it to be this large.
+`App.tsx` wires roughly twenty hooks, owns the dual-map layout, and holds the
+annotation, box-select and share state. It is the file most in need of splitting
+up; nothing about the architecture requires it to be this large.
 
 ### The hooks layer
 
@@ -489,51 +477,48 @@ export function isNativeVectorFormat(format: LayerConfig["format"]): boolean {
 ### 6.3 Loading and caching
 
 **URL-keyed table cache** ([table-cache.ts](../src/layers/table-cache.ts)) —
-shared by the Arrow and Parquet loaders. The design point is that it stores the
-**in-flight Promise, not the resolved Table**, so concurrent loads of the same
-URL dedupe rather than racing two downloads. This matters because one file is
-routinely referenced by the left map, the right comparison map, several
-`layers.json` ids, the filter dropdowns and the charts panel at once. Rejected
-loads are evicted so a retry is possible.
+shared by the Arrow and Parquet loaders. It stores the **in-flight Promise, not
+the resolved Table**, so concurrent loads of one URL join a single download
+instead of racing two. One file is routinely wanted at once by the left map, the
+right map, several `layers.json` ids, the filter dropdowns and the charts panel.
+Failed loads are evicted so a retry is possible.
 
 **Parquet streaming** ([parquet-loader.ts](../src/layers/parquet-loader.ts)) —
 reads the footer, then fetches column chunks on demand via HTTP 206. Each
 `RecordBatch` is emitted as a *cumulative* table, yielding to the event loop
-between batches. (This now feeds the charts/statistics panel and the filter
-dropdowns; it no longer drives any map rendering.) Falls back to a whole-file read if
-streaming throws (e.g. a host without range support). The WASM init is a
-memoized promise rather than a boolean flag — wasm-bindgen sets its own guard
-only after fetch and compile resolve, so concurrent callers each downloaded the
-~1.6 MB module.
+between batches so the page stays responsive. It feeds the charts/statistics
+panel and the filter dropdowns, and no longer drives any map rendering. It falls
+back to a whole-file read if streaming throws, e.g. on a host without range
+support. The WASM init is a cached promise, not a boolean flag: wasm-bindgen
+sets its own guard only after fetch and compile resolve, so concurrent callers
+each downloaded the ~1.6 MB module.
 
 **Tile overscaling vs splitting** — MapLibre 6 introduced
 `zoomLevelsToOverscale`, defaulting to `4`: past a source's maxzoom, only the
 top 4 zoom levels are overscaled and the levels between are *split*. MapLibre's
-own documentation notes this "changes the results of query rendered features",
-and the app is unusually exposed to that, because **all** picking — feature
-info, hover cursor, marker snap, annotation select/drag — runs through
-`queryRenderedFeatures`, while the PMTiles archives cap at z12–z14 and users
-routinely zoom past z16.
+docs note this "changes the results of query rendered features", and the app is
+unusually exposed: **all** picking — feature info, hover cursor, marker snap,
+annotation select/drag — runs through `queryRenderedFeatures`, while the PMTiles
+archives cap at z12–z14 and users routinely zoom past z16.
 
-Measured on the v6 default, `line` layers from z12 archives became
-**rendered but unpickable** above their cap (`cbsgemeente2026` from z14,
-`cbswijk2026` from z17); `fill` and `symbol` layers were unaffected. The map is
-therefore constructed with `zoomLevelsToOverscale={undefined}`
+Measured on the v6 default, `line` layers from z12 archives became **rendered
+but unpickable** above their cap (`cbsgemeente2026` from z14, `cbswijk2026` from
+z17); `fill` and `symbol` were unaffected. The map is therefore constructed with
+`zoomLevelsToOverscale={undefined}`
 ([MapView.tsx](../src/components/map/MapView.tsx)), restoring v5 semantics.
-This is a **silent, zoom-dependent** failure — nothing throws, and it is
-invisible to `tsc` — so verify picking across z11–z18 on a z12-capped *line*
-layer before changing it. The proper fix is re-tiling those archives deeper,
-which would then allow v6's default and its high-zoom performance benefit.
+The failure is **silent and zoom-dependent** — nothing throws and `tsc` cannot
+see it — so verify picking across z11–z18 on a z12-capped *line* layer before
+changing it. The proper fix is re-tiling those archives deeper, which would then
+allow v6's default and its high-zoom performance benefit.
 
 **FlatGeobuf sessions** ([flatgeobuf-loader.ts](../src/layers/flatgeobuf-loader.ts))
 — deliberately *not* URL-cached, because what is loaded depends on the camera.
-State lives in per-`(map, config)` sessions in a `WeakMap`, which naturally
-handles the two comparison maps and the export preview map. Notable mechanisms:
-a minimum zoom below which nothing is fetched (a zoomed-out viewport bbox would
-cover the entire dataset), a 25% bbox pad so small pans need no request, and a
-**generation counter** used as cancellation — an incremented generation makes
-the in-flight async iterator abandon, guaranteeing stale results never reach the
-source.
+State lives in per-`(map, config)` sessions in a `WeakMap`, which covers the two
+comparison maps and the export preview map without extra bookkeeping. Three
+mechanisms matter: a minimum zoom below which nothing is fetched (a zoomed-out
+viewport would cover the whole dataset), a 25% bbox pad so small pans need no
+request, and a **generation counter** for cancellation — incrementing it makes
+the in-flight async iterator abandon, so stale results never reach the source.
 
 ### 6.4 Styling: one model, three translations
 
@@ -547,7 +532,9 @@ raster bands through the same `evaluateFilter` a vector layer uses.
 ### 6.5 Z-ordering
 
 TODO: spits toe op wat het werkelijk doet, welke indeling mogelijk is etc
-Z-order for layers is   Maplibre.gl insert against **named invisible anchor layers**
+
+New layers are inserted relative to **named invisible anchor layers**, which
+permanently divide the stack into bands
 ([map-view-config.ts](../src/components/map/map-view-config.ts)):
 
 ```ts
@@ -560,7 +547,9 @@ export const ANCHORS = {
 } as const;
 ```
 
-## 6. Filtering
+---
+
+## 7. Filtering
 
 Two independent systems with different scopes.
 
@@ -573,30 +562,27 @@ Two independent systems with different scopes.
 | COG (raster) | ❌ | n/a |
 
 **Area filter** ([area-filter.ts](../src/layers/area-filter.ts)) — cascading
-administrative selection. Semantics are *AND across levels, OR within a level,
-inapplicable levels skipped, empty selection passes everything*. It exists in
-three implementations, one per consumer shape: a MapLibre filter expression for
-vector layers, an Arrow row predicate for the charts/statistics aggregation
-over the sidecar tables, and a plain-props predicate (`featureMatchesAreaFilter`)
-for anything holding a picked feature's properties. The last one currently has
-no caller — picking gets filtering for free, see below — but it is the reference
-statement of the semantics in plain JavaScript.
+administrative selection. The rules: *AND across levels, OR within a level,
+inapplicable levels skipped, empty selection passes everything*. Three
+implementations, one per consumer shape: a MapLibre filter expression for vector
+layers, an Arrow row predicate for aggregation over the sidecar tables, and a
+plain-props predicate (`featureMatchesAreaFilter`). The last has no caller today
+— picking gets filtering for free, see below — but it is the clearest statement
+of the semantics in plain JavaScript.
 
-`setFilter` removes non-matching features from the layer entirely, so they are
-neither drawn nor pickable — there is no "rendered but transparent" state to
-special-case anywhere.
+`setFilter` removes non-matching features entirely, so they are neither drawn
+nor pickable. There is no "rendered but transparent" state to special-case.
 
 Because CBS area codes nest (`GM0882` ⊂ `WK088200` ⊂ `BU08820000`), a layer
 without the exact key column falls back to digit-prefix matching over
 `bu_code`/`wk_code`/`gm_code`.
 
 **Box filter** ([box-filter.ts](../src/layers/box-filter.ts)) — restricts *only*
-chart aggregation; map rendering and picking are untouched. A row passes when
-its representative point (the point coordinate, or first vertex for
-lines/polygons) falls inside the box. It handles both nested GeoArrow encodings
-and `geoarrow.wkb`, the latter by walking only the WKB header — a
-province-wide polygon can carry thousands of vertices and the test needs exactly
-one.
+chart aggregation; map rendering and picking are untouched. A row passes when its
+representative point (the point coordinate, or first vertex for lines/polygons)
+falls inside the box. It handles nested GeoArrow encodings and `geoarrow.wkb`,
+the latter by reading only the WKB header — a province-wide polygon can carry
+thousands of vertices and the test needs one.
 
 **Composition** happens in exactly one place, chart aggregation:
 
@@ -608,11 +594,11 @@ function rowPassesFilters(table: Table, index: number): boolean {
 ```
 
 Their two version counters are summed into a single cache key, so either
-changing invalidates memoized aggregates.
+changing invalidates cached aggregates.
 
 ---
 
-## 7. Charts and statistics
+## 8. Charts and statistics
 
 [charts.json](../configs/woonzorglimburg/charts.json) is a **library** of chart
 definitions referenced by id from a layer's `charts` array. Types: donut, bar,
@@ -622,29 +608,28 @@ line. Aggregations: sum, mean, count. A layer may also declare `statistics`
 Aggregation ([chart-data.ts](../src/layers/chart-data.ts)) is a single pass over
 the table, skipping rows that fail the combined filters. Variance uses
 **Welford's algorithm** for numerical stability. Group-by charts fold everything
-beyond the top 8 groups into a single "Overig" datum. Results are memoized on
-`(table, spec, filter version)`, with the memo keyed on the **table** rather than
-the layer so two layers sharing one sidecar compute once.
+past the top 8 groups into one "Overig" datum. Results are cached on
+`(table, spec, filter version)` — keyed on the **table**, not the layer, so two
+layers sharing a sidecar compute once.
 
 ### `attributeSource` — why tile layers need a sidecar
 
-Charts aggregate the **entire dataset**. Vector tiles only contain the current
-viewport at the current zoom, so aggregating from tiles would produce numbers
-that silently change as the user pans.
+Charts aggregate the **entire dataset**, but vector tiles only contain the
+current viewport at the current zoom. Aggregating from tiles would produce
+numbers that silently change as the user pans.
 
 A pmtiles/mvt/cog layer therefore points `attributeSource` at a `.parquet` or
 `.arrow` sidecar carrying the same rows. The map renders from `source`; the
 analytics panel reads `attributeSource`. Dispatch is on the **sidecar's own
-extension**, not the layer's format — the entire point is that the two differ.
+extension**, not the layer's format — the point is that the two differ.
 
-A tile-format layer that declares charts *without* a sidecar renders an empty
-panel and warns once. This is not hypothetical: it is exactly what happened when
-layers were migrated from Parquet to PMTiles, and the silence is why it went
-unnoticed.
+A tile-format layer declaring charts *without* a sidecar renders an empty panel
+and warns once. Not hypothetical: it is what happened when layers were migrated
+from Parquet to PMTiles, and the silence is why it went unnoticed.
 
 ---
 
-## 8. Feature catalogue
+## 9. Feature catalogue
 
 | Capability | Implemented in | Notes |
 |---|---|---|
@@ -664,25 +649,25 @@ unnoticed.
 
 ### Annotations in brief
 
-Three shape types with a direct-manipulation model: drag a circle's rim to
-resize but its body to move; drag out a polygon bbox to create; mousedown on a
-polygon edge splits it at that point. Escape unwinds progressively (cancel drag
-→ deselect → disarm tool). Hit-testing prioritises vertices, then edges, then
-bodies.
+Three shape types, directly manipulated: drag a circle's rim to resize but its
+body to move; drag out a bbox to create a polygon; mousedown on a polygon edge
+splits it there. Escape unwinds one step at a time (cancel drag → deselect →
+disarm tool). Hit-testing prioritises vertices, then edges, then bodies, so small
+handles on large shapes stay grabbable.
 
 Each annotation stores a **session snapshot** — area-filter selections, both
-maps' layers and hidden ids, and the camera. Clicking an annotation restores it.
-Restore is cancellable, applies hidden state only after layer adds resolve, and
-skips layers no longer present in `layers.json`.
+maps' layers and hidden ids, and the camera — restored by clicking it. Restore is
+cancellable, applies hidden state only after layer adds resolve, and skips layers
+no longer in `layers.json`.
 
 ---
 
-## 9. Collaboration subsystem
+## 10. Collaboration subsystem
 
 **Moved to [system-design-collaboration.md](system-design-collaboration.md).**
 
-Shared annotations over a Yjs/Hocuspocus WebSocket session: the client lifecycle
-and its Awareness handling, the capability-URL security model, and the
+Shared annotations over a Yjs/Hocuspocus WebSocket session: the client
+lifecycle and its Awareness handling, the capability-URL security model, and the
 server-side guards.
 
 **The subsystem is optional.** It is gated on the `annotations` flag in
@@ -694,7 +679,7 @@ the app changes.
 
 ---
 
-## 10. Power BI integration
+## 11. Power BI integration
 
 **Moved to [system-design-power-bi.md](system-design-power-bi.md).**
 
@@ -709,7 +694,7 @@ Both are explained in the companion document.
 
 ---
 
-## 11. Configuration system
+## 12. Configuration system
 
 | File | Loader | Drives |
 |---|---|---|
@@ -719,13 +704,14 @@ Both are explained in the companion document.
 | `filter.json` | [area-filter.ts](../src/layers/area-filter.ts) `loadAreaFilterConfig` | Area filter levels |
 | `map.json` | [map-config.ts](../src/config/map-config.ts) `loadMapConfig` | Initial view, study area, ~15 UI flags |
 
-All five are module-level cached after first load.
+All five are cached at module level after first load.
 
 ### Two-tier validation philosophy
 
-Verified against the source: `config.ts` and `navigation.ts` each contain a
-`throw` and no `catch`; `charts.ts`, `area-filter.ts` and `map-config.ts` each
-contain a `catch` and no `throw`.
+Which files may fail hard is a deliberate split, verified against the source:
+`config.ts` and `navigation.ts` each contain a `throw` and no `catch`;
+`charts.ts`, `area-filter.ts` and `map-config.ts` each contain a `catch` and no
+`throw`.
 
 - **`layers.json` and `navigation.json` throw** on a missing or failed fetch.
   Without them there is no app, so failing loudly is correct.
@@ -733,13 +719,12 @@ contain a `catch` and no `throw`.
   warns, and returns defaults — an embedded map must always load, even
   misconfigured.
 
-Within `layers.json`, validation is **per-entry drop-and-warn**, never
-all-or-nothing: one malformed layer disappears with a console warning rather
-than taking down the other 78.
+Within `layers.json`, validation is **per-entry drop-and-warn**: one malformed
+layer disappears with a console warning rather than taking down the other 78.
 
-`validateTimeseries` is deliberately stricter — it drops the whole block unless
-`sourceLayer` contains the placeholder, because a timeseries that steps through
-years without the rendered layer ever changing is a confusing silent no-op.
+`validateTimeseries` is stricter — it drops the whole block unless `sourceLayer`
+contains the placeholder, because a timeseries that steps through years without
+the rendered layer changing is a confusing silent no-op.
 
 ### Per-tenant overlay
 
@@ -750,7 +735,7 @@ the plain `public/` content. See [configs/README.md](../configs/README.md).
 
 ---
 
-## 12. Build and deployment
+## 13. Build and deployment
 
 ### Vite pipeline
 
@@ -760,10 +745,10 @@ sources for icon names and ships only those glyphs), and **dist precompression**
 ([precompress-dist.ts](../scripts/precompress-dist.ts) — Brotli q11 + gzip, so
 nginx serves precompressed assets).
 
-Manual chunking splits the heavy stacks so they cache independently:
-`vendor-parquet`, `vendor-arrow`, `vendor-maplibre`.
+Manual chunking splits `vendor-parquet`, `vendor-arrow` and `vendor-maplibre`
+so they cache independently of app changes.
 
-`npm run build` is `tsc -b && vite build` — typecheck gates the bundle.
+`npm run build` is `tsc -b && vite build` — the typecheck gates the bundle.
 
 ### Deployment
 
@@ -778,8 +763,13 @@ For non-Docker hosts, [server/](../server/) holds provisioning scripts:
 
 ---
 
-## 13. Data pipeline
-The initial datapipeline makes use of GeoDMS where sourcedata is translated to intermediate .geojson files, where simplification can be included with preservation of topology to simplify for various zoomlevels of a pmtiles file. Another route for simplification is experimentally tomake use of **mapshaper** using script `convert-tif-to-geojson.py`. These .geojson files then go into external converters. 
+## 14. Data pipeline
+
+The first stage uses GeoDMS to translate source data into intermediate
+`.geojson` files. Simplification can happen here, preserving topology so shapes
+stay correctly joined at lower zoom levels. An experimental alternative uses
+**mapshaper** via `convert-tif-to-geojson.py`. Those intermediate files then go
+into the converters below.
 
 [data/](../data/) holds eight Python converters that turn source rasters and
 vectors into the formats the app reads. They use PEP 723 inline dependency
@@ -813,21 +803,21 @@ Workflow: convert → upload to the data host → reference the URL from
 
 ---
 
-## 14. Cross-cutting concerns and known constraints
+## 15. Cross-cutting concerns and known constraints
 
 ### GL lifecycle hazards
 
 The most common source of subtle breakage, and heavily commented in the source:
 
 - **Every imperative overlay must be re-added after a basemap swap.**
-  `setStyle()` wipes all sources, layers AND sprite images. Each overlay hook
-  therefore returns a `resync`, called from `onLabelsReady`.
+  `setStyle()` wipes all sources, layers AND sprite images, so each overlay hook
+  returns a `resync`, called from `onLabelsReady`.
 - **Symbol layers that must stay clickable need `icon-allow-overlap` /
   `text-ignore-placement`.** `queryRenderedFeatures` only returns features that
-  actually drew, so a collision-culled symbol is silently unpickable — see the
-  annotation layers.
-- Sources and layers belong to one map's style, so per-side hooks are called
-  once per map. This is bookkeeping, not a GL-resource hazard.
+  actually drew, so a symbol dropped by collision detection is silently
+  unpickable — see the annotation layers.
+- Sources and layers belong to one map's style, so per-side hooks run once per
+  map. Bookkeeping, not a GL-resource hazard.
 - MapLibre's canvas has no `preserveDrawingBuffer`, so pixels are readable
   **only** synchronously inside a `render` event, never after an `await`. This
   shapes the whole of [map-capture.ts](../src/lib/map-capture.ts).
@@ -840,19 +830,19 @@ Verification of app behaviour is currently manual.
 
 ### CI
 
-**There is no CI.** No `.github/` workflow exists; nothing enforces typecheck,
-lint or build on push. At the time of writing all three gates pass locally
+**There is no CI.** No `.github/` workflow exists, so nothing enforces
+typecheck, lint or build on push. All three pass locally at the time of writing
 (`tsc -b`, `eslint .` with 0 errors, `npm run build`), but nothing keeps them
 that way.
 
 ### Other known issues
 
-- **`App.tsx` is 1721 lines** and wires ~20 hooks. Decomposition would be the
+- **`App.tsx` is 1721 lines** and wires ~20 hooks. Splitting it up would be the
   highest-value structural refactor.
 - **The Google Maps API key is hardcoded** in
-  [street-view.tsx](../src/components/ui/street-view.tsx). This is normal for
-  Maps JS (the key is necessarily public) but it should be HTTP-referrer
-  restricted in the Google Cloud console.
+  [street-view.tsx](../src/components/ui/street-view.tsx). Normal for Maps JS —
+  the key is necessarily public — but it should be HTTP-referrer restricted in
+  the Google Cloud console.
 - **PMTiles archives cap at z12–z14**, which forces
   `zoomLevelsToOverscale={undefined}` on MapLibre 6 to keep `line` layers
   pickable above their cap (§3, §6.3). Re-tiling the z12 archives deeper would
@@ -865,7 +855,7 @@ that way.
 
 ---
 
-## 15. Appendices
+## 16. Appendices
 
 ### A. File index
 
