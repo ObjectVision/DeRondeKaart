@@ -83,16 +83,6 @@ The data host is deliberately dumb — no tile server, no database, no API, just
 
 ## 3. Technology stack and major dependencies
 
-Versions below are the **declared semantic versioning ranges** from
-[package.json](../package.json). The lockfile resolves higher within those
-ranges; consult `package-lock.json` for exact resolutions.
-
-### Runtime dependencies
-
-Grouped by role. "We use" lists what is actually imported — several of these
-packages are used far more narrowly than their size suggests, and two are not
-used at all.
-
 #### Rendering
 
 | Package | We use | Why |
