@@ -12,21 +12,31 @@ never written as MapLibre paint properties by hand. The shared engine is
 
 ## One model, three translations
 
+A GeoStyler rule pairs a **filter** (which features it applies to) with
+**symbolizers** (how they look). Rules are tested in order and the first match
+wins, so specific cases go before catch-alls.
+
 [geostyler.ts](../src/layers/geostyler.ts) holds the shared engine —
 `evaluateFilter`, `matchRule` (first match wins), and per-symbolizer extractors.
 Filter comparison is deliberately loose (`==`), because JSON config values
-arrive as strings or numbers interchangeably.
+arrive as strings or numbers interchangeably and a strict check would silently
+fail to match.
 
 **→ MapLibre** ([mvt-style.ts](../src/layers/mvt-style.ts)): rules become
 MapLibre filter expressions (`&&`→`all`, `||`→`any`) and symbolizers map by kind
 (`Fill`→`fill`, `Line`→`line`, `Mark`→`circle`, `Icon`→`symbol`). Unsupported
-kinds warn loudly rather than drawing an invisible layer.
+kinds warn loudly rather than drawing an invisible layer — an empty layer looks
+like a data problem and sends people hunting in the wrong place.
 
 **→ COG** ([cog-style.ts](../src/layers/cog-style.ts)): a per-pixel colour
 function where raster bands are exposed as `band0`, `band1`, … and run through
 **the same `evaluateFilter`** — so a raster classifies with identical rule
 syntax to a vector layer. Registered with the cog-protocol via
 `setColorFunction` ([system-design.md](system-design.md) §3).
+
+Authoring style once and translating it has a third payoff beyond the two
+renderers: because the rules stay readable data, the legend is generated from
+them rather than maintained separately ([legend-style.ts](../src/lib/legend-style.ts)).
 
 ---
 

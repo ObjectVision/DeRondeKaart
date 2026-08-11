@@ -23,20 +23,28 @@ is [system-design.md](system-design.md) §3.
 | `yjs` ^13.6 | `Y.Doc` (one per session), `Y.Map` (annotations keyed by id, plain-JSON values), `Y.encodeStateAsUpdate` (server-side size guard and validation) | A CRDT merges concurrent edits without a central authority, so there is no server-side merge or operational-transform logic to maintain. It also collapses the offline case: the `Y.Doc` exists from mount, and "local mode" is the same code path with no provider attached — not a separate branch |
 | `@hocuspocus/provider` ^4.4 | `HocuspocusProvider`; `provider.setAwarenessField(…)` for user identity, cursor and `activeAnnotationId`; `provider.awareness` for peer ids | The WebSocket client for the Yjs sync protocol: connection, reconnect and resync. It also carries **awareness** — ephemeral per-client state that is broadcast to peers but never written into the document, which is exactly what live cursors and presence need. The alternative is hand-rolling the sync protocol over a raw socket |
 
+A **CRDT** is a data structure whose updates merge to the same result whatever
+order they arrive in. That property is what removes the need for a server to
+decide whose edit came first.
+
 ## Client
 
-The design decision that shapes everything: **annotations live in a `Y.Doc` from
-app mount, not from room join**. "Local mode" is simply that doc without a
-provider. Joining a room attaches a provider to the *same* doc, so Yjs's initial
-sync merges pre-existing local annotations into the room — ids are UUIDs, so
-there are no collisions.
+The decision that shapes everything: **annotations live in a `Y.Doc` from app
+mount, not from room join**. "Local mode" is that same doc with no provider
+attached. Joining a room attaches a provider to the *same* doc, so Yjs's initial
+sync merges pre-existing local annotations into the room. Ids are UUIDs, so
+nothing collides.
+
+This is why there is no "upload my drawings" step and no second code path for
+working alone.
 
 [use-collab.ts](../src/hooks/use-collab.ts) owns the lifecycle. Live cursors and
-"who is looking at which annotation" are **Yjs Awareness** state — ephemeral,
-never persisted. Cursor updates throttle to ~25 Hz with a trailing send so the
-final resting position always arrives, and awareness→React updates are batched
-per animation frame so several peers do not cause hundreds of re-renders per
-second.
+"who is looking at which annotation" are **Yjs Awareness** state — broadcast to
+peers, never written to the document, so nothing survives a disconnect. Two
+rate limits keep it cheap: cursor updates throttle to ~25 Hz with a trailing
+send so the final resting position always arrives, and awareness→React updates
+are batched per animation frame, otherwise several peers would trigger hundreds
+of re-renders a second.
 
 Identity ([collab-identity.ts](../src/lib/collab-identity.ts)) is a
 `localStorage`-persisted pseudonym drawn from a Dutch flora/fauna list plus a
@@ -44,7 +52,8 @@ colour. **Nothing is verified** — names are self-chosen.
 
 Conflict semantics: `update` replaces the whole per-annotation value, so
 concurrent edits to the *same* annotation are last-writer-wins. Accepted for
-now, mitigated in practice by the active-annotation highlight.
+now, and rare in practice because the active-annotation highlight shows who is
+working on what. Edits to *different* annotations always merge correctly.
 
 ## Server
 
@@ -59,11 +68,12 @@ travels in the URL *hash fragment*, which browsers never send to servers, so it
 stays out of access logs and `Referer` headers.
 
 Documented limitations: anyone with the link has full read+write, author names
-are unverified, and the SQLite file is plaintext.
+are unverified, and the SQLite file is plaintext. Treat the link as equivalent
+to the room's contents.
 
-**Guards** (all server-side — a client can call the Yjs API directly and bypass
-any browser-side throttle). Every limit is env-tunable; defaults from
-[config.ts](../collab-server/src/config.ts):
+**Guards** run server-side because that is the only place they hold: a client
+can call the Yjs API directly and bypass any browser-side throttle. Every limit
+is env-tunable; defaults from [config.ts](../collab-server/src/config.ts):
 
 | Guard | Mechanism | Default |
 |---|---|---|
@@ -81,7 +91,7 @@ appended last, by which point the bad document is already on disk.
 
 Because a CRDT update is already merged into the in-memory document by the time
 any hook runs, a validation failure aborts the *persist*; it cannot undo the
-edit.
+edit. The guards keep the stored data sound, not the live view.
 
 ---
 
