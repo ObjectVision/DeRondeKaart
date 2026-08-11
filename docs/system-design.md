@@ -392,59 +392,19 @@ presentation kept out of the data engine.
 | [src/config/](../src/config/) | 1 | 494 | `map.json` loading, UI flags, initial view |
 | [src/types/](../src/types/) | 2 | 143 | Ambient declarations (annotations, Google Streetview) |
 
-The remaining 1,135 lines are the two files at the root of `src/`: `App.tsx` and
-`main.tsx`.
-
-Most files are small — the median is 108 lines, 74% are under 200, and only six
-exceed 500 — so the directory counts are dominated by single-purpose support
-modules rather than by a few large ones. In `src/layers/` those are the per-format
-loaders
-([flatgeobuf-loader](../src/layers/flatgeobuf-loader.ts),
-[parquet-loader](../src/layers/parquet-loader.ts),
-[arrow-loader](../src/layers/arrow-loader.ts)) plus the pieces they share:
-[table-cache](../src/layers/table-cache.ts) (URL-keyed Arrow tables, so a file
-added to both maps is fetched and parsed once),
-[icon-sprite](../src/layers/icon-sprite.ts) and
-[hatch-pattern](../src/layers/hatch-pattern.ts) (sprite images — an icon or a
-hatch fill needs an image registered in the map's sprite before its layer is
-added, and a missing one renders the geometry *invisible* rather than unstyled),
-[geojson-overlay](../src/layers/geojson-overlay.ts) (the always-on-top chrome:
-click marker, selection box, gebiedsfilter mask) and
-[featureinfo-template](../src/layers/featureinfo-template.ts).
-
 ### Largest modules
 
 | Lines | File | Note |
 |---|---|---|
-| 1126 | [use-map-layers.ts](../src/hooks/use-map-layers.ts) | Layer engine — now the largest hand-written file |
+| 1126 | [use-map-layers.ts](../src/hooks/use-map-layers.ts) | Layer engine |
 | 1099 | [App.tsx](../src/App.tsx) | Composition root |
-| 977 | [parquet_wasm.d.ts](../src/vendor/parquet-wasm/parquet_wasm.d.ts) | Generated bindings — not hand-maintained |
+| 977 | [parquet_wasm.d.ts](../src/vendor/parquet-wasm/parquet_wasm.d.ts) | Generated bindings |
 | 697 | [map-capture.ts](../src/lib/map-capture.ts) | WebGL capture and PNG compositing |
 | 562 | [legend.tsx](../src/components/ui/legend.tsx) | Legend rows, per-class toggles, drag reorder |
 | 540 | [use-annotation-tool.ts](../src/hooks/use-annotation-tool.ts) | Drawing interaction model |
 | 494 | [map-config.ts](../src/config/map-config.ts) | `map.json` validation |
 | 489 | [annotation-style.ts](../src/layers/annotation-style.ts) | Annotation symbolizers |
 | 446 | [mvt-style.ts](../src/layers/mvt-style.ts) | GeoStyler → MapLibre paint translation |
-
-`App.tsx` has come down from ~1,720 → 1,329 → **1,099** lines across three rounds
-of extraction, and is no longer the largest file in the project. What moved out,
-in order: share state and the per-map layer callbacks
-([use-share-state.ts](../src/hooks/use-share-state.ts),
-[use-layer-handlers.ts](../src/hooks/use-layer-handlers.ts),
-[use-annotation-commands.ts](../src/hooks/use-annotation-commands.ts)), then the
-basemap cycle, the window minimize flags, the statistics-panel selection, the
-shared click popup and the pointer fan-out (the five hooks listed below), plus the
-annotation toolbar as a component.
-
-What remains is mostly irreducible composition: it wires ~30 hooks, owns the
-dual-map layout, and holds the annotation and box-select state that interleaves
-with rendering. The one substantial cluster still worth extracting is the **A/B
-per-side duplication** — `studyArea*`, `marker*`, `box*`, `annotSource*`,
-`handlers*` and the two `onLabelsReady` resync lists are each written twice, so a
-fix to one side can silently miss the other. It was deliberately left alone here:
-those hook calls are gated on `showMapRight` to keep the right map's GL resources
-from outliving it (see the comment above `showMapRight`), and the basemap resync
-they feed fails *silently*, so that extraction needs its own verification pass.
 
 ### The hooks layer
 
