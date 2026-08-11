@@ -2,8 +2,12 @@ import { Icon } from "@/components/ui/nav-icon";
 import type { ResolvedStat } from "@/layers/chart-data";
 import { formatValue } from "@/lib/format";
 
+interface StatCardProps {
+  stat: ResolvedStat;
+}
+
 /** One "Kerncijfers" statistic tile in the analytics panel. */
-export function StatCard({ stat }: { stat: ResolvedStat }) {
+export function StatCard({ stat }: StatCardProps): React.JSX.Element {
   const { config, value } = stat;
   return (
     <div className="flex items-center gap-2.5 rounded-xl border border-gray-200 bg-white p-2.5">

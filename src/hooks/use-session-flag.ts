@@ -1,4 +1,5 @@
 import { useCallback, useState } from "react";
+import { readStorage, writeStorage } from "@/lib/storage";
 
 /**
  * A boolean state that persists for the current browser session (sessionStorage).
@@ -10,23 +11,14 @@ export function useSessionFlag(
   initial: boolean,
 ): [boolean, (next: boolean) => void, () => void] {
   const [value, setValue] = useState<boolean>(() => {
-    try {
-      const stored = sessionStorage.getItem(key);
-      return stored === null ? initial : stored === "1";
-    } catch {
-      return initial;
-    }
+    const stored = readStorage(sessionStorage, key);
+    return stored === null ? initial : stored === "1";
   });
 
   const set = useCallback(
     (next: boolean) => {
       setValue(next);
-      try {
-        sessionStorage.setItem(key, next ? "1" : "0");
-      } catch {
-        // Ignore storage failures (private mode / quota) — state still works
-        // in-memory for this render tree.
-      }
+      writeStorage(sessionStorage, key, next ? "1" : "0");
     },
     [key],
   );

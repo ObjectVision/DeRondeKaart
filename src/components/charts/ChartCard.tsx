@@ -3,8 +3,12 @@ import { DonutChart } from "./DonutChart";
 import { BarChart } from "./BarChart";
 import { LineChart } from "./LineChart";
 
+interface ChartCardProps {
+  chart: ResolvedChart;
+}
+
 /** One chart tile in the analytics panel. */
-export function ChartCard({ chart }: { chart: ResolvedChart }) {
+export function ChartCard({ chart }: ChartCardProps): React.JSX.Element {
   const { config, data, total } = chart;
 
   return (

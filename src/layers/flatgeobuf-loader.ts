@@ -23,7 +23,7 @@ import { anchorForConfig } from "@/components/map/map-view-config";
  */
 
 /** Default zoom cutoff when the config doesn't specify `minzoom`. */
-export const FGB_DEFAULT_MINZOOM = 12;
+const FGB_DEFAULT_MINZOOM = 12;
 
 /**
  * Viewport padding per side, as a fraction of the viewport span. Fetching

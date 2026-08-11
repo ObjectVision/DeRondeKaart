@@ -31,14 +31,6 @@ export function setBoxFilter(bbox: BBox | null): number {
   return store.version;
 }
 
-export function getBoxFilterVersion(): number {
-  return store.version;
-}
-
-export function isBoxFilterActive(): boolean {
-  return store.bbox !== null;
-}
-
 // ---------------------------------------------------------------------------
 // Geometry column resolution, memoized per Table.
 // ---------------------------------------------------------------------------

@@ -114,7 +114,15 @@ function parseCommands(params: URLSearchParams): LayerCommand[] {
   return commands;
 }
 
-export function useUrlCommands({ mapLeft, mapRight, ready, applyView, onAnnotationRoom, onOpenCircular, onSetFilter }: UseUrlCommandsOptions) {
+export function useUrlCommands({
+  mapLeft,
+  mapRight,
+  ready,
+  applyView,
+  onAnnotationRoom,
+  onOpenCircular,
+  onSetFilter,
+}: UseUrlCommandsOptions): void {
   const configsRef = useRef<LayerConfig[] | null>(null);
   const processedInitialHash = useRef(false);
 

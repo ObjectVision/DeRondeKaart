@@ -121,12 +121,17 @@ export function iconSpriteId(sym: IconSymbolizer): string {
  * format's pick/hover paths can recognize its own layers.
  */
 function layerId(config: LayerConfig, ruleName?: string): string {
-  const prefix =
-    config.format === "flatgeobuf"
-      ? "fgb-layer-"
-      : config.format === "pmtiles"
-        ? "pmtiles-layer-"
-        : "mvt-layer-";
+  let prefix: string;
+  switch (config.format) {
+    case "flatgeobuf":
+      prefix = "fgb-layer-";
+      break;
+    case "pmtiles":
+      prefix = "pmtiles-layer-";
+      break;
+    default:
+      prefix = "mvt-layer-";
+  }
   return ruleName === undefined
     ? `${prefix}${config.id}`
     : `${prefix}${config.id}-${ruleName}`;

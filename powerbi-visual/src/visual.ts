@@ -398,12 +398,14 @@ export class Visual implements IVisual {
     }
     if (features.length === 0) return null;
 
-    const dominant: GeometryKind =
-      kindCounts.polygon >= kindCounts.line && kindCounts.polygon >= kindCounts.point
-        ? "polygon"
-        : kindCounts.line >= kindCounts.point
-          ? "line"
-          : "point";
+    let dominant: GeometryKind;
+    if (kindCounts.polygon >= kindCounts.line && kindCounts.polygon >= kindCounts.point) {
+      dominant = "polygon";
+    } else if (kindCounts.line >= kindCounts.point) {
+      dominant = "line";
+    } else {
+      dominant = "point";
+    }
 
     return {
       id: DATA_LAYER_ID,

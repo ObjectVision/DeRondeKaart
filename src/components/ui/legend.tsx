@@ -176,6 +176,15 @@ function LayerList({
 
   if (entries.length === 0) return null;
 
+  let moveTitle: string;
+  if (moveDisabled) {
+    moveTitle = "Voeg eerst een laag toe aan de linker kaart";
+  } else if (moveDirection === "left") {
+    moveTitle = "Naar linker kaart";
+  } else {
+    moveTitle = "Naar rechter kaart";
+  }
+
   return (
     <div>
       <ul className="flex flex-col gap-0.5">
@@ -321,13 +330,7 @@ function LayerList({
                             ? `Verplaats ${config.name} naar linker kaart`
                             : `Verplaats ${config.name} naar rechter kaart`
                         }
-                        title={
-                          moveDisabled
-                            ? "Voeg eerst een laag toe aan de linker kaart"
-                            : moveDirection === "left"
-                              ? "Naar linker kaart"
-                              : "Naar rechter kaart"
-                        }
+                        title={moveTitle}
                       >
                         <Icon
                           name={moveDirection === "left" ? "arrow_circle_left" : "arrow_circle_right"}

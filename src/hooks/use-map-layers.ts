@@ -40,7 +40,38 @@ export interface LayerEntry {
  */
 const registeredCogColorUrls = new Set<string>();
 
-export function useMapLayers() {
+/** A `MapView`'s underlying map ref, as every imperative helper here takes it. */
+type MapRefObject = React.RefObject<MapRef | null>;
+
+/**
+ * Everything `useMapLayers` hands back. One layer stack per map, so App holds
+ * two of these — see `useLayerHandlers` for the per-map callback wrappers.
+ */
+export interface UseMapLayersResult {
+  layerEntries: LayerEntry[];
+  hiddenIds: Set<string>;
+  hiddenRules: globalThis.Map<string, Set<string>>;
+  layerSteps: globalThis.Map<string, number>;
+  playingIds: Set<string>;
+  addLayer: (
+    config: LayerConfig,
+    mapRef: MapRefObject,
+    opts?: { atEnd?: boolean },
+  ) => Promise<void>;
+  removeLayer: (layerId: string, mapRef: MapRefObject) => void;
+  reorderLayer: (layerId: string, toIndex: number, mapRef: MapRefObject) => void;
+  hideLayer: (layerId: string, mapRef: MapRefObject) => void;
+  toggleLayer: (layerId: string, mapRef: MapRefObject) => void;
+  toggleRule: (layerId: string, ruleName: string, mapRef: MapRefObject) => void;
+  setLayerStep: (layerId: string, value: number, mapRefs: MapRefObject[]) => void;
+  togglePlay: (layerId: string) => void;
+  stopPlay: (layerId: string) => void;
+  advanceStep: (layerId: string, mapRefs: MapRefObject[]) => void;
+  refreshAreaFilter: (version: number, mapRefs?: MapRefObject[]) => void;
+  syncImperativeLayers: (mapRef: MapRefObject) => void;
+}
+
+export function useMapLayers(): UseMapLayersResult {
   const [layerEntries, setLayerEntries] = useState<LayerEntry[]>([]);
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
   const [hiddenRules, setHiddenRules] = useState<globalThis.Map<string, Set<string>>>(new globalThis.Map());
@@ -597,7 +628,7 @@ export function addMvtLayer(
    * must stay in their configured band (e.g. the study area).
    */
   onLate?: () => void,
-) {
+): void {
   const map = mapRef.current?.getMap();
   if (!map) return;
 
@@ -763,7 +794,7 @@ function addRuleLayers(
 const timeseriesTemplates = new WeakMap<LayerConfig, string>();
 
 /** Substitute the timeseries placeholder in a source layer name. */
-export function timeseriesSourceLayer(config: LayerConfig, value: number): string {
+function timeseriesSourceLayer(config: LayerConfig, value: number): string {
   const ts = config.timeseries;
   if (!ts || !config.sourceLayer) return config.sourceLayer ?? "";
   // Remember the template before the first substitution overwrites it.

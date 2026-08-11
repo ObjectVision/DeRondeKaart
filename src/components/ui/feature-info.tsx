@@ -11,7 +11,12 @@ interface FeatureInfoProps {
   embedded?: boolean;
 }
 
-export function FeatureInfo({ result, layerEntries, onClose, embedded = false }: FeatureInfoProps) {
+export function FeatureInfo({
+  result,
+  layerEntries,
+  onClose,
+  embedded = false,
+}: FeatureInfoProps): React.JSX.Element {
   const layerIds = Array.from(result.featuresByLayer.keys());
   const [selectedTab, setSelectedTab] = useState(layerIds[0]);
   const [templates, setTemplates] = useState<Map<string, string>>(new Map());

@@ -159,7 +159,7 @@ export interface MapConfig {
 }
 
 /** Default pixel size of the UI-chrome toggle/header icons. */
-export const DEFAULT_CHROME_ICON_SIZE = 20;
+const DEFAULT_CHROME_ICON_SIZE = 20;
 
 /**
  * Module-level cache of the effective chrome icon size, set once by
@@ -174,7 +174,7 @@ export function chromeIconSize(): number {
 }
 
 /** Default CSS color of the UI-chrome button icons. */
-export const DEFAULT_CHROME_ICON_COLOR = "#3E74A7";
+const DEFAULT_CHROME_ICON_COLOR = "#3E74A7";
 
 /**
  * Module-level cache of the effective chrome icon color, set once by
@@ -223,7 +223,7 @@ export const DEFAULT_CLICK_MARKER: ClickMarkerConfig = {
 };
 
 /** Fallback view, matching the hardcoded INITIAL_VIEW_STATE in MapView.tsx. */
-export const DEFAULT_MAP_CONFIG: MapConfig = {
+const DEFAULT_MAP_CONFIG: MapConfig = {
   center: [5.0, 52.0],
   zoom: 7,
   streetview: false,

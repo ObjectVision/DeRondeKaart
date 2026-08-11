@@ -5,7 +5,10 @@ interface ComparisonSliderProps {
   onPositionChange: (position: number) => void;
 }
 
-export function ComparisonSlider({ position, onPositionChange }: ComparisonSliderProps) {
+export function ComparisonSlider({
+  position,
+  onPositionChange,
+}: ComparisonSliderProps): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState(false);
 

@@ -8,7 +8,7 @@ import { resolveHatch, type HatchColors } from "@/layers/hatch-pattern";
  * share-dialog preview mini-legend, and the PNG-export canvas compositor.
  */
 
-export function colorToCSS(
+function colorToCSS(
   color?: [number, number, number] | [number, number, number, number],
 ): string {
   if (!color) return "rgb(0, 128, 255)";

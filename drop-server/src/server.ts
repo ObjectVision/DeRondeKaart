@@ -18,7 +18,12 @@
  * zero on a service that faces the open internet.
  */
 
-import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import {
+  createServer,
+  type IncomingMessage,
+  type Server,
+  type ServerResponse,
+} from "node:http";
 import { limits } from "./config.js";
 import { readGate } from "./gate.js";
 import { RateLimiter } from "./rate-limiter.js";
@@ -65,7 +70,7 @@ function clientIp(req: IncomingMessage): string {
   return first || req.socket.remoteAddress || "unknown";
 }
 
-export function createDropServer(opts: DropServerOptions) {
+export function createDropServer(opts: DropServerOptions): Server {
   const rate = opts.rateLimiter ?? new RateLimiter();
 
   return createServer((req, res) => {

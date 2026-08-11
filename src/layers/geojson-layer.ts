@@ -16,7 +16,7 @@ import type { LayerConfig } from "./types";
  * these layers are built with the rule filter only, not `combinedNativeFilter`.
  */
 
-export function geojsonSourceId(config: LayerConfig): string {
+function geojsonSourceId(config: LayerConfig): string {
   return `geojson-source-${config.id}`;
 }
 
@@ -54,7 +54,7 @@ function layerDefsFor(config: LayerConfig): AddLayerObject[] {
 export function addGeoJsonLayer(
   config: LayerConfig,
   mapRef: React.RefObject<MapRef | null>,
-) {
+): void {
   const map = mapRef.current?.getMap();
   if (!map || !config.data) return;
 
@@ -81,7 +81,7 @@ export function addGeoJsonLayer(
 export function removeGeoJsonLayer(
   config: LayerConfig,
   mapRef: React.RefObject<MapRef | null>,
-) {
+): void {
   const map = mapRef.current?.getMap();
   if (!map) return;
   for (const spec of layerDefsFor(config)) {

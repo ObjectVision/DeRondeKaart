@@ -5,6 +5,8 @@
  * Names are self-chosen pseudonyms — nothing is verified.
  */
 
+import { readStorage, writeStorage } from "@/lib/storage";
+
 export interface CollabIdentity {
   name: string;
   color: string;
@@ -13,7 +15,7 @@ export interface CollabIdentity {
 const STORAGE_KEY = "annot.identity";
 
 /** Distinguishable palette; the index is picked at random per browser. */
-export const IDENTITY_COLORS = [
+const IDENTITY_COLORS = [
   "#E5484D", // red
   "#E5772B", // orange
   "#8F8F28", // olive
@@ -62,33 +64,20 @@ function generateIdentity(): CollabIdentity {
 
 /** The persisted identity for this browser, generated on first use. */
 export function getCollabIdentity(): CollabIdentity {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
+  const raw = readStorage(localStorage, STORAGE_KEY);
+  if (raw) {
+    try {
       const parsed = JSON.parse(raw) as Partial<CollabIdentity>;
       if (typeof parsed.name === "string" && typeof parsed.color === "string") {
         return { name: parsed.name, color: parsed.color };
       }
+    } catch {
+      // Corrupt blob — fall through to a fresh identity.
     }
-  } catch {
-    // Storage unavailable (private mode) — fall through to a fresh identity.
   }
+
   const identity = generateIdentity();
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(identity));
-  } catch {
-    // Non-persistent identity is fine.
-  }
+  writeStorage(localStorage, STORAGE_KEY, JSON.stringify(identity));
   return identity;
 }
 
-/** Parse "#rrggbb" into a deck.gl color tuple with the given alpha. */
-export function hexToRgba(
-  hex: string,
-  alpha: number,
-): [number, number, number, number] {
-  const m = /^#?([0-9a-f]{6})$/i.exec(hex);
-  if (!m) return [62, 116, 167, alpha];
-  const n = parseInt(m[1], 16);
-  return [(n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff, alpha];
-}
