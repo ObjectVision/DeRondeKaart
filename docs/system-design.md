@@ -436,11 +436,6 @@ The deepest part of the system, and where most complexity lives.
 | `cog` | Cloud-Optimized GeoTIFF, `cog://` protocol | protocol handler | MapLibre (raster) |
 | `composite` | Zoom-banded children under one legend entry | [composite-manager.ts](../src/layers/composite-manager.ts) | delegates per child |
 
-In the `woonzorglimburg` project the mix is 68 pmtiles, 7 cog, 2 composite,
-1 mvt, 1 flatgeobuf — tiles dominate because they scale to province-wide
-extents. `.parquet` files live on as **attribute sidecars** for the
-charts panel and the filter dropdowns (§6.1, `attributeSource`).
-
 ### 6.2 Format dispatch
 
 All routing happens in one place: `dispatchFormatLoad`
@@ -466,61 +461,7 @@ flowchart TD
     fgb --> mlout
 ```
 
-The canonical predicate for the native-vector branch is:
-
-```ts
-export function isNativeVectorFormat(format: LayerConfig["format"]): boolean {
-  return format === "mvt" || format === "pmtiles" || format === "flatgeobuf";
-}
-```
-
-### 6.3 Loading and caching
-
-**URL-keyed table cache** ([table-cache.ts](../src/layers/table-cache.ts)) —
-shared by the Arrow and Parquet loaders. It stores the **in-flight Promise, not
-the resolved Table**, so concurrent loads of one URL join a single download
-instead of racing two. One file is routinely wanted at once by the left map, the
-right map, several `layers.json` ids, the filter dropdowns and the charts panel.
-Failed loads are evicted so a retry is possible.
-
-**Parquet streaming** ([parquet-loader.ts](../src/layers/parquet-loader.ts)) —
-reads the footer, then fetches column chunks on demand via HTTP 206. Each
-`RecordBatch` is emitted as a *cumulative* table, yielding to the event loop
-between batches so the page stays responsive. It feeds the charts/statistics
-panel and the filter dropdowns, and no longer drives any map rendering. It falls
-back to a whole-file read if streaming throws, e.g. on a host without range
-support. The WASM init is a cached promise, not a boolean flag: wasm-bindgen
-sets its own guard only after fetch and compile resolve, so concurrent callers
-each downloaded the ~1.6 MB module.
-
-**Tile overscaling vs splitting** — MapLibre 6 introduced
-`zoomLevelsToOverscale`, defaulting to `4`: past a source's maxzoom, only the
-top 4 zoom levels are overscaled and the levels between are *split*. MapLibre's
-docs note this "changes the results of query rendered features", and the app is
-unusually exposed: **all** picking — feature info, hover cursor, marker snap,
-annotation select/drag — runs through `queryRenderedFeatures`, while the PMTiles
-archives cap at z12–z14 and users routinely zoom past z16.
-
-Measured on the v6 default, `line` layers from z12 archives became **rendered
-but unpickable** above their cap (`cbsgemeente2026` from z14, `cbswijk2026` from
-z17); `fill` and `symbol` were unaffected. The map is therefore constructed with
-`zoomLevelsToOverscale={undefined}`
-([MapView.tsx](../src/components/map/MapView.tsx)), restoring v5 semantics.
-The failure is **silent and zoom-dependent** — nothing throws and `tsc` cannot
-see it — so verify picking across z11–z18 on a z12-capped *line* layer before
-changing it. The proper fix is re-tiling those archives deeper, which would then
-allow v6's default and its high-zoom performance benefit.
-
-**FlatGeobuf sessions** ([flatgeobuf-loader.ts](../src/layers/flatgeobuf-loader.ts))
-— deliberately *not* URL-cached, because what is loaded depends on the camera.
-State lives in per-`(map, config)` sessions in a `WeakMap`, which covers the two
-comparison maps and the export preview map without extra bookkeeping. Three
-mechanisms matter: a minimum zoom below which nothing is fetched (a zoomed-out
-viewport would cover the whole dataset), a 25% bbox pad so small pans need no
-request, and a **generation counter** for cancellation — incrementing it makes
-the in-flight async iterator abandon, so stale results never reach the source.
-
-### 6.4 Styling: one model, three translations
+### 6.3 Styling: one model, three translations
 
 **Moved to [system-design-styling.md](system-design-styling.md).**
 
@@ -529,7 +470,7 @@ target by [geostyler.ts](../src/layers/geostyler.ts): MapLibre paint/filter
 expressions for vector layers, and a per-pixel colour function for COG that runs
 raster bands through the same `evaluateFilter` a vector layer uses.
 
-### 6.5 Z-ordering
+### 6.4 Z-ordering
 
 New layers are inserted relative to **named invisible anchor layers**.
 
