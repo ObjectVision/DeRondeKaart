@@ -380,22 +380,22 @@ the store would filter the map but leave the sidebar showing a stale selection.
 Code is split by responsibility, not by feature: one hook per capability, with
 presentation kept out of the data engine.
 
-`src/` holds **18,713 lines across 101 TypeScript files**.
+`src/` holds **19,130 lines across 107 TypeScript files**.
 
 | Directory | Files | Lines | Responsibility |
 |---|---|---|---|
-| [src/hooks/](../src/hooks/) | 25 | 4,986 | Feature logic — one hook per capability |
-| [src/components/](../src/components/) | 35 | 4,951 | Presentation (map, legend, navigation, charts, annotations, share) |
+| [src/hooks/](../src/hooks/) | 30 | 5,532 | Feature logic — one hook per capability |
+| [src/components/](../src/components/) | 36 | 5,052 | Presentation (map, legend, navigation, charts, annotations, share) |
 | [src/layers/](../src/layers/) | 23 | 4,304 | The data engine: formats, loaders, styling, filtering, aggregation |
 | [src/lib/](../src/lib/) | 11 | 1,388 | Pure utilities: capture, geometry, share URLs, formatting |
 | [src/vendor/](../src/vendor/) | 2 | 1,082 | Generated parquet-wasm bindings |
 | [src/config/](../src/config/) | 1 | 494 | `map.json` loading, UI flags, initial view |
 | [src/types/](../src/types/) | 2 | 143 | Ambient declarations (annotations, Google Streetview) |
 
-The remaining 1,365 lines are the two files at the root of `src/`: `App.tsx` and
+The remaining 1,135 lines are the two files at the root of `src/`: `App.tsx` and
 `main.tsx`.
 
-Most files are small — the median is 110 lines, 73% are under 200, and only six
+Most files are small — the median is 108 lines, 74% are under 200, and only six
 exceed 500 — so the directory counts are dominated by single-purpose support
 modules rather than by a few large ones. In `src/layers/` those are the per-format
 loaders
@@ -416,8 +416,8 @@ click marker, selection box, gebiedsfilter mask) and
 
 | Lines | File | Note |
 |---|---|---|
-| 1329 | [App.tsx](../src/App.tsx) | Composition root — **still the main structural weak point** |
-| 1126 | [use-map-layers.ts](../src/hooks/use-map-layers.ts) | Layer engine |
+| 1126 | [use-map-layers.ts](../src/hooks/use-map-layers.ts) | Layer engine — now the largest hand-written file |
+| 1099 | [App.tsx](../src/App.tsx) | Composition root |
 | 977 | [parquet_wasm.d.ts](../src/vendor/parquet-wasm/parquet_wasm.d.ts) | Generated bindings — not hand-maintained |
 | 697 | [map-capture.ts](../src/lib/map-capture.ts) | WebGL capture and PNG compositing |
 | 562 | [legend.tsx](../src/components/ui/legend.tsx) | Legend rows, per-class toggles, drag reorder |
@@ -426,34 +426,68 @@ click marker, selection box, gebiedsfilter mask) and
 | 489 | [annotation-style.ts](../src/layers/annotation-style.ts) | Annotation symbolizers |
 | 446 | [mvt-style.ts](../src/layers/mvt-style.ts) | GeoStyler → MapLibre paint translation |
 
-`App.tsx` wires roughly thirty hooks, owns the dual-map layout, and still holds
-the annotation and box-select state. It is the file most in need of splitting up;
-nothing about the architecture requires it to be this large. It has come down
-from ~1,720 lines as share state and the per-map layer callbacks moved out into
-[use-share-state.ts](../src/hooks/use-share-state.ts) and
-[use-layer-handlers.ts](../src/hooks/use-layer-handlers.ts) — the same treatment
-applied to what remains would shrink it further.
+`App.tsx` has come down from ~1,720 → 1,329 → **1,099** lines across three rounds
+of extraction, and is no longer the largest file in the project. What moved out,
+in order: share state and the per-map layer callbacks
+([use-share-state.ts](../src/hooks/use-share-state.ts),
+[use-layer-handlers.ts](../src/hooks/use-layer-handlers.ts),
+[use-annotation-commands.ts](../src/hooks/use-annotation-commands.ts)), then the
+basemap cycle, the window minimize flags, the statistics-panel selection, the
+shared click popup and the pointer fan-out (the five hooks listed below), plus the
+annotation toolbar as a component.
+
+What remains is mostly irreducible composition: it wires ~30 hooks, owns the
+dual-map layout, and holds the annotation and box-select state that interleaves
+with rendering. The one substantial cluster still worth extracting is the **A/B
+per-side duplication** — `studyArea*`, `marker*`, `box*`, `annotSource*`,
+`handlers*` and the two `onLabelsReady` resync lists are each written twice, so a
+fix to one side can silently miss the other. It was deliberately left alone here:
+those hook calls are gated on `showMapRight` to keep the right map's GL resources
+from outliving it (see the comment above `showMapRight`), and the basemap resync
+they feed fails *silently*, so that extraction needs its own verification pass.
 
 ### The hooks layer
 
-Twenty-five hooks, each owning one capability: `use-map-layers`,
-`use-layer-handlers`, `use-navigation`, `use-nav-expansion`, `use-area-filter`,
-`use-host-filter`, `use-box-select`, `use-chart-data`, `use-feature-pick`,
-`use-annotations`, `use-annotation-tool`, `use-annotation-commands`,
-`use-annotation-source`, `use-collab`, `use-url-commands`, `use-embed-data`,
-`use-map-snapshot`, `use-share-state`, `use-study-area-layer`,
-`use-filtered-study-area`, `use-click-marker-layer`, `use-selection-box-layer`,
-`use-hover-cursor`, `use-auto-collapse`, `use-session-flag`.
+Thirty hooks, each owning one capability: `use-map-layers`, `use-layer-handlers`,
+`use-navigation`, `use-nav-expansion`, `use-area-filter`, `use-host-filter`,
+`use-box-select`, `use-chart-data`, `use-charts-panel`, `use-feature-pick`,
+`use-click-popup`, `use-map-pointer`, `use-annotations`, `use-annotation-tool`,
+`use-annotation-commands`, `use-annotation-source`, `use-collab`,
+`use-url-commands`, `use-embed-data`, `use-map-snapshot`, `use-share-state`,
+`use-study-area-layer`, `use-filtered-study-area`, `use-click-marker-layer`,
+`use-selection-box-layer`, `use-hover-cursor`, `use-basemap`,
+`use-panel-minimize`, `use-auto-collapse`, `use-session-flag`.
 
-Most of the recent additions are extractions rather than new features:
-`use-share-state`, `use-layer-handlers` and `use-annotation-commands` all came
-out of `App.tsx` (the last holding the annotation write/pick operations, while
-`App` keeps the parts that interleave with rendering), and
-`use-annotation-source` is the former `use-annotation-layers`, renamed for what
-it owns — the annotation GeoJSON sources and their layers. `use-nav-expansion`
-holds the sidebar treeview's expand/collapse state in `sessionStorage`, lifted
-out of the tree rows because collapsing a branch unmounts its subtree, which
-would otherwise discard the state of everything inside it.
+Nearly all of them are extractions from `App.tsx` rather than new features. The
+most recent five, and the reason each is a unit:
+
+- **`use-basemap`** — the basemap cycle. Self-contained; the *resync* that a style
+  swap requires stays in App, because the list of overlays to re-add is per-map.
+- **`use-panel-minimize`** — the three session-persisted window flags plus the
+  small-screen auto-collapse. Grouped because auto-collapse writes all three
+  together in the priority order Navigatie → Statistieken → Kaartlagen. Its
+  setters are passed through untouched: `useSessionFlag`'s `toggle` closes over
+  its value, and re-wrapping it would defeat the memos that keep the `Sidebar`
+  from re-rendering per map frame.
+- **`use-charts-panel`** — which layer the statistics panel shows. Owns the
+  selected id rather than exposing it, because the id is deliberately *kept* when
+  its layer is removed (so re-adding restores the selection) and only the resolved
+  config reports "the layer is actually gone".
+- **`use-click-popup`** — the click marker, Street View target, popup anchor, and
+  which map's pick is on show. One concern despite having been declared 500 lines
+  apart in App: the popup is shared, so closing it must clear both maps' picks.
+- **`use-map-pointer`** — the pointer fan-out across picking, hover, area-select,
+  annotation drawing and collab presence. Takes *both* sides at once rather than
+  being a per-map hook: a click on one map clears the other's pick, so a per-side
+  hook would need its sibling's `clear` — circular.
+
+Earlier rounds produced `use-share-state`, `use-layer-handlers` and
+`use-annotation-commands` (the annotation write/pick operations, while `App` keeps
+the parts that interleave with rendering); `use-annotation-source` is the former
+`use-annotation-layers`, renamed for what it owns. `use-nav-expansion` holds the
+sidebar treeview's expand/collapse state in `sessionStorage`, lifted out of the
+tree rows because collapsing a branch unmounts its subtree, which would otherwise
+discard the state of everything inside it.
 
 ---
 
