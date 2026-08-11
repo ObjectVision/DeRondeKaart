@@ -86,7 +86,7 @@ The data host is deliberately dumb — no tile server, no database, no API, just
 #### Rendering
 
 | Package | Why |
-|---|---|---|
+|---|---|
 | `maplibre-gl` ^6.2 |Drawing geographic data |
 | `react-map-gl` ^8.1 |wrapper between maplibre-gl and react-map-gl |
 
