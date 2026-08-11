@@ -421,7 +421,7 @@ Twenty hooks, each owning one capability: `use-map-layers`, `use-navigation`,
 
 The deepest part of the system, and where most complexity lives.
 
-### 6.1 Format matrix
+### 6.1 Formats
 
 `LayerFormat` ([types.ts](../src/layers/types.ts)) admits eight values.
 `geojson` is in-memory only and cannot be declared in `layers.json`;
