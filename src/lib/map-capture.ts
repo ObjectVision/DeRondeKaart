@@ -662,14 +662,6 @@ export function downloadCanvasPng(canvas: HTMLCanvasElement, filename: string): 
   }, "image/png");
 }
 
-/** Trigger a browser download of a data-URL image (e.g. the QR code). */
-export function downloadDataUrl(dataUrl: string, filename: string): void {
-  const a = document.createElement("a");
-  a.href = dataUrl;
-  a.download = filename;
-  a.click();
-}
-
 /**
  * Composite the comparison view for the Power BI snapshot: the left canvas up
  * to the slider, the right canvas after it. Both canvases are full-viewport

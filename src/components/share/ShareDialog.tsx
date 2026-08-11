@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import QRCode from "qrcode";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { DialogRoot, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
@@ -17,7 +16,6 @@ import {
   captureMapAtResolution,
   composeCircularExport,
   downloadCanvasPng,
-  downloadDataUrl,
 } from "@/lib/map-capture";
 
 const EXPORT_SIZE = 2048;
@@ -75,8 +73,8 @@ function filenameSlug(title: string, fallback: string): string {
 
 /**
  * "Delen" dialog: circular map preview (pan/zoom to fine-tune the PNG
- * framing), social-media share intents, share link + QR code, and the
- * circular 2048×2048 PNG download with title + legend composited in.
+ * framing), social-media share intents, the share link, and the circular
+ * 2048×2048 PNG download with title + legend composited in.
  */
 export function ShareDialog({
   open,
@@ -129,12 +127,11 @@ export function ShareDialog({
   const previewRef = useRef<ExportPreviewHandle>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const copiedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // The share URL reflects the live session state (main map's view, both
-  // sides' layers) — deliberately NOT the preview framing, so the QR/link
-  // don't churn while the user fine-tunes the PNG.
+  // sides' layers) — deliberately NOT the preview framing, so the link
+  // doesn't churn while the user fine-tunes the PNG.
   const shareUrl = useMemo(
     () =>
       buildShareUrl({
@@ -147,19 +144,6 @@ export function ShareDialog({
       }),
     [viewState, entriesA, entriesB, hiddenIdsA, hiddenIdsB, annotRoomId],
   );
-
-  useEffect(() => {
-    if (!open) return;
-    let cancelled = false;
-    QRCode.toDataURL(shareUrl, { width: 512, margin: 1, errorCorrectionLevel: "M" })
-      .then((url) => {
-        if (!cancelled) setQrDataUrl(url);
-      })
-      .catch((err) => console.error("QR code generation failed:", err));
-    return () => {
-      cancelled = true;
-    };
-  }, [open, shareUrl]);
 
   const legendItems = useMemo(
     () => legendItemsForEntries(entries, hiddenIds, hiddenRules),
@@ -335,14 +319,10 @@ export function ShareDialog({
               )}
             </div>
 
-            {/* Link + QR */}
+            {/* Link */}
             <div className="rounded-2xl border border-gray-100 p-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-900">
-                Delen via link of QR-code
-              </h3>
-              <p className="mb-3 mt-1 text-xs text-gray-500">
-                Deel deze kaart via link of QR-code
-              </p>
+              <h3 className="text-sm font-semibold text-gray-900">Delen via link</h3>
+              <p className="mb-3 mt-1 text-xs text-gray-500">Deel deze kaart via een link</p>
               <div className="flex items-center gap-1">
                 <input
                   type="text"
@@ -364,31 +344,6 @@ export function ShareDialog({
                     color={chromeIconColor()}
                   />
                 </Button>
-              </div>
-              <div className="mt-3 flex items-center gap-3">
-                {qrDataUrl && (
-                  <img
-                    src={qrDataUrl}
-                    alt="QR-code van de kaartlink"
-                    className="h-24 w-24 flex-shrink-0"
-                  />
-                )}
-                <div className="flex flex-col gap-2">
-                  <p className="text-xs text-gray-600">
-                    Scan de QR-code om deze kaart te bekijken
-                  </p>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={!qrDataUrl}
-                    onClick={() =>
-                      qrDataUrl && downloadDataUrl(qrDataUrl, "kaart-qr-code.png")
-                    }
-                  >
-                    <Icon name="download" size={16} color={chromeIconColor()} />
-                    Download QR-code
-                  </Button>
-                </div>
               </div>
             </div>
 

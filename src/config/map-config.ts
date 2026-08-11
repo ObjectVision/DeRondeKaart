@@ -110,7 +110,7 @@ export interface MapConfig {
   /**
    * Whether the "Delen" (share/export) feature is available: the share
    * toolbutton in the top-left toolbar and its dialog (social sharing, share
-   * URL/QR, circular PNG export). Defaults to `true`.
+   * URL, circular PNG export). Defaults to `true`.
    */
   share: boolean;
   /**

@@ -1050,7 +1050,7 @@ function App({
         <div className="absolute left-2 top-2 z-30 sm:left-4 sm:top-4">{shareButton}</div>
       )}
 
-      {/* "Delen" dialog — share links/QR + circular PNG export. */}
+      {/* "Delen" dialog — share link + circular PNG export. */}
       {shareEnabled && (
         <ShareDialog
           open={shareOpen}
