@@ -47,7 +47,6 @@ const SOFTWARE_CREDITS = [
   { label: "D3", license: "ISC", href: "https://d3js.org/" },
   { label: "Tailwind CSS", license: "MIT", href: "https://tailwindcss.com/" },
   { label: "Base UI", license: "MIT", href: "https://base-ui.com/" },
-  { label: "Lucide", license: "ISC", href: "https://lucide.dev/" },
   {
     label: "node-qrcode",
     license: "MIT",

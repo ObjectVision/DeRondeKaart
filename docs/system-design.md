@@ -118,7 +118,6 @@ Shared annotations on the map.
 | `tailwindcss` ^4.2 | — | v4, configured **in CSS** (`@theme inline` in [index.css](../src/index.css)); there is no `tailwind.config.js` to look for |
 | `material-symbols` ^0.45 | `@import "material-symbols/outlined.css"`, rendered as ligature text by `Icon`/`NavIcon` | Icon names can then come straight out of `navigation.json` as strings. The package ships the entire ~3.9 MB face, which is why the build subsets it (§13) |
 | `class-variance-authority`, `clsx`, `tailwind-merge` | `cva` builds the variant matrix in [button-variants.ts](../src/components/ui/button-variants.ts); `cn = twMerge(clsx(…))` in [utils.ts](../src/lib/utils.ts) | `twMerge` is what makes a caller's utility class win over the base string instead of both landing in `class` and losing to CSS source order |
-| `lucide-react` ^1.7 | **nothing** | Not imported anywhere in `src/`; its only trace is a credit line in the attribution list. Left over from the shadcn scaffolding — a removal candidate |
 
 #### Charts / util
 
