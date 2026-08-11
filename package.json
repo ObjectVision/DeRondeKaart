@@ -22,7 +22,6 @@
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
     "flatgeobuf": "^4.4.0",
-    "lucide-react": "^1.7.0",
     "maplibre-gl": "^6.2.0",
     "material-symbols": "^0.45.1",
     "pmtiles": "^4.4.1",
