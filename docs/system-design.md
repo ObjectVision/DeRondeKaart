@@ -25,6 +25,7 @@ not duplicate the task-scoped documentation that already exists:
 |---|---|
 | The collaboration subsystem — client, server, guards (§10, **optional feature**) | [system-design-collaboration.md](system-design-collaboration.md) |
 | The Power BI integration (§11, **optional**) | [system-design-power-bi.md](system-design-power-bi.md) |
+| Why `maplibre-gl` and `typescript` are pinned (§3) — read before upgrading either | [system-design-version-constraints.md](system-design-version-constraints.md) |
 | Running the collaboration server, its guards and operations | [collab-server/README.md](../collab-server/README.md) |
 | The Power BI visual — building, publishing, hosting gotchas | [powerbi-visual/README.md](../powerbi-visual/README.md), [known_issues.md](../powerbi-visual/known_issues.md) |
 | Per-tenant configuration projects | [configs/README.md](../configs/README.md) |
@@ -69,7 +70,7 @@ flowchart LR
     end
 
     collab["Collab server<br/>Hocuspocus + Yjs + SQLite"]
-    basemap["Basemap tiles<br/>MapTiler / PDOK"]
+    basemap["Basemap tiles<br/>OpenFreeMap / PDOK"]
 
     app -->|"HTTPS"| html
     app -->|"HTTPS 206 range"| tiles
@@ -148,57 +149,21 @@ modern GL map, and it would change the browser support floor if it were true.
 
 | Endpoint | Role |
 |---|---|
-| `tiles.basemaps.cartocdn.com` | Vector basemap tiles, **glyph PBFs** (all map label text) and the sprite sheet — used by every one of the three basemap styles |
+| `tiles.openfreemap.org` | Vector basemap tiles (the unversioned `/planet` TileJSON), **glyph PBFs** (all map label text) and the sprite sheet — used by both basemaps, including "luchtfoto", whose labels are drawn over the PDOK imagery |
 | `service.pdok.nl` | Aerial imagery WMTS behind the "luchtfoto" basemap |
 | `maps.googleapis.com` | Street View panel, loaded lazily via the `callback=` readiness signal ([street-view.tsx](../src/components/ui/street-view.tsx)) |
 | `fonts.gstatic.com` | Material Symbols SVG for a `map.json` `clickMarker.icon` given by name ([map-config.ts](../src/config/map-config.ts)) |
 | The tenant data host | Every layer, sidecar and metadata fragment (`data.woonzorglimburg.nl`, `data.startanalyse2026.nl`) |
 
-Two traps in that table. The basemap style files are named
-`maptiler-basic-*.json` but every endpoint inside them is **CARTO** — the names
-are historical and misleading. And the glyph URL is a dependency of its own
-kind: it is not a fallback for missing fonts, it is where *all* basemap label
-text comes from, so losing that host leaves a rendered but unlabelled map.
-
 ### Version constraints worth knowing
 
-- **`maplibre-gl` is on v6.**. Two things about it are load-bearing
-  and easy to undo by accident:
-  - **`setWorkerUrl` + the `?worker&url` import must stay**
-    ([MapView.tsx](../src/components/map/MapView.tsx)). v6 splits the worker
-    into its own ESM file located relative to the module URL; Vite's
-    dependency optimizer rewrites the entry into `.vite/deps/`, where that
-    sibling does not exist, so the worker 404s and no tile is ever parsed.
-    The import suffix matters as much as the call: the worker itself imports
-    `./maplibre-gl-shared.mjs`, so a bare `?url` copies one file and leaves
-    that import dangling — which works in dev but ships a **production build
-    whose worker boots and dies instantly**. `?worker&url` makes Vite bundle
-    the worker with its dependencies. Both failure modes are blank maps with
-    **no error in the console**, so test `npm run build` + `vite preview`, not
-    just dev.
-  - **`zoomLevelsToOverscale={undefined}` must stay** — see §6.3.
-- **TypeScript is held at 5.x**, blocked by `typescript-eslint`. The mechanism
-  is worth stating precisely, because it is not a conservative version guard
-  that could be configured away:
-  - TS 7's npm package exports exactly **two** symbols (`version`,
-    `versionMajorMinor`). The compiler is a Go binary, and the JS API —
-    `createSourceFile`, `SyntaxKind`, `forEachChild`, `createProgram` — is
-    simply absent until **TS 7.1**. `@typescript-eslint/parser` calls dozens of
-    those, so it throws unconditionally on load
-    (`"typescript-eslint does not support TS 7.0"`).
-  - The separate TS-*version-range* check (`>=4.8.4 <6.1.0`) defaults to
-    `warn`, not `error`, and is overridable via
-    `onUnsupportedTypeScriptVersion`. It is **not** what blocks the upgrade.
-  - Dropping `typescript-eslint` does **not** trade 20 TS rules for TS 7: it
-    removes the only TypeScript **parser**, so ESLint cannot read `.ts`/`.tsx`
-    at all and *every* rule stops running — including
-    `eslint-plugin-react-hooks`, which has caught real bugs here (the
-    "cannot update ref during render" class). Measured: TS 7 cuts `tsc -b`
-    from ~3.0s to ~0.2s, which is ~20% of a 14.2s build whose slowest step is
-    ~9s of brotli/font work. Not a trade worth making.
-  - There is no runtime or bundle-size dimension to this: `tsconfig.app.json`
-    sets `noEmit`, esbuild does all transpilation, and `typescript` is a
-    devDependency absent from every shipped bundle.
+**Moved to [system-design-version-constraints.md](system-design-version-constraints.md).**
+
+Why `maplibre-gl` stays on v6 with its worker import spelled exactly as it is,
+and why `typescript` is held at 5.x by `typescript-eslint`. Read it before
+upgrading either: the MapLibre constraint fails as a blank map with no console
+error, and the TypeScript one is not the configurable version guard it appears
+to be.
 
 ---
 
@@ -462,7 +427,7 @@ Twenty hooks, each owning one capability: `use-map-layers`, `use-navigation`,
 
 ---
 
-## 6. Layer subsystem
+## 6. Layers
 
 The deepest part of the system, and where most complexity lives.
 
