@@ -531,11 +531,7 @@ raster bands through the same `evaluateFilter` a vector layer uses.
 
 ### 6.5 Z-ordering
 
-TODO: spits toe op wat het werkelijk doet, welke indeling mogelijk is etc
-
-New layers are inserted relative to **named invisible anchor layers**, which
-permanently divide the stack into bands
-([map-view-config.ts](../src/components/map/map-view-config.ts)):
+New layers are inserted relative to **named invisible anchor layers**.
 
 ```ts
 export const ANCHORS = {
