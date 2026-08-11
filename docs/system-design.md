@@ -115,11 +115,11 @@ Shared annotations on the map. See [system-design-collaboration.md](system-desig
 | `@base-ui/react` ^1.3 | `Button` and `Dialog` | User interface elements for interaction |
 | `material-symbols` ^0.45 | `@import "material-symbols/outlined.css"`, rendered as ligature text by `Icon`/`NavIcon` | Icon's such as the `share` icon |
 
-#### Charts / util
+#### Charts
 
 | Package | We use | Why |
 |---|---|---|
-| `d3-shape` ^3.2 | `arc`, `pie` (donut); `line`, `area`, `curveMonotoneX` (line chart) | Path-`d` generation, which is tedious and easy to get subtly wrong by hand |
+| `d3-shape` ^3.2 | `pie` (donut) |  |
 | `d3-scale` ^4.0 | `scaleLinear`, `scaleBand` (bar), `scalePoint` (line) | Domain→range mapping including the band/point padding rules |
 
 ### Build tooling
