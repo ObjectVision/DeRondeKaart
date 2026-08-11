@@ -117,10 +117,6 @@ Shared annotations on the map. See [system-design-collaboration.md](system-desig
 
 #### Charts / util
 
-The charts are hand-written SVG in React. d3 is used **purely as maths** — scales
-and path generators — with no `d3-selection`, no data-join and no transitions,
-so React keeps sole ownership of the DOM.
-
 | Package | We use | Why |
 |---|---|---|
 | `d3-shape` ^3.2 | `arc`, `pie` (donut); `line`, `area`, `curveMonotoneX` (line chart) | Path-`d` generation, which is tedious and easy to get subtly wrong by hand |
