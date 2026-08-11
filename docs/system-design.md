@@ -105,9 +105,7 @@ for which) is §6.1, and the loading mechanics are §6.3.
 
 #### Collaboration (optional)
 
-**Moved to [system-design-collaboration.md](system-design-collaboration.md).**
-
-Shared annotations on the map.
+Shared annotations on the map. See [system-design-collaboration.md](system-design-collaboration.md).
 
 #### UI
 
