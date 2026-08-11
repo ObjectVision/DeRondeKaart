@@ -42,17 +42,17 @@ export const HATCH = {
  * Perpendicular distance between stripe centres — the spacing the eye actually
  * reads, and the period the CSS swatch must use to match the map's tile.
  */
-export const HATCH_PERIOD = HATCH.size / Math.SQRT2;
+const HATCH_PERIOD = HATCH.size / Math.SQRT2;
 
 /**
  * Supersampling factor for the sprite tile: the image is drawn at this many
  * device px per logical px and registered with a matching `pixelRatio`, so the
  * diagonals stay smooth without changing the drawn size.
  */
-export const HATCH_SCALE = 2;
+const HATCH_SCALE = 2;
 
 /** Red on white, matching the design this was introduced for. */
-export const HATCH_DEFAULTS: HatchColors = {
+const HATCH_DEFAULTS: HatchColors = {
   color: "#E02B27",
   background: "#ffffff",
 };

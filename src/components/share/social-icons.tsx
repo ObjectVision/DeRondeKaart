@@ -29,7 +29,12 @@ function Svg({ children, size }: { children: React.ReactNode; size: number }) {
   );
 }
 
-export function SocialIcon({ platform, size = 20 }: { platform: SocialPlatform; size?: number }) {
+interface SocialIconProps {
+  platform: SocialPlatform;
+  size?: number;
+}
+
+export function SocialIcon({ platform, size = 20 }: SocialIconProps): React.JSX.Element {
   switch (platform) {
     case "linkedin":
       return (

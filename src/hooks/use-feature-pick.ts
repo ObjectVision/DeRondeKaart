@@ -24,10 +24,17 @@ export interface FeatureInfoResult {
  * Hook that handles map click picking for both deck.gl (GeoArrow/Parquet)
  * and native MapLibre (MVT) layers, returning grouped feature info results.
  */
+export interface UseFeaturePickResult {
+  /** The current pick, or null when nothing is selected. */
+  result: FeatureInfoResult | null;
+  handleClick: (event: MapLayerMouseEvent) => void;
+  clear: () => void;
+}
+
 export function useFeaturePick(
   layerEntries: LayerEntry[],
   mapViewRef: React.RefObject<MapViewHandle | null>,
-) {
+): UseFeaturePickResult {
   const [result, setResult] = useState<FeatureInfoResult | null>(null);
 
   const handleClick = useCallback(

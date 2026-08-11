@@ -20,7 +20,7 @@ import { distanceMeters, geodesicRing, metersPerPixel, METERS_PER_DEGREE_LAT } f
  */
 
 /** On-map pin icon height in px; selected/highlighted pins render larger. */
-export const PIN_SIZE_PX = 32;
+const PIN_SIZE_PX = 32;
 export const PIN_SIZE_ACTIVE_PX = 38;
 /** Screen radius below which a circle/polygon collapses to its icon form. */
 const ICONIFY_RADIUS_PX = 12;
@@ -56,6 +56,19 @@ export const ANNOT_ICON_IDS = {
   polygon: "annot-polygon",
   cursor: "annot-cursor",
 } as const;
+
+/** The three shapes an annotation can be, in the order they are tested. */
+export type AnnotationKind = "pin" | "polygon" | "circle";
+
+/**
+ * Which shape an annotation is. `pin` wins over `points` because a pinned
+ * annotation carries no ring; anything left without `points` is a circle.
+ */
+export function annotationKind(a: Annotation): AnnotationKind {
+  if (a.pin) return "pin";
+  if (a.points) return "polygon";
+  return "circle";
+}
 
 /**
  * True when the shape is too small on screen at this zoom to be drawn as a
@@ -155,11 +168,7 @@ export function buildIconFeatures(
       geometry: { type: "Point", coordinates: [a.center.lng, a.center.lat] },
       properties: {
         annotationId: a.id,
-        icon: a.pin
-          ? ANNOT_ICON_IDS.pin
-          : a.points
-            ? ANNOT_ICON_IDS.polygon
-            : ANNOT_ICON_IDS.circle,
+        icon: ANNOT_ICON_IDS[annotationKind(a)],
         // Pins anchor at their tip; the shape glyphs are centered.
         anchor: a.pin ? "bottom" : "center",
         color: a.color,
@@ -198,11 +207,14 @@ export function buildLabelFeatures(
     }
 
     // deck took a pixel offset; MapLibre's text-offset is in ems.
-    const offsetPx = a.pin
-      ? -(PIN_SIZE_ACTIVE_PX + 8)
-      : iconified
-        ? -(PIN_SIZE_ACTIVE_PX / 2 + 8)
-        : -14;
+    let offsetPx: number;
+    if (a.pin) {
+      offsetPx = -(PIN_SIZE_ACTIVE_PX + 8);
+    } else if (iconified) {
+      offsetPx = -(PIN_SIZE_ACTIVE_PX / 2 + 8);
+    } else {
+      offsetPx = -14;
+    }
 
     features.push({
       type: "Feature",

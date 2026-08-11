@@ -19,7 +19,13 @@ const EDGE_MARGIN = 8;
  * Position is clamped to the app root; when it doesn't fit below the pointer
  * it flips above. Re-clamps when async content (templates, panorama) resizes.
  */
-export function InfoPopup({ x, y, title, onClose, children }: InfoPopupProps) {
+export function InfoPopup({
+  x,
+  y,
+  title,
+  onClose,
+  children,
+}: InfoPopupProps): React.JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {

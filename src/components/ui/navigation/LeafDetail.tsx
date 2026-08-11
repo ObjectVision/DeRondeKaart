@@ -12,7 +12,12 @@ interface LeafDetailProps {
   onBack: () => void;
 }
 
-export function LeafDetail({ leaf, path, nav, onBack }: LeafDetailProps) {
+export function LeafDetail({
+  leaf,
+  path,
+  nav,
+  onBack,
+}: LeafDetailProps): React.JSX.Element {
   const onA = nav.isOnMap(leaf.id, "a");
   const onB = nav.isOnMap(leaf.id, "b");
   // The right map can only be added to once the left map holds a layer. Adding is

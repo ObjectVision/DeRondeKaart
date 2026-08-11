@@ -66,7 +66,7 @@ const SOFTWARE_CREDITS = [
  * MapView): an app-styled info toolbutton, bottom right. Clicking it opens a
  * small card with the map data attribution and open source software credits.
  */
-export function MapAttribution() {
+export function MapAttribution(): React.JSX.Element {
   const [open, setOpen] = useState(false);
 
   return (

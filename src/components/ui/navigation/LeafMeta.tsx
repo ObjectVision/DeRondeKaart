@@ -9,6 +9,10 @@ import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 const metaUrlCache = new Map<string, string | null>();
 const metaCache = new Map<string, string | null>();
 
+interface LeafMetaProps {
+  layerId: string;
+}
+
 /**
  * The meta/description block for a layer: resolves the layer's `meta` path from
  * layers.json, fetches that HTML (cached per URL) and renders it. Used by the
@@ -18,7 +22,7 @@ const metaCache = new Map<string, string | null>();
  * not the menu entry — layers reachable only via URL command or the legend have
  * no navigation leaf at all.
  */
-export function LeafMeta({ layerId }: { layerId: string }) {
+export function LeafMeta({ layerId }: LeafMetaProps): React.JSX.Element | null {
   // Render from the caches; the effects only fill them asynchronously.
   const url = metaUrlCache.get(layerId);
   const html = url ? metaCache.get(url) : null;

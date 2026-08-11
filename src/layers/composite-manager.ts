@@ -128,11 +128,6 @@ function sessionFor(map: MapLibreMap, parentId: string): CompositeSession | unde
   return sessions.get(map)?.get(parentId);
 }
 
-/** Whether a composite session's child id is currently loaded (in zoom range). */
-export function isChildLoaded(map: MapLibreMap, parentId: string, childId: string): boolean {
-  return sessionFor(map, parentId)?.loaded.has(childId) ?? false;
-}
-
 /**
  * Reconcile a composite's children against the current zoom: load children
  * entering their range, unload children leaving it, and (idempotently) re-add

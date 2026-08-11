@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { isLeaf, type NavItem, type NavNode } from "@/layers/navigation";
+import { readStorage, writeStorage } from "@/lib/storage";
 
 const STORAGE_KEY = "nav-expansion";
 
@@ -33,20 +34,24 @@ function seedFromTree(tree: NavNode[]): Record<string, boolean> {
 }
 
 function readStored(): Record<string, boolean> {
+  const raw = readStorage(sessionStorage, STORAGE_KEY);
+  if (!raw) return {};
+
+  let parsed: unknown;
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
-    if (!raw) return {};
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
-    // Keep only booleans: a hand-edited or stale blob must not inject junk.
-    const clean: Record<string, boolean> = {};
-    for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
-      if (typeof v === "boolean") clean[k] = v;
-    }
-    return clean;
+    parsed = JSON.parse(raw);
   } catch {
+    // A corrupt blob is indistinguishable from no blob: start fresh.
     return {};
   }
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
+
+  // Keep only booleans: a hand-edited or stale blob must not inject junk.
+  const clean: Record<string, boolean> = {};
+  for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
+    if (typeof v === "boolean") clean[k] = v;
+  }
+  return clean;
 }
 
 /**
@@ -92,12 +97,7 @@ export function useNavExpansion(tree: NavNode[]): {
       setOverrides((current) => {
         const now = current[key] ?? seed[key] ?? false;
         const next = { ...current, [key]: !now };
-        try {
-          sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-        } catch {
-          // Ignore storage failures (private mode / quota) — expansion still
-          // works in-memory for this session.
-        }
+        writeStorage(sessionStorage, STORAGE_KEY, JSON.stringify(next));
         return next;
       });
     },

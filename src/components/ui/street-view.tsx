@@ -84,7 +84,12 @@ async function loadStreetViewLibrary(): Promise<GoogleStreetViewLibrary | null> 
   }
 }
 
-export function StreetView({ lng, lat, onClose, embedded = false }: StreetViewProps) {
+export function StreetView({
+  lng,
+  lat,
+  onClose,
+  embedded = false,
+}: StreetViewProps): React.JSX.Element {
   const containerRef = useRef<HTMLDivElement>(null);
   const panoramaRef = useRef<GoogleStreetViewPanorama | null>(null);
   const [status, setStatus] = useState<"loading" | "ok" | "unavailable">(

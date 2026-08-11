@@ -125,7 +125,6 @@ so React keeps sole ownership of the DOM.
 |---|---|---|
 | `d3-shape` ^3.2 | `arc`, `pie` (donut); `line`, `area`, `curveMonotoneX` (line chart) | Path-`d` generation, which is tedious and easy to get subtly wrong by hand |
 | `d3-scale` ^4.0 | `scaleLinear`, `scaleBand` (bar), `scalePoint` (line) | Domain→range mapping including the band/point padding rules |
-| `qrcode` ^1.5 | `QRCode.toDataURL` | The share dialog's QR code |
 
 ### Build tooling
 

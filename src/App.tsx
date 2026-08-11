@@ -4,6 +4,7 @@ import { MapView } from "@/components/map/MapView";
 import { BASEMAPS, DEFAULT_BASEMAP_ID } from "@/components/map/map-view-config";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
+import { useLayerHandlers } from "@/hooks/use-layer-handlers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
 import {
   useFilteredStudyArea,
@@ -32,23 +33,15 @@ import { useBoxSelect } from "@/hooks/use-box-select";
 import { useSelectionBoxLayers } from "@/hooks/use-selection-box-layer";
 import { useAnnotations } from "@/hooks/use-annotations";
 import { useCollab } from "@/hooks/use-collab";
-import { useAnnotationTool, type AnnotationHit } from "@/hooks/use-annotation-tool";
+import { useAnnotationTool } from "@/hooks/use-annotation-tool";
+import { useAnnotationCommands } from "@/hooks/use-annotation-commands";
+import { useShareState } from "@/hooks/use-share-state";
+import { useHostFilter } from "@/hooks/use-host-filter";
 import { useAnnotationSource } from "@/hooks/use-annotation-source";
-import {
-  ANNOT_LAYERS,
-  isAnnotationIconified,
-  PIN_SIZE_ACTIVE_PX,
-} from "@/layers/annotation-style";
-import { centroid, METERS_PER_DEGREE_LAT } from "@/lib/geo";
+import { isAnnotationIconified, PIN_SIZE_ACTIVE_PX } from "@/layers/annotation-style";
+import { METERS_PER_DEGREE_LAT } from "@/lib/geo";
 import { AnnotationEditPopup } from "@/components/annotations/AnnotationEditPopup";
 import { PresenceBadge } from "@/components/annotations/PresenceBadge";
-import { restoreSnapshot } from "@/lib/annotation-restore";
-import { isUrlAddressable } from "@/lib/share-url";
-import {
-  selectionsToJson,
-  type Annotation,
-  type AnnotationSnapshot,
-} from "@/types/annotation";
 import { isChartEligible } from "@/layers/charts";
 import { Legend } from "@/components/ui/legend";
 import { Button } from "@/components/ui/button";
@@ -68,7 +61,6 @@ import { ChartsPanel } from "@/components/charts/ChartsPanel";
 import { ShareDialog } from "@/components/share/ShareDialog";
 import { CircularExportView } from "@/components/share/CircularExportView";
 import { legendItemsForEntries } from "@/lib/legend-style";
-//import { MapPills } from "@/components/ui/map-pills";
 
 function App({
   initialViewState,
@@ -259,237 +251,32 @@ function App({
   /* eslint-disable react-hooks/refs -- deliberate latest-value mirrors */
   const areaFilterRef = useRef(areaFilter);
   areaFilterRef.current = areaFilter;
-  const mapLeftLayersRef = useRef(mapLeftLayers);
-  mapLeftLayersRef.current = mapLeftLayers;
-  const mapRightLayersRef = useRef(mapRightLayers);
-  mapRightLayersRef.current = mapRightLayers;
-  const annotationListRef = useRef(annotations.annotations);
-  annotationListRef.current = annotations.annotations;
   /* eslint-enable react-hooks/refs */
-  const restoreTokenRef = useRef(0);
-  // A host `filter` message that arrives before the gebiedsfilter options have
-  // finished loading (areaFilter.entries still empty) is stashed here and
-  // flushed once the options are ready — see the effect below setFilterFromHost.
-  const pendingFilterRef = useRef<Record<string, string | null> | null>(null);
-  // The selection the last host `filter` message committed, used to chain two
-  // messages that arrive in the same tick (see setFilterFromHost). Cleared once
-  // React state catches up, so any change from elsewhere (dropdowns, snapshot
-  // restore) is picked up normally rather than being masked by a stale value.
-  const lastHostSelectionRef = useRef<Map<string, Set<string>> | null>(null);
 
-  // Everything an annotation restores: filter selections, both sides'
-  // (URL-addressable) layer ids + hidden ids, and the camera.
-  const captureSnapshot = useCallback(
-    (): AnnotationSnapshot => ({
-      areaFilterSelections: selectionsToJson(areaFilter.selections),
-      mapA: {
-        layerIds: mapLeftLayers.layerEntries
-          .filter(isUrlAddressable)
-          .map((e) => e.config.id),
-        hiddenIds: [...mapLeftLayers.hiddenIds],
-      },
-      mapB: {
-        layerIds: mapRightLayers.layerEntries
-          .filter(isUrlAddressable)
-          .map((e) => e.config.id),
-        hiddenIds: [...mapRightLayers.hiddenIds],
-      },
-      view: {
-        longitude: viewState.longitude,
-        latitude: viewState.latitude,
-        zoom: viewState.zoom,
-      },
-    }),
-    [areaFilter.selections, mapLeftLayers, mapRightLayers, viewState],
-  );
-
-  const handleAnnotationCreate = useCallback(
-    (center: { lng: number; lat: number }, radiusM: number): string => {
-      const annotation: Annotation = {
-        id: crypto.randomUUID(),
-        center,
-        radiusM,
-        title: "",
-        description: "",
-        color: collab.identity.color,
-        author: collab.identity.name,
-        createdAt: Date.now(),
-        snapshot: captureSnapshot(),
-      };
-      annotations.add(annotation);
-      return annotation.id;
-    },
-    [annotations, collab.identity, captureSnapshot],
-  );
-
-  const handleAnnotationCreatePolygon = useCallback(
-    (points: Array<{ lng: number; lat: number }>): string => {
-      const annotation: Annotation = {
-        id: crypto.randomUUID(),
-        center: centroid(points),
-        radiusM: 0,
-        points,
-        title: "",
-        description: "",
-        color: collab.identity.color,
-        author: collab.identity.name,
-        createdAt: Date.now(),
-        snapshot: captureSnapshot(),
-      };
-      annotations.add(annotation);
-      return annotation.id;
-    },
-    [annotations, collab.identity, captureSnapshot],
-  );
-
-  const handleAnnotationCreatePin = useCallback(
-    (center: { lng: number; lat: number }): string => {
-      const annotation: Annotation = {
-        id: crypto.randomUUID(),
-        center,
-        radiusM: 0,
-        pin: true,
-        title: "",
-        description: "",
-        color: collab.identity.color,
-        author: collab.identity.name,
-        createdAt: Date.now(),
-        snapshot: captureSnapshot(),
-      };
-      annotations.add(annotation);
-      return annotation.id;
-    },
-    [annotations, collab.identity, captureSnapshot],
-  );
-
-  const handleAnnotationMove = useCallback(
-    (id: string, center: { lng: number; lat: number }) => {
-      annotations.update(id, { center });
-    },
-    [annotations],
-  );
-
-  const handleAnnotationEditPoints = useCallback(
-    (
-      id: string,
-      points: Array<{ lng: number; lat: number }>,
-      center: { lng: number; lat: number },
-    ) => {
-      annotations.update(id, { points, center });
-    },
-    [annotations],
-  );
-
-  const handleAnnotationResize = useCallback(
-    (id: string, radiusM: number) => {
-      annotations.update(id, { radiusM });
-    },
-    [annotations],
-  );
-
-  // Plain click on a circle: bring the session back to the annotation's
-  // snapshot. Local-only — peers' maps don't move.
-  const handleAnnotationRestore = useCallback((id: string) => {
-    const annotation = annotationListRef.current.find((a) => a.id === id);
-    if (!annotation) return;
-    const token = ++restoreTokenRef.current;
-    void restoreSnapshot(
-      annotation.snapshot,
-      {
-        applySelections: (next) => areaFilterRef.current.applySelections(next),
-        getSideA: () => ({
-          layers: mapLeftLayersRef.current,
-          mapRef: mapLeftRef.current?.mapRef ?? { current: null },
-        }),
-        getSideB: () => ({
-          layers: mapRightLayersRef.current,
-          mapRef: mapRightRef.current?.mapRef ?? { current: null },
-        }),
-      },
-      () => restoreTokenRef.current !== token,
-    );
-  }, []);
-
-  // Synchronous pick against a side's annotation layers, deciding at mousedown
-  // what the gesture edits. Handles (vertices, then edges) win over shape
-  // bodies, with a wider pick box so they're easy to grab.
-  //
-  // `queryRenderedFeatures` takes a point or a BOX, never deck's radius — so a
-  // radius becomes a square, marginally more permissive at the corners. It also
-  // only returns features that actually DREW: the annotation layers set
-  // `icon-allow-overlap` / `text-ignore-placement` so MapLibre's collision
-  // engine can never cull a symbol out of pickability (deck's layers had no
-  // collision detection at all, so everything was always pickable).
-  const pickAnnotationAt = useCallback(
-    (side: "a" | "b", point: { x: number; y: number }): AnnotationHit | null => {
-      const map = (side === "a" ? mapLeftRef.current : mapRightRef.current)
-        ?.mapRef.current?.getMap();
-      if (!map) return null;
-
-      const query = (layerIds: string[], radius: number) => {
-        const present = layerIds.filter((id) => map.getLayer(id));
-        if (present.length === 0) return [];
-        return map.queryRenderedFeatures(
-          [
-            [point.x - radius, point.y - radius],
-            [point.x + radius, point.y + radius],
-          ],
-          { layers: present },
-        );
-      };
-      // MapLibre carries no datum, so features reference their annotation by
-      // id and it is resolved against the live list.
-      const byId = (id: unknown): Annotation | null =>
-        annotationListRef.current.find((a) => a.id === id) ?? null;
-
-      const vertex = query([ANNOT_LAYERS.vertices], 6)[0];
-      if (vertex) {
-        const annotation = byId(vertex.properties?.annotationId);
-        if (annotation) {
-          return { type: "vertex", annotation, index: Number(vertex.properties?.index) };
-        }
-      }
-      const edge = query([ANNOT_LAYERS.edges], 4)[0];
-      if (edge) {
-        const annotation = byId(edge.properties?.annotationId);
-        if (annotation) {
-          return { type: "edge", annotation, index: Number(edge.properties?.index) };
-        }
-      }
-
-      const body = query(
-        [ANNOT_LAYERS.icons, ANNOT_LAYERS.shapesFill, ANNOT_LAYERS.shapesLine],
-        2,
-      )[0];
-      if (body) {
-        const annotation = byId(body.properties?.annotationId);
-        if (annotation) {
-          // The icon layer carries pins AND iconified shapes; `pin` is what
-          // distinguishes them (deck used separate layers for the same split).
-          if (body.layer?.id === ANNOT_LAYERS.icons && !annotation.pin) {
-            return { type: "icon", annotation };
-          }
-          return {
-            type: annotation.pin ? "pin" : annotation.points ? "polygon" : "circle",
-            annotation,
-          };
-        }
-      }
-      return null;
-    },
-    [],
-  );
+  // Annotation writes + map picking. Owns its own live-value refs for the
+  // async snapshot restore; `areaFilterRef` is shared with the host bridge.
+  const annotationCommands = useAnnotationCommands({
+    annotations,
+    identity: collab.identity,
+    areaFilter,
+    mapLeftLayers,
+    mapRightLayers,
+    viewState,
+    mapLeftRef,
+    mapRightRef,
+    areaFilterRef,
+  });
 
   const annotationTool = useAnnotationTool({
-    onCreate: handleAnnotationCreate,
-    onCreatePolygon: handleAnnotationCreatePolygon,
-    onCreatePin: handleAnnotationCreatePin,
-    onMove: handleAnnotationMove,
-    onResize: handleAnnotationResize,
-    onEditPoints: handleAnnotationEditPoints,
-    onRestore: handleAnnotationRestore,
+    onCreate: annotationCommands.createCircle,
+    onCreatePolygon: annotationCommands.createPolygon,
+    onCreatePin: annotationCommands.createPin,
+    onMove: annotationCommands.move,
+    onResize: annotationCommands.resize,
+    onEditPoints: annotationCommands.editPoints,
+    onRestore: annotationCommands.restore,
     onDelete: (id) => annotations.remove(id),
-    pickAnnotationAt,
+    pickAnnotationAt: annotationCommands.pickAt,
   });
   const {
     active: annotationActive,
@@ -767,24 +554,23 @@ function App({
   // map side: B when the right map renders full-width on top (same rule as the
   // legend's mapBOnTop); comparison mode previews map A — a circular still
   // can't represent a slider comparison.
-  const [shareOpen, setShareOpen] = useState(false);
-  // The bare circular-only view (only the circle + legend + title, no map
-  // chrome). Driven by the `open-circular` message; always on in `embedCircular`.
-  const [circularOpen, setCircularOpen] = useState(false);
-  // Export title/subtitle live here (not inside ShareDialog) so a host
-  // `open-circular` message can prefill them — see openCircular below.
-  const [shareTitle, setShareTitle] = useState("");
-  const [shareSubtitle, setShareSubtitle] = useState("");
-
-  // Sharing while the annotation tool is armed promotes the local session to
-  // a collaborative room: mint an unguessable UUID (the room's only access
-  // key — see collab-server/README.md) and connect; Yjs sync seeds the local
-  // annotations into the fresh room. The id persists for re-shares.
-  useEffect(() => {
-    if (shareOpen && annotationsEnabled && annotationActive && !collab.roomId) {
-      startSession(crypto.randomUUID());
-    }
-  }, [shareOpen, annotationsEnabled, annotationActive, collab.roomId, startSession]);
+  const {
+    shareOpen,
+    setShareOpen,
+    circularOpen,
+    setCircularOpen,
+    shareTitle,
+    setShareTitle,
+    shareSubtitle,
+    setShareSubtitle,
+    openCircular,
+  } = useShareState({
+    shareEnabled,
+    annotationsEnabled,
+    annotationActive,
+    collabRoomId: collab.roomId,
+    startSession,
+  });
 
   const sidebarActive = sidebarMode && navigation;
   const filterAvailable = sidebarActive && filterSectionEnabled && areaFilter.entries.length > 0;
@@ -876,130 +662,13 @@ function App({
     [annotationsEnabled, annotationActivate, startSession],
   );
 
-  // A host `open-circular` message: prefill the export title/subtitle and show
-  // the bare circular-only view — only the circle + legend + title, no map
-  // chrome. (No-op when sharing is disabled here.) The layers/view/filter are
-  // already reconciled by useUrlCommands before this fires.
-  const openCircular = useCallback(
-    ({ title, subtitle }: { title?: string; subtitle?: string }) => {
-      if (!shareEnabled) {
-        console.warn("open-circular ignored: sharing is disabled in this configuration");
-        return;
-      }
-      if (title !== undefined) setShareTitle(title);
-      if (subtitle !== undefined) setShareSubtitle(subtitle);
-      setCircularOpen(true);
-    },
-    [shareEnabled],
-  );
-
-  // A host `filter` message: set the gebiedsfilter by level name → CBS code or
-  // display label. Resolves against the loaded filter options and builds the
-  // end state coarse→fine, then commits it in ONE applySelections call (cascade
-  // pruning + fly-to included). Unknown levels/values are warned and skipped.
-  //
-  // The single commit is load-bearing, not a tidy-up: setValue rebuilds from the
-  // hook's `selections` render closure, so calling it once per level in this
-  // synchronous pass made every call discard the previous one's result. Last
-  // write won — which is why unpicking Buurt then re-sending {Gemeente, Wijk}
-  // re-flew to the still-present Buurt instead of zooming out to Wijk.
-  const setFilterFromHost = useCallback((filter: Record<string, string | null>) => {
-    const af = areaFilterRef.current;
-    if (af.entries.length === 0) {
-      // Options not loaded yet (they resolve async after mount, and in embed
-      // mode the map-ready handshake fires immediately). Queue this message and
-      // flush it once entries are ready, so a filter sent right after open is
-      // not silently dropped.
-      pendingFilterRef.current = filter;
-      return;
-    }
-    // Build the post-message selection locally, starting from the current one:
-    // levels this message doesn't name keep their value (partial merge).
-    //
-    // Seed from the last commit we made rather than `af.selections` when one
-    // exists: React state doesn't update until a re-render, so two host messages
-    // arriving in the same tick (the two-message unpick — an explicit clear
-    // followed by the new state) would both read the pre-clear selection and the
-    // second would resurrect what the first cleared.
-    const selectedAfter = new Map(lastHostSelectionRef.current ?? af.selections);
-
-    // Apply coarse→fine (filter.json/entries order) so each level's options are
-    // narrowed by the ancestors already resolved in this same pass — hence
-    // resolving against `selectedAfter` rather than the committed selections,
-    // which don't change until the single commit below.
-    for (const entry of af.entries) {
-      const match = Object.keys(filter).find(
-        (level) => level.toLowerCase() === entry.name.toLowerCase(),
-      );
-      if (match === undefined) continue;
-
-      const value = filter[match];
-      if (value === null || value === "") {
-        selectedAfter.set(entry.key, new Set());
-        // Clearing a level cascades to every finer one (same as setValue's prune).
-        const idx = af.entries.indexOf(entry);
-        for (let i = idx + 1; i < af.entries.length; i++) {
-          selectedAfter.set(af.entries[i].key, new Set());
-        }
-        continue;
-      }
-
-      const options = af.optionsFor(entry, selectedAfter);
-      const resolved =
-        options.find((o) => o.code === value) ??
-        options.find((o) => o.label.toLowerCase() === value.toLowerCase());
-      if (!resolved) {
-        console.warn(
-          `filter: value "${value}" not found for level "${entry.name}" (skipped)`,
-        );
-        continue;
-      }
-      selectedAfter.set(entry.key, new Set([resolved.code]));
-    }
-
-    // One commit, one fly-to, both computed from the true end state.
-    lastHostSelectionRef.current = selectedAfter;
-    af.applySelections(selectedAfter, { fly: true });
-
-    for (const level of Object.keys(filter)) {
-      if (!af.entries.some((e) => e.name.toLowerCase() === level.toLowerCase())) {
-        console.warn(`filter: unknown level "${level}" (skipped)`);
-      }
-    }
-
-    // When this message leaves NO level selected (the last filter was cleared),
-    // fly back to the configured default view. flyToSelection is a no-op with an
-    // empty selection, so without this the camera would stay zoomed in on the
-    // area just cleared. applyView sets the view directly, winning over the
-    // no-op fly-to above. (Host-driven only — dropdown clears elsewhere keep
-    // their stay-put behavior.)
-    const anySelected = [...selectedAfter.values()].some((s) => s.size > 0);
-    if (!anySelected) {
-      applyView({
-        center: [initialViewState.longitude, initialViewState.latitude],
-        zoom: initialViewState.zoom,
-      });
-    }
-  }, [applyView, initialViewState]);
-
-  // Flush a filter message that arrived before the gebiedsfilter options loaded
-  // (see the queue in setFilterFromHost). Runs when entries become available.
-  useEffect(() => {
-    if (areaFilter.entries.length === 0 || !pendingFilterRef.current) return;
-    const pending = pendingFilterRef.current;
-    pendingFilterRef.current = null;
-    setFilterFromHost(pending);
-  }, [areaFilter.entries, setFilterFromHost]);
-
-  // Once React state reflects the last host commit, drop the chaining ref: from
-  // here on `areaFilter.selections` is authoritative again, so a dropdown change
-  // or snapshot restore isn't masked by a stale host value.
-  useEffect(() => {
-    if (lastHostSelectionRef.current === null) return;
-    if (lastHostSelectionRef.current === areaFilter.selections) {
-      lastHostSelectionRef.current = null;
-    }
-  }, [areaFilter.selections]);
+  // Host `filter` messages -> one committed gebiedsfilter selection.
+  const setFilterFromHost = useHostFilter({
+    areaFilterRef,
+    areaFilter,
+    applyView,
+    initialViewState,
+  });
 
   // Process URL commands for layer management (only after the left map is
   // ready). In the standalone circular embed the main left map is never
@@ -1073,123 +742,15 @@ function App({
     }));
   }, []);
 
-  const handleToggleA = useCallback(
-    (layerId: string) => {
-      mapLeftLayers.toggleLayer(layerId, mapLeftRef.current?.mapRef ?? { current: null });
-    },
-    [mapLeftLayers],
-  );
+  // One set of legend/UI callbacks per map, bound to that map's layer stack and
+  // ref. Also owns each map's timeseries playback timers.
+  const handlersA = useLayerHandlers(mapLeftLayers, mapLeftRef);
+  const handlersB = useLayerHandlers(mapRightLayers, mapRightRef);
 
-  const handleToggleB = useCallback(
-    (layerId: string) => {
-      mapRightLayers.toggleLayer(layerId, mapRightRef.current?.mapRef ?? { current: null });
-    },
-    [mapRightLayers],
-  );
-
-  const handleToggleRuleA = useCallback(
-    (layerId: string, ruleName: string) => {
-      mapLeftLayers.toggleRule(layerId, ruleName, mapLeftRef.current?.mapRef ?? { current: null });
-    },
-    [mapLeftLayers],
-  );
-
-  const handleToggleRuleB = useCallback(
-    (layerId: string, ruleName: string) => {
-      mapRightLayers.toggleRule(layerId, ruleName, mapRightRef.current?.mapRef ?? { current: null });
-    },
-    [mapRightLayers],
-  );
-
-  const handleTogglePlayA = useCallback(
-    (layerId: string) => {
-      mapLeftLayers.togglePlay(layerId);
-    },
-    [mapLeftLayers],
-  );
-
-  const handleTogglePlayB = useCallback(
-    (layerId: string) => {
-      mapRightLayers.togglePlay(layerId);
-    },
-    [mapRightLayers],
-  );
-
-  // Scrubbing pauses playback, so the slider and the timer can't fight over
-  // which step is rendered.
-  const handleSetStepA = useCallback(
-    (layerId: string, value: number) => {
-      mapLeftLayers.stopPlay(layerId);
-      mapLeftLayers.setLayerStep(layerId, value, [mapLeftRef.current?.mapRef ?? { current: null }]);
-    },
-    [mapLeftLayers],
-  );
-
-  const handleSetStepB = useCallback(
-    (layerId: string, value: number) => {
-      mapRightLayers.stopPlay(layerId);
-      mapRightLayers.setLayerStep(layerId, value, [mapRightRef.current?.mapRef ?? { current: null }]);
-    },
-    [mapRightLayers],
-  );
-
-  // Timeseries playback: one interval per playing layer, per map. Re-armed
-  // whenever the playing set changes; the step itself is read from the hook's
-  // ref inside advanceStep, so a tick never needs the interval rebuilt.
-  useEffect(() => {
-    if (mapLeftLayers.playingIds.size === 0) return;
-    const timers = [...mapLeftLayers.playingIds].map((layerId) => {
-      const entry = mapLeftLayers.layerEntries.find((e) => e.config.id === layerId);
-      const intervalMs = entry?.config.timeseries?.intervalMs ?? 1000;
-      return window.setInterval(() => {
-        mapLeftLayers.advanceStep(layerId, [mapLeftRef.current?.mapRef ?? { current: null }]);
-      }, intervalMs);
-    });
-    return () => timers.forEach((t) => window.clearInterval(t));
-  }, [mapLeftLayers]);
-
-  useEffect(() => {
-    if (mapRightLayers.playingIds.size === 0) return;
-    const timers = [...mapRightLayers.playingIds].map((layerId) => {
-      const entry = mapRightLayers.layerEntries.find((e) => e.config.id === layerId);
-      const intervalMs = entry?.config.timeseries?.intervalMs ?? 1000;
-      return window.setInterval(() => {
-        mapRightLayers.advanceStep(layerId, [mapRightRef.current?.mapRef ?? { current: null }]);
-      }, intervalMs);
-    });
-    return () => timers.forEach((t) => window.clearInterval(t));
-  }, [mapRightLayers]);
-
-  const handleRemoveA = useCallback(
-    (layerId: string) => {
-      mapLeftLayers.removeLayer(layerId, mapLeftRef.current?.mapRef ?? { current: null });
-    },
-    [mapLeftLayers],
-  );
-
-  const handleRemoveB = useCallback(
-    (layerId: string) => {
-      mapRightLayers.removeLayer(layerId, mapRightRef.current?.mapRef ?? { current: null });
-    },
-    [mapRightLayers],
-  );
-
-  // Drag-reorder in the legend. `toIndex` is already in draw-order space (the
-  // Legend converts from its reversed display order), and overrides the layer's
-  // `beforeid` band.
-  const handleReorderA = useCallback(
-    (layerId: string, toIndex: number) => {
-      mapLeftLayers.reorderLayer(layerId, toIndex, mapLeftRef.current?.mapRef ?? { current: null });
-    },
-    [mapLeftLayers],
-  );
-
-  const handleReorderB = useCallback(
-    (layerId: string, toIndex: number) => {
-      mapRightLayers.reorderLayer(layerId, toIndex, mapRightRef.current?.mapRef ?? { current: null });
-    },
-    [mapRightLayers],
-  );
+  // Whichever map the bottom-left legend is driving — resolved once so that
+  // Legend reads one pair of values instead of repeating the same test per prop.
+  const leftLegendLayers = leftLegendUsesMapB ? mapRightLayers : mapLeftLayers;
+  const leftLegendHandlers = leftLegendUsesMapB ? handlersB : handlersA;
 
   // Move a layer between maps: re-add its config to the destination map, then
   // remove it from the source. The layer's config is the source of truth for
@@ -1280,7 +841,7 @@ function App({
           </Button>
         </div>
       ) : null,
-    [shareEnabled],
+    [shareEnabled, setShareOpen],
   );
 
   // Stable toolbar element for the memoized Sidebar (an inline fragment would
@@ -1469,14 +1030,14 @@ function App({
               hiddenRules={mapRightLayers.hiddenRules}
               layerSteps={mapRightLayers.layerSteps}
               playingIds={mapRightLayers.playingIds}
-              onToggle={handleToggleB}
-              onToggleRule={handleToggleRuleB}
-              onTogglePlay={handleTogglePlayB}
-              onSetStep={handleSetStepB}
-              onRemove={handleRemoveB}
+              onToggle={handlersB.toggle}
+              onToggleRule={handlersB.toggleRule}
+              onTogglePlay={handlersB.togglePlay}
+              onSetStep={handlersB.setStep}
+              onRemove={handlersB.remove}
               onMove={handleMoveToLeft}
               moveDirection="left"
-              onReorder={handleReorderB}
+              onReorder={handlersB.reorder}
             />
           )}
           <MapAttribution />
@@ -1652,7 +1213,9 @@ function App({
           onRecapture={() =>
             // Re-capture the FULL session snapshot — both maps' layers +
             // hidden ids, gebiedsfilters and camera — exactly like creation.
-            annotations.update(selectedAnnotation.id, { snapshot: captureSnapshot() })
+            annotations.update(selectedAnnotation.id, {
+              snapshot: annotationCommands.captureSnapshot(),
+            })
           }
           onDelete={() => {
             // Same as the Delete/Backspace shortcut: deselect, then remove.
@@ -1716,17 +1279,17 @@ function App({
             </div>
           ) : (
             <Legend
-              entries={leftLegendUsesMapB ? mapRightLayers.layerEntries : mapLeftLayers.layerEntries}
-              hiddenIds={leftLegendUsesMapB ? mapRightLayers.hiddenIds : mapLeftLayers.hiddenIds}
-              hiddenRules={leftLegendUsesMapB ? mapRightLayers.hiddenRules : mapLeftLayers.hiddenRules}
-              layerSteps={leftLegendUsesMapB ? mapRightLayers.layerSteps : mapLeftLayers.layerSteps}
-              playingIds={leftLegendUsesMapB ? mapRightLayers.playingIds : mapLeftLayers.playingIds}
-              onToggle={leftLegendUsesMapB ? handleToggleB : handleToggleA}
-              onToggleRule={leftLegendUsesMapB ? handleToggleRuleB : handleToggleRuleA}
-              onTogglePlay={leftLegendUsesMapB ? handleTogglePlayB : handleTogglePlayA}
-              onSetStep={leftLegendUsesMapB ? handleSetStepB : handleSetStepA}
-              onRemove={leftLegendUsesMapB ? handleRemoveB : handleRemoveA}
-              onReorder={leftLegendUsesMapB ? handleReorderB : handleReorderA}
+              entries={leftLegendLayers.layerEntries}
+              hiddenIds={leftLegendLayers.hiddenIds}
+              hiddenRules={leftLegendLayers.hiddenRules}
+              layerSteps={leftLegendLayers.layerSteps}
+              playingIds={leftLegendLayers.playingIds}
+              onToggle={leftLegendHandlers.toggle}
+              onToggleRule={leftLegendHandlers.toggleRule}
+              onTogglePlay={leftLegendHandlers.togglePlay}
+              onSetStep={leftLegendHandlers.setStep}
+              onRemove={leftLegendHandlers.remove}
+              onReorder={leftLegendHandlers.reorder}
               onMove={leftLegendUsesMapB ? handleMoveToLeft : handleMoveToRight}
               moveDirection={leftLegendUsesMapB ? "left" : "right"}
               // Moving the left map's only layer to the right map would empty the
@@ -1759,9 +1322,6 @@ function App({
           )}
         </InfoPopup>
       )}
-
-      {/* Kaart A/B identification pills — top left/right */}
-      {/*<MapPills activeA={hasMapLeftLayers} activeB={showMapRight} />*/}
     </div>
   );
 }

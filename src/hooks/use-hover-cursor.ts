@@ -18,10 +18,14 @@ import { geojsonLayerIds } from "@/layers/geojson-layer";
  * A crosshair while a draw tool is armed outranks this and is applied by App;
  * `drawModeRef` is checked here so a hover never overwrites it.
  */
+export interface UseHoverCursorResult {
+  handleMouseMove: (event: MapLayerMouseEvent) => void;
+}
+
 export function useHoverCursor(
   layerEntries: LayerEntry[],
   mapViewRef: React.RefObject<MapViewHandle | null>,
-) {
+): UseHoverCursorResult {
   // Clickable set: same filter as use-feature-pick.ts. Composite entries are
   // expanded to their children (the configs actually on the map), with the
   // parent's featureinfo/excludeFromPicking deciding clickability.

@@ -28,7 +28,15 @@ const UNAVAILABLE: ChartDataState = { charts: [], stats: [], unavailable: true }
  * rows passing the area filter. `version` is the area-filter version; a bump
  * recomputes the aggregations.
  */
-export function useChartData(config: LayerConfig | null, version: number) {
+export interface UseChartDataResult extends ChartDataState {
+  /** True while a table load is in flight. */
+  loading: boolean;
+}
+
+export function useChartData(
+  config: LayerConfig | null,
+  version: number,
+): UseChartDataResult {
   const [result, setResult] = useState(EMPTY);
   const [loading, setLoading] = useState(false);
 

@@ -63,7 +63,12 @@ const emptyRef: React.RefObject<MapRef | null> = { current: null };
  * Validation is shape-based (no origin allow-list), consistent with the
  * existing map-command bridge.
  */
-export function useEmbedData({ mapLeftLayers, mapLeftRef, ready, onConfig }: UseEmbedDataOptions) {
+export function useEmbedData({
+  mapLeftLayers,
+  mapLeftRef,
+  ready,
+  onConfig,
+}: UseEmbedDataOptions): void {
   const applyDataset = useCallback(
     (dataset: EmbedDataset) => {
       const mapRef = mapLeftRef.current?.mapRef ?? emptyRef;
