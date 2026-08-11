@@ -109,8 +109,8 @@ export interface MapConfig {
   chartsPanel: boolean;
   /**
    * Whether the "Delen" (share/export) feature is available: the share
-   * toolbutton in the top-left toolbar and its dialog (social sharing, share
-   * URL, circular PNG export). Defaults to `true`.
+   * toolbutton in the top-left toolbar and its dialog (share URL, circular
+   * PNG export). Defaults to `true`.
    */
   share: boolean;
   /**
