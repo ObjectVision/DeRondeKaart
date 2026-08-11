@@ -1,6 +1,6 @@
 {
   "version": 8,
-  "name": "positron-overlay-labels",
+  "name": "positron-roads-labels",
   "metadata": {},
   "sources": {
     "openmaptiles": {
@@ -12,7 +12,7 @@
   "glyphs": "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
   "layers": [
     {
-      "id": "water",
+      "id": "water__ovl",
       "type": "fill",
       "source": "openmaptiles",
       "source-layer": "water",
@@ -43,7 +43,7 @@
       }
     },
     {
-      "id": "waterway",
+      "id": "waterway__ovl",
       "type": "line",
       "source": "openmaptiles",
       "source-layer": "waterway",
@@ -102,7 +102,7 @@
       }
     },
     {
-      "id": "tunnel_motorway_casing",
+      "id": "tunnel_motorway_casing__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -166,7 +166,7 @@
       }
     },
     {
-      "id": "tunnel_motorway_inner",
+      "id": "tunnel_motorway_inner__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -229,7 +229,7 @@
       }
     },
     {
-      "id": "aeroway-taxiway",
+      "id": "aeroway-taxiway__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "1444849345966.4436"
@@ -274,7 +274,7 @@
       }
     },
     {
-      "id": "aeroway-runway-casing",
+      "id": "aeroway-runway-casing__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "1444849345966.4436"
@@ -319,7 +319,59 @@
       }
     },
     {
-      "id": "aeroway-runway",
+      "id": "aeroway-area__ovl",
+      "type": "fill",
+      "metadata": {
+        "mapbox:group": "1444849345966.4436"
+      },
+      "source": "openmaptiles",
+      "source-layer": "aeroway",
+      "minzoom": 4,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "geometry-type"
+          ],
+          "Polygon"
+        ],
+        [
+          "match",
+          [
+            "get",
+            "class"
+          ],
+          [
+            "runway",
+            "taxiway"
+          ],
+          true,
+          false
+        ]
+      ],
+      "layout": {
+        "visibility": "visible"
+      },
+      "paint": {
+        "fill-color": "rgba(255, 255, 255, 1)",
+        "fill-opacity": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          13,
+          0,
+          14,
+          1
+        ]
+      }
+    },
+    {
+      "id": "aeroway-runway__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "1444849345966.4436"
@@ -374,7 +426,7 @@
       }
     },
     {
-      "id": "road_area_pier",
+      "id": "road_area_pier__ovl",
       "type": "fill",
       "metadata": {},
       "source": "openmaptiles",
@@ -406,7 +458,7 @@
       }
     },
     {
-      "id": "road_pier",
+      "id": "road_pier__ovl",
       "type": "line",
       "metadata": {},
       "source": "openmaptiles",
@@ -456,7 +508,7 @@
       }
     },
     {
-      "id": "highway_path",
+      "id": "highway_path__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -506,7 +558,7 @@
       }
     },
     {
-      "id": "highway_minor",
+      "id": "highway_minor__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -563,7 +615,7 @@
       }
     },
     {
-      "id": "highway_major_casing",
+      "id": "highway_major_casing__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -624,7 +676,7 @@
       }
     },
     {
-      "id": "highway_major_inner",
+      "id": "highway_major_inner__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -681,7 +733,7 @@
       }
     },
     {
-      "id": "highway_major_subtle",
+      "id": "highway_major_subtle__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -725,7 +777,7 @@
       }
     },
     {
-      "id": "highway_motorway_casing",
+      "id": "highway_motorway_casing__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -798,7 +850,7 @@
       }
     },
     {
-      "id": "highway_motorway_inner",
+      "id": "highway_motorway_inner__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -878,7 +930,7 @@
       }
     },
     {
-      "id": "highway_motorway_subtle",
+      "id": "highway_motorway_subtle__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -928,7 +980,7 @@
       }
     },
     {
-      "id": "railway_transit",
+      "id": "railway_transit__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -979,7 +1031,7 @@
       }
     },
     {
-      "id": "railway_transit_dashline",
+      "id": "railway_transit_dashline__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -1034,7 +1086,7 @@
       }
     },
     {
-      "id": "railway_service",
+      "id": "railway_service__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -1077,7 +1129,7 @@
       }
     },
     {
-      "id": "railway_service_dashline",
+      "id": "railway_service_dashline__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -1121,7 +1173,7 @@
       }
     },
     {
-      "id": "railway",
+      "id": "railway__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -1180,7 +1232,7 @@
       }
     },
     {
-      "id": "railway_dashline",
+      "id": "railway_dashline__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -1243,7 +1295,7 @@
       }
     },
     {
-      "id": "highway_motorway_bridge_casing",
+      "id": "highway_motorway_bridge_casing__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
@@ -1311,7 +1363,7 @@
       }
     },
     {
-      "id": "highway_motorway_bridge_inner",
+      "id": "highway_motorway_bridge_inner__ovl",
       "type": "line",
       "metadata": {
         "mapbox:group": "b6371a3f2f5a9932464fa3867530a2e5"
