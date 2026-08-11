@@ -660,41 +660,7 @@ maps' layers and hidden ids, and the camera — restored by clicking it. Restore
 cancellable, applies hidden state only after layer adds resolve, and skips layers
 no longer in `layers.json`.
 
----
-
-## 10. Collaboration subsystem
-
-**Moved to [system-design-collaboration.md](system-design-collaboration.md).**
-
-Shared annotations over a Yjs/Hocuspocus WebSocket session: the client
-lifecycle and its Awareness handling, the capability-URL security model, and the
-server-side guards.
-
-**The subsystem is optional.** It is gated on the `annotations` flag in
-`map.json` (default `false`; collaborative *sessions* additionally require
-`share`), and the collab server is a separate deployable rather than part of the
-static bundle. Switched off — as in the default configuration and in
-`startanalyse2026` — annotations stay local to the browser and nothing else in
-the app changes.
-
----
-
-## 11. Power BI integration
-
-**Moved to [system-design-power-bi.md](system-design-power-bi.md).**
-
-A thin custom visual that embeds the hosted app in an iframe and drives it via
-`postMessage`.
-
-**The integration is optional and peripheral** — the app neither knows nor cares
-whether it is embedded. Nothing in §§4–10 depends on it. Only two things leak
-back into the core: the in-memory `geojson` layer format (§6.1) and the snapshot
-bridge that keeps Power BI's PDF/PowerPoint export from rendering the map blank.
-Both are explained in the companion document.
-
----
-
-## 12. Configuration system
+## 10. Configuration system
 
 | File | Loader | Drives |
 |---|---|---|
@@ -735,7 +701,7 @@ the plain `public/` content. See [configs/README.md](../configs/README.md).
 
 ---
 
-## 13. Build and deployment
+## 11. Build and deployment
 
 ### Vite pipeline
 
@@ -763,7 +729,7 @@ For non-Docker hosts, [server/](../server/) holds provisioning scripts:
 
 ---
 
-## 14. Data pipeline
+## 12. Data pipeline
 
 The first stage uses GeoDMS to translate source data into intermediate
 `.geojson` files. Simplification can happen here, preserving topology so shapes
@@ -800,5 +766,14 @@ browsed at high zoom.
 
 Workflow: convert → upload to the data host → reference the URL from
 `layers.json`.
+
+---
+
+---
+
+## 13. (optional) subsystems
+
+**Collaboration on the map see [system-design-collaboration.md](system-design-collaboration.md).**
+**Power-Bi custom visual see [system-design-power-bi.md](system-design-power-bi.md).**
 
 ---
