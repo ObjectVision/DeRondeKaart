@@ -101,7 +101,7 @@ for which) is §6.1, and the loading mechanics are §6.3.
 | `@geomatico/maplibre-cog-protocol` ^0.9 | `cogProtocol` (registered as `cog://`), `setColorFunction` | Cloud-Optimized GeoTIFF as a MapLibre raster source. `setColorFunction` is the hook §6.4 uses to classify raster pixels through the same GeoStyler rules a vector layer uses |
 | `flatgeobuf` ^4.4 | `deserialize` from the ESM build (`flatgeobuf/lib/mjs/geojson.js`) | Bbox-filtered streaming reads against the file's packed Hilbert R-tree — large vector data browsed at high zoom without tiling it first (§6.3) |
 | `apache-arrow` ^21.1 | `Table`, `tableFromIPC` | The in-memory columnar table every analytics path consumes: chart aggregation, statistics and the filter dropdowns all read Arrow (§8) |
-| vendored `parquet-wasm` | `readParquet`, `readParquetStream`, plus the init promise | Decodes the Parquet attribute sidecars to Arrow IPC. Vendored rather than depended on — see below |
+| slim adaptation of `parquet-wasm` | `readParquet`, `readParquetStream`, plus the init promise | Decodes the Parquet attribute sidecars to Arrow IPC.|
 
 #### Collaboration (optional)
 
@@ -136,15 +136,6 @@ so React keeps sole ownership of the DOM.
 `vite` ^8.0 with `@vitejs/plugin-react` and `@tailwindcss/vite`;
 `typescript` ~5.9; `eslint` ^10 with `typescript-eslint` ^8,
 `eslint-plugin-react-hooks` ^7 and `eslint-plugin-react-refresh`.
-
-### Notable: vendored parquet-wasm
-
-`parquet-wasm` is **not** a normal dependency. A slim WASM build is vendored at
-[src/vendor/parquet-wasm/](../src/vendor/parquet-wasm/), produced by
-[scripts/build-parquet-wasm.sh](../scripts/build-parquet-wasm.sh). It is
-generated code, so it is excluded from linting in
-[eslint.config.js](../eslint.config.js) and given its own Rollup chunk
-(`vendor-parquet`).
 
 ### Indirect dependencies
 
