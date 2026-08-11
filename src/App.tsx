@@ -1044,7 +1044,7 @@ function App({
                 title={`Achtergrondkaart: ${nextBasemap.label}`}
                 aria-label="Achtergrondkaart wisselen"
               >
-                <Icon name="cached" size={chromeIconSize()} color={chromeIconColor()} />
+                <Icon name="map" size={chromeIconSize()} color={chromeIconColor()} />
               </Button>
             </div>
           ) : (
