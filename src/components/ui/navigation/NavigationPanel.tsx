@@ -24,6 +24,7 @@ export const NavigationPanel = memo(function NavigationPanel({
   showNavigation = false,
   showControlsSearch = true,
   showControlsZoom = true,
+  onOpenMeta,
 }: {
   nav: NavigationApi;
   onZoomIn: () => void;
@@ -36,6 +37,8 @@ export const NavigationPanel = memo(function NavigationPanel({
   showControlsSearch?: boolean;
   /** Show the zoom +/- buttons in the MapControls card (map.json `mapControls.zoom`). */
   showControlsZoom?: boolean;
+  /** Opens a layer's metainfo dialog from the info button in LeafDetail. */
+  onOpenMeta?: (layerId: string, layerName: string) => void;
 }) {
   const [tree, setTree] = useState<NavNode[]>([]);
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
@@ -245,6 +248,7 @@ export const NavigationPanel = memo(function NavigationPanel({
             path={selected.path}
             nav={nav}
             onBack={() => setSelected(null)}
+            onOpenMeta={onOpenMeta}
           />
         </div>
       )}

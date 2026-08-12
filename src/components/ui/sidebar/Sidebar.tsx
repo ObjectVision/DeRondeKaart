@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from "react";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
-import { LeafMeta } from "@/components/ui/navigation/LeafMeta";
+import { LayerDescription } from "@/components/ui/navigation/LayerDescription";
 import { FilterSection } from "./FilterSection";
 import { NavigationSection } from "./NavigationSection";
 import { loadNavigation, type NavLeaf, type NavNode } from "@/layers/navigation";
@@ -67,6 +67,7 @@ export const Sidebar = memo(function Sidebar({
   showNavigation = true,
   onClose,
   toolbar,
+  onOpenMeta,
 }: {
   nav: NavigationApi;
   areaFilter: AreaFilterState;
@@ -82,14 +83,17 @@ export const Sidebar = memo(function Sidebar({
    * restored.
    */
   toolbar?: React.ReactNode;
+  /** Opens a layer's metainfo dialog from the info button under its description. */
+  onOpenMeta?: (layerId: string, layerName: string) => void;
 }) {
   const [tree, setTree] = useState<NavNode[]>([]);
   // The row whose meta info panel is currently open (null = none open).
   const [metaOpenLeafId, setMetaOpenLeafId] = useState<string | null>(null);
-  // Layer ids that have a `meta` description. handleRowClick decides whether to
-  // open the info panel synchronously, so the ids are preloaded here rather
-  // than resolved per click — a layer without meta must not open an empty panel.
-  const [metaIds, setMetaIds] = useState<Set<string>>(() => new Set());
+  // Layer ids that have a description or metainfo, with the layer's name for the
+  // dialog title. handleRowClick decides whether to open the info panel
+  // synchronously, so these are preloaded here rather than resolved per click —
+  // a layer with neither must not open an empty panel.
+  const [infoLayers, setInfoLayers] = useState<Map<string, string>>(() => new Map());
 
   useEffect(() => {
     loadNavigation()
@@ -97,7 +101,15 @@ export const Sidebar = memo(function Sidebar({
       .catch((err) => console.error("Failed to load navigation.json:", err));
     // loadLayerConfigs memoizes, so this shares the parse with useNavigation.
     loadLayerConfigs()
-      .then((configs) => setMetaIds(new Set(configs.filter((c) => c.meta).map((c) => c.id))))
+      .then((configs) =>
+        setInfoLayers(
+          new Map(
+            configs
+              .filter((c) => c.description || c.meta)
+              .map((c) => [c.id, c.name]),
+          ),
+        ),
+      )
       .catch((err) => console.error("Failed to load layers.json:", err));
   }, []);
 
@@ -115,9 +127,10 @@ export const Sidebar = memo(function Sidebar({
   if (!sectionsVisible && !toolbar) return null;
 
   // Row click (anywhere except the on-map state toggle). One combined gesture:
-  //  - meta panel open → close it (whether or not the layer is on a map).
-  //  - layer not on any map (meta collapsed) → add it to the left map; open its meta if any.
-  //  - layer on a map (meta collapsed) → remove the layer from every map.
+  //  - info panel open → close it (whether or not the layer is on a map).
+  //  - layer not on any map (panel collapsed) → add it to the left map; open its
+  //    info panel if it has a description or metainfo, otherwise just toggle.
+  //  - layer on a map (panel collapsed) → remove the layer from every map.
   function handleRowClick(leaf: NavLeaf) {
     // An open meta panel always collapses first — even for an off-map layer.
     if (metaOpenLeafId === leaf.id) {
@@ -130,7 +143,7 @@ export const Sidebar = memo(function Sidebar({
 
     if (!onA && !onB) {
       nav.toggleOnMap(leaf.id, "a");
-      setMetaOpenLeafId(metaIds.has(leaf.id) ? leaf.id : null);
+      setMetaOpenLeafId(infoLayers.has(leaf.id) ? leaf.id : null);
       return;
     }
 
@@ -181,7 +194,11 @@ export const Sidebar = memo(function Sidebar({
               onSelectLeaf={handleRowClick}
               leafDetail={(leaf) => (
                 <div className="ml-7 mt-0.5 max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-2 text-sm leading-relaxed text-gray-600">
-                  <LeafMeta layerId={leaf.id} />
+                  <LayerDescription
+                    layerId={leaf.id}
+                    layerName={infoLayers.get(leaf.id) ?? leaf.label}
+                    onOpenMeta={onOpenMeta}
+                  />
                 </div>
               )}
               leafStatus={(leaf) => <LeafStateToggle leaf={leaf} nav={nav} />}

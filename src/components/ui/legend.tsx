@@ -87,6 +87,11 @@ interface LegendProps {
   onSetStep: (layerId: string, value: number) => void;
   onRemove: (layerId: string) => void;
   /**
+   * Open the layer's metainfo dialog. Omitted (or a layer without `meta`)
+   * renders the info button disabled rather than hiding it.
+   */
+  onOpenMeta?: (layerId: string, layerName: string) => void;
+  /**
    * Move a layer to the other map. Direction ("right" from the left legend,
    * "left" from the right legend) picks the arrow_circle icon; omit to hide the
    * button (e.g. when there is no second map to move to).
@@ -139,6 +144,7 @@ function LayerList({
   onTogglePlay,
   onSetStep,
   onRemove,
+  onOpenMeta,
   onMove,
   moveDirection,
   moveDisabled,
@@ -155,6 +161,7 @@ function LayerList({
   onTogglePlay: (layerId: string) => void;
   onSetStep: (layerId: string, value: number) => void;
   onRemove: (layerId: string) => void;
+  onOpenMeta?: (layerId: string, layerName: string) => void;
   onMove?: (layerId: string) => void;
   moveDirection?: "right" | "left";
   moveDisabled?: boolean;
@@ -286,10 +293,10 @@ function LayerList({
                     card (see --width-panel in index.css). */}
                 {isExpanded && (
                   <>
-                    {/* Placeholders: the handlers land when opacity control and the
-                        metadata window are built. Rendered (not hidden) so the row
-                        layout is final, and disabled so they cannot be clicked
-                        before they do anything. */}
+                    {/* Placeholder: the handler lands when the opacity control is
+                        built. Rendered (not hidden) so the row layout is final,
+                        and disabled so it cannot be clicked before it does
+                        anything. */}
                     <Button
                       variant="ghost"
                       size="icon-sm"
@@ -301,12 +308,19 @@ function LayerList({
                           stacking text-gray-300 on top renders it near-invisible. */}
                       <Icon name="opacity" size={chromeIconSize()} color={chromeIconColor()} />
                     </Button>
+                    {/* Disabled rather than hidden when the layer has no `meta`,
+                        so every row keeps the same set of actions. */}
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      disabled
+                      disabled={!config.meta || !onOpenMeta}
+                      onClick={() => onOpenMeta?.(config.id, config.name)}
                       aria-label={`Informatie ${config.name}`}
-                      title="Metadata (nog niet beschikbaar)"
+                      title={
+                        config.meta && onOpenMeta
+                          ? "Informatie"
+                          : "Metadata (nog niet beschikbaar)"
+                      }
                     >
                       <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
                     </Button>
@@ -444,6 +458,7 @@ export const Legend = memo(function Legend({
   onTogglePlay,
   onSetStep,
   onRemove,
+  onOpenMeta,
   onMove,
   moveDirection,
   moveDisabled,
@@ -549,6 +564,7 @@ export const Legend = memo(function Legend({
           onTogglePlay={onTogglePlay}
           onSetStep={onSetStep}
           onRemove={onRemove}
+          onOpenMeta={onOpenMeta}
           onMove={onMove}
           moveDirection={moveDirection}
           moveDisabled={moveDisabled}

@@ -57,6 +57,7 @@ import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
 import { InfoPopup } from "@/components/ui/info-popup";
 import { BasemapDialog } from "@/components/ui/BasemapDialog";
+import { LayerMetaDialog } from "@/components/ui/LayerMetaDialog";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 import { ChartsPanel } from "@/components/charts/ChartsPanel";
 import { ShareDialog } from "@/components/share/ShareDialog";
@@ -182,6 +183,18 @@ function App({
   const { basemapId, setBasemap } = useBasemap({ configDefault: basemapDefault });
   const [basemapDialogOpen, setBasemapDialogOpen] = useState(false);
   const openBasemapDialog = useCallback(() => setBasemapDialogOpen(true), []);
+
+  // A layer's metainfo window, opened from the legend's info button or from
+  // under a navigation description. Holds the layer rather than a bare id so
+  // the dialog can title itself without re-resolving layers.json.
+  const [metaLayer, setMetaLayer] = useState<{ id: string; name: string } | null>(null);
+  const openLayerMeta = useCallback(
+    (id: string, name: string) => setMetaLayer({ id, name }),
+    [],
+  );
+  const closeLayerMeta = useCallback((open: boolean) => {
+    if (!open) setMetaLayer(null);
+  }, []);
 
   // Feature picking for each map
   const pickA = useFeaturePick(mapLeftLayers.layerEntries, mapLeftRef);
@@ -851,6 +864,7 @@ function App({
         showNavigation={navigation && !sidebarMode}
         showControlsSearch={mapControls.search}
         showControlsZoom={mapControls.zoom}
+        onOpenMeta={openLayerMeta}
       />
 
       {/* Bottom-right stack: standalone map controls (search + zoom, only
@@ -881,6 +895,7 @@ function App({
               onTogglePlay={handlersB.togglePlay}
               onSetStep={handlersB.setStep}
               onRemove={handlersB.remove}
+              onOpenMeta={openLayerMeta}
               onMove={handleMoveToLeft}
               moveDirection="left"
               onReorder={handlersB.reorder}
@@ -1019,6 +1034,7 @@ function App({
             showNavigation={navAvailable && !navMinimized}
             onClose={toggleNavMinimized}
             toolbar={sidebarToolbar}
+            onOpenMeta={openLayerMeta}
           />
         )}
 
@@ -1066,6 +1082,7 @@ function App({
               onTogglePlay={leftLegendHandlers.togglePlay}
               onSetStep={leftLegendHandlers.setStep}
               onRemove={leftLegendHandlers.remove}
+              onOpenMeta={openLayerMeta}
               onReorder={leftLegendHandlers.reorder}
               onMove={leftLegendUsesMapB ? handleMoveToLeft : handleMoveToRight}
               moveDirection={leftLegendUsesMapB ? "left" : "right"}
@@ -1104,6 +1121,12 @@ function App({
         onOpenChange={setBasemapDialogOpen}
         basemapId={basemapId}
         onSelect={setBasemap}
+      />
+
+      <LayerMetaDialog
+        open={metaLayer !== null}
+        onOpenChange={closeLayerMeta}
+        layer={metaLayer}
       />
     </div>
   );

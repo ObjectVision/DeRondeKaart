@@ -3,6 +3,7 @@
     {
       "id": "huisarts",
       "name": "huisarts",
+      "description": "Locaties van huisartsenpraktijken in de regio.",
       "meta": "/data/meta/huisarts.html",
       "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
       "format": "pmtiles",
@@ -169,6 +170,7 @@
     {
       "id": "ziekenhuis",
       "name": "ziekenhuis",
+      "description": "Locaties van ziekenhuizen en poliklinieken in de regio.",
       "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "point",

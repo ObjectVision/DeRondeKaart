@@ -3,15 +3,11 @@
 **Audience:** developers and maintainers. Assumes ordinary programming
 knowledge; React and GIS specifics are explained where they matter.
 
-**Status:** describes the system as it stands at the time of writing. Figures
-(line counts, layer counts) were measured against the working tree, not
-estimated.
-
 ---
 
-## 1. Purpose, scope, and how to read this
+## 1. Introduction
 
-De Ronde kaart is a web map for thematic geospatial data. Almost everything
+De Ronde kaart is an opensource web-based map application for geospatial data, aiming to deliver on a fast, transparant, embeddable and easy to configure user experience. Almost everything
 about a deployment comes from JSON files: which layers exist, how they are
 styled, how they are grouped in the menu, which charts they support, and which
 UI features are on. Adding a layer means editing config and uploading data, not

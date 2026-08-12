@@ -1,6 +1,6 @@
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
-import { LeafMeta } from "./LeafMeta";
+import { LayerDescription } from "./LayerDescription";
 import type { NavLeaf } from "@/layers/navigation";
 import type { NavigationApi } from "@/hooks/use-navigation";
 
@@ -10,6 +10,8 @@ interface LeafDetailProps {
   path: string[];
   nav: NavigationApi;
   onBack: () => void;
+  /** Opens the layer's metainfo dialog from the info button under the description. */
+  onOpenMeta?: (layerId: string, layerName: string) => void;
 }
 
 export function LeafDetail({
@@ -17,6 +19,7 @@ export function LeafDetail({
   path,
   nav,
   onBack,
+  onOpenMeta,
 }: LeafDetailProps): React.JSX.Element {
   const onA = nav.isOnMap(leaf.id, "a");
   const onB = nav.isOnMap(leaf.id, "b");
@@ -40,9 +43,13 @@ export function LeafDetail({
 
       <h3 className="text-sm font-semibold text-gray-900">{leaf.label}</h3>
 
-      {/* Description / meta */}
+      {/* Short description + info button opening the full metainfo */}
       <div className="text-sm leading-relaxed text-gray-600">
-        <LeafMeta layerId={leaf.id} />
+        <LayerDescription
+          layerId={leaf.id}
+          layerName={leaf.label}
+          onOpenMeta={onOpenMeta}
+        />
       </div>
 
       {/* Add to map */}

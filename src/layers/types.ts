@@ -346,10 +346,17 @@ export interface LayerConfig {
   /** Statistic cards ("Kerncijfers") shown in the analytics panel. */
   statistics?: StatisticConfig[];
   /**
+   * Brief plain-text summary of what the layer shows, rendered inline in the
+   * navigation info panel (see LayerDescription). The long-form HTML lives in
+   * `meta` and opens in the metainfo dialog instead.
+   */
+  description?: string;
+  /**
    * Path to an HTML fragment describing the dataset, e.g.
-   * "/data/meta/huisarts.html". Fetched on demand and rendered in the
-   * navigation info panel (see LeafMeta). Describes the data, not the menu
-   * position — which is why it lives here and not on a navigation leaf.
+   * "/data/meta/huisarts.html". Fetched on demand and rendered in the metainfo
+   * dialog (see LeafMeta), opened from the legend's info button or from under
+   * the navigation description. Describes the data, not the menu position —
+   * which is why it lives here and not on a navigation leaf.
    */
   meta?: string;
 }
