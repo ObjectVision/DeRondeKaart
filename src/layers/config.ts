@@ -30,6 +30,16 @@ function validateMeta(raw: unknown, id: string): string | undefined {
   return raw;
 }
 
+/** Brief plain-text summary of the layer (see LayerConfig.description). */
+function validateDescription(raw: unknown, id: string): string | undefined {
+  if (raw === undefined) return undefined;
+  if (typeof raw !== "string" || raw === "") {
+    console.warn(`layers.json: layer "${id}" has invalid "description"; ignoring`);
+    return undefined;
+  }
+  return raw;
+}
+
 /** Ids of charts.json definitions; the analytics panel uses at most 4. */
 function validateCharts(raw: unknown, id: string): string[] | undefined {
   if (raw === undefined) return undefined;
@@ -271,6 +281,7 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     statistics: isComposite ? undefined : validateStatistics(layer.statistics, layer.id as string),
     // Not composite-guarded: a composite is the single navigation/legend entry,
     // so its description belongs on the parent.
+    description: validateDescription(layer.description, layer.id as string),
     meta: validateMeta(layer.meta, layer.id as string),
   };
 }
