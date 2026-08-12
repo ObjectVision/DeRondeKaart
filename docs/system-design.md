@@ -41,8 +41,6 @@ flowchart LR
 The data host is deliberately dumb — no tile server, no database, no API, just a
 file server. Every format the app reads is one file that the browser fetches
 *byte ranges* out of, so the whole data tier is `nginx` serving static files.
-That removes a service that would otherwise need installing, securing and
-monitoring.
 
 ---
 
@@ -107,10 +105,6 @@ Browser features the app needs, and what breaks without each:
 | **`postMessage` + iframe embedding** | The Power BI visual and the circular embed drive the app through it (§11) | Embedded deployments lose all external control |
 | **`Content-Encoding: br`/`gzip`** | `dist/` ships precompressed; nginx serves the `.br`/`.gz` siblings (§13) | Assets still serve, uncompressed and several times larger |
 
-**WebGPU is *not* a dependency.** MapLibre 6.2's bundle contains zero
-references to it. Worth stating because the assumption is easy to make of a
-modern GL map, and it would change the browser support floor if it were true.
-
 ### External runtime services
 
 | Endpoint | Role |
@@ -123,12 +117,7 @@ modern GL map, and it would change the browser support floor if it were true.
 
 ### Version constraints worth knowing
 
-**Moved to [system-design-version-constraints.md](system-design-version-constraints.md).**
-
-Why `maplibre-gl` stays on v6 with its worker import spelled exactly as it is,
-and why `typescript` is held at 5.x. Read it before upgrading either: the
-MapLibre constraint fails as a blank map with no console error, and the
-TypeScript one is not the configurable version guard it appears to be.
+**See [system-design-version-constraints.md](system-design-version-constraints.md).**
 
 ---
 
@@ -136,7 +125,7 @@ TypeScript one is not the configurable version guard it appears to be.
 
 ```mermaid
 flowchart TD
-    subgraph config["Configuration (JSON, per tenant)"]
+    subgraph config["Configuration (JSON)"]
         lj["layers.json"]
         nj["navigation.json"]
         cj["charts.json"]
@@ -414,8 +403,6 @@ discard the state of everything inside it.
 
 ## 6. Layers
 
-The deepest part of the system, and where most complexity lives.
-
 ### 6.1 Formats
 
 `LayerFormat` ([types.ts](../src/layers/types.ts)) admits eight values.
@@ -456,14 +443,9 @@ flowchart TD
     fgb --> mlout
 ```
 
-### 6.3 Styling: one model, three translations
+### 6.3 Styling
 
-**Moved to [system-design-styling.md](system-design-styling.md).**
-
-Style is authored once per layer as GeoStyler rules and translated per render
-target by [geostyler.ts](../src/layers/geostyler.ts): MapLibre paint/filter
-expressions for vector layers, and a per-pixel colour function for COG that runs
-raster bands through the same `evaluateFilter` a vector layer uses.
+**See [system-design-styling.md](system-design-styling.md).**
 
 ### 6.4 Z-ordering
 
@@ -579,19 +561,6 @@ from Parquet to PMTiles, and the silence is why it went unnoticed.
 | **PNG export** | [map-capture.ts](../src/lib/map-capture.ts) | 2048² circular export with legend and callouts |
 | **Circular embed** | [CircularExportView.tsx](../src/components/share/CircularExportView.tsx) | `?embed=circular` or `open-circular` message |
 
-### Annotations in brief
-
-Three shape types, directly manipulated: drag a circle's rim to resize but its
-body to move; drag out a bbox to create a polygon; mousedown on a polygon edge
-splits it there. Escape unwinds one step at a time (cancel drag → deselect →
-disarm tool). Hit-testing prioritises vertices, then edges, then bodies, so small
-handles on large shapes stay grabbable.
-
-Each annotation stores a **session snapshot** — area-filter selections, both
-maps' layers and hidden ids, and the camera — restored by clicking it. Restore is
-cancellable, applies hidden state only after layer adds resolve, and skips layers
-no longer in `layers.json`.
-
 ## 10. Configuration system
 
 | File | Loader | Drives |
@@ -603,33 +572,6 @@ no longer in `layers.json`.
 | `map.json` | [map-config.ts](../src/config/map-config.ts) `loadMapConfig` | Initial view, study area, ~15 UI flags |
 
 All five are cached at module level after first load.
-
-### Two-tier validation philosophy
-
-Which files may fail hard is a deliberate split, verified against the source:
-`config.ts` and `navigation.ts` each contain a `throw` and no `catch`;
-`charts.ts`, `area-filter.ts` and `map-config.ts` each contain a `catch` and no
-`throw`.
-
-- **`layers.json` and `navigation.json` throw** on a missing or failed fetch.
-  Without them there is no app, so failing loudly is correct.
-- **`map.json`, `charts.json` and `filter.json` never throw.** Each catches,
-  warns, and returns defaults — an embedded map must always load, even
-  misconfigured.
-
-Within `layers.json`, validation is **per-entry drop-and-warn**: one malformed
-layer disappears with a console warning rather than taking down the other 78.
-
-`validateTimeseries` is stricter — it drops the whole block unless `sourceLayer`
-contains the placeholder, because a timeseries that steps through years without
-the rendered layer changing is a confusing silent no-op.
-
-### Per-tenant overlay
-
-[vite.config.ts](../vite.config.ts) defines a `configOverlay` plugin: when
-`VITE_CONFIG_PROJECT` is set, files from `configs/<project>/` are served in place
-of the `public/` defaults (dev) or copied over them (build). Unset, behaviour is
-the plain `public/` content. See [configs/README.md](../configs/README.md).
 
 ---
 
