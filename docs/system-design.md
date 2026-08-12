@@ -66,10 +66,6 @@ for which) is §6.1, and the loading mechanics are §6.3.
 | `apache-arrow` ^21.1 | `Table`, `tableFromIPC` | The in-memory columnar table every analytics path consumes: chart aggregation, statistics and the filter dropdowns all read Arrow (§8) |
 | slim adaptation of `parquet-wasm` | `readParquet`, `readParquetStream`, plus the init promise | Decodes the Parquet attribute sidecars to Arrow IPC.|
 
-#### Collaboration (optional)
-
-Shared annotations on the map. See [system-design-collaboration.md](system-design-collaboration.md).
-
 #### UI
 
 | Package | We use | Why |
