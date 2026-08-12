@@ -7,46 +7,11 @@ knowledge; React and GIS specifics are explained where they matter.
 
 ## 1. Introduction
 
-De Ronde kaart is an opensource web-based map application for geospatial data, aiming to deliver on a fast, transparant, embeddable and easy to configure user experience. Almost everything
-about a deployment comes from JSON files: which layers exist, how they are
-styled, how they are grouped in the menu, which charts they support, and which
-UI features are on. Adding a layer means editing config and uploading data, not
-changing code.
-
-This document explains how the system is split up and why. Task-specific
-documentation lives elsewhere:
-
-| For | Read |
-|---|---|
-| The collaboration subsystem — client, server, guards (§10, **optional feature**) | [system-design-collaboration.md](system-design-collaboration.md) |
-| The Power BI integration (§11, **optional**) | [system-design-power-bi.md](system-design-power-bi.md) |
-| Why `maplibre-gl` and `typescript` are pinned (§3) — read before upgrading either | [system-design-version-constraints.md](system-design-version-constraints.md) |
-| How layer styling is authored and translated per target (§6.4) | [system-design-styling.md](system-design-styling.md) |
-| Running the collaboration server, its guards and operations | [collab-server/README.md](../collab-server/README.md) |
-| The Power BI visual — building, publishing, hosting gotchas | [powerbi-visual/README.md](../powerbi-visual/README.md), [known_issues.md](../powerbi-visual/known_issues.md) |
-| Per-tenant configuration projects | [configs/README.md](../configs/README.md) |
-| Docker/nginx deployment | [deploy/README.md](../deploy/README.md) |
-| Server provisioning scripts | [server/README.md](../server/README.md) |
-| URL parameters (user-facing reference) | [README.md](../README.md) |
-
-### Start here
-
-| Task | Go to |
-|---|---|
-| Add a layer to an existing deployment | §12 Configuration, then `configs/<project>/layers.json` |
-| Add support for a new data format | §6.1–6.2, then [use-map-layers.ts:112](../src/hooks/use-map-layers.ts#L112) |
-| Change how a layer is styled | [system-design-styling.md](system-design-styling.md), then [geostyler.ts](../src/layers/geostyler.ts) |
-| Understand why a filter isn't applying | §7 |
-| Work out why charts show no data | §8 (`attributeSource`) |
-| Prepare source data for upload | §14 Data pipeline |
-| Deploy | §13, then [deploy/README.md](../deploy/README.md) |
-
----
+De Ronde kaart is an opensource web-based map application for geospatial data, aiming to deliver on a fast, transparant, embeddable and easy to configure user experience.
 
 ## 2. System context
 
-The app shows analysis maps of Dutch regional data — housing, care,
-demographics, accessibility, green space. It is a static web page. It reads its
+The mapapp is a static web page. It reads its
 data straight off a file server, and optionally connects to a collaboration
 server for shared annotations.
 
