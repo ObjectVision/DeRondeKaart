@@ -13,7 +13,6 @@ De Ronde kaart is an opensource web-based map application for geospatial data. F
 | Package | Why |
 |---|---|
 | `maplibre-gl` ^6.2 |Drawing geographic data |
-| `react-map-gl` ^8.1 |Wrapper between maplibre-gl and React |
 
 #### Data formats
 
