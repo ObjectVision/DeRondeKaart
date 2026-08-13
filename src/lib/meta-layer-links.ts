@@ -10,6 +10,12 @@ const LEGACY_VIEWER_HOST = "kaartviewer.startanalyse2025.nl";
 /** Query parameter carrying the layer id, e.g. `?layerIds=226`. */
 const LAYER_ID_PARAM = "layerIds";
 
+/**
+ * Stands in for a link whose layer this viewer does not publish. No layer can
+ * carry it, so it fails the `knownIds` check and renders as unavailable.
+ */
+const UNRESOLVED_LAYER_ID = "";
+
 /** Glyph shown on a "Gerelateerde kaartlagen" button, by state. */
 const ICON_ON_MAP = "check_circle";
 const ICON_ADD = "add_circle";
@@ -20,6 +26,54 @@ export interface MetaLayerLink {
   layerId: string;
   /** True for the "Gerelateerde kaartlagen" button form, false for inline prose. */
   isButton: boolean;
+}
+
+/**
+ * Maps a "Gerelateerde kaartlagen" row to the layer it names, keyed
+ * `"<scenario> <code>"` — e.g. `"S3 H01"` -> `"154"`.
+ *
+ * Needed because the published hrefs are wrong: within one document all six rows
+ * carry the SAME `layerIds`, even though each row names a different scenario
+ * (LN, S1..S4, R23, R30). Following the href would add the same layer six times,
+ * so the row's own thumbnail and label are the authoritative source instead.
+ */
+export type MetaLayerIndex = ReadonlyMap<string, string>;
+
+/** Layer names carry their scenario and code as a suffix, e.g. "CO₂-uitstoot (LN H15)". */
+const LAYER_NAME_SUFFIX_RE = /\((LN|S1|S2|S3|S4|R23|R30|G-LN)\s+([HR]\d+)\)\s*$/;
+
+/** Thumbnail file naming the row's scenario, e.g. ".../symbolen/S3.png". */
+const ROW_THUMB_RE = /symbolen\/([A-Za-z0-9-]+)\.png/;
+
+/** Row label opening with the indicator code, e.g. "H01: Energieverbruik". */
+const ROW_CODE_RE = /\b([HR]\d+)\s*:/;
+
+/** Builds the scenario+code -> layer id index from the loaded layer configs. */
+export function buildMetaLayerIndex(
+  configs: ReadonlyArray<{ id: string; name: string }>,
+): MetaLayerIndex {
+  const index = new Map<string, string>();
+  for (const config of configs) {
+    const match = LAYER_NAME_SUFFIX_RE.exec(config.name);
+    if (!match) continue;
+    index.set(`${match[1]} ${match[2]}`, config.id);
+  }
+  return index;
+}
+
+/**
+ * The layer a "Gerelateerde kaartlagen" row actually names, from its thumbnail
+ * (the scenario) and label (the indicator code) — or null when the row names a
+ * layer this viewer does not publish.
+ */
+function resolveRowLayerId(anchor: HTMLAnchorElement, index: MetaLayerIndex): string | null {
+  const row = anchor.closest("li");
+  if (!row) return null;
+  const thumb = row.querySelector("img")?.getAttribute("src");
+  const scenario = thumb ? ROW_THUMB_RE.exec(thumb) : null;
+  const code = ROW_CODE_RE.exec(row.textContent ?? "");
+  if (!scenario || !code) return null;
+  return index.get(`${scenario[1]} ${code[1]}`) ?? null;
 }
 
 /**
@@ -54,7 +108,10 @@ function stripTrailingAttribute(value: string): string {
  * the href unquoted (`href=https://…?layerIds=275 target="_blank"`), and reading
  * it through the DOM lets the HTML parser normalize both spellings into one.
  */
-export function parseMetaLayerLink(anchor: HTMLAnchorElement): MetaLayerLink | null {
+export function parseMetaLayerLink(
+  anchor: HTMLAnchorElement,
+  index?: MetaLayerIndex,
+): MetaLayerLink | null {
   let url: URL;
   try {
     url = new URL(anchor.href);
@@ -70,7 +127,21 @@ export function parseMetaLayerLink(anchor: HTMLAnchorElement): MetaLayerLink | n
   const layerId = stripTrailingAttribute(raw);
   if (!layerId) return null;
 
-  return { layerId, isButton: isButtonAnchor(anchor) };
+  const isButton = isButtonAnchor(anchor);
+  // A button's href names the wrong layer in most published rows (see
+  // MetaLayerIndex), so prefer what the row itself says. Prose links carry no
+  // row to read and their hrefs are correct, so they keep the href id.
+  if (isButton && index) {
+    const fromRow = resolveRowLayerId(anchor, index);
+    // The row names a layer this viewer does not publish. Reporting it as
+    // unresolved rather than falling back to the href is deliberate: the href
+    // points at a DIFFERENT, existing layer, so honouring it would silently add
+    // the wrong one.
+    if (!fromRow) return { layerId: UNRESOLVED_LAYER_ID, isButton };
+    return { layerId: fromRow, isButton };
+  }
+
+  return { layerId, isButton };
 }
 
 /** Replace a button anchor's text with a Material Symbols glyph name. */
@@ -102,9 +173,10 @@ export function decorateMetaLayerLinks(
   container: HTMLElement,
   knownIds: ReadonlySet<string>,
   isOnMap: (id: string) => boolean,
+  index: MetaLayerIndex,
 ): void {
   for (const anchor of container.querySelectorAll("a")) {
-    const link = parseMetaLayerLink(anchor);
+    const link = parseMetaLayerLink(anchor, index);
     if (!link) continue;
 
     // Nothing here navigates any more, so drop the new-tab hint the publisher

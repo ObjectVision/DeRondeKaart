@@ -89,10 +89,14 @@ export const Sidebar = memo(function Sidebar({
   const [tree, setTree] = useState<NavNode[]>([]);
   // The row whose meta info panel is currently open (null = none open).
   const [metaOpenLeafId, setMetaOpenLeafId] = useState<string | null>(null);
-  // Layer ids that have a description or metainfo, with the layer's name for the
-  // dialog title. handleRowClick decides whether to open the info panel
-  // synchronously, so these are preloaded here rather than resolved per click —
-  // a layer with neither must not open an empty panel.
+  // Layer ids that have a `description`, with the layer's name for the dialog
+  // title. handleRowClick decides whether to open the info panel synchronously,
+  // so these are preloaded here rather than resolved per click.
+  //
+  // Keyed on `description` alone, not on metainfo: a layer with only metainfo
+  // has nothing to show in the panel, and expanding it just to say "Geen
+  // omschrijving beschikbaar" is noise. Its metainfo is still one click away
+  // from the legend's info tool.
   const [infoLayers, setInfoLayers] = useState<Map<string, string>>(() => new Map());
 
   useEffect(() => {
@@ -105,7 +109,7 @@ export const Sidebar = memo(function Sidebar({
         setInfoLayers(
           new Map(
             configs
-              .filter((c) => c.description || c.meta)
+              .filter((c) => c.description)
               .map((c) => [c.id, c.name]),
           ),
         ),
