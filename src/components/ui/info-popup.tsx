@@ -10,6 +10,12 @@ interface InfoPopupProps {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
+  /**
+   * Size the window around an embedded viewer rather than an attribute table.
+   * PBL's summary lays out at a fixed 750px wide whatever room it is given, so
+   * this fits that exactly instead of framing it in empty space.
+   */
+  wide?: boolean;
 }
 
 /** Gap between the pointer and the popup, and between popup and viewport edge. */
@@ -28,6 +34,7 @@ export function InfoPopup({
   title,
   onClose,
   children,
+  wide = false,
 }: InfoPopupProps): React.JSX.Element {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -62,7 +69,12 @@ export function InfoPopup({
   return (
     <div
       ref={ref}
-      className="absolute z-40 w-150 max-h-[35vh] flex flex-col rounded-2xl bg-white/95 shadow-md backdrop-blur-sm"
+      className={
+        "absolute z-40 flex flex-col rounded-2xl bg-white/95 shadow-md backdrop-blur-sm " +
+        (wide
+          ? "w-[min(750px,calc(100vw-2rem))] max-h-[90vh]"
+          : "w-150 max-h-[35vh]")
+      }
       style={{ left: x, top: y + POINTER_OFFSET }}
     >
       {/* Header — the popup's single close button. Same heading treatment and

@@ -14,6 +14,7 @@ import { useClickMarkerLayers } from "@/hooks/use-click-marker-layer";
 import { useMapPointer } from "@/hooks/use-map-pointer";
 import { viewForBbox } from "@/lib/fly-to";
 import type { BBox } from "@/layers/box-filter";
+import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import {
   DEFAULT_CLICK_MARKER,
   DEFAULT_MAP_CONTROLS,
@@ -63,10 +64,12 @@ import { ChartsPanel } from "@/components/charts/ChartsPanel";
 import { ShareDialog } from "@/components/share/ShareDialog";
 import { CircularExportView } from "@/components/share/CircularExportView";
 import { legendItemsForEntries } from "@/lib/legend-style";
+import { resultUsesPblSummary } from "@/lib/pbl-summary";
 
 function App({
   initialViewState,
   studyAreaId,
+  pickLayerId,
   streetviewEnabled = false,
   searchbarEnabled = false,
   navigationEnabled = false,
@@ -84,6 +87,8 @@ function App({
 }: {
   initialViewState: ViewState;
   studyAreaId?: string;
+  /** Layer added to the left map at startup so clicks have a target; see MapConfig.pickLayer. */
+  pickLayerId?: string;
   streetviewEnabled?: boolean;
   searchbarEnabled?: boolean;
   navigationEnabled?: boolean;
@@ -405,6 +410,42 @@ function App({
 
   // Navigation menu: add/remove layers against the shared per-map state
   const nav = useNavigation({ mapLeftLayers, mapRightLayers, mapLeftRef, mapRightRef });
+
+  // The always-on pick layer (map.json `pickLayer`): an invisible layer added to
+  // the left map at startup so a click anywhere has a feature to hit, without the
+  // user having added anything. It goes through addLayer — rather than a
+  // study-area-style side channel — for two reasons: only a real layer entry is
+  // ever queried for feature picking, and syncImperativeLayers then replays it
+  // after a basemap swap for free.
+  //
+  // `atEnd` keeps it at the bottom of the draw order, so a layer the user adds
+  // later paints above it. addLayer is a no-op for an id already present, which
+  // is what makes re-running this safe.
+  const pickLayerAddedRef = useRef(false);
+  useEffect(() => {
+    if (!pickLayerId || !mapLeftReady || pickLayerAddedRef.current) return;
+    pickLayerAddedRef.current = true;
+    let alive = true;
+    loadLayerConfigs()
+      .then((configs) => {
+        const config = getLayerConfigById(configs, pickLayerId);
+        if (!config) {
+          console.warn(`map.json: pickLayer "${pickLayerId}" not found in layers.json`);
+          return;
+        }
+        // MapViewHandle wraps the react-map-gl ref; addLayer wants the inner one.
+        const inner = mapLeftRef.current?.mapRef;
+        if (alive && inner) void mapLeftLayers.addLayer(config, inner, { atEnd: true });
+      })
+      .catch((err) => {
+        // Non-fatal: without it the map simply has nothing to click, which is
+        // how every other config behaves.
+        console.warn(`Failed to add pickLayer "${pickLayerId}":`, err);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [pickLayerId, mapLeftReady, mapLeftLayers, mapLeftRef]);
 
   // The layer cross-references inside a layer's metainfo, which the publisher
   // still points at the retired 2025 mapviewer. Handed to LayerMetaDialog so
@@ -1124,6 +1165,7 @@ function App({
           y={popupPoint.y}
           title={pickResult ? "Details" : "Street View"}
           onClose={closePopup}
+          wide={pickResult ? resultUsesPblSummary(pickResult, pickEntries) : false}
         >
           {pickResult && (
             <FeatureInfo result={pickResult} layerEntries={pickEntries} embedded />

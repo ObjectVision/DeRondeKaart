@@ -2,6 +2,49 @@ import { useState, useEffect } from "react";
 import type { FeatureInfoResult } from "@/hooks/use-feature-pick";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { resolveTemplate, renderTemplate } from "@/layers";
+import { buurtCodeOf, pblSummaryUrl } from "@/lib/pbl-summary";
+
+interface PblSummaryProps {
+  /** Null when the clicked feature carries no usable `bu_code`. */
+  buurtCode: string | null;
+}
+
+/**
+ * PBL's "Samenvatting Startanalyse" for one neighbourhood, embedded from our own
+ * origin (see public/pbl-samenvatting.html for why it is not framed directly).
+ */
+function PblSummary({ buurtCode }: PblSummaryProps): React.JSX.Element {
+  if (!buurtCode) {
+    // The layer is configured for the summary but this feature has no code —
+    // say so rather than showing an empty frame.
+    return (
+      <p className="text-xs text-gray-400">
+        Geen buurtcode beschikbaar voor deze locatie.
+      </p>
+    );
+  }
+  return (
+    <div className="flex min-h-0 flex-col">
+      {/* PBL's content is a fixed 750px wide and grows to whatever height it is
+          given, so the frame fills the window and the window is sized to match —
+          no inner scrollbar, no empty margins. */}
+      <iframe
+        src={pblSummaryUrl(buurtCode)}
+        title="Samenvatting Startanalyse"
+        className="h-[78vh] w-full border-0"
+        loading="lazy"
+      />
+      <a
+        href={pblSummaryUrl(buurtCode)}
+        target="_blank"
+        rel="noreferrer"
+        className="px-3 py-1 text-right text-xs text-blue-600 underline"
+      >
+        Openen in nieuw tabblad
+      </a>
+    </div>
+  );
+}
 
 interface FeatureInfoProps {
   result: FeatureInfoResult;
@@ -54,7 +97,15 @@ export function FeatureInfo({
   }, [result, layerEntries]);
 
   const features = result.featuresByLayer.get(activeTab) ?? [];
-  const template = templates.get(activeTab); 
+  const template = templates.get(activeTab);
+
+  // A layer answers a click EITHER with PBL's neighbourhood summary or with its
+  // own template — never both (see FeatureInfoConfig.pbl). Resolved here rather
+  // than per feature: the mode belongs to the layer, and the popup shows one
+  // layer at a time.
+  const activeEntry = layerEntries.find((entry) => entry.config.id === activeTab);
+  const pblMode = activeEntry?.config.featureinfo?.pbl === true;
+  const buurtCode = pblMode ? buurtCodeOf(features[0]) : null;
 
   return (
     <div
@@ -105,9 +156,19 @@ export function FeatureInfo({
       )}
 
       {/* Content — scrollable. `app-scrollbar` lands on the element that owns the
-          overflow, matching the navigation and legend cards' scrollbar. */}
-      <div className="app-scrollbar overflow-y-auto p-3 flex flex-col gap-2">
-        {!template ? (
+          overflow, matching the navigation and legend cards' scrollbar.
+          The PBL viewer brings its own layout and sizes itself, so it gets no
+          padding and no scrolling here: the window is built around it. */}
+      <div
+        className={
+          pblMode
+            ? "flex min-h-0 flex-col"
+            : "app-scrollbar overflow-y-auto p-3 flex flex-col gap-2"
+        }
+      >
+        {pblMode ? (
+          <PblSummary buurtCode={buurtCode} />
+        ) : !template ? (
           <p className="text-xs text-gray-400">Loading template...</p>
         ) : features.length === 0 ? (
           <p className="text-xs text-gray-400">No features</p>
