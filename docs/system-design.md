@@ -16,8 +16,7 @@ De Ronde kaart is an opensource web-based map application for geospatial data. F
 
 #### Data formats
 
-The formats the map can read. When to reach for which is §5.1, and the loading
-mechanics are §5.3.
+The formats the map can read.
 
 | Format | Description |
 |---|---|
