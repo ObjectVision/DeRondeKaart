@@ -1,4 +1,7 @@
 import { useLayoutEffect, useRef } from "react";
+import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/nav-icon";
+import { chromeIconColor, chromeIconSize } from "@/config/map-config";
 
 interface InfoPopupProps {
   /** Click position in pixels, relative to the app root (= map container). */
@@ -59,23 +62,29 @@ export function InfoPopup({
   return (
     <div
       ref={ref}
-      className="absolute z-40 w-80 max-h-[60vh] flex flex-col rounded-lg bg-white/90 shadow-md backdrop-blur-sm"
+      className="absolute z-40 w-150 max-h-[35vh] flex flex-col rounded-2xl bg-white/95 shadow-md backdrop-blur-sm"
       style={{ left: x, top: y + POINTER_OFFSET }}
     >
-      {/* Header — the popup's single close button */}
-      <div className="flex items-center justify-between px-3 pt-2 pb-1">
+      {/* Header — the popup's single close button. Same heading treatment and
+          close control as the "Referentielagen" and metainfo dialogs, so the
+          app's windows read as one family. */}
+      <div className="flex items-center justify-between gap-2 px-3 pt-2 pb-1">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
           {title}
         </h3>
-        <button
+        <Button
+          variant="ghost"
+          size="icon-sm"
           onClick={onClose}
-          className="text-gray-400 hover:text-gray-600 transition-colors text-sm leading-none px-1"
-          aria-label="Close"
+          title="Sluiten"
+          aria-label="Sluiten"
         >
-          &times;
-        </button>
+          <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+        </Button>
       </div>
-      <div className="flex min-h-0 flex-col overflow-y-auto">{children}</div>
+      {/* This element owns the scrolling, so `app-scrollbar` lands here — it
+          matches the navigation and legend cards' scrollbar. */}
+      <div className="app-scrollbar flex min-h-0 flex-col overflow-y-auto">{children}</div>
     </div>
   );
 }
