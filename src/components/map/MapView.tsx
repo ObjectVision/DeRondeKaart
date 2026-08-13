@@ -99,17 +99,21 @@ async function ensureAnchorsAndOverlay(
   // Synchronous from here — no await splits the anchor/overlay insertion.
   ensureAnchors(map);
   // Two basemaps can share a base style and differ only in their overlay (the
-  // "met labels" pairs). Switching between those never re-points `mapStyle`, so
-  // setStyle() does not fire and the previous overlay's layers are still in the
-  // stack — drop the ones the new overlay will not re-add, or turning labels off
-  // leaves them drawn.
-  const keep = new Set(overlayLayers?.map((l) => l.id) ?? []);
+  // option combinations of one base). Switching between those never re-points
+  // `mapStyle`, so setStyle() does not fire and the previous overlay's layers are
+  // still in the stack — clear them, or turning an option off leaves them drawn.
+  // Remove ALL of the previous overlay's layers, including the ones the new
+  // overlay also contains. Keeping a shared layer in place would keep its OLD
+  // stack position while everything else is appended above it: stepping from
+  // "labels" to "labels + wegen" left positron's `water_name` stranded below all
+  // 26 road layers, drawing the water label under the roads. Re-adding it in the
+  // new overlay's order is what makes the file's order authoritative.
   for (const id of staleOverlayIds ?? []) {
-    if (keep.has(id)) continue;
     if (map.getLayer(id)) map.removeLayer(id);
   }
   if (!overlayLayers) return [];
   for (const layer of overlayLayers) {
+    // A layer the BASE style already owns is not ours to move or duplicate.
     if (map.getLayer(layer.id)) continue;
     map.addLayer(layer, ANCHORS.overlay);
   }
