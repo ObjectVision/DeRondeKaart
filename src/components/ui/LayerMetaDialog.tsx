@@ -9,6 +9,10 @@ export interface LayerMetaDialogProps {
   onOpenChange: (open: boolean) => void;
   /** Layer whose `meta` HTML is shown; null while the dialog is closed. */
   layer: { id: string; name: string } | null;
+  /** Add `id` to the left map when a layer link inside the meta HTML is clicked. */
+  onAddLayer?: (id: string) => void;
+  /** Whether `id` is on the left map, for those links' state icons. */
+  isLayerOnMap?: (id: string) => boolean;
 }
 
 /**
@@ -25,6 +29,8 @@ export function LayerMetaDialog({
   open,
   onOpenChange,
   layer,
+  onAddLayer,
+  isLayerOnMap,
 }: LayerMetaDialogProps): React.JSX.Element | null {
   // No layer selected yet — nothing to fetch or title the window with.
   if (!layer) return null;
@@ -52,7 +58,7 @@ export function LayerMetaDialog({
           </Button>
         </div>
         <div className="text-sm leading-relaxed text-gray-600">
-          <LeafMeta layerId={layer.id} />
+          <LeafMeta layerId={layer.id} onAddLayer={onAddLayer} isLayerOnMap={isLayerOnMap} />
         </div>
       </DialogContent>
     </DialogRoot>

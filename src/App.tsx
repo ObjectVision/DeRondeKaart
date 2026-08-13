@@ -406,6 +406,20 @@ function App({
   // Navigation menu: add/remove layers against the shared per-map state
   const nav = useNavigation({ mapLeftLayers, mapRightLayers, mapLeftRef, mapRightRef });
 
+  // The layer cross-references inside a layer's metainfo, which the publisher
+  // still points at the retired 2025 mapviewer. Handed to LayerMetaDialog so
+  // those links act on this viewer instead.
+  const addMetaLayerToLeftMap = useCallback(
+    (id: string) => {
+      // The link reads "add", never "remove": toggleOnMap would take an
+      // already-visible layer back off the map, which is not what it promises.
+      if (nav.isOnMap(id, "a")) return;
+      void nav.toggleOnMap(id, "a");
+    },
+    [nav],
+  );
+  const isMetaLayerOnLeftMap = useCallback((id: string) => nav.isOnMap(id, "a"), [nav]);
+
   // Minimize state for the navigation, statistics and legend windows (persisted
   // for the session) plus the small-screen auto-collapse that drives all three.
   const {
@@ -1131,6 +1145,8 @@ function App({
         open={metaLayer !== null}
         onOpenChange={closeLayerMeta}
         layer={metaLayer}
+        onAddLayer={addMetaLayerToLeftMap}
+        isLayerOnMap={isMetaLayerOnLeftMap}
       />
     </div>
   );

@@ -1,5 +1,6 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useRef } from "react";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
+import { decorateMetaLayerLinks, parseMetaLayerLink } from "@/lib/meta-layer-links";
 
 // Module-level caches, read straight through during render so a cached layer
 // paints without a state round-trip. `metaUrlCache` maps layer id -> its meta
@@ -14,6 +15,13 @@ const metaCache = new Map<string, string | null>();
 
 interface LeafMetaProps {
   layerId: string;
+  /**
+   * Add `id` to the left map when a legacy mapviewer link inside the meta HTML is
+   * clicked. Omitted, those links keep their default (dead) navigation.
+   */
+  onAddLayer?: (id: string) => void;
+  /** Whether `id` is on the left map, for the add-button's state icon. */
+  isLayerOnMap?: (id: string) => boolean;
 }
 
 /**
@@ -30,11 +38,21 @@ interface LeafMetaProps {
  * Takes a layer id rather than a NavLeaf because `meta` describes the dataset,
  * not the menu entry — layers reachable only via URL command or the legend have
  * no navigation leaf at all.
+ *
+ * The fragments link their layer cross-references to the retired 2025 mapviewer.
+ * Those links are intercepted (see `onAddLayer`) and turned into "add to the left
+ * map" instead — by delegation and DOM decoration rather than by rewriting the
+ * HTML, so the published document is still rendered exactly as served.
  */
-export function LeafMeta({ layerId }: LeafMetaProps): React.JSX.Element | null {
+export function LeafMeta({
+  layerId,
+  onAddLayer,
+  isLayerOnMap,
+}: LeafMetaProps): React.JSX.Element | null {
   // Render from the caches; the effects only fill them asynchronously.
   const urls = metaUrlCache.get(layerId);
   const [, rerender] = useReducer((x: number) => x + 1, 0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Resolve layer id -> meta URLs. loadLayerConfigs memoizes its parse, so this
   // is a cache read after the first caller anywhere in the app. A single string is
@@ -94,6 +112,57 @@ export function LeafMeta({ layerId }: LeafMetaProps): React.JSX.Element | null {
     // `urls` (not just layerId) so the fetch starts as soon as the ids resolve.
   }, [urls, layerId]);
 
+  // The composed document, or null while anything is still resolving. Computed
+  // before the early returns below so the decoration effect can depend on it.
+  let html: string | null = null;
+  if (urls && !urls.some((url) => metaCache.get(url) === undefined)) {
+    const parts = urls
+      .map((url) => metaCache.get(url))
+      .filter((part): part is string => Boolean(part));
+    if (parts.length > 0) html = parts.join("\n");
+  }
+
+  // Point the fragments' legacy mapviewer links at the current viewer: give the
+  // buttons a glyph reflecting whether the layer is on the map, and mark the ids
+  // this viewer doesn't publish.
+  //
+  // This mutates DOM that React does not manage, and survives re-render because
+  // React diffs `dangerouslySetInnerHTML` by its __html *string*: unchanged HTML
+  // means React never touches the subtree, so the decorations stay put and this
+  // effect re-runs to update them whenever the map's contents change.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !html || !isLayerOnMap) return;
+    let alive = true;
+    loadLayerConfigs()
+      .then((configs) => {
+        if (!alive) return;
+        const knownIds = new Set(configs.map((config) => config.id));
+        decorateMetaLayerLinks(container, knownIds, isLayerOnMap);
+      })
+      .catch((err) => {
+        // Decoration is cosmetic; failing to load the configs leaves the links
+        // as published, and the click handler still guards on the parse.
+        console.warn("Failed to decorate meta layer links:", err);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [html, isLayerOnMap]);
+
+  // One delegated handler rather than a listener per anchor: a composed document
+  // holds dozens of these links, and the markup is re-injected wholesale.
+  function handleMetaClick(event: React.MouseEvent<HTMLDivElement>): void {
+    if (!onAddLayer) return;
+    const anchor = (event.target as HTMLElement).closest("a");
+    if (!anchor) return;
+    const link = parseMetaLayerLink(anchor);
+    // Not a legacy viewer link — an ordinary outbound link, leave it navigating.
+    if (!link) return;
+    event.preventDefault();
+    onAddLayer(link.layerId);
+  }
+
   // Still resolving the layer's meta paths.
   if (urls === undefined) {
     return <span className="text-gray-400">Laden…</span>;
@@ -104,12 +173,11 @@ export function LeafMeta({ layerId }: LeafMetaProps): React.JSX.Element | null {
     if (urls.some((url) => metaCache.get(url) === undefined)) {
       return <span className="text-gray-400">Laden…</span>;
     }
-    const parts = urls
-      .map((url) => metaCache.get(url))
-      .filter((html): html is string => Boolean(html));
-    if (parts.length > 0) {
+    if (html !== null) {
       return (
         <div
+          ref={containerRef}
+          onClick={handleMetaClick}
           // `prose` must accompany `prose-sm`: the latter is only a size modifier
           // and styles nothing on its own. `max-w-none` drops prose's 65ch cap so
           // the text still fills the dialog. The link overrides come last so they
@@ -127,9 +195,20 @@ export function LeafMeta({ layerId }: LeafMetaProps): React.JSX.Element | null {
             "prose prose-sm max-w-none [&_a]:text-blue-600 [&_a]:underline " +
             "[&_ul]:my-0 [&_ul]:list-none [&_ul]:pl-0 [&_li]:my-0 [&_li]:pl-0 " +
             "[&_li]:before:hidden " +
-            "[&_h5]:mt-4 [&_h5]:mb-1 [&_h5]:font-semibold [&_h5]:text-gray-900"
+            "[&_h5]:mt-4 [&_h5]:mb-1 [&_h5]:font-semibold [&_h5]:text-gray-900 " +
+            // The "Gerelateerde kaartlagen" rows are marked up for Bootstrap
+            // (`d-flex justify-content-between`), which the app doesn't load, so
+            // the add button wrapped onto its own line below the label. Restore
+            // the row the publisher intended: label left, button right, and drop
+            // the inherited block margins that spread six rows down the dialog.
+            "[&_li.list-group-item]:flex [&_li.list-group-item]:items-center " +
+            "[&_li.list-group-item]:justify-between [&_li.list-group-item]:gap-3 " +
+            "[&_li.list-group-item]:py-0.5 [&_li.list-group-item_div]:my-0 " +
+            // prose puts 24px above and below every image, which is two thirds of
+            // each row's height when the image is a small inline thumbnail.
+            "[&_li.list-group-item_img]:my-0"
           }
-          dangerouslySetInnerHTML={{ __html: parts.join("\n") }}
+          dangerouslySetInnerHTML={{ __html: html }}
         />
       );
     }
