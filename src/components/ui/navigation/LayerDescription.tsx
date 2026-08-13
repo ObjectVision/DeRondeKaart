@@ -70,22 +70,24 @@ export function LayerDescription({
   const canOpenMeta = info.hasMeta && onOpenMeta !== undefined;
 
   return (
-    <div className="flex flex-col gap-1">
-      <p>{info.description ?? NO_DESCRIPTION}</p>
-      {/* Bottom left, under the text. Disabled rather than hidden when the
-          layer has no metainfo, matching the legend row's info button. */}
-      <div className="flex">
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          disabled={!canOpenMeta}
-          onClick={() => onOpenMeta?.(layerId, layerName ?? layerId)}
-          title={canOpenMeta ? "Informatie" : "Metadata (nog niet beschikbaar)"}
-          aria-label={`Informatie ${layerName ?? layerId}`}
-        >
-          <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
-        </Button>
-      </div>
+    <div className="flex items-center gap-2">
+      {/* `min-w-0` lets the paragraph wrap instead of forcing the row wider than
+          its container, which would push the button out of view. */}
+      <p className="min-w-0 flex-1">{info.description ?? NO_DESCRIPTION}</p>
+      {/* Middle right, vertically centred against the text. Disabled rather than
+          hidden when the layer has no metainfo, matching the legend row's info
+          button. `flex-shrink-0` keeps it square as the text grows. */}
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        className="flex-shrink-0"
+        disabled={!canOpenMeta}
+        onClick={() => onOpenMeta?.(layerId, layerName ?? layerId)}
+        title={canOpenMeta ? "Informatie" : "Metadata (nog niet beschikbaar)"}
+        aria-label={`Informatie ${layerName ?? layerId}`}
+      >
+        <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
+      </Button>
     </div>
   );
 }

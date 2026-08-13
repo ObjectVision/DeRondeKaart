@@ -71238,7 +71238,7 @@
             "type": "line",
             "paint": {
               "line-color": "#E5484D",
-              "line-width": 2,
+              "line-width": 1,
               "line-opacity": 0.3
             }
           }
