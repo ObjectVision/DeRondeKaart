@@ -20,8 +20,11 @@ export type ViewState = typeof INITIAL_VIEW_STATE;
  * Selectable background basemaps. Each entry pairs a base style (background +
  * geometry, no labels — rendered under user data) with an optional overlay
  * (labels, roads, water — inserted into the overlay band by
- * ensureAnchorsAndOverlay). `label` names the option in the basemap picker and
- * `thumb` is its preview image.
+ * ensureAnchorsAndOverlay).
+ *
+ * The picker presents this as three circles (BASEMAP_BASES) plus per-base
+ * checkboxes; each entry below is one base × option combination, and its `id` is
+ * what the app persists.
  *
  * Three provider quirks are baked into every style file here, and all three fail
  * SILENTLY (missing labels, dropped icons, or a source that never loads) if
@@ -41,34 +44,96 @@ export type ViewState = typeof INITIAL_VIEW_STATE;
  * not its SOURCES, so a label layer whose source is missing from the base is
  * dropped with "source not found".
  */
+/** The three background maps the picker offers as circles. */
+export type BasemapBaseId = "luchtfoto" | "kleur" | "grijs";
+
+/** The checkboxes a base can offer, each promoting part of the basemap above user data. */
+export type BasemapOptionKey = "labels" | "roads";
+
+/** Which of those checkboxes are ticked. */
+export interface BasemapOptions {
+  /** Place names and other text drawn above user data. */
+  labels: boolean;
+  /** Roads and waterways drawn above user data instead of under it. */
+  roads: boolean;
+}
+
 export interface Basemap {
   id: string;
   label: string;
   base: string;
   /**
-   * Layers drawn ABOVE user data. Omitted by the label-less variants, which are
-   * the base style alone — their roads and water draw *under* added layers.
+   * Layers drawn ABOVE user data. Omitted when no option is ticked, leaving the
+   * base style alone — its roads and water then draw *under* added layers.
    *
-   * The `-roads-labels` overlays deliberately REPEAT the base's water and road
-   * layers alongside the text, so the "met labels" variants show the network over
-   * data as well as under it. Those copies carry an `__ovl` id suffix: MapLibre
-   * would reject a duplicate id, and ensureAnchorsAndOverlay skips any layer whose
-   * id already exists, so same-id copies would be silently dropped.
+   * The overlays that include the network deliberately REPEAT the base's water and
+   * road layers, so those variants show the network over data as well as under it.
+   * Those copies carry an `__ovl` id suffix: MapLibre would reject a duplicate id,
+   * and ensureAnchorsAndOverlay skips any layer whose id already exists, so
+   * same-id copies would be silently dropped.
    */
   overlay?: string;
   /** Preview image in the picker. See BasemapDialog for how these are made. */
   thumb: string;
+  /** The circle this entry sits under in the picker. */
+  baseId: BasemapBaseId;
+  /** The option combination this entry represents. */
+  options: BasemapOptions;
 }
 
 /**
- * Ordered for the picker's 3×2 grid, NOT by precedence — the default is the
- * explicit id below, never `BASEMAPS[0]`.
+ * The three circles in the picker, in display order.
  *
- * The "kleur" pair is maptiler-basic and the "grijs" pair is positron. The base is
- * the complete published style minus its text (40 and 36 layers, in upstream
- * order), so a label-less variant is the base alone. The "met labels" variants add
- * an overlay holding the text plus a second copy of the water/road layers, which
- * is what puts the network back on top of user data.
+ * `supports` lists the checkboxes each one offers. Luchtfoto omits "roads": it is
+ * raster imagery with no vector network to promote, so the option would have
+ * nothing to act on. Driving the dialog off this list keeps that exception in the
+ * data rather than in a component branch.
+ */
+export interface BasemapBase {
+  id: BasemapBaseId;
+  label: string;
+  thumb: string;
+  supports: readonly BasemapOptionKey[];
+}
+
+export const BASEMAP_BASES: BasemapBase[] = [
+  {
+    id: "luchtfoto",
+    label: "Luchtfoto",
+    thumb: "/basemap-thumb-luchtfoto.png",
+    supports: ["labels"],
+  },
+  {
+    id: "kleur",
+    label: "Kleur",
+    thumb: "/basemap-thumb-kleur.png",
+    supports: ["labels", "roads"],
+  },
+  {
+    id: "grijs",
+    label: "Grijs",
+    thumb: "/basemap-thumb-grijs.png",
+    supports: ["labels", "roads"],
+  },
+];
+
+/**
+ * Every base × option combination the picker can produce: two for Luchtfoto (which
+ * has no "roads" option) and four each for Kleur and Grijs. The picker renders
+ * BASEMAP_BASES, not this list — these entries are what a chosen combination
+ * resolves to, and what the rest of the app persists as a single id.
+ *
+ * "kleur" is maptiler-basic and "grijs" is positron. Each base style is the complete
+ * published style minus its text (40 and 36 layers, in upstream order), so the
+ * no-options variant is the base alone.
+ *
+ * The ids are NOT mechanically derived from the options, and deliberately so:
+ * `kleur-labels`/`grijs-labels` predate the two-checkbox UI and already mean labels
+ * AND network, so they keep that meaning and labels-without-network takes the
+ * `-labels-only` suffix. Renaming them would break every share link and stored
+ * session already in the wild. basemapIdFor/basemapOptionsOf are the only code that
+ * needs to know this, which is why both go through the table rather than string
+ * concatenation.
  */
 export const BASEMAPS: Basemap[] = [
   {
@@ -77,6 +142,8 @@ export const BASEMAPS: Basemap[] = [
     label: "Luchtfoto",
     base: "/pdok-luchtfoto-base.json",
     thumb: "/basemap-thumb-luchtfoto.png",
+    baseId: "luchtfoto",
+    options: { labels: false, roads: false },
   },
   {
     // Labels only (no roads/water) so place names stay readable over the photo.
@@ -85,6 +152,8 @@ export const BASEMAPS: Basemap[] = [
     base: "/pdok-luchtfoto-base.json",
     overlay: "/openfreemap-labels.json",
     thumb: "/basemap-thumb-luchtfoto-labels.png",
+    baseId: "luchtfoto",
+    options: { labels: true, roads: false },
   },
   {
     // maptiler-basic, complete except for its text layers — no overlay at all.
@@ -92,34 +161,77 @@ export const BASEMAPS: Basemap[] = [
     label: "Kleur",
     base: "/openfreemap-base.json",
     thumb: "/basemap-thumb-kleur.png",
+    baseId: "kleur",
+    options: { labels: false, roads: false },
   },
   {
     // The same base, plus water/roads AND labels drawn again above user data.
     id: "kleur-labels",
-    label: "Kleur met labels",
+    label: "Kleur met labels en wegen",
     base: "/openfreemap-base.json",
     overlay: "/openfreemap-roads-labels.json",
     thumb: "/basemap-thumb-kleur-labels.png",
+    baseId: "kleur",
+    options: { labels: true, roads: true },
+  },
+  {
+    id: "kleur-labels-only",
+    label: "Kleur met labels",
+    base: "/openfreemap-base.json",
+    overlay: "/openfreemap-labels.json",
+    thumb: "/basemap-thumb-kleur-labels.png",
+    baseId: "kleur",
+    options: { labels: true, roads: false },
+  },
+  {
+    id: "kleur-wegen",
+    label: "Kleur met wegen",
+    base: "/openfreemap-base.json",
+    overlay: "/openfreemap-roads.json",
+    thumb: "/basemap-thumb-kleur.png",
+    baseId: "kleur",
+    options: { labels: false, roads: true },
   },
   {
     id: "grijs",
     label: "Grijs",
     base: "/positron-base.json",
     thumb: "/basemap-thumb-grijs.png",
+    baseId: "grijs",
+    options: { labels: false, roads: false },
   },
   {
     id: "grijs-labels",
-    label: "Grijs met labels",
+    label: "Grijs met labels en wegen",
     base: "/positron-base.json",
     overlay: "/positron-roads-labels.json",
     thumb: "/basemap-thumb-grijs-labels.png",
+    baseId: "grijs",
+    options: { labels: true, roads: true },
+  },
+  {
+    id: "grijs-labels-only",
+    label: "Grijs met labels",
+    base: "/positron-base.json",
+    overlay: "/positron-labels.json",
+    thumb: "/basemap-thumb-grijs-labels.png",
+    baseId: "grijs",
+    options: { labels: true, roads: false },
+  },
+  {
+    id: "grijs-wegen",
+    label: "Grijs met wegen",
+    base: "/positron-base.json",
+    overlay: "/positron-roads.json",
+    thumb: "/basemap-thumb-grijs.png",
+    baseId: "grijs",
+    options: { labels: false, roads: true },
   },
 ];
 
 /**
- * Spelled out rather than derived from `BASEMAPS[0]`: the array order is the
- * picker's display order and may be rearranged, which must not silently move
- * the default.
+ * Spelled out rather than derived from `BASEMAPS[0]`: the array is grouped by base
+ * and may be rearranged, which must not silently move the default.
  */
 export const DEFAULT_BASEMAP_ID = "kleur-labels";
 
@@ -138,6 +250,53 @@ export function basemapById(id: string): Basemap {
  */
 export function isBasemapId(id: string): boolean {
   return BASEMAPS.some((b) => b.id === id);
+}
+
+/**
+ * The basemap id for a base plus a set of ticked options.
+ *
+ * An option a base does not support is ignored rather than treated as no match —
+ * the picker keeps a remembered "roads" preference for Kleur while Luchtfoto is
+ * active, and that stale flag must not stop Luchtfoto from resolving. Falls back
+ * to the base's no-options entry, which every base has.
+ */
+export function basemapIdFor(baseId: BasemapBaseId, options: BasemapOptions): string {
+  const supports = BASEMAP_BASES.find((b) => b.id === baseId)?.supports ?? [];
+  const wanted: BasemapOptions = {
+    labels: supports.includes("labels") && options.labels,
+    roads: supports.includes("roads") && options.roads,
+  };
+  const match = BASEMAPS.find(
+    (b) =>
+      b.baseId === baseId &&
+      b.options.labels === wanted.labels &&
+      b.options.roads === wanted.roads,
+  );
+  if (match) return match.id;
+  console.warn(`No basemap for "${baseId}" with ${JSON.stringify(wanted)}; using its plain variant`);
+  return basemapPlainId(baseId);
+}
+
+/** The no-options entry for a base. */
+function basemapPlainId(baseId: BasemapBaseId): string {
+  const plain = BASEMAPS.find(
+    (b) => b.baseId === baseId && !b.options.labels && !b.options.roads,
+  );
+  return plain?.id ?? DEFAULT_BASEMAP_ID;
+}
+
+/**
+ * The base and ticked options behind a basemap id — the inverse of basemapIdFor,
+ * used by the picker to render its circles and checkboxes from the single id the
+ * rest of the app carries. An unknown id resolves through basemapById, so it
+ * reports the default basemap's combination rather than an empty one.
+ */
+export function basemapOptionsOf(id: string): {
+  baseId: BasemapBaseId;
+  options: BasemapOptions;
+} {
+  const basemap = basemapById(id);
+  return { baseId: basemap.baseId, options: { ...basemap.options } };
 }
 
 /**
