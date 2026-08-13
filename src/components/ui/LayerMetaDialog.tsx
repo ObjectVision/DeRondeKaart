@@ -33,7 +33,7 @@ export function LayerMetaDialog({
     <DialogRoot open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[min(34rem,calc(100vw-2rem))]">
         <div className="mb-5 flex items-center justify-between gap-2">
-          {/* Same treatment as the "Achtergrondkaart" and "Legenda" headings. */}
+          {/* Same treatment as the "Referentielagen" and "Legenda" headings. */}
           <DialogTitle className="text-xs font-semibold uppercase tracking-wide text-gray-500">
             {layer.name}
           </DialogTitle>

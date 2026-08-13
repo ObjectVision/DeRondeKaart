@@ -40,6 +40,12 @@ export interface LayerEntry {
  */
 const registeredCogColorUrls = new Set<string>();
 
+/**
+ * Opacity the legend's transparency tool dims a layer to. One fixed step rather
+ * than a slider: the tool is a single toggle button.
+ */
+export const DIMMED_OPACITY = 0.3;
+
 /** A `MapView`'s underlying map ref, as every imperative helper here takes it. */
 type MapRefObject = React.RefObject<MapRef | null>;
 
@@ -62,6 +68,10 @@ export interface UseMapLayersResult {
   reorderLayer: (layerId: string, toIndex: number, mapRef: MapRefObject) => void;
   hideLayer: (layerId: string, mapRef: MapRefObject) => void;
   toggleLayer: (layerId: string, mapRef: MapRefObject) => void;
+  /** Ids currently dimmed by the legend's transparency tool. */
+  dimmedIds: Set<string>;
+  /** Dim a layer to DIMMED_OPACITY, or restore its configured opacity. */
+  toggleDim: (layerId: string, mapRef: MapRefObject) => void;
   toggleRule: (layerId: string, ruleName: string, mapRef: MapRefObject) => void;
   setLayerStep: (layerId: string, value: number, mapRefs: MapRefObject[]) => void;
   togglePlay: (layerId: string) => void;
@@ -75,6 +85,8 @@ export function useMapLayers(): UseMapLayersResult {
   const [layerEntries, setLayerEntries] = useState<LayerEntry[]>([]);
   const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
   const [hiddenRules, setHiddenRules] = useState<globalThis.Map<string, Set<string>>>(new globalThis.Map());
+  const [dimmedIds, setDimmedIds] = useState<Set<string>>(new Set());
+  const dimmedIdsRef = useRef<Set<string>>(new Set());
   const layerEntriesRef = useRef<LayerEntry[]>([]);
   // Ref mirrors of the hidden state, so the composite host (called from a
   // moveend listener, outside React) can apply the parent's current state to
@@ -144,6 +156,11 @@ export function useMapLayers(): UseMapLayersResult {
           if (child.format === "flatgeobuf") {
             setFlatgeobufHidden(child.id, mapRef, true);
           }
+        }
+        // Same for a dimmed parent: the child is built from its own config, so it
+        // arrives at full opacity regardless of what the parent is showing.
+        if (dimmedIdsRef.current.has(parentId)) {
+          setNativeLayerOpacity(child, mapRef, DIMMED_OPACITY);
         }
         // Replay hidden classes onto a child that loaded later. Keys of the
         // form "<childIndex>:<name>" belong to one child only; bare names apply
@@ -334,6 +351,29 @@ export function useMapLayers(): UseMapLayersResult {
     [],
   );
 
+  const toggleDim = useCallback(
+    (layerId: string, mapRef: React.RefObject<MapRef | null>) => {
+      setDimmedIds((prev) => {
+        const next = new Set(prev);
+        const willBeDimmed = !next.has(layerId);
+        if (willBeDimmed) {
+          next.add(layerId);
+        } else {
+          next.delete(layerId);
+        }
+        dimmedIdsRef.current = next;
+
+        const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
+        if (entry) {
+          setEntryNativeOpacity(entry.config, mapRef, willBeDimmed ? DIMMED_OPACITY : null);
+        }
+
+        return next;
+      });
+    },
+    [],
+  );
+
   const toggleRule = useCallback(
     (layerId: string, ruleName: string, mapRef: React.RefObject<MapRef | null>) => {
       setHiddenRules((prev) => {
@@ -503,6 +543,12 @@ export function useMapLayers(): UseMapLayersResult {
           setEntryNativeVisibility(entry.config, mapRef, "none");
         }
 
+        // Replay the dim. The re-add above rebuilt the layer from its config, so
+        // it came back at full opacity. Must stay ABOVE the `continue` below.
+        if (dimmedIdsRef.current.has(entry.config.id)) {
+          setEntryNativeOpacity(entry.config, mapRef, DIMMED_OPACITY);
+        }
+
         // Replay hidden classes. Keys of the form "<childIndex>:<name>" belong
         // to one composite child; bare names apply to the entry itself (or, for
         // a zoom-banded composite, to every child). Mirrors addChild.
@@ -542,6 +588,7 @@ export function useMapLayers(): UseMapLayersResult {
       layerEntries,
       hiddenIds,
       hiddenRules,
+      dimmedIds,
       layerSteps,
       playingIds,
       addLayer,
@@ -549,6 +596,7 @@ export function useMapLayers(): UseMapLayersResult {
       reorderLayer,
       hideLayer,
       toggleLayer,
+      toggleDim,
       toggleRule,
       setLayerStep,
       togglePlay,
@@ -561,6 +609,7 @@ export function useMapLayers(): UseMapLayersResult {
       layerEntries,
       hiddenIds,
       hiddenRules,
+      dimmedIds,
       layerSteps,
       playingIds,
       addLayer,
@@ -568,6 +617,7 @@ export function useMapLayers(): UseMapLayersResult {
       reorderLayer,
       hideLayer,
       toggleLayer,
+      toggleDim,
       toggleRule,
       setLayerStep,
       togglePlay,
@@ -1025,6 +1075,95 @@ function setNativeLayerVisibility(
         map.setLayoutProperty(def.id, "visibility", visibility);
       }
     }
+  }
+}
+
+/** The opacity paint property for each native layer type. */
+const OPACITY_PAINT_KEY: Record<string, string> = {
+  fill: "fill-opacity",
+  line: "line-opacity",
+  circle: "circle-opacity",
+  symbol: "icon-opacity",
+  raster: "raster-opacity",
+  "fill-extrusion": "fill-extrusion-opacity",
+  heatmap: "heatmap-opacity",
+};
+
+/**
+ * Dim a config's native layers to `dimmed`, or restore their configured opacity
+ * when `dimmed` is null.
+ *
+ * The default is recovered by rebuilding the layer defs rather than snapshotting
+ * what was on the map: `buildNativeLayerDefs` is pure, and opacity is per-RULE
+ * (`ruleOpacity` — a symbolizer's own opacity outranks the layer's `style.opacity`).
+ * A single remembered number would flatten that and reset every rule to the same
+ * value, so a layer whose rules differ in opacity would come back wrong.
+ *
+ * A fill's outline is a separate paint property with its own configured value, so
+ * it is dimmed alongside the fill — otherwise dimming a polygon leaves a
+ * full-strength outline behind.
+ */
+function setNativeLayerOpacity(
+  config: LayerConfig,
+  mapRef: React.RefObject<MapRef | null>,
+  dimmed: number | null,
+) {
+  const map = mapRef.current?.getMap();
+  if (!map) return;
+
+  // COG opacity is baked into the per-pixel colour function, not a paint
+  // property, so there is nothing to set here.
+  if (config.format === "cog") return;
+  if (!isNativeVectorFormat(config.format)) return;
+
+  for (const def of buildNativeLayerDefs(config)) {
+    if (!map.getLayer(def.id)) continue;
+    const key = OPACITY_PAINT_KEY[def.type];
+    if (!key) continue;
+    // setPaintProperty's key/value types are a union over every layer type, which
+    // a runtime-selected key cannot satisfy. OPACITY_PAINT_KEY pairs each type
+    // with its own opacity property, so the pair is correct by construction.
+    const setPaint = map.setPaintProperty.bind(map) as (
+      layerId: string,
+      name: string,
+      value: unknown,
+    ) => void;
+    setPaint(def.id, key, dimmed ?? def.paint[key] ?? 1);
+    // Keep a polygon's outline in step with its fill.
+    if (def.type === "fill" && def.paint["fill-outline-color"] !== undefined) {
+      const outline = def.paint["fill-outline-color"];
+      setPaint(def.id, "fill-outline-color", dimmed === null ? outline : withAlpha(outline, dimmed));
+    }
+  }
+}
+
+/**
+ * Apply `alpha` to a colour string for the fill-outline case, which has no
+ * separate opacity property. Returns the input unchanged when it is not a form we
+ * can rewrite — a dimmed outline is cosmetic, so leaving it alone beats throwing.
+ */
+function withAlpha(color: unknown, alpha: number): unknown {
+  if (typeof color !== "string") return color;
+  if (color === "transparent") return color;
+  const rgb = color.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
+  if (rgb) return `rgba(${rgb[1]}, ${rgb[2]}, ${rgb[3]}, ${alpha})`;
+  const hex = color.match(/^#([0-9a-f]{6})$/i);
+  if (hex) {
+    const n = parseInt(hex[1], 16);
+    return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+  }
+  return color;
+}
+
+/** Dim/restore every native layer of an entry, following composite children. */
+function setEntryNativeOpacity(
+  config: LayerConfig,
+  mapRef: React.RefObject<MapRef | null>,
+  dimmed: number | null,
+) {
+  const targets = config.format === "composite" ? childrenOf(config) : [config];
+  for (const target of targets) {
+    setNativeLayerOpacity(target, mapRef, dimmed);
   }
 }
 

@@ -888,9 +888,11 @@ function App({
               entries={mapRightLayers.layerEntries}
               hiddenIds={mapRightLayers.hiddenIds}
               hiddenRules={mapRightLayers.hiddenRules}
+              dimmedIds={mapRightLayers.dimmedIds}
               layerSteps={mapRightLayers.layerSteps}
               playingIds={mapRightLayers.playingIds}
               onToggle={handlersB.toggle}
+              onToggleDim={handlersB.toggleDim}
               onToggleRule={handlersB.toggleRule}
               onTogglePlay={handlersB.togglePlay}
               onSetStep={handlersB.setStep}
@@ -1064,8 +1066,8 @@ function App({
                 variant="ghost"
                 size="icon-sm"
                 onClick={openBasemapDialog}
-                title="Achtergrondkaart kiezen"
-                aria-label="Achtergrondkaart kiezen"
+                title="Referentielagen kiezen"
+                aria-label="Referentielagen kiezen"
               >
                 <Icon name="map" size={chromeIconSize()} color={chromeIconColor()} />
               </Button>
@@ -1075,9 +1077,11 @@ function App({
               entries={leftLegendLayers.layerEntries}
               hiddenIds={leftLegendLayers.hiddenIds}
               hiddenRules={leftLegendLayers.hiddenRules}
+              dimmedIds={leftLegendLayers.dimmedIds}
               layerSteps={leftLegendLayers.layerSteps}
               playingIds={leftLegendLayers.playingIds}
               onToggle={leftLegendHandlers.toggle}
+              onToggleDim={leftLegendHandlers.toggleDim}
               onToggleRule={leftLegendHandlers.toggleRule}
               onTogglePlay={leftLegendHandlers.togglePlay}
               onSetStep={leftLegendHandlers.setStep}

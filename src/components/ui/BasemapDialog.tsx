@@ -103,7 +103,7 @@ export function BasemapDialog({
         <div className="mb-5 flex items-center justify-between gap-2">
           {/* Same treatment as the "Themas" and "Legenda" panel headings. */}
           <DialogTitle className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Achtergrondkaart
+            Referentielagen
           </DialogTitle>
           <Button
             variant="ghost"
@@ -115,7 +115,7 @@ export function BasemapDialog({
             <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
           </Button>
         </div>
-        <div role="radiogroup" aria-label="Achtergrondkaart" className="grid grid-cols-3 gap-4">
+        <div role="radiogroup" aria-label="Referentielagen" className="grid grid-cols-3 gap-4">
           {BASEMAP_BASES.map((base) => {
             const selected = base.id === active.baseId;
             const options = optionsFor(base.id);

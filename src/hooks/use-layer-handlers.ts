@@ -14,6 +14,8 @@ import type { UseMapLayersResult } from "./use-map-layers";
  */
 export interface UseLayerHandlersResult {
   toggle: (layerId: string) => void;
+  /** Dim the layer to 30%, or restore its configured opacity. */
+  toggleDim: (layerId: string) => void;
   toggleRule: (layerId: string, ruleName: string) => void;
   togglePlay: (layerId: string) => void;
   setStep: (layerId: string, value: number) => void;
@@ -36,6 +38,13 @@ export function useLayerHandlers(
   const toggle = useCallback(
     (layerId: string) => {
       layers.toggleLayer(layerId, resolveMapRef());
+    },
+    [layers, resolveMapRef],
+  );
+
+  const toggleDim = useCallback(
+    (layerId: string) => {
+      layers.toggleDim(layerId, resolveMapRef());
     },
     [layers, resolveMapRef],
   );
@@ -97,7 +106,7 @@ export function useLayerHandlers(
   }, [layers, resolveMapRef]);
 
   return useMemo(
-    () => ({ toggle, toggleRule, togglePlay, setStep, remove, reorder }),
-    [toggle, toggleRule, togglePlay, setStep, remove, reorder],
+    () => ({ toggle, toggleDim, toggleRule, togglePlay, setStep, remove, reorder }),
+    [toggle, toggleDim, toggleRule, togglePlay, setStep, remove, reorder],
   );
 }
