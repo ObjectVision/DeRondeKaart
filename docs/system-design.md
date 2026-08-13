@@ -130,11 +130,9 @@ Four principles organise the system.
 
 ### 3.1 Config-driven
 
-Five JSON files define behaviour (§11). The app ships with empty stubs in
+Five JSON files define behaviour (§11). The app ships with empty implementations in
 `public/`; a tenant's real files in `configs/<project>/` are swapped in at build
-or dev time, selected by the `VITE_CONFIG_PROJECT` environment variable. Two
-projects exist today: `woonzorglimburg` (79 layers) and `startanalyse2026`
-(199 layers).
+or dev time, selected by the `VITE_CONFIG_PROJECT` environment variable.
 
 ### 3.2 One renderer, one style model
 
@@ -148,8 +146,6 @@ filter expressions for vector layers, a per-pixel colour function for COG. See
 
 #### The MapLibre object model in brief
 
-Enough of MapLibre's own model to read §5 and §6.
-
 ```
 Map  ──owns──▶  Style ──▶ sources { id: Source }   data, no appearance
                       ├──▶ layers  [ Layer, … ]    appearance, ordered
@@ -158,13 +154,8 @@ Map  ──owns──▶  Style ──▶ sources { id: Source }   data, no appe
 ```
 
 **Map** — one per map view; this app runs two side by side for compare mode.
-`react-map-gl` creates it, but every layer operation afterwards calls MapLibre
-directly through `mapRef.current.getMap()`.
 
-**Style** — one JSON document holding everything drawable. The consequence that
-bites: changing basemap calls `setStyle()`, which replaces that document, so
-**every source, layer, sprite image and anchor the app added is destroyed** and
-must be re-applied (§14).
+**Style** — one JSON document holding everything drawable.
 
 **Source** — data, no appearance. Three types: `vector` (a `{z}/{x}/{y}`
 template, or a `pmtiles://` URL whose handler reads the archive header instead),
@@ -183,22 +174,9 @@ GeoStyler rule, id `<format-prefix>-layer-<configId>-<ruleName>`. A 17-rule
 layer is 17 MapLibre layers over one shared source, and add, remove, visibility,
 filtering and picking all walk that same id list (§3.4).
 
-**Order is the array.** `style.layers` is bottom-to-top, and that *is* the draw
-order. `addLayer(spec, beforeId)` inserts directly below the named layer. The
+**Order is the array.** `style.layers` is bottom-to-top. The
 app never reshuffles, because five invisible `background` anchor layers
 partition the stack into bands and each config picks its band (§5.5).
-
-**Three property bags per layer**, each with an in-place setter, so appearance
-changes never require re-adding a layer:
-
-| Bag | Holds | Setter |
-|---|---|---|
-| `paint` | Colour, width, opacity, radius — pure appearance | `setPaintProperty` |
-| `layout` | Whether/how geometry becomes drawable: `visibility`, `icon-image`, label placement | `setLayoutProperty` |
-| `filter` | Which features enter the layer at all | `setFilter` |
-
-`filter` matters most for §6: a filtered-out feature is not drawn **and not
-queryable**, so filtering the map and filtering picking are one act, not two.
 
 **Expressions** are the style language — JSON arrays evaluated per feature and
 zoom, e.g. `["==", ["get", "gm_code"], "GM0882"]`. Both translations produce
@@ -226,16 +204,6 @@ Filter selections live in **module-level stores**, not React state
 feature picking and chart aggregation all read the same store directly; React
 holds only a `version` counter, used as a cache key.
 
-The reason: not all consumers are UI components. Picking runs from an event
-handler, and chart aggregation walks an Arrow table outside the render path.
-Threading a filter down to each through the component tree would be verbose and
-easy to let drift out of sync.
-
-**What a "store" is here.** Not a library and not a subscription mechanism: one
-`const store` object at module scope, private to its file, plus the exported
-functions that read and replace it. The module is a singleton, so both maps and
-every non-React consumer see the same selection.
-
 | | Area filter | Box filter |
 |---|---|---|
 | Shape | `{ version, levels: [{ key, codes: Set<string>, digits: string[] }] }` | `{ version, bbox: [minLng, minLat, maxLng, maxLat] \| null }` |
@@ -262,10 +230,6 @@ two things: `useChartData` clears its cached aggregates, and
 [App.tsx](../src/App.tsx) re-runs `setFilter` over the live layers. Charts use
 `areaFilter.version + boxSelect.version` as one key; the sum works because both
 counters only increase.
-
-The cost: a store write is invisible to React on its own. Nothing re-renders
-unless the owning hook's `setVersion` runs, so code reaching past the hook into
-the store would filter the map but leave the sidebar showing a stale selection.
 
 ### 3.4 Single source of truth per concern
 
