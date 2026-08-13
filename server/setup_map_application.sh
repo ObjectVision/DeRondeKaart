@@ -240,6 +240,11 @@ log "Writing nginx site"
 # StreetView, export a PNG).
 #
 # Origins below were read out of configs/*/layers.json + map.json and src/.
+#
+# frame-src also covers infographics.pbl.nl: the layer metainfo embeds PBL's
+# "Uitleg strategieen en varianten" infographic in an iframe (see the
+# _strategie*.html fragments under meta/2025 on the data host). Without it the
+# strategy explanation renders as an empty box once the CSP is enforced.
 CSP_MAP="default-src 'self'; \
 script-src 'self' 'wasm-unsafe-eval' blob: https://maps.googleapis.com https://maps.gstatic.com; \
 worker-src 'self' blob:; \
@@ -247,7 +252,7 @@ style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
 font-src 'self' data: https://fonts.gstatic.com; \
 img-src 'self' data: blob: https: ; \
 connect-src 'self' blob: https://tiles.openfreemap.org https://data.woonzorglimburg.nl https://data.startanalyse2026.nl https://service.pdok.nl https://tiles.mapgallery.io https://startanalyse2025.files.mapgallery.io https://tiles.basemaps.cartocdn.com https://*.basemaps.cartocdn.com https://maps.googleapis.com; \
-frame-src 'self' https://www.google.com https://maps.googleapis.com; \
+frame-src 'self' https://www.google.com https://maps.googleapis.com https://infographics.pbl.nl; \
 object-src 'none'; base-uri 'self'; form-action 'self'"
 
 if [ -n "$FRAME_ANCESTORS" ]; then

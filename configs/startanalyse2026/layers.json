@@ -3,7 +3,15 @@
     {
       "id": "374",
       "name": "Laagste nationale kosten <10% kostenverschil (LN)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -214,7 +222,15 @@
     {
       "id": "357",
       "name": "Laagste nationale kosten <20% kostenverschil (LN)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -457,7 +473,15 @@
     {
       "id": "375",
       "name": "Laagste nationale kosten <30% kostenverschil (LN)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -668,7 +692,15 @@
     {
       "id": "207",
       "name": "Laagste nationale kosten zonder kostenverschil(LN)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -861,7 +893,15 @@
     {
       "id": "394",
       "name": "Laagste nationale kosten (LNGA08)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA08.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA08",
@@ -1054,7 +1094,15 @@
     {
       "id": "226",
       "name": "Energieverbruik (LN H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -2022,7 +2070,15 @@
     {
       "id": "227",
       "name": "Energieverbruik ruimteverwarming (LN H02)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H02.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H02.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -2990,7 +3046,15 @@
     {
       "id": "252",
       "name": "Energieverbruik warm tapwater (LN H03)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H03.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H03.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -3921,7 +3985,11 @@
     {
       "id": "251",
       "name": "CO₂-uitstoot (R30 H15)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H15.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H15.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -4078,7 +4146,11 @@
     {
       "id": "261",
       "name": "Energielevering aardgas (R30 H09)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H09.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H09.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -4235,7 +4307,11 @@
     {
       "id": "248",
       "name": "Energielevering elektriciteit (R30 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -4622,7 +4698,15 @@
     {
       "id": "387",
       "name": "Laagste nationale kosten (LNGA01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA01.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA01",
@@ -4815,7 +4899,15 @@
     {
       "id": "388",
       "name": "Laagste nationale kosten (LNGA02)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA02.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA02",
@@ -5008,7 +5100,15 @@
     {
       "id": "356",
       "name": "Strategie varianten (LN)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -5328,7 +5428,15 @@
     {
       "id": "212",
       "name": "Nationale kosten per ton CO₂ reductie (LN H17)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H17.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H17.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -6296,7 +6404,15 @@
     {
       "id": "305",
       "name": "Nationale kosten per woningequivalent (LN H18)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H18.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H18.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -6453,7 +6569,15 @@
     {
       "id": "300",
       "name": "Nationale meerkosten (LN H16)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H16.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H16.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -6635,7 +6759,15 @@
     {
       "id": "253",
       "name": "Energieverbruik ventilatie (LN H04)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H04.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H04.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -7199,7 +7331,15 @@
     {
       "id": "254",
       "name": "Energieverbruik koude (LN H05)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H05.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H05.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -8167,7 +8307,15 @@
     {
       "id": "255",
       "name": "Energieverbruik apparaten en licht (LN H06)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H06.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H06.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -9135,7 +9283,15 @@
     {
       "id": "256",
       "name": "Warmteverbruik (LN H07)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H07.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H07.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -10103,7 +10259,15 @@
     {
       "id": "275",
       "name": "Energielevering (LN H08)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H08.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H08.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -11071,7 +11235,15 @@
     {
       "id": "257",
       "name": "Energielevering klimaatneutraal gas (LN H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -12039,7 +12211,15 @@
     {
       "id": "258",
       "name": "Energielevering elektriciteit (LN H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -13007,7 +13187,15 @@
     {
       "id": "259",
       "name": "Energielevering MT-warmtebron (LN H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -13975,7 +14163,15 @@
     {
       "id": "260",
       "name": "Energielevering LT-warmtebron (LN H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -14943,7 +15139,15 @@
     {
       "id": "290",
       "name": "Energielevering overig (LN H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -15181,7 +15385,15 @@
     {
       "id": "295",
       "name": "CO₂-uitstoot (LN H15)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H15.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H15.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/stratNL.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -16451,7 +16663,11 @@
     {
       "id": "350",
       "name": "Strategie varianten (S1)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H15.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H15.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -16533,7 +16749,11 @@
     {
       "id": "279",
       "name": "Nationale meerkosten (S1 H16)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H16.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H16.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -16715,7 +16935,11 @@
     {
       "id": "143",
       "name": "Nationale kosten per ton CO₂ reductie (S1 H17)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H17.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H17.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -16872,7 +17096,11 @@
     {
       "id": "280",
       "name": "Nationale kosten per woningequivalent (S1 H18)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H18.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H18.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -17029,7 +17257,11 @@
     {
       "id": "148",
       "name": "Energieverbruik (S1 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -17186,7 +17418,11 @@
     {
       "id": "157",
       "name": "Energieverbruik ruimteverwarming (S1 H02)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H02.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H02.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -17343,7 +17579,11 @@
     {
       "id": "268",
       "name": "Energieverbruik warm tapwater (S1 H03)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H03.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H03.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -17500,7 +17740,11 @@
     {
       "id": "159",
       "name": "Energieverbruik ventilatie (S1 H04)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H04.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H04.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -17599,7 +17843,11 @@
     {
       "id": "160",
       "name": "Energieverbruik koude (S1 H05)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H05.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H05.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -17756,7 +18004,11 @@
     {
       "id": "269",
       "name": "Energieverbruik apparaten en licht (S1 H06)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H06.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H06.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -17913,7 +18165,11 @@
     {
       "id": "162",
       "name": "Warmteverbruik (S1 H07)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H07.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H07.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -18070,7 +18326,11 @@
     {
       "id": "270",
       "name": "Energielevering (S1 H08)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H08.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H08.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -18227,7 +18487,11 @@
     {
       "id": "163",
       "name": "Energielevering klimaatneutraal gas (S1 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -18384,7 +18648,11 @@
     {
       "id": "277",
       "name": "Energielevering elektriciteit (S1 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -18541,7 +18809,11 @@
     {
       "id": "165",
       "name": "Energielevering MT-warmtebron (S1 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -18698,7 +18970,11 @@
     {
       "id": "166",
       "name": "Energielevering LT-warmtebron (S1 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -18855,7 +19131,11 @@
     {
       "id": "164",
       "name": "Energielevering overig (S1 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -19012,7 +19292,11 @@
     {
       "id": "278",
       "name": "CO₂-uitstoot (S1 H15)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S1_H15.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S1_H15.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat1",
@@ -19094,7 +19378,11 @@
     {
       "id": "349",
       "name": "Strategie varianten (S2)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -19210,7 +19498,11 @@
     {
       "id": "296",
       "name": "Nationale meerkosten (S2 H16)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H16.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H16.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -19392,7 +19684,11 @@
     {
       "id": "144",
       "name": "Nationale kosten per ton CO₂ reductie (S2 H17)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H17.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H17.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -19549,7 +19845,11 @@
     {
       "id": "301",
       "name": "Nationale kosten per woningequivalent (S2 H18)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H18.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H18.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -19706,7 +20006,11 @@
     {
       "id": "153",
       "name": "Energieverbruik (S2 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -19863,7 +20167,11 @@
     {
       "id": "167",
       "name": "Energieverbruik ruimteverwarming (S2 H02)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H02.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H02.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -20020,7 +20328,11 @@
     {
       "id": "168",
       "name": "Energieverbruik warm tapwater (S2 H03)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H03.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H03.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -20177,7 +20489,11 @@
     {
       "id": "169",
       "name": "Energieverbruik ventilatie (S2 H04)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H04.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H04.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -20276,7 +20592,11 @@
     {
       "id": "170",
       "name": "Energieverbruik koude (S2 H05)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H05.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H05.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -20433,7 +20753,11 @@
     {
       "id": "171",
       "name": "Energieverbruik apparaten en licht (S2 H06)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H06.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H06.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -20590,7 +20914,11 @@
     {
       "id": "172",
       "name": "Warmteverbruik (S2 H07)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H07.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H07.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -20747,7 +21075,11 @@
     {
       "id": "271",
       "name": "Energielevering (S2 H08)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H08.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H08.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -20904,7 +21236,11 @@
     {
       "id": "173",
       "name": "Energielevering klimaatneutraal gas (S2 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -21061,7 +21397,11 @@
     {
       "id": "174",
       "name": "Energielevering elektriciteit (S2 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -21218,7 +21558,11 @@
     {
       "id": "175",
       "name": "Energielevering MT-warmtebron (S2 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -21375,7 +21719,11 @@
     {
       "id": "176",
       "name": "Energielevering LT-warmtebron (S2 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -21532,7 +21880,11 @@
     {
       "id": "286",
       "name": "Energielevering overig (S2 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -21723,7 +22075,11 @@
     {
       "id": "291",
       "name": "CO₂-uitstoot (S2 H15)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S2_H15.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S2_H15.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat2",
@@ -21805,7 +22161,11 @@
     {
       "id": "351",
       "name": "Strategie varianten (S3)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H15.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H15.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -21989,7 +22349,11 @@
     {
       "id": "297",
       "name": "Nationale meerkosten (S3 H16)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H16.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H16.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -22171,7 +22535,11 @@
     {
       "id": "145",
       "name": "Nationale kosten per ton CO₂ reductie (S3 H17)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H17.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H17.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -22328,7 +22696,11 @@
     {
       "id": "302",
       "name": "Nationale kosten per woningequivalent (S3 H18)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H18.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H18.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -22485,7 +22857,11 @@
     {
       "id": "154",
       "name": "Energieverbruik (S3 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -22642,7 +23018,11 @@
     {
       "id": "177",
       "name": "Energieverbruik ruimteverwarming (S3 H02)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H02.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H02.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -22799,7 +23179,11 @@
     {
       "id": "178",
       "name": "Energieverbruik warm tapwater (S3 H03)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H03.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H03.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -22956,7 +23340,11 @@
     {
       "id": "179",
       "name": "Energieverbruik ventilatie (S3 H04)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H04.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H04.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -23055,7 +23443,11 @@
     {
       "id": "180",
       "name": "Energieverbruik koude (S3 H05)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H05.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H05.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -23212,7 +23604,11 @@
     {
       "id": "181",
       "name": "Energieverbruik apparaten en licht (S3 H06)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H06.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H06.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -23369,7 +23765,11 @@
     {
       "id": "182",
       "name": "Warmteverbruik (S3 H07)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H07.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H07.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -23526,7 +23926,11 @@
     {
       "id": "272",
       "name": "Energielevering (S3 H08)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H08.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H08.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -23683,7 +24087,11 @@
     {
       "id": "183",
       "name": "Energielevering klimaatneutraal gas (S3 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -23840,7 +24248,11 @@
     {
       "id": "184",
       "name": "Energielevering elektriciteit (S3 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -23997,7 +24409,11 @@
     {
       "id": "185",
       "name": "Energielevering MT-warmtebron (S3 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -24154,7 +24570,11 @@
     {
       "id": "186",
       "name": "Energielevering LT-warmtebron (S3 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -24311,7 +24731,11 @@
     {
       "id": "287",
       "name": "Energielevering overig (S3 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -24468,7 +24892,11 @@
     {
       "id": "292",
       "name": "CO₂-uitstoot (S3 H15)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S3_H15.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S3_H15.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat3",
@@ -24550,7 +24978,12 @@
     {
       "id": "352",
       "name": "Strategie varianten (S4)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H15.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H15.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -24632,7 +25065,12 @@
     {
       "id": "298",
       "name": "Nationale meerkosten (S4 H16)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H16.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H16.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -24814,7 +25252,12 @@
     {
       "id": "146",
       "name": "Nationale kosten per ton CO₂ reductie (S4 H17)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H17.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H17.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -24971,7 +25414,12 @@
     {
       "id": "303",
       "name": "Nationale kosten per woningequivalent (S4 H18)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H18.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H18.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -25128,7 +25576,11 @@
     {
       "id": "155",
       "name": "Energieverbruik (S4 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -25285,7 +25737,11 @@
     {
       "id": "187",
       "name": "Energieverbruik ruimteverwarming (S4 H02)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H02.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H02.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -25442,7 +25898,11 @@
     {
       "id": "188",
       "name": "Energieverbruik warm tapwater (S4 H03)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H03.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H03.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -25599,7 +26059,11 @@
     {
       "id": "189",
       "name": "Energieverbruik ventilatie (S4 H04)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H04.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H04.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -25698,7 +26162,11 @@
     {
       "id": "190",
       "name": "Energieverbruik koude (S4 H05)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H05.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H05.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -25855,7 +26323,11 @@
     {
       "id": "191",
       "name": "Energieverbruik apparaten en licht (S4 H06)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H06.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H06.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -26012,7 +26484,11 @@
     {
       "id": "192",
       "name": "Warmteverbruik (S4 H07)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H07.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H07.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -26169,7 +26645,11 @@
     {
       "id": "273",
       "name": "Energielevering (S4 H08)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H08.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H08.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -26326,7 +26806,11 @@
     {
       "id": "193",
       "name": "Energielevering klimaatneutraal gas (S4 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -26483,7 +26967,11 @@
     {
       "id": "194",
       "name": "Energielevering elektriciteit (S4 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -26640,7 +27128,11 @@
     {
       "id": "195",
       "name": "Energielevering MT-warmtebron (S4 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -26797,7 +27289,11 @@
     {
       "id": "196",
       "name": "Energielevering LT-warmtebron (S4 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -26954,7 +27450,11 @@
     {
       "id": "288",
       "name": "Energielevering overig (S4 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -27111,7 +27611,12 @@
     {
       "id": "293",
       "name": "CO₂-uitstoot (S4 H15)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/S4_H15.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/S4_H15.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/strat4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "strat4",
@@ -27193,7 +27698,11 @@
     {
       "id": "235",
       "name": "Energieverbruik (R23 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -27350,7 +27859,11 @@
     {
       "id": "236",
       "name": "Energieverbruik ruimteverwarming (R23 H02)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H02.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H02.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -27507,7 +28020,11 @@
     {
       "id": "158",
       "name": "Energieverbruik warm tapwater (R23 H03)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H03.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H03.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -27664,7 +28181,11 @@
     {
       "id": "237",
       "name": "Energieverbruik ventilatie (R23 H04)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H04.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H04.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -27763,7 +28284,11 @@
     {
       "id": "238",
       "name": "Energieverbruik koude (R23 H05)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H05.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H05.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -27920,7 +28445,11 @@
     {
       "id": "161",
       "name": "Energieverbruik apparaten en licht (R23 H06)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H06.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H06.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -28077,7 +28606,11 @@
     {
       "id": "239",
       "name": "Warmteverbruik (R23 H07)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H07.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H07.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -28234,7 +28767,11 @@
     {
       "id": "306",
       "name": "Energielevering (R23 H08)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H08.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H08.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -28391,7 +28928,11 @@
     {
       "id": "228",
       "name": "Energielevering aardgas (R23 H09)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H09.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H09.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -28548,7 +29089,11 @@
     {
       "id": "309",
       "name": "Energielevering klimaatneutraal gas (R23 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -28705,7 +29250,11 @@
     {
       "id": "232",
       "name": "Energielevering elektriciteit (R23 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -28862,7 +29411,11 @@
     {
       "id": "233",
       "name": "Energielevering MT-warmtebron (R23 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -29019,7 +29572,11 @@
     {
       "id": "234",
       "name": "Energielevering LT-warmtebron (R23 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -29176,7 +29733,11 @@
     {
       "id": "308",
       "name": "Energielevering overig (R23 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -29333,7 +29894,11 @@
     {
       "id": "310",
       "name": "CO₂-uitstoot (R23 H15)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R23_H15.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R23_H15.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref19.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref19",
@@ -29490,7 +30055,11 @@
     {
       "id": "240",
       "name": "Energieverbruik (R30 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -29647,7 +30216,11 @@
     {
       "id": "241",
       "name": "Energieverbruik ruimteverwarming (R30 H02)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H02.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H02.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -29804,7 +30377,11 @@
     {
       "id": "242",
       "name": "Energieverbruik warm tapwater (R30 H03)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H03.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H03.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -29961,7 +30538,11 @@
     {
       "id": "243",
       "name": "Energieverbruik ventilatie (R30 H04)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H04.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H04.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -30060,7 +30641,11 @@
     {
       "id": "244",
       "name": "Energieverbruik koude (R30 H05)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H05.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H05.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -30217,7 +30802,11 @@
     {
       "id": "245",
       "name": "Energieverbruik apparaten en licht (R30 H06)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H06.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H06.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -30374,7 +30963,11 @@
     {
       "id": "246",
       "name": "Warmteverbruik (R30 H07)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H07.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H07.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -30531,7 +31124,11 @@
     {
       "id": "307",
       "name": "Energielevering (R30 H08)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H08.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H08.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -30688,7 +31285,11 @@
     {
       "id": "312",
       "name": "Energielevering klimaatneutraal gas (R30 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -30845,7 +31446,11 @@
     {
       "id": "249",
       "name": "Energielevering MT-warmtebron (R30 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -31002,7 +31607,11 @@
     {
       "id": "250",
       "name": "Energielevering LT-warmtebron (R30 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -31159,7 +31768,11 @@
     {
       "id": "311",
       "name": "Energielevering overig (R30 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/R30_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/R30_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/ref30.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ref30",
@@ -31316,7 +31929,15 @@
     {
       "id": "420",
       "name": "Energielevering elektriciteit (LNGA01 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA01.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA01",
@@ -32284,7 +32905,15 @@
     {
       "id": "409",
       "name": "Energielevering klimaatneutraal gas (LNGA01 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA01.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA01",
@@ -33252,7 +33881,15 @@
     {
       "id": "442",
       "name": "Energielevering LT-warmtebron (LNGA01 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA01.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA01",
@@ -34220,7 +34857,15 @@
     {
       "id": "431",
       "name": "Energielevering MT-warmtebron (LNGA01 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA01.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA01",
@@ -35188,7 +35833,15 @@
     {
       "id": "453",
       "name": "Energielevering overig (LNGA01 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA01.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA01",
@@ -35345,7 +35998,15 @@
     {
       "id": "398",
       "name": "Energieverbruik (LNGA01 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA01.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA01",
@@ -36313,7 +36974,15 @@
     {
       "id": "376",
       "name": "Laagste nationale kosten <20% verschil (LNGA01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA01.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA01",
@@ -36556,7 +37225,15 @@
     {
       "id": "362",
       "name": "Strategie varianten (LNGA01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA01.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA01",
@@ -36876,7 +37553,15 @@
     {
       "id": "421",
       "name": "Energielevering elektriciteit (LNGA02 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA02.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA02",
@@ -37844,7 +38529,15 @@
     {
       "id": "410",
       "name": "Energielevering klimaatneutraal gas (LNGA02 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA02.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA02",
@@ -38812,7 +39505,15 @@
     {
       "id": "443",
       "name": "Energielevering LT-warmtebron (LNGA02 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA02.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA02",
@@ -39780,7 +40481,15 @@
     {
       "id": "432",
       "name": "Energielevering MT-warmtebron (LNGA02 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA02.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA02",
@@ -40748,7 +41457,15 @@
     {
       "id": "454",
       "name": "Energielevering overig (LNGA02 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA02.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA02",
@@ -40905,7 +41622,15 @@
     {
       "id": "399",
       "name": "Energieverbruik (LNGA02 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA02.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA02",
@@ -41873,7 +42598,15 @@
     {
       "id": "377",
       "name": "Laagste nationale kosten <20% verschil (LNGA02)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA02.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA02",
@@ -42116,7 +42849,15 @@
     {
       "id": "363",
       "name": "Strategie varianten (LNGA02)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA02.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA02",
@@ -42436,7 +43177,15 @@
     {
       "id": "422",
       "name": "Energielevering elektriciteit (LNGA03 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA03.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA03",
@@ -43404,7 +44153,15 @@
     {
       "id": "411",
       "name": "Energielevering klimaatneutraal gas (LNGA03 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA03.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA03",
@@ -44372,7 +45129,15 @@
     {
       "id": "445",
       "name": "Energielevering LT-warmtebron (LNGA03 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA03.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA03",
@@ -45340,7 +46105,15 @@
     {
       "id": "433",
       "name": "Energielevering MT-warmtebron (LNGA03 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA03.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA03",
@@ -46308,7 +47081,15 @@
     {
       "id": "455",
       "name": "Energielevering overig (LNGA03 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA03.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA03",
@@ -46465,7 +47246,15 @@
     {
       "id": "400",
       "name": "Energieverbruik (LNGA03 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA03.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA03",
@@ -47433,7 +48222,15 @@
     {
       "id": "378",
       "name": "Laagste nationale kosten <20% verschil (LNGA03)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA03.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA03",
@@ -47676,7 +48473,15 @@
     {
       "id": "389",
       "name": "Laagste nationale kosten (LNGA03)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA03.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA03",
@@ -47869,7 +48674,15 @@
     {
       "id": "364",
       "name": "Strategie varianten (LNGA03)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA03.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA03",
@@ -48189,7 +49002,15 @@
     {
       "id": "423",
       "name": "Energielevering elektriciteit (LNGA04 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA04.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA04",
@@ -49157,7 +49978,15 @@
     {
       "id": "412",
       "name": "Energielevering klimaatneutraal gas (LNGA04 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA04.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA04",
@@ -50125,7 +50954,15 @@
     {
       "id": "446",
       "name": "Energielevering LT-warmtebron (LNGA04 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA04.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA04",
@@ -51093,7 +51930,15 @@
     {
       "id": "434",
       "name": "Energielevering MT-warmtebron (LNGA04 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA04.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA04",
@@ -52061,7 +52906,15 @@
     {
       "id": "456",
       "name": "Energielevering overig (LNGA04 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA04.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA04",
@@ -52218,7 +53071,15 @@
     {
       "id": "401",
       "name": "Energieverbruik (LNGA04 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA04.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA04",
@@ -53186,7 +54047,15 @@
     {
       "id": "379",
       "name": "Laagste nationale kosten <20% verschil (LNGA04)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA04.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA04",
@@ -53429,7 +54298,15 @@
     {
       "id": "390",
       "name": "Laagste nationale kosten (LNGA04)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA04.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA04",
@@ -53622,7 +54499,15 @@
     {
       "id": "365",
       "name": "Strategie varianten (LNGA04)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA04.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA04",
@@ -53942,7 +54827,15 @@
     {
       "id": "424",
       "name": "Energielevering elektriciteit (LNGA05 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA05.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA05",
@@ -54910,7 +55803,15 @@
     {
       "id": "413",
       "name": "Energielevering klimaatneutraal gas (LNGA05 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA05.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA05",
@@ -55878,7 +56779,15 @@
     {
       "id": "444",
       "name": "Energielevering LT-warmtebron (LNGA05 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA05.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA05",
@@ -56846,7 +57755,15 @@
     {
       "id": "435",
       "name": "Energielevering MT-warmtebron (LNGA05 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA05.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA05",
@@ -57814,7 +58731,15 @@
     {
       "id": "457",
       "name": "Energielevering overig (LNGA05 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA05.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA05",
@@ -57971,7 +58896,15 @@
     {
       "id": "402",
       "name": "Energieverbruik (LNGA05 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA05.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA05",
@@ -58939,7 +59872,15 @@
     {
       "id": "380",
       "name": "Laagste nationale kosten <20% verschil (LNGA05)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA05.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA05",
@@ -59182,7 +60123,15 @@
     {
       "id": "391",
       "name": "Laagste nationale kosten (LNGA05)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA05.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA05",
@@ -59375,7 +60324,15 @@
     {
       "id": "366",
       "name": "Strategie varianten (LNGA05)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA05.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA05",
@@ -59695,7 +60652,15 @@
     {
       "id": "425",
       "name": "Energielevering elektriciteit (LNGA06 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA06.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA06",
@@ -60663,7 +61628,15 @@
     {
       "id": "414",
       "name": "Energielevering klimaatneutraal gas (LNGA06 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA06.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA06",
@@ -61631,7 +62604,15 @@
     {
       "id": "447",
       "name": "Energielevering LT-warmtebron (LNGA06 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA06.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA06",
@@ -62599,7 +63580,15 @@
     {
       "id": "436",
       "name": "Energielevering MT-warmtebron (LNGA06 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA06.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA06",
@@ -63567,7 +64556,15 @@
     {
       "id": "458",
       "name": "Energielevering overig (LNGA06 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA06.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA06",
@@ -63724,7 +64721,15 @@
     {
       "id": "403",
       "name": "Energieverbruik (LNGA06 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA06.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA06",
@@ -64692,7 +65697,15 @@
     {
       "id": "381",
       "name": "Laagste nationale kosten <20% verschil (LNGA06)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA06.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA06",
@@ -64935,7 +65948,15 @@
     {
       "id": "392",
       "name": "Laagste nationale kosten (LNGA06)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA06.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA06",
@@ -65128,7 +66149,15 @@
     {
       "id": "367",
       "name": "Strategie varianten (LNGA06)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA06.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA06",
@@ -65448,7 +66477,15 @@
     {
       "id": "426",
       "name": "Energielevering elektriciteit (LNGA07 H11)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H11.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA07.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA07",
@@ -66416,7 +67453,15 @@
     {
       "id": "415",
       "name": "Energielevering klimaatneutraal gas (LNGA07 H10)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H10.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA07.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA07",
@@ -67384,7 +68429,15 @@
     {
       "id": "448",
       "name": "Energielevering LT-warmtebron (LNGA07 H13)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H13.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA07.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA07",
@@ -68352,7 +69405,15 @@
     {
       "id": "437",
       "name": "Energielevering MT-warmtebron (LNGA07 H12)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H12.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA07.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA07",
@@ -69320,7 +70381,15 @@
     {
       "id": "459",
       "name": "Energielevering overig (LNGA07 H14)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H14.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA07.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA07",
@@ -69477,7 +70546,15 @@
     {
       "id": "404",
       "name": "Energieverbruik (LNGA07 H01)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_H01.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA07.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA07",
@@ -70445,7 +71522,15 @@
     {
       "id": "382",
       "name": "Laagste nationale kosten <20% verschil (LNGA07)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA07.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA07",
@@ -70688,7 +71773,15 @@
     {
       "id": "393",
       "name": "Laagste nationale kosten (LNGA07)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA07.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA07",
@@ -70881,7 +71974,15 @@
     {
       "id": "368",
       "name": "Strategie varianten (LNGA07)",
-      "meta": "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/LNGA07.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "LNGA07",
