@@ -104,8 +104,9 @@ export function FeatureInfo({
         </div>
       )}
 
-      {/* Content — scrollable */}
-      <div className="overflow-y-auto p-3 flex flex-col gap-2">
+      {/* Content — scrollable. `app-scrollbar` lands on the element that owns the
+          overflow, matching the navigation and legend cards' scrollbar. */}
+      <div className="app-scrollbar overflow-y-auto p-3 flex flex-col gap-2">
         {!template ? (
           <p className="text-xs text-gray-400">Loading template...</p>
         ) : features.length === 0 ? (
