@@ -328,18 +328,7 @@ discard the state of everything inside it.
 
 ### 5.1 Formats
 
-`LayerFormat` ([types.ts](../src/layers/types.ts)) admits eight values.
-`geojson` is in-memory only and cannot be declared in `layers.json`;
-`composite` is a grouping construct, not a data format.
-
-| Format | What it is | Loader | Renderer |
-|---|---|---|---|
-| `geojson` | In-memory `FeatureCollection` (Power BI push) | none — `config.data` | MapLibre (GeoJSON source) |
-| `pmtiles` | Single-file vector tile archive, `pmtiles://` protocol | MapLibre source | MapLibre (vector) |
-| `mvt` | Vector tile template `{z}/{x}/{y}.pbf` | MapLibre source | MapLibre (vector) |
-| `flatgeobuf` | FGB with packed Hilbert R-tree, bbox-filtered range reads | [flatgeobuf-loader.ts](../src/layers/flatgeobuf-loader.ts) | MapLibre (GeoJSON source) |
-| `cog` | Cloud-Optimized GeoTIFF, `cog://` protocol | protocol handler | MapLibre (raster) |
-| `composite` | Zoom-banded children under one legend entry | [composite-manager.ts](../src/layers/composite-manager.ts) | delegates per child |
+See chapter 2.
 
 ### 5.2 Format dispatch
 
