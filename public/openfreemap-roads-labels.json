@@ -266,28 +266,6 @@
       }
     },
     {
-      "id": "housenumber",
-      "type": "symbol",
-      "source": "openmaptiles",
-      "source-layer": "housenumber",
-      "minzoom": 17,
-      "filter": [
-        "==",
-        "$type",
-        "Point"
-      ],
-      "layout": {
-        "text-field": "{housenumber}",
-        "text-font": [
-          "Noto Sans Regular"
-        ],
-        "text-size": 10
-      },
-      "paint": {
-        "text-color": "rgba(212, 177, 146, 1)"
-      }
-    },
-    {
       "id": "road_area_pier__ovl",
       "type": "fill",
       "metadata": {},
@@ -1180,6 +1158,28 @@
             ]
           ]
         }
+      }
+    },
+    {
+      "id": "housenumber",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "housenumber",
+      "minzoom": 17,
+      "filter": [
+        "==",
+        "$type",
+        "Point"
+      ],
+      "layout": {
+        "text-field": "{housenumber}",
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": 10
+      },
+      "paint": {
+        "text-color": "rgba(212, 177, 146, 1)"
       }
     },
     {
