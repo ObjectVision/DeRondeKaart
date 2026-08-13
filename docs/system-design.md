@@ -4,7 +4,7 @@
 
 ## 1. Introduction
 
-De Ronde kaart is an opensource web-based map application for geospatial data, aiming to deliver on a fast, transparant, embeddable and easy to configure user experience.
+De Ronde kaart is an opensource web-based map application for geospatial data. Focussed on transparant visualizations with clear styling, thorough metainfo while remaining performant.
 
 ## 2. Technology stack and major dependencies
 
