@@ -1,7 +1,7 @@
 # De Ronde kaart — Version constraints
 
 **Audience:** developers and maintainers. Companion to
-[system-design.md](system-design.md) §3, whose "Version constraints worth
+[system-design.md](system-design.md) §2, whose "Version constraints worth
 knowing" subsection this file replaces in full.
 
 **Read this before upgrading `maplibre-gl` or `typescript`.** Both are held back
@@ -36,7 +36,7 @@ them only appears in a production build. Test with `npm run build` +
 
 ### `zoomLevelsToOverscale={undefined}` must stay
 
-See [system-design.md](system-design.md) §6.3 for the measurement and the
+See [system-design.md](system-design.md) §5.3 for the measurement and the
 reasoning.
 
 ---

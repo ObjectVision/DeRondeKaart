@@ -1,69 +1,31 @@
 # De Ronde kaart — System Design Document
 
-**Audience:** developers and maintainers. Assumes ordinary programming
-knowledge; React and GIS specifics are explained where they matter.
-
 ---
 
 ## 1. Introduction
 
 De Ronde kaart is an opensource web-based map application for geospatial data, aiming to deliver on a fast, transparant, embeddable and easy to configure user experience.
 
-## 2. System context
-
-The mapapp is a static web page. It reads its
-data straight off a file server, and optionally connects to a collaboration
-server for shared annotations.
-
-```mermaid
-flowchart LR
-    subgraph browser["Browser"]
-        app["De Ronde kaart SPA<br/>React + MapLibre"]
-    end
-
-    subgraph static["Static hosting (nginx)"]
-        html["App bundle<br/>+ config JSON"]
-    end
-
-    subgraph datahost["Data host (nginx, range requests)"]
-        tiles["PMTiles / COG / FGB<br/>+ Parquet attribute sidecars"]
-    end
-
-    collab["Collab server<br/>Hocuspocus + Yjs + SQLite"]
-    basemap["Basemap tiles<br/>OpenFreeMap / PDOK"]
-
-    app -->|"HTTPS"| html
-    app -->|"HTTPS 206 range"| tiles
-    app <-->|"WebSocket /collab"| collab
-    app -->|"HTTPS"| basemap
-```
-
-The data host is deliberately dumb — no tile server, no database, no API, just a
-file server. Every format the app reads is one file that the browser fetches
-*byte ranges* out of, so the whole data tier is `nginx` serving static files.
-
----
-
-## 3. Technology stack and major dependencies
+## 2. Technology stack and major dependencies
 
 #### Rendering
 
 | Package | Why |
 |---|---|
 | `maplibre-gl` ^6.2 |Drawing geographic data |
-| `react-map-gl` ^8.1 |Wrapper between maplibre-gl and react-map-gl |
+| `react-map-gl` ^8.1 |Wrapper between maplibre-gl and React |
 
 #### Data formats
 
 One package per format the map can read; the *format* rationale (when to reach
-for which) is §6.1, and the loading mechanics are §6.3.
+for which) is §5.1, and the loading mechanics are §5.3.
 
 | Package | We use | Why |
 |---|---|---|
-| `pmtiles` ^4.4 | `Protocol`, registered as `pmtiles://` | Serves a whole vector tileset from one file over range requests — no tile server (§2) |
+| `pmtiles` ^4.4 | `Protocol`, registered as `pmtiles://` | Serves a whole vector tileset from one file over range requests — no tile server |
 | `@geomatico/maplibre-cog-protocol` ^0.9 | `cogProtocol` (registered as `cog://`), `setColorFunction` | Cloud-Optimized GeoTIFF as a MapLibre raster source. `setColorFunction` is the hook [system-design-styling.md](system-design-styling.md) uses to classify raster pixels through the same GeoStyler rules a vector layer uses |
-| `flatgeobuf` ^4.4 | `deserialize` from the ESM build (`flatgeobuf/lib/mjs/geojson.js`) | Bbox-filtered streaming reads against the file's packed Hilbert R-tree — large vector data browsed at high zoom without tiling it first (§6.3) |
-| `apache-arrow` ^21.1 | `Table`, `tableFromIPC` | The in-memory columnar table every analytics path consumes: chart aggregation, statistics and the filter dropdowns all read Arrow (§8) |
+| `flatgeobuf` ^4.4 | `deserialize` from the ESM build (`flatgeobuf/lib/mjs/geojson.js`) | Bbox-filtered streaming reads against the file's packed Hilbert R-tree — large vector data browsed at high zoom without tiling it first (§5.3) |
+| `apache-arrow` ^21.1 | `Table`, `tableFromIPC` | The in-memory columnar table every analytics path consumes: chart aggregation, statistics and the filter dropdowns all read Arrow (§7) |
 | slim adaptation of `parquet-wasm` | `readParquet`, `readParquetStream`, plus the init promise | Decodes the Parquet attribute sidecars to Arrow IPC.|
 
 #### UI
@@ -96,10 +58,10 @@ Browser features the app needs, and what breaks without each:
 | **WebGL2** | The renderer. MapLibre 6 calls `getContext("webgl2")` and has no WebGL1 path | No map at all |
 | **Canvas 2D** | PNG export and the Power BI snapshot ([map-capture.ts](../src/lib/map-capture.ts)), hatch-pattern sprites ([hatch-pattern.ts](../src/layers/hatch-pattern.ts)), icon sprites | Export and hatch fills fail; the map still renders |
 | **Module Web Workers** | MapLibre parses tiles off-thread; the worker is a separate ESM file located via `import.meta.url` | No tile is ever parsed — see the `setWorkerUrl` note above |
-| **WebAssembly** | Slim adaptation `parquet-wasm` decodes the attribute sidecars | Charts, Kerncijfers and filter dropdowns go empty; map layers are unaffected (§8) |
-| **HTTP range requests (206)** | PMTiles, COG and FlatGeobuf read slices of one large file; Parquet streams column chunks | PMTiles/COG/FGB layers fail outright; Parquet falls back to a whole-file read (§6.3) |
-| **`postMessage` + iframe embedding** | The Power BI visual and the circular embed drive the app through it (§11) | Embedded deployments lose all external control |
-| **`Content-Encoding: br`/`gzip`** | `dist/` ships precompressed; nginx serves the `.br`/`.gz` siblings (§13) | Assets still serve, uncompressed and several times larger |
+| **WebAssembly** | Slim adaptation `parquet-wasm` decodes the attribute sidecars | Charts, Kerncijfers and filter dropdowns go empty; map layers are unaffected (§7) |
+| **HTTP range requests (206)** | PMTiles, COG and FlatGeobuf read slices of one large file; Parquet streams column chunks | PMTiles/COG/FGB layers fail outright; Parquet falls back to a whole-file read (§5.3) |
+| **`postMessage` + iframe embedding** | The Power BI visual and the circular embed drive the app through it (§10) | Embedded deployments lose all external control |
+| **`Content-Encoding: br`/`gzip`** | `dist/` ships precompressed; nginx serves the `.br`/`.gz` siblings (§12) | Assets still serve, uncompressed and several times larger |
 
 ### External runtime services
 
@@ -117,7 +79,7 @@ Browser features the app needs, and what breaks without each:
 
 ---
 
-## 4. Architecture overview
+## 3. Architecture overview
 
 ```mermaid
 flowchart TD
@@ -134,7 +96,7 @@ flowchart TD
         app["App.tsx<br/>(composition root)"]
     end
 
-    subgraph stores["Module-level stores (read §4.3)"]
+    subgraph stores["Module-level stores (read §3.3)"]
         af["area-filter store"]
         bf["box-filter store"]
     end
@@ -166,15 +128,15 @@ flowchart TD
 
 Four principles organise the system.
 
-### 4.1 Config-driven
+### 3.1 Config-driven
 
-Five JSON files define behaviour (§12). The app ships with empty stubs in
+Five JSON files define behaviour (§11). The app ships with empty stubs in
 `public/`; a tenant's real files in `configs/<project>/` are swapped in at build
 or dev time, selected by the `VITE_CONFIG_PROJECT` environment variable. Two
 projects exist today: `woonzorglimburg` (79 layers) and `startanalyse2026`
 (199 layers).
 
-### 4.2 One renderer, one style model
+### 3.2 One renderer, one style model
 
 Everything draws through MapLibre: tiled vector data (MVT/PMTiles), rasters
 (COG), viewport-loaded FlatGeobuf, and in-memory GeoJSON for host-pushed data
@@ -186,7 +148,7 @@ filter expressions for vector layers, a per-pixel colour function for COG. See
 
 #### The MapLibre object model in brief
 
-Enough of MapLibre's own model to read §6 and §7.
+Enough of MapLibre's own model to read §5 and §6.
 
 ```
 Map  ──owns──▶  Style ──▶ sources { id: Source }   data, no appearance
@@ -202,7 +164,7 @@ directly through `mapRef.current.getMap()`.
 **Style** — one JSON document holding everything drawable. The consequence that
 bites: changing basemap calls `setStyle()`, which replaces that document, so
 **every source, layer, sprite image and anchor the app added is destroyed** and
-must be re-applied (§15).
+must be re-applied (§14).
 
 **Source** — data, no appearance. Three types: `vector` (a `{z}/{x}/{y}`
 template, or a `pmtiles://` URL whose handler reads the archive header instead),
@@ -219,12 +181,12 @@ instead of mutating them.
 ([mvt-style.ts](../src/layers/mvt-style.ts)) emits one MapLibre layer per
 GeoStyler rule, id `<format-prefix>-layer-<configId>-<ruleName>`. A 17-rule
 layer is 17 MapLibre layers over one shared source, and add, remove, visibility,
-filtering and picking all walk that same id list (§4.4).
+filtering and picking all walk that same id list (§3.4).
 
 **Order is the array.** `style.layers` is bottom-to-top, and that *is* the draw
 order. `addLayer(spec, beforeId)` inserts directly below the named layer. The
 app never reshuffles, because five invisible `background` anchor layers
-partition the stack into bands and each config picks its band (§6.5).
+partition the stack into bands and each config picks its band (§5.5).
 
 **Three property bags per layer**, each with an in-place setter, so appearance
 changes never require re-adding a layer:
@@ -235,13 +197,13 @@ changes never require re-adding a layer:
 | `layout` | Whether/how geometry becomes drawable: `visibility`, `icon-image`, label placement | `setLayoutProperty` |
 | `filter` | Which features enter the layer at all | `setFilter` |
 
-`filter` matters most for §7: a filtered-out feature is not drawn **and not
+`filter` matters most for §6: a filtered-out feature is not drawn **and not
 queryable**, so filtering the map and filtering picking are one act, not two.
 
 **Expressions** are the style language — JSON arrays evaluated per feature and
 zoom, e.g. `["==", ["get", "gm_code"], "GM0882"]`. Both translations produce
 them: GeoStyler rules become `paint` and `filter` expressions, and the area
-filter compiles its selection into one (§7).
+filter compiles its selection into one (§6).
 
 **Sprite and glyphs** are style-owned image and font atlases. Icon symbolizers
 must `addImage()` before `addLayer()`, and since `setStyle` wipes the sprite,
@@ -249,14 +211,14 @@ must `addImage()` before `addLayer()`, and since `setStyle` wipes the sprite,
 
 **Querying only sees what is drawn.** `queryRenderedFeatures` is tile-clipped,
 style-filtered and viewport-limited — not a data API. A feature outside the
-viewport or above the source's max zoom is simply absent (§9).
+viewport or above the source's max zoom is simply absent (§8).
 
 **Protocols are global, not per map.** `addProtocol("pmtiles", …)` and
 `addProtocol("cog", …)` are called at module scope in
 [MapView.tsx](../src/components/map/MapView.tsx), so both maps share them;
 registering per map would double-register.
 
-### 4.3 Module stores for cross-cutting filter state
+### 3.3 Module stores for cross-cutting filter state
 
 Filter selections live in **module-level stores**, not React state
 ([area-filter.ts](../src/layers/area-filter.ts),
@@ -286,7 +248,7 @@ mutating part of it, bumps `version`, and returns it. Everything else is a
 **reader**, one per consumer *shape* — the same predicate against whatever that
 consumer holds: a MapLibre expression (`areaFilterExpression`), an Arrow row
 (`arrowRowMatchesAreaFilter`, `arrowRowMatchesBoxFilter`), or a plain property
-bag (`featureMatchesAreaFilter`). §7 covers the shared semantics.
+bag (`featureMatchesAreaFilter`). §6 covers the shared semantics.
 
 Readers run across ~14k rows per redraw, so some derived state is precomputed
 into the store: the area filter keeps each code's digit prefix alongside the raw
@@ -305,7 +267,7 @@ The cost: a store write is invisible to React on its own. Nothing re-renders
 unless the owning hook's `setVersion` runs, so code reaching past the hook into
 the store would filter the map but leave the sidebar showing a stale selection.
 
-### 4.4 Single source of truth per concern
+### 3.4 Single source of truth per concern
 
 - **All layer mutation** goes through `useMapLayers`
   (`addLayer`/`removeLayer`/`hideLayer`/`toggleLayer`), whether it came from the
@@ -321,7 +283,7 @@ the store would filter the map but leave the sidebar showing a stale selection.
 
 ---
 
-## 5. Module structure
+## 4. Module structure
 
 Code is split by responsibility, not by feature: one hook per capability, with
 presentation kept out of the data engine.
@@ -397,9 +359,9 @@ discard the state of everything inside it.
 
 ---
 
-## 6. Layers
+## 5. Layers
 
-### 6.1 Formats
+### 5.1 Formats
 
 `LayerFormat` ([types.ts](../src/layers/types.ts)) admits eight values.
 `geojson` is in-memory only and cannot be declared in `layers.json`;
@@ -414,7 +376,7 @@ discard the state of everything inside it.
 | `cog` | Cloud-Optimized GeoTIFF, `cog://` protocol | protocol handler | MapLibre (raster) |
 | `composite` | Zoom-banded children under one legend entry | [composite-manager.ts](../src/layers/composite-manager.ts) | delegates per child |
 
-### 6.2 Format dispatch
+### 5.2 Format dispatch
 
 All routing happens in one place: `dispatchFormatLoad`
 ([use-map-layers.ts:112](../src/hooks/use-map-layers.ts#L112)), shared by
@@ -439,11 +401,11 @@ flowchart TD
     fgb --> mlout
 ```
 
-### 6.3 Styling
+### 5.3 Styling
 
 **See [system-design-styling.md](system-design-styling.md).**
 
-### 6.4 Z-ordering
+### 5.4 Z-ordering
 
 New layers are inserted relative to **named invisible anchor layers**.
 
@@ -459,7 +421,7 @@ export const ANCHORS = {
 
 ---
 
-## 7. Filtering
+## 6. Filtering
 
 Two independent systems with different scopes.
 
@@ -508,7 +470,7 @@ changing invalidates cached aggregates.
 
 ---
 
-## 8. Charts and statistics
+## 7. Charts and statistics
 
 [charts.json](../configs/woonzorglimburg/charts.json) is a **library** of chart
 definitions referenced by id from a layer's `charts` array. Types: donut, bar,
@@ -539,7 +501,7 @@ from Parquet to PMTiles, and the silence is why it went unnoticed.
 
 ---
 
-## 9. Feature catalogue
+## 8. Feature catalogue
 
 | Capability | Implemented in | Notes |
 |---|---|---|
@@ -557,7 +519,7 @@ from Parquet to PMTiles, and the silence is why it went unnoticed.
 | **PNG export** | [map-capture.ts](../src/lib/map-capture.ts) | 2048² circular export with legend and callouts |
 | **Circular embed** | [CircularExportView.tsx](../src/components/share/CircularExportView.tsx) | `?embed=circular` or `open-circular` message |
 
-## 10. Configuration system
+## 9. Configuration system
 
 | File | Loader | Drives |
 |---|---|---|
@@ -571,7 +533,7 @@ All five are cached at module level after first load.
 
 ---
 
-## 11. Data pipeline
+## 10. Data pipeline
 
 The first stage uses GeoDMS to translate source data into intermediate
 `.geojson` files. Simplification can happen here, preserving topology so shapes
@@ -613,7 +575,7 @@ Workflow: convert → upload to the data host → reference the URL from
 
 ---
 
-## 12. (optional) subsystems
+## 11. (optional) subsystems
 
 **Collaboration on the map see [system-design-collaboration.md](system-design-collaboration.md).**
 **Power-Bi custom visual see [system-design-power-bi.md](system-design-power-bi.md).**
