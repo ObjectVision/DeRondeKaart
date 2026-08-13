@@ -241,17 +241,25 @@ log "Writing nginx site"
 #
 # Origins below were read out of configs/*/layers.json + map.json and src/.
 #
-# frame-src also covers infographics.pbl.nl: the layer metainfo embeds PBL's
-# "Uitleg strategieen en varianten" infographic in an iframe (see the
-# _strategie*.html fragments under meta/2025 on the data host). Without it the
-# strategy explanation renders as an empty box once the CSP is enforced.
+# infographics.pbl.nl appears in FOUR directives, for two separate features:
+#
+#   frame-src   the layer metainfo embeds PBL's "Uitleg strategieen en varianten"
+#               infographic (see the _strategie*.html fragments under meta/2025 on
+#               the data host). Without it the explanation is an empty box.
+#
+#   script-src  public/pbl-samenvatting.html is OUR page serving PBL's
+#   style-src   "Samenvatting Startanalyse" viewer: a <base href> points every
+#   connect-src relative script, stylesheet and data fetch at PBL, so those load
+#               cross-origin from this document. Without these three the
+#               neighbourhood summary loads blank. (img-src already allows https:,
+#               and the page's Web Worker is a blob:, covered by worker-src.)
 CSP_MAP="default-src 'self'; \
-script-src 'self' 'wasm-unsafe-eval' blob: https://maps.googleapis.com https://maps.gstatic.com; \
+script-src 'self' 'wasm-unsafe-eval' blob: https://maps.googleapis.com https://maps.gstatic.com https://infographics.pbl.nl; \
 worker-src 'self' blob:; \
-style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; \
+style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://infographics.pbl.nl; \
 font-src 'self' data: https://fonts.gstatic.com; \
 img-src 'self' data: blob: https: ; \
-connect-src 'self' blob: https://tiles.openfreemap.org https://data.woonzorglimburg.nl https://data.startanalyse2026.nl https://service.pdok.nl https://tiles.mapgallery.io https://startanalyse2025.files.mapgallery.io https://tiles.basemaps.cartocdn.com https://*.basemaps.cartocdn.com https://maps.googleapis.com; \
+connect-src 'self' blob: https://tiles.openfreemap.org https://data.woonzorglimburg.nl https://data.startanalyse2026.nl https://service.pdok.nl https://tiles.mapgallery.io https://startanalyse2025.files.mapgallery.io https://tiles.basemaps.cartocdn.com https://*.basemaps.cartocdn.com https://maps.googleapis.com https://infographics.pbl.nl; \
 frame-src 'self' https://www.google.com https://maps.googleapis.com https://infographics.pbl.nl; \
 object-src 'none'; base-uri 'self'; form-action 'self'"
 

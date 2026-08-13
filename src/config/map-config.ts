@@ -69,6 +69,18 @@ export interface MapConfig {
    */
   studyarea?: string;
   /**
+   * Optional id (from layers.json) of a layer added to the left map at startup
+   * purely so map clicks have something to hit — it answers the click and is
+   * never seen. Used for the startanalyse2026 buurt layer, which makes the whole
+   * country clickable without the user adding a layer first.
+   *
+   * The layer must be invisible through its `style.opacity`, NOT through the
+   * legend's hide toggle: hiding sets `visibility: none`, which drops it from
+   * `queryRenderedFeatures` and would silently stop the clicks working. Give it
+   * `excludeFromLegend` so that toggle is out of reach.
+   */
+  pickLayer?: string;
+  /**
    * Whether a Google Street View panel opens on map click. Defaults to `false`
    * when omitted; set to `true` in map.json to enable it.
    */
@@ -399,6 +411,13 @@ export async function loadMapConfig(): Promise<MapConfig> {
     console.warn(`map.json: invalid "studyarea" ${JSON.stringify(data.studyarea)}; ignoring`);
   }
 
+  let pickLayer: string | undefined;
+  if (typeof data.pickLayer === "string" && data.pickLayer.length > 0) {
+    pickLayer = data.pickLayer;
+  } else if (data.pickLayer !== undefined) {
+    console.warn(`map.json: invalid "pickLayer" ${JSON.stringify(data.pickLayer)}; ignoring`);
+  }
+
   const validateBool = (raw: unknown, key: string, fallback: boolean): boolean => {
     if (typeof raw === "boolean") return raw;
     if (raw !== undefined) {
@@ -480,6 +499,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     center: center ?? DEFAULT_MAP_CONFIG.center,
     zoom: zoom ?? DEFAULT_MAP_CONFIG.zoom,
     studyarea,
+    pickLayer,
     streetview,
     searchbar,
     navigation,

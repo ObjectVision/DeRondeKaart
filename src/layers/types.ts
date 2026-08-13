@@ -250,6 +250,16 @@ export interface FeatureInfoConfig {
   template?: string;
   /** Path to an .html file containing the template */
   templateUrl?: string;
+  /**
+   * Show PBL's "Samenvatting Startanalyse" for the clicked neighbourhood instead
+   * of a rendered template. Requires the feature to carry a `bu_code`.
+   *
+   * Takes precedence over `template`/`templateUrl`: the two are alternative ways
+   * to answer the same click, never combined. The template is left in place in
+   * layers.json because it holds fields the summary does not show, so dropping
+   * this flag restores the table without recovering any data.
+   */
+  pbl?: boolean;
 }
 
 /**

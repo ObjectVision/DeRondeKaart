@@ -5,6 +5,7 @@
   ],
   "zoom": 7,
   "studyarea": "studiegebied_nederland",
+  "pickLayer": "buurt_klik",
   "streetview": false,
   "searchbar": false,
   "navigation": true,

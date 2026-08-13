@@ -16,6 +16,7 @@ async function bootstrap() {
         embedCircular={embedCircular}
         initialViewState={toInitialViewState(mapConfig)}
         studyAreaId={mapConfig.studyarea}
+        pickLayerId={mapConfig.pickLayer}
         streetviewEnabled={mapConfig.streetview ?? false}
         searchbarEnabled={mapConfig.searchbar}
         navigationEnabled={mapConfig.navigation}
