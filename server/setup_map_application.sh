@@ -241,27 +241,63 @@ log "Writing nginx site"
 #
 # Origins below were read out of configs/*/layers.json + map.json and src/.
 #
-# infographics.pbl.nl appears in FOUR directives, for two separate features:
+# infographics.pbl.nl appears in FIVE directives, all for ONE feature: the
+# neighbourhood summary shown when a buurt is clicked.
 #
-#   frame-src   the layer metainfo embeds PBL's "Uitleg strategieen en varianten"
-#               infographic (see the _strategie*.html fragments under meta/2025 on
-#               the data host). Without it the explanation is an empty box.
+# public/pbl-samenvatting.html is OUR page serving PBL's "Samenvatting
+# Startanalyse" viewer. It carries a cross-origin <base href> pointing at PBL, so
+# every relative script, stylesheet and data path in it loads from PBL while the
+# document itself stays same-origin (which is what lets us script it).
 #
-#   script-src  public/pbl-samenvatting.html is OUR page serving PBL's
-#   style-src   "Samenvatting Startanalyse" viewer: a <base href> points every
-#   connect-src relative script, stylesheet and data fetch at PBL, so those load
-#               cross-origin from this document. Without these three the
-#               neighbourhood summary loads blank. (img-src already allows https:,
-#               and the page's Web Worker is a blob:, covered by worker-src.)
+#   base-uri    THE LOAD-BEARING ONE. `base-uri 'self'` makes the browser reject
+#               that <base> tag outright, and every relative URL then resolves
+#               against THIS origin instead: css/style.css becomes
+#               map.<host>/css/style.css, which the SPA fallback answers with
+#               index.html, and the console fills with "MIME type ('text/html')
+#               is not a supported stylesheet MIME type". Adding PBL to the other
+#               four directives does nothing while this one is 'self' — the base
+#               is rejected before any PBL URL is ever constructed.
+#               Do NOT "tidy" this back to 'self'.
+#
+#   script-src  the viewer's own scripts, stylesheets and data fetches, all
+#   style-src   pulled from PBL via that <base>. Without these the summary loads
+#   connect-src blank. (img-src already allows https:, and the page's Web Worker
+#               is a blob:, covered by worker-src.)
+#
+#   frame-src   the Details popup frames pbl-samenvatting.html. Note this is OUR
+#               page, not PBL's — but the redirect chain and the viewer's own
+#               framing both need PBL allowed here too.
+#
+# font-src additionally needs https://data.pbl.nl — a SECOND PBL host. Their
+# stylesheets pull the Rijksoverheid webfonts (ROsansweb*, ROserifweb*) from
+# data.pbl.nl, not infographics.pbl.nl. Without it the summary renders in a
+# fallback font and logs seven console errors.
+#
+# The page's own two scripts (public/pbl-worker-shim.js, pbl-buurt-select.js)
+# are external files under 'self' on purpose: inline blocks would force
+# 'unsafe-inline' on script-src app-wide, or sha256 hashes that silently break
+# the summary on any future edit to that page.
+#
+# script-src also carries 'unsafe-eval' — NOT for our own code, which never
+# evaluates strings, but because PBL's viewer vendors d3.v5.js and turf.min.js,
+# both of which call eval(). Without it kaartenbak_init() throws immediately,
+# the gemeente dropdown is never built, and the summary sits blank with a single
+# EvalError. We cannot patch their libraries: they are fetched from PBL at run
+# time so their page stays the single source of truth. ('wasm-unsafe-eval' is
+# separate and still needed for parquet-wasm; it does not permit string eval.)
+#
+# Note: the layer metainfo does NOT embed a PBL iframe. All 122 meta/2025 docs on
+# the data host were checked; none contains an <iframe>, and the only
+# infographics.pbl.nl reference is a plain <a> in _footer.html.
 CSP_MAP="default-src 'self'; \
-script-src 'self' 'wasm-unsafe-eval' blob: https://maps.googleapis.com https://maps.gstatic.com https://infographics.pbl.nl; \
+script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://maps.googleapis.com https://maps.gstatic.com https://infographics.pbl.nl; \
 worker-src 'self' blob:; \
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://infographics.pbl.nl; \
-font-src 'self' data: https://fonts.gstatic.com; \
+font-src 'self' data: https://fonts.gstatic.com https://data.pbl.nl; \
 img-src 'self' data: blob: https: ; \
 connect-src 'self' blob: https://tiles.openfreemap.org https://data.woonzorglimburg.nl https://data.startanalyse2026.nl https://service.pdok.nl https://tiles.mapgallery.io https://startanalyse2025.files.mapgallery.io https://tiles.basemaps.cartocdn.com https://*.basemaps.cartocdn.com https://maps.googleapis.com https://infographics.pbl.nl; \
 frame-src 'self' https://www.google.com https://maps.googleapis.com https://infographics.pbl.nl; \
-object-src 'none'; base-uri 'self'; form-action 'self'"
+object-src 'none'; base-uri 'self' https://infographics.pbl.nl; form-action 'self'"
 
 if [ -n "$FRAME_ANCESTORS" ]; then
   FRAME_HEADER="$(render_csp_header "$CSP_MAP" "$CSP_REPORT_ONLY" "$FRAME_ANCESTORS")"
