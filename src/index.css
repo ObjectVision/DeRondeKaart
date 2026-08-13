@@ -3,6 +3,13 @@
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
 @import "material-symbols/outlined.css";
+/* Typographic defaults for the layer metainfo, which is publisher-authored HTML
+   injected via dangerouslySetInnerHTML — its headings, lists and links cannot be
+   given utility classes individually. Tailwind's Preflight resets every heading to
+   `font-size: inherit`, so without this the <h3>/<h4> in those fragments render
+   identically to body text. Scoped to the `prose` container in LeafMeta; nothing
+   else in the app opts in. */
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
