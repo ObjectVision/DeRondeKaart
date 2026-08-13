@@ -44,10 +44,18 @@ html, body {
 }
 .app-scrollbar::-webkit-scrollbar {
   width: 6px;
+  /* `height` sizes the HORIZONTAL bar; without it a card that scrolls sideways
+     gets a full-size native one (arrows included) next to the thin vertical one. */
+  height: 6px;
 }
 .app-scrollbar::-webkit-scrollbar-track {
   background: transparent;
   margin: 16px 0; /* keep the track clear of the rounded corners */
+}
+/* Mirror of the rule above for a horizontal track: the margin has to move to the
+   left/right so it clears the corners on that axis instead. */
+.app-scrollbar::-webkit-scrollbar-track:horizontal {
+  margin: 0 16px;
 }
 .app-scrollbar::-webkit-scrollbar-thumb {
   background: #d1d5db; /* gray-300 */
@@ -56,8 +64,9 @@ html, body {
 .app-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #9ca3af; /* gray-400 */
 }
+/* Unqualified, so it covers both axes: no up/down and no left/right arrows. */
 .app-scrollbar::-webkit-scrollbar-button {
-  display: none; /* no up/down arrow buttons */
+  display: none;
   width: 0;
   height: 0;
 }
