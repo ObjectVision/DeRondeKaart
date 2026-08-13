@@ -31,6 +31,7 @@ Options:
 $(print_kv "--slug NAME"          "instance id, namespaces all paths (e.g. woonzorglimburg_landing)")
 $(print_kv "--host HOST"          "primary hostname (e.g. woonzorglimburg.nl)")
 $(print_kv "--alias HOST"         "extra hostname that 301s to primary; repeatable (e.g. www.woonzorglimburg.nl)")
+$(print_kv "--embed-host URL"     "origin this page may <iframe> (CSP frame-src); repeatable (e.g. https://map.startanalyse2026.nl)")
 $(print_kv "--repo URL"           "git remote of the Hugo source repo")
 $(print_kv "--branch NAME"        "git branch to deploy (default: main)")
 $(print_kv "--hugo-version VER"   "Hugo extended version to install (default: 0.161.1)")
@@ -44,7 +45,7 @@ EOF
 
 # --- defaults / parameter holders ---
 SLUG=""; HOST=""; ALIASES=(); REPO=""; BRANCH=""; HUGO_VERSION=""
-SECRET=""; EMAIL=""; NO_TLS=0
+SECRET=""; EMAIL=""; NO_TLS=0; EMBED_HOSTS=()
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -54,6 +55,8 @@ while [ $# -gt 0 ]; do
     --host=*)        HOST="${1#*=}"; shift ;;
     --alias)         ALIASES+=("$2"); shift 2 ;;
     --alias=*)       ALIASES+=("${1#*=}"); shift ;;
+    --embed-host)    EMBED_HOSTS+=("$2"); shift 2 ;;
+    --embed-host=*)  EMBED_HOSTS+=("${1#*=}"); shift ;;
     --repo)          REPO="$2"; shift 2 ;;
     --repo=*)        REPO="${1#*=}"; shift ;;
     --branch)        BRANCH="$2"; shift 2 ;;
@@ -105,6 +108,7 @@ log "Plan"
 info "slug            : $SLUG"
 info "primary host    : $HOST"
 info "aliases         : ${ALIASES[*]:-(none)}"
+info "embeds (frame-src): ${EMBED_HOSTS[*]:-(none — page embeds nothing)}"
 info "repo / branch   : $REPO ($BRANCH)"
 info "webroot         : $WEBROOT"
 info "repo dir        : $REPO_DIR"
@@ -182,6 +186,41 @@ ensure_webhook_daemon
 webhook_upsert_hook "$HOOK_ID" "$DEPLOY_SCRIPT" "$REPO_DIR" "$SECRET" "$BRANCH"
 
 # --- 7. nginx site (HTTP first; certbot adds TLS in step 8) ---
+#
+# Content-Security-Policy.
+#
+# NOT the shared `static` policy. That one assumes a self-contained page, and
+# this landing page is the opposite: its entire content is an <iframe> of the
+# map application, driven by an inline year-toggle script. Under `static` the
+# page renders as an empty grey box — `default-src 'self'` blocks the frame
+# (there is no frame-src to fall back to) and `script-src 'self'` blocks the
+# toggle. Verified: the map iframe became chrome-error://chromewebdata/.
+#
+# So two deliberate additions on top of `static`:
+#
+#   frame-src   whatever --embed-host was given (the map application). With no
+#               --embed-host the directive is omitted and the policy is exactly
+#               `static`, so a landing page that embeds nothing stays locked down.
+#
+#   'unsafe-inline' on script-src, for Hugo's inline toggle script. A sha256
+#               hash would be stricter, but the script lives in the content
+#               team's layouts/index.html and every edit would silently break
+#               the year switcher until someone regenerated the hash here. The
+#               page takes no user input and reflects nothing, so the XSS
+#               surface this protects against does not exist.
+#
+# frame-ancestors stays 'none': this page embeds others, it is not embedded.
+CSP_LANDING="default-src 'self'; \
+script-src 'self' 'unsafe-inline'; \
+style-src 'self' 'unsafe-inline'; \
+img-src 'self' data:; \
+font-src 'self' data:; \
+connect-src 'self'; \
+object-src 'none'; base-uri 'self'; form-action 'self'"
+if [ "${#EMBED_HOSTS[@]}" -gt 0 ]; then
+  CSP_LANDING="$CSP_LANDING; frame-src ${EMBED_HOSTS[*]}"
+fi
+
 log "Writing nginx site"
 {
   # Redirect block for aliases (only over HTTP until certbot runs; then it upgrades it).
@@ -219,7 +258,7 @@ server {
     # no-referrer: scanners (NCSC) advise against strict-origin-when-cross-origin,
     # and nothing here needs an outbound Referer.
     add_header Referrer-Policy "no-referrer" always;
-$(render_csp_header static "" "'none'")
+$(render_csp_header "$CSP_LANDING" "" "'none'")
 
     # HTTP compression is intentionally ON. Scanners flag it as a BREACH risk;
     # BREACH requires a secret (session token, CSRF token) reflected into a
