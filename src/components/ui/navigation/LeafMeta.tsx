@@ -3,10 +3,13 @@ import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 
 // Module-level caches, read straight through during render so a cached layer
 // paints without a state round-trip. `metaUrlCache` maps layer id -> its meta
-// URL (null = the layer has none, or is unknown); `metaCache` maps URL ->
+// URLs (null = the layer has none, or is unknown); `metaCache` maps URL ->
 // fetched HTML (null = failed, so a broken path isn't refetched every render).
 // `undefined` from either .get() means "not resolved yet".
-const metaUrlCache = new Map<string, string | null>();
+//
+// metaCache is keyed by URL, not by layer, and that is the point: a shared base
+// fragment referenced by many layers is fetched once for all of them.
+const metaUrlCache = new Map<string, string[] | null>();
 const metaCache = new Map<string, string | null>();
 
 interface LeafMetaProps {
@@ -14,9 +17,15 @@ interface LeafMetaProps {
 }
 
 /**
- * The meta/description block for a layer: resolves the layer's `meta` path from
- * layers.json, fetches that HTML (cached per URL) and renders it. Used by the
- * sidebar's inline info panel and the top-mode LeafDetail window.
+ * The meta/description block for a layer: resolves the layer's `meta` path(s)
+ * from layers.json, fetches that HTML (cached per URL) and renders it. Used by
+ * the sidebar's inline info panel and the top-mode LeafDetail window.
+ *
+ * `meta` may name one fragment or several (see LayerConfig.meta). Several are
+ * concatenated **verbatim** in array order — nothing is stripped or rewritten, so
+ * a fragment's own `<link>`/`<head>`/`<footer>` boilerplate is repeated. That is
+ * deliberate: the fragments are published documents, and rewriting them here
+ * would silently diverge from what the publisher serves.
  *
  * Takes a layer id rather than a NavLeaf because `meta` describes the dataset,
  * not the menu entry — layers reachable only via URL command or the legend have
@@ -24,18 +33,25 @@ interface LeafMetaProps {
  */
 export function LeafMeta({ layerId }: LeafMetaProps): React.JSX.Element | null {
   // Render from the caches; the effects only fill them asynchronously.
-  const url = metaUrlCache.get(layerId);
-  const html = url ? metaCache.get(url) : null;
+  const urls = metaUrlCache.get(layerId);
   const [, rerender] = useReducer((x: number) => x + 1, 0);
 
-  // Resolve layer id -> meta URL. loadLayerConfigs memoizes its parse, so this
-  // is a cache read after the first caller anywhere in the app.
+  // Resolve layer id -> meta URLs. loadLayerConfigs memoizes its parse, so this
+  // is a cache read after the first caller anywhere in the app. A single string is
+  // normalized to a one-element array so everything below handles only arrays.
   useEffect(() => {
     if (metaUrlCache.has(layerId)) return;
     let alive = true;
     loadLayerConfigs()
       .then((configs) => {
-        metaUrlCache.set(layerId, getLayerConfigById(configs, layerId)?.meta ?? null);
+        const meta = getLayerConfigById(configs, layerId)?.meta;
+        let resolved: string[] | null = null;
+        if (typeof meta === "string") {
+          resolved = [meta];
+        } else if (Array.isArray(meta) && meta.length > 0) {
+          resolved = meta;
+        }
+        metaUrlCache.set(layerId, resolved);
         if (alive) rerender();
       })
       .catch((err) => {
@@ -48,39 +64,57 @@ export function LeafMeta({ layerId }: LeafMetaProps): React.JSX.Element | null {
     };
   }, [layerId]);
 
-  // Fetch the HTML once the URL is known.
+  // Fetch every fragment that isn't cached yet, in parallel. allSettled rather
+  // than all: one 404 among several fragments must not discard the others (and
+  // one published meta file is a genuine upstream 404 today).
   useEffect(() => {
     const resolved = metaUrlCache.get(layerId);
-    if (!resolved || metaCache.has(resolved)) return;
+    if (!resolved) return;
+    const missing = resolved.filter((url) => !metaCache.has(url));
+    if (missing.length === 0) return;
     let alive = true;
-    fetch(resolved)
-      .then((res) => (res.ok ? res.text() : Promise.reject(res.statusText)))
-      .then((text) => {
-        metaCache.set(resolved, text);
-        if (alive) rerender();
-      })
-      .catch((err) => {
-        console.warn(`Failed to load meta for "${layerId}":`, err);
-        metaCache.set(resolved, null);
-        if (alive) rerender();
-      });
+    Promise.allSettled(
+      missing.map((url) =>
+        fetch(url)
+          .then((res) => (res.ok ? res.text() : Promise.reject(new Error(res.statusText))))
+          .then((text) => {
+            metaCache.set(url, text);
+          })
+          .catch((err) => {
+            console.warn(`Failed to load meta "${url}" for "${layerId}":`, err);
+            metaCache.set(url, null);
+          }),
+      ),
+    ).then(() => {
+      if (alive) rerender();
+    });
     return () => {
       alive = false;
     };
-    // `url` (not just layerId) so the fetch starts as soon as the id resolves.
-  }, [url, layerId]);
+    // `urls` (not just layerId) so the fetch starts as soon as the ids resolve.
+  }, [urls, layerId]);
 
-  // Still resolving the id, or the URL is known but its HTML hasn't arrived.
-  if (url === undefined || (url && html === undefined)) {
+  // Still resolving the layer's meta paths.
+  if (urls === undefined) {
     return <span className="text-gray-400">Laden…</span>;
   }
-  if (html) {
-    return (
-      <div
-        className="prose-sm [&_a]:text-blue-600 [&_a]:underline"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
-    );
+  if (urls) {
+    // Any fragment still in flight — wait for all of them, so the dialog doesn't
+    // reflow as the second half of a composed document arrives.
+    if (urls.some((url) => metaCache.get(url) === undefined)) {
+      return <span className="text-gray-400">Laden…</span>;
+    }
+    const parts = urls
+      .map((url) => metaCache.get(url))
+      .filter((html): html is string => Boolean(html));
+    if (parts.length > 0) {
+      return (
+        <div
+          className="prose-sm [&_a]:text-blue-600 [&_a]:underline"
+          dangerouslySetInnerHTML={{ __html: parts.join("\n") }}
+        />
+      );
+    }
   }
   return <>Geen informatie beschikbaar</>;
 }
