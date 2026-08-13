@@ -1,7 +1,7 @@
 # De Ronde kaart — Collaboration subsystem
 
 **Audience:** developers and maintainers. Companion to
-[system-design.md](system-design.md) §10 and the Collaboration subsection of §3,
+[system-design.md](system-design.md) §9 and the Collaboration subsection of §2,
 both of which this file replaces in full.
 
 **This subsystem is optional.** It is gated on the `annotations` flag in
@@ -16,7 +16,7 @@ Of the shipped configurations, only `woonzorglimburg` turns it on.
 ## Dependencies
 
 Both packages exist for one feature, shared annotations. The rest of the stack
-is [system-design.md](system-design.md) §3.
+is [system-design.md](system-design.md) §2.
 
 | Package | We use | Why |
 |---|---|---|
@@ -100,4 +100,4 @@ edit. The guards keep the stored data sound, not the live view.
 | For | Read |
 |---|---|
 | Running the server, its guards and operations | [collab-server/README.md](../collab-server/README.md) |
-| The annotation tool itself (shapes, direct manipulation, session snapshots) | [system-design.md](system-design.md) §9 |
+| The annotation tool itself (shapes, direct manipulation, session snapshots) | [system-design.md](system-design.md) §8 |
