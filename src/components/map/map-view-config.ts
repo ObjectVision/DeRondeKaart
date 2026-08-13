@@ -255,10 +255,9 @@ export function isBasemapId(id: string): boolean {
 /**
  * The basemap id for a base plus a set of ticked options.
  *
- * An option a base does not support is ignored rather than treated as no match —
- * the picker keeps a remembered "roads" preference for Kleur while Luchtfoto is
- * active, and that stale flag must not stop Luchtfoto from resolving. Falls back
- * to the base's no-options entry, which every base has.
+ * An option a base does not support is ignored rather than treated as no match, so
+ * asking for Luchtfoto with "roads" set resolves to plain Luchtfoto instead of
+ * failing. Falls back to the base's no-options entry, which every base has.
  */
 export function basemapIdFor(baseId: BasemapBaseId, options: BasemapOptions): string {
   const supports = BASEMAP_BASES.find((b) => b.id === baseId)?.supports ?? [];
