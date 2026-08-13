@@ -40,8 +40,15 @@ export function LayerMetaDialog({
       {/* Same width as BasemapDialog ("Referentielagen") so the chrome dialogs
           read as one family. DialogContent owns the `overflow-y-auto`, so
           `app-scrollbar` has to land here — it styles the popup's own scrollbar
-          to match the navigation and legend cards. */}
-      <DialogContent className="app-scrollbar w-[min(40rem,calc(100vw-2rem))]">
+          to match the navigation and legend cards.
+
+          The top quarter of the screen stays clear: metainfo is long enough to
+          hit the shell's default `max-h-[calc(100vh-2rem)]`, which on a centred
+          dialog reaches to ~1rem from the top. Anchoring the top edge at 25vh
+          and capping the height at the remaining space (less the same 1rem
+          bottom margin the shell uses) keeps that band free at every viewport
+          height, rather than depending on the content being short enough. */}
+      <DialogContent className="app-scrollbar top-[25vh] max-h-[calc(75vh-1rem)] w-[min(40rem,calc(100vw-2rem))] translate-y-0">
         <div className="mb-5 flex items-center justify-between gap-2">
           {/* Same treatment as the "Referentielagen" and "Legenda" headings. */}
           <DialogTitle className="text-xs font-semibold uppercase tracking-wide text-gray-500">
