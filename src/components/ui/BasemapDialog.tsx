@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import type { BasemapBaseId, BasemapOptionKey, BasemapOptions } from "@/components/map/map-view-config";
 import {
   BASEMAP_BASES,
@@ -40,6 +39,9 @@ function emptyOptions(): BasemapOptions {
  * `onSelect`. That keeps it correct when the id changes from outside (a
  * `#basemap=` share link, or the other map).
  *
+ * Switching base clears the options: only the active column can have ticked boxes,
+ * so the id fully describes the dialog and nothing needs remembering per base.
+ *
  * There is no radio control: the thumbnail and each checkbox all select their own
  * base, so the whole column is the target and a separate radio would be a fourth
  * way to do the same thing. The column still carries `role="radio"` for assistive
@@ -63,47 +65,35 @@ export function BasemapDialog({
 }: BasemapDialogProps): React.JSX.Element {
   const active = basemapOptionsOf(basemapId);
 
-  // Checkbox states for the bases that are NOT active, so switching away and back
-  // restores what the user had ticked. Only the active base's options live in
-  // `basemapId`; without this, returning to Kleur would silently reset it.
-  //
-  // A ref rather than state: it is read at click time and never rendered (the
-  // checkboxes shown under an inactive base come from this map, but any write to
-  // it is always accompanied by an onSelect that re-renders anyway).
-  const rememberedRef = useRef<Record<BasemapBaseId, BasemapOptions>>({
-    luchtfoto: emptyOptions(),
-    kleur: emptyOptions(),
-    grijs: emptyOptions(),
-  });
-
-  // Keep the active base's remembered options in step with the incoming id, so an
-  // externally applied basemap (share link) is what a later switch-back restores.
-  // Keyed on `basemapId`: `active` is rebuilt on every render, so depending on it
-  // would re-run this each time.
-  useEffect(() => {
-    const { baseId, options } = basemapOptionsOf(basemapId);
-    rememberedRef.current[baseId] = options;
-  }, [basemapId]);
-
-  /** The options to show for a base: live ones for the active base, remembered otherwise. */
+  /**
+   * The options to show for a base. Only the ACTIVE base can have any ticked:
+   * switching basemap clears the previous one's boxes, so an inactive column is
+   * always unticked.
+   *
+   * This is why the component needs no state of its own — `basemapId` carries the
+   * active base's options and every other base is empty by definition.
+   */
   function optionsFor(baseId: BasemapBaseId): BasemapOptions {
     if (baseId === active.baseId) return active.options;
-    return rememberedRef.current[baseId];
+    return emptyOptions();
   }
 
+  /** Switch base, starting it with no options ticked. */
   function handleSelectBase(baseId: BasemapBaseId) {
-    onSelect(basemapIdFor(baseId, optionsFor(baseId)));
+    if (baseId === active.baseId) return;
+    onSelect(basemapIdFor(baseId, emptyOptions()));
   }
 
   /**
    * Toggle one checkbox. Ticking a box under an inactive base also switches to
    * that base — the checkbox belongs to its own column, so acting on a different
-   * base than the one clicked would be the surprising behaviour.
+   * base than the one clicked would be the surprising behaviour. Since the boxes of
+   * an inactive base are always clear, such a click starts from empty and turns on
+   * only the one clicked.
    */
   function handleToggleOption(baseId: BasemapBaseId, key: BasemapOptionKey) {
     const current = optionsFor(baseId);
     const next: BasemapOptions = { ...current, [key]: !current[key] };
-    rememberedRef.current[baseId] = next;
     onSelect(basemapIdFor(baseId, next));
   }
 
