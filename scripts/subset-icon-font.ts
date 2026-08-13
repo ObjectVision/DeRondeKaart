@@ -25,6 +25,34 @@ import subsetFont from "subset-font";
 
 const ICON_NAME_RE = /^[a-z0-9_]+$/;
 
+/**
+ * Icon names the source scan cannot find because they are selected at runtime,
+ * e.g. `name={onMap ? "check_circle" : "circle"}` — the regex below requires the
+ * quote to follow `name=` directly, so neither branch of a ternary is seen.
+ *
+ * Keep in sync with the conditional `<Icon name={...}>` props in src/.
+ */
+const RUNTIME_ICON_NAMES = [
+  "add", // meta layer links (LeafMeta), sidebar
+  "add_circle", // meta layer link, layer not on the map yet
+  "arrow_circle_left", // legend, move layer between maps
+  "arrow_circle_right",
+  "check", // share dialog, copy confirmation
+  "check_box", // basemap dialog options
+  "check_box_outline_blank",
+  "check_circle", // on-map state (sidebar, meta layer links)
+  "chevron_right", // collapsed tree node
+  "content_copy",
+  "edit", // annotation description
+  "edit_off",
+  "expand_more", // expanded tree node
+  "format_color_reset", // legend, layer dimmed
+  "opacity", // legend, layer at full opacity
+  "radio_button_checked", // single-select control
+  "radio_button_unchecked",
+  "remove", // meta layer link to a layer this viewer lacks
+];
+
 /** Literal Icon name props in source: name="x" or name={"x"}. */
 function iconNamesFromSource(root: string): Set<string> {
   const out = new Set<string>();
@@ -69,6 +97,12 @@ export function collectIconNames(root: string): string[] {
   ]);
   // `circle` is the runtime fallback in nav-icon.tsx (name || "circle").
   names.add("circle");
+  // Names chosen at runtime rather than written as a literal `name="…"` prop —
+  // typically `name={cond ? "a" : "b"}`, which the source scan above cannot see.
+  // Without this they are dropped from the subset and render as their raw text
+  // in built bundles only (the plugin is `apply: "build"`), so a dev run looks
+  // fine. Add a name here whenever an Icon name becomes conditional.
+  for (const name of RUNTIME_ICON_NAMES) names.add(name);
   return [...names].filter((n) => ICON_NAME_RE.test(n)).sort();
 }
 
