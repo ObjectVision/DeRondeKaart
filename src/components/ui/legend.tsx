@@ -78,10 +78,14 @@ interface LegendProps {
   entries: LayerEntry[];
   hiddenIds: Set<string>;
   hiddenRules: globalThis.Map<string, Set<string>>;
+  /** Layers dimmed by the transparency tool. */
+  dimmedIds: Set<string>;
   /** Timeseries: current step per layer id, and which layers are playing. */
   layerSteps: globalThis.Map<string, number>;
   playingIds: Set<string>;
   onToggle: (layerId: string) => void;
+  /** Dim the layer to 30%, or restore its configured opacity. */
+  onToggleDim: (layerId: string) => void;
   onToggleRule: (layerId: string, ruleName: string) => void;
   onTogglePlay: (layerId: string) => void;
   onSetStep: (layerId: string, value: number) => void;
@@ -137,9 +141,11 @@ function LayerList({
   entries,
   hiddenIds,
   hiddenRules,
+  dimmedIds,
   layerSteps,
   playingIds,
   onToggle,
+  onToggleDim,
   onToggleRule,
   onTogglePlay,
   onSetStep,
@@ -154,9 +160,11 @@ function LayerList({
   entries: LayerEntry[];
   hiddenIds: Set<string>;
   hiddenRules: globalThis.Map<string, Set<string>>;
+  dimmedIds: Set<string>;
   layerSteps: globalThis.Map<string, number>;
   playingIds: Set<string>;
   onToggle: (layerId: string) => void;
+  onToggleDim: (layerId: string) => void;
   onToggleRule: (layerId: string, ruleName: string) => void;
   onTogglePlay: (layerId: string) => void;
   onSetStep: (layerId: string, value: number) => void;
@@ -197,6 +205,7 @@ function LayerList({
       <ul className="flex flex-col gap-0.5">
         {entries.map(({ config }, rowIndex) => {
           const isVisible = !hiddenIds.has(config.id);
+          const isDimmed = dimmedIds.has(config.id);
           const isDragging = drag.draggingId === config.id;
           // COG rules are a read-only legend key: the raster is styled per-pixel
           // by a color function, so individual classes can't be toggled the way
@@ -293,20 +302,26 @@ function LayerList({
                     card (see --width-panel in index.css). */}
                 {isExpanded && (
                   <>
-                    {/* Placeholder: the handler lands when the opacity control is
-                        built. Rendered (not hidden) so the row layout is final,
-                        and disabled so it cannot be clicked before it does
-                        anything. */}
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      disabled
+                      onClick={() => onToggleDim(config.id)}
                       aria-label={`Transparantie ${config.name}`}
-                      title="Transparantie (nog niet beschikbaar)"
+                      aria-pressed={isDimmed}
+                      title={isDimmed ? "Transparantie opheffen" : "Transparantie"}
                     >
-                      {/* Colour left to the button's own disabled:opacity-50 —
-                          stacking text-gray-300 on top renders it near-invisible. */}
-                      <Icon name="opacity" size={chromeIconSize()} color={chromeIconColor()} />
+                      {/* Two literal name= strings rather than one expression: the
+                          build-time subsetter scans for `name="…"` and would miss
+                          a computed one, dropping the glyph from the font. */}
+                      {isDimmed ? (
+                        <Icon
+                          name="format_color_reset"
+                          size={chromeIconSize()}
+                          color={chromeIconColor()}
+                        />
+                      ) : (
+                        <Icon name="opacity" size={chromeIconSize()} color={chromeIconColor()} />
+                      )}
                     </Button>
                     {/* Disabled rather than hidden when the layer has no `meta`,
                         so every row keeps the same set of actions. */}
@@ -451,9 +466,11 @@ export const Legend = memo(function Legend({
   entries,
   hiddenIds,
   hiddenRules,
+  dimmedIds,
   layerSteps,
   playingIds,
   onToggle,
+  onToggleDim,
   onToggleRule,
   onTogglePlay,
   onSetStep,
@@ -531,8 +548,8 @@ export const Legend = memo(function Legend({
               variant="ghost"
               size="icon-sm"
               onClick={onOpenBasemaps}
-              title="Achtergrondkaart kiezen"
-              aria-label="Achtergrondkaart kiezen"
+              title="Referentielagen kiezen"
+              aria-label="Referentielagen kiezen"
             >
               <Icon name="map" size={chromeIconSize()} color={chromeIconColor()} />
             </Button>
@@ -557,9 +574,11 @@ export const Legend = memo(function Legend({
           entries={visible}
           hiddenIds={hiddenIds}
           hiddenRules={hiddenRules}
+          dimmedIds={dimmedIds}
           layerSteps={layerSteps}
           playingIds={playingIds}
           onToggle={onToggle}
+          onToggleDim={onToggleDim}
           onToggleRule={onToggleRule}
           onTogglePlay={onTogglePlay}
           onSetStep={onSetStep}
