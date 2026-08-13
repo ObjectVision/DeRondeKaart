@@ -21,13 +21,28 @@ function validateAttributeSource(raw: unknown, id: string): string | undefined {
 }
 
 /** Path to an HTML fragment describing the dataset (see LayerConfig.meta). */
-function validateMeta(raw: unknown, id: string): string | undefined {
+function validateMeta(raw: unknown, id: string): string | string[] | undefined {
   if (raw === undefined) return undefined;
-  if (typeof raw !== "string" || raw === "") {
-    console.warn(`layers.json: layer "${id}" has invalid "meta"; ignoring`);
-    return undefined;
+  if (typeof raw === "string" && raw !== "") return raw;
+  // An array composes the dialog from several fragments (see LayerConfig.meta).
+  // Bad entries are dropped rather than failing the whole layer, so one typo in a
+  // composed list still shows the fragments that are valid.
+  if (Array.isArray(raw)) {
+    const paths = raw.filter((p): p is string => typeof p === "string" && p !== "");
+    // Nothing usable left — same result as any other invalid value. Warned about
+    // here rather than falling through silently, so an empty or all-bad list is
+    // as visible as a malformed one.
+    if (paths.length === 0) {
+      console.warn(`layers.json: layer "${id}" has invalid "meta"; ignoring`);
+      return undefined;
+    }
+    if (paths.length !== raw.length) {
+      console.warn(`layers.json: layer "${id}" has invalid entries in "meta"; ignoring those`);
+    }
+    return paths;
   }
-  return raw;
+  console.warn(`layers.json: layer "${id}" has invalid "meta"; ignoring`);
+  return undefined;
 }
 
 /** Brief plain-text summary of the layer (see LayerConfig.description). */
