@@ -16,16 +16,18 @@ De Ronde kaart is an opensource web-based map application for geospatial data. F
 
 #### Data formats
 
-One package per format the map can read; the *format* rationale (when to reach
-for which) is §5.1, and the loading mechanics are §5.3.
+The formats the map can read. When to reach for which is §5.1, and the loading
+mechanics are §5.3.
 
-| Package | We use | Why |
-|---|---|---|
-| `pmtiles` ^4.4 | `Protocol`, registered as `pmtiles://` | Serves a whole vector tileset from one file over range requests — no tile server |
-| `@geomatico/maplibre-cog-protocol` ^0.9 | `cogProtocol` (registered as `cog://`), `setColorFunction` | Cloud-Optimized GeoTIFF as a MapLibre raster source. `setColorFunction` is the hook [system-design-styling.md](system-design-styling.md) uses to classify raster pixels through the same GeoStyler rules a vector layer uses |
-| `flatgeobuf` ^4.4 | `deserialize` from the ESM build (`flatgeobuf/lib/mjs/geojson.js`) | Bbox-filtered streaming reads against the file's packed Hilbert R-tree — large vector data browsed at high zoom without tiling it first (§5.3) |
-| `apache-arrow` ^21.1 | `Table`, `tableFromIPC` | The in-memory columnar table every analytics path consumes: chart aggregation, statistics and the filter dropdowns all read Arrow (§7) |
-| slim adaptation of `parquet-wasm` | `readParquet`, `readParquetStream`, plus the init promise | Decodes the Parquet attribute sidecars to Arrow IPC.|
+| Format | Description |
+|---|---|
+| [PMTiles](https://github.com/protomaps/PMTiles/blob/main/spec/v3/spec.md) | Single-file tile archive with an embedded directory index. Serves a whole tileset over HTTP range requests, so no tile server is needed. The dominant format here — most layers ship as PMTiles |
+| [Mapbox Vector Tile](https://github.com/mapbox/vector-tile-spec) | Protobuf-encoded vector tiles served per-tile from a URL template. Geometry is clipped per tile, which is why polygon outlines can show seams |
+| [Cloud-Optimized GeoTIFF](https://cogeo.org/) | GeoTIFF laid out with internal tiling and overviews so a viewer can range-request just the resolution and area it needs. Drawn as a raster source, with pixel values classified through the same GeoStyler rules a vector layer uses |
+| [FlatGeobuf](https://flatgeobuf.org/) | Streamable binary vector format with a packed Hilbert R-tree index, allowing bbox-filtered reads. Lets large vector datasets be browsed at high zoom without tiling them first (§5.3) |
+| [GeoJSON](https://datatracker.ietf.org/doc/html/rfc7946) | Plain-text vector geometry. Used for small or inline datasets, including the in-memory data a Power BI host pushes in |
+| [Apache Arrow](https://arrow.apache.org/docs/format/Columnar.html) | In-memory columnar table format. Every analytics path consumes it: chart aggregation, statistics and the filter dropdowns all read Arrow (§7) |
+| [Apache Parquet](https://parquet.apache.org/docs/file-format/) | Compressed columnar file format. Carries the attribute sidecars that accompany the tiled geometry, decoded to Arrow in a WebAssembly worker |
 
 #### UI
 
