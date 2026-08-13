@@ -1,6 +1,11 @@
 import { useEffect, useReducer, useRef } from "react";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
-import { decorateMetaLayerLinks, parseMetaLayerLink } from "@/lib/meta-layer-links";
+import {
+  buildMetaLayerIndex,
+  decorateMetaLayerLinks,
+  parseMetaLayerLink,
+  type MetaLayerIndex,
+} from "@/lib/meta-layer-links";
 
 // Module-level caches, read straight through during render so a cached layer
 // paints without a state round-trip. `metaUrlCache` maps layer id -> its meta
@@ -53,6 +58,9 @@ export function LeafMeta({
   const urls = metaUrlCache.get(layerId);
   const [, rerender] = useReducer((x: number) => x + 1, 0);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Shared with the click handler so a click resolves rows the same way the
+  // decoration pass did. Null until the configs have loaded.
+  const layerIndexRef = useRef<MetaLayerIndex | null>(null);
 
   // Resolve layer id -> meta URLs. loadLayerConfigs memoizes its parse, so this
   // is a cache read after the first caller anywhere in the app. A single string is
@@ -138,7 +146,9 @@ export function LeafMeta({
       .then((configs) => {
         if (!alive) return;
         const knownIds = new Set(configs.map((config) => config.id));
-        decorateMetaLayerLinks(container, knownIds, isLayerOnMap);
+        const index = buildMetaLayerIndex(configs);
+        layerIndexRef.current = index;
+        decorateMetaLayerLinks(container, knownIds, isLayerOnMap, index);
       })
       .catch((err) => {
         // Decoration is cosmetic; failing to load the configs leaves the links
@@ -156,10 +166,13 @@ export function LeafMeta({
     if (!onAddLayer) return;
     const anchor = (event.target as HTMLElement).closest("a");
     if (!anchor) return;
-    const link = parseMetaLayerLink(anchor);
+    const link = parseMetaLayerLink(anchor, layerIndexRef.current ?? undefined);
     // Not a legacy viewer link — an ordinary outbound link, leave it navigating.
     if (!link) return;
+    // Always suppress the navigation: the target viewer is retired, so following
+    // the link is never right, even when the layer isn't available here.
     event.preventDefault();
+    if (!link.layerId) return;
     onAddLayer(link.layerId);
   }
 
