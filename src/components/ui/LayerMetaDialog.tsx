@@ -31,7 +31,11 @@ export function LayerMetaDialog({
 
   return (
     <DialogRoot open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[min(34rem,calc(100vw-2rem))]">
+      {/* Same width as BasemapDialog ("Referentielagen") so the chrome dialogs
+          read as one family. DialogContent owns the `overflow-y-auto`, so
+          `app-scrollbar` has to land here — it styles the popup's own scrollbar
+          to match the navigation and legend cards. */}
+      <DialogContent className="app-scrollbar w-[min(40rem,calc(100vw-2rem))]">
         <div className="mb-5 flex items-center justify-between gap-2">
           {/* Same treatment as the "Referentielagen" and "Legenda" headings. */}
           <DialogTitle className="text-xs font-semibold uppercase tracking-wide text-gray-500">
