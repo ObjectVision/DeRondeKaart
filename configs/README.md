@@ -46,6 +46,40 @@ In deployment the var is set per instance:
 - **Docker** — pass `--build-arg CONFIG_PROJECT=<slug>` (or set `CONFIG_PROJECT` for
   `docker compose build`).
 
+## `map.json`: the starting basemap
+
+`map.json` may name the background map a fresh session opens on:
+
+```json
+"basemap": "kleur-labels-only"
+```
+
+Omit it to use the app default (`kleur-labels`). An unknown id logs a warning and falls back
+to that default, so a typo degrades quietly rather than leaving the map unstyled — check the
+console after changing it.
+
+The ids are **not** derived from the picker's checkboxes, and the obvious guess is wrong:
+`kleur-labels` predates the two-checkbox UI and still means labels **and** roads/water.
+Labels on their own are `-labels-only`.
+
+| id | Labels | Wegen en water op voorgrond |
+|---|---|---|
+| `luchtfoto` | — | *(not offered)* |
+| `luchtfoto-labels` | ✓ | *(not offered)* |
+| `kleur` | — | — |
+| `kleur-labels` | ✓ | ✓ |
+| `kleur-labels-only` | ✓ | — |
+| `kleur-wegen` | — | ✓ |
+| `grijs` | — | — |
+| `grijs-labels` | ✓ | ✓ |
+| `grijs-labels-only` | ✓ | — |
+| `grijs-wegen` | — | ✓ |
+
+The table in `src/components/map/map-view-config.ts` (`BASEMAPS`) is the source of truth.
+
+This value only **seeds** a session: a basemap the user picks is remembered in
+`sessionStorage` and wins on reload, and a basemap in a share URL wins over both.
+
 ## Adding a new project
 
 1. Create `configs/<project>/`.
