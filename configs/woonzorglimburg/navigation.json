@@ -381,161 +381,161 @@
     ]
   },
   {
-    "label": "Omgeving",
-    "icon": "nature_people",
-    "color": "#3E74A7",
-    "expanded": false,
+    "label": "voorzieningen",
+    "icon": "storefront",
+    "color": "#8C54D6",
+    "expanded": true,
     "children": [
       {
-        "label": "voorzieningen",
+        "label": "locaties",
         "icon": "storefront",
         "color": "#8C54D6",
         "expanded": true,
         "children": [
           {
-            "label": "locaties",
-            "icon": "storefront",
+            "id": "apotheek",
             "color": "#8C54D6",
-            "expanded": true,
-            "children": [
-              {
-                "id": "apotheek",
-                "color": "#8C54D6",
-                "label": "Apotheek",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "dagbesteding",
-                "color": "#8C54D6",
-                "label": "Dagbesteding",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "fysiotherapeut",
-                "color": "#8C54D6",
-                "label": "Fysiotherapeut",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "huisarts",
-                "color": "#8C54D6",
-                "label": "Huisarts",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "ontmoeting",
-                "color": "#8C54D6",
-                "label": "Ontmoeting",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "ov",
-                "color": "#8C54D6",
-                "label": "Openbaar vervoer",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "supermarkt",
-                "color": "#8C54D6",
-                "label": "Supermarkt",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "tandarts",
-                "color": "#8C54D6",
-                "label": "Tandarts",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "ziekenhuis",
-                "color": "#8C54D6",
-                "label": "Ziekenhuis",
-                "a": false,
-                "b": false
-              }
-            ]
+            "label": "Apotheek",
+            "a": false,
+            "b": false
           },
           {
-            "label": "loopafstanden",
-            "icon": "storefront",
+            "id": "dagbesteding",
             "color": "#8C54D6",
-            "expanded": false,
-            "children": [
-              {
-                "id": "loopafstand_apotheek",
-                "color": "#8C54D6",
-                "label": "Apotheek",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_dagbesteding",
-                "color": "#8C54D6",
-                "label": "Dagbesteding",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_fysiotherapeut",
-                "color": "#8C54D6",
-                "label": "Fysiotherapeut",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_huisarts",
-                "color": "#8C54D6",
-                "label": "Huisarts",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_ontmoeting",
-                "color": "#8C54D6",
-                "label": "Ontmoeting",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_ov",
-                "color": "#8C54D6",
-                "label": "Openbaar vervoer",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_supermarkt",
-                "color": "#8C54D6",
-                "label": "Supermarkt",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_tandarts",
-                "color": "#8C54D6",
-                "label": "Tandarts",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "loopafstand_ziekenhuis",
-                "color": "#8C54D6",
-                "label": "Ziekenhuis",
-                "a": false,
-                "b": false
-              }
-            ]
+            "label": "Dagbesteding",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "fysiotherapeut",
+            "color": "#8C54D6",
+            "label": "Fysiotherapeut",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "huisarts",
+            "color": "#8C54D6",
+            "label": "Huisarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "ontmoeting",
+            "color": "#8C54D6",
+            "label": "Ontmoeting",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "ov",
+            "color": "#8C54D6",
+            "label": "Openbaar vervoer",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "supermarkt",
+            "color": "#8C54D6",
+            "label": "Supermarkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "tandarts",
+            "color": "#8C54D6",
+            "label": "Tandarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "ziekenhuis",
+            "color": "#8C54D6",
+            "label": "Ziekenhuis",
+            "a": false,
+            "b": false
           }
         ]
       },
+      {
+        "label": "loopafstanden",
+        "icon": "storefront",
+        "color": "#8C54D6",
+        "expanded": false,
+        "children": [
+          {
+            "id": "loopafstand_apotheek",
+            "color": "#8C54D6",
+            "label": "Apotheek",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_dagbesteding",
+            "color": "#8C54D6",
+            "label": "Dagbesteding",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_fysiotherapeut",
+            "color": "#8C54D6",
+            "label": "Fysiotherapeut",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_huisarts",
+            "color": "#8C54D6",
+            "label": "Huisarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_ontmoeting",
+            "color": "#8C54D6",
+            "label": "Ontmoeting",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_ov",
+            "color": "#8C54D6",
+            "label": "Openbaar vervoer",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_supermarkt",
+            "color": "#8C54D6",
+            "label": "Supermarkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_tandarts",
+            "color": "#8C54D6",
+            "label": "Tandarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_ziekenhuis",
+            "color": "#8C54D6",
+            "label": "Ziekenhuis",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Omgeving",
+    "icon": "nature_people",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
       {
         "label": "3-30-300 vuistregel",
         "icon": "nature_people",
