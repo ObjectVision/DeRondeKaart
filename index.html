@@ -10,9 +10,80 @@
     <title>de Ronde kaart</title>
     <!-- Google Maps JS is loaded on demand by the Street View panel
          (street-view.tsx), not up front on every page load. -->
+
+    <!-- Boot splash. Inline on purpose: both stylesheets and the app bundle are
+         render-blocking, so on a slow connection nothing paints for ~4s. A
+         splash rendered by React, or styled from an external sheet, would
+         arrive with the thing it is meant to cover. Inline costs one paint at
+         ~800ms instead. -->
+    <style>
+      #splash {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        transition: opacity 0.25s ease;
+      }
+      /* Must outrank the `display: flex` above — a bare [hidden] attribute
+         loses to it, which is the classic way a splash gets stuck on screen. */
+      #splash[hidden] {
+        display: none;
+      }
+      #splash.is-hiding {
+        opacity: 0;
+      }
+      #splash svg {
+        width: min(60vw, 340px);
+        height: auto;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #splash {
+          transition: none;
+        }
+      }
+    </style>
   </head>
   <body>
+    <!-- Artwork copied from public/logo.svg — that file is the source of truth;
+         update both together. Inlined rather than <img src>, which would be a
+         second request and delay the very paint this exists to win. -->
+    <div id="splash" role="status" aria-label="Kaart wordt geladen">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 566 212" role="img" aria-label="de Ronde kaart">
+        <g transform="translate(-4 6)">
+        <path fill="#7FB3C4" d="M86.17 9.05A92 92 0 0 1 113.83 9.05A9 9 0 0 1 120.43 19.55L115.75 37.97A9 9 0 0 1 104.67 45.2A55 55 0 0 0 95.33 45.2A9 9 0 0 1 84.25 37.97L79.57 19.55A9 9 0 0 1 86.17 9.05Z"/>
+        <path fill="#6FA8CE" d="M142.27 18.29A92 92 0 0 1 164.65 34.54A9 9 0 0 1 163.81 46.93L149.21 59.08A9 9 0 0 1 135.99 58.41A55 55 0 0 0 128.43 52.92A9 9 0 0 1 123.72 40.56L130.76 22.91A9 9 0 0 1 142.27 18.29Z"/>
+        <path fill="#8FB0C0" d="M182.23 58.74A92 92 0 0 1 190.78 85.05A9 9 0 0 1 182.82 94.57L163.86 95.81A9 9 0 0 1 153.56 87.51A55 55 0 0 0 150.67 78.62A9 9 0 0 1 154.13 65.85L170.2 55.71A9 9 0 0 1 182.23 58.74Z"/>
+        <path fill="#A9BCC6" d="M190.78 114.95A92 92 0 0 1 182.23 141.26A9 9 0 0 1 170.2 144.29L154.13 134.15A9 9 0 0 1 150.67 121.38A55 55 0 0 0 153.56 112.49A9 9 0 0 1 163.86 104.19L182.82 105.43A9 9 0 0 1 190.78 114.95Z"/>
+        <path fill="#E3C88E" d="M164.65 165.46A92 92 0 0 1 142.27 181.71A9 9 0 0 1 130.76 177.09L123.72 159.44A9 9 0 0 1 128.43 147.08A55 55 0 0 0 135.99 141.59A9 9 0 0 1 149.21 140.92L163.81 153.07A9 9 0 0 1 164.65 165.46Z"/>
+        <path fill="#E0CBA0" d="M113.83 190.95A92 92 0 0 1 86.17 190.95A9 9 0 0 1 79.57 180.45L84.25 162.03A9 9 0 0 1 95.33 154.8A55 55 0 0 0 104.67 154.8A9 9 0 0 1 115.75 162.03L120.43 180.45A9 9 0 0 1 113.83 190.95Z"/>
+        <path fill="#BFC4C0" d="M57.73 181.71A92 92 0 0 1 35.35 165.46A9 9 0 0 1 36.19 153.07L50.79 140.92A9 9 0 0 1 64.01 141.59A55 55 0 0 0 71.57 147.08A9 9 0 0 1 76.28 159.44L69.24 177.09A9 9 0 0 1 57.73 181.71Z"/>
+        <path fill="#AFCFC2" d="M17.77 141.26A92 92 0 0 1 9.22 114.95A9 9 0 0 1 17.18 105.43L36.14 104.19A9 9 0 0 1 46.44 112.49A55 55 0 0 0 49.33 121.38A9 9 0 0 1 45.87 134.15L29.8 144.29A9 9 0 0 1 17.77 141.26Z"/>
+        <path fill="#8CBE86" d="M9.22 85.05A92 92 0 0 1 17.77 58.74A9 9 0 0 1 29.8 55.71L45.87 65.85A9 9 0 0 1 49.33 78.62A55 55 0 0 0 46.44 87.51A9 9 0 0 1 36.14 95.81L17.18 94.57A9 9 0 0 1 9.22 85.05Z"/>
+        <path fill="#A9C87E" d="M35.35 34.54A92 92 0 0 1 57.73 18.29A9 9 0 0 1 69.24 22.91L76.28 40.56A9 9 0 0 1 71.57 52.92A55 55 0 0 0 64.01 58.41A9 9 0 0 1 50.79 59.08L36.19 46.93A9 9 0 0 1 35.35 34.54Z"/>
+        </g>
+        <g fill="#132A55" transform="translate(236 0)"
+           font-family="Poppins, 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif"
+           font-weight="600" letter-spacing="-1">
+          <text x="0" y="72" font-size="76">de</text>
+          <text x="0" y="140" font-size="76">Ronde</text>
+          <text x="0" y="208" font-size="76">kaart</text>
+        </g>
+      </svg>
+    </div>
     <div id="root"></div>
+    <!-- Last-resort dismissal. Deliberately NOT in the bundle: if main.tsx
+         fails to parse or throws before it can hide the splash, this is the
+         only path left, and a permanent logo over a broken app is worse than
+         showing the broken app. -->
+    <script>
+      setTimeout(function () {
+        var el = document.getElementById("splash");
+        if (el) el.remove();
+      }, 12000);
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

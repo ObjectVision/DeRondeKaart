@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { loadMapConfig, toInitialViewState } from '@/config/map-config'
+import { dismissSplash } from '@/lib/splash'
 
 async function bootstrap() {
   const mapConfig = await loadMapConfig()
@@ -10,6 +11,9 @@ async function bootstrap() {
   // (only the circle + legend + title) for embedding on a webpage.
   const embedCircular =
     new URLSearchParams(window.location.search).get('embed') === 'circular'
+  // That view mounts no MapView, so the map's onLoad — which dismisses the
+  // splash everywhere else — never fires here.
+  if (embedCircular) dismissSplash()
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <App
@@ -35,4 +39,9 @@ async function bootstrap() {
   )
 }
 
-bootstrap()
+// A failed boot leaves #root empty. Without this the splash would stay up over
+// nothing, reading as a hang rather than an error.
+bootstrap().catch((err) => {
+  dismissSplash()
+  console.error('Kon de applicatie niet starten', err)
+})
