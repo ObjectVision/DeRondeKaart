@@ -2,8 +2,9 @@ import { useCallback, useMemo } from "react";
 import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
 import type { LayerEntry } from "./use-map-layers";
-import { buildNativeLayerDefs, expandForMapQueries, isNativeVectorFormat } from "@/layers";
+import { buildNativeLayerDefs, expandForMapQueries, isNativeVectorFormat, canHighlight } from "@/layers";
 import { geojsonLayerIds } from "@/layers/geojson-layer";
+import type { LayerConfig } from "@/layers";
 
 /**
  * Drives the map cursor to `pointer` over clickable features (layers with
@@ -25,7 +26,18 @@ export interface UseHoverCursorResult {
 export function useHoverCursor(
   layerEntries: LayerEntry[],
   mapViewRef: React.RefObject<MapViewHandle | null>,
+  /**
+   * Called with the highlightable feature under the pointer, or (null, null)
+   * when there is none. Optional: the cursor works without a highlight driver.
+   */
+  onHover?: (config: LayerConfig | null, featureId: string | number | null) => void,
 ): UseHoverCursorResult {
+  // Highlightable layers, independent of whether they answer clicks.
+  const highlightEntries = useMemo(
+    () => expandForMapQueries(layerEntries).filter((e) => canHighlight(e.config)),
+    [layerEntries],
+  );
+
   // Clickable set: same filter as use-feature-pick.ts. Composite entries are
   // expanded to their children (the configs actually on the map), with the
   // parent's featureinfo/excludeFromPicking deciding clickability.
@@ -63,15 +75,41 @@ export function useHoverCursor(
         }
       }
 
-      if (layerIds.length === 0) {
+      // Highlightable layers are hovered even when they answer no click: the
+      // two flags are independent, and an outline that only appeared on
+      // clickable layers would look arbitrary.
+      const highlightIds: string[] = [];
+      for (const entry of highlightEntries) {
+        for (const def of buildNativeLayerDefs(entry.config)) {
+          if (map.getLayer(def.id)) highlightIds.push(def.id);
+        }
+      }
+
+      if (layerIds.length === 0 && highlightIds.length === 0) {
         canvas.style.cursor = "";
+        onHover?.(null, null);
         return;
       }
 
-      const features = map.queryRenderedFeatures(event.point, { layers: layerIds });
-      canvas.style.cursor = features.length > 0 ? "pointer" : "";
+      // One query covering both sets, then split by which layer answered — the
+      // cursor must only respond to clickable layers.
+      const queryIds = [...new Set([...layerIds, ...highlightIds])];
+      const features = map.queryRenderedFeatures(event.point, { layers: queryIds });
+
+      const clickable = new Set(layerIds);
+      canvas.style.cursor = features.some((f) => clickable.has(f.layer.id)) ? "pointer" : "";
+
+      if (onHover) {
+        const hit = features.find((f) => highlightIds.includes(f.layer.id));
+        const config = hit
+          ? highlightEntries.find((e) =>
+              buildNativeLayerDefs(e.config).some((d) => d.id === hit.layer.id),
+            )?.config ?? null
+          : null;
+        onHover(config, hit?.id ?? null);
+      }
     },
-    [clickableEntries, mapViewRef],
+    [clickableEntries, highlightEntries, mapViewRef, onHover],
   );
 
   return { handleMouseMove };

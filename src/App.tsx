@@ -15,6 +15,7 @@ import { useMapPointer } from "@/hooks/use-map-pointer";
 import { viewForBbox } from "@/lib/fly-to";
 import type { BBox } from "@/layers/box-filter";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
+import type { LayerConfig } from "@/layers";
 import {
   DEFAULT_CLICK_MARKER,
   DEFAULT_MAP_CONTROLS,
@@ -24,8 +25,10 @@ import {
   type MapControlsConfig,
 } from "@/config/map-config";
 import { useFeaturePick } from "@/hooks/use-feature-pick";
+import type { FeatureInfoResult } from "@/hooks/use-feature-pick";
 import { useClickPopup } from "@/hooks/use-click-popup";
 import { useHoverCursor } from "@/hooks/use-hover-cursor";
+import { useFeatureHighlight } from "@/hooks/use-feature-highlight";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
 import { useEmbedData, type EmbedConfig } from "@/hooks/use-embed-data";
 import { useMapSnapshot } from "@/hooks/use-map-snapshot";
@@ -65,6 +68,32 @@ import { ShareDialog } from "@/components/share/ShareDialog";
 import { CircularExportView } from "@/components/share/CircularExportView";
 import { legendItemsForEntries } from "@/lib/legend-style";
 import { resultUsesPblSummary } from "@/lib/pbl-summary";
+
+/**
+ * Outline the feature a pick result describes, or clear the outline when the
+ * result is gone. Lifted out of the component so both maps share one rule.
+ *
+ * Only the first highlightable feature is marked: the popup shows one layer at
+ * a time, and outlining every layer under the pointer would be noise.
+ */
+function applySelectionHighlight(
+  result: FeatureInfoResult | null,
+  setSelected: (config: LayerConfig | null, featureId: string | number | null) => void,
+): void {
+  if (!result) {
+    setSelected(null, null);
+    return;
+  }
+  for (const picked of result.featuresByLayer.values()) {
+    for (const feature of picked) {
+      if (feature.sourceConfig && feature.featureId !== undefined) {
+        setSelected(feature.sourceConfig, feature.featureId);
+        return;
+      }
+    }
+  }
+  setSelected(null, null);
+}
 
 function App({
   initialViewState,
@@ -205,9 +234,14 @@ function App({
   const pickA = useFeaturePick(mapLeftLayers.layerEntries, mapLeftRef);
   const pickB = useFeaturePick(mapRightLayers.layerEntries, mapRightRef);
 
+  // Feature highlighting (hover outline + the clicked feature) per map. Kept
+  // per map because feature state lives on that map's own style instance.
+  const highlightA = useFeatureHighlight(mapLeftRef);
+  const highlightB = useFeatureHighlight(mapRightRef);
+
   // Hover cursor (pointer over clickable features, grab otherwise) for each map
-  const hoverA = useHoverCursor(mapLeftLayers.layerEntries, mapLeftRef);
-  const hoverB = useHoverCursor(mapRightLayers.layerEntries, mapRightRef);
+  const hoverA = useHoverCursor(mapLeftLayers.layerEntries, mapLeftRef, highlightA.setHovered);
+  const hoverB = useHoverCursor(mapRightLayers.layerEntries, mapRightRef, highlightB.setHovered);
 
   // The shared click popup: marker point, Street View target, popup anchor, and
   // which map's pick is on show. Shared across both maps — a click on either one
@@ -228,6 +262,20 @@ function App({
     leftEntries: mapLeftLayers.layerEntries,
     rightEntries: mapRightLayers.layerEntries,
   });
+
+  // Pin the highlight to whichever feature the open popup is describing, and
+  // drop it when the popup closes — that is what makes the outline read as
+  // "this is the one you clicked" rather than a second hover.
+  //
+  // Driven off the pick results rather than the click handler so it follows the
+  // popup's real lifecycle, including closing via the × or a click on water.
+  useEffect(() => {
+    applySelectionHighlight(pickA.result, highlightA.setSelected);
+  }, [pickA.result, highlightA.setSelected]);
+
+  useEffect(() => {
+    applySelectionHighlight(pickB.result, highlightB.setSelected);
+  }, [pickB.result, highlightB.setSelected]);
 
   // Per-map marker overlays, drawn as MapLibre symbol layers on each map's own
   // style. map.json `clickMarker.enabled: false` (or `clickMarker: false`)
@@ -711,22 +759,29 @@ function App({
   const handleMapLeftLabelsReady = useCallback(() => {
     const ref = mapLeftRef.current?.mapRef;
     if (ref) mapLeftLayers.syncImperativeLayers(ref);
+    // setStyle drops every source along with its feature state, so the ids the
+    // highlight hook is holding now address nothing. Forget them, or the next
+    // hover would try to clear a feature that no longer exists and leave the
+    // new one unhighlighted.
+    highlightA.clearAll();
     studyAreaA.resync();
     filteredStudyA.resync();
     markerA.resync();
     boxA.resync();
     annotSourceA.resync();
-  }, [mapLeftLayers, studyAreaA, filteredStudyA, markerA, boxA, annotSourceA]);
+  }, [mapLeftLayers, highlightA, studyAreaA, filteredStudyA, markerA, boxA, annotSourceA]);
 
   const handleMapRightLabelsReady = useCallback(() => {
     const ref = mapRightRef.current?.mapRef;
     if (ref) mapRightLayers.syncImperativeLayers(ref);
+    // See handleMapLeftLabelsReady: the style swap took the feature state with it.
+    highlightB.clearAll();
     studyAreaB.resync();
     filteredStudyB.resync();
     markerB.resync();
     boxB.resync();
     annotSourceB.resync();
-  }, [mapRightLayers, studyAreaB, filteredStudyB, markerB, boxB, annotSourceB]);
+  }, [mapRightLayers, highlightB, studyAreaB, filteredStudyB, markerB, boxB, annotSourceB]);
 
   // The share toolbutton, rendered as its own card so it matches the sibling
   // toolbar cards. In sidebar mode it slots into the toolbar row (after the

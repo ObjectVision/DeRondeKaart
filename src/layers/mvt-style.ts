@@ -1,5 +1,17 @@
 import type { LayerConfig, GeoStylerRule, GeoStylerFilter, FillSymbolizer, LineSymbolizer, MarkSymbolizer, IconSymbolizer, NativeLayerType, RawStyleOverrides } from "./types";
 import { hatchPatternId, resolveHatch } from "./hatch-pattern";
+import { HIGHLIGHT_COLOR, HIGHLIGHT_WIDTH, canHighlight } from "./feature-id";
+
+/**
+ * Rule-name suffix of the highlight outline layer. Exported so the dim tool can
+ * skip it — dimming a layer must not fade the highlight along with it.
+ */
+export const HIGHLIGHT_RULE = "highlight";
+
+/** Whether `layerId` names a highlight outline layer. */
+export function isHighlightLayerId(id: string): boolean {
+  return id.endsWith(`-${HIGHLIGHT_RULE}`);
+}
 
 /**
  * Convert a GeoStyler filter to a MapLibre expression.
@@ -143,6 +155,54 @@ function layerId(config: LayerConfig, ruleName?: string): string {
  * one layer — or two when a polygon also sets `lineColor` (fill + stroke).
  */
 export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
+  const defs = buildStyleLayerDefs(config);
+  const highlight = buildHighlightLayerDef(config);
+  return highlight ? [...defs, highlight] : defs;
+}
+
+/**
+ * The highlight outline: one extra line layer per highlightable config, drawn
+ * only for the feature whose `hover`/`selected` feature-state is set.
+ *
+ * Why a layer of its own rather than restyling the existing one: 200 of the 201
+ * startanalyse layers are geostyler fills, which render as a single `fill`
+ * layer whose border is `fill-outline-color` — and that is locked to 1px (see
+ * buildFillLayerDef). A highlight painted through it is barely visible. A line
+ * layer takes a real `line-width`.
+ *
+ * Zero width when neither flag is set, so it costs nothing until something is
+ * highlighted. `ruleName: ""` keeps per-rule visibility toggles from treating
+ * it as a class, matching the flat style's `-outline` layer.
+ */
+function buildHighlightLayerDef(config: LayerConfig): NativeLayerDef | null {
+  if (!canHighlight(config)) return null;
+
+  const color = config.highlightcolor ?? HIGHLIGHT_COLOR;
+  // Selected (a click) and hover share one appearance; both are checked so a
+  // pinned feature stays outlined once the pointer moves away.
+  const onOff = (on: number, off: number): unknown[] => [
+    "case",
+    ["boolean", ["feature-state", "highlight"], false],
+    on,
+    ["boolean", ["feature-state", "selected"], false],
+    on,
+    off,
+  ];
+
+  return {
+    id: layerId(config, HIGHLIGHT_RULE),
+    ruleName: "",
+    type: "line",
+    paint: {
+      "line-color": color,
+      "line-width": onOff(HIGHLIGHT_WIDTH, 0),
+      "line-opacity": onOff(1, 0),
+    },
+    layout: {},
+  };
+}
+
+function buildStyleLayerDefs(config: LayerConfig): NativeLayerDef[] {
   const { geostyler, style } = config;
 
   if (geostyler && geostyler.rules.length > 0) {

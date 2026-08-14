@@ -71773,6 +71773,9 @@
       },
       "excludeFromLegend": true,
       "excludeFromComparison": true,
+      "highlightable": true,
+      "highlightcolor": "#FF0000",
+      "beforeid": "foreground-layers",
       "featureinfo": {
         "pbl": true
       }

@@ -20,10 +20,12 @@ import {
   isNativeVectorFormat,
   areaFilterExpression,
   iconSpriteId,
+  isHighlightLayerId,
 } from "@/layers";
 import { getIconFromRule } from "@/layers/geostyler";
 import { loadIconBitmap } from "@/layers/icon-sprite";
 import { ensureHatchImages } from "@/layers/hatch-pattern";
+import { canHighlight, cachedIdProperty } from "@/layers/feature-id";
 import { addGeoJsonLayer, removeGeoJsonLayer } from "@/layers/geojson-layer";
 import type { CompositeHost } from "@/layers";
 import { buildCogColorFunction } from "@/layers/cog-style";
@@ -693,12 +695,21 @@ export function addMvtLayer(
   const sourceId = tileSourceId(config);
 
   if (!map.getSource(sourceId)) {
+    // Highlighting addresses features by id, and vector tiles carry none unless
+    // the source promotes a property into that slot. `promoteId` can only be
+    // set here, at creation — hence `highlightable` being a load-time config
+    // field. `prefetchIdProperty` resolves it from the archive metadata before
+    // the layer is added, so this stays synchronous (deferring it would reorder
+    // the insert against the z-order anchors).
+    const promoteId = canHighlight(config) ? cachedIdProperty(config) : undefined;
+
     if (config.format === "pmtiles") {
       // `url` (not `tiles`): the protocol handler reads the archive's header
       // for its own tile scheme and zoom range, so no template is needed.
       map.addSource(sourceId, {
         type: "vector",
         url: `pmtiles://${absoluteTileUrl(config.source)}`,
+        ...(promoteId ? { promoteId } : {}),
       });
     } else {
       map.addSource(sourceId, {
@@ -706,8 +717,10 @@ export function addMvtLayer(
         tiles: [absoluteTileUrl(config.source)],
         minzoom: 0,
         maxzoom: 14,
+        ...(promoteId ? { promoteId } : {}),
       });
     }
+
   }
 
   // Hatch fills also need a sprite image before addLayer, but theirs is drawn
@@ -1118,6 +1131,11 @@ function setNativeLayerOpacity(
 
   for (const def of buildNativeLayerDefs(config)) {
     if (!map.getLayer(def.id)) continue;
+    // The highlight outline is not part of the layer's own styling — dimming
+    // the data must not fade the marker pointing at the feature you clicked.
+    // Its opacity is a feature-state expression; writing a number here would
+    // also overwrite that expression and leave the outline permanently on.
+    if (isHighlightLayerId(def.id)) continue;
     const key = OPACITY_PAINT_KEY[def.type];
     if (!key) continue;
     // setPaintProperty's key/value types are a union over every layer type, which

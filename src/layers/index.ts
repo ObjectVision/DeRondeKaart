@@ -2,7 +2,8 @@ export { loadLayerConfigs, getLayerConfigById } from "./config";
 export { loadParquetBatches } from "./parquet-loader";
 export { loadArrowBatches } from "./arrow-loader";
 export { invalidateTableCache, clearTableCache } from "./table-cache";
-export { buildNativeLayerDefs, isNativeVectorFormat, iconSpriteId } from "./mvt-style";
+export { buildNativeLayerDefs, isNativeVectorFormat, iconSpriteId, isHighlightLayerId } from "./mvt-style";
+export { canHighlight, cachedIdProperty, prefetchIdProperty, HIGHLIGHT_COLOR } from "./feature-id";
 export { addFlatgeobufLayer, removeFlatgeobufLayer, setFlatgeobufHidden } from "./flatgeobuf-loader";
 export {
   addCompositeLayer,
