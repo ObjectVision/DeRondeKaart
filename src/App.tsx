@@ -68,6 +68,7 @@ import { ShareDialog } from "@/components/share/ShareDialog";
 import { CircularExportView } from "@/components/share/CircularExportView";
 import { legendItemsForEntries } from "@/lib/legend-style";
 import { resultUsesPblSummary } from "@/lib/pbl-summary";
+import { dismissSplash } from "@/lib/splash";
 
 /**
  * Outline the feature a pick result describes, or clear the outline when the
@@ -701,6 +702,13 @@ function App({
     ready: mapLeftReady,
   });
 
+  // The left map is the primary one, so its first load is the moment the app
+  // has something real to show — that is when the boot splash comes down.
+  const handleMapLeftLoad = useCallback(() => {
+    setMapLeftReady(true);
+    dismissSplash();
+  }, []);
+
   // Once the right map's MapLibre style is loaded, replay any imperative MVT/COG
   // entries that addLayer attempted before the map existed. Idempotent.
   const handleMapRightLoad = useCallback(() => {
@@ -924,7 +932,7 @@ function App({
           onMouseMove={pointer.a.onMouseMove}
           onMouseDown={pointer.a.onMouseDown}
           onMouseUp={pointer.onMouseUp}
-          onLoad={() => setMapLeftReady(true)}
+          onLoad={handleMapLeftLoad}
           onLabelsReady={handleMapLeftLabelsReady}
         />
       </div>
