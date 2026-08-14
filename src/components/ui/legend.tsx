@@ -202,7 +202,9 @@ function LayerList({
 
   return (
     <div>
-      <ul className="flex flex-col gap-0.5">
+      {/* gap-1 between LAYERS, against no gap between a layer's class rows —
+          that difference is what groups the classes under their layer. */}
+      <ul className="flex flex-col gap-1">
         {entries.map(({ config }, rowIndex) => {
           const isVisible = !hiddenIds.has(config.id);
           const isDimmed = dimmedIds.has(config.id);
@@ -418,7 +420,10 @@ function LayerList({
 
               {/* Per-rule class toggles — only when there's more than one rule */}
               {showRuleList && isVisible && (
-                <ul className="ml-5 flex flex-col gap-0.5">
+                // No gap between class rows: they belong to the layer above and
+                // should read as one block. The space that separates LAYERS
+                // comes from the outer list instead (see gap-1 there).
+                <ul className="ml-5 flex flex-col">
                   {rows.map((row) => {
                     const isRuleHidden = layerHiddenRules?.has(row.key) ?? false;
                     const swatch = (
@@ -430,7 +435,7 @@ function LayerList({
                     if (!row.interactive) {
                       return (
                         <li key={row.key}>
-                          <div className="flex w-full items-center gap-2 px-1.5 py-0.5 text-xs">
+                          <div className="flex w-full items-center gap-2 px-1.5 py-px text-xs">
                             {swatch}
                             <span className="text-gray-600">{row.rule.name}</span>
                           </div>
@@ -442,7 +447,7 @@ function LayerList({
                       <li key={row.key}>
                         <button
                           onClick={() => onToggleRule(config.id, row.key)}
-                          className="flex w-full items-center gap-2 rounded px-1.5 py-0.5 text-left text-xs hover:bg-gray-100 transition-colors"
+                          className="flex w-full items-center gap-2 rounded px-1.5 py-px text-left text-xs hover:bg-gray-100 transition-colors"
                         >
                           {swatch}
                           <span
