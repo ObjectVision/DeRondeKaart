@@ -263,22 +263,31 @@ function LayerList({
                     <Icon name="drag_indicator" size={14} />
                   </span>
                 )}
-                <button
-                  onClick={() => onToggle(config.id)}
-                  className="flex-shrink-0 px-1.5 py-1"
-                  title="Zichtbaarheid"
-                  aria-label={`Zichtbaarheid ${config.name}`}
-                >
-                  <Swatch
-                    spec={
-                      hasRules
-                        ? ruleSwatchSpec(rows[0].rule)
-                        : styleSwatchSpec(config.style, config.geometryType)
-                    }
-                    size={12}
-                    hidden={!isVisible}
-                  />
-                </button>
+                {/* No swatch when the class list is shown below: the row is a
+                    heading for those classes, and painting it with the FIRST
+                    rule's colour reads as if that class were the layer. A
+                    single-rule layer keeps its swatch — there the rule and the
+                    layer are the same thing (see showRuleList above). */}
+                {showRuleList ? (
+                  <span className="flex-shrink-0 pl-1.5" />
+                ) : (
+                  <button
+                    onClick={() => onToggle(config.id)}
+                    className="flex-shrink-0 px-1.5 py-1"
+                    title="Zichtbaarheid"
+                    aria-label={`Zichtbaarheid ${config.name}`}
+                  >
+                    <Swatch
+                      spec={
+                        hasRules
+                          ? ruleSwatchSpec(rows[0].rule)
+                          : styleSwatchSpec(config.style, config.geometryType)
+                      }
+                      size={12}
+                      hidden={!isVisible}
+                    />
+                  </button>
+                )}
                 <button
                   onClick={() => onToggle(config.id)}
                   // flex-col: the optional subname sits UNDER the name, so the
