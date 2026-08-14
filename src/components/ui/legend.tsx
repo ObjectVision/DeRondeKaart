@@ -281,13 +281,16 @@ function LayerList({
                 </button>
                 <button
                   onClick={() => onToggle(config.id)}
-                  className="flex min-w-0 flex-1 items-center gap-1.5 py-1 pr-1.5 text-left text-sm"
+                  // flex-col: the optional subname sits UNDER the name, so the
+                  // two stack. `items-start` keeps them left-aligned once the
+                  // row is taller than a single line.
+                  className="flex min-w-0 flex-1 flex-col items-start justify-center py-1 pr-1.5 text-left text-sm"
                   title="Zichtbaarheid"
                 >
                   <span
                     // truncate: with the actions expanded the row has less room,
                     // so a long name must ellipsize rather than push them out.
-                    className={`truncate ${
+                    className={`max-w-full truncate ${
                       isVisible
                         ? "text-gray-800 font-medium"
                         : "text-gray-400 line-through"
@@ -295,6 +298,19 @@ function LayerList({
                   >
                     {config.name}
                   </span>
+                  {/* The unit the layer's values are measured in. Same greyed
+                      treatment as the name when the layer is hidden, so the row
+                      reads as one unit rather than a live subtitle under a
+                      struck-through name. */}
+                  {config.subname && (
+                    <span
+                      className={`max-w-full truncate text-xs ${
+                        isVisible ? "text-gray-500" : "text-gray-400 line-through"
+                      }`}
+                    >
+                      {config.subname}
+                    </span>
+                  )}
                 </button>
                 {/* Layer actions, revealed to the LEFT of the chevron so it keeps
                     its place at the row's right edge. The name (min-w-0 flex-1)

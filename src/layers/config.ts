@@ -334,6 +334,9 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     // Not composite-guarded: a composite is the single navigation/legend entry,
     // so its description belongs on the parent.
     description: validateDescription(layer.description, layer.id as string),
+    // Not composite-guarded, for the same reason as `description` above: a
+    // composite is the single legend entry, so the subtitle belongs on the parent.
+    subname: validateOptionalString(layer.subname, layer.id as string, "subname"),
     meta: validateMeta(layer.meta, layer.id as string),
   };
 }
