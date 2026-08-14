@@ -1,4 +1,5 @@
 import type { LayerConfig, LayersFile, LayerFormat, StatisticConfig, TimeseriesConfig } from "./types";
+import { canHighlight, prefetchIdProperty } from "./feature-id";
 
 // "geojson" is deliberately absent: it is an in-memory format (LayerConfig.data)
 // constructed programmatically (e.g. by the Power BI bridge), never via layers.json.
@@ -90,6 +91,39 @@ function validateStatistics(raw: unknown, id: string): StatisticConfig[] | undef
     return ok;
   });
   return valid.length > 0 ? valid : undefined;
+}
+
+/** Optional free-form string field: warn and drop anything else. */
+function validateOptionalString(raw: unknown, id: string, key: string): string | undefined {
+  if (raw === undefined) return undefined;
+  if (typeof raw !== "string" || raw.trim() === "") {
+    console.warn(`layers.json: layer "${id}" has invalid "${key}" ${JSON.stringify(raw)}; ignoring`);
+    return undefined;
+  }
+  return raw;
+}
+
+/**
+ * `highlightable` is only meaningful on vector-tile formats: highlighting keys
+ * on a stable feature id, which geojson/flatgeobuf sources reassign whenever
+ * their data is replaced, and which a raster COG has no concept of at all.
+ * Say so rather than accepting a flag that would never paint.
+ */
+function validateHighlightable(layer: Record<string, unknown>, id: string): boolean | undefined {
+  const raw = layer.highlightable;
+  if (raw === undefined) return undefined;
+  if (typeof raw !== "boolean") {
+    console.warn(`layers.json: layer "${id}" has invalid "highlightable" ${JSON.stringify(raw)}; ignoring`);
+    return undefined;
+  }
+  if (raw && layer.format !== "mvt" && layer.format !== "pmtiles") {
+    console.warn(
+      `layers.json: layer "${id}" sets "highlightable" but its format is ` +
+        `"${String(layer.format)}"; only mvt/pmtiles features have stable ids. Ignoring.`,
+    );
+    return undefined;
+  }
+  return raw;
 }
 
 /** Zoom bound ("minzoom"/"maxzoom"): flatgeobuf fetch cutoff, composite child load range. */
@@ -283,6 +317,9 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     featureinfo: (layer.featureinfo as LayerConfig["featureinfo"]) ?? undefined,
     excludeFromLegend: (layer.excludeFromLegend as boolean) ?? undefined,
     excludeFromPicking: (layer.excludeFromPicking as boolean) ?? undefined,
+    highlightable: validateHighlightable(layer, layer.id as string),
+    highlightcolor: validateOptionalString(layer.highlightcolor, layer.id as string, "highlightcolor"),
+    idProperty: validateOptionalString(layer.idProperty, layer.id as string, "idProperty"),
     excludeFromComparison: (layer.excludeFromComparison as boolean) ?? undefined,
     beforeid: (layer.beforeid as string) ?? undefined,
     minzoom: validateZoomBound(layer.minzoom, layer.id as string, "minzoom"),
@@ -320,6 +357,20 @@ export async function loadLayerConfigs(): Promise<LayerConfig[]> {
   cachedConfig = data.layers
     .map((l, i) => validateLayerConfig(l as unknown as Record<string, unknown>, i))
     .filter((l): l is LayerConfig => l !== null);
+
+  // Resolve highlight id properties before any layer can be added.
+  //
+  // `promoteId` is fixed when a source is created and cannot be set afterwards,
+  // and the native add is synchronous (deferring it reorders the z-order
+  // anchors) — so the lookup cannot happen there. Doing it here, behind the
+  // memoized load every add path already awaits, means the answer is cached by
+  // the time addSource asks. Reads are per archive, not per layer: ~20 requests
+  // covering 200 configs, and only for layers that opted in.
+  await Promise.all(
+    cachedConfig
+      .filter((config) => canHighlight(config))
+      .map((config) => prefetchIdProperty(config)),
+  );
 
   return cachedConfig;
 }

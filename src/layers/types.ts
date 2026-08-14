@@ -304,6 +304,24 @@ export interface LayerConfig {
   excludeFromLegend?: boolean;
   /** If true, the layer is rendered on the map but excluded from feature picking — clicks produce no popup for it */
   excludeFromPicking?: boolean;
+  /**
+   * Outline the feature under the pointer, and the one a click opened, in
+   * `highlightcolor`. Vector formats only (mvt/pmtiles/flatgeobuf).
+   *
+   * Load-time, not a runtime toggle: highlighting needs a stable `feature.id`,
+   * which vector tiles only carry when the source is created with `promoteId`
+   * (verified — without it `setFeatureState` silently does nothing). The source
+   * would have to be recreated to change this.
+   */
+  highlightable?: boolean;
+  /** CSS colour of the highlight outline. Defaults to HIGHLIGHT_COLOR. */
+  highlightcolor?: string;
+  /**
+   * Property holding a stable, unique feature id, used as `promoteId`.
+   * Auto-detected from ID_CANDIDATES when omitted; set this when the layer
+   * keys on something else, or when a candidate matches but is not unique.
+   */
+  idProperty?: string;
   /** If true, presence of this layer on BOTH maps suppresses comparison mode (slider hides, the right map is not rendered) */
   excludeFromComparison?: boolean;
   /**

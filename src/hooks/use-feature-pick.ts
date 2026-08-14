@@ -7,11 +7,20 @@ import {
   expandForMapQueries,
   isNativeVectorFormat,
 } from "@/layers";
+import type { LayerConfig } from "@/layers";
 
 export interface PickedFeature {
   layerConfigId: string;
   layerName: string;
   properties: Record<string, unknown>;
+  /**
+   * MapLibre's feature id, when the source carries one (highlightable layers
+   * promote a property into it). Undefined otherwise — used to outline the
+   * feature the popup is describing.
+   */
+  featureId?: string | number;
+  /** The config that actually rendered the feature (a composite child, if any). */
+  sourceConfig?: LayerConfig;
 }
 
 export interface FeatureInfoResult {
@@ -106,6 +115,11 @@ export function useFeaturePick(
               layerConfigId: entry.ownerId,
               layerName: entry.ownerName,
               properties,
+              featureId: feature.id,
+              // The rendering config, not the owner: feature state is keyed by
+              // the source that actually holds the feature, which for a
+              // composite is the child rather than the parent entry.
+              sourceConfig: entry.config,
             };
 
             const existing = featuresByLayer.get(entry.ownerId) ?? [];
