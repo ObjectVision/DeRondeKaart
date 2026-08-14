@@ -445,15 +445,31 @@ export async function composeCircularExport(
     const rowH = 52 * u;
     const swatchGap = 16 * u;
 
+    // A row carrying a sublabel is two lines tall, so neither the card height
+    // nor the row advance can be `legend.length * rowH`. Both are derived from
+    // the same per-item height to keep them in step — getting them out of step
+    // clips the last row, which is invisible until the PNG is opened.
+    const subFontSize = 28 * u;
+    const subFont = `400 ${subFontSize}px ${EXPORT_FONT}`;
+    const subLineGap = 6 * u;
+    const subExtra = subFontSize + subLineGap;
+    const itemHeight = (item: ExportLegendItem) => rowH + (item.sublabel ? subExtra : 0);
+
     let maxRowWidth = 0;
     for (const item of legend) {
+      const indent = item.heading ? 0 : swatch + swatchGap;
       ctx.font = item.heading ? headingFont : rowFont;
-      const w =
-        ctx.measureText(item.label).width + (item.heading ? 0 : swatch + swatchGap);
-      maxRowWidth = Math.max(maxRowWidth, w);
+      maxRowWidth = Math.max(maxRowWidth, ctx.measureText(item.label).width + indent);
+      if (item.sublabel) {
+        ctx.font = subFont;
+        maxRowWidth = Math.max(maxRowWidth, ctx.measureText(item.sublabel).width + indent);
+      }
     }
     const cardW = Math.min(size * 0.45, maxRowWidth + legendPad * 2);
-    const cardH = legend.length * rowH + legendPad * 2 - (rowH - fontSize);
+    const cardH =
+      legend.reduce((total, item) => total + itemHeight(item), 0) +
+      legendPad * 2 -
+      (rowH - fontSize);
     const cardX = 0;
     const cardY = size - cardH;
     drawCard(cardX, cardY, cardW, cardH);
@@ -473,10 +489,17 @@ export async function composeCircularExport(
         );
         textX += swatch + swatchGap;
       }
+      const maxTextW = cardW - legendPad * 2 - (item.heading ? 0 : swatch + swatchGap);
       ctx.font = item.heading ? headingFont : rowFont;
       ctx.fillStyle = "#1f2937"; // gray-800
-      ctx.fillText(item.label, textX, rowY, cardW - legendPad * 2 - (item.heading ? 0 : swatch + swatchGap));
-      rowY += rowH;
+      ctx.fillText(item.label, textX, rowY, maxTextW);
+      if (item.sublabel) {
+        // Same treatment as the title card's subtitle: gray-500, one step down.
+        ctx.font = subFont;
+        ctx.fillStyle = "#6b7280"; // gray-500
+        ctx.fillText(item.sublabel, textX, rowY + subExtra, maxTextW);
+      }
+      rowY += itemHeight(item);
     }
   }
 

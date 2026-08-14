@@ -150,16 +150,27 @@ export const CircularExportView = forwardRef<
         <div className="absolute bottom-0 left-0 z-10 max-w-[60%] rounded-lg bg-white/95 p-2 shadow-md backdrop-blur-sm">
           <ul className="flex flex-col gap-0.5">
             {legendItems.map((item, i) => (
-              <li key={i} className="flex items-center gap-1.5">
-                {!item.heading && item.spec && <Swatch spec={item.spec} size={10} />}
-                <span
-                  className={
-                    item.heading
-                      ? "text-xs font-semibold text-gray-800"
-                      : "truncate text-xs text-gray-700"
-                  }
-                >
-                  {item.label}
+              // items-start, not items-center: a row carrying a sublabel is two
+              // lines tall and its swatch must stay level with the first one.
+              <li key={i} className="flex items-start gap-1.5">
+                {!item.heading && item.spec && (
+                  <span className="mt-0.5 flex-shrink-0">
+                    <Swatch spec={item.spec} size={10} />
+                  </span>
+                )}
+                <span className="flex min-w-0 flex-col">
+                  <span
+                    className={
+                      item.heading
+                        ? "text-xs font-semibold text-gray-800"
+                        : "truncate text-xs text-gray-700"
+                    }
+                  >
+                    {item.label}
+                  </span>
+                  {item.sublabel && (
+                    <span className="truncate text-[10px] text-gray-500">{item.sublabel}</span>
+                  )}
                 </span>
               </li>
             ))}

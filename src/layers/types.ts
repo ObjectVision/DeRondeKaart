@@ -380,6 +380,15 @@ export interface LayerConfig {
    */
   description?: string;
   /**
+   * Short subtitle shown under the layer name in the legend — in practice the
+   * unit the layer's values are measured in ("GJ/jaar per WEQ", "ton CO₂/jaar").
+   * Carried into the PNG and circular exports alongside the name.
+   *
+   * Distinct from `description`: one line that qualifies the name, not a summary
+   * of the dataset.
+   */
+  subname?: string;
+  /**
    * Path to an HTML fragment describing the dataset, e.g.
    * "/data/meta/huisarts.html". Fetched on demand and rendered in the metainfo
    * dialog (see LeafMeta), opened from the legend's info button or from under

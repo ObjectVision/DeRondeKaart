@@ -120,6 +120,12 @@ export interface ExportLegendItem {
   /** Absent on heading rows (which render no swatch). */
   spec?: SwatchSpec;
   label: string;
+  /**
+   * The layer's `subname`, rendered as a second line under `label`. Set only on
+   * rows whose label is the LAYER name — never on a per-rule class row, so the
+   * unit appears once per layer instead of on every class.
+   */
+  sublabel?: string;
   /** True for a layer heading row above its per-rule class rows. */
   heading?: boolean;
 }
@@ -149,16 +155,24 @@ export function legendItemsForEntries(
       : compositeLegendRules(config).map((ref) => ({ rule: ref.rule, key: ref.key }));
 
     if (rules.length > 1) {
-      items.push({ label: config.name, heading: true });
+      items.push({ label: config.name, sublabel: config.subname, heading: true });
       const layerHidden = hiddenRules.get(config.id);
       for (const { rule, key } of rules) {
         if (layerHidden?.has(key)) continue;
         items.push({ spec: ruleSwatchSpec(rule), label: rule.name });
       }
     } else if (rules.length === 1) {
-      items.push({ spec: ruleSwatchSpec(rules[0].rule), label: config.name });
+      items.push({
+        spec: ruleSwatchSpec(rules[0].rule),
+        label: config.name,
+        sublabel: config.subname,
+      });
     } else {
-      items.push({ spec: styleSwatchSpec(config.style, config.geometryType), label: config.name });
+      items.push({
+        spec: styleSwatchSpec(config.style, config.geometryType),
+        label: config.name,
+        sublabel: config.subname,
+      });
     }
   }
   return items;
