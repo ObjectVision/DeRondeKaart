@@ -1,4 +1,5 @@
 Don't interact with the git repository
+Don't watermark text or files
 
 ## Code standards
 
