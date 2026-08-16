@@ -2,20 +2,16 @@ import { useCallback, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 
 import type { ClassRef } from "@/components/ui/CombineLayersDialog";
-import type { GeoStylerFilter, GeoStylerRule, LayerConfig } from "@/layers";
+import type { GeoStylerFilter, LayerConfig } from "@/layers";
 import {
   addFilterLayer,
+  filterLayerConfig,
   getFilterLayers,
-  layerCountOf,
   removeFilterLayer,
   type FilterLayerDef,
 } from "@/layers/filter-layers";
 import { computeScoreGrid, type ScoreInput } from "@/layers/filter-raster";
-import {
-  registerScoreGrid,
-  scoreSourceUrl,
-  unregisterScoreGrid,
-} from "@/layers/score-protocol";
+import { registerScoreGrid, unregisterScoreGrid } from "@/layers/score-protocol";
 import type { NavLeaf } from "@/layers/navigation";
 
 type MapRefObject = React.RefObject<MapRef | null>;
@@ -38,50 +34,6 @@ export interface UseFilterLayersResult {
   ) => Promise<void>;
   /** Remove a combination from the maps and release its grid. */
   remove: (id: string, mapRefs: MapRefObject[]) => void;
-}
-
-/**
- * Dutch label for a combination's score class: with 3 layers, score 2 reads
- * "2 van 3 kenmerken". `total` is the LAYER count — one layer is one kenmerk,
- * however many of its classes were ticked.
- */
-function scoreLabel(score: number, total: number): string {
-  return `${score} van ${total} kenmerken`;
-}
-
-/**
- * Turn a definition into a `format: "cog"` LayerConfig backed by the in-memory
- * score grid.
- *
- * Deliberately an ordinary COG config: the score layer then travels the existing
- * `addCogLayer` path and inherits restacking, opacity, hide/show and the legend
- * without a single branch for combinations. `embeddedColors` is true because the
- * protocol already paints the score colours, so the rules serve as the legend
- * key rather than driving a colour function.
- */
-function configFor(def: FilterLayerDef): LayerConfig {
-  const total = layerCountOf(def.refs);
-  const rules: GeoStylerRule[] = def.colors.map((color, index) => {
-    const score = index + 1;
-    return {
-      name: scoreLabel(score, total),
-      filter: ["==", "band0", score],
-      symbolizers: [{ kind: "Fill", color }],
-    };
-  });
-
-  return {
-    id: def.id,
-    name: def.name,
-    source: scoreSourceUrl(def.id),
-    format: "cog",
-    embeddedColors: true,
-    style: { opacity: 0.8 },
-    geostyler: { name: def.name, rules },
-    // Combination layers describe a derived score, not a surveyed dataset, so
-    // there is nothing to click through to.
-    excludeFromPicking: true,
-  };
 }
 
 /**
@@ -140,7 +92,7 @@ export function useFilterLayers(
         const grid = await computeScoreGrid(inputs);
         registerScoreGrid(def.id, grid, def.colors);
 
-        const config = configFor(def);
+        const config = filterLayerConfig(def);
         for (const mapRef of mapRefs) {
           await addLayer(config, mapRef);
         }

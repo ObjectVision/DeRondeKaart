@@ -3,6 +3,11 @@ import type { MapRef } from "react-map-gl/maplibre";
 import type { MapViewHandle } from "@/components/map/MapView";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import type { LayerConfig } from "@/layers";
+import {
+  filterLayerConfig,
+  getFilterLayerById,
+  isFilterLayerId,
+} from "@/layers/filter-layers";
 import type { useMapLayers } from "./use-map-layers";
 
 type MapSlot = "a" | "b";
@@ -15,6 +20,26 @@ interface UseNavigationOptions {
 }
 
 const emptyRef: React.RefObject<MapRef | null> = { current: null };
+
+/**
+ * Resolve a navigation leaf id to its LayerConfig.
+ *
+ * Combination layers ("Lagen combineren") are created in the session and have no
+ * `layers.json` entry, so they are rebuilt from the filter store instead. Their
+ * ids are checked FIRST and without loading layers.json: the id space is
+ * disjoint (`filter__*`), and toggling one off and on again must not depend on a
+ * file that will never describe it — which is the bug this fixes.
+ */
+async function resolveConfig(
+  id: string,
+  getConfigs: () => Promise<LayerConfig[]>,
+): Promise<LayerConfig | undefined> {
+  if (isFilterLayerId(id)) {
+    const def = getFilterLayerById(id);
+    return def ? filterLayerConfig(def) : undefined;
+  }
+  return getLayerConfigById(await getConfigs(), id);
+}
 
 /**
  * Bridges the navigation menu to the existing per-map layer state. Resolves a
@@ -56,10 +81,13 @@ export function useNavigation({
         return;
       }
 
-      const configs = await getConfigs();
-      const config = getLayerConfigById(configs, id);
+      const config = await resolveConfig(id, getConfigs);
       if (!config) {
-        console.warn(`Layer "${id}" not found in layers.json`);
+        console.warn(
+          isFilterLayerId(id)
+            ? `Combination layer "${id}" is no longer defined`
+            : `Layer "${id}" not found in layers.json`,
+        );
         return;
       }
       await side.addLayer(config, mapRef);

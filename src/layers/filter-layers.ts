@@ -1,4 +1,6 @@
 import type { ClassRef } from "@/components/ui/CombineLayersDialog";
+import type { GeoStylerRule, LayerConfig } from "@/layers/types";
+import { scoreSourceUrl } from "@/layers/score-protocol";
 
 /** A user-created combination of classes across layers. */
 export interface FilterLayerDef {
@@ -103,6 +105,56 @@ export function rampFor(count: number): string[] {
     out.push(mixHex(SCORE_RAMP[lower], SCORE_RAMP[upper], position - lower));
   }
   return out;
+}
+
+/**
+ * Dutch label for a combination's score class: with 3 layers, score 2 reads
+ * "2 van 3 kenmerken". `total` is the LAYER count — one layer is one kenmerk,
+ * however many of its classes were ticked.
+ */
+function scoreLabel(score: number, total: number): string {
+  return `${score} van ${total} kenmerken`;
+}
+
+/**
+ * Rebuild a combination's LayerConfig from its stored definition.
+ *
+ * Lives beside the store rather than in the hook because it is needed wherever a
+ * `filter__*` id has to be resolved — the navigation tree re-adds a layer the
+ * user toggled off, and `layers.json` has no entry for it. Deriving the config
+ * from the definition each time keeps one description of what a combination
+ * layer is; the underlying score grid stays registered with the protocol for the
+ * session, so re-adding costs nothing.
+ *
+ * Deliberately an ordinary COG config: the score layer then travels the existing
+ * `addCogLayer` path and inherits restacking, opacity, hide/show and the legend
+ * without a single branch for combinations. `embeddedColors` is true because the
+ * protocol already paints the score colours, so the rules serve as the legend
+ * key rather than driving a colour function.
+ */
+export function filterLayerConfig(def: FilterLayerDef): LayerConfig {
+  const total = layerCountOf(def.refs);
+  const rules: GeoStylerRule[] = def.colors.map((color, index) => {
+    const score = index + 1;
+    return {
+      name: scoreLabel(score, total),
+      filter: ["==", "band0", score],
+      symbolizers: [{ kind: "Fill", color }],
+    };
+  });
+
+  return {
+    id: def.id,
+    name: def.name,
+    source: scoreSourceUrl(def.id),
+    format: "cog",
+    embeddedColors: true,
+    style: { opacity: 0.8 },
+    geostyler: { name: def.name, rules },
+    // Combination layers describe a derived score, not a surveyed dataset, so
+    // there is nothing to click through to.
+    excludeFromPicking: true,
+  };
 }
 
 /** Add a combination, returning the new definition and the store version. */
