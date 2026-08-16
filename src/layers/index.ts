@@ -45,6 +45,7 @@ export {
   isFilterLayerId,
   rampFor,
   layerCountOf,
+  filterLayerConfig,
 } from "./filter-layers";
 export type { FilterLayerDef } from "./filter-layers";
 export { loadChartsConfig, CHART_COLORS, isChartEligible } from "./charts";
