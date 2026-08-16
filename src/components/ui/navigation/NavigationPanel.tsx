@@ -1,10 +1,10 @@
-import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NavIcon, Icon } from "@/components/ui/nav-icon";
 import { NavTree } from "./NavTree";
 import { LeafDetail } from "./LeafDetail";
 import { MapControls } from "@/components/ui/map-controls";
-import { loadNavigation, type NavLeaf, type NavNode } from "@/layers/navigation";
+import { loadNavigation, withCombinations, type NavLeaf, type NavNode } from "@/layers/navigation";
 import type { NavigationApi } from "@/hooks/use-navigation";
 import { withAlpha } from "@/lib/utils";
 import { chromeIconSize, navIconSize } from "@/config/map-config";
@@ -24,11 +24,17 @@ export const NavigationPanel = memo(function NavigationPanel({
   showNavigation = false,
   showControlsSearch = true,
   showControlsZoom = true,
+  showCombinations = false,
+  combinationLeaves,
   onOpenMeta,
 }: {
   nav: NavigationApi;
   onZoomIn: () => void;
   onZoomOut: () => void;
+  /** Append the "Combinaties" theme (map.json `combinations`). */
+  showCombinations?: boolean;
+  /** Filter layers the user has created, shown under "Combinaties". */
+  combinationLeaves?: NavLeaf[];
   /** Show the search bar. Defaults off (map.json `searchbar`). */
   showSearch?: boolean;
   /** Show the navigation controls (category row + zoom). Defaults off (map.json `navigation`). */
@@ -40,7 +46,16 @@ export const NavigationPanel = memo(function NavigationPanel({
   /** Opens a layer's metainfo dialog from the info button in LeafDetail. */
   onOpenMeta?: (layerId: string, layerName: string) => void;
 }) {
-  const [tree, setTree] = useState<NavNode[]>([]);
+  const [loadedTree, setTree] = useState<NavNode[]>([]);
+  // "Combinaties" is appended to the loaded tree rather than stored in it, so
+  // the user's session-scoped filter layers stay out of the cached JSON. Every
+  // use below — including the width measurement and the index-based category
+  // selection — must see the same array, hence the derivation here.
+  const tree = useMemo(
+    () =>
+      showCombinations ? withCombinations(loadedTree, combinationLeaves ?? []) : loadedTree,
+    [showCombinations, loadedTree, combinationLeaves],
+  );
   const [activeCategory, setActiveCategory] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<SelectedLeaf | null>(null);

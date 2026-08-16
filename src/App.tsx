@@ -4,6 +4,7 @@ import { MapView } from "@/components/map/MapView";
 import { useBasemap } from "@/hooks/use-basemap";
 import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
+import { useFilterLayers } from "@/hooks/use-filter-layers";
 import { useLayerHandlers } from "@/hooks/use-layer-handlers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
 import {
@@ -61,6 +62,8 @@ import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
 import { InfoPopup } from "@/components/ui/info-popup";
 import { BasemapDialog } from "@/components/ui/BasemapDialog";
+import { CombineLayersDialog } from "@/components/ui/CombineLayersDialog";
+import type { ClassRef } from "@/components/ui/CombineLayersDialog";
 import { LayerMetaDialog } from "@/components/ui/LayerMetaDialog";
 import { ComparisonSlider } from "@/components/ui/comparison-slider";
 import { ChartsPanel } from "@/components/charts/ChartsPanel";
@@ -109,6 +112,7 @@ function App({
   chartsPanelEnabled = true,
   shareEnabled: shareEnabledProp = true,
   filterFlyToEnabled = true,
+  combinationsEnabled = false,
   annotationsEnabled: annotationsEnabledProp = false,
   mapControls = DEFAULT_MAP_CONTROLS,
   clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
@@ -128,6 +132,8 @@ function App({
   chartsPanelEnabled?: boolean;
   shareEnabled?: boolean;
   filterFlyToEnabled?: boolean;
+  /** map.json `combinations` — the "Lagen combineren" toolbutton + Combinaties thema. */
+  combinationsEnabled?: boolean;
   annotationsEnabled?: boolean;
   mapControls?: MapControlsConfig;
   clickMarker?: ClickMarkerConfig;
@@ -148,10 +154,21 @@ function App({
   const [navigation, setNavigationEnabled] = useState(navigationEnabled);
   const [shareEnabled, setShareEnabled] = useState(shareEnabledProp);
   const [annotationsEnabled, setAnnotationsEnabled] = useState(annotationsEnabledProp);
+  const [combineOpen, setCombineOpen] = useState(false);
+  // Bumped on each opening to remount CombineLayersDialog, so it starts from a
+  // clean selection instead of resetting itself in an effect.
+  const [combineSession, setCombineSession] = useState(0);
   const sidebarMode = navigationMode === "sidebar";
 
   const mapLeftLayers = useMapLayers();
   const mapRightLayers = useMapLayers();
+
+  // Session-scoped combination layers ("Lagen combineren"). Bound to the LEFT
+  // stack: a combination is one new layer, so it belongs to one map.
+  const filterLayers = useFilterLayers(
+    mapLeftLayers.addLayer,
+    mapLeftLayers.removeLayer,
+  );
 
   // Per-layer z-ordering is handled entirely in the layer factory via the
   // `beforeid` anchor from each config (see anchorForConfig) — no App-level wiring.
@@ -821,6 +838,56 @@ function App({
     [shareEnabled, setShareOpen],
   );
 
+  // "Lagen combineren" — sits between Delen and the map controls (search).
+  const combineButton = useMemo(
+    () =>
+      combinationsEnabled ? (
+        <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => {
+              setCombineSession((n) => n + 1);
+              setCombineOpen(true);
+            }}
+            title="Lagen combineren"
+            aria-label="Lagen combineren"
+          >
+            <Icon name="masked_transitions_add" size={chromeIconSize()} color={chromeIconColor()} />
+          </Button>
+        </div>
+      ) : null,
+    [combinationsEnabled],
+  );
+
+  const handleCreateCombination = useCallback(
+    (name: string, refs: ClassRef[]) => {
+      const configs = mapLeftLayers.layerEntries.map((entry) => entry.config);
+      const mapRef = mapLeftRef.current?.mapRef ?? { current: null };
+      // Fire-and-forget: reading and scoring the rasters takes a moment, and the
+      // hook surfaces both progress and failure through its own state.
+      void filterLayers.create(name, refs, configs, [mapRef]);
+    },
+    [mapLeftLayers.layerEntries, filterLayers],
+  );
+
+  // Layers offered for combining: those on the LEFT map that define classes AND
+  // have a companion class raster. Left-only because a combination produces one
+  // new layer, and sourcing its inputs from two independent stacks would make
+  // which map it belongs to ambiguous. `filterRaster` is required because the
+  // score is computed cell-by-cell off that shared grid — a layer without one
+  // has nothing to combine.
+  const combinableLayers = useMemo(
+    () =>
+      mapLeftLayers.layerEntries
+        .map((entry) => entry.config)
+        .filter(
+          (config) =>
+            (config.geostyler?.rules?.length ?? 0) > 0 && config.filterRaster,
+        ),
+    [mapLeftLayers.layerEntries],
+  );
+
   // Stable toolbar element for the memoized Sidebar (an inline fragment would
   // be a new element every render, defeating its memo).
   const sidebarToolbar = useMemo(
@@ -832,6 +899,7 @@ function App({
             close the row. */}
         <SectionToggleBar orientation="horizontal" toggles={sectionToggles} />
         {shareButton}
+        {combineButton}
         <MapControls
           orientation="horizontal"
           onZoomIn={handleZoomIn}
@@ -841,7 +909,15 @@ function App({
         />
       </>
     ),
-    [sectionToggles, shareButton, handleZoomIn, handleZoomOut, mapControls.search, mapControls.zoom],
+    [
+      sectionToggles,
+      shareButton,
+      combineButton,
+      handleZoomIn,
+      handleZoomOut,
+      mapControls.search,
+      mapControls.zoom,
+    ],
   );
 
   // On-screen side shown in the share preview/PNG (see shareOpen comment).
@@ -982,6 +1058,8 @@ function App({
         showNavigation={navigation && !sidebarMode}
         showControlsSearch={mapControls.search}
         showControlsZoom={mapControls.zoom}
+        showCombinations={combinationsEnabled}
+        combinationLeaves={filterLayers.leaves}
         onOpenMeta={openLayerMeta}
       />
 
@@ -1027,8 +1105,22 @@ function App({
 
       {/* Share button — standalone top-left when the sidebar toolbar isn't
           there to host it. */}
-      {!sidebarActive && shareButton && (
-        <div className="absolute left-2 top-2 z-30 sm:left-4 sm:top-4">{shareButton}</div>
+      {!sidebarActive && (shareButton || combineButton) && (
+        <div className="absolute left-2 top-2 z-30 flex gap-1 sm:left-4 sm:top-4">
+          {shareButton}
+          {combineButton}
+        </div>
+      )}
+
+      {/* "Lagen combineren" dialog — classes across the active layers. */}
+      {combinationsEnabled && (
+        <CombineLayersDialog
+          key={combineSession}
+          open={combineOpen}
+          onOpenChange={setCombineOpen}
+          layers={combinableLayers}
+          onCreate={handleCreateCombination}
+        />
       )}
 
       {/* "Delen" dialog — share link + circular PNG export. */}
@@ -1154,6 +1246,8 @@ function App({
             showNavigation={navAvailable && !navMinimized}
             onClose={toggleNavMinimized}
             toolbar={sidebarToolbar}
+            showCombinations={combinationsEnabled}
+            combinationLeaves={filterLayers.leaves}
             onOpenMeta={openLayerMeta}
           />
         )}

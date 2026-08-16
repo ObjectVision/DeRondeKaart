@@ -1,10 +1,10 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
 import { LayerDescription } from "@/components/ui/navigation/LayerDescription";
 import { FilterSection } from "./FilterSection";
 import { NavigationSection } from "./NavigationSection";
-import { loadNavigation, type NavLeaf, type NavNode } from "@/layers/navigation";
+import { loadNavigation, withCombinations, type NavLeaf, type NavNode } from "@/layers/navigation";
 import { loadLayerConfigs } from "@/layers";
 import { useNavExpansion } from "@/hooks/use-nav-expansion";
 import type { NavigationApi } from "@/hooks/use-navigation";
@@ -65,12 +65,18 @@ export const Sidebar = memo(function Sidebar({
   areaFilter,
   showFilter = true,
   showNavigation = true,
+  showCombinations = false,
+  combinationLeaves,
   onClose,
   toolbar,
   onOpenMeta,
 }: {
   nav: NavigationApi;
   areaFilter: AreaFilterState;
+  /** Append the "Combinaties" theme (map.json `combinations`). */
+  showCombinations?: boolean;
+  /** Filter layers the user has created, shown under "Combinaties". */
+  combinationLeaves?: NavLeaf[];
   /** Render the Filter section (false = minimized or disabled in config). */
   showFilter?: boolean;
   /** Render the Navigatie section (false = minimized or disabled in config). */
@@ -117,10 +123,17 @@ export const Sidebar = memo(function Sidebar({
       .catch((err) => console.error("Failed to load layers.json:", err));
   }, []);
 
+  // The "Combinaties" theme is appended to the loaded tree rather than stored in
+  // it, so the user's session-scoped filter layers stay out of the cached JSON.
+  const visibleTree = useMemo(
+    () => (showCombinations ? withCombinations(tree, combinationLeaves ?? []) : tree),
+    [showCombinations, tree, combinationLeaves],
+  );
+
   // Branch expansion is remembered for the session and seeded from each node's
   // `expanded` in navigation.json. Lifted out of the rows because collapsing a
   // theme unmounts its subtree — see use-nav-expansion.ts.
-  const { isOpen, toggle } = useNavExpansion(tree);
+  const { isOpen, toggle } = useNavExpansion(visibleTree);
 
   const filterVisible = showFilter && areaFilter.entries.length > 0;
   const sectionsVisible = filterVisible || showNavigation;
@@ -191,7 +204,7 @@ export const Sidebar = memo(function Sidebar({
           {filterVisible && <FilterSection areaFilter={areaFilter} />}
           {showNavigation && (
             <NavigationSection
-              tree={tree}
+              tree={visibleTree}
               isOpen={isOpen}
               onToggle={toggle}
               selectedLeafId={metaOpenLeafId ?? undefined}

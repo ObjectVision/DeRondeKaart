@@ -30,6 +30,7 @@ async function bootstrap() {
         chartsPanelEnabled={mapConfig.chartsPanel}
         shareEnabled={mapConfig.share}
         filterFlyToEnabled={mapConfig.filterFlyTo}
+        combinationsEnabled={mapConfig.combinations}
         annotationsEnabled={mapConfig.annotations}
         mapControls={mapConfig.mapControls}
         clickMarker={mapConfig.clickMarker}

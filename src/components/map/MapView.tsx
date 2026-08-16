@@ -26,6 +26,7 @@ import type { Map as MapLibreMap, LayerSpecification } from "maplibre-gl";
 import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import { cogProtocol } from "@geomatico/maplibre-cog-protocol";
 import { Protocol as PmtilesProtocol } from "pmtiles";
+import { registerScoreProtocol } from "@/layers/score-protocol";
 import {
   ANCHORS,
   ANCHOR_ORDER,
@@ -47,6 +48,12 @@ addProtocol("cog", cogProtocol);
 // behaves exactly like a normal vector source.
 const pmtilesProtocol = new PmtilesProtocol();
 addProtocol("pmtiles", pmtilesProtocol.tile);
+
+// Register the in-memory score-grid protocol ("Lagen combineren"). It has to be
+// in place before any `cogmem://` source is added — MapLibre falls back to a
+// plain fetch for an unregistered scheme, which fails with "URL scheme not
+// supported" — and a combination can be created as soon as the map is up.
+registerScoreProtocol();
 
 // Types are re-exported (type-only re-exports don't affect Fast Refresh) so
 // existing `import type { ViewState } from ".../MapView"` sites keep working.

@@ -165,7 +165,8 @@
             ]
           }
         ]
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/huisarts_lb_m5.cog.tif"
     },
     {
       "id": "ziekenhuis",
@@ -3614,7 +3615,8 @@
       },
       "style": {
         "opacity": 0.8
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/won_aanpasbaar_m5.cog.tif"
     },
     {
       "id": "cbsgemeente2026",

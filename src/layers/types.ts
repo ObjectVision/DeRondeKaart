@@ -389,6 +389,18 @@ export interface LayerConfig {
    */
   subname?: string;
   /**
+   * URL of a companion single-band COG holding this layer's **class ordinals**
+   * on the shared uniform grid — the output of
+   * `data/convert-tif-to-cog-10m.py`. Band value = the index of the matching
+   * `geostyler.rules` entry; 255 = nodata.
+   *
+   * Its presence is what makes a layer eligible for "Lagen combineren": classes
+   * can only be combined cell-by-cell when every input is on the same grid, so a
+   * layer without this companion is not offered. Every raster referenced here
+   * must have been produced at the SAME `--zoom` as the others.
+   */
+  filterRaster?: string;
+  /**
    * Path to an HTML fragment describing the dataset, e.g.
    * "/data/meta/huisarts.html". Fetched on demand and rendered in the metainfo
    * dialog (see LeafMeta), opened from the legend's info button or from under
