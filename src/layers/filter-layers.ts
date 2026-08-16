@@ -9,10 +9,26 @@ export interface FilterLayerDef {
   id: string;
   /** Dutch, auto-generated from the selection, editable by the user. */
   name: string;
-  /** The chosen classes, 1..N; a cell's score is how many of these it passes. */
+  /**
+   * The chosen classes. Several may belong to one layer: within a layer they are
+   * OR-ed, and a cell's score counts the LAYERS matched — see
+   * {@link layerCountOf}, which is the top of the score range, not `refs.length`.
+   */
   refs: ClassRef[];
-  /** Ramp over scores 1..N, index 0 = score 1. */
+  /** Ramp over scores 1..layerCount, index 0 = score 1. */
   colors: string[];
+}
+
+/**
+ * How many distinct layers a selection spans — the maximum attainable score.
+ *
+ * Not `refs.length`: ticking two classes of one layer widens that layer's match
+ * but cannot make a cell satisfy it twice, since a cell holds exactly one class
+ * per layer. Using the ref count would label the legend "van 3" for a two-layer
+ * combination whose top score is 2, leaving a class that can never be reached.
+ */
+export function layerCountOf(refs: ClassRef[]): number {
+  return new Set(refs.map((ref) => ref.layerId)).size;
 }
 
 /**
@@ -61,7 +77,8 @@ export function addFilterLayer(
     id: `filter__${store.nextId}`,
     name,
     refs,
-    colors: rampFor(refs.length),
+    // One colour per attainable score, i.e. per LAYER — not per ticked class.
+    colors: rampFor(layerCountOf(refs)),
   };
   store.nextId += 1;
   store.defs = [...store.defs, def];

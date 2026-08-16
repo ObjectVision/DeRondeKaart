@@ -39,8 +39,9 @@ function refKey(ref: ClassRef): string {
  * layers are joined with `" + "` — e.g.
  * `"Supermarkt binnen 500 m + 3-30-300 goed/zeer goed"`.
  *
- * Grouped by layer rather than listing every class flat, because the interesting
- * part of a combination is which layers meet, not the class count.
+ * The two separators carry the scoring rule: `/` reads as "or" between classes
+ * of one layer, `+` as "and" between layers. Grouping by layer also mirrors the
+ * score, which counts layers matched rather than classes ticked.
  */
 function autoName(layers: LayerConfig[], selected: ClassRef[]): string {
   const parts: string[] = [];

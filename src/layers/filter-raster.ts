@@ -10,11 +10,22 @@ import type { GeoStylerFilter } from "@/layers/types";
  */
 export const NODATA = 255;
 
-/** One filter to test against one raster, already resolved to its source. */
+/**
+ * One **layer's** contribution to the score, already resolved to its raster.
+ *
+ * One input per layer, never one per class: the classes a user ticks within a
+ * layer are OR-ed into this single filter, and the score counts inputs. A cell
+ * holds exactly one class of a layer, so scoring per class would cap the
+ * attainable score below the number of layers and make "2 van 2" unreachable
+ * whenever someone widened a layer's selection.
+ */
 export interface ScoreInput {
   /** URL of the layer's companion class COG (`LayerConfig.filterRaster`). */
   url: string;
-  /** The rule's own GeoStyler filter, reused verbatim from the vector layer. */
+  /**
+   * The layer's chosen classes as one filter — a single rule's filter, or an
+   * `["||", …]` of them. Reused verbatim from the vector layer's rules.
+   */
   filter: GeoStylerFilter;
 }
 
@@ -49,21 +60,27 @@ function filterProperties(filter: GeoStylerFilter, out: Set<string>): void {
   if (typeof filter[1] === "string") out.add(filter[1]);
 }
 
-/** A scored grid: per-cell count of how many filters passed. */
+/** A scored grid: per-cell count of how many LAYERS matched. */
 export interface ScoreGrid {
   width: number;
   height: number;
-  /** Cell value 1..N = filters passed; {@link NODATA} = no filter passed. */
+  /** Cell value 1..N = layers matched; {@link NODATA} = none matched. */
   data: Uint8Array;
   /** Bounding box in the rasters' CRS (EPSG:3857), as [minX, minY, maxX, maxY]. */
   bbox: [number, number, number, number];
-  /** How many filters went into the score — the top of the class range. */
+  /** How many layers went into the score — the top of the class range. */
   filterCount: number;
 }
 
 /**
- * Read each input raster at the same overview level and count, per cell, how
- * many of the filters pass.
+ * Read each layer's raster at the same overview level and count, per cell, how
+ * many **layers** match.
+ *
+ * The scoring rule the UI promises: **OR within a layer, AND between layers.**
+ * Ticking several classes of one layer widens what that layer accepts; it never
+ * raises the score, because each `ScoreInput` is one layer and contributes at
+ * most 1. So with three layers chosen, "3 van 3" means all three matched,
+ * regardless of how many classes were ticked in each.
  *
  * The whole method rests on the inputs sharing one grid, which
  * `convert-tif-to-cog-10m.py --expect-grid` asserts at build time: identical
@@ -72,8 +89,8 @@ export interface ScoreGrid {
  * That is checked again here rather than trusted, because a mismatch produces a
  * plausible-looking but wrong overlay.
  *
- * A cell that passes nothing becomes {@link NODATA} rather than 0, so it renders
- * transparent: "no filter matched here" and "zero of three matched here" are the
+ * A cell that matches nothing becomes {@link NODATA} rather than 0, so it renders
+ * transparent: "no layer matched here" and "zero of three matched here" are the
  * same statement, and drawing it would hide the basemap for no reason.
  *
  * `overviewLevel` trades resolution for bytes — the COGs carry 5 levels, and the
@@ -84,12 +101,12 @@ export async function computeScoreGrid(
   overviewLevel = 2,
 ): Promise<ScoreGrid> {
   if (inputs.length === 0) {
-    throw new Error("computeScoreGrid: no filters given");
+    throw new Error("computeScoreGrid: no layers given");
   }
 
-  // Distinct URLs only: several classes of the SAME layer are common (the user
-  // ticks two adjacent distance bands), and re-fetching one raster per class
-  // would multiply the download for identical bytes.
+  // Callers pass one input per layer, so these are already distinct; the Set
+  // guards against a caller that passes the same raster twice, which would
+  // otherwise download it twice and let one layer score 2.
   const urls = [...new Set(inputs.map((input) => input.url))];
   const opened = await Promise.all(
     urls.map(async (url) => {
