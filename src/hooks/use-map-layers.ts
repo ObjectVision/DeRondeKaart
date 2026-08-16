@@ -29,6 +29,7 @@ import { canHighlight, cachedIdProperty } from "@/layers/feature-id";
 import { addGeoJsonLayer, removeGeoJsonLayer } from "@/layers/geojson-layer";
 import type { CompositeHost } from "@/layers";
 import { buildCogColorFunction } from "@/layers/cog-style";
+import { SCORE_PROTOCOL } from "@/layers/score-protocol";
 import type { LayerConfig } from "@/layers";
 
 export interface LayerEntry {
@@ -954,9 +955,19 @@ function addCogLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>
   }
 
   if (!map.getSource(sourceId)) {
+    // In-memory score grids ("Lagen combineren") are served by a protocol
+    // registered on the MAIN thread only. A `url:` source resolves its TileJSON
+    // inside the worker, which holds a SEPARATE protocol registry and so falls
+    // back to a plain fetch ("URL scheme cogmem is not supported"). Naming the
+    // tile template directly keeps resolution on the main thread, where the
+    // protocol lives. Remote COGs keep `url:` — their TileJSON describes a real
+    // file the worker can fetch.
+    const isInMemory = config.source.startsWith(`${SCORE_PROTOCOL}://`);
     map.addSource(sourceId, {
       type: "raster",
-      url: `cog://${config.source}`,
+      ...(isInMemory
+        ? { tiles: [`${config.source}/{z}/{x}/{y}`] }
+        : { url: `cog://${config.source}` }),
       tileSize: 256,
     });
     const layerSpec: Record<string, unknown> = {

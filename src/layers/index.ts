@@ -27,6 +27,25 @@ export {
   areaFilterExpression,
 } from "./area-filter";
 export type { AreaFilterEntry } from "./area-filter";
+export { computeScoreGrid, scoreHistogram, NODATA } from "./filter-raster";
+export type { ScoreGrid, ScoreInput } from "./filter-raster";
+export {
+  registerScoreProtocol,
+  registerScoreGrid,
+  unregisterScoreGrid,
+  scoreSourceUrl,
+  SCORE_PROTOCOL,
+} from "./score-protocol";
+export {
+  addFilterLayer,
+  removeFilterLayer,
+  getFilterLayers,
+  getFilterLayerById,
+  getFilterLayerVersion,
+  isFilterLayerId,
+  rampFor,
+} from "./filter-layers";
+export type { FilterLayerDef } from "./filter-layers";
 export { loadChartsConfig, CHART_COLORS, isChartEligible } from "./charts";
 export type {
   ChartType,

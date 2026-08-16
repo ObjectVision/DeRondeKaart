@@ -79,3 +79,31 @@ export async function loadNavigation(): Promise<NavNode[]> {
 
   return cachedNavigation;
 }
+
+/** Label of the injected theme holding user-created combination layers. */
+export const COMBINATIONS_LABEL = "Combinaties";
+
+/**
+ * Append the "Combinaties" theme, holding the filter layers the user has
+ * created, after the last top-level theme.
+ *
+ * Injected here rather than authored into navigation.json because the node is
+ * dynamic — its children come and go with the session, while the JSON is static
+ * config. Returns a NEW array: `loadNavigation` memoizes its result, and
+ * appending in place would grow the cached tree on every call.
+ *
+ * The branch renders even with no children, so the user can find where their
+ * combinations will appear — consistent with `pruneItems` leaving empty
+ * categories in place.
+ */
+export function withCombinations(tree: NavNode[], leaves: NavLeaf[]): NavNode[] {
+  return [
+    ...tree,
+    {
+      label: COMBINATIONS_LABEL,
+      icon: "masked_transitions_add",
+      expanded: true,
+      children: leaves,
+    },
+  ];
+}

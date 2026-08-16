@@ -138,6 +138,13 @@ export interface MapConfig {
    */
   filterFlyTo: boolean;
   /**
+   * Whether the "Lagen combineren" feature is available: the `masked_transitions_add`
+   * toolbutton and its dialog, plus the "Combinaties" theme appended to the
+   * navigation tree. Defaults to `false` — only configs whose layers carry
+   * `filterRaster` companions can combine anything.
+   */
+  combinations: boolean;
+  /**
    * Whether the annotation tool is available: the top-right toolbutton that
    * arms circle-drawing (with per-circle title/description + a snapshot of
    * filters/layers/camera) and, combined with `share`, collaborative
@@ -254,6 +261,7 @@ const DEFAULT_MAP_CONFIG: MapConfig = {
   chartsPanel: true,
   share: true,
   filterFlyTo: true,
+  combinations: false,
   annotations: false,
   mapControls: DEFAULT_MAP_CONTROLS,
   clickMarker: DEFAULT_CLICK_MARKER,
@@ -438,6 +446,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
   const chartsPanel = validateBool(data.chartsPanel, "chartsPanel", DEFAULT_MAP_CONFIG.chartsPanel);
   const share = validateBool(data.share, "share", DEFAULT_MAP_CONFIG.share);
   const filterFlyTo = validateBool(data.filterFlyTo, "filterFlyTo", DEFAULT_MAP_CONFIG.filterFlyTo);
+  const combinations = validateBool(data.combinations, "combinations", DEFAULT_MAP_CONFIG.combinations);
   const annotations = validateBool(data.annotations, "annotations", DEFAULT_MAP_CONFIG.annotations);
 
   let navigationMode = DEFAULT_MAP_CONFIG.navigationMode;
@@ -510,6 +519,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     chartsPanel,
     share,
     filterFlyTo,
+    combinations,
     annotations,
     mapControls,
     clickMarker,

@@ -337,6 +337,11 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     // Not composite-guarded, for the same reason as `description` above: a
     // composite is the single legend entry, so the subtitle belongs on the parent.
     subname: validateOptionalString(layer.subname, layer.id as string, "subname"),
+    // Composite-guarded: the companion raster describes one layer's class grid,
+    // so a composite parent (which owns no grid of its own) cannot carry one.
+    filterRaster: isComposite
+      ? undefined
+      : validateOptionalString(layer.filterRaster, layer.id as string, "filterRaster"),
     meta: validateMeta(layer.meta, layer.id as string),
   };
 }
