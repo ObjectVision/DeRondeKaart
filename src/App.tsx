@@ -838,54 +838,51 @@ function App({
     [shareEnabled, setShareOpen],
   );
 
-  // "Lagen combineren" — sits between Delen and the map controls (search).
-  const combineButton = useMemo(
-    () =>
-      combinationsEnabled ? (
-        <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => {
-              setCombineSession((n) => n + 1);
-              setCombineOpen(true);
-            }}
-            title="Lagen combineren"
-            aria-label="Lagen combineren"
-          >
-            <Icon name="masked_transitions_add" size={chromeIconSize()} color={chromeIconColor()} />
-          </Button>
-        </div>
-      ) : null,
-    [combinationsEnabled],
-  );
+  // "Lagen combineren" lives in the legend header (between the basemap picker
+  // and the collapse button), not the top-left toolbar: what it acts on is the
+  // set of layers the legend lists, so it belongs beside them — and it then
+  // disappears with the legend when that is minimized.
+  const handleOpenCombine = useCallback(() => {
+    setCombineSession((n) => n + 1);
+    setCombineOpen(true);
+  }, []);
+
+  // The Combinaties theme appears only once a combination exists. An empty
+  // category would otherwise sit in the tree for every session, promising a
+  // feature the user reaches from the legend instead — and the theme's whole
+  // purpose is to list what has been created.
+  const showCombinationsTheme = combinationsEnabled && filterLayers.leaves.length > 0;
 
   const handleCreateCombination = useCallback(
     (name: string, refs: ClassRef[]) => {
-      const configs = mapLeftLayers.layerEntries.map((entry) => entry.config);
+      // Inputs come from the legend's stack (what the dialog offered), but the
+      // result always lands on the LEFT map — `useFilterLayers` is bound to that
+      // stack's addLayer/removeLayer, and a combination is one new layer that
+      // has to belong to exactly one map.
+      const configs = leftLegendLayers.layerEntries.map((entry) => entry.config);
       const mapRef = mapLeftRef.current?.mapRef ?? { current: null };
       // Fire-and-forget: reading and scoring the rasters takes a moment, and the
       // hook surfaces both progress and failure through its own state.
       void filterLayers.create(name, refs, configs, [mapRef]);
     },
-    [mapLeftLayers.layerEntries, filterLayers],
+    [leftLegendLayers.layerEntries, filterLayers],
   );
 
-  // Layers offered for combining: those on the LEFT map that define classes AND
-  // have a companion class raster. Left-only because a combination produces one
-  // new layer, and sourcing its inputs from two independent stacks would make
-  // which map it belongs to ambiguous. `filterRaster` is required because the
-  // score is computed cell-by-cell off that shared grid — a layer without one
-  // has nothing to combine.
+  // Layers offered for combining: those the LEGEND is showing that define
+  // classes AND have a companion class raster. Tied to the legend's own stack
+  // because the button now sits in its header — offering layers the user cannot
+  // see there would be arbitrary. `filterRaster` is required because the score
+  // is computed cell-by-cell off that shared grid, so a layer without one has
+  // nothing to contribute.
   const combinableLayers = useMemo(
     () =>
-      mapLeftLayers.layerEntries
+      leftLegendLayers.layerEntries
         .map((entry) => entry.config)
         .filter(
           (config) =>
             (config.geostyler?.rules?.length ?? 0) > 0 && config.filterRaster,
         ),
-    [mapLeftLayers.layerEntries],
+    [leftLegendLayers.layerEntries],
   );
 
   // Stable toolbar element for the memoized Sidebar (an inline fragment would
@@ -899,7 +896,6 @@ function App({
             close the row. */}
         <SectionToggleBar orientation="horizontal" toggles={sectionToggles} />
         {shareButton}
-        {combineButton}
         <MapControls
           orientation="horizontal"
           onZoomIn={handleZoomIn}
@@ -912,7 +908,6 @@ function App({
     [
       sectionToggles,
       shareButton,
-      combineButton,
       handleZoomIn,
       handleZoomOut,
       mapControls.search,
@@ -1058,7 +1053,7 @@ function App({
         showNavigation={navigation && !sidebarMode}
         showControlsSearch={mapControls.search}
         showControlsZoom={mapControls.zoom}
-        showCombinations={combinationsEnabled}
+        showCombinations={showCombinationsTheme}
         combinationLeaves={filterLayers.leaves}
         onOpenMeta={openLayerMeta}
       />
@@ -1105,11 +1100,8 @@ function App({
 
       {/* Share button — standalone top-left when the sidebar toolbar isn't
           there to host it. */}
-      {!sidebarActive && (shareButton || combineButton) && (
-        <div className="absolute left-2 top-2 z-30 flex gap-1 sm:left-4 sm:top-4">
-          {shareButton}
-          {combineButton}
-        </div>
+      {!sidebarActive && shareButton && (
+        <div className="absolute left-2 top-2 z-30 sm:left-4 sm:top-4">{shareButton}</div>
       )}
 
       {/* "Lagen combineren" dialog — classes across the active layers. */}
@@ -1246,7 +1238,7 @@ function App({
             showNavigation={navAvailable && !navMinimized}
             onClose={toggleNavMinimized}
             toolbar={sidebarToolbar}
-            showCombinations={combinationsEnabled}
+            showCombinations={showCombinationsTheme}
             combinationLeaves={filterLayers.leaves}
             onOpenMeta={openLayerMeta}
           />
@@ -1306,6 +1298,8 @@ function App({
               // left map (which anchors the comparison) — grey the button out.
               moveDisabled={!leftLegendUsesMapB && mapLeftLayers.layerEntries.length <= 1}
               onOpenBasemaps={openBasemapDialog}
+              onOpenCombine={combinationsEnabled ? handleOpenCombine : undefined}
+              canCombine={combinableLayers.length > 0}
               onClose={toggleLegendMinimized}
               // The slot above already applies the 20vh cap and the shrink —
               // let that bind rather than a second, independent cap here.

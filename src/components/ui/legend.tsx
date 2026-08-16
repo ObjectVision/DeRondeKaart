@@ -116,6 +116,18 @@ interface LegendProps {
    */
   /** Opens the basemap picker. Its presence also gates the whole chrome row. */
   onOpenBasemaps?: () => void;
+  /**
+   * Opens the "Lagen combineren" dialog. Omit to hide the button entirely (the
+   * `combinations` map.json flag is off, or this is the right-map legend).
+   */
+  onOpenCombine?: () => void;
+  /**
+   * Whether any layer currently in the legend can take part in a combination —
+   * i.e. has both GeoStyler rules and a `filterRaster`. False greys the button
+   * out rather than hiding it, so the feature stays discoverable when there is
+   * simply nothing to combine yet.
+   */
+  canCombine?: boolean;
   /** Collapse the Kaartlagen window (restored from the bottom-left bar). */
   onClose?: () => void;
   /**
@@ -510,6 +522,8 @@ export const Legend = memo(function Legend({
   moveDirection,
   moveDisabled,
   onOpenBasemaps,
+  onOpenCombine,
+  canCombine = false,
   onClose,
   maxHeightClass = "max-h-[50vh]",
   onReorder,
@@ -583,6 +597,29 @@ export const Legend = memo(function Legend({
             >
               <Icon name="map" size={chromeIconSize()} color={chromeIconColor()} />
             </Button>
+            {onOpenCombine && (
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                onClick={onOpenCombine}
+                disabled={!canCombine}
+                title={
+                  canCombine
+                    ? "Lagen combineren"
+                    : "Geen van de actieve lagen kan gecombineerd worden"
+                }
+                aria-label="Lagen combineren"
+              >
+                {/* Greyed out rather than hidden when nothing can be combined:
+                    the button disappearing as layers come and go would read as
+                    the feature breaking. */}
+                <Icon
+                  name="masked_transitions_add"
+                  size={chromeIconSize()}
+                  color={canCombine ? chromeIconColor() : "#9CA3AF"}
+                />
+              </Button>
+            )}
             {onClose && (
               <Button
                 variant="ghost"
