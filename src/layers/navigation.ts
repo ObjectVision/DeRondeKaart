@@ -1,3 +1,5 @@
+import { chromeIconColor } from "@/config/map-config";
+
 /** A selectable layer in the navigation tree. */
 export interface NavLeaf {
   /** Layer id matching an entry in layers.json. */
@@ -102,6 +104,10 @@ export function withCombinations(tree: NavNode[], leaves: NavLeaf[]): NavNode[] 
     {
       label: COMBINATIONS_LABEL,
       icon: "masked_transitions_add",
+      // Read at runtime rather than hard-coded: the themes in navigation.json
+      // all carry the same accent as `chromeIconColor`, and this node is
+      // injected rather than authored, so it has no JSON entry to state one.
+      color: chromeIconColor(),
       expanded: true,
       children: leaves,
     },

@@ -1,7 +1,7 @@
 import { useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { NavIcon, Icon } from "@/components/ui/nav-icon";
-import { navIconSize } from "@/config/map-config";
+import { chromeIconColor, navIconSize } from "@/config/map-config";
 import { NavTree } from "@/components/ui/navigation/NavTree";
 import { withAlpha } from "@/lib/utils";
 import type { NavLeaf, NavNode } from "@/layers/navigation";
@@ -66,7 +66,11 @@ export function NavigationSection({
       <ul className="flex flex-col gap-1">
         {tree.map((node) => {
           const expanded = isOpen([node.label]);
-          const accent = node.color ?? "#F97316"; // default orange
+          // Falls back to the UI-chrome accent rather than a hard-coded orange:
+          // the expand chevron is chrome, not part of the theme's own identity,
+          // so a theme without a color in navigation.json should match the rest
+          // of the interface instead of introducing a second accent.
+          const accent = node.color ?? chromeIconColor();
           return (
             <li key={node.label}>
               {/* Sticky so the theme name stays visible while scrolling a long

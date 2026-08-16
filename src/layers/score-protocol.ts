@@ -48,7 +48,10 @@ function hexToRgba(hex: string, alpha: number): Uint8ClampedArray {
 export function registerScoreGrid(id: string, grid: ScoreGrid, colors: string[]): void {
   const table: Uint8ClampedArray[] = [];
   for (let score = 0; score <= grid.filterCount; score++) {
-    const hex = colors[score - 1] ?? colors[colors.length - 1] ?? "#3E74A7";
+    // Last resort only: `colors` comes from rampFor and always has one entry
+    // per attainable score, so neither fallback should be reachable. The literal
+    // exists so a bad caller draws something visible rather than crashing.
+    const hex = colors[score - 1] ?? colors[colors.length - 1] ?? "#3288bd";
     table[score] = hexToRgba(hex, 255);
   }
   grids.set(id, { grid, colors: table });
