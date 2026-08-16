@@ -44,6 +44,7 @@ export {
   getFilterLayerVersion,
   isFilterLayerId,
   rampFor,
+  layerCountOf,
 } from "./filter-layers";
 export type { FilterLayerDef } from "./filter-layers";
 export { loadChartsConfig, CHART_COLORS, isChartEligible } from "./charts";
@@ -60,4 +61,4 @@ export {
   computeStatistics,
 } from "./chart-data";
 export type { ChartDatum, ResolvedChart, ResolvedStat } from "./chart-data";
-export type { LayerConfig, LayerFormat, LayerStyle, GeometryType, LayersFile, GeoStylerStyle, GeoStylerRule, FeatureInfoConfig, StatisticConfig, ChartValueFormat, TimeseriesConfig } from "./types";
+export type { LayerConfig, LayerFormat, LayerStyle, GeometryType, LayersFile, GeoStylerStyle, GeoStylerRule, GeoStylerFilter, FeatureInfoConfig, StatisticConfig, ChartValueFormat, TimeseriesConfig } from "./types";

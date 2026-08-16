@@ -332,7 +332,8 @@
             ]
           }
         ]
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/ziekenhuis_lb_m5.cog.tif"
     },
     {
       "id": "supermarkt",
@@ -497,7 +498,8 @@
             ]
           }
         ]
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/supermarkt_lb_m5.cog.tif"
     },
     {
       "id": "dagbesteding",
@@ -662,7 +664,8 @@
             ]
           }
         ]
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/dagbesteding_lb_m5.cog.tif"
     },
     {
       "id": "ontmoeting",
@@ -827,7 +830,8 @@
             ]
           }
         ]
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/ontmoeting_lb_m5.cog.tif"
     },
     {
       "id": "tandarts",
@@ -992,7 +996,8 @@
             ]
           }
         ]
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/tandarts_lb_m5.cog.tif"
     },
     {
       "id": "ov",
@@ -1157,7 +1162,8 @@
             ]
           }
         ]
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/ov_lb_m5.cog.tif"
     },
     {
       "id": "apotheek",
@@ -1322,7 +1328,8 @@
             ]
           }
         ]
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/apotheek_lb_m5.cog.tif"
     },
     {
       "id": "fysiotherapeut",
@@ -1487,7 +1494,8 @@
             ]
           }
         ]
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/fysiotherapeut_lb_m5.cog.tif"
     },
     {
       "id": "WZW5",
@@ -3089,7 +3097,8 @@
       },
       "style": {
         "opacity": 0.8
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/won_geschikt_m5.cog.tif"
     },
     {
       "id": "aandeel_ongeschikt_2024",
@@ -3224,7 +3233,8 @@
       },
       "style": {
         "opacity": 0.8
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/won_ongeschikt_m5.cog.tif"
     },
     {
       "id": "bomen-3-rule-2026",
@@ -6162,7 +6172,8 @@
       "featureinfo": {
         "template": "<div><b>tot kwaliteitsgrens: [[ class ]]</b></div>"
       },
-      "sourceLayer": "streefhuur_0"
+      "sourceLayer": "streefhuur_0",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/streefhuur_0.cog.tif"
     },
     {
       "id": "streefhuur_1_2026",
@@ -6266,7 +6277,8 @@
       "featureinfo": {
         "template": "<div><b>tot lage aftoppingsgrens: [[ class ]]</b></div>"
       },
-      "sourceLayer": "streefhuur_1"
+      "sourceLayer": "streefhuur_1",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/streefhuur_1.cog.tif"
     },
     {
       "id": "streefhuur_2_2026",
@@ -6370,7 +6382,8 @@
       "featureinfo": {
         "template": "<div><b>tot hoge aftoppingsgrens: [[ class ]]</b></div>"
       },
-      "sourceLayer": "streefhuur_2"
+      "sourceLayer": "streefhuur_2",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/streefhuur_2.cog.tif"
     },
     {
       "id": "streefhuur_3_2026",
@@ -6474,7 +6487,8 @@
       "featureinfo": {
         "template": "<div><b>tot liberalisatiegrens: [[ class ]]</b></div>"
       },
-      "sourceLayer": "streefhuur_3"
+      "sourceLayer": "streefhuur_3",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/streefhuur_3.cog.tif"
     },
     {
       "id": "streefhuur_4_2026",
@@ -6578,7 +6592,8 @@
       "featureinfo": {
         "template": "<div><b>boven niet-daeb grens: [[ class ]]</b></div>"
       },
-      "sourceLayer": "streefhuur_4"
+      "sourceLayer": "streefhuur_4",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/streefhuur_4.cog.tif"
     },
     {
       "id": "streefhuur_5_2026",
@@ -6682,7 +6697,8 @@
       "featureinfo": {
         "template": "<div><b>boven liberalisatie grens: [[ class ]]</b></div>"
       },
-      "sourceLayer": "streefhuur_5"
+      "sourceLayer": "streefhuur_5",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/streefhuur_5.cog.tif"
     },
     {
       "id": "bouwjaar_2026",

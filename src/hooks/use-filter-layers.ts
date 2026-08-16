@@ -2,10 +2,11 @@ import { useCallback, useState } from "react";
 import type { MapRef } from "react-map-gl/maplibre";
 
 import type { ClassRef } from "@/components/ui/CombineLayersDialog";
-import type { GeoStylerRule, LayerConfig } from "@/layers";
+import type { GeoStylerFilter, GeoStylerRule, LayerConfig } from "@/layers";
 import {
   addFilterLayer,
   getFilterLayers,
+  layerCountOf,
   removeFilterLayer,
   type FilterLayerDef,
 } from "@/layers/filter-layers";
@@ -40,8 +41,9 @@ export interface UseFilterLayersResult {
 }
 
 /**
- * Dutch label for a combination's score class: with 3 filters, score 2 reads
- * "2 van 3 kenmerken".
+ * Dutch label for a combination's score class: with 3 layers, score 2 reads
+ * "2 van 3 kenmerken". `total` is the LAYER count — one layer is one kenmerk,
+ * however many of its classes were ticked.
  */
 function scoreLabel(score: number, total: number): string {
   return `${score} van ${total} kenmerken`;
@@ -58,10 +60,11 @@ function scoreLabel(score: number, total: number): string {
  * key rather than driving a colour function.
  */
 function configFor(def: FilterLayerDef): LayerConfig {
+  const total = layerCountOf(def.refs);
   const rules: GeoStylerRule[] = def.colors.map((color, index) => {
     const score = index + 1;
     return {
-      name: scoreLabel(score, def.refs.length),
+      name: scoreLabel(score, total),
       filter: ["==", "band0", score],
       symbolizers: [{ kind: "Fill", color }],
     };
@@ -106,16 +109,26 @@ export function useFilterLayers(
       setError(null);
       setBusy(true);
       try {
-        // Resolve each chosen class to its layer's companion raster and the
-        // rule's own filter, so the combination reuses the exact predicate the
-        // vector layer draws with.
+        // One input per LAYER, its chosen classes OR-ed together: within a layer
+        // the classes are alternatives (a cell holds exactly one), between
+        // layers they are requirements. Each layer therefore contributes at most
+        // 1 to the score. Rule filters are reused verbatim, so the combination
+        // tests exactly the predicate the vector layer draws with.
         const inputs: ScoreInput[] = [];
-        for (const ref of refs) {
-          const config = configs.find((c) => c.id === ref.layerId);
+        for (const layerId of new Set(refs.map((ref) => ref.layerId))) {
+          const config = configs.find((c) => c.id === layerId);
           if (!config?.filterRaster) continue;
-          const rule = config.geostyler?.rules.find((r) => r.name === ref.ruleName);
-          if (!rule?.filter) continue;
-          inputs.push({ url: config.filterRaster, filter: rule.filter });
+
+          const filters = refs
+            .filter((ref) => ref.layerId === layerId)
+            .map((ref) => config.geostyler?.rules.find((r) => r.name === ref.ruleName)?.filter)
+            .filter((filter): filter is GeoStylerFilter => Boolean(filter));
+          if (filters.length === 0) continue;
+
+          // A lone class needs no wrapper; `["||", …]` only for a real choice.
+          const filter =
+            filters.length === 1 ? filters[0] : (["||", ...filters] as GeoStylerFilter);
+          inputs.push({ url: config.filterRaster, filter });
         }
 
         if (inputs.length === 0) {
