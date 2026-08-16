@@ -237,9 +237,6 @@ export function CombineLayersDialog({
         )}
 
         <div className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Annuleren
-          </Button>
           <Button onClick={handleCreate} disabled={selected.length === 0}>
             Laag maken
           </Button>
