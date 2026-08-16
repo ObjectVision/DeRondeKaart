@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { NavIcon, Icon } from "@/components/ui/nav-icon";
 import { isLeaf, type NavItem, type NavLeaf, type NavNode } from "@/layers/navigation";
+import { chromeIconColor } from "@/config/map-config";
 
 interface NavTreeProps {
   items: NavItem[];
@@ -136,7 +137,8 @@ function BranchRow({
         <Icon
           name={expanded ? "expand_more" : "chevron_right"}
           size={18}
-          className="mt-px flex-shrink-0 text-gray-400"
+          color={chromeIconColor()}
+          className="mt-px flex-shrink-0"
         />
         <NavIcon
           name={node.icon}

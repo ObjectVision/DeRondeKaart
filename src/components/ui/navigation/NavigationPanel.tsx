@@ -7,7 +7,7 @@ import { MapControls } from "@/components/ui/map-controls";
 import { loadNavigation, withCombinations, type NavLeaf, type NavNode } from "@/layers/navigation";
 import type { NavigationApi } from "@/hooks/use-navigation";
 import { withAlpha } from "@/lib/utils";
-import { chromeIconSize, navIconSize } from "@/config/map-config";
+import { chromeIconColor, chromeIconSize, navIconSize } from "@/config/map-config";
 
 interface SelectedLeaf {
   leaf: NavLeaf;
@@ -133,7 +133,9 @@ export const NavigationPanel = memo(function NavigationPanel({
 
   function renderCategoryButton(node: NavNode, index: number) {
     const isActive = activeCategory === index;
-    const accent = node.color ?? "#F97316"; // default orange
+    // Same fallback as the sidebar's theme rows: a theme with no color in
+    // navigation.json takes the UI-chrome accent rather than a second one.
+    const accent = node.color ?? chromeIconColor();
     return (
       <Button
         key={node.label}

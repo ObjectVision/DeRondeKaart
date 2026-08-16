@@ -48,22 +48,59 @@ const store: { version: number; defs: FilterLayerDef[]; nextId: number } = {
 };
 
 /**
- * Blue-to-red ramp for scores. Score 1 (weakest match) is the coolest colour and
- * the top score the warmest, so "passes everything" reads as the strongest
- * signal on the map.
+ * Spectral ramp for scores, red through yellow to blue: score 1 (matching one
+ * kenmerk) is red and the top score blue, so the cells that satisfy everything
+ * read as the calm end of the scale and the partial matches stand out as warm.
+ *
+ * Seven stops, sampled by {@link rampFor}. It is a diverging scheme, so it stays
+ * legible at any step count and its midpoint (#ffffbf) is deliberately the
+ * palest — a combination with an odd number of layers puts "half the kenmerken"
+ * there.
  */
-const SCORE_RAMP = ["#B3CDE3", "#6497B1", "#3E74A7", "#C1548A", "#B5104A"];
+const SCORE_RAMP = [
+  "#d53e4f",
+  "#fc8d59",
+  "#fee08b",
+  "#ffffbf",
+  "#e6f598",
+  "#99d594",
+  "#3288bd",
+];
+
+/** Blend two "#rrggbb" colours; `t` runs 0 (a) to 1 (b). */
+function mixHex(a: string, b: string, t: number): string {
+  const channel = (offset: number) => {
+    const from = parseInt(a.slice(offset, offset + 2), 16);
+    const to = parseInt(b.slice(offset, offset + 2), 16);
+    return Math.round(from + (to - from) * t)
+      .toString(16)
+      .padStart(2, "0");
+  };
+  return `#${channel(1)}${channel(3)}${channel(5)}`;
+}
 
 /**
- * Colours for a combination of `count` filters — `count` steps spread across the
- * ramp, so two filters use its ends rather than its first two entries.
+ * Colours for a combination of `count` layers — `count` steps spread across the
+ * ramp, so two layers take its ends (red, blue) rather than its first two stops.
+ *
+ * Interpolates between stops rather than snapping to the nearest one: with more
+ * layers than the ramp has stops, rounding would hand two different scores the
+ * same colour and make them indistinguishable on the map. Counts up to the stop
+ * count still land exactly on the authored colours.
+ *
+ * A single-layer combination gets the ramp's LAST colour: with nothing to
+ * compare against, "matches" should read as the top of the scale rather than as
+ * the weakest step.
  */
 export function rampFor(count: number): string[] {
   if (count <= 1) return [SCORE_RAMP[SCORE_RAMP.length - 1]];
   const out: string[] = [];
+  const last = SCORE_RAMP.length - 1;
   for (let i = 0; i < count; i++) {
-    const t = i / (count - 1);
-    out.push(SCORE_RAMP[Math.round(t * (SCORE_RAMP.length - 1))]);
+    const position = (i / (count - 1)) * last;
+    const lower = Math.floor(position);
+    const upper = Math.min(lower + 1, last);
+    out.push(mixHex(SCORE_RAMP[lower], SCORE_RAMP[upper], position - lower));
   }
   return out;
 }
