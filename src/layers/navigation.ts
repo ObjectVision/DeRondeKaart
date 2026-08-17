@@ -40,6 +40,18 @@ export function isLeaf(item: NavItem): item is NavLeaf {
   return (item as NavNode).children === undefined;
 }
 
+/**
+ * Whether a branch holds any selectable leaf, at any depth.
+ *
+ * False for the placeholder categories in navigation.json whose only child is
+ * the empty leaf `pruneItems` drops, and for a branch holding nothing but such
+ * categories. Those rows have nothing to reveal, so every navigation surface
+ * renders them disabled instead of letting them expand onto an empty panel.
+ */
+export function hasLeaves(node: NavNode): boolean {
+  return node.children.some((child) => (isLeaf(child) ? true : hasLeaves(child)));
+}
+
 let cachedNavigation: NavNode[] | null = null;
 
 /**
@@ -96,7 +108,8 @@ export const COMBINATIONS_LABEL = "Combinaties";
  *
  * The branch renders even with no children, so the user can find where their
  * combinations will appear — consistent with `pruneItems` leaving empty
- * categories in place.
+ * categories in place. Until the first combination exists it is a leafless
+ * branch like any other, so `hasLeaves` has every surface render it disabled.
  */
 export function withCombinations(tree: NavNode[], leaves: NavLeaf[]): NavNode[] {
   return [

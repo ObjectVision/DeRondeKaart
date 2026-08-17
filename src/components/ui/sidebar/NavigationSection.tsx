@@ -4,6 +4,7 @@ import { NavIcon, Icon } from "@/components/ui/nav-icon";
 import { chromeIconColor, navIconSize } from "@/config/map-config";
 import { NavTree } from "@/components/ui/navigation/NavTree";
 import { withAlpha } from "@/lib/utils";
+import { hasLeaves } from "@/layers/navigation";
 import type { NavLeaf, NavNode } from "@/layers/navigation";
 
 /**
@@ -65,7 +66,10 @@ export function NavigationSection({
       </h2>
       <ul className="flex flex-col gap-1">
         {tree.map((node) => {
-          const expanded = isOpen([node.label]);
+          // A theme with no leaf anywhere beneath it has nothing to reveal, so
+          // its row is disabled and stays collapsed regardless of stored state.
+          const empty = !hasLeaves(node);
+          const expanded = !empty && isOpen([node.label]);
           // Falls back to the UI-chrome accent rather than a hard-coded orange:
           // the expand chevron is chrome, not part of the theme's own identity,
           // so a theme without a color in navigation.json should match the rest
@@ -84,11 +88,12 @@ export function NavigationSection({
               >
                 <Button
                   variant="ghost"
-                  aria-expanded={expanded}
+                  disabled={empty}
+                  aria-expanded={empty ? undefined : expanded}
                   className="h-auto w-full cursor-pointer flex-row items-center justify-start gap-3 rounded-xl border border-gray-100 bg-white px-3 py-2.5 hover:bg-gray-50"
                   style={expanded ? { backgroundColor: withAlpha(accent, 0.08) } : undefined}
                   onClick={() => handleToggle(node.label)}
-                  title={node.label}
+                  title={empty ? `${node.label} (geen lagen beschikbaar)` : node.label}
                 >
                   <NavIcon
                     name={node.icon}

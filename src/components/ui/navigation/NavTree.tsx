@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NavIcon, Icon } from "@/components/ui/nav-icon";
-import { isLeaf, type NavItem, type NavLeaf, type NavNode } from "@/layers/navigation";
+import { hasLeaves, isLeaf, type NavItem, type NavLeaf, type NavNode } from "@/layers/navigation";
 import { chromeIconColor } from "@/config/map-config";
 
 interface NavTreeProps {
@@ -122,17 +122,25 @@ function BranchRow({
   const [localOpen, setLocalOpen] = useState(node.expanded ?? false);
   const controlled = isOpen !== undefined && onToggle !== undefined;
   const open = controlled ? isOpen(path) : localOpen;
+  // A branch with nothing under it stays collapsed whatever the stored state or
+  // `node.expanded` says — its row is disabled, so the user could not close it
+  // again.
+  const empty = !hasLeaves(node);
   // A non-empty query force-expands matching branches. Deliberately does NOT
   // write through to the controlled state: clearing the search must return the
   // tree to what the user actually left open, not to all-expanded.
-  const expanded = query ? true : open;
+  const expanded = !empty && (query ? true : open);
 
   return (
     <li>
       <button
         onClick={() => (controlled ? onToggle(path) : setLocalOpen((v) => !v))}
-        aria-expanded={expanded}
-        className="flex w-full items-start gap-2 rounded px-1.5 py-1 text-left text-sm transition-colors hover:bg-gray-100"
+        disabled={empty}
+        aria-expanded={empty ? undefined : expanded}
+        className={
+          "flex w-full items-start gap-2 rounded px-1.5 py-1 text-left text-sm transition-colors " +
+          (empty ? "cursor-default opacity-50" : "hover:bg-gray-100")
+        }
       >
         <Icon
           name={expanded ? "expand_more" : "chevron_right"}
@@ -146,7 +154,13 @@ function BranchRow({
           size={18}
           className="mt-px flex-shrink-0 text-gray-500"
         />
-        <span className="break-words font-medium text-gray-800">{node.label}</span>
+        <span
+          className={
+            "break-words font-medium " + (empty ? "text-gray-400" : "text-gray-800")
+          }
+        >
+          {node.label}
+        </span>
       </button>
       {expanded && (
         <div className="ml-3 border-l border-gray-100 pl-1">
