@@ -4,7 +4,13 @@ import { NavIcon, Icon } from "@/components/ui/nav-icon";
 import { NavTree } from "./NavTree";
 import { LeafDetail } from "./LeafDetail";
 import { MapControls } from "@/components/ui/map-controls";
-import { loadNavigation, withCombinations, type NavLeaf, type NavNode } from "@/layers/navigation";
+import {
+  hasLeaves,
+  loadNavigation,
+  withCombinations,
+  type NavLeaf,
+  type NavNode,
+} from "@/layers/navigation";
 import type { NavigationApi } from "@/hooks/use-navigation";
 import { withAlpha } from "@/lib/utils";
 import { chromeIconColor, chromeIconSize, navIconSize } from "@/config/map-config";
@@ -136,12 +142,17 @@ export const NavigationPanel = memo(function NavigationPanel({
     // Same fallback as the sidebar's theme rows: a theme with no color in
     // navigation.json takes the UI-chrome accent rather than a second one.
     const accent = node.color ?? chromeIconColor();
+    // Nothing beneath it to open — the button greys out rather than dropping an
+    // empty panel over the map. Measured like any other, so the overflow split
+    // does not shift when a theme fills up.
+    const empty = !hasLeaves(node);
     return (
       <Button
         key={node.label}
         variant="ghost"
         size="icon"
-        aria-expanded={isActive}
+        disabled={empty}
+        aria-expanded={empty ? undefined : isActive}
         className="h-auto w-auto flex-shrink-0 cursor-pointer flex-col gap-1 whitespace-nowrap rounded-xl bg-white/95 px-3 py-2 shadow-md backdrop-blur-sm hover:bg-white"
         style={isActive ? { backgroundColor: withAlpha(accent, 0.08) } : undefined}
         onClick={() => {
@@ -149,7 +160,7 @@ export const NavigationPanel = memo(function NavigationPanel({
           setSelected(null);
           setOverflowOpen(false);
         }}
-        title={node.label}
+        title={empty ? `${node.label} (geen lagen beschikbaar)` : node.label}
       >
         <NavIcon name={node.icon} color={node.color} size={navIconSize(32)} />
         <span className="text-center text-sm font-semibold text-gray-900">
