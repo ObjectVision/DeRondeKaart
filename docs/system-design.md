@@ -524,6 +524,138 @@ browsed at high zoom.
 Workflow: convert → upload to the data host → reference the URL from
 `layers.json`.
 
+### 10.1 The PMTiles converter and how tiling works
+
+[convert-geojson-to-pmtiles.py](../data/convert-geojson-to-pmtiles.py) is the odd
+one out among the converters. The others write one flat table or one
+spatially-indexed file per input. This one builds a **generalized tile pyramid**:
+the same geometry is re-cut and re-simplified once per zoom level, so what the
+browser downloads is bounded by the viewport instead of by the size of the
+dataset.
+
+It does not implement any of that itself. It drives GDAL's **PMTiles vector
+driver** (GDAL ≥ 3.8), which reuses GDAL's MVT writer and wraps the result in a
+PMTiles archive. Everything below the staging step is the driver's work.
+
+Because GDAL's Python bindings (`osgeo`) have no usable PyPI wheel on Windows,
+this is the one converter where the `uv run` shortcut generally does *not* work —
+it needs an OSGeo4W or conda environment. [build-startanalyse-pmtiles.py](../data/build-startanalyse-pmtiles.py)
+hunts for such an interpreter itself before shelling out.
+
+#### What the script does
+
+```mermaid
+flowchart TB
+    gj["GeoJSON input(s)"]
+    stage["Stage in one in-memory<br/>OGR dataset (Memory driver)"]
+    conf["Build CONF JSON<br/>(layer -> target_name + zoom band)"]
+    vt["gdal.VectorTranslate<br/>format=PMTiles"]
+    out[".pmtiles archive"]
+
+    gj --> stage --> vt --> out
+    conf --> vt
+```
+
+Three things happen before GDAL is handed the data:
+
+| Step | Why |
+|---|---|
+| Field names lowercased | House convention across the converters. Done with a `SELECT … AS` pass, because field definitions are sealed once a layer is copied (GDAL ≥ 3.9 raises `SetName() not allowed on a sealed object`) |
+| Optional `--unquote` | Some GeoDMS exports store quote characters *inside* string values (`"'s1a'"`). Left alone, every `==` in a map style has to match the quotes too |
+| Everything staged into one in-memory dataset | PMTiles is **write-once** — a layer cannot be appended to an existing archive, so all sources must be present for the single `VectorTranslate` call |
+
+Attributes are otherwise copied as-is. There is deliberately **no numeric
+downcasting** (MVT stores numbers as varints, so a narrower integer type costs
+the same bytes) and **no ring-winding normalization** (the driver re-clips and
+re-tessellates every polygon per tile, so input winding does not survive).
+
+#### The tiling algorithm
+
+The driver takes the staged features and, for each zoom level from `MINZOOM` to
+`MAXZOOM`:
+
+1. **Reprojects to Web Mercator (EPSG:3857).** The driver does this itself —
+   passing `dstSRS` makes GDAL warn *"Target SRS not taken into account"*. Input
+   without a CRS is assumed to be EPSG:4326 (silently by GDAL, loudly by the
+   script).
+2. **Works out which tiles each feature touches** at that zoom, and clips the
+   geometry to each one. A feature crossing a tile boundary is therefore written
+   **once per tile it touches** — normal for MVT, but it means feature counts in
+   the archive exceed the input count.
+3. **Buffers the clip** by `BUFFER` units (default 80 at `EXTENT=4096`) so lines
+   and fills that cross a boundary still render correctly at the seam.
+4. **Quantizes coordinates to the tile's integer grid.** `EXTENT` (default 4096)
+   is the number of units along a tile edge, so precision follows the zoom: a
+   z13 tile spans ≈4.9 km, giving ≈1.2 m per unit; z14 halves that.
+5. **Simplifies** the quantized geometry by `SIMPLIFICATION` (in those same
+   integer units — a factor of 1 means "drop detail finer than one grid step").
+   `SIMPLIFICATION_MAX_ZOOM` sets a separate factor for the deepest level, the
+   usual pattern being aggressive generalization when zoomed out and none at full
+   zoom.
+6. **Encodes and gzips the tile**, enforcing `MAX_SIZE` (default 500 000 bytes,
+   after compression) and `MAX_FEATURES` (default 200 000 per tile). Past either
+   limit the driver writes features with reduced precision **or drops them** —
+   quietly, which is the failure mode to watch for.
+
+Part of this is multi-threaded (one thread per core by default,
+`GDAL_NUM_THREADS`), and the MVT writer stages intermediate features in a
+temporary database next to the output before encoding.
+
+An extra `mvt_id` field appears in the output. That is the driver, not the script.
+
+#### Options the script exposes
+
+| Flag | Driver option | Default here | Note |
+|---|---|---|---|
+| `--minzoom` / `--maxzoom` | `MINZOOM` / `MAXZOOM` | 0 / 14 | The driver's own `MAXZOOM` default is 5 — far too shallow, so the script always sets it. 22 is the format maximum |
+| `--simplification` | `SIMPLIFICATION` | unset | Integer tile units, applied below the max zoom |
+| `--max-size` | `MAX_SIZE` | unset (driver: 500 000) | Raise it when a low-zoom tile holds the whole dataset |
+| `--max-features` | `MAX_FEATURES` | unset (driver: 200 000) | |
+| `--name` / `--description` | `NAME` / `DESCRIPTION` | file stem / — | Archive metadata only |
+| `--layer` / `--spec` | `CONF` | — | Layer composition, below |
+
+`EXTENT`, `BUFFER`, `TILING_SCHEME` and `TYPE` are left at driver defaults and
+are not exposed.
+
+The Startanalyse build ([build-startanalyse-pmtiles.py](../data/build-startanalyse-pmtiles.py))
+is the worked example: **z0–13** and **`MAX_SIZE` at 2 MB**. z13 is where more
+depth stops adding visible detail for buurt polygons — MapLibre overzooms past a
+source's maxzoom anyway, and each extra level roughly quadruples the tile count.
+The raised `MAX_SIZE` exists because at z0 all 14 500 buurten land in one tile,
+which the 500 KB default would silently thin out.
+
+#### Layer composition and zoom bands
+
+One archive holds many named layers, which is why folder mode collapses a whole
+directory into a single `.pmtiles` rather than one file per input — a deliberate
+departure from the sibling converters.
+
+`--layer NAME=PATH[@MINZOOM-MAXZOOM]` can also point **several files at one
+layer name**, each covering a different zoom range: coarse geometry when zoomed
+out, full detail when zoomed in, under the single layer name the style refers to.
+This maps onto `CONF`: each input becomes its own OGR layer (`panden_lod0`,
+`panden_lod1`, …) sharing a `target_name`, with its own `minzoom`/`maxzoom`.
+
+Two consequences worth knowing:
+
+- Bands within a layer must be **mutually exclusive**. Overlapping bands would
+  emit both geometries into the same tiles, so the script rejects them outright.
+  Gaps are allowed but warned about — no tiles exist for that layer in an
+  uncovered range.
+- The archive's `vector_layers` metadata reports the **union** of a layer's bands
+  (a 6–11 + 12–14 split is advertised as `6–14`). The banding is real and does
+  govern which source contributes which tiles; it is simply invisible in that
+  metadata field.
+
+#### Serving
+
+PMTiles is gzip-compressed **internally** — tiles, directories and metadata each
+carry their own gzip. So `.pmtiles` must be served with `Accept-Ranges: bytes`, a
+CORS-exposed `Content-Range`, and **runtime gzip switched off**: re-compressing
+breaks the range requests the format depends on entirely and makes clients
+double-decompress. `server/setup_fileserver.sh` already handles this, in the same
+location block as `.parquet` and `.tif`.
+
 ---
 
 ---
