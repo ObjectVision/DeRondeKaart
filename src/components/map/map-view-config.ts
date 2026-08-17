@@ -201,6 +201,8 @@ export const BASEMAPS: Basemap[] = [
     options: { labels: false, roads: false },
   },
   {
+    // Positron's own roads, but the Kleur label layers: positron's light grey
+    // text was unreadable over most data layers.
     id: "grijs-labels",
     label: "Grijs met labels en wegen",
     base: "/positron-base.json",
@@ -210,10 +212,11 @@ export const BASEMAPS: Basemap[] = [
     options: { labels: true, roads: true },
   },
   {
+    // Shares Kleur's label overlay outright — same reason as grijs-labels.
     id: "grijs-labels-only",
     label: "Grijs met labels",
     base: "/positron-base.json",
-    overlay: "/positron-labels.json",
+    overlay: "/openfreemap-labels.json",
     thumb: "/basemap-thumb-grijs-labels.png",
     baseId: "grijs",
     options: { labels: true, roads: false },
