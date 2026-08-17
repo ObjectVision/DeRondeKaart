@@ -490,9 +490,11 @@ All five are cached at module level after first load.
 
 The first stage uses GeoDMS to translate source data into intermediate
 `.geojson` files. Simplification can happen here, preserving topology so shapes
-stay correctly joined at lower zoom levels. An experimental alternative uses
-**mapshaper** via `convert-tif-to-geojson.py`. Those intermediate files then go
-into the converters below.
+stay correctly joined at lower zoom levels — and it *must* happen here rather
+than in the tile driver, for reasons documented in
+[preprocessing-pipeline.md](preprocessing-pipeline.md). An experimental
+alternative uses **mapshaper** via `convert-tif-to-geojson.py`. Those
+intermediate files then go into the converters below.
 
 [data/](../data/) holds eight Python converters that turn source rasters and
 vectors into the formats the app reads. They use PEP 723 inline dependency
@@ -571,35 +573,26 @@ re-tessellates every polygon per tile, so input winding does not survive).
 
 #### The tiling algorithm
 
-The driver takes the staged features and, for each zoom level from `MINZOOM` to
-`MAXZOOM`:
+For each zoom level from `MINZOOM` to `MAXZOOM`, the driver reprojects the
+staged features to Web Mercator (never pass `dstSRS` — the driver warns and
+ignores it; CRS-less input is assumed EPSG:4326), clips each feature to every
+tile it touches plus a buffer (default 80 grid units at `EXTENT=4096`, so a
+feature crossing a tile boundary is written once per tile it touches),
+quantizes the coordinates onto the tile's integer grid (4096 units per tile
+edge — ≈1.2 m per unit at z13, halving each zoom), repairs what the rounding
+breaks, and gzips the result under the `MAX_SIZE` (default 500 000 bytes) and
+`MAX_FEATURES` (default 200 000) limits. Past those limits the driver re-encodes
+at reduced precision **or drops features** — quietly, which is the failure mode
+to watch for. Part of this is multi-threaded (`GDAL_NUM_THREADS`), staging
+intermediate features in a temporary database next to the output.
 
-1. **Reprojects to Web Mercator (EPSG:3857).** The driver does this itself —
-   passing `dstSRS` makes GDAL warn *"Target SRS not taken into account"*. Input
-   without a CRS is assumed to be EPSG:4326 (silently by GDAL, loudly by the
-   script).
-2. **Works out which tiles each feature touches** at that zoom, and clips the
-   geometry to each one. A feature crossing a tile boundary is therefore written
-   **once per tile it touches** — normal for MVT, but it means feature counts in
-   the archive exceed the input count.
-3. **Buffers the clip** by `BUFFER` units (default 80 at `EXTENT=4096`) so lines
-   and fills that cross a boundary still render correctly at the seam.
-4. **Quantizes coordinates to the tile's integer grid.** `EXTENT` (default 4096)
-   is the number of units along a tile edge, so precision follows the zoom: a
-   z13 tile spans ≈4.9 km, giving ≈1.2 m per unit; z14 halves that.
-5. **Simplifies** the quantized geometry by `SIMPLIFICATION` (in those same
-   integer units — a factor of 1 means "drop detail finer than one grid step").
-   `SIMPLIFICATION_MAX_ZOOM` sets a separate factor for the deepest level, the
-   usual pattern being aggressive generalization when zoomed out and none at full
-   zoom.
-6. **Encodes and gzips the tile**, enforcing `MAX_SIZE` (default 500 000 bytes,
-   after compression) and `MAX_FEATURES` (default 200 000 per tile). Past either
-   limit the driver writes features with reduced precision **or drops them** —
-   quietly, which is the failure mode to watch for.
-
-Part of this is multi-threaded (one thread per core by default,
-`GDAL_NUM_THREADS`), and the MVT writer stages intermediate features in a
-temporary database next to the output before encoding.
+How the quantization works at the source level — the snap formula, the
+integer-space winding and validity repair, why shared boundaries between
+adjacent polygons survive the rounding, and the cases where they don't — is
+documented in [preprocessing-pipeline.md](preprocessing-pipeline.md), together
+with the practical rules that follow (topology-preserving generalization
+belongs upstream in GeoDMS, never in the driver's `SIMPLIFICATION`; adjacent
+polygons must share vertex-identical borders in the input).
 
 An extra `mvt_id` field appears in the output. That is the driver, not the script.
 
