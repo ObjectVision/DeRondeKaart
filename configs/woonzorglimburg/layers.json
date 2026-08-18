@@ -7957,7 +7957,8 @@
       },
       "featureinfo": {
         "template": "<div><b>Stijgingspercentage klasse: [[ class ]]</b></div>"
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/stijgingspercentage_lb_2026.cog.tif"
     }
   ]
 }
