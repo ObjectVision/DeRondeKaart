@@ -2228,7 +2228,8 @@
       "featureinfo": {
         "template": "<div><b>SDK: [[ data ]]</b></div>"
       },
-      "sourceLayer": "SDKLimburg2026"
+      "sourceLayer": "SDKLimburg2026",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/sociaal_dominante_klasse.cog.tif"
     },
     {
       "id": "studiegebied_limburg",
