@@ -7659,8 +7659,10 @@
     {
       "id": "pandtype_lb_2026",
       "name": "pandtype",
-      "source": "https://data.woonzorglimburg.nl/cog/pandtype_lb_m5.cog.tif",
-      "format": "cog",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/pandtype_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "pandtype_lb_2026",
+      "geometryType": "polygon",
       "geostyler": {
         "name": "pandtype",
         "rules": [
@@ -7668,13 +7670,14 @@
             "name": "vrijstaand",
             "filter": [
               "==",
-              "band0",
+              "attr",
               1
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#1A9850"
+                "color": "#1A9850",
+                "outlineWidth": 0
               }
             ]
           },
@@ -7682,13 +7685,14 @@
             "name": "twee onder 1 kap",
             "filter": [
               "==",
-              "band0",
+              "attr",
               2
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#A6D96A"
+                "color": "#A6D96A",
+                "outlineWidth": 0
               }
             ]
           },
@@ -7696,13 +7700,14 @@
             "name": "hoekwoning",
             "filter": [
               "==",
-              "band0",
+              "attr",
               3
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#6464FF"
+                "color": "#6464FF",
+                "outlineWidth": 0
               }
             ]
           },
@@ -7710,13 +7715,14 @@
             "name": "tussenwoning",
             "filter": [
               "==",
-              "band0",
+              "attr",
               4
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#FFFF00"
+                "color": "#FFFF00",
+                "outlineWidth": 0
               }
             ]
           },
@@ -7724,13 +7730,14 @@
             "name": "meergezinspand",
             "filter": [
               "==",
-              "band0",
+              "attr",
               5
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#FF3232"
+                "color": "#FF3232",
+                "outlineWidth": 0
               }
             ]
           }
@@ -7740,7 +7747,7 @@
         "opacity": 0.8
       },
       "featureinfo": {
-        "template": "<div><b>Pandtype klasse: [[ band0 ]]</b></div>"
+        "template": "<div><b>Pandtype klasse: [[ attr ]]</b></div>"
       }
     },
     {
