@@ -5500,7 +5500,8 @@
       "featureinfo": {
         "template": "<div><b>BAT score: [[ bat_score ]]</b></div>"
       },
-      "sourceLayer": "corporaties_lb_2026"
+      "sourceLayer": "corporaties_lb_2026",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_bat_2026.cog.tif"
     },
     {
       "id": "corp_mutatiegraad_2026",
@@ -5636,7 +5637,8 @@
       "featureinfo": {
         "template": "<div><b>Mutatiegraad: [[ mutatiegraad ]]%</b></div>"
       },
-      "sourceLayer": "corporaties_lb_2026"
+      "sourceLayer": "corporaties_lb_2026",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_mutatiegraad_2026.cog.tif"
     },
     {
       "id": "corp_senioren_2026",
@@ -5689,7 +5691,8 @@
       "featureinfo": {
         "template": "<div><b>Seniorenbeleid: [[ senioren ]]</b></div>"
       },
-      "sourceLayer": "corporaties_lb_2026"
+      "sourceLayer": "corporaties_lb_2026",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_senioren_2026.cog.tif"
     },
     {
       "id": "corp_ouderen_met_indicatie_2026",
@@ -5742,7 +5745,8 @@
       "featureinfo": {
         "template": "<div><b>Ouderen met indicatie: [[ ouderen_met_indicatie ]]</b></div>"
       },
-      "sourceLayer": "corporaties_lb_2026"
+      "sourceLayer": "corporaties_lb_2026",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_ouderen_met_indicatie_2026.cog.tif"
     },
     {
       "id": "corp_aandachtsgroepen_2026",
@@ -5795,7 +5799,8 @@
       "featureinfo": {
         "template": "<div><b>Aandachtsgroepenbeleid: [[ aandachtsgroepen ]]</b></div>"
       },
-      "sourceLayer": "corporaties_lb_2026"
+      "sourceLayer": "corporaties_lb_2026",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_aandachtsgroepen_2026.cog.tif"
     },
     {
       "id": "corp_inpandige_gemsch_ruimte_2026",
@@ -5848,7 +5853,8 @@
       "featureinfo": {
         "template": "<div><b>Gemeenschappelijke ruimte: [[ inpandige_gemsch_ruimte ]]</b></div>"
       },
-      "sourceLayer": "corporaties_lb_2026"
+      "sourceLayer": "corporaties_lb_2026",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_inpandige_gemsch_ruimte_2026.cog.tif"
     },
     {
       "id": "corp_corporatie_2026",
@@ -6071,7 +6077,8 @@
       "featureinfo": {
         "template": "<div><b>Corporatie: [[ corporatie ]]</b></div>"
       },
-      "sourceLayer": "corporaties_lb_2026"
+      "sourceLayer": "corporaties_lb_2026",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_corporatie_2026.cog.tif"
     },
     {
       "id": "streefhuur_0_2026",
