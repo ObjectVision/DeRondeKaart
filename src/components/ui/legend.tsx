@@ -333,7 +333,7 @@ function LayerList(props: LayerListProps): JSX.Element {
                         onClick={() => props.onToggleDim(config.id)}
                         aria-label={`Transparantie ${config.name}`}
                         aria-pressed={isDimmed()}
-                        title={isDimmed() ? "Transparantie opheffen" : "Transparantie"}
+                        title={isDimmed() ? "Transparantie opheffen" : "50% transparantie activeren"}
                       >
                         {/* Two literal name= strings rather than one expression: the
                             build-time subsetter scans for `name="…"` and would miss
