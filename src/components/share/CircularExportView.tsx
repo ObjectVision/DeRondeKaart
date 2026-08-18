@@ -143,7 +143,11 @@ export function CircularExportView(props: CircularExportViewProps): JSX.Element 
                 <li class="flex items-start gap-1.5">
                   <Show when={!item.heading && item.spec}>
                     {(spec) => (
-                      <span class="mt-0.5 flex-shrink-0">
+                      // h-4 = the label's 16px first line (text-xs), items-center
+                      // = the PNG's swatch-on-row-middle — explicit geometry,
+                      // because an unstyled wrapper would inherit the 24px
+                      // preflight strut and baseline-place the swatch off-center.
+                      <span class="flex h-4 flex-shrink-0 items-center">
                         <Swatch spec={spec()} size={10} />
                       </span>
                     )}
@@ -159,7 +163,11 @@ export function CircularExportView(props: CircularExportViewProps): JSX.Element 
                       {item.label}
                     </span>
                     <Show when={item.sublabel}>
-                      <span class="truncate text-[10px] text-gray-500">{item.sublabel}</span>
+                      {/* leading-3: the arbitrary 10px size sets no line-height,
+                          without this it inherits the 24px preflight strut. */}
+                      <span class="truncate text-[10px] leading-3 text-gray-500">
+                        {item.sublabel}
+                      </span>
                     </Show>
                   </span>
                 </li>
