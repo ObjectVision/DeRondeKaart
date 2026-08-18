@@ -71937,6 +71937,7 @@
       "excludeFromComparison": true,
       "highlightable": true,
       "highlightcolor": "#FF0000",
+      "highlightcasing": true,
       "beforeid": "foreground-layers",
       "featureinfo": {
         "pbl": true

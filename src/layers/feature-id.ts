@@ -15,7 +15,21 @@ import type { LayerConfig } from "./types";
 export const HIGHLIGHT_COLOR = "#FF0000";
 
 /** Width in px of the highlight outline when a feature is hovered/selected. */
-export const HIGHLIGHT_WIDTH = 3.5;
+export const HIGHLIGHT_WIDTH = 2;
+
+/** Default casing colour: white, to lift the outline off the basemap. */
+export const HIGHLIGHT_CASING_COLOR = "#FFFFFF";
+
+/** Casing visible on EACH side of the outline. */
+export const HIGHLIGHT_CASING_PAD = 1;
+
+/**
+ * Total width of the casing line. Derived rather than written as a literal
+ * because the pad — how much casing shows on each side — is the thing being
+ * chosen; retuning HIGHLIGHT_WIDTH then keeps that pad true instead of
+ * silently changing it.
+ */
+export const HIGHLIGHT_CASING_WIDTH = HIGHLIGHT_WIDTH + 2 * HIGHLIGHT_CASING_PAD;
 
 /**
  * Properties tried, in order, when a highlightable layer names no
