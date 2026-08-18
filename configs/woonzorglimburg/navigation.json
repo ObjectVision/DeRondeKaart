@@ -235,7 +235,7 @@
         "expanded": true,
         "children": [
           {
-            "id": "bouwjaar_2026_pmtiles",
+            "id": "bouwjaar_lb_2026",
             "color": "#2D6CDF",
             "label": "bouwjaar",
             "a": false,
