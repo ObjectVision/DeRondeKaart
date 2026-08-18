@@ -7859,7 +7859,8 @@
       },
       "featureinfo": {
         "template": "<div><b>OOSR: [[ class ]]</b></div>"
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/oosr_2_m5_%YEAR%.cog.tif"
     },
     {
       "id": "stijgingspercentage_lb_2026",
