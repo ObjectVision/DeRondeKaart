@@ -317,6 +317,16 @@ export interface LayerConfig {
   /** CSS colour of the highlight outline. Defaults to HIGHLIGHT_COLOR. */
   highlightcolor?: string;
   /**
+   * Draw a wider line UNDER the highlight outline, so the selection stays
+   * legible on a basemap it would otherwise blend into. `true` takes the
+   * white / 2px-per-side defaults in feature-id.ts; an object overrides either.
+   *
+   * Off by default rather than always on: a layer that draws its own filled
+   * polygons already supplies the contrast, and the casing would only thicken
+   * the selection there.
+   */
+  highlightcasing?: boolean | { color?: string; width?: number };
+  /**
    * Property holding a stable, unique feature id, used as `promoteId`.
    * Auto-detected from ID_CANDIDATES when omitted; set this when the layer
    * keys on something else, or when a candidate matches but is not unique.

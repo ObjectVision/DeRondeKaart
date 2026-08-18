@@ -1,6 +1,12 @@
 import type { LayerConfig, GeoStylerRule, GeoStylerFilter, FillSymbolizer, LineSymbolizer, MarkSymbolizer, IconSymbolizer, NativeLayerType, RawStyleOverrides } from "./types";
 import { hatchPatternId, resolveHatch } from "./hatch-pattern";
-import { HIGHLIGHT_COLOR, HIGHLIGHT_WIDTH, canHighlight } from "./feature-id";
+import {
+  HIGHLIGHT_COLOR,
+  HIGHLIGHT_WIDTH,
+  HIGHLIGHT_CASING_COLOR,
+  HIGHLIGHT_CASING_WIDTH,
+  canHighlight,
+} from "./feature-id";
 
 /**
  * Rule-name suffix of the highlight outline layer. Exported so the dim tool can
@@ -8,9 +14,14 @@ import { HIGHLIGHT_COLOR, HIGHLIGHT_WIDTH, canHighlight } from "./feature-id";
  */
 export const HIGHLIGHT_RULE = "highlight";
 
-/** Whether `layerId` names a highlight outline layer. */
+/** Rule-name suffix of the casing drawn under the highlight outline. */
+export const HIGHLIGHT_CASING_RULE = "highlight-casing";
+
+/** Whether `layerId` names a highlight outline layer, or its casing. */
 export function isHighlightLayerId(id: string): boolean {
-  return id.endsWith(`-${HIGHLIGHT_RULE}`);
+  // The two suffixes are disjoint — "…-highlight-casing" does not end in
+  // "-highlight" — so this stays an exact test rather than a substring match.
+  return id.endsWith(`-${HIGHLIGHT_RULE}`) || id.endsWith(`-${HIGHLIGHT_CASING_RULE}`);
 }
 
 /**
@@ -155,9 +166,7 @@ function layerId(config: LayerConfig, ruleName?: string): string {
  * one layer — or two when a polygon also sets `lineColor` (fill + stroke).
  */
 export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
-  const defs = buildStyleLayerDefs(config);
-  const highlight = buildHighlightLayerDef(config);
-  return highlight ? [...defs, highlight] : defs;
+  return [...buildStyleLayerDefs(config), ...buildHighlightLayerDefs(config)];
 }
 
 /**
@@ -171,13 +180,20 @@ export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
  * layer takes a real `line-width`.
  *
  * Zero width when neither flag is set, so it costs nothing until something is
- * highlighted. `ruleName: ""` keeps per-rule visibility toggles from treating
- * it as a class, matching the flat style's `-outline` layer.
+ * highlighted — and a zero-width line is not hit by queryRenderedFeatures, so
+ * the pick and hover paths ignore these layers while nothing is selected.
+ * `ruleName: ""` keeps per-rule visibility toggles from treating them as
+ * classes, matching the flat style's `-outline` layer.
+ *
+ * Returns up to two layers, bottom-to-top: an optional casing (`highlightcasing`)
+ * and the outline itself. `addRuleLayers` inserts every def before the same
+ * anchor, so array order is draw order and the casing lands underneath. Both
+ * share one `onOff` expression, which is what makes them switch as a unit
+ * rather than drifting apart.
  */
-function buildHighlightLayerDef(config: LayerConfig): NativeLayerDef | null {
-  if (!canHighlight(config)) return null;
+function buildHighlightLayerDefs(config: LayerConfig): NativeLayerDef[] {
+  if (!canHighlight(config)) return [];
 
-  const color = config.highlightcolor ?? HIGHLIGHT_COLOR;
   // Selected (a click) and hover share one appearance; both are checked so a
   // pinned feature stays outlined once the pointer moves away.
   const onOff = (on: number, off: number): unknown[] => [
@@ -189,17 +205,37 @@ function buildHighlightLayerDef(config: LayerConfig): NativeLayerDef | null {
     off,
   ];
 
-  return {
+  const defs: NativeLayerDef[] = [];
+
+  const casing = config.highlightcasing;
+  if (casing) {
+    const overrides = typeof casing === "object" ? casing : {};
+    defs.push({
+      id: layerId(config, HIGHLIGHT_CASING_RULE),
+      ruleName: "",
+      type: "line",
+      paint: {
+        "line-color": overrides.color ?? HIGHLIGHT_CASING_COLOR,
+        "line-width": onOff(overrides.width ?? HIGHLIGHT_CASING_WIDTH, 0),
+        "line-opacity": onOff(1, 0),
+      },
+      layout: {},
+    });
+  }
+
+  defs.push({
     id: layerId(config, HIGHLIGHT_RULE),
     ruleName: "",
     type: "line",
     paint: {
-      "line-color": color,
+      "line-color": config.highlightcolor ?? HIGHLIGHT_COLOR,
       "line-width": onOff(HIGHLIGHT_WIDTH, 0),
       "line-opacity": onOff(1, 0),
     },
     layout: {},
-  };
+  });
+
+  return defs;
 }
 
 function buildStyleLayerDefs(config: LayerConfig): NativeLayerDef[] {

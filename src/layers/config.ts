@@ -1,5 +1,5 @@
 import type { LayerConfig, LayersFile, LayerFormat, StatisticConfig, TimeseriesConfig } from "./types";
-import { canHighlight, prefetchIdProperty } from "./feature-id";
+import { canHighlight, prefetchIdProperty, HIGHLIGHT_WIDTH } from "./feature-id";
 
 // "geojson" is deliberately absent: it is an in-memory format (LayerConfig.data)
 // constructed programmatically (e.g. by the Power BI bridge), never via layers.json.
@@ -124,6 +124,44 @@ function validateHighlightable(layer: Record<string, unknown>, id: string): bool
     return undefined;
   }
   return raw;
+}
+
+/**
+ * `highlightcasing`: `true` for the defaults, or an object overriding either
+ * field. Mirrors the `hatch` symbolizer's flag-or-overrides shape.
+ */
+function validateHighlightCasing(
+  raw: unknown,
+  id: string,
+): LayerConfig["highlightcasing"] {
+  if (raw === undefined) return undefined;
+  if (typeof raw === "boolean") return raw;
+  if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
+    console.warn(`layers.json: layer "${id}" has invalid "highlightcasing" ${JSON.stringify(raw)}; ignoring`);
+    return undefined;
+  }
+
+  const { color, width } = raw as { color?: unknown; width?: unknown };
+  const casing: { color?: string; width?: number } = {};
+
+  if (color !== undefined) {
+    const validated = validateOptionalString(color, id, "highlightcasing.color");
+    if (validated !== undefined) casing.color = validated;
+  }
+  // A casing narrower than the outline it sits under is invisible, so it would
+  // cost a layer and paint nothing — report it rather than honouring it.
+  if (width !== undefined) {
+    if (typeof width !== "number" || !Number.isFinite(width) || width <= HIGHLIGHT_WIDTH) {
+      console.warn(
+        `layers.json: layer "${id}" has invalid "highlightcasing.width" ${JSON.stringify(width)}; ` +
+          `must be a number wider than the ${HIGHLIGHT_WIDTH}px outline. Using the default.`,
+      );
+    } else {
+      casing.width = width;
+    }
+  }
+
+  return casing;
 }
 
 /** Zoom bound ("minzoom"/"maxzoom"): flatgeobuf fetch cutoff, composite child load range. */
@@ -319,6 +357,7 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     excludeFromPicking: (layer.excludeFromPicking as boolean) ?? undefined,
     highlightable: validateHighlightable(layer, layer.id as string),
     highlightcolor: validateOptionalString(layer.highlightcolor, layer.id as string, "highlightcolor"),
+    highlightcasing: validateHighlightCasing(layer.highlightcasing, layer.id as string),
     idProperty: validateOptionalString(layer.idProperty, layer.id as string, "idProperty"),
     excludeFromComparison: (layer.excludeFromComparison as boolean) ?? undefined,
     beforeid: (layer.beforeid as string) ?? undefined,
