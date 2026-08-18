@@ -69,13 +69,26 @@ export function NavigationSection(props: NavigationSectionProps): JSX.Element {
               <li>
                 {/* Sticky so the theme name stays visible while scrolling a long
                     subtree — the largest theme has 63 leaves. Only meaningful
-                    while expanded, so the offset is applied then. */}
+                    while expanded, so the offset is applied then.
+
+                    The three -3/3 values all mirror the `p-3` on the scrolling
+                    card in Sidebar.tsx, and only make sense together: `overflow`
+                    clips at that card's PADDING box while a sticky `top` resolves
+                    against its CONTENT box, so a plain `top-0` parks this header
+                    12px below the clip edge and the theme's own children stay
+                    visible in the gap. `-top-3` pins it flush to the clip edge,
+                    `pt-3` puts those 12px back inside as padding so the button
+                    still lands where it did, and `-mt-3` cancels the added height
+                    so expanding a theme shifts nothing. Change one and the card's
+                    padding has to change with it. */}
                 <div
                   ref={(el) => {
                     rowRefs[node.label] = el;
                   }}
                   class={
-                    expanded() ? "sticky top-0 z-10 bg-white/95 backdrop-blur-sm" : undefined
+                    expanded()
+                      ? "sticky -top-3 z-10 -mt-3 bg-white/95 pt-3 backdrop-blur-sm"
+                      : undefined
                   }
                 >
                   <Button
