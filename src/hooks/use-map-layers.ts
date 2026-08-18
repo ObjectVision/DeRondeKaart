@@ -48,7 +48,7 @@ const registeredCogColorUrls = new Set<string>();
  * Opacity the legend's transparency tool dims a layer to. One fixed step rather
  * than a slider: the tool is a single toggle button.
  */
-export const DIMMED_OPACITY = 0.3;
+export const DIMMED_OPACITY = 0.5;
 
 
 /**
