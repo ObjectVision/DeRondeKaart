@@ -866,12 +866,14 @@ function App(rawProps: AppProps): JSX.Element {
     // result always lands on the LEFT map — `useFilterLayers` is bound to that
     // stack's addLayer/removeLayer, and a combination is one new layer that
     // has to belong to exactly one map.
-    const configs = leftLegendLayers()
-      .layerEntries()
-      .map((entry) => entry.config);
+    const legend = leftLegendLayers();
+    const configs = legend.layerEntries().map((entry) => entry.config);
+    // Same stack the configs came from, so a timeseries layer's raster cannot
+    // resolve to a step the dialog never showed.
+    const stepFor = (layerId: string) => legend.layerSteps().get(layerId);
     // Fire-and-forget: reading and scoring the rasters takes a moment, and the
     // hook surfaces both progress and failure through its own state.
-    void filterLayers.create(name, refs, configs, [getMapLeft]);
+    void filterLayers.create(name, refs, configs, [getMapLeft], stepFor);
   }
 
   // Layers offered for combining: those the LEGEND is showing that define
@@ -1083,6 +1085,7 @@ function App(rawProps: AppProps): JSX.Element {
             open
             onOpenChange={setCombineOpen}
             layers={combinableLayers()}
+            stepFor={(layerId) => leftLegendLayers().layerSteps().get(layerId)}
             onCreate={handleCreateCombination}
           />
         </Show>

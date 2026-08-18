@@ -178,6 +178,39 @@ const DEFAULT_TIMESERIES_PLACEHOLDER = "%YEAR%";
 const DEFAULT_TIMESERIES_INTERVAL_MS = 1000;
 
 /**
+ * Warn when a timeseries layer's companion raster is not itself templated.
+ *
+ * Kept warn-only, and deliberately separate from `validateTimeseries`: a
+ * timeseries layer whose raster genuinely does not vary per step is legitimate,
+ * and dropping either field over this would silently disable combining (or the
+ * slider) rather than pointing at the typo.
+ */
+function validateFilterRaster(
+  filterRaster: string | undefined,
+  id: string,
+  rawTimeseries: unknown,
+): string | undefined {
+  if (filterRaster === undefined || rawTimeseries === undefined) return filterRaster;
+
+  const placeholder =
+    typeof rawTimeseries === "object" && rawTimeseries !== null
+      ? (rawTimeseries as Record<string, unknown>).placeholder
+      : undefined;
+  const token =
+    typeof placeholder === "string" && placeholder.length > 0
+      ? placeholder
+      : DEFAULT_TIMESERIES_PLACEHOLDER;
+
+  if (!filterRaster.includes(token)) {
+    console.warn(
+      `layers.json: layer "${id}" is a timeseries but its "filterRaster" has no ` +
+        `${token}; every step will score against the same raster`,
+    );
+  }
+  return filterRaster;
+}
+
+/**
  * Timeseries playback block. Dropped (with a warning) rather than half-applied:
  * a layer whose `sourceLayer` lacks the placeholder would step through years
  * without the rendered layer ever changing, which is a confusing silent no-op.
@@ -380,7 +413,11 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     // so a composite parent (which owns no grid of its own) cannot carry one.
     filterRaster: isComposite
       ? undefined
-      : validateOptionalString(layer.filterRaster, layer.id as string, "filterRaster"),
+      : validateFilterRaster(
+          validateOptionalString(layer.filterRaster, layer.id as string, "filterRaster"),
+          layer.id as string,
+          layer.timeseries,
+        ),
     meta: validateMeta(layer.meta, layer.id as string),
   };
 }

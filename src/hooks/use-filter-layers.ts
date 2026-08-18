@@ -2,7 +2,7 @@ import { createSignal, type Accessor } from "solid-js";
 import type { MapAccessor } from "@/components/map/map-view-config";
 
 import type { ClassRef } from "@/components/ui/CombineLayersDialog";
-import type { GeoStylerFilter, LayerConfig } from "@/layers";
+import { filterRasterForStep, type GeoStylerFilter, type LayerConfig } from "@/layers";
 import {
   addFilterLayer,
   filterLayerConfig,
@@ -29,6 +29,7 @@ export interface UseFilterLayersResult {
     refs: ClassRef[],
     configs: LayerConfig[],
     maps: MapAccessor[],
+    stepFor: (layerId: string) => number | undefined,
   ) => Promise<void>;
   /** Remove a combination from the maps and release its grid. */
   remove: (id: string, maps: MapAccessor[]) => void;
@@ -54,6 +55,7 @@ export function useFilterLayers(
     refs: ClassRef[],
     configs: LayerConfig[],
     maps: MapAccessor[],
+    stepFor: (layerId: string) => number | undefined,
   ) {
     setError(null);
     setBusy(true);
@@ -66,7 +68,10 @@ export function useFilterLayers(
       const inputs: ScoreInput[] = [];
       for (const layerId of new Set(refs.map((ref) => ref.layerId))) {
         const config = configs.find((c) => c.id === layerId);
-        if (!config?.filterRaster) continue;
+        // A timeseries layer templates the step into its raster URL, so the
+        // grid matches the year the legend showed when combine was clicked.
+        const rasterUrl = config ? filterRasterForStep(config, stepFor(layerId)) : undefined;
+        if (!config || !rasterUrl) continue;
 
         const filters = refs
           .filter((ref) => ref.layerId === layerId)
@@ -77,7 +82,7 @@ export function useFilterLayers(
         // A lone class needs no wrapper; `["||", …]` only for a real choice.
         const filter =
           filters.length === 1 ? filters[0] : (["||", ...filters] as GeoStylerFilter);
-        inputs.push({ url: config.filterRaster, filter });
+        inputs.push({ url: rasterUrl, filter });
       }
 
       if (inputs.length === 0) {
