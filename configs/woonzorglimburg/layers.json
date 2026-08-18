@@ -3240,262 +3240,6 @@
       "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/won_ongeschikt_m5.cog.tif"
     },
     {
-      "id": "bomen-3-rule-2026",
-      "name": "zichtbaarheid bomen",
-      "source": "https://data.woonzorglimburg.nl/cog/bomen_3_rule_2026.cog.tif",
-      "format": "cog",
-      "embeddedColors": true,
-      "style": {
-        "opacity": 0.8
-      },
-      "geostyler": {
-        "name": "3 bomen vuistregel",
-        "rules": [
-          {
-            "name": "minder dan 3",
-            "filter": [
-              "==",
-              "band0",
-              0
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#EBE4B1"
-              }
-            ]
-          },
-          {
-            "name": "3 of meer",
-            "filter": [
-              "==",
-              "band0",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#54B6C0"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "id": "bomen-30-rule-2026",
-      "name": "bladerdek",
-      "source": "https://data.woonzorglimburg.nl/cog/bomen_30_rule_2026.cog.tif",
-      "format": "cog",
-      "embeddedColors": true,
-      "style": {
-        "opacity": 0.8
-      },
-      "geostyler": {
-        "name": "minder dan 30%",
-        "rules": [
-          {
-            "name": "bladerdek kleiner dan 30%",
-            "filter": [
-              "==",
-              "band0",
-              0
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#EBE4B1"
-              }
-            ]
-          },
-          {
-            "name": "bladerdek 30% of meer",
-            "filter": [
-              "==",
-              "band0",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#54B6C0"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "id": "bomen-300-rule-2026",
-      "name": "bladerdek",
-      "source": "https://data.woonzorglimburg.nl/cog/bomen_300_rule_2026.cog.tif",
-      "format": "cog",
-      "embeddedColors": true,
-      "style": {
-        "opacity": 0.8
-      },
-      "geostyler": {
-        "name": "bereik groen",
-        "rules": [
-          {
-            "name": "meer dan 300 meter lopen",
-            "filter": [
-              "==",
-              "band0",
-              0
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#EBE4B1"
-              }
-            ]
-          },
-          {
-            "name": "minder dan 300 meter lopen",
-            "filter": [
-              "==",
-              "band0",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#54B6C0"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "id": "bomen-3-30-300-rule-2026",
-      "name": "3-30-300 vuistregel",
-      "source": "https://data.woonzorglimburg.nl/cog/bomen_3_30_300_rule_2026.cog.tif",
-      "format": "cog",
-      "embeddedColors": true,
-      "style": {
-        "opacity": 0.8
-      },
-      "geostyler": {
-        "name": "3-30-300 vuistregel",
-        "rules": [
-          {
-            "name": "geen regels",
-            "filter": [
-              "==",
-              "band0",
-              0
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#DADADA"
-              }
-            ]
-          },
-          {
-            "name": "alleen 3",
-            "filter": [
-              "==",
-              "band0",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#F1DD9B"
-              }
-            ]
-          },
-          {
-            "name": "alleen 30",
-            "filter": [
-              "==",
-              "band0",
-              0
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#E9E4A9"
-              }
-            ]
-          },
-          {
-            "name": "3 en 30",
-            "filter": [
-              "==",
-              "band0",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#B1D2A5"
-              }
-            ]
-          },
-          {
-            "name": "alleen 300",
-            "filter": [
-              "==",
-              "band0",
-              0
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#96C9B0"
-              }
-            ]
-          },
-          {
-            "name": "3 en 300",
-            "filter": [
-              "==",
-              "band0",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#71B8BE"
-              }
-            ]
-          },
-          {
-            "name": "30 en 300",
-            "filter": [
-              "==",
-              "band0",
-              0
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#4496B3"
-              }
-            ]
-          },
-          {
-            "name": "3, 30 en 300",
-            "filter": [
-              "==",
-              "band0",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Fill",
-                "color": "#1E6299"
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
       "id": "aandeel_aanpasbaar_2024",
       "name": "Aandeel aanpasbaar 2024",
       "source": "https://data.woonzorglimburg.nl/pmtiles/geschiktheid_lb_2024.pmtiles",
@@ -3861,7 +3605,8 @@
       "featureinfo": {
         "template": "<div><b>3 bomen regel gemeente: [[ rule_3 ]]</b></div>"
       },
-      "sourceLayer": "gemeente"
+      "sourceLayer": "gemeente",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_3_gemeente_2026.cog.tif"
     },
     {
       "id": "bomen_rule_30_gemeente_2026",
@@ -3999,7 +3744,8 @@
       "featureinfo": {
         "template": "<div><b>30% bladerdek gemeente: [[ rule_30 ]]</b></div>"
       },
-      "sourceLayer": "gemeente"
+      "sourceLayer": "gemeente",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_30_gemeente_2026.cog.tif"
     },
     {
       "id": "bomen_rule_300_gemeente_2026",
@@ -4137,7 +3883,8 @@
       "featureinfo": {
         "template": "<div><b>300 meter van groen gemeente: [[ rule_300 ]]</b></div>"
       },
-      "sourceLayer": "gemeente"
+      "sourceLayer": "gemeente",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_300_gemeente_2026.cog.tif"
     },
     {
       "id": "bomen_rule_3_30_300_classified_gemeente_2026",
@@ -4275,7 +4022,8 @@
       "featureinfo": {
         "template": "<div><b>3-30-300 vuistregel gemeente: [[ rule_3_30_300_classified ]]</b></div>"
       },
-      "sourceLayer": "gemeente"
+      "sourceLayer": "gemeente",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_3_30_300_classified_gemeente_2026.cog.tif"
     },
     {
       "id": "bomen_rule_3_wijk_2026",
@@ -4413,7 +4161,8 @@
       "featureinfo": {
         "template": "<div><b>3 bomen regel wijk: [[ rule_3 ]]</b></div>"
       },
-      "sourceLayer": "wijk"
+      "sourceLayer": "wijk",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_3_wijk_2026.cog.tif"
     },
     {
       "id": "bomen_rule_30_wijk_2026",
@@ -4551,7 +4300,8 @@
       "featureinfo": {
         "template": "<div><b>30% bladerdek wijk: [[ rule_30 ]]</b></div>"
       },
-      "sourceLayer": "wijk"
+      "sourceLayer": "wijk",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_30_wijk_2026.cog.tif"
     },
     {
       "id": "bomen_rule_300_wijk_2026",
@@ -4689,7 +4439,8 @@
       "featureinfo": {
         "template": "<div><b>300 meter van groen wijk: [[ rule_300 ]]</b></div>"
       },
-      "sourceLayer": "wijk"
+      "sourceLayer": "wijk",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_300_wijk_2026.cog.tif"
     },
     {
       "id": "bomen_rule_3_30_300_classified_wijk_2026",
@@ -4827,7 +4578,8 @@
       "featureinfo": {
         "template": "<div><b>3-30-300 vuistregel wijk: [[ rule_3_30_300_classified ]]</b></div>"
       },
-      "sourceLayer": "wijk"
+      "sourceLayer": "wijk",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_3_30_300_classified_wijk_2026.cog.tif"
     },
     {
       "id": "bomen_rule_3_buurt_2026",
@@ -4965,7 +4717,8 @@
       "featureinfo": {
         "template": "<div><b>3 bomen regel buurt: [[ rule_3 ]]</b></div>"
       },
-      "sourceLayer": "buurt"
+      "sourceLayer": "buurt",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_3_buurt_2026.cog.tif"
     },
     {
       "id": "bomen_rule_30_buurt_2026",
@@ -5103,7 +4856,8 @@
       "featureinfo": {
         "template": "<div><b>30% bladerdek buurt: [[ rule_30 ]]</b></div>"
       },
-      "sourceLayer": "buurt"
+      "sourceLayer": "buurt",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_30_buurt_2026.cog.tif"
     },
     {
       "id": "bomen_rule_300_buurt_2026",
@@ -5241,7 +4995,8 @@
       "featureinfo": {
         "template": "<div><b>300 meter van groen buurt: [[ rule_300 ]]</b></div>"
       },
-      "sourceLayer": "buurt"
+      "sourceLayer": "buurt",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_300_buurt_2026.cog.tif"
     },
     {
       "id": "bomen_rule_3_30_300_classified_buurt_2026",
@@ -5379,7 +5134,8 @@
       "featureinfo": {
         "template": "<div><b>3-30-300 vuistregel buurt: [[ rule_3_30_300_classified ]]</b></div>"
       },
-      "sourceLayer": "buurt"
+      "sourceLayer": "buurt",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_3_30_300_classified_buurt_2026.cog.tif"
     },
     {
       "id": "corp_bat_2026",
