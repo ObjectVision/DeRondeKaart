@@ -103,7 +103,14 @@ export function SingleSelect(props: SingleSelectProps): JSX.Element {
 
       <Show when={open() && !props.disabled}>
         <div class="absolute left-0 right-0 top-full z-40 mt-1 max-h-64 overflow-y-auto rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
-          <div class="sticky top-0 bg-white/95 p-1 backdrop-blur-sm">
+          {/* -top-1 against the popup's own `p-1`, for the same reason the
+              sidebar's theme header carries -top-3 (see NavigationSection.tsx):
+              overflow clips at the padding box while a sticky `top` resolves
+              against the content box, so a plain `top-0` would let option rows
+              show through the 4px above this box. No margin compensation here —
+              unlike that header this box already had its `p-1`, so nothing was
+              added to the flow to cancel. */}
+          <div class="sticky -top-1 bg-white/95 p-1 backdrop-blur-sm">
             <input
               type="text"
               value={query()}
