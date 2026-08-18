@@ -1,15 +1,15 @@
-import { useEffect, useEffectEvent, useRef } from "react";
-import type { MapViewHandle } from "@/components/map/MapView";
+import { createEffect, onCleanup, type Accessor } from "solid-js";
+import type { MapViewHandle } from "@/components/map/map-view-config";
 import { captureMapCanvas, compositeComparison } from "@/lib/map-capture";
 
 interface UseMapSnapshotOptions {
-  mapLeftRef: React.RefObject<MapViewHandle | null>;
-  mapRightRef: React.RefObject<MapViewHandle | null>;
+  mapLeft: Accessor<MapViewHandle | null>;
+  mapRight: Accessor<MapViewHandle | null>;
   /** Comparison is active — composite left+right at the slider split. */
-  comparisonMode: boolean;
-  sliderPosition: number;
+  comparisonMode: Accessor<boolean>;
+  sliderPosition: Accessor<number>;
   /** The left map is ready (same gate as the map-ready handshake). */
-  ready: boolean;
+  ready: Accessor<boolean>;
 }
 
 /**
@@ -26,29 +26,23 @@ interface UseMapSnapshotOptions {
  * embedded, NOT on the `share` config flag — PDF export must work even when
  * the share UI is disabled.
  */
-export function useMapSnapshot({
-  mapLeftRef,
-  mapRightRef,
-  comparisonMode,
-  sliderPosition,
-  ready,
-}: UseMapSnapshotOptions) {
-  const busyRef = useRef(false);
+export function useMapSnapshot(options: UseMapSnapshotOptions): void {
+  let busy = false;
 
-  // An effect event: reads `comparisonMode`/`sliderPosition` at CAPTURE time
-  // (not at listener-wiring time) without a ref mirror, so the map listeners
-  // below stay wired across slider moves.
-  const sendSnapshot = useEffectEvent(async () => {
-    if (busyRef.current) return;
-    const leftMap = mapLeftRef.current?.mapRef.current?.getMap();
+  // Reads `comparisonMode`/`sliderPosition` at CAPTURE time rather than at
+  // listener-wiring time, which is what React needed useEffectEvent for — the
+  // map listeners below stay wired across slider moves either way.
+  async function sendSnapshot() {
+    if (busy) return;
+    const leftMap = options.mapLeft()?.map();
     if (!leftMap) return;
-    busyRef.current = true;
+    busy = true;
     try {
       let canvas = await captureMapCanvas(leftMap);
-      const rightMap = mapRightRef.current?.mapRef.current?.getMap();
-      if (comparisonMode && rightMap) {
+      const rightMap = options.mapRight()?.map();
+      if (options.comparisonMode() && rightMap) {
         const right = await captureMapCanvas(rightMap);
-        canvas = compositeComparison(canvas, right, sliderPosition);
+        canvas = compositeComparison(canvas, right, options.sliderPosition());
       }
 
       // Downscale to CSS-pixel size and JPEG-encode (the map is opaque) to
@@ -71,23 +65,23 @@ export function useMapSnapshot({
     } catch (err) {
       console.warn("map-snapshot capture failed:", err);
     } finally {
-      busyRef.current = false;
+      busy = false;
     }
-  });
+  }
 
-  useEffect(() => {
+  createEffect(() => {
     const embedded = window.parent && window.parent !== window;
-    if (!embedded || !ready) return;
+    if (!embedded || !options.ready()) return;
 
-    const map = mapLeftRef.current?.mapRef.current?.getMap();
+    const map = options.mapLeft()?.map();
     if (!map) return;
 
     // Initial snapshot + debounced refresh whenever the map settles.
     let timer: ReturnType<typeof setTimeout> | null = null;
-    const scheduleSnapshot = () => {
+    function scheduleSnapshot() {
       if (timer) clearTimeout(timer);
       timer = setTimeout(() => void sendSnapshot(), 500);
-    };
+    }
     scheduleSnapshot();
     map.on("idle", scheduleSnapshot);
 
@@ -97,10 +91,10 @@ export function useMapSnapshot({
     }
     window.addEventListener("message", handleMessage);
 
-    return () => {
+    onCleanup(() => {
       if (timer) clearTimeout(timer);
       map.off("idle", scheduleSnapshot);
       window.removeEventListener("message", handleMessage);
-    };
-  }, [ready, mapLeftRef]);
+    });
+  });
 }

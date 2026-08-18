@@ -1,14 +1,14 @@
-import { useEffect, useCallback, useRef } from "react";
+import { createEffect, onMount, onCleanup, type Accessor } from "solid-js";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import type { LayerConfig } from "@/layers";
-import type { MapRef } from "react-map-gl/maplibre";
+import type { MapAccessor, MapViewHandle } from "@/components/map/map-view-config";
 import { isUrlAddressable } from "@/lib/share-url";
 import { isBasemapId } from "@/components/map/map-view-config";
 import type { useMapLayers } from "./use-map-layers";
 
 interface MapSide {
   layers: ReturnType<typeof useMapLayers>;
-  mapRef: React.RefObject<{ mapRef: React.RefObject<MapRef | null> } | null>;
+  view: Accessor<MapViewHandle | null>;
 }
 
 export interface ViewUpdate {
@@ -25,7 +25,7 @@ export interface ViewUpdate {
 interface UseUrlCommandsOptions {
   mapLeft: MapSide;
   mapRight: MapSide;
-  ready: boolean;
+  ready: Accessor<boolean>;
   applyView: (view: ViewUpdate) => void;
   /** A share link carried an `annot` room id — join that collab session. */
   onAnnotationRoom?: (roomId: string) => void;
@@ -117,29 +117,24 @@ function parseCommands(params: URLSearchParams): LayerCommand[] {
   return commands;
 }
 
-export function useUrlCommands({
-  mapLeft,
-  mapRight,
-  ready,
-  applyView,
-  onAnnotationRoom,
-  onBasemap,
-  onOpenCircular,
-  onSetFilter,
-}: UseUrlCommandsOptions): void {
-  const configsRef = useRef<LayerConfig[] | null>(null);
-  const processedInitialHash = useRef(false);
+export function useUrlCommands(options: UseUrlCommandsOptions): void {
+  let cachedConfigs: LayerConfig[] | null = null;
+  let processedInitialHash = false;
 
-  const getConfigs = useCallback(async () => {
-    if (!configsRef.current) {
-      configsRef.current = await loadLayerConfigs();
+  /** Null-tolerant map accessor for a side; map B is conditionally mounted. */
+  function mapOf(side: MapSide): MapAccessor {
+    return () => side.view()?.map() ?? null;
+  }
+
+  async function getConfigs() {
+    if (!cachedConfigs) {
+      cachedConfigs = await loadLayerConfigs();
     }
-    return configsRef.current;
-  }, []);
+    return cachedConfigs;
+  }
 
-  const processCommands = useCallback(
-    async (commands: LayerCommand[]) => {
-      const configs = await getConfigs();
+  async function processCommands(commands: LayerCommand[]) {
+    const configs = await getConfigs();
 
       for (const command of commands) {
         if (command.cmd === "refresh") {
@@ -147,7 +142,7 @@ export function useUrlCommands({
           return;
         }
 
-        const side = command.map === "b" ? mapRight : mapLeft;
+        const side = command.map === "b" ? options.mapRight : options.mapLeft;
         const config = command.layer
           ? getLayerConfigById(configs, command.layer)
           : undefined;
@@ -157,62 +152,58 @@ export function useUrlCommands({
           continue;
         }
 
-        const ref = side.mapRef.current?.mapRef ?? { current: null };
+        const getMap = mapOf(side);
 
         switch (command.cmd) {
           case "add":
             // atEnd: the command sequence is already in draw order (share links
             // emit bottom-up), so append verbatim. Band seeding would re-lift a
             // foreground layer above one the user dragged on top of it.
-            if (config) await side.layers.addLayer(config, ref, { atEnd: true });
+            if (config) await side.layers.addLayer(config, getMap, { atEnd: true });
             break;
           case "remove":
-            if (command.layer) side.layers.removeLayer(command.layer, ref);
+            if (command.layer) side.layers.removeLayer(command.layer, getMap);
             break;
           case "hide":
-            if (command.layer) side.layers.hideLayer(command.layer, ref);
+            if (command.layer) side.layers.hideLayer(command.layer, getMap);
             break;
         }
       }
-    },
-    [getConfigs, mapLeft, mapRight],
-  );
+  }
 
   // Reconcile the LEFT map to exactly `layerIds`: add the missing ones, remove
   // the extra url-addressable ones. In-memory embed datasets (Power BI
   // `map-data`) are non-url-addressable and left untouched, so a host that
   // pushed its own data doesn't get it clobbered by an open-circular request.
-  const reconcileLeftLayers = useCallback(
-    async (layerIds: string[]) => {
-      const configs = await getConfigs();
-      const ref = mapLeft.mapRef.current?.mapRef ?? { current: null };
+  async function reconcileLeftLayers(layerIds: string[]) {
+    const configs = await getConfigs();
+    const mapLeft = options.mapLeft;
+    const getMap = mapOf(mapLeft);
 
-      const desired = new Set<string>();
-      for (const id of layerIds) {
-        if (getLayerConfigById(configs, id)) desired.add(id);
-        else console.warn(`open-circular: layer "${id}" not found in layers.json`);
+    const desired = new Set<string>();
+    for (const id of layerIds) {
+      if (getLayerConfigById(configs, id)) desired.add(id);
+      else console.warn(`open-circular: layer "${id}" not found in layers.json`);
+    }
+
+    const present = new Set(mapLeft.layers.layerEntries().map((e) => e.config.id));
+
+    // Remove extras (only url-addressable ones — never host-pushed data).
+    for (const entry of mapLeft.layers.layerEntries()) {
+      if (!desired.has(entry.config.id) && isUrlAddressable(entry)) {
+        mapLeft.layers.removeLayer(entry.config.id, getMap);
       }
+    }
 
-      const present = new Set(mapLeft.layers.layerEntries.map((e) => e.config.id));
+    // Add the ones not already present.
+    for (const id of desired) {
+      if (present.has(id)) continue;
+      const config = getLayerConfigById(configs, id);
+      if (config) await mapLeft.layers.addLayer(config, getMap);
+    }
+  }
 
-      // Remove extras (only url-addressable ones — never host-pushed data).
-      for (const entry of mapLeft.layers.layerEntries) {
-        if (!desired.has(entry.config.id) && isUrlAddressable(entry)) {
-          mapLeft.layers.removeLayer(entry.config.id, ref);
-        }
-      }
-
-      // Add the ones not already present.
-      for (const id of desired) {
-        if (present.has(id)) continue;
-        const config = getLayerConfigById(configs, id);
-        if (config) await mapLeft.layers.addLayer(config, ref);
-      }
-    },
-    [getConfigs, mapLeft],
-  );
-
-  const processHash = useCallback(() => {
+  function processHash() {
     const hash = window.location.hash.slice(1); // remove leading #
     if (!hash) return;
 
@@ -234,25 +225,25 @@ export function useUrlCommands({
     }
 
     if (commands.length > 0 || hasView || annotRoom || basemap) {
-      if (hasView) applyView(view);
+      if (hasView) options.applyView(view);
       if (commands.length > 0) processCommands(commands);
       // The joined room lives on in state — the hash is still cleared below,
       // like every other processed command.
-      if (annotRoom) onAnnotationRoom?.(annotRoom);
+      if (annotRoom) options.onAnnotationRoom?.(annotRoom);
       // Applied after the session's own stored choice, so a shared link wins.
-      if (basemap) onBasemap?.(basemap);
+      if (basemap) options.onBasemap?.(basemap);
       // Clear the hash after processing (without reload or hashchange event)
       window.history.replaceState({}, "", window.location.pathname + window.location.search);
     }
-  }, [processCommands, applyView, onAnnotationRoom, onBasemap]);
+  }
 
   // Process hash params on mount (once ready) and on hashchange
-  useEffect(() => {
-    if (!ready) return;
+  createEffect(() => {
+    if (!options.ready()) return;
 
     // Process initial hash on first ready
-    if (!processedInitialHash.current) {
-      processedInitialHash.current = true;
+    if (!processedInitialHash) {
+      processedInitialHash = true;
       processHash();
     }
 
@@ -262,16 +253,16 @@ export function useUrlCommands({
     }
 
     window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
-  }, [ready, processHash]);
+    onCleanup(() => window.removeEventListener("hashchange", handleHashChange));
+  });
 
   // Listen for postMessage from parent iframe
-  useEffect(() => {
+  onMount(() => {
     // A `filter` field is a plain object of level→(code|label|null). Any other
     // shape is ignored.
     async function applyFilter(filter: unknown) {
       if (filter && typeof filter === "object" && !Array.isArray(filter)) {
-        await onSetFilter?.(filter as Record<string, string | null>);
+        await options.onSetFilter?.(filter as Record<string, string | null>);
       }
     }
 
@@ -289,7 +280,7 @@ export function useUrlCommands({
           view &&
           (view.zoom !== undefined || view.center !== undefined || view.bbox !== undefined)
         ) {
-          applyView(view);
+          options.applyView(view);
         }
         if (Array.isArray(commands)) {
           processCommands(commands);
@@ -315,13 +306,13 @@ export function useUrlCommands({
           view &&
           (view.zoom !== undefined || view.center !== undefined || view.bbox !== undefined)
         ) {
-          applyView(view);
+          options.applyView(view);
         }
         if (Array.isArray(layers)) {
           await reconcileLeftLayers(layers.filter((l): l is string => typeof l === "string"));
         }
         await applyFilter(filter);
-        onOpenCircular?.({
+        options.onOpenCircular?.({
           title: typeof title === "string" ? title : undefined,
           subtitle: typeof subtitle === "string" ? subtitle : undefined,
         });
@@ -329,6 +320,6 @@ export function useUrlCommands({
     }
 
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [processCommands, applyView, reconcileLeftLayers, onOpenCircular, onSetFilter]);
+    onCleanup(() => window.removeEventListener("message", handleMessage));
+  });
 }

@@ -21,7 +21,7 @@ export { featureMatchesGeostyler } from "./geostyler";
 export {
   loadAreaFilterConfig,
   setAreaFilterSelection,
-  getAreaFilterVersion,
+  areaFilterLevels,
   isAreaFilterActive,
   featureMatchesAreaFilter,
   areaFilterExpression,

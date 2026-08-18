@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useRef } from "react";
+import { onMount, onCleanup } from "solid-js";
 
 /**
  * Width buckets for small-screen auto-collapse, widest → narrowest. Each bucket
@@ -37,26 +37,24 @@ function bucketKey(t: AutoCollapseTargets): string {
  * same bucket never overrides a window the user just opened or closed.
  *
  * `apply` receives the collapse targets for the new bucket and should push them
- * into the corresponding session flags.
+ * into the corresponding session flags. It is called directly rather than
+ * through React's useEffectEvent indirection — the listener is registered once
+ * on mount, and the closure it captures is the only one there ever is.
  */
 export function useAutoCollapse(apply: (targets: AutoCollapseTargets) => void): void {
-  // useEffectEvent keeps `apply` out of the dep array without a ref mirror, so
-  // the resize listener is wired once but always calls the latest callback.
-  const onApply = useEffectEvent(apply);
+  let lastKey: string | null = null;
 
-  const lastKeyRef = useRef<string | null>(null);
-
-  useEffect(() => {
+  onMount(() => {
     function evaluate() {
       const targets = bucketFor(window.innerWidth);
       const key = bucketKey(targets);
-      if (key === lastKeyRef.current) return; // same bucket — respect manual state
-      lastKeyRef.current = key;
-      onApply(targets);
+      if (key === lastKey) return; // same bucket — respect manual state
+      lastKey = key;
+      apply(targets);
     }
 
     evaluate(); // apply the initial bucket on mount
     window.addEventListener("resize", evaluate);
-    return () => window.removeEventListener("resize", evaluate);
-  }, []);
+    onCleanup(() => window.removeEventListener("resize", evaluate));
+  });
 }

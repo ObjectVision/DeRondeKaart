@@ -1,5 +1,5 @@
-import { useRef, useState, useCallback, useMemo } from "react";
-import type { MapRef } from "react-map-gl/maplibre";
+import { createSignal, type Accessor } from "solid-js";
+import type { MapAccessor } from "@/components/map/map-view-config";
 import type { Map as MapLibreMap, AddLayerObject } from "maplibre-gl";
 import { setColorFunction } from "@geomatico/maplibre-cog-protocol";
 import {
@@ -27,6 +27,7 @@ import { loadIconBitmap } from "@/layers/icon-sprite";
 import { ensureHatchImages } from "@/layers/hatch-pattern";
 import { canHighlight, cachedIdProperty } from "@/layers/feature-id";
 import { addGeoJsonLayer, removeGeoJsonLayer } from "@/layers/geojson-layer";
+import { styleReady } from "@/layers/geojson-overlay";
 import type { CompositeHost } from "@/layers";
 import { buildCogColorFunction } from "@/layers/cog-style";
 import { SCORE_PROTOCOL } from "@/layers/score-protocol";
@@ -49,69 +50,57 @@ const registeredCogColorUrls = new Set<string>();
  */
 export const DIMMED_OPACITY = 0.3;
 
-/** A `MapView`'s underlying map ref, as every imperative helper here takes it. */
-type MapRefObject = React.RefObject<MapRef | null>;
 
 /**
  * Everything `useMapLayers` hands back. One layer stack per map, so App holds
  * two of these — see `useLayerHandlers` for the per-map callback wrappers.
  */
 export interface UseMapLayersResult {
-  layerEntries: LayerEntry[];
-  hiddenIds: Set<string>;
-  hiddenRules: globalThis.Map<string, Set<string>>;
-  layerSteps: globalThis.Map<string, number>;
-  playingIds: Set<string>;
+  layerEntries: Accessor<LayerEntry[]>;
+  hiddenIds: Accessor<Set<string>>;
+  hiddenRules: Accessor<globalThis.Map<string, Set<string>>>;
+  layerSteps: Accessor<globalThis.Map<string, number>>;
+  playingIds: Accessor<Set<string>>;
   addLayer: (
     config: LayerConfig,
-    mapRef: MapRefObject,
+    getMap: MapAccessor,
     opts?: { atEnd?: boolean },
   ) => Promise<void>;
-  removeLayer: (layerId: string, mapRef: MapRefObject) => void;
-  reorderLayer: (layerId: string, toIndex: number, mapRef: MapRefObject) => void;
-  hideLayer: (layerId: string, mapRef: MapRefObject) => void;
-  toggleLayer: (layerId: string, mapRef: MapRefObject) => void;
+  removeLayer: (layerId: string, getMap: MapAccessor) => void;
+  reorderLayer: (layerId: string, toIndex: number, getMap: MapAccessor) => void;
+  hideLayer: (layerId: string, getMap: MapAccessor) => void;
+  toggleLayer: (layerId: string, getMap: MapAccessor) => void;
   /** Ids currently dimmed by the legend's transparency tool. */
-  dimmedIds: Set<string>;
+  dimmedIds: Accessor<Set<string>>;
   /** Dim a layer to DIMMED_OPACITY, or restore its configured opacity. */
-  toggleDim: (layerId: string, mapRef: MapRefObject) => void;
-  toggleRule: (layerId: string, ruleName: string, mapRef: MapRefObject) => void;
-  setLayerStep: (layerId: string, value: number, mapRefs: MapRefObject[]) => void;
+  toggleDim: (layerId: string, getMap: MapAccessor) => void;
+  toggleRule: (layerId: string, ruleName: string, getMap: MapAccessor) => void;
+  setLayerStep: (layerId: string, value: number, getMaps: MapAccessor[]) => void;
   togglePlay: (layerId: string) => void;
   stopPlay: (layerId: string) => void;
-  advanceStep: (layerId: string, mapRefs: MapRefObject[]) => void;
-  refreshAreaFilter: (version: number, mapRefs?: MapRefObject[]) => void;
-  syncImperativeLayers: (mapRef: MapRefObject) => void;
+  advanceStep: (layerId: string, getMaps: MapAccessor[]) => void;
+  refreshAreaFilter: (maps?: MapAccessor[]) => void;
+  syncImperativeLayers: (getMap: MapAccessor) => void;
 }
 
 export function useMapLayers(): UseMapLayersResult {
-  const [layerEntries, setLayerEntries] = useState<LayerEntry[]>([]);
-  const [hiddenIds, setHiddenIds] = useState<Set<string>>(new Set());
-  const [hiddenRules, setHiddenRules] = useState<globalThis.Map<string, Set<string>>>(new globalThis.Map());
-  const [dimmedIds, setDimmedIds] = useState<Set<string>>(new Set());
-  const dimmedIdsRef = useRef<Set<string>>(new Set());
-  const layerEntriesRef = useRef<LayerEntry[]>([]);
-  // Ref mirrors of the hidden state, so the composite host (called from a
-  // moveend listener, outside React) can apply the parent's current state to
-  // children that load later when the zoom enters their range.
-  const hiddenIdsRef = useRef<Set<string>>(new Set());
-  const hiddenRulesRef = useRef<globalThis.Map<string, Set<string>>>(new globalThis.Map());
-  // Timeseries: the step each layer currently shows, and which are playing.
-  // Ref mirrors let the interval tick read current state without re-arming.
-  const [layerSteps, setLayerSteps] = useState<globalThis.Map<string, number>>(new globalThis.Map());
-  const [playingIds, setPlayingIds] = useState<Set<string>>(new Set());
-  const layerStepsRef = useRef<globalThis.Map<string, number>>(new globalThis.Map());
-
-  const updateLayerEntries = useCallback(
-    (updater: (prev: LayerEntry[]) => LayerEntry[]) => {
-      setLayerEntries((prev) => {
-        const next = updater(prev);
-        layerEntriesRef.current = next;
-        return next;
-      });
-    },
-    [],
+  // Signals only. The React version paired five of these with a shadowing ref,
+  // because the composite host (driven by a `moveend` listener) and the
+  // timeseries interval tick both run outside React and needed the current
+  // value synchronously. A signal is readable from anywhere, so the mirrors —
+  // and the `updateLayerEntries` wrapper that kept one of them in step — are
+  // gone.
+  const [layerEntries, setLayerEntries] = createSignal<LayerEntry[]>([]);
+  const [hiddenIds, setHiddenIds] = createSignal<Set<string>>(new Set());
+  const [hiddenRules, setHiddenRules] = createSignal<globalThis.Map<string, Set<string>>>(
+    new globalThis.Map(),
   );
+  const [dimmedIds, setDimmedIds] = createSignal<Set<string>>(new Set());
+  // Timeseries: the step each layer currently shows, and which are playing.
+  const [layerSteps, setLayerSteps] = createSignal<globalThis.Map<string, number>>(
+    new globalThis.Map(),
+  );
+  const [playingIds, setPlayingIds] = createSignal<Set<string>>(new Set());
 
   /**
    * Put one config's layers on the map — the format dispatch shared by
@@ -121,26 +110,24 @@ export function useMapLayers(): UseMapLayersResult {
    * fetches its own data (mvt/pmtiles/cog), one that loads by viewport
    * (flatgeobuf), or in-memory features supplied by the host (geojson).
    */
-  const dispatchFormatLoad = useCallback(
-    (config: LayerConfig, mapRef: React.RefObject<MapRef | null>) => {
-      if (config.format === "mvt" || config.format === "pmtiles") {
-        // Icon-bearing layers add asynchronously (sprite load), landing at their
-        // band anchor after the caller already restacked — restack again then.
-        addMvtLayer(config, mapRef, () =>
-          restackNativeLayers(layerEntriesRef.current, mapRef),
-        );
-      } else if (config.format === "cog") {
-        addCogLayer(config, mapRef);
-      } else if (config.format === "flatgeobuf") {
-        // Native MapLibre layers with viewport-driven bbox loading.
-        addFlatgeobufLayer(config, mapRef);
-      } else if (config.format === "geojson") {
-        // In-memory features (config.data), pushed in by the host.
-        addGeoJsonLayer(config, mapRef);
-      }
-    },
-    [],
-  );
+  function dispatchFormatLoad(config: LayerConfig, getMap: MapAccessor) {
+    if (config.format === "mvt" || config.format === "pmtiles") {
+      // Icon-bearing layers add asynchronously (sprite load), landing at their
+      // band anchor after the caller already restacked — restack again then.
+      // sprite-load completion callback,
+      // invoked imperatively by MapLibre; reading the stack then is exactly the point
+      // eslint-disable-next-line solid/reactivity
+      addMvtLayer(config, getMap, () => restackNativeLayers(layerEntries(), getMap));
+    } else if (config.format === "cog") {
+      addCogLayer(config, getMap);
+    } else if (config.format === "flatgeobuf") {
+      // Native MapLibre layers with viewport-driven bbox loading.
+      addFlatgeobufLayer(config, getMap);
+    } else if (config.format === "geojson") {
+      // In-memory features (config.data), pushed in by the host.
+      addGeoJsonLayer(config, getMap);
+    }
+  }
 
   /**
    * Loading/unloading callbacks handed to the composite manager. Children are
@@ -148,46 +135,43 @@ export function useMapLayers(): UseMapLayersResult {
    * child arriving after the user hid the parent (or some of its rules) has
    * that state applied here, right after it is added.
    */
-  const compositeHost = useMemo<CompositeHost>(
-    () => ({
-      addChild: (child, mapRef) => {
+  const compositeHost: CompositeHost = {
+      addChild: (child, getMap) => {
         const parentId = child.id.replace(/__c\d+$/, "");
-        dispatchFormatLoad(child, mapRef);
+        dispatchFormatLoad(child, getMap);
 
-        if (hiddenIdsRef.current.has(parentId)) {
-          setNativeLayerVisibility(child.id, child, mapRef, "none");
+        if (hiddenIds().has(parentId)) {
+          setNativeLayerVisibility(child.id, child, getMap, "none");
           if (child.format === "flatgeobuf") {
-            setFlatgeobufHidden(child.id, mapRef, true);
+            setFlatgeobufHidden(child.id, getMap, true);
           }
         }
         // Same for a dimmed parent: the child is built from its own config, so it
         // arrives at full opacity regardless of what the parent is showing.
-        if (dimmedIdsRef.current.has(parentId)) {
-          setNativeLayerOpacity(child, mapRef, DIMMED_OPACITY);
+        if (dimmedIds().has(parentId)) {
+          setNativeLayerOpacity(child, getMap, DIMMED_OPACITY);
         }
         // Replay hidden classes onto a child that loaded later. Keys of the
         // form "<childIndex>:<name>" belong to one child only; bare names apply
         // to every child (zoom-banded composites share one rule set).
         // The synthesized child id ends in `__c<index>` (validateChildConfig).
         const childIndex = Number(/__c(\d+)$/.exec(child.id)?.[1] ?? -1);
-        for (const key of hiddenRulesRef.current.get(parentId) ?? []) {
+        for (const key of hiddenRules().get(parentId) ?? []) {
           const parsed = parseRuleKey(key);
           if (parsed && parsed.childIndex !== childIndex) continue;
           const bareName = parsed?.ruleName ?? key;
-          setNativeRuleVisibility(child, bareName, false, mapRef);
+          setNativeRuleVisibility(child, bareName, false, getMap);
         }
 
         // A child loads on zoom, long after its parent's addLayer restacked, and
         // arrives at its own band anchor — restack so it takes the parent's place
         // in the array's draw order.
-        restackNativeLayers(layerEntriesRef.current, mapRef);
+        restackNativeLayers(layerEntries(), getMap);
       },
-      removeChild: (child, mapRef) => {
-        removeNativeArtifacts(child, mapRef);
+      removeChild: (child, getMap) => {
+        removeNativeArtifacts(child, getMap);
       },
-    }),
-    [dispatchFormatLoad],
-  );
+  };
 
   /**
    * Put a layer on the map.
@@ -204,16 +188,14 @@ export function useMapLayers(): UseMapLayersResult {
    * feed an already-ordered sequence: re-seeding would lift a foreground layer
    * back above a layer the user had deliberately dragged on top of it.
    */
-  const addLayer = useCallback(async (
+  async function addLayer(
     config: LayerConfig,
-    mapRef: React.RefObject<MapRef | null>,
+    getMap: MapAccessor,
     opts?: { atEnd?: boolean },
-  ) => {
+  ) {
     // Inside the updater, so concurrent adds compose: several `add` commands in
     // one hash are dispatched together and each must see the others' entries.
-    // (updateLayerEntries keeps layerEntriesRef in step, which the restack below
-    // then reads back.)
-    updateLayerEntries((prev) => {
+    setLayerEntries((prev) => {
       if (prev.some((e) => e.config.id === config.id)) return prev;
       if (opts?.atEnd) return [...prev, { config }];
 
@@ -230,36 +212,34 @@ export function useMapLayers(): UseMapLayersResult {
     try {
       if (config.format === "composite") {
         // Children load/unload with the zoom via the composite manager.
-        addCompositeLayer(config, mapRef, compositeHost);
+        addCompositeLayer(config, getMap, compositeHost);
       } else {
-        await dispatchFormatLoad(config, mapRef);
+        await dispatchFormatLoad(config, getMap);
       }
       // The native add above targeted the config's band anchor, which agrees with
       // the array position only while no drag has overridden the bands. Restack so
       // the array stays the single source of truth either way.
-      restackNativeLayers(layerEntriesRef.current, mapRef);
+      restackNativeLayers(layerEntries(), getMap);
     } catch (err) {
       console.error(`Failed to load layer "${config.id}":`, err);
-      updateLayerEntries((prev) => prev.filter((e) => e.config.id !== config.id));
+      setLayerEntries((prev) => prev.filter((e) => e.config.id !== config.id));
     }
-  }, [dispatchFormatLoad, compositeHost, updateLayerEntries]);
+  }
 
-  const removeLayer = useCallback((layerId: string, mapRef: React.RefObject<MapRef | null>) => {
-    const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
+  function removeLayer(layerId: string, getMap: MapAccessor) {
+    const entry = layerEntries().find((e) => e.config.id === layerId);
 
-    updateLayerEntries((prev) => prev.filter((e) => e.config.id !== layerId));
+    setLayerEntries((prev) => prev.filter((e) => e.config.id !== layerId));
 
     setHiddenIds((prev) => {
       const next = new Set(prev);
       next.delete(layerId);
-      hiddenIdsRef.current = next;
       return next;
     });
 
     setHiddenRules((prev) => {
       const next = new globalThis.Map(prev);
       next.delete(layerId);
-      hiddenRulesRef.current = next;
       return next;
     });
 
@@ -274,7 +254,6 @@ export function useMapLayers(): UseMapLayersResult {
       if (!prev.has(layerId)) return prev;
       const next = new globalThis.Map(prev);
       next.delete(layerId);
-      layerStepsRef.current = next;
       return next;
     });
 
@@ -282,221 +261,191 @@ export function useMapLayers(): UseMapLayersResult {
 
     // Remove native MapLibre layers and sources
     if (entry.config.format === "composite") {
-      removeCompositeLayer(entry.config, mapRef);
+      removeCompositeLayer(entry.config, getMap);
     } else {
-      removeNativeArtifacts(entry.config, mapRef);
+      removeNativeArtifacts(entry.config, getMap);
     }
-  }, [updateLayerEntries]);
+  }
 
   /**
    * Move a layer to `toIndex` in draw order (0 = bottom) and restack MapLibre to
    * match. Overrides the config's `beforeid` band: after a reorder, array
    * position alone decides what paints over what.
    */
-  const reorderLayer = useCallback(
-    (layerId: string, toIndex: number, mapRef: React.RefObject<MapRef | null>) => {
-      // Computed from the ref, not inside the state updater: the updater must stay
-      // pure (StrictMode double-invokes it) and the native restack is a side effect.
-      const prev = layerEntriesRef.current;
-      const from = prev.findIndex((e) => e.config.id === layerId);
-      if (from < 0) return;
+  function reorderLayer(layerId: string, toIndex: number, getMap: MapAccessor) {
+    const prev = layerEntries();
+    const from = prev.findIndex((e) => e.config.id === layerId);
+    if (from < 0) return;
 
-      const without = prev.filter((_, i) => i !== from);
-      // Clamp against the post-removal length, so dragging past the end lands at
-      // the top instead of splicing beyond it.
-      const to = Math.max(0, Math.min(toIndex, without.length));
-      if (to === from) return;
+    const without = prev.filter((_, i) => i !== from);
+    // Clamp against the post-removal length, so dragging past the end lands at
+    // the top instead of splicing beyond it.
+    const to = Math.max(0, Math.min(toIndex, without.length));
+    if (to === from) return;
 
-      const next = [...without.slice(0, to), prev[from], ...without.slice(to)];
-      updateLayerEntries(() => next);
-      restackNativeLayers(next, mapRef);
-    },
-    [updateLayerEntries],
-  );
+    const next = [...without.slice(0, to), prev[from], ...without.slice(to)];
+    setLayerEntries(next);
+    restackNativeLayers(next, getMap);
+  }
 
-  const hideLayer = useCallback((layerId: string, mapRef: React.RefObject<MapRef | null>) => {
+  function hideLayer(layerId: string, getMap: MapAccessor) {
     setHiddenIds((prev) => {
       if (prev.has(layerId)) return prev;
       const next = new Set(prev);
       next.add(layerId);
-      hiddenIdsRef.current = next;
       return next;
     });
 
     // Native MapLibre layers (MVT/COG/FlatGeobuf/composite children)
-    const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
+    const entry = layerEntries().find((e) => e.config.id === layerId);
     if (entry) {
-      setEntryNativeVisibility(entry.config, mapRef, "none");
+      setEntryNativeVisibility(entry.config, getMap, "none");
     }
-  }, []);
+  }
 
-  const toggleLayer = useCallback(
-    (layerId: string, mapRef: React.RefObject<MapRef | null>) => {
-      setHiddenIds((prev) => {
-        const next = new Set(prev);
-        const willBeVisible = next.has(layerId);
-        if (willBeVisible) {
-          next.delete(layerId);
-        } else {
-          next.add(layerId);
-        }
-        hiddenIdsRef.current = next;
+  // The map writes sit outside the setter, not inside it. React had to run them
+  // in the updater to see the post-toggle value, which made the updater impure
+  // (and so double-invoked under StrictMode); a signal write lands immediately,
+  // so the effect can simply follow it.
+  function toggleLayer(layerId: string, getMap: MapAccessor) {
+    const next = new Set(hiddenIds());
+    const willBeVisible = next.has(layerId);
+    if (willBeVisible) {
+      next.delete(layerId);
+    } else {
+      next.add(layerId);
+    }
+    setHiddenIds(next);
 
-        // Native MapLibre layers (MVT/COG/FlatGeobuf/composite children)
-        const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
-        if (entry) {
-          setEntryNativeVisibility(entry.config, mapRef, willBeVisible ? "visible" : "none");
-        }
+    // Native MapLibre layers (MVT/COG/FlatGeobuf/composite children)
+    const entry = layerEntries().find((e) => e.config.id === layerId);
+    if (entry) {
+      setEntryNativeVisibility(entry.config, getMap, willBeVisible ? "visible" : "none");
+    }
+  }
 
-        return next;
-      });
-    },
-    [],
-  );
+  function toggleDim(layerId: string, getMap: MapAccessor) {
+    const next = new Set(dimmedIds());
+    const willBeDimmed = !next.has(layerId);
+    if (willBeDimmed) {
+      next.add(layerId);
+    } else {
+      next.delete(layerId);
+    }
+    setDimmedIds(next);
 
-  const toggleDim = useCallback(
-    (layerId: string, mapRef: React.RefObject<MapRef | null>) => {
-      setDimmedIds((prev) => {
-        const next = new Set(prev);
-        const willBeDimmed = !next.has(layerId);
-        if (willBeDimmed) {
-          next.add(layerId);
-        } else {
-          next.delete(layerId);
-        }
-        dimmedIdsRef.current = next;
+    const entry = layerEntries().find((e) => e.config.id === layerId);
+    if (entry) {
+      setEntryNativeOpacity(entry.config, getMap, willBeDimmed ? DIMMED_OPACITY : null);
+    }
+  }
 
-        const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
-        if (entry) {
-          setEntryNativeOpacity(entry.config, mapRef, willBeDimmed ? DIMMED_OPACITY : null);
-        }
+  function toggleRule(layerId: string, ruleName: string, getMap: MapAccessor) {
+    const next = new globalThis.Map(hiddenRules());
+    const layerRules = new Set(next.get(layerId) ?? []);
 
-        return next;
-      });
-    },
-    [],
-  );
+    const willBeVisible = layerRules.has(ruleName);
+    if (willBeVisible) {
+      layerRules.delete(ruleName);
+    } else {
+      layerRules.add(ruleName);
+    }
 
-  const toggleRule = useCallback(
-    (layerId: string, ruleName: string, mapRef: React.RefObject<MapRef | null>) => {
-      setHiddenRules((prev) => {
-        const next = new globalThis.Map(prev);
-        const layerRules = new Set(next.get(layerId) ?? []);
+    if (layerRules.size === 0) {
+      next.delete(layerId);
+    } else {
+      next.set(layerId, layerRules);
+    }
+    setHiddenRules(next);
 
-        const willBeVisible = layerRules.has(ruleName);
-        if (willBeVisible) {
-          layerRules.delete(ruleName);
-        } else {
-          layerRules.add(ruleName);
-        }
+      // `ruleName` may be a composite rule KEY ("<childIndex>:<name>"): the
+      // legend keys a merged composite's classes per child, because children
+      // routinely share rule names and must toggle independently. Native
+      // layer ids carry the bare name, so unwrap it here.
+      const parsed = parseRuleKey(ruleName);
+      const bareName = parsed?.ruleName ?? ruleName;
 
-        if (layerRules.size === 0) {
-          next.delete(layerId);
-        } else {
-          next.set(layerId, layerRules);
-        }
-        hiddenRulesRef.current = next;
+      const entry = layerEntries().find((e) => e.config.id === layerId);
+      // Children this toggle applies to: just the keyed one for a merged
+      // composite, otherwise every child (zoom-banded composites duplicate
+      // one rule set across children, so the name targets all of them).
+      const targetChildren = entry?.config.format === "composite"
+        ? parsed
+          ? childrenOf(entry.config).filter((_, i) => i === parsed.childIndex)
+          : childrenOf(entry.config)
+        : [];
 
-        // `ruleName` may be a composite rule KEY ("<childIndex>:<name>"): the
-        // legend keys a merged composite's classes per child, because children
-        // routinely share rule names and must toggle independently. Native
-        // layer ids carry the bare name, so unwrap it here.
-        const parsed = parseRuleKey(ruleName);
-        const bareName = parsed?.ruleName ?? ruleName;
-
-        const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
-        // Children this toggle applies to: just the keyed one for a merged
-        // composite, otherwise every child (zoom-banded composites duplicate
-        // one rule set across children, so the name targets all of them).
-        const targetChildren = entry?.config.format === "composite"
-          ? parsed
-            ? childrenOf(entry.config).filter((_, i) => i === parsed.childIndex)
-            : childrenOf(entry.config)
-          : [];
-
-        // Native MapLibre layers (MVT/FlatGeobuf): toggle the specific rule's
-        // layer. Composite: forward to the target child/children (COG children
-        // no-op — their color function is global per URL).
-        if (entry && isNativeVectorFormat(entry.config.format)) {
-          setNativeRuleVisibility(entry.config, bareName, willBeVisible, mapRef);
-        } else if (entry?.config.format === "composite") {
-          for (const child of targetChildren) {
-            setNativeRuleVisibility(child, bareName, willBeVisible, mapRef);
-          }
-        }
-
-        return next;
-      });
-    },
-    [],
-  );
+      // Native MapLibre layers (MVT/FlatGeobuf): toggle the specific rule's
+      // layer. Composite: forward to the target child/children (COG children
+      // no-op — their color function is global per URL).
+    if (entry && isNativeVectorFormat(entry.config.format)) {
+      setNativeRuleVisibility(entry.config, bareName, willBeVisible, getMap);
+    } else if (entry?.config.format === "composite") {
+      for (const child of targetChildren) {
+        setNativeRuleVisibility(child, bareName, willBeVisible, getMap);
+      }
+    }
+  }
 
   /**
    * Show a specific timeseries step for a layer, on every map it is on.
    * Rebuilds the layer's rule layers against the substituted source layer —
    * see `applyTimeseriesStep` for why remove+re-add is the only option.
    */
-  const setLayerStep = useCallback(
-    (layerId: string, value: number, mapRefs: React.RefObject<MapRef | null>[]) => {
-      const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
-      const ts = entry?.config.timeseries;
-      if (!entry || !ts) return;
+  function setLayerStep(layerId: string, value: number, getMaps: MapAccessor[]) {
+    const entry = layerEntries().find((e) => e.config.id === layerId);
+    const ts = entry?.config.timeseries;
+    if (!entry || !ts) return;
 
-      // Clamp onto the configured grid so a slider drag can't land off-step.
-      const steps = Math.round((ts.end - ts.start) / ts.step);
-      const index = Math.min(Math.max(Math.round((value - ts.start) / ts.step), 0), steps);
-      const next = ts.start + index * ts.step;
+    // Clamp onto the configured grid so a slider drag can't land off-step.
+    const steps = Math.round((ts.end - ts.start) / ts.step);
+    const index = Math.min(Math.max(Math.round((value - ts.start) / ts.step), 0), steps);
+    const next = ts.start + index * ts.step;
 
-      const hidden = {
-        layerHidden: hiddenIdsRef.current.has(layerId),
-        hiddenRuleNames: hiddenRulesRef.current.get(layerId),
-      };
-      for (const mapRef of mapRefs) {
-        applyTimeseriesStep(entry.config, next, mapRef, hidden);
-      }
+    const hidden = {
+      layerHidden: hiddenIds().has(layerId),
+      hiddenRuleNames: hiddenRules().get(layerId),
+    };
+    for (const getMap of getMaps) {
+      applyTimeseriesStep(entry.config, next, getMap, hidden);
+    }
 
-      setLayerSteps((prev) => {
-        const updated = new globalThis.Map(prev);
-        updated.set(layerId, next);
-        layerStepsRef.current = updated;
-        return updated;
-      });
-    },
-    [],
-  );
+    setLayerSteps((prev) => {
+      const updated = new globalThis.Map(prev);
+      updated.set(layerId, next);
+      return updated;
+    });
+  }
 
   /** Start/stop playback for one timeseries layer. */
-  const togglePlay = useCallback((layerId: string) => {
+  function togglePlay(layerId: string) {
     setPlayingIds((prev) => {
       const next = new Set(prev);
       if (next.has(layerId)) next.delete(layerId);
       else next.add(layerId);
       return next;
     });
-  }, []);
+  }
 
   /** Stop playback for one layer (no-op when it isn't playing). */
-  const stopPlay = useCallback((layerId: string) => {
+  function stopPlay(layerId: string) {
     setPlayingIds((prev) => {
       if (!prev.has(layerId)) return prev;
       const next = new Set(prev);
       next.delete(layerId);
       return next;
     });
-  }, []);
+  }
 
   /** Advance one step, looping back to `start` past the end. Drives playback. */
-  const advanceStep = useCallback(
-    (layerId: string, mapRefs: React.RefObject<MapRef | null>[]) => {
-      const entry = layerEntriesRef.current.find((e) => e.config.id === layerId);
-      const ts = entry?.config.timeseries;
-      if (!entry || !ts) return;
-      const current = layerStepsRef.current.get(layerId) ?? ts.start;
-      const next = current + ts.step > ts.end ? ts.start : current + ts.step;
-      setLayerStep(layerId, next, mapRefs);
-    },
-    [setLayerStep],
-  );
+  function advanceStep(layerId: string, getMaps: MapAccessor[]) {
+    const entry = layerEntries().find((e) => e.config.id === layerId);
+    const ts = entry?.config.timeseries;
+    if (!entry || !ts) return;
+    const current = layerSteps().get(layerId) ?? ts.start;
+    const next = current + ts.step > ts.end ? ts.start : current + ts.step;
+    setLayerStep(layerId, next, getMaps);
+  }
 
   /**
    * Re-apply the area filter: the selection is pushed down to each native
@@ -504,19 +453,17 @@ export function useMapLayers(): UseMapLayersResult {
    * COG is a raster and stays unfiltered; `geojson` is host-pushed embed data
    * and is deliberately exempt (see `geojson-layer.ts`).
    *
-   * `_version` is unused — it exists so callers can key the call on the area
-   * filter's version counter, which is what makes the memo re-run.
+   * The React version took a leading `_version` argument it never used, purely
+   * so callers could key the call on the area filter's version counter. Callers
+   * now put this in an effect that reads the filter signal instead.
    */
-  const refreshAreaFilter = useCallback(
-    (_version: number, mapRefs: React.RefObject<MapRef | null>[] = []) => {
-      for (const entry of layerEntriesRef.current) {
-        for (const mapRef of mapRefs) {
-          refreshNativeAreaFilter(entry.config, mapRef);
-        }
+  function refreshAreaFilter(getMaps: MapAccessor[] = []) {
+    for (const entry of layerEntries()) {
+      for (const getMap of getMaps) {
+        refreshNativeAreaFilter(entry.config, getMap);
       }
-    },
-    [],
-  );
+    }
+  }
 
   /**
    * Re-apply imperative MVT/COG/FlatGeobuf/composite entries to a map. Used
@@ -530,106 +477,77 @@ export function useMapLayers(): UseMapLayersResult {
    * layers, whose `visible` prop lives in React state and survives `setStyle`,
    * a MapLibre `visibility: "none"` is wiped along with the layer it sat on.
    */
-  const syncImperativeLayers = useCallback(
-    (mapRef: React.RefObject<MapRef | null>) => {
-      for (const entry of layerEntriesRef.current) {
-        if (entry.config.format === "composite") {
-          addCompositeLayer(entry.config, mapRef, compositeHost);
-        } else {
-          // Same dispatch as the initial add — including `geojson`, whose
-          // host-pushed features live on `config.data` and so survive the
-          // style swap that wiped the source.
-          dispatchFormatLoad(entry.config, mapRef);
-        }
-
-        if (hiddenIdsRef.current.has(entry.config.id)) {
-          setEntryNativeVisibility(entry.config, mapRef, "none");
-        }
-
-        // Replay the dim. The re-add above rebuilt the layer from its config, so
-        // it came back at full opacity. Must stay ABOVE the `continue` below.
-        if (dimmedIdsRef.current.has(entry.config.id)) {
-          setEntryNativeOpacity(entry.config, mapRef, DIMMED_OPACITY);
-        }
-
-        // Replay hidden classes. Keys of the form "<childIndex>:<name>" belong
-        // to one composite child; bare names apply to the entry itself (or, for
-        // a zoom-banded composite, to every child). Mirrors addChild.
-        const hiddenRuleKeys = hiddenRulesRef.current.get(entry.config.id);
-        if (!hiddenRuleKeys?.size) continue;
-
-        const targets =
-          entry.config.format === "composite" ? childrenOf(entry.config) : [entry.config];
-        for (const key of hiddenRuleKeys) {
-          const parsed = parseRuleKey(key);
-          const bareName = parsed?.ruleName ?? key;
-          for (const target of targets) {
-            // Read the index off the synthesized `__c<index>` id rather than the
-            // array position: a child dropped by validateChildConfig would shift
-            // the latter out of step with the keys the legend emitted.
-            if (parsed && Number(/__c(\d+)$/.exec(target.id)?.[1] ?? -1) !== parsed.childIndex) {
-              continue;
-            }
-            setNativeRuleVisibility(target, bareName, false, mapRef);
-          }
-        }
+  function syncImperativeLayers(getMap: MapAccessor) {
+    for (const entry of layerEntries()) {
+      if (entry.config.format === "composite") {
+        addCompositeLayer(entry.config, getMap, compositeHost);
+      } else {
+        // Same dispatch as the initial add — including `geojson`, whose
+        // host-pushed features live on `config.data` and so survive the
+        // style swap that wiped the source.
+        dispatchFormatLoad(entry.config, getMap);
       }
 
-      // Each re-add above targeted the config's `beforeid` band, which a drag may
-      // have overridden — restack so the rebuilt stack matches the array order the
-      // user actually set.
-      restackNativeLayers(layerEntriesRef.current, mapRef);
-    },
-    [compositeHost, dispatchFormatLoad],
-  );
+      if (hiddenIds().has(entry.config.id)) {
+        setEntryNativeVisibility(entry.config, getMap, "none");
+      }
 
-  // Stable object identity (all functions are useCallback'd): consumers'
-  // useMemo/useCallback chains and React.memo children only invalidate when the
-  // layer state itself changes — not on every render of the caller.
-  return useMemo(
-    () => ({
-      layerEntries,
-      hiddenIds,
-      hiddenRules,
-      dimmedIds,
-      layerSteps,
-      playingIds,
-      addLayer,
-      removeLayer,
-      reorderLayer,
-      hideLayer,
-      toggleLayer,
-      toggleDim,
-      toggleRule,
-      setLayerStep,
-      togglePlay,
-      stopPlay,
-      advanceStep,
-      refreshAreaFilter,
-      syncImperativeLayers,
-    }),
-    [
-      layerEntries,
-      hiddenIds,
-      hiddenRules,
-      dimmedIds,
-      layerSteps,
-      playingIds,
-      addLayer,
-      removeLayer,
-      reorderLayer,
-      hideLayer,
-      toggleLayer,
-      toggleDim,
-      toggleRule,
-      setLayerStep,
-      togglePlay,
-      stopPlay,
-      advanceStep,
-      refreshAreaFilter,
-      syncImperativeLayers,
-    ],
-  );
+      // Replay the dim. The re-add above rebuilt the layer from its config, so
+      // it came back at full opacity. Must stay ABOVE the `continue` below.
+      if (dimmedIds().has(entry.config.id)) {
+        setEntryNativeOpacity(entry.config, getMap, DIMMED_OPACITY);
+      }
+
+      // Replay hidden classes. Keys of the form "<childIndex>:<name>" belong
+      // to one composite child; bare names apply to the entry itself (or, for
+      // a zoom-banded composite, to every child). Mirrors addChild.
+      const hiddenRuleKeys = hiddenRules().get(entry.config.id);
+      if (!hiddenRuleKeys?.size) continue;
+
+      const targets =
+        entry.config.format === "composite" ? childrenOf(entry.config) : [entry.config];
+      for (const key of hiddenRuleKeys) {
+        const parsed = parseRuleKey(key);
+        const bareName = parsed?.ruleName ?? key;
+        for (const target of targets) {
+          // Read the index off the synthesized `__c<index>` id rather than the
+          // array position: a child dropped by validateChildConfig would shift
+          // the latter out of step with the keys the legend emitted.
+          if (parsed && Number(/__c(\d+)$/.exec(target.id)?.[1] ?? -1) !== parsed.childIndex) {
+            continue;
+          }
+          setNativeRuleVisibility(target, bareName, false, getMap);
+        }
+      }
+    }
+
+    // Each re-add above targeted the config's `beforeid` band, which a drag may
+    // have overridden — restack so the rebuilt stack matches the array order the
+    // user actually set.
+    restackNativeLayers(layerEntries(), getMap);
+  }
+
+  return {
+    layerEntries,
+    hiddenIds,
+    hiddenRules,
+    dimmedIds,
+    layerSteps,
+    playingIds,
+    addLayer,
+    removeLayer,
+    reorderLayer,
+    hideLayer,
+    toggleLayer,
+    toggleDim,
+    toggleRule,
+    setLayerStep,
+    togglePlay,
+    stopPlay,
+    advanceStep,
+    refreshAreaFilter,
+    syncImperativeLayers,
+  };
 }
 
 /**
@@ -674,7 +592,7 @@ export function tileSourceId(config: LayerConfig): string {
  */
 export function addMvtLayer(
   config: LayerConfig,
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
   /**
    * Called once icon-bearing rule layers have been added asynchronously, so the
    * caller can restack them into the array's draw order. Omit for layers that
@@ -682,8 +600,12 @@ export function addMvtLayer(
    */
   onLate?: () => void,
 ): void {
-  const map = mapRef.current?.getMap();
-  if (!map) return;
+  const map = getMap();
+  // `styleReady`, not just `map`: the map object exists the instant MapView
+  // mounts, but `addSource`/`addLayer` throw "Style is not done loading" until
+  // the style JSON has arrived. Skipping is safe — the map's `load` and
+  // `onLabelsReady` both call syncImperativeLayers, which replays every entry.
+  if (!styleReady(map)) return;
 
   // A timeseries layer's configured `sourceLayer` is a template — resolve it to
   // the start step before the first addLayer, or MapLibre would be handed the
@@ -886,10 +808,10 @@ function timeseriesSourceLayer(config: LayerConfig, value: number): string {
 function applyTimeseriesStep(
   config: LayerConfig,
   value: number,
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
   hidden: { layerHidden: boolean; hiddenRuleNames: Set<string> | undefined },
 ) {
-  const map = mapRef.current?.getMap();
+  const map = getMap();
   if (!map || !config.timeseries) return;
 
   const nextSourceLayer = timeseriesSourceLayer(config, value);
@@ -932,9 +854,10 @@ function applyTimeseriesStep(
 }
 
 /** Add a native MapLibre raster source/layer for a COG. Module-scope. */
-function addCogLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
-  const map = mapRef.current?.getMap();
-  if (!map) return;
+function addCogLayer(config: LayerConfig, getMap: MapAccessor) {
+  const map = getMap();
+  // See addMvtLayer: replayed by syncImperativeLayers once the style is up.
+  if (!styleReady(map)) return;
 
   const beforeId = anchorForConfig(config);
   const sourceId = `cog-source-${config.id}`;
@@ -1033,10 +956,10 @@ function nativeLayerIdsFor(config: LayerConfig): string[] {
  */
 function restackNativeLayers(
   entries: LayerEntry[],
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
 ) {
-  const map = mapRef.current?.getMap();
-  if (!map) return;
+  const map = getMap();
+  if (!styleReady(map)) return;
   // Without the anchors there is no stable bound; a bare moveLayer would send
   // layers above the click marker. Anchors are re-created on styledata, so
   // skipping here just defers to the next restack.
@@ -1081,11 +1004,11 @@ function restackNativeLayers(
 function setNativeLayerVisibility(
   configId: string,
   config: LayerConfig,
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
   visibility: "visible" | "none",
 ) {
-  const map = mapRef.current?.getMap();
-  if (!map) return;
+  const map = getMap();
+  if (!styleReady(map)) return;
 
   if (config.format === "cog") {
     const cogLayerId = `cog-layer-${configId}`;
@@ -1129,11 +1052,11 @@ const OPACITY_PAINT_KEY: Record<string, string> = {
  */
 function setNativeLayerOpacity(
   config: LayerConfig,
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
   dimmed: number | null,
 ) {
-  const map = mapRef.current?.getMap();
-  if (!map) return;
+  const map = getMap();
+  if (!styleReady(map)) return;
 
   // COG opacity is baked into the per-pixel colour function, not a paint
   // property, so there is nothing to set here.
@@ -1187,12 +1110,12 @@ function withAlpha(color: unknown, alpha: number): unknown {
 /** Dim/restore every native layer of an entry, following composite children. */
 function setEntryNativeOpacity(
   config: LayerConfig,
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
   dimmed: number | null,
 ) {
   const targets = config.format === "composite" ? childrenOf(config) : [config];
   for (const target of targets) {
-    setNativeLayerOpacity(target, mapRef, dimmed);
+    setNativeLayerOpacity(target, getMap, dimmed);
   }
 }
 
@@ -1200,8 +1123,8 @@ function setEntryNativeOpacity(
  * Remove the native MapLibre sources/layers a config created. Module-scope;
  * shared by removeLayer (top-level entries) and the composite host (children).
  */
-function removeNativeArtifacts(config: LayerConfig, mapRef: React.RefObject<MapRef | null>) {
-  const map = mapRef.current?.getMap();
+function removeNativeArtifacts(config: LayerConfig, getMap: MapAccessor) {
+  const map = getMap();
   if (!map) return;
 
   if (config.format === "mvt" || config.format === "pmtiles") {
@@ -1216,9 +1139,9 @@ function removeNativeArtifacts(config: LayerConfig, mapRef: React.RefObject<MapR
     if (map.getLayer(cogLayerId)) map.removeLayer(cogLayerId);
     if (map.getSource(cogSourceId)) map.removeSource(cogSourceId);
   } else if (config.format === "flatgeobuf") {
-    removeFlatgeobufLayer(config, mapRef);
+    removeFlatgeobufLayer(config, getMap);
   } else if (config.format === "geojson") {
-    removeGeoJsonLayer(config, mapRef);
+    removeGeoJsonLayer(config, getMap);
   }
 }
 
@@ -1239,10 +1162,10 @@ function combinedNativeFilter(def: { filter?: unknown[] }): unknown[] | undefine
  */
 function refreshNativeAreaFilter(
   config: LayerConfig,
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
 ) {
-  const map = mapRef.current?.getMap();
-  if (!map) return;
+  const map = getMap();
+  if (!styleReady(map)) return;
   const targets = config.format === "composite" ? childrenOf(config) : [config];
   for (const target of targets) {
     if (!isNativeVectorFormat(target.format)) continue;
@@ -1262,11 +1185,11 @@ function setNativeRuleVisibility(
   config: LayerConfig,
   ruleName: string,
   visible: boolean,
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
 ) {
   if (!isNativeVectorFormat(config.format)) return;
-  const map = mapRef.current?.getMap();
-  if (!map) return;
+  const map = getMap();
+  if (!styleReady(map)) return;
   const ruleLayerId = buildNativeLayerDefs(config).find((d) => d.ruleName === ruleName)?.id;
   if (ruleLayerId && map.getLayer(ruleLayerId)) {
     map.setLayoutProperty(ruleLayerId, "visibility", visible ? "visible" : "none");
@@ -1280,14 +1203,14 @@ function setNativeRuleVisibility(
  */
 function setEntryNativeVisibility(
   config: LayerConfig,
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
   visibility: "visible" | "none",
 ) {
   const targets = config.format === "composite" ? childrenOf(config) : [config];
   for (const target of targets) {
-    setNativeLayerVisibility(target.id, target, mapRef, visibility);
+    setNativeLayerVisibility(target.id, target, getMap, visibility);
     if (target.format === "flatgeobuf") {
-      setFlatgeobufHidden(target.id, mapRef, visibility === "none");
+      setFlatgeobufHidden(target.id, getMap, visibility === "none");
     }
   }
 }

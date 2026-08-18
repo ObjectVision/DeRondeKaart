@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Show, createSignal, type JSX } from "solid-js";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
@@ -18,26 +18,21 @@ interface MapControlsProps {
   showZoom?: boolean;
 }
 
-export function MapControls({
-  onZoomIn,
-  onZoomOut,
-  orientation = "vertical",
-  showSearch = true,
-  showZoom = true,
-}: MapControlsProps) {
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+export function MapControls(props: MapControlsProps): JSX.Element {
+  const [searchOpen, setSearchOpen] = createSignal(false);
+  const [searchQuery, setSearchQuery] = createSignal("");
 
-  // Nothing to render if both surfaces are disabled — avoids an empty card.
-  if (!showSearch && !showZoom) return null;
+  const showSearch = () => props.showSearch ?? true;
+  const showZoom = () => props.showZoom ?? true;
+  const horizontal = () => (props.orientation ?? "vertical") === "horizontal";
 
-  async function handleSearch(e: React.FormEvent) {
+  async function handleSearch(e: Event) {
     e.preventDefault();
-    if (!searchQuery.trim()) return;
+    if (!searchQuery().trim()) return;
 
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery)}&format=json&limit=1`,
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery())}&format=json&limit=1`,
       );
       const results = await res.json();
       if (results.length > 0) {
@@ -54,72 +49,61 @@ export function MapControls({
     }
   }
 
-  const horizontal = orientation === "horizontal";
-
   return (
-    // Self-sized card of icon buttons (search, zoom in, zoom out).
-    <div
-      className={`relative flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm ${
-        horizontal ? "flex-row" : "flex-col"
-      }`}
-    >
-      {showZoom && (
-        <>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={onZoomIn}
-            title="Inzoomen"
-          >
+    // Nothing renders if both surfaces are disabled — avoids an empty card.
+    <Show when={showSearch() || showZoom()}>
+      {/* Self-sized card of icon buttons (search, zoom in, zoom out). */}
+      <div
+        class={`relative flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm ${
+          horizontal() ? "flex-row" : "flex-col"
+        }`}
+      >
+        <Show when={showZoom()}>
+          <Button variant="ghost" size="icon-sm" onClick={props.onZoomIn} title="Inzoomen">
             <Icon name="add" size={chromeIconSize()} color={chromeIconColor()} />
           </Button>
+          <Button variant="ghost" size="icon-sm" onClick={props.onZoomOut} title="Uitzoomen">
+            <Icon name="remove" size={chromeIconSize()} color={chromeIconColor()} />
+          </Button>
+        </Show>
+        {/* Search is always the last (rightmost in horizontal / bottom in
+            vertical) button so its popover opens into open space to the right. */}
+        <Show when={showSearch()}>
           <Button
             variant="ghost"
             size="icon-sm"
-            onClick={onZoomOut}
-            title="Uitzoomen"
+            onClick={() => setSearchOpen((v) => !v)}
+            title="Zoeken"
           >
-            <Icon name="remove" size={chromeIconSize()} color={chromeIconColor()} />
+            <Icon name="search" size={chromeIconSize()} color={chromeIconColor()} />
           </Button>
-        </>
-      )}
-      {/* Search is always the last (rightmost in horizontal / bottom in
-          vertical) button so its popover opens into open space to the right. */}
-      {showSearch && (
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => setSearchOpen((v) => !v)}
-          title="Zoeken"
-        >
-          <Icon name="search" size={chromeIconSize()} color={chromeIconColor()} />
-        </Button>
-      )}
+        </Show>
 
-      {/* Location search popover. Horizontal (top-left toolbar): expands to the
-          right of the search button, aligned with the row. Vertical (bottom-right
-          corner): opens to the left of the bottom-most search button, where there
-          is room away from the screen edge. */}
-      {showSearch && searchOpen && (
-        <form
-          onSubmit={handleSearch}
-          className={`absolute flex gap-1 rounded-lg bg-white/95 p-1.5 shadow-md backdrop-blur-sm ${
-            horizontal ? "left-full top-0 ml-2" : "right-full bottom-0 mr-2"
-          }`}
-        >
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Zoek een locatie..."
-            className="w-48 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-blue-400"
-            autoFocus
-          />
-          <Button variant="ghost" size="icon-sm" type="submit" title="Zoeken">
-            <Icon name="send" size={chromeIconSize()} className="text-gray-400" />
-          </Button>
-        </form>
-      )}
-    </div>
+        {/* Location search popover. Horizontal (top-left toolbar): expands to the
+            right of the search button, aligned with the row. Vertical (bottom-right
+            corner): opens to the left of the bottom-most search button, where there
+            is room away from the screen edge. */}
+        <Show when={showSearch() && searchOpen()}>
+          <form
+            onSubmit={handleSearch}
+            class={`absolute flex gap-1 rounded-lg bg-white/95 p-1.5 shadow-md backdrop-blur-sm ${
+              horizontal() ? "left-full top-0 ml-2" : "right-full bottom-0 mr-2"
+            }`}
+          >
+            <input
+              type="text"
+              value={searchQuery()}
+              onInput={(e) => setSearchQuery(e.currentTarget.value)}
+              placeholder="Zoek een locatie..."
+              class="w-48 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-blue-400"
+              autofocus
+            />
+            <Button variant="ghost" size="icon-sm" type="submit" title="Zoeken">
+              <Icon name="send" size={chromeIconSize()} class="text-gray-400" />
+            </Button>
+          </form>
+        </Show>
+      </div>
+    </Show>
   );
 }

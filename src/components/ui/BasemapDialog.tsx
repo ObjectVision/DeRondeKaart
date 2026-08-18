@@ -1,3 +1,4 @@
+import { For, type JSX } from "solid-js";
 import type { BasemapBaseId, BasemapOptionKey, BasemapOptions } from "@/components/map/map-view-config";
 import {
   BASEMAP_BASES,
@@ -57,13 +58,8 @@ function emptyOptions(): BasemapOptions {
  * silently stops matching what the map draws, so regenerate them alongside such a
  * change.
  */
-export function BasemapDialog({
-  open,
-  onOpenChange,
-  basemapId,
-  onSelect,
-}: BasemapDialogProps): React.JSX.Element {
-  const active = basemapOptionsOf(basemapId);
+export function BasemapDialog(props: BasemapDialogProps): JSX.Element {
+  const active = () => basemapOptionsOf(props.basemapId);
 
   /**
    * The options to show for a base. Only the ACTIVE base can have any ticked:
@@ -74,14 +70,15 @@ export function BasemapDialog({
    * active base's options and every other base is empty by definition.
    */
   function optionsFor(baseId: BasemapBaseId): BasemapOptions {
-    if (baseId === active.baseId) return active.options;
+    const current = active();
+    if (baseId === current.baseId) return current.options;
     return emptyOptions();
   }
 
   /** Switch base, starting it with no options ticked. */
   function handleSelectBase(baseId: BasemapBaseId) {
-    if (baseId === active.baseId) return;
-    onSelect(basemapIdFor(baseId, emptyOptions()));
+    if (baseId === active().baseId) return;
+    props.onSelect(basemapIdFor(baseId, emptyOptions()));
   }
 
   /**
@@ -94,90 +91,94 @@ export function BasemapDialog({
   function handleToggleOption(baseId: BasemapBaseId, key: BasemapOptionKey) {
     const current = optionsFor(baseId);
     const next: BasemapOptions = { ...current, [key]: !current[key] };
-    onSelect(basemapIdFor(baseId, next));
+    props.onSelect(basemapIdFor(baseId, next));
   }
 
   return (
-    <DialogRoot open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[min(40rem,calc(100vw-2rem))]">
-        <div className="mb-5 flex items-center justify-between gap-2">
+    <DialogRoot open={props.open} onOpenChange={props.onOpenChange}>
+      <DialogContent class="w-[min(40rem,calc(100vw-2rem))]">
+        <div class="mb-5 flex items-center justify-between gap-2">
           {/* Same treatment as the "Themas" and "Legenda" panel headings. */}
-          <DialogTitle className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <DialogTitle class="text-xs font-semibold uppercase tracking-wide text-gray-500">
             Referentielagen
           </DialogTitle>
           <Button
             variant="ghost"
             size="icon-sm"
-            onClick={() => onOpenChange(false)}
+            onClick={() => props.onOpenChange(false)}
             title="Sluiten"
             aria-label="Sluiten"
           >
             <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
           </Button>
         </div>
-        <div role="radiogroup" aria-label="Referentielagen" className="grid grid-cols-3 gap-4">
-          {BASEMAP_BASES.map((base) => {
-            const selected = base.id === active.baseId;
-            const options = optionsFor(base.id);
-            return (
-              <div
-                key={base.id}
-                role="radio"
-                aria-checked={selected}
-                aria-label={base.label}
-                className="flex flex-col gap-2 rounded-lg p-2 transition-colors"
-                // The selected column is tinted with the chrome accent rather than
-                // a Tailwind class: chromeIconColor is a runtime map.json value.
-                style={selected ? { backgroundColor: `${chromeIconColor()}14` } : undefined}
-              >
-                <button
-                  type="button"
-                  onClick={() => handleSelectBase(base.id)}
-                  title={base.label}
-                  className="flex cursor-pointer flex-col items-center gap-2 rounded-lg text-left"
+        <div role="radiogroup" aria-label="Referentielagen" class="grid grid-cols-3 gap-4">
+          <For each={BASEMAP_BASES}>
+            {(base) => {
+              const selected = () => base.id === active().baseId;
+              const options = () => optionsFor(base.id);
+              return (
+                <div
+                  role="radio"
+                  aria-checked={selected()}
+                  aria-label={base.label}
+                  class="flex flex-col gap-2 rounded-lg p-2 transition-colors"
+                  // The selected column is tinted with the chrome accent rather than
+                  // a Tailwind class: chromeIconColor is a runtime map.json value.
+                  style={selected() ? { "background-color": `${chromeIconColor()}14` } : undefined}
                 >
-                  <img
-                    src={base.thumb}
-                    alt=""
-                    aria-hidden
-                    draggable={false}
-                    className="aspect-square w-full rounded-full object-cover"
-                    style={
-                      selected
-                        ? { boxShadow: `0 0 0 2px ${chromeIconColor()}` }
-                        : { boxShadow: "0 0 0 1px rgb(229 231 235)" }
-                    }
-                  />
-                  <span
-                    className="self-start text-sm"
-                    style={selected ? { color: chromeIconColor(), fontWeight: 600 } : undefined}
+                  <button
+                    type="button"
+                    onClick={() => handleSelectBase(base.id)}
+                    title={base.label}
+                    class="flex cursor-pointer flex-col items-center gap-2 rounded-lg text-left"
                   >
-                    {base.label}
-                  </span>
-                </button>
-                <div className="flex flex-col gap-1">
-                  {base.supports.map((key) => (
-                    <button
-                      key={key}
-                      type="button"
-                      role="checkbox"
-                      aria-checked={options[key]}
-                      onClick={() => handleToggleOption(base.id, key)}
-                      className="flex cursor-pointer items-start gap-1.5 rounded p-1 text-left"
+                    <img
+                      src={base.thumb}
+                      alt=""
+                      aria-hidden
+                      draggable={false}
+                      class="aspect-square w-full rounded-full object-cover"
+                      style={
+                        selected()
+                          ? { "box-shadow": `0 0 0 2px ${chromeIconColor()}` }
+                          : { "box-shadow": "0 0 0 1px rgb(229 231 235)" }
+                      }
+                    />
+                    <span
+                      class="self-start text-sm"
+                      style={
+                        selected() ? { color: chromeIconColor(), "font-weight": 600 } : undefined
+                      }
                     >
-                      <Icon
-                        name={options[key] ? "check_box" : "check_box_outline_blank"}
-                        size={chromeIconSize()}
-                        color={options[key] ? chromeIconColor() : undefined}
-                        className={options[key] ? "flex-shrink-0" : "flex-shrink-0 text-gray-400"}
-                      />
-                      <span className="text-xs text-gray-600">{OPTION_LABELS[key]}</span>
-                    </button>
-                  ))}
+                      {base.label}
+                    </span>
+                  </button>
+                  <div class="flex flex-col gap-1">
+                    <For each={base.supports}>
+                      {(key) => (
+                        <button
+                          type="button"
+                          role="checkbox"
+                          aria-checked={options()[key]}
+                          onClick={() => handleToggleOption(base.id, key)}
+                          class="flex cursor-pointer items-start gap-1.5 rounded p-1 text-left"
+                        >
+                          <Icon
+                            name={options()[key] ? "check_box" : "check_box_outline_blank"}
+                            size={chromeIconSize()}
+                            color={options()[key] ? chromeIconColor() : undefined}
+                            class={options()[key] ? "flex-shrink-0" : "flex-shrink-0 text-gray-400"}
+                          />
+                          <span class="text-xs text-gray-600">{OPTION_LABELS[key]}</span>
+                        </button>
+                      )}
+                    </For>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            }}
+          </For>
         </div>
       </DialogContent>
     </DialogRoot>

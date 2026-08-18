@@ -42,6 +42,7 @@ const RUNTIME_ICON_NAMES = [
   "check_box_outline_blank",
   "check_circle", // on-map state (sidebar, meta layer links)
   "chevron_right", // collapsed tree node
+  "circle", // on-map state (sidebar), layer on neither map
   "content_copy",
   "edit", // annotation description
   "edit_off",

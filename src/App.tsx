@@ -1,8 +1,20 @@
-import { useState, useCallback, useEffect, useMemo, useRef } from "react";
-import type { ViewStateChangeEvent } from "react-map-gl/maplibre";
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  untrack,
+  type JSX,
+} from "solid-js";
+import type {
+  MapAccessor,
+  MapViewHandle,
+  ViewState,
+  ViewStateChangeEvent,
+} from "@/components/map/map-view-config";
 import { MapView } from "@/components/map/MapView";
 import { useBasemap } from "@/hooks/use-basemap";
-import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers } from "@/hooks/use-map-layers";
 import { useFilterLayers } from "@/hooks/use-filter-layers";
 import { useLayerHandlers } from "@/hooks/use-layer-handlers";
@@ -14,6 +26,7 @@ import {
 import { useClickMarkerLayers } from "@/hooks/use-click-marker-layer";
 import { useMapPointer } from "@/hooks/use-map-pointer";
 import { viewForBbox } from "@/lib/fly-to";
+import { areaFilterLevels } from "@/layers/area-filter";
 import type { BBox } from "@/layers/box-filter";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import type { LayerConfig } from "@/layers";
@@ -99,26 +112,7 @@ function applySelectionHighlight(
   setSelected(null, null);
 }
 
-function App({
-  initialViewState,
-  studyAreaId,
-  pickLayerId,
-  streetviewEnabled = false,
-  searchbarEnabled = false,
-  navigationEnabled = false,
-  navigationMode = "top",
-  filterSectionEnabled = true,
-  navigationSectionEnabled = true,
-  chartsPanelEnabled = true,
-  shareEnabled: shareEnabledProp = true,
-  filterFlyToEnabled = true,
-  combinationsEnabled = false,
-  annotationsEnabled: annotationsEnabledProp = false,
-  mapControls = DEFAULT_MAP_CONTROLS,
-  clickMarker: clickMarkerConfig = DEFAULT_CLICK_MARKER,
-  basemapDefault,
-  embedCircular = false,
-}: {
+interface AppProps {
   initialViewState: ViewState;
   studyAreaId?: string;
   /** Layer added to the left map at startup so clicks have a target; see MapConfig.pickLayer. */
@@ -146,19 +140,47 @@ function App({
    * the existing `cmd`/`layer` URL params and `open-circular` messages.
    */
   embedCircular?: boolean;
-}) {
-  // UI-surface flags are seeded from map.json (props) but can be overridden at
-  // runtime by an embedding host (Power BI visual) via the `map-config` message.
-  const [streetview, setStreetviewEnabled] = useState(streetviewEnabled);
-  const [searchbar, setSearchbarEnabled] = useState(searchbarEnabled);
-  const [navigation, setNavigationEnabled] = useState(navigationEnabled);
-  const [shareEnabled, setShareEnabled] = useState(shareEnabledProp);
-  const [annotationsEnabled, setAnnotationsEnabled] = useState(annotationsEnabledProp);
-  const [combineOpen, setCombineOpen] = useState(false);
-  // Bumped on each opening to remount CombineLayersDialog, so it starts from a
-  // clean selection instead of resetting itself in an effect.
-  const [combineSession, setCombineSession] = useState(0);
-  const sidebarMode = navigationMode === "sidebar";
+}
+
+function App(rawProps: AppProps): JSX.Element {
+  // mergeProps rather than destructuring with defaults: Solid props are getters,
+  // and destructuring reads them once outside any tracking scope.
+  const props = mergeProps(
+    {
+      streetviewEnabled: false,
+      searchbarEnabled: false,
+      navigationEnabled: false,
+      navigationMode: "top" as const,
+      filterSectionEnabled: true,
+      navigationSectionEnabled: true,
+      chartsPanelEnabled: true,
+      shareEnabled: true,
+      filterFlyToEnabled: true,
+      combinationsEnabled: false,
+      annotationsEnabled: false,
+      mapControls: DEFAULT_MAP_CONTROLS,
+      clickMarker: DEFAULT_CLICK_MARKER,
+      embedCircular: false,
+    },
+    rawProps,
+  );
+
+  // UI-surface flags come from map.json (props) but an embedding host (Power BI
+  // visual) can override them at runtime via the `map-config` message. The
+  // signal holds only the OVERRIDE, so the prop stays live until one arrives —
+  // seeding a signal from a prop instead would silently freeze it at mount.
+  const [streetviewOverride, setStreetviewEnabled] = createSignal<boolean | null>(null);
+  const [searchbarOverride, setSearchbarEnabled] = createSignal<boolean | null>(null);
+  const [navigationOverride, setNavigationEnabled] = createSignal<boolean | null>(null);
+  const [shareOverride, setShareEnabled] = createSignal<boolean | null>(null);
+  const [annotationsOverride, setAnnotationsEnabled] = createSignal<boolean | null>(null);
+  const streetview = () => streetviewOverride() ?? props.streetviewEnabled;
+  const searchbar = () => searchbarOverride() ?? props.searchbarEnabled;
+  const navigation = () => navigationOverride() ?? props.navigationEnabled;
+  const shareEnabled = () => shareOverride() ?? props.shareEnabled;
+  const annotationsEnabled = () => annotationsOverride() ?? props.annotationsEnabled;
+  const [combineOpen, setCombineOpen] = createSignal(false);
+  const sidebarMode = () => props.navigationMode === "sidebar";
 
   const mapLeftLayers = useMapLayers();
   const mapRightLayers = useMapLayers();
@@ -175,91 +197,95 @@ function App({
 
   // Mount the right map only when it has a comparable (non-flagged) layer — a
   // flagged-only right map has nothing meaningful to compare and is hidden with
-  // the slider. Computed up here because the B-side topLayer hooks below are
-  // gated on it: a deck Layer instance whose GL resources were created by the
-  // right map's deck must not survive that map's unmount — handing it to the
-  // remounted map's fresh deck draws against dead GL programs
-  // ("getUniformBlockIndex ... not of type 'WebGLProgram'" floods). Gating the
-  // hooks drops the instances at unmount and rebuilds them on remount.
-  const showMapRight = mapRightLayers.layerEntries.some(
-    (e) => !e.config.excludeFromComparison,
+  // the slider. Computed up here because the B-side overlay hooks below are
+  // gated on it: an overlay whose GL resources were created by the right map
+  // must not outlive that map's unmount.
+  const showMapRight = createMemo(() =>
+    mapRightLayers.layerEntries().some((e) => !e.config.excludeFromComparison),
   );
 
   // Gemeente/Wijk/Buurt area filter (sidebar). Selections live in a module
-  // store read by the layer accessors; on change, re-clone both maps' deck
-  // layers so the accessors re-evaluate. Declared up here because the study
-  // area below swaps to the selected gebied's geometry.
+  // store read by the layer accessors; on change, the native layers are
+  // re-filtered (see the areaFilterLevels effect below).
   //
   // The filter's fly-to normally reaches the maps through the shared `map:flyto`
   // event, which only MOUNTED MapViews listen to. The circular-only view renders
-  // without any (see showCircularOnly's early return), so there the event has no
-  // listener and the camera would never follow the filter. onFlyToBbox lets us
-  // drive viewState directly in that case; the ref is filled in below, once
-  // applyView and the circular flag exist.
-  const filterFlyToBboxRef = useRef<((bbox: BBox) => void) | null>(null);
+  // without any, so there the event has no listener and the camera would never
+  // follow the filter. Routing the bbox through applyView moves the circle
+  // instead. In the normal app this branch is skipped so the animated MapLibre
+  // flyTo stays authoritative — a hard setViewState there would replace the
+  // animation with a jump.
   const areaFilter = useAreaFilter({
-    flyTo: filterFlyToEnabled,
-    onFlyToBbox: (bbox) => filterFlyToBboxRef.current?.(bbox),
+    // eslint-disable-next-line solid/reactivity -- map.json config, fixed for the session
+    flyTo: props.filterFlyToEnabled,
+    onFlyToBbox: (bbox: BBox) => {
+      if (circularOnlyActive()) applyView({ bbox });
+    },
   });
 
-  const mapLeftRef = useRef<MapViewHandle>(null);
-  const mapRightRef = useRef<MapViewHandle>(null);
+  const [mapLeftView, setMapLeftView] = createSignal<MapViewHandle | null>(null);
+  const [mapRightView, setMapRightView] = createSignal<MapViewHandle | null>(null);
+  const getMapLeft: MapAccessor = () => mapLeftView()?.map() ?? null;
+  const getMapRight: MapAccessor = () => mapRightView()?.map() ?? null;
 
   // Always-on study area, pinned to the `studyarea-layers` anchor band on both
   // maps. While a gebiedsfilter selection is active the configured studyarea is
   // replaced by the selected gebied (finest level): a 200 km mask disc around
   // it plus the gebied outline — so the configured one is removed by passing
-  // `undefined`, which native layers (unlike deck's arrays) require.
+  // `undefined`, which native layers require.
   const filteredStudy = useFilteredStudyArea(areaFilter);
   const studyAreaA = useStudyAreaLayer(
-    filteredStudy ? undefined : studyAreaId,
-    mapLeftRef,
+    () => (filteredStudy() ? undefined : props.studyAreaId),
+    mapLeftView,
   );
   const studyAreaB = useStudyAreaLayer(
-    showMapRight && !filteredStudy ? studyAreaId : undefined,
-    mapRightRef,
+    () => (showMapRight() && !filteredStudy() ? props.studyAreaId : undefined),
+    mapRightView,
   );
-  const filteredStudyA = useFilteredStudyAreaLayers(filteredStudy, mapLeftRef);
+  const filteredStudyA = useFilteredStudyAreaLayers(filteredStudy, mapLeftView);
   const filteredStudyB = useFilteredStudyAreaLayers(
-    showMapRight ? filteredStudy : null,
-    mapRightRef,
+    () => (showMapRight() ? filteredStudy() : null),
+    mapRightView,
   );
-  const [mapLeftReady, setMapLeftReady] = useState(false);
+  const [mapLeftReady, setMapLeftReady] = createSignal(false);
 
-  const [viewState, setViewState] = useState(initialViewState);
-  const [sliderPosition, setSliderPosition] = useState(50);
+  const [viewState, setViewState] = createSignal<ViewState>(props.initialViewState);
+  const [sliderPosition, setSliderPosition] = createSignal(50);
 
   // Selected background basemap (shared by both maps). The legend's map button
   // opens the picker; only the base style swaps — user layers stay, re-added
   // by each map's onLabelsReady below.
-  const { basemapId, setBasemap } = useBasemap({ configDefault: basemapDefault });
-  const [basemapDialogOpen, setBasemapDialogOpen] = useState(false);
-  const openBasemapDialog = useCallback(() => setBasemapDialogOpen(true), []);
+  const { basemapId, setBasemap } = useBasemap({
+    // eslint-disable-next-line solid/reactivity -- map.json config, fixed for the session
+    configDefault: props.basemapDefault,
+  });
+  const [basemapDialogOpen, setBasemapDialogOpen] = createSignal(false);
 
   // A layer's metainfo window, opened from the legend's info button or from
   // under a navigation description. Holds the layer rather than a bare id so
   // the dialog can title itself without re-resolving layers.json.
-  const [metaLayer, setMetaLayer] = useState<{ id: string; name: string } | null>(null);
-  const openLayerMeta = useCallback(
-    (id: string, name: string) => setMetaLayer({ id, name }),
-    [],
-  );
-  const closeLayerMeta = useCallback((open: boolean) => {
+  const [metaLayer, setMetaLayer] = createSignal<{ id: string; name: string } | null>(null);
+
+  function openLayerMeta(id: string, name: string) {
+    setMetaLayer({ id, name });
+  }
+
+  function closeLayerMeta(open: boolean) {
     if (!open) setMetaLayer(null);
-  }, []);
+  }
 
   // Feature picking for each map
-  const pickA = useFeaturePick(mapLeftLayers.layerEntries, mapLeftRef);
-  const pickB = useFeaturePick(mapRightLayers.layerEntries, mapRightRef);
+  const pickA = useFeaturePick(mapLeftLayers.layerEntries, mapLeftView);
+  const pickB = useFeaturePick(mapRightLayers.layerEntries, mapRightView);
 
   // Feature highlighting (hover outline + the clicked feature) per map. Kept
   // per map because feature state lives on that map's own style instance.
-  const highlightA = useFeatureHighlight(mapLeftRef);
-  const highlightB = useFeatureHighlight(mapRightRef);
+  const highlightA = useFeatureHighlight(mapLeftView);
+  const highlightB = useFeatureHighlight(mapRightView);
 
   // Hover cursor (pointer over clickable features, grab otherwise) for each map
-  const hoverA = useHoverCursor(mapLeftLayers.layerEntries, mapLeftRef, highlightA.setHovered);
-  const hoverB = useHoverCursor(mapRightLayers.layerEntries, mapRightRef, highlightB.setHovered);
+  const hoverA = useHoverCursor(mapLeftLayers.layerEntries, mapLeftView, highlightA.setHovered);
+  const hoverB = useHoverCursor(mapRightLayers.layerEntries, mapRightView, highlightB.setHovered);
 
   // The shared click popup: marker point, Street View target, popup anchor, and
   // which map's pick is on show. Shared across both maps — a click on either one
@@ -287,22 +313,23 @@ function App({
   //
   // Driven off the pick results rather than the click handler so it follows the
   // popup's real lifecycle, including closing via the × or a click on water.
-  useEffect(() => {
-    applySelectionHighlight(pickA.result, highlightA.setSelected);
-  }, [pickA.result, highlightA.setSelected]);
+  createEffect(() => {
+    applySelectionHighlight(pickA.result(), highlightA.setSelected);
+  });
 
-  useEffect(() => {
-    applySelectionHighlight(pickB.result, highlightB.setSelected);
-  }, [pickB.result, highlightB.setSelected]);
+  createEffect(() => {
+    applySelectionHighlight(pickB.result(), highlightB.setSelected);
+  });
 
   // Per-map marker overlays, drawn as MapLibre symbol layers on each map's own
   // style. map.json `clickMarker.enabled: false` (or `clickMarker: false`)
   // suppresses the marker; clicks still open popups/Street View.
-  const markerPoint = clickMarkerConfig.enabled ? clickMarker : null;
-  const markerA = useClickMarkerLayers(markerPoint, mapLeftRef, clickMarkerConfig);
+  const markerPoint = () => (props.clickMarker.enabled ? clickMarker() : null);
+  const clickMarkerConfig = () => props.clickMarker;
+  const markerA = useClickMarkerLayers(markerPoint, mapLeftView, clickMarkerConfig);
   const markerB = useClickMarkerLayers(
-    showMapRight ? markerPoint : null,
-    mapRightRef,
+    () => (showMapRight() ? markerPoint() : null),
+    mapRightView,
     clickMarkerConfig,
   );
 
@@ -310,10 +337,12 @@ function App({
   // rows inside it (ANDed with the area filter). One shared instance — the box
   // is a single filter shown on both maps; map rendering is unaffected.
   const boxSelect = useBoxSelect();
-  const { active: boxSelectActive, toggle: boxSelectToggle } = boxSelect;
-  const selectionBox = boxSelect.draft ?? boxSelect.box;
-  const boxA = useSelectionBoxLayers(selectionBox, mapLeftRef);
-  const boxB = useSelectionBoxLayers(showMapRight ? selectionBox : null, mapRightRef);
+  const selectionBox = () => boxSelect.draft() ?? boxSelect.box();
+  const boxA = useSelectionBoxLayers(selectionBox, mapLeftView);
+  const boxB = useSelectionBoxLayers(
+    () => (showMapRight() ? selectionBox() : null),
+    mapRightView,
+  );
 
   // Annotation tool: circles around areas of interest, each carrying a
   // title/description and a snapshot of the session (gebiedsfilters, both
@@ -324,15 +353,9 @@ function App({
   const collab = useCollab(annotations.doc);
   const { startSession, setCursor, setActiveAnnotation } = collab;
 
-  // Live refs for the async snapshot restore: layer adds await full data
-  // loads, so state objects captured at click time go stale mid-run.
-  /* eslint-disable react-hooks/refs -- deliberate latest-value mirrors */
-  const areaFilterRef = useRef(areaFilter);
-  areaFilterRef.current = areaFilter;
-  /* eslint-enable react-hooks/refs */
-
-  // Annotation writes + map picking. Owns its own live-value refs for the
-  // async snapshot restore; `areaFilterRef` is shared with the host bridge.
+  // No live-value refs for the async snapshot restore: layer adds await full
+  // data loads, but every piece of state these commands read is a signal, so
+  // reading it at the moment it is needed is enough.
   const annotationCommands = useAnnotationCommands({
     annotations,
     identity: collab.identity,
@@ -340,9 +363,8 @@ function App({
     mapLeftLayers,
     mapRightLayers,
     viewState,
-    mapLeftRef,
-    mapRightRef,
-    areaFilterRef,
+    mapLeft: mapLeftView,
+    mapRight: mapRightView,
   });
 
   const annotationTool = useAnnotationTool({
@@ -367,39 +389,42 @@ function App({
   } = annotationTool;
 
   // Broadcast the local selection so peers see which circle is being viewed.
-  useEffect(() => {
-    setActiveAnnotation(annotationSelectedId);
-  }, [annotationSelectedId, setActiveAnnotation]);
+  createEffect(() => {
+    setActiveAnnotation(annotationSelectedId());
+  });
 
-  const selectedAnnotation =
-    annotations.annotations.find((a) => a.id === annotationSelectedId) ?? null;
+  const selectedAnnotation = createMemo(
+    () => annotations.annotations().find((a) => a.id === annotationSelectedId()) ?? null,
+  );
+
   // The selected annotation was deleted (possibly by a peer) — close the popup.
-  useEffect(() => {
-    if (annotationSelectedId && !selectedAnnotation) annotationSelect(null);
-  }, [annotationSelectedId, selectedAnnotation, annotationSelect]);
+  createEffect(() => {
+    if (annotationSelectedId() && !selectedAnnotation()) annotationSelect(null);
+  });
 
   // Screen anchor for the edit popup: the top of the selected shape (topmost
   // vertex for polygons, top of the rim for circles), projected through the
   // left map (both maps share the viewState, so the projection is identical).
-  // viewState is a dependency so the popup tracks the shape while the map
-  // pans or a snapshot restore flies.
-  const annotationPopupPos = useMemo(() => {
-    if (!selectedAnnotation) return null;
-    // eslint-disable-next-line react-hooks/refs
-    const map = mapLeftRef.current?.mapRef.current?.getMap();
+  // viewState is tracked so the popup follows the shape while the map pans or
+  // a snapshot restore flies.
+  const annotationPopupPos = createMemo(() => {
+    const annotation = selectedAnnotation();
+    if (!annotation) return null;
+    const map = getMapLeft();
     if (!map) return null;
-    const c = map.project([selectedAnnotation.center.lng, selectedAnnotation.center.lat]);
-    if (selectedAnnotation.pin) {
+    const zoom = viewState().zoom;
+    const c = map.project([annotation.center.lng, annotation.center.lat]);
+    if (annotation.pin) {
       // The pin icon extends upward from its anchored tip.
       return { x: c.x, y: c.y - PIN_SIZE_ACTIVE_PX };
     }
-    if (isAnnotationIconified(selectedAnnotation, viewState.zoom)) {
+    if (isAnnotationIconified(annotation, zoom)) {
       // Far-zoom icon form: center-anchored, half the icon extends upward.
       return { x: c.x, y: c.y - PIN_SIZE_ACTIVE_PX / 2 };
     }
-    if (selectedAnnotation.points) {
+    if (annotation.points) {
       let minY = Infinity;
-      for (const p of selectedAnnotation.points) {
+      for (const p of annotation.points) {
         const q = map.project([p.lng, p.lat]);
         if (q.y < minY) minY = q.y;
       }
@@ -407,56 +432,61 @@ function App({
     }
     // Circle rim top: the radius northward from the center.
     const top = map.project([
-      selectedAnnotation.center.lng,
-      selectedAnnotation.center.lat + selectedAnnotation.radiusM / METERS_PER_DEGREE_LAT,
+      annotation.center.lng,
+      annotation.center.lat + annotation.radiusM / METERS_PER_DEGREE_LAT,
     ]);
     return { x: c.x, y: top.y };
-  }, [selectedAnnotation, viewState]);
+  });
 
-  const annotationsVisible = annotationsEnabled && annotationActive;
+  const annotationsVisible = () => annotationsEnabled() && annotationActive();
+  const annotationsForExport = () =>
+    annotationsVisible() ? annotations.annotations() : undefined;
+
   // Annotation bodies (shapes, icons, labels, peer cursors) render as native
   // MapLibre sources on each map's own style. iconScale 4 supersamples the
   // sprite images, declared back as `pixelRatio` — ≥ the 32-38px draw size on
   // hi-DPI screens, so pins stay crisp without a jagged downscale.
-  const annotSourceA = useAnnotationSource(mapLeftRef, {
+  const annotSourceA = useAnnotationSource(mapLeftView, {
     annotations: annotations.annotations,
     draft: annotationTool.draft,
     selectedId: annotationSelectedId,
     peers: collab.peers,
-    identityColor: collab.identity.color,
+    identityColor: () => collab.identity.color,
     visible: annotationsVisible,
-    zoom: viewState.zoom,
-    iconScale: 4,
+    zoom: () => viewState().zoom,
+    iconScale: () => 4,
   });
-  const annotSourceB = useAnnotationSource(mapRightRef, {
+  const annotSourceB = useAnnotationSource(mapRightView, {
     annotations: annotations.annotations,
     draft: annotationTool.draft,
     selectedId: annotationSelectedId,
     peers: collab.peers,
-    identityColor: collab.identity.color,
-    visible: annotationsVisible && showMapRight,
-    zoom: viewState.zoom,
-    iconScale: 4,
+    identityColor: () => collab.identity.color,
+    visible: () => annotationsVisible() && showMapRight(),
+    zoom: () => viewState().zoom,
+    iconScale: () => 4,
   });
+
   // Mirror the tool state into both maps' cursor flags (crosshair while armed).
   // Annotation mode alone doesn't claim the crosshair — only an armed drawing
   // tool does; without one the map navigates (and shows cursors) as usual.
-  const drawToolArmed = boxSelect.active || annotationDrawTool !== null;
-  useEffect(() => {
-    for (const handle of [mapLeftRef.current, mapRightRef.current]) {
+  const drawToolArmed = () => boxSelect.active() || annotationDrawTool() !== null;
+  createEffect(() => {
+    const armed = drawToolArmed();
+    for (const handle of [mapLeftView(), mapRightView()]) {
       if (!handle) continue;
-      handle.drawModeRef.current = drawToolArmed;
-      const canvas = handle.mapRef.current?.getMap()?.getCanvas();
-      if (canvas) canvas.style.cursor = drawToolArmed ? "crosshair" : "";
+      handle.setDrawMode(armed);
+      const canvas = handle.map()?.getCanvas();
+      if (canvas) canvas.style.cursor = armed ? "crosshair" : "";
     }
-  }, [drawToolArmed]);
+  });
 
   // One click, move or drag fanned out across picking, hover, area-select,
   // annotation drawing, the click marker and collab presence — plus the mutual
   // exclusion between the two draw tools.
   const pointer = useMapPointer({
-    mapLeftRef,
-    mapRightRef,
+    mapLeft: mapLeftView,
+    mapRight: mapRightView,
     leftEntries: mapLeftLayers.layerEntries,
     rightEntries: mapRightLayers.layerEntries,
     pickA,
@@ -471,11 +501,14 @@ function App({
     setPopupPoint,
     handleMapClick,
   });
-  const handleAnnotationToolToggle = pointer.toggleAnnotationTool;
-  const handleAreaSelectToggle = pointer.toggleAreaSelect;
 
   // Navigation menu: add/remove layers against the shared per-map state
-  const nav = useNavigation({ mapLeftLayers, mapRightLayers, mapLeftRef, mapRightRef });
+  const nav = useNavigation({
+    mapLeftLayers,
+    mapRightLayers,
+    mapLeft: mapLeftView,
+    mapRight: mapRightView,
+  });
 
   // The always-on pick layer (map.json `pickLayer`): an invisible layer added to
   // the left map at startup so a click anywhere has a feature to hit, without the
@@ -487,45 +520,43 @@ function App({
   // `atEnd` keeps it at the bottom of the draw order, so a layer the user adds
   // later paints above it. addLayer is a no-op for an id already present, which
   // is what makes re-running this safe.
-  const pickLayerAddedRef = useRef(false);
-  useEffect(() => {
-    if (!pickLayerId || !mapLeftReady || pickLayerAddedRef.current) return;
-    pickLayerAddedRef.current = true;
-    let alive = true;
+  let pickLayerAdded = false;
+  createEffect(() => {
+    if (!props.pickLayerId || !mapLeftReady() || pickLayerAdded) return;
+    pickLayerAdded = true;
+    const pickLayerId = props.pickLayerId;
     loadLayerConfigs()
+      // async continuation: reads the
+      // layer stack when the configs land, deliberately outside this effect's scope
+      // eslint-disable-next-line solid/reactivity
       .then((configs) => {
         const config = getLayerConfigById(configs, pickLayerId);
         if (!config) {
           console.warn(`map.json: pickLayer "${pickLayerId}" not found in layers.json`);
           return;
         }
-        // MapViewHandle wraps the react-map-gl ref; addLayer wants the inner one.
-        const inner = mapLeftRef.current?.mapRef;
-        if (alive && inner) void mapLeftLayers.addLayer(config, inner, { atEnd: true });
+        void mapLeftLayers.addLayer(config, getMapLeft, { atEnd: true });
       })
       .catch((err) => {
         // Non-fatal: without it the map simply has nothing to click, which is
         // how every other config behaves.
         console.warn(`Failed to add pickLayer "${pickLayerId}":`, err);
       });
-    return () => {
-      alive = false;
-    };
-  }, [pickLayerId, mapLeftReady, mapLeftLayers, mapLeftRef]);
+  });
 
   // The layer cross-references inside a layer's metainfo, which the publisher
   // still points at the retired 2025 mapviewer. Handed to LayerMetaDialog so
   // those links act on this viewer instead.
-  const addMetaLayerToLeftMap = useCallback(
-    (id: string) => {
-      // The link reads "add", never "remove": toggleOnMap would take an
-      // already-visible layer back off the map, which is not what it promises.
-      if (nav.isOnMap(id, "a")) return;
-      void nav.toggleOnMap(id, "a");
-    },
-    [nav],
-  );
-  const isMetaLayerOnLeftMap = useCallback((id: string) => nav.isOnMap(id, "a"), [nav]);
+  function addMetaLayerToLeftMap(id: string) {
+    // The link reads "add", never "remove": toggleOnMap would take an
+    // already-visible layer back off the map, which is not what it promises.
+    if (nav.isOnMap(id, "a")) return;
+    void nav.toggleOnMap(id, "a");
+  }
+
+  function isMetaLayerOnLeftMap(id: string) {
+    return nav.isOnMap(id, "a");
+  }
 
   // Minimize state for the navigation, statistics and legend windows (persisted
   // for the session) plus the small-screen auto-collapse that drives all three.
@@ -545,10 +576,11 @@ function App({
   const { chartLayerConfig, handleChartsClose } = useChartsPanel({
     mapLeftLayers,
     mapRightLayers,
-    chartsPanelEnabled,
+    // eslint-disable-next-line solid/reactivity -- map.json config, fixed for the session
+    chartsPanelEnabled: props.chartsPanelEnabled,
     setChartsMinimized,
-    boxSelectActive,
-    boxSelectToggle,
+    boxSelectActive: boxSelect.active,
+    boxSelectToggle: boxSelect.toggle,
   });
 
   // "Delen" (share/export) dialog. The circular preview mirrors the on-screen
@@ -573,49 +605,55 @@ function App({
     startSession,
   });
 
-  const sidebarActive = sidebarMode && navigation;
-  const filterAvailable = sidebarActive && filterSectionEnabled && areaFilter.entries.length > 0;
-  const navAvailable = sidebarActive && navigationSectionEnabled;
+  const sidebarActive = () => sidebarMode() && navigation();
+  const filterAvailable = () =>
+    sidebarActive() && props.filterSectionEnabled && areaFilter.entries().length > 0;
+  const navAvailable = () => sidebarActive() && props.navigationSectionEnabled;
 
   // The navigation UI embeds the MapControls card (search + zoom) whenever it is
   // shown: the top-center panel (top mode) or the sidebar toolbar (sidebar mode).
   // When it isn't, we render a standalone card so the controls stay independent
   // of the navigation flag (map.json `mapControls`).
-  const navShowsControls = sidebarActive || (navigation && !sidebarMode);
+  const navShowsControls = () => sidebarActive() || (navigation() && !sidebarMode());
 
   // Single combined toggle for the whole navigation (Filter + Navigatie). It
   // only appears while minimized — restoring the window. Closing happens via
-  // the close button inside the navigation window itself. Memoized (with the
-  // toolbar below) so the memoized Sidebar doesn't re-render per map frame.
-  const sectionToggles = useMemo<SectionToggle[]>(
-    () =>
-      (filterAvailable || navAvailable) && navMinimized
-        ? [
-            {
-              key: "navigation",
-              icon: "layers",
-              title: "Navigatie tonen",
-              active: false,
-              onToggle: toggleNavMinimized,
-            },
-          ]
-        : [],
-    [filterAvailable, navAvailable, navMinimized, toggleNavMinimized],
-  );
+  // the close button inside the navigation window itself.
+  const sectionToggles = (): SectionToggle[] => {
+    if (!(filterAvailable() || navAvailable()) || !navMinimized()) return [];
+    return [
+      {
+        key: "navigation",
+        icon: "layers",
+        title: "Navigatie tonen",
+        active: false,
+        onToggle: toggleNavMinimized,
+      },
+    ];
+  };
   // The statistics-panel restore button lives top-right (next to where the
   // panel itself docks), not in this top-left toolbar — see the render below.
 
-  const refreshLeft = mapLeftLayers.refreshAreaFilter;
-  const refreshRight = mapRightLayers.refreshAreaFilter;
-  useEffect(() => {
-    if (areaFilter.version === 0) return; // initial no-filter render
-    // Native layers live on a specific map, so each side's refresh gets its own
-    // map ref (deck.gl layers are re-cloned regardless).
-    refreshLeft(areaFilter.version, [mapLeftRef.current?.mapRef ?? { current: null }]);
-    refreshRight(areaFilter.version, [mapRightRef.current?.mapRef ?? { current: null }]);
-  }, [areaFilter.version, refreshLeft, refreshRight]);
+  // Re-apply the gebiedsfilter to the native layers of both maps whenever the
+  // selection changes. The module store's own signal is the trigger; the first
+  // run is the initial no-filter render, which has nothing to re-apply.
+  // refreshAreaFilter itself reads layerEntries, which must NOT become a
+  // dependency — adding a layer already applies the filter on the way in.
+  let areaFilterSeen = false;
+  createEffect(() => {
+    areaFilterLevels();
+    if (!areaFilterSeen) {
+      areaFilterSeen = true;
+      return;
+    }
+    untrack(() => {
+      // Native layers live on a specific map, so each side gets its own accessor.
+      mapLeftLayers.refreshAreaFilter([getMapLeft]);
+      mapRightLayers.refreshAreaFilter([getMapRight]);
+    });
+  });
 
-  const applyView = useCallback((view: ViewUpdate) => {
+  function applyView(view: ViewUpdate) {
     // A bbox resolves to center/zoom through the shared fly-to heuristic
     // (same formula the filter fly-to uses); explicit center/zoom still win.
     const framed = view.bbox ? viewForBbox(view.bbox) : null;
@@ -627,39 +665,28 @@ function App({
       ...(view.zoom !== undefined ? { zoom: view.zoom } : {}),
       ...(view.center ? { longitude: view.center[0], latitude: view.center[1] } : {}),
     }));
-  }, []);
+  }
 
-  // Fill in the filter fly-to fallback declared above. Only active while the
-  // circular-only view is showing: with no MapView mounted, nothing listens to
-  // the `map:flyto` event and nothing feeds a camera back into viewState (that's
-  // handleMove, a prop of those unmounted maps). Routing the bbox through
-  // applyView moves the circle instead. In the normal app this stays null so the
-  // animated MapLibre flyTo remains authoritative — a hard setViewState there
-  // would replace the animation with a jump.
-  const circularOnlyActive = embedCircular || (shareEnabled && circularOpen);
-  useEffect(() => {
-    filterFlyToBboxRef.current = circularOnlyActive
-      ? (bbox: BBox) => applyView({ bbox })
-      : null;
-  }, [circularOnlyActive, applyView]);
+  // The circular-only view replaces the whole app: no MapView is mounted, so
+  // nothing listens to `map:flyto` and nothing feeds a camera back into
+  // viewState. Read by the area filter's onFlyToBbox above.
+  function circularOnlyActive() {
+    return props.embedCircular || (shareEnabled() && circularOpen());
+  }
 
   // A share link with an `annot` room: enter annotation mode and join the
   // collab session directly (ignored when the feature is disabled here).
-  const handleAnnotationRoom = useCallback(
-    (roomId: string) => {
-      if (!annotationsEnabled) return;
-      annotationActivate();
-      startSession(roomId);
-    },
-    [annotationsEnabled, annotationActivate, startSession],
-  );
+  function handleAnnotationRoom(roomId: string) {
+    if (!annotationsEnabled()) return;
+    annotationActivate();
+    startSession(roomId);
+  }
 
   // Host `filter` messages -> one committed gebiedsfilter selection.
   const setFilterFromHost = useHostFilter({
-    areaFilterRef,
     areaFilter,
     applyView,
-    initialViewState,
+    initialViewState: props.initialViewState,
   });
 
   // Process URL commands for layer management (only after the left map is
@@ -667,9 +694,9 @@ function App({
   // mounted, so gate on embedCircular too — layer entries populate without a
   // live map (ExportPreviewMap re-syncs any native MVT/COG layers itself).
   useUrlCommands({
-    mapLeft: { layers: mapLeftLayers, mapRef: mapLeftRef }, // "linker kaart"
-    mapRight: { layers: mapRightLayers, mapRef: mapRightRef }, // "rechter kaart"
-    ready: mapLeftReady || embedCircular,
+    mapLeft: { layers: mapLeftLayers, view: mapLeftView }, // "linker kaart"
+    mapRight: { layers: mapRightLayers, view: mapRightView }, // "rechter kaart"
+    ready: () => mapLeftReady() || props.embedCircular,
     applyView,
     onAnnotationRoom: handleAnnotationRoom,
     onBasemap: setBasemap,
@@ -678,13 +705,13 @@ function App({
   });
 
   // Apply runtime UI-config overrides from an embedding host (Power BI visual).
-  const applyConfig = useCallback((cfg: EmbedConfig) => {
+  function applyConfig(cfg: EmbedConfig) {
     if (typeof cfg.searchbar === "boolean") setSearchbarEnabled(cfg.searchbar);
     if (typeof cfg.navigation === "boolean") setNavigationEnabled(cfg.navigation);
     if (typeof cfg.streetview === "boolean") setStreetviewEnabled(cfg.streetview);
     if (typeof cfg.share === "boolean") setShareEnabled(cfg.share);
     if (typeof cfg.annotations === "boolean") setAnnotationsEnabled(cfg.annotations);
-  }, []);
+  }
 
   // In-memory data pushed by an embedding host (Power BI visual): renders on
   // the left map and posts the map-ready handshake to the parent window. In the
@@ -692,28 +719,26 @@ function App({
   // app as ready once mounted — the postMessage handlers don't need a live map.
   useEmbedData({
     mapLeftLayers,
-    mapLeftRef,
-    ready: mapLeftReady || embedCircular,
+    mapLeft: mapLeftView,
+    ready: () => mapLeftReady() || props.embedCircular,
     onConfig: applyConfig,
   });
 
-  const hasMapLeftLayers = mapLeftLayers.layerEntries.length > 0;
-
   // Comparison requires layers on the left and a comparable layer on the right
-  // (showMapRight, computed near the top with the B-side topLayer hooks).
-  const comparisonMode = hasMapLeftLayers && showMapRight;
+  // (showMapRight, computed near the top with the B-side overlay hooks).
+  const comparisonMode = () => mapLeftLayers.layerEntries().length > 0 && showMapRight();
 
   // Legend placement. The bottom-left legend belongs to the map shown on that
   // side: map A normally, but map B when it renders full-width on top with no
   // left-map layers (mapBOnTop, outside comparison mode). The bottom-right
   // legend (map B) only appears in comparison mode, when both maps are visible.
-  const leftLegendUsesMapB = !comparisonMode && showMapRight;
+  const leftLegendUsesMapB = () => !comparisonMode() && showMapRight();
 
   // While embedded (Power BI visual), keep pushing map snapshots to the parent
   // so dashboard PDF export shows the map (the iframe itself exports blank).
   useMapSnapshot({
-    mapLeftRef,
-    mapRightRef,
+    mapLeft: mapLeftView,
+    mapRight: mapRightView,
     comparisonMode,
     sliderPosition,
     ready: mapLeftReady,
@@ -721,69 +746,60 @@ function App({
 
   // The left map is the primary one, so its first load is the moment the app
   // has something real to show — that is when the boot splash comes down.
-  const handleMapLeftLoad = useCallback(() => {
+  function handleMapLeftLoad() {
     setMapLeftReady(true);
     dismissSplash();
-  }, []);
+  }
 
   // Once the right map's MapLibre style is loaded, replay any imperative MVT/COG
   // entries that addLayer attempted before the map existed. Idempotent.
-  const handleMapRightLoad = useCallback(() => {
-    const ref = mapRightRef.current?.mapRef;
-    if (ref) mapRightLayers.syncImperativeLayers(ref);
-  }, [mapRightLayers]);
+  function handleMapRightLoad() {
+    mapRightLayers.syncImperativeLayers(getMapRight);
+  }
 
-  const handleMove = useCallback((evt: ViewStateChangeEvent) => {
+  function handleMove(evt: ViewStateChangeEvent) {
     setViewState((prev) => ({
       ...prev,
       ...evt.viewState,
       pitch: 0,
       bearing: 0,
     }));
-  }, []);
+  }
 
   // One set of legend/UI callbacks per map, bound to that map's layer stack and
-  // ref. Also owns each map's timeseries playback timers.
-  const handlersA = useLayerHandlers(mapLeftLayers, mapLeftRef);
-  const handlersB = useLayerHandlers(mapRightLayers, mapRightRef);
+  // handle. Also owns each map's timeseries playback timers.
+  const handlersA = useLayerHandlers(mapLeftLayers, mapLeftView);
+  const handlersB = useLayerHandlers(mapRightLayers, mapRightView);
 
   // Whichever map the bottom-left legend is driving — resolved once so that
   // Legend reads one pair of values instead of repeating the same test per prop.
-  const leftLegendLayers = leftLegendUsesMapB ? mapRightLayers : mapLeftLayers;
-  const leftLegendHandlers = leftLegendUsesMapB ? handlersB : handlersA;
+  const leftLegendLayers = () => (leftLegendUsesMapB() ? mapRightLayers : mapLeftLayers);
+  const leftLegendHandlers = () => (leftLegendUsesMapB() ? handlersB : handlersA);
 
   // Move a layer between maps: re-add its config to the destination map, then
   // remove it from the source. The layer's config is the source of truth for
   // which map it lives on, so the legend button icon follows automatically.
-  const handleMoveToRight = useCallback(
-    (layerId: string) => {
-      const entry = mapLeftLayers.layerEntries.find((e) => e.config.id === layerId);
-      if (!entry) return;
-      mapRightLayers.addLayer(entry.config, mapRightRef.current?.mapRef ?? { current: null });
-      mapLeftLayers.removeLayer(layerId, mapLeftRef.current?.mapRef ?? { current: null });
-    },
-    [mapLeftLayers, mapRightLayers],
-  );
+  function handleMoveToRight(layerId: string) {
+    const entry = mapLeftLayers.layerEntries().find((e) => e.config.id === layerId);
+    if (!entry) return;
+    void mapRightLayers.addLayer(entry.config, getMapRight);
+    mapLeftLayers.removeLayer(layerId, getMapLeft);
+  }
 
-  const handleMoveToLeft = useCallback(
-    (layerId: string) => {
-      const entry = mapRightLayers.layerEntries.find((e) => e.config.id === layerId);
-      if (!entry) return;
-      mapLeftLayers.addLayer(entry.config, mapLeftRef.current?.mapRef ?? { current: null });
-      mapRightLayers.removeLayer(layerId, mapRightRef.current?.mapRef ?? { current: null });
-    },
-    [mapLeftLayers, mapRightLayers],
-  );
+  function handleMoveToLeft(layerId: string) {
+    const entry = mapRightLayers.layerEntries().find((e) => e.config.id === layerId);
+    if (!entry) return;
+    void mapLeftLayers.addLayer(entry.config, getMapLeft);
+    mapRightLayers.removeLayer(layerId, getMapRight);
+  }
 
   // Fired once anchors + overlay are (re)loaded — on initial load and after a
   // basemap swap. setStyle wipes native MVT/COG layers, so re-add them; the
   // helpers are idempotent and skip layers/sources that already exist.
   // Each imperative overlay owns its own re-add: they live outside
-  // useMapLayers (and outside deck, which used to re-resolve its layers for
-  // free), so a basemap swap would otherwise drop them silently.
-  const handleMapLeftLabelsReady = useCallback(() => {
-    const ref = mapLeftRef.current?.mapRef;
-    if (ref) mapLeftLayers.syncImperativeLayers(ref);
+  // useMapLayers, so a basemap swap would otherwise drop them silently.
+  function handleMapLeftLabelsReady() {
+    mapLeftLayers.syncImperativeLayers(getMapLeft);
     // setStyle drops every source along with its feature state, so the ids the
     // highlight hook is holding now address nothing. Forget them, or the next
     // hover would try to clear a feature that no longer exists and leave the
@@ -794,11 +810,10 @@ function App({
     markerA.resync();
     boxA.resync();
     annotSourceA.resync();
-  }, [mapLeftLayers, highlightA, studyAreaA, filteredStudyA, markerA, boxA, annotSourceA]);
+  }
 
-  const handleMapRightLabelsReady = useCallback(() => {
-    const ref = mapRightRef.current?.mapRef;
-    if (ref) mapRightLayers.syncImperativeLayers(ref);
+  function handleMapRightLabelsReady() {
+    mapRightLayers.syncImperativeLayers(getMapRight);
     // See handleMapLeftLabelsReady: the style swap took the feature state with it.
     highlightB.clearAll();
     studyAreaB.resync();
@@ -806,67 +821,58 @@ function App({
     markerB.resync();
     boxB.resync();
     annotSourceB.resync();
-  }, [mapRightLayers, highlightB, studyAreaB, filteredStudyB, markerB, boxB, annotSourceB]);
+  }
 
-  // The share toolbutton, rendered as its own card so it matches the sibling
-  // toolbar cards. In sidebar mode it slots into the toolbar row (after the
-  // nav-restore toggle, before the map controls); otherwise it stands alone
-  // top-left.
-  const handleZoomIn = useCallback(() => {
+  function handleZoomIn() {
     setViewState((prev) => ({ ...prev, zoom: prev.zoom + 1 }));
-  }, []);
+  }
 
-  const handleZoomOut = useCallback(() => {
+  function handleZoomOut() {
     setViewState((prev) => ({ ...prev, zoom: Math.max(0, prev.zoom - 1) }));
-  }, []);
+  }
 
-  const shareButton = useMemo(
-    () =>
-      shareEnabled ? (
-        <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => setShareOpen(true)}
-            title="Delen"
-            aria-label="Delen"
-          >
-            <Icon name="share" size={chromeIconSize()} color={chromeIconColor()} />
-          </Button>
-        </div>
-      ) : null,
-    [shareEnabled, setShareOpen],
-  );
-
-  // "Lagen combineren" lives in the legend header (between the basemap picker
-  // and the collapse button), not the top-left toolbar: what it acts on is the
-  // set of layers the legend lists, so it belongs beside them — and it then
-  // disappears with the legend when that is minimized.
-  const handleOpenCombine = useCallback(() => {
-    setCombineSession((n) => n + 1);
-    setCombineOpen(true);
-  }, []);
+  /**
+   * The share toolbutton, rendered as its own card so it matches the sibling
+   * toolbar cards. In sidebar mode it slots into the toolbar row (after the
+   * nav-restore toggle, before the map controls); otherwise it stands alone
+   * top-left. A component rather than a shared element: a DOM node can only be
+   * in one place, and both call sites have to be able to render it.
+   */
+  function ShareButton(): JSX.Element {
+    return (
+      <div class="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          onClick={() => setShareOpen(true)}
+          title="Delen"
+          aria-label="Delen"
+        >
+          <Icon name="share" size={chromeIconSize()} color={chromeIconColor()} />
+        </Button>
+      </div>
+    );
+  }
 
   // The Combinaties theme appears only once a combination exists. An empty
   // category would otherwise sit in the tree for every session, promising a
   // feature the user reaches from the legend instead — and the theme's whole
   // purpose is to list what has been created.
-  const showCombinationsTheme = combinationsEnabled && filterLayers.leaves.length > 0;
+  const showCombinationsTheme = () =>
+    props.combinationsEnabled && filterLayers.leaves().length > 0;
 
-  const handleCreateCombination = useCallback(
-    (name: string, refs: ClassRef[]) => {
-      // Inputs come from the legend's stack (what the dialog offered), but the
-      // result always lands on the LEFT map — `useFilterLayers` is bound to that
-      // stack's addLayer/removeLayer, and a combination is one new layer that
-      // has to belong to exactly one map.
-      const configs = leftLegendLayers.layerEntries.map((entry) => entry.config);
-      const mapRef = mapLeftRef.current?.mapRef ?? { current: null };
-      // Fire-and-forget: reading and scoring the rasters takes a moment, and the
-      // hook surfaces both progress and failure through its own state.
-      void filterLayers.create(name, refs, configs, [mapRef]);
-    },
-    [leftLegendLayers.layerEntries, filterLayers],
-  );
+  function handleCreateCombination(name: string, refs: ClassRef[]) {
+    // Inputs come from the legend's stack (what the dialog offered), but the
+    // result always lands on the LEFT map — `useFilterLayers` is bound to that
+    // stack's addLayer/removeLayer, and a combination is one new layer that
+    // has to belong to exactly one map.
+    const configs = leftLegendLayers()
+      .layerEntries()
+      .map((entry) => entry.config);
+    // Fire-and-forget: reading and scoring the rasters takes a moment, and the
+    // hook surfaces both progress and failure through its own state.
+    void filterLayers.create(name, refs, configs, [getMapLeft]);
+  }
 
   // Layers offered for combining: those the LEGEND is showing that define
   // classes AND have a companion class raster. Tied to the legend's own stack
@@ -874,474 +880,510 @@ function App({
   // see there would be arbitrary. `filterRaster` is required because the score
   // is computed cell-by-cell off that shared grid, so a layer without one has
   // nothing to contribute.
-  const combinableLayers = useMemo(
-    () =>
-      leftLegendLayers.layerEntries
-        .map((entry) => entry.config)
-        .filter(
-          (config) =>
-            (config.geostyler?.rules?.length ?? 0) > 0 && config.filterRaster,
-        ),
-    [leftLegendLayers.layerEntries],
-  );
-
-  // Stable toolbar element for the memoized Sidebar (an inline fragment would
-  // be a new element every render, defeating its memo).
-  const sidebarToolbar = useMemo(
-    () => (
-      <>
-        {/* Navigation-restore toggle sits left of the map controls, so
-            reopening the navigation happens at the far-left of the row.
-            The share card follows it; map controls (search rightmost)
-            close the row. */}
-        <SectionToggleBar orientation="horizontal" toggles={sectionToggles} />
-        {shareButton}
-        <MapControls
-          orientation="horizontal"
-          onZoomIn={handleZoomIn}
-          onZoomOut={handleZoomOut}
-          showSearch={mapControls.search}
-          showZoom={mapControls.zoom}
-        />
-      </>
-    ),
-    [
-      sectionToggles,
-      shareButton,
-      handleZoomIn,
-      handleZoomOut,
-      mapControls.search,
-      mapControls.zoom,
-    ],
+  const combinableLayers = createMemo(() =>
+    leftLegendLayers()
+      .layerEntries()
+      .map((entry) => entry.config)
+      .filter(
+        (config) => (config.geostyler?.rules?.length ?? 0) > 0 && config.filterRaster,
+      ),
   );
 
   // On-screen side shown in the share preview/PNG (see shareOpen comment).
-  const shareSide = !comparisonMode && showMapRight ? mapRightLayers : mapLeftLayers;
+  const shareSide = () => (!comparisonMode() && showMapRight() ? mapRightLayers : mapLeftLayers);
 
   // Legend rows for the circular export view (same flattening the dialog +
   // PNG use). Cheap; recomputed when the shown side's layers/visibility change.
-  const circularLegendItems = legendItemsForEntries(
-    shareSide.layerEntries,
-    shareSide.hiddenIds,
-    shareSide.hiddenRules,
-  );
-
-  // The reusable circular map + legend + title, in fixed-text display mode.
-  // Shared by the standalone `?embed=circular` page and the `open-circular`
-  // message.
-  //
-  // Deliberately NOT keyed on the layer set: a key change remounts the whole
-  // subtree, which tears down the MapLibre instance and refetches the basemap,
-  // sprites and tiles on every layer switch. The point of the postMessage API is
-  // that swapping layers adds/removes just those layers, so ExportPreviewMap
-  // reconciles its own layer set from `entries` instead (and adopts camera
-  // changes through initialViewState). The map instance is long-lived.
-  const circularView = (
-    <CircularExportView
-      entries={shareSide.layerEntries}
-      hiddenIds={shareSide.hiddenIds}
-      hiddenRules={shareSide.hiddenRules}
-      basemapId={basemapId}
-      studyAreaId={studyAreaId}
-      filteredStudy={filteredStudy}
-      annotations={annotationsVisible ? annotations.annotations : undefined}
-      initialViewState={viewState}
-      legendItems={circularLegendItems}
-      title={shareTitle}
-      subtitle={shareSubtitle}
-      mode="display"
-      size="fill"
-    />
-  );
-
-  // Circular-only view: NOTHING but the circle + legend + title, centered on a
-  // white page — no map chrome, toolbar, sidebar or backdrop. Rendered both for
-  // the standalone `?embed=circular` page and when a host `open-circular`
-  // message requests it (the message-driven case gets a close button to return
-  // to the full app). This replaces the whole app rather than overlaying it.
-  const showCircularOnly = circularOnlyActive;
-  if (showCircularOnly) {
-    return (
-      <div className="relative flex h-full w-full items-center justify-center bg-white">
-        {/* No close button in standalone embed mode — it's the whole page. */}
-        {!embedCircular && (
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            className="absolute right-3 top-3 z-10"
-            onClick={() => setCircularOpen(false)}
-            title="Sluiten"
-            aria-label="Sluiten"
-          >
-            <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
-          </Button>
-        )}
-        {/* size="fill" sizes the circle to the viewport itself — no width cap here. */}
-        {circularView}
-      </div>
+  const circularLegendItems = () =>
+    legendItemsForEntries(
+      shareSide().layerEntries(),
+      shareSide().hiddenIds(),
+      shareSide().hiddenRules(),
     );
-  }
 
   return (
-    <div className="relative w-full h-full">
-      {/* Left map — full width in single mode, clipped left in comparison */}
-      <div
-        className="absolute inset-0 touch-none"
-        style={
-          comparisonMode
-            ? { clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }
-            : undefined
-        }
-      >
-        <MapView
-          ref={mapLeftRef}
-          basemapId={basemapId}
-          style={{ width: "100%", height: "100%" }}
-          viewState={viewState}
-          onMove={handleMove}
-          onClick={pointer.a.onClick}
-          onMouseMove={pointer.a.onMouseMove}
-          onMouseDown={pointer.a.onMouseDown}
-          onMouseUp={pointer.onMouseUp}
-          onLoad={handleMapLeftLoad}
-          onLabelsReady={handleMapLeftLabelsReady}
-        />
-      </div>
-
-      {/* Right map — mounted whenever it has its own layers. Only clipped in
-          comparison mode; otherwise renders full-width on top of the left map. */}
-      {showMapRight && (
+    // Circular-only view: NOTHING but the circle + legend + title, centered on a
+    // white page — no map chrome, toolbar, sidebar or backdrop. Rendered both for
+    // the standalone `?embed=circular` page and when a host `open-circular`
+    // message requests it (the message-driven case gets a close button to return
+    // to the full app). This replaces the whole app rather than overlaying it.
+    <Show
+      when={!circularOnlyActive()}
+      fallback={
+        <div class="relative flex h-full w-full items-center justify-center bg-white">
+          {/* No close button in standalone embed mode — it's the whole page. */}
+          <Show when={!props.embedCircular}>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              class="absolute right-3 top-3 z-10"
+              onClick={() => setCircularOpen(false)}
+              title="Sluiten"
+              aria-label="Sluiten"
+            >
+              <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+            </Button>
+          </Show>
+          {/* size="fill" sizes the circle to the viewport itself — no width cap
+              here. Deliberately NOT re-created per layer set: that would tear
+              down the MapLibre instance and refetch the basemap, sprites and
+              tiles on every layer switch. The point of the postMessage API is
+              that swapping layers adds/removes just those layers, so
+              ExportPreviewMap reconciles its own layer set from `entries`
+              instead (and adopts camera changes through initialViewState). */}
+          <CircularExportView
+            entries={shareSide().layerEntries()}
+            hiddenIds={shareSide().hiddenIds()}
+            hiddenRules={shareSide().hiddenRules()}
+            basemapId={basemapId()}
+            studyAreaId={props.studyAreaId}
+            filteredStudy={filteredStudy()}
+            annotations={annotationsForExport()}
+            initialViewState={viewState()}
+            legendItems={circularLegendItems()}
+            title={shareTitle()}
+            subtitle={shareSubtitle()}
+            mode="display"
+            size="fill"
+          />
+        </div>
+      }
+    >
+      <div class="relative w-full h-full">
+        {/* Left map — full width in single mode, clipped left in comparison */}
         <div
-          className="absolute inset-0 touch-none"
+          class="absolute inset-0 touch-none"
           style={
-            comparisonMode
-              ? { clipPath: `inset(0 0 0 ${sliderPosition}%)` }
+            comparisonMode()
+              ? { "clip-path": `inset(0 ${100 - sliderPosition()}% 0 0)` }
               : undefined
           }
         >
           <MapView
-            ref={mapRightRef}
-            basemapId={basemapId}
+            ref={setMapLeftView}
+            basemapId={basemapId()}
             style={{ width: "100%", height: "100%" }}
-            viewState={viewState}
+            viewState={viewState()}
             onMove={handleMove}
-            onClick={pointer.b.onClick}
-            onMouseMove={pointer.b.onMouseMove}
-            onMouseDown={pointer.b.onMouseDown}
+            onClick={pointer.a.onClick}
+            onMouseMove={pointer.a.onMouseMove}
+            onMouseDown={pointer.a.onMouseDown}
             onMouseUp={pointer.onMouseUp}
-            onLoad={handleMapRightLoad}
-            onLabelsReady={handleMapRightLabelsReady}
+            onLoad={handleMapLeftLoad}
+            onLabelsReady={handleMapLeftLabelsReady}
           />
         </div>
-      )}
 
-      {/* Comparison slider */}
-      {comparisonMode && (
-        <ComparisonSlider
-          position={sliderPosition}
-          onPositionChange={setSliderPosition}
-        />
-      )}
-
-      {/* Navigation menu — top center (includes map controls: search, +, -).
-          In sidebar mode only the search bar remains here. */}
-      <NavigationPanel
-        nav={nav}
-        onZoomIn={handleZoomIn}
-        onZoomOut={handleZoomOut}
-        showSearch={searchbar}
-        showNavigation={navigation && !sidebarMode}
-        showControlsSearch={mapControls.search}
-        showControlsZoom={mapControls.zoom}
-        showCombinations={showCombinationsTheme}
-        combinationLeaves={filterLayers.leaves}
-        onOpenMeta={openLayerMeta}
-      />
-
-      {/* Bottom-right stack: standalone map controls (search + zoom, only
-          when the navigation UI isn't already showing the MapControls card)
-          above the map-attribution info button, which replaces MapLibre's
-          default attribution control. */}
-      <div className="absolute bottom-2 right-2 z-30 flex flex-col items-end gap-2 sm:bottom-4 sm:right-4">
-        {!navShowsControls && (mapControls.search || mapControls.zoom) && (
-          <MapControls
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            showSearch={mapControls.search}
-            showZoom={mapControls.zoom}
-          />
-        )}
-        {/* Right-map legend sits to the left of the attribution info button; it
-            only appears in comparison mode, where the right map is on screen. */}
-        <div className="flex items-end gap-2">
-          {comparisonMode && !legendMinimized && (
-            <Legend
-              entries={mapRightLayers.layerEntries}
-              hiddenIds={mapRightLayers.hiddenIds}
-              hiddenRules={mapRightLayers.hiddenRules}
-              dimmedIds={mapRightLayers.dimmedIds}
-              layerSteps={mapRightLayers.layerSteps}
-              playingIds={mapRightLayers.playingIds}
-              onToggle={handlersB.toggle}
-              onToggleDim={handlersB.toggleDim}
-              onToggleRule={handlersB.toggleRule}
-              onTogglePlay={handlersB.togglePlay}
-              onSetStep={handlersB.setStep}
-              onRemove={handlersB.remove}
-              onOpenMeta={openLayerMeta}
-              onMove={handleMoveToLeft}
-              moveDirection="left"
-              onReorder={handlersB.reorder}
+        {/* Right map — mounted whenever it has its own layers. Only clipped in
+            comparison mode; otherwise renders full-width on top of the left map. */}
+        <Show when={showMapRight()}>
+          <div
+            class="absolute inset-0 touch-none"
+            style={
+              comparisonMode()
+                ? { "clip-path": `inset(0 0 0 ${sliderPosition()}%)` }
+                : undefined
+            }
+          >
+            <MapView
+              ref={setMapRightView}
+              basemapId={basemapId()}
+              style={{ width: "100%", height: "100%" }}
+              viewState={viewState()}
+              onMove={handleMove}
+              onClick={pointer.b.onClick}
+              onMouseMove={pointer.b.onMouseMove}
+              onMouseDown={pointer.b.onMouseDown}
+              onMouseUp={pointer.onMouseUp}
+              onLoad={handleMapRightLoad}
+              onLabelsReady={handleMapRightLabelsReady}
             />
-          )}
-          <MapAttribution />
+          </div>
+        </Show>
+
+        {/* Comparison slider */}
+        <Show when={comparisonMode()}>
+          <ComparisonSlider
+            position={sliderPosition()}
+            onPositionChange={setSliderPosition}
+          />
+        </Show>
+
+        {/* Navigation menu — top center (includes map controls: search, +, -).
+            In sidebar mode only the search bar remains here. */}
+        <NavigationPanel
+          nav={nav}
+          onZoomIn={handleZoomIn}
+          onZoomOut={handleZoomOut}
+          showSearch={searchbar()}
+          showNavigation={navigation() && !sidebarMode()}
+          showControlsSearch={props.mapControls.search}
+          showControlsZoom={props.mapControls.zoom}
+          showCombinations={showCombinationsTheme()}
+          combinationLeaves={filterLayers.leaves()}
+          onOpenMeta={openLayerMeta}
+        />
+
+        {/* Bottom-right stack: standalone map controls (search + zoom, only
+            when the navigation UI isn't already showing the MapControls card)
+            above the map-attribution info button, which replaces MapLibre's
+            default attribution control. */}
+        <div class="absolute bottom-2 right-2 z-30 flex flex-col items-end gap-2 sm:bottom-4 sm:right-4">
+          <Show
+            when={
+              !navShowsControls() && (props.mapControls.search || props.mapControls.zoom)
+            }
+          >
+            <MapControls
+              onZoomIn={handleZoomIn}
+              onZoomOut={handleZoomOut}
+              showSearch={props.mapControls.search}
+              showZoom={props.mapControls.zoom}
+            />
+          </Show>
+          {/* Right-map legend sits to the left of the attribution info button; it
+              only appears in comparison mode, where the right map is on screen. */}
+          <div class="flex items-end gap-2">
+            <Show when={comparisonMode() && !legendMinimized()}>
+              <Legend
+                entries={mapRightLayers.layerEntries()}
+                hiddenIds={mapRightLayers.hiddenIds()}
+                hiddenRules={mapRightLayers.hiddenRules()}
+                dimmedIds={mapRightLayers.dimmedIds()}
+                layerSteps={mapRightLayers.layerSteps()}
+                playingIds={mapRightLayers.playingIds()}
+                onToggle={handlersB.toggle}
+                onToggleDim={handlersB.toggleDim}
+                onToggleRule={handlersB.toggleRule}
+                onTogglePlay={handlersB.togglePlay}
+                onSetStep={handlersB.setStep}
+                onRemove={handlersB.remove}
+                onOpenMeta={openLayerMeta}
+                onMove={handleMoveToLeft}
+                moveDirection="left"
+                onReorder={handlersB.reorder}
+              />
+            </Show>
+            <MapAttribution />
+          </div>
         </div>
-      </div>
 
-      {/* Share button — standalone top-left when the sidebar toolbar isn't
-          there to host it. */}
-      {!sidebarActive && shareButton && (
-        <div className="absolute left-2 top-2 z-30 sm:left-4 sm:top-4">{shareButton}</div>
-      )}
+        {/* Share button — standalone top-left when the sidebar toolbar isn't
+            there to host it. */}
+        <Show when={!sidebarActive() && shareEnabled()}>
+          <div class="absolute left-2 top-2 z-30 sm:left-4 sm:top-4">
+            <ShareButton />
+          </div>
+        </Show>
 
-      {/* "Lagen combineren" dialog — classes across the active layers. */}
-      {combinationsEnabled && (
-        <CombineLayersDialog
-          key={combineSession}
-          open={combineOpen}
-          onOpenChange={setCombineOpen}
-          layers={combinableLayers}
-          onCreate={handleCreateCombination}
-        />
-      )}
+        {/* "Lagen combineren" dialog — classes across the active layers. Mounted
+            only while open, so each opening starts from a clean selection. */}
+        <Show when={props.combinationsEnabled && combineOpen()}>
+          <CombineLayersDialog
+            open
+            onOpenChange={setCombineOpen}
+            layers={combinableLayers()}
+            onCreate={handleCreateCombination}
+          />
+        </Show>
 
-      {/* "Delen" dialog — share link + circular PNG export. */}
-      {shareEnabled && (
-        <ShareDialog
-          open={shareOpen}
-          onOpenChange={setShareOpen}
-          entries={shareSide.layerEntries}
-          hiddenIds={shareSide.hiddenIds}
-          hiddenRules={shareSide.hiddenRules}
-          entriesA={mapLeftLayers.layerEntries}
-          entriesB={mapRightLayers.layerEntries}
-          hiddenIdsA={mapLeftLayers.hiddenIds}
-          hiddenIdsB={mapRightLayers.hiddenIds}
-          basemapId={basemapId}
-          studyAreaId={studyAreaId}
-          filteredStudy={filteredStudy}
-          annotations={annotationsVisible ? annotations.annotations : undefined}
-          viewState={viewState}
-          annotRoomId={annotationActive ? collab.roomId : null}
-          title={shareTitle}
-          subtitle={shareSubtitle}
-          onTitleChange={setShareTitle}
-          onSubtitleChange={setShareSubtitle}
-        />
-      )}
+        {/* "Delen" dialog — share link + circular PNG export. */}
+        <Show when={shareEnabled()}>
+          <ShareDialog
+            open={shareOpen()}
+            onOpenChange={setShareOpen}
+            entries={shareSide().layerEntries()}
+            hiddenIds={shareSide().hiddenIds()}
+            hiddenRules={shareSide().hiddenRules()}
+            entriesA={mapLeftLayers.layerEntries()}
+            entriesB={mapRightLayers.layerEntries()}
+            hiddenIdsA={mapLeftLayers.hiddenIds()}
+            hiddenIdsB={mapRightLayers.hiddenIds()}
+            basemapId={basemapId()}
+            studyAreaId={props.studyAreaId}
+            filteredStudy={filteredStudy()}
+            annotations={annotationsForExport()}
+            viewState={viewState()}
+            annotRoomId={annotationActive() ? collab.roomId() : null}
+            title={shareTitle()}
+            subtitle={shareSubtitle()}
+            onTitleChange={setShareTitle}
+            onSubtitleChange={setShareSubtitle}
+          />
+        </Show>
 
-      {/* Analytics panel — right side; opened by selecting a layer in the
-          legend. In comparison mode it overlays the right map by design.
-          Never shown while the annotation tool is active. */}
-      {chartsPanelEnabled && chartLayerConfig && !chartsMinimized && !annotationActive && (
-        <ChartsPanel
-          config={chartLayerConfig}
-          version={areaFilter.version + boxSelect.version}
-          onClose={handleChartsClose}
-          areaSelectActive={boxSelect.active}
-          onToggleAreaSelect={handleAreaSelectToggle}
-        />
-      )}
-
-      {/* Top-right toolbar stack: the annotation tool card and the restore
-          button for the minimized statistics panel (docked where the panel
-          itself lives). While the statistics panel is open it occupies the
-          top-right corner, so the stack shifts left of it. */}
-      {(annotationsEnabled || (chartsPanelEnabled && chartLayerConfig && chartsMinimized)) && (
-        <div
-          className="absolute right-2 top-2 z-30 flex flex-col items-end gap-2 sm:right-4 sm:top-4"
-          style={
-            chartsPanelEnabled && chartLayerConfig && !chartsMinimized && !annotationActive
-              ? { right: "calc(min(30rem, 90vw) + 1.5rem)" }
-              : undefined
+        {/* Analytics panel — right side; opened by selecting a layer in the
+            legend. In comparison mode it overlays the right map by design.
+            Never shown while the annotation tool is active. */}
+        <Show
+          when={
+            props.chartsPanelEnabled &&
+            !chartsMinimized() &&
+            !annotationActive() &&
+            chartLayerConfig()
           }
         >
-          {annotationsEnabled && (
-            <AnnotationToolbar
-              active={annotationActive}
-              drawTool={annotationDrawTool}
-              onSetTool={annotationSetTool}
-              onToggleMode={handleAnnotationToolToggle}
-              collabRoomId={collab.roomId}
-              collabPeers={collab.peers}
-              collabConnected={collab.connected}
+          {(config) => (
+            <ChartsPanel
+              config={config()}
+              onClose={handleChartsClose}
+              areaSelectActive={boxSelect.active()}
+              onToggleAreaSelect={pointer.toggleAreaSelect}
             />
           )}
-          {chartsPanelEnabled && chartLayerConfig && chartsMinimized && !annotationActive && (
-            <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={toggleChartsMinimized}
-                title="Statistieken tonen"
-                aria-label="Statistieken tonen"
-              >
-                <Icon name="monitoring" size={chromeIconSize()} color={chromeIconColor()} />
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
+        </Show>
 
-      {/* Selected-annotation chrome — titlebox + edit/info toolbuttons,
-          anchored above the top of the shape. Delete/Backspace removes,
-          Escape deselects. */}
-      {annotationsVisible && selectedAnnotation && annotationPopupPos && (
-        <AnnotationEditPopup
-          // Remount on selection change so the editor's local draft state
-          // (title/description/panel flags) resets with the annotation, instead
-          // of being re-synced by an effect after a stale first render.
-          key={selectedAnnotation.id}
-          annotation={selectedAnnotation}
-          x={annotationPopupPos.x}
-          y={annotationPopupPos.y}
-          onChange={(patch) => annotations.update(selectedAnnotation.id, patch)}
-          onRecapture={() =>
-            // Re-capture the FULL session snapshot — both maps' layers +
-            // hidden ids, gebiedsfilters and camera — exactly like creation.
-            annotations.update(selectedAnnotation.id, {
-              snapshot: annotationCommands.captureSnapshot(),
-            })
+        {/* Top-right toolbar stack: the annotation tool card and the restore
+            button for the minimized statistics panel (docked where the panel
+            itself lives). While the statistics panel is open it occupies the
+            top-right corner, so the stack shifts left of it. */}
+        <Show
+          when={
+            annotationsEnabled() ||
+            (props.chartsPanelEnabled && chartLayerConfig() && chartsMinimized())
           }
-          onDelete={() => {
-            // Same as the Delete/Backspace shortcut: deselect, then remove.
-            annotationSelect(null);
-            annotations.remove(selectedAnnotation.id);
-          }}
-        />
-      )}
-
-      {/* Left column: in sidebar mode the toolbar + Filter/Navigatie card sit at
-          the top and the Legenda at the bottom, in one flex column so the two
-          can never overlap. The navigation's height leads; the legend takes the
-          space left over below it (shrinking and scrolling inside) with the
-          column's gap between them. In top mode the column holds the legend
-          alone, which the spacer keeps pinned bottom-left as before.
-          pointer-events-none so the empty space around the cards doesn't
-          swallow map clicks — each card re-enables its own. */}
-      <div className="pointer-events-none absolute bottom-2 left-2 top-2 z-30 flex flex-col items-start gap-2 sm:bottom-4 sm:left-4 sm:top-4">
-        {sidebarActive && (
-          <Sidebar
-            nav={nav}
-            areaFilter={areaFilter}
-            showFilter={filterAvailable && !navMinimized}
-            showNavigation={navAvailable && !navMinimized}
-            onClose={toggleNavMinimized}
-            toolbar={sidebarToolbar}
-            showCombinations={showCombinationsTheme}
-            combinationLeaves={filterLayers.leaves}
-            onOpenMeta={openLayerMeta}
-          />
-        )}
-
-        {/* Pushes the legend to the bottom of the column: it absorbs whatever
-            the two capped cards leave over, and collapses to zero when they
-            together need the full height. */}
-        <div className="min-h-0 flex-1" aria-hidden />
-
-        {/* Bottom-left, at most a quarter of the viewport. `flex-shrink` still
-            lets it give way below that cap if the column runs out of room, so
-            it can never overlap the navigation above. */}
-        <div className="pointer-events-auto flex max-h-[25vh] min-h-0 flex-shrink flex-col items-start">
-          {legendMinimized ? (
-            // Collapsed bar (bottom-left → right): show-Kaartlagen toggle, then
-            // the basemap toggle. Restoring re-opens the Kaartlagen window.
-            <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={toggleLegendMinimized}
-                title="Kaartlagen tonen"
-                aria-label="Kaartlagen tonen"
-              >
-                <Icon name="legend_toggle" size={chromeIconSize()} color={chromeIconColor()} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={openBasemapDialog}
-                title="Referentielagen kiezen"
-                aria-label="Referentielagen kiezen"
-              >
-                <Icon name="map" size={chromeIconSize()} color={chromeIconColor()} />
-              </Button>
-            </div>
-          ) : (
-            <Legend
-              entries={leftLegendLayers.layerEntries}
-              hiddenIds={leftLegendLayers.hiddenIds}
-              hiddenRules={leftLegendLayers.hiddenRules}
-              dimmedIds={leftLegendLayers.dimmedIds}
-              layerSteps={leftLegendLayers.layerSteps}
-              playingIds={leftLegendLayers.playingIds}
-              onToggle={leftLegendHandlers.toggle}
-              onToggleDim={leftLegendHandlers.toggleDim}
-              onToggleRule={leftLegendHandlers.toggleRule}
-              onTogglePlay={leftLegendHandlers.togglePlay}
-              onSetStep={leftLegendHandlers.setStep}
-              onRemove={leftLegendHandlers.remove}
-              onOpenMeta={openLayerMeta}
-              onReorder={leftLegendHandlers.reorder}
-              onMove={leftLegendUsesMapB ? handleMoveToLeft : handleMoveToRight}
-              moveDirection={leftLegendUsesMapB ? "left" : "right"}
-              // Moving the left map's only layer to the right map would empty the
-              // left map (which anchors the comparison) — grey the button out.
-              moveDisabled={!leftLegendUsesMapB && mapLeftLayers.layerEntries.length <= 1}
-              onOpenBasemaps={openBasemapDialog}
-              onOpenCombine={combinationsEnabled ? handleOpenCombine : undefined}
-              canCombine={combinableLayers.length > 0}
-              onClose={toggleLegendMinimized}
-              // The slot above already applies the 20vh cap and the shrink —
-              // let that bind rather than a second, independent cap here.
-              maxHeightClass="max-h-full"
-            />
-          )}
-        </div>
-      </div>
-
-      {/* Details + Street View — one window below the click, single close button */}
-      {popupPoint && (pickResult || (streetview && streetView)) && (
-        <InfoPopup
-          x={popupPoint.x}
-          y={popupPoint.y}
-          title={pickResult ? "Details" : "Street View"}
-          onClose={closePopup}
-          wide={pickResult ? resultUsesPblSummary(pickResult, pickEntries) : false}
         >
-          {pickResult && (
-            <FeatureInfo result={pickResult} layerEntries={pickEntries} embedded />
-          )}
-          {streetview && streetView && (
-            <StreetView lng={streetView.lng} lat={streetView.lat} embedded />
-          )}
-        </InfoPopup>
-      )}
+          <div
+            class="absolute right-2 top-2 z-30 flex flex-col items-end gap-2 sm:right-4 sm:top-4"
+            style={
+              props.chartsPanelEnabled &&
+              chartLayerConfig() &&
+              !chartsMinimized() &&
+              !annotationActive()
+                ? { right: "calc(min(30rem, 90vw) + 1.5rem)" }
+                : undefined
+            }
+          >
+            <Show when={annotationsEnabled()}>
+              <AnnotationToolbar
+                active={annotationActive()}
+                drawTool={annotationDrawTool()}
+                onSetTool={annotationSetTool}
+                onToggleMode={pointer.toggleAnnotationTool}
+                collabRoomId={collab.roomId()}
+                collabPeers={collab.peers()}
+                collabConnected={collab.connected()}
+              />
+            </Show>
+            <Show
+              when={
+                props.chartsPanelEnabled &&
+                chartLayerConfig() &&
+                chartsMinimized() &&
+                !annotationActive()
+              }
+            >
+              <div class="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={toggleChartsMinimized}
+                  title="Statistieken tonen"
+                  aria-label="Statistieken tonen"
+                >
+                  <Icon name="monitoring" size={chromeIconSize()} color={chromeIconColor()} />
+                </Button>
+              </div>
+            </Show>
+          </div>
+        </Show>
 
-      <BasemapDialog
-        open={basemapDialogOpen}
-        onOpenChange={setBasemapDialogOpen}
-        basemapId={basemapId}
-        onSelect={setBasemap}
-      />
+        {/* Selected-annotation chrome — titlebox + edit/info toolbuttons,
+            anchored above the top of the shape. Delete/Backspace removes,
+            Escape deselects.
 
-      <LayerMetaDialog
-        open={metaLayer !== null}
-        onOpenChange={closeLayerMeta}
-        layer={metaLayer}
-        onAddLayer={addMetaLayerToLeftMap}
-        isLayerOnMap={isMetaLayerOnLeftMap}
-      />
-    </div>
+            Keyed on the annotation id so selecting another annotation MOUNTS a
+            fresh popup: its local draft state (title/description, panel flags)
+            then initialises from the new annotation instead of being re-synced
+            by an effect after a stale first render. */}
+        <Show when={annotationsVisible() ? annotationSelectedId() : null} keyed>
+          {(selectedId) => (
+            <Show when={selectedAnnotation()}>
+              {(annotation) => (
+                <Show when={annotationPopupPos()}>
+                  {(pos) => (
+                    <AnnotationEditPopup
+                      annotation={annotation()}
+                      x={pos().x}
+                      y={pos().y}
+                      onChange={(patch) => annotations.update(selectedId, patch)}
+                      onRecapture={() =>
+                        // Re-capture the FULL session snapshot — both maps' layers +
+                        // hidden ids, gebiedsfilters and camera — exactly like creation.
+                        annotations.update(selectedId, {
+                          snapshot: annotationCommands.captureSnapshot(),
+                        })
+                      }
+                      onDelete={() => {
+                        // Same as the Delete/Backspace shortcut: deselect, then remove.
+                        annotationSelect(null);
+                        annotations.remove(selectedId);
+                      }}
+                    />
+                  )}
+                </Show>
+              )}
+            </Show>
+          )}
+        </Show>
+
+        {/* Left column: in sidebar mode the toolbar + Filter/Navigatie card sit at
+            the top and the Legenda at the bottom, in one flex column so the two
+            can never overlap. The navigation's height leads; the legend takes the
+            space left over below it (shrinking and scrolling inside) with the
+            column's gap between them. In top mode the column holds the legend
+            alone, which the spacer keeps pinned bottom-left as before.
+            pointer-events-none so the empty space around the cards doesn't
+            swallow map clicks — each card re-enables its own. */}
+        <div class="pointer-events-none absolute bottom-2 left-2 top-2 z-30 flex flex-col items-start gap-2 sm:bottom-4 sm:left-4 sm:top-4">
+          <Show when={sidebarActive()}>
+            <Sidebar
+              nav={nav}
+              areaFilter={areaFilter}
+              showFilter={filterAvailable() && !navMinimized()}
+              showNavigation={navAvailable() && !navMinimized()}
+              onClose={toggleNavMinimized}
+              toolbar={
+                <>
+                  {/* Navigation-restore toggle sits left of the map controls, so
+                      reopening the navigation happens at the far-left of the row.
+                      The share card follows it; map controls (search rightmost)
+                      close the row. */}
+                  <SectionToggleBar orientation="horizontal" toggles={sectionToggles()} />
+                  <Show when={shareEnabled()}>
+                    <ShareButton />
+                  </Show>
+                  <MapControls
+                    orientation="horizontal"
+                    onZoomIn={handleZoomIn}
+                    onZoomOut={handleZoomOut}
+                    showSearch={props.mapControls.search}
+                    showZoom={props.mapControls.zoom}
+                  />
+                </>
+              }
+              showCombinations={showCombinationsTheme()}
+              combinationLeaves={filterLayers.leaves()}
+              onOpenMeta={openLayerMeta}
+            />
+          </Show>
+
+          {/* Pushes the legend to the bottom of the column: it absorbs whatever
+              the two capped cards leave over, and collapses to zero when they
+              together need the full height. */}
+          <div class="min-h-0 flex-1" aria-hidden />
+
+          {/* Bottom-left, at most a quarter of the viewport. `flex-shrink` still
+              lets it give way below that cap if the column runs out of room, so
+              it can never overlap the navigation above. */}
+          <div class="pointer-events-auto flex max-h-[25vh] min-h-0 flex-shrink flex-col items-start">
+            <Show
+              when={!legendMinimized()}
+              fallback={
+                // Collapsed bar (bottom-left → right): show-Kaartlagen toggle, then
+                // the basemap toggle. Restoring re-opens the Kaartlagen window.
+                <div class="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={toggleLegendMinimized}
+                    title="Kaartlagen tonen"
+                    aria-label="Kaartlagen tonen"
+                  >
+                    <Icon
+                      name="legend_toggle"
+                      size={chromeIconSize()}
+                      color={chromeIconColor()}
+                    />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => setBasemapDialogOpen(true)}
+                    title="Referentielagen kiezen"
+                    aria-label="Referentielagen kiezen"
+                  >
+                    <Icon name="map" size={chromeIconSize()} color={chromeIconColor()} />
+                  </Button>
+                </div>
+              }
+            >
+              <Legend
+                entries={leftLegendLayers().layerEntries()}
+                hiddenIds={leftLegendLayers().hiddenIds()}
+                hiddenRules={leftLegendLayers().hiddenRules()}
+                dimmedIds={leftLegendLayers().dimmedIds()}
+                layerSteps={leftLegendLayers().layerSteps()}
+                playingIds={leftLegendLayers().playingIds()}
+                onToggle={leftLegendHandlers().toggle}
+                onToggleDim={leftLegendHandlers().toggleDim}
+                onToggleRule={leftLegendHandlers().toggleRule}
+                onTogglePlay={leftLegendHandlers().togglePlay}
+                onSetStep={leftLegendHandlers().setStep}
+                onRemove={leftLegendHandlers().remove}
+                onOpenMeta={openLayerMeta}
+                onReorder={leftLegendHandlers().reorder}
+                onMove={leftLegendUsesMapB() ? handleMoveToLeft : handleMoveToRight}
+                moveDirection={leftLegendUsesMapB() ? "left" : "right"}
+                // Moving the left map's only layer to the right map would empty the
+                // left map (which anchors the comparison) — grey the button out.
+                moveDisabled={
+                  !leftLegendUsesMapB() && mapLeftLayers.layerEntries().length <= 1
+                }
+                onOpenBasemaps={() => setBasemapDialogOpen(true)}
+                onOpenCombine={
+                  props.combinationsEnabled ? () => setCombineOpen(true) : undefined
+                }
+                canCombine={combinableLayers().length > 0}
+                onClose={toggleLegendMinimized}
+                // The slot above already applies the 25vh cap and the shrink —
+                // let that bind rather than a second, independent cap here.
+                maxHeightClass="max-h-full"
+              />
+            </Show>
+          </div>
+        </div>
+
+        {/* Details + Street View — one window below the click, single close button */}
+        <Show
+          when={popupPoint() && (pickResult() || (streetview() && streetView()))}
+        >
+          <InfoPopup
+            x={popupPoint()!.x}
+            y={popupPoint()!.y}
+            title={pickResult() ? "Details" : "Street View"}
+            onClose={closePopup}
+            wide={
+              pickResult() ? resultUsesPblSummary(pickResult()!, pickEntries()) : false
+            }
+          >
+            <Show when={pickResult()}>
+              {(result) => (
+                <FeatureInfo result={result()} layerEntries={pickEntries()} embedded />
+              )}
+            </Show>
+            <Show when={streetview() && streetView()}>
+              {(sv) => <StreetView lng={sv().lng} lat={sv().lat} embedded />}
+            </Show>
+          </InfoPopup>
+        </Show>
+
+        <BasemapDialog
+          open={basemapDialogOpen()}
+          onOpenChange={setBasemapDialogOpen}
+          basemapId={basemapId()}
+          onSelect={setBasemap}
+        />
+
+        <LayerMetaDialog
+          open={metaLayer() !== null}
+          onOpenChange={closeLayerMeta}
+          layer={metaLayer()}
+          onAddLayer={addMetaLayerToLeftMap}
+          isLayerOnMap={isMetaLayerOnLeftMap}
+        />
+      </div>
+    </Show>
   );
 }
 

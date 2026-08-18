@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useMemo } from "react";
-import type { MapRef } from "react-map-gl/maplibre";
-import type { MapViewHandle } from "@/components/map/MapView";
+import { createEffect, onCleanup, type Accessor } from "solid-js";
+import type { MapAccessor, MapViewHandle } from "@/components/map/map-view-config";
 import type { UseMapLayersResult } from "./use-map-layers";
 
 /**
@@ -8,7 +7,7 @@ import type { UseMapLayersResult } from "./use-map-layers";
  * playback timers.
  *
  * App drives two maps (A/B) whose handlers were previously written out twice,
- * identical apart from which `useMapLayers` result and which map ref they
+ * identical apart from which `useMapLayers` result and which map handle they
  * closed over — so a fix to one side could silently miss the other. Binding the
  * pair once and calling this hook twice makes that class of drift impossible.
  */
@@ -25,88 +24,62 @@ export interface UseLayerHandlersResult {
 
 export function useLayerHandlers(
   layers: UseMapLayersResult,
-  mapViewRef: React.RefObject<MapViewHandle | null>,
+  mapView: Accessor<MapViewHandle | null>,
 ): UseLayerHandlersResult {
-  // The map may not be mounted yet (map B is conditional), so every call
-  // resolves the ref lazily and falls back to an empty one the layer helpers
-  // treat as "no map".
-  const resolveMapRef = useCallback(
-    (): React.RefObject<MapRef | null> => mapViewRef.current?.mapRef ?? { current: null },
-    [mapViewRef],
-  );
+  // The map may not be mounted yet (map B is conditional), so this resolves
+  // lazily and yields null, which the layer helpers treat as "no map".
+  const getMap: MapAccessor = () => mapView()?.map() ?? null;
 
-  const toggle = useCallback(
-    (layerId: string) => {
-      layers.toggleLayer(layerId, resolveMapRef());
-    },
-    [layers, resolveMapRef],
-  );
+  function toggle(layerId: string) {
+    layers.toggleLayer(layerId, getMap);
+  }
 
-  const toggleDim = useCallback(
-    (layerId: string) => {
-      layers.toggleDim(layerId, resolveMapRef());
-    },
-    [layers, resolveMapRef],
-  );
+  function toggleDim(layerId: string) {
+    layers.toggleDim(layerId, getMap);
+  }
 
-  const toggleRule = useCallback(
-    (layerId: string, ruleName: string) => {
-      layers.toggleRule(layerId, ruleName, resolveMapRef());
-    },
-    [layers, resolveMapRef],
-  );
+  function toggleRule(layerId: string, ruleName: string) {
+    layers.toggleRule(layerId, ruleName, getMap);
+  }
 
-  const togglePlay = useCallback(
-    (layerId: string) => {
-      layers.togglePlay(layerId);
-    },
-    [layers],
-  );
+  function togglePlay(layerId: string) {
+    layers.togglePlay(layerId);
+  }
 
   // Scrubbing pauses playback, so the slider and the timer can't fight over
   // which step is rendered.
-  const setStep = useCallback(
-    (layerId: string, value: number) => {
-      layers.stopPlay(layerId);
-      layers.setLayerStep(layerId, value, [resolveMapRef()]);
-    },
-    [layers, resolveMapRef],
-  );
+  function setStep(layerId: string, value: number) {
+    layers.stopPlay(layerId);
+    layers.setLayerStep(layerId, value, [getMap]);
+  }
 
-  const remove = useCallback(
-    (layerId: string) => {
-      layers.removeLayer(layerId, resolveMapRef());
-    },
-    [layers, resolveMapRef],
-  );
+  function remove(layerId: string) {
+    layers.removeLayer(layerId, getMap);
+  }
 
   // Drag-reorder in the legend. `toIndex` is already in draw-order space (the
   // Legend converts from its reversed display order), and overrides the layer's
   // `beforeid` band.
-  const reorder = useCallback(
-    (layerId: string, toIndex: number) => {
-      layers.reorderLayer(layerId, toIndex, resolveMapRef());
-    },
-    [layers, resolveMapRef],
-  );
+  function reorder(layerId: string, toIndex: number) {
+    layers.reorderLayer(layerId, toIndex, getMap);
+  }
 
-  // Timeseries playback: one interval per playing layer. Re-armed whenever the
-  // playing set changes; the step itself is read from the hook's ref inside
-  // advanceStep, so a tick never needs the interval rebuilt.
-  useEffect(() => {
-    if (layers.playingIds.size === 0) return;
-    const timers = [...layers.playingIds].map((layerId) => {
-      const entry = layers.layerEntries.find((e) => e.config.id === layerId);
+  // Timeseries playback: one interval per playing layer, re-armed whenever the
+  // playing set changes. A tick reads the current step from the layer signals
+  // inside advanceStep, so the interval never needs rebuilding for that.
+  createEffect(() => {
+    const playing = layers.playingIds();
+    if (playing.size === 0) return;
+    const entries = layers.layerEntries();
+    const timers = [...playing].map((layerId) => {
+      const entry = entries.find((e) => e.config.id === layerId);
       const intervalMs = entry?.config.timeseries?.intervalMs ?? 1000;
       return window.setInterval(() => {
-        layers.advanceStep(layerId, [resolveMapRef()]);
+        layers.advanceStep(layerId, [getMap]);
       }, intervalMs);
     });
-    return () => timers.forEach((t) => window.clearInterval(t));
-  }, [layers, resolveMapRef]);
+    onCleanup(() => timers.forEach((t) => window.clearInterval(t)));
+  });
 
-  return useMemo(
-    () => ({ toggle, toggleDim, toggleRule, togglePlay, setStep, remove, reorder }),
-    [toggle, toggleDim, toggleRule, togglePlay, setStep, remove, reorder],
-  );
+  return { toggle, toggleDim, toggleRule, togglePlay, setStep, remove, reorder };
 }

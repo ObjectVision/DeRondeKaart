@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { For, Show, createSignal, type JSX } from "solid-js";
 import { NavIcon, Icon } from "@/components/ui/nav-icon";
 import { hasLeaves, isLeaf, type NavItem, type NavLeaf, type NavNode } from "@/layers/navigation";
 import { chromeIconColor } from "@/config/map-config";
@@ -30,15 +30,15 @@ interface NavTreeProps {
    * When omitted, selecting a leaf is the caller's business entirely (top
    * mode opens LeafDetail instead).
    */
-  leafActions?: (leaf: NavLeaf) => React.ReactNode;
+  leafActions?: (leaf: NavLeaf) => JSX.Element;
   /** Panel rendered below the SELECTED leaf row (the sidebar's info panel). */
-  leafDetail?: (leaf: NavLeaf) => React.ReactNode;
+  leafDetail?: (leaf: NavLeaf) => JSX.Element;
   /**
    * Status element rendered at the right edge of EVERY leaf row (e.g. the
    * on-map check button). Rendered outside the label button, so it may be
    * interactive itself.
    */
-  leafStatus?: (leaf: NavLeaf) => React.ReactNode;
+  leafStatus?: (leaf: NavLeaf) => JSX.Element;
 }
 
 /** Does this subtree contain a leaf whose label matches the query? */
@@ -48,65 +48,55 @@ function matches(item: NavItem, query: string): boolean {
   return item.children.some((c) => matches(c, query));
 }
 
-export function NavTree({
-  items,
-  query,
-  selectedLeafId,
-  onSelectLeaf,
-  path = [],
-  isOpen,
-  onToggle,
-  leafActions,
-  leafDetail,
-  leafStatus,
-}: NavTreeProps) {
+export function NavTree(props: NavTreeProps): JSX.Element {
+  const path = () => props.path ?? [];
+  const visible = () => props.items.filter((item) => matches(item, props.query));
+
   return (
-    <ul className="flex flex-col gap-0.5">
-      {items
-        .filter((item) => matches(item, query))
-        .map((item) =>
-          isLeaf(item) ? (
-            <LeafRow
-              key={item.id || item.label}
-              leaf={item}
-              selected={item.id === selectedLeafId}
-              onSelect={() => onSelectLeaf(item, [item.label])}
-              actions={leafActions?.(item)}
-              detail={item.id === selectedLeafId ? leafDetail?.(item) : undefined}
-              status={leafStatus?.(item)}
-            />
-          ) : (
-            <BranchRow
-              key={item.label}
-              node={item}
-              query={query}
-              selectedLeafId={selectedLeafId}
-              onSelectLeaf={(leaf, leafPath) => onSelectLeaf(leaf, [item.label, ...leafPath])}
-              path={[...path, item.label]}
-              isOpen={isOpen}
-              onToggle={onToggle}
-              leafActions={leafActions}
-              leafDetail={leafDetail}
-              leafStatus={leafStatus}
-            />
-          ),
+    <ul class="flex flex-col gap-0.5">
+      <For each={visible()}>
+        {(item) => (
+          <Show
+            when={!isLeaf(item) ? (item as NavNode) : null}
+            fallback={
+              <LeafRow
+                leaf={item as NavLeaf}
+                selected={(item as NavLeaf).id === props.selectedLeafId}
+                onSelect={() => props.onSelectLeaf(item as NavLeaf, [item.label])}
+                actions={props.leafActions?.(item as NavLeaf)}
+                detail={
+                  (item as NavLeaf).id === props.selectedLeafId
+                    ? props.leafDetail?.(item as NavLeaf)
+                    : undefined
+                }
+                status={props.leafStatus?.(item as NavLeaf)}
+              />
+            }
+          >
+            {(node) => (
+              <BranchRow
+                node={node()}
+                query={props.query}
+                selectedLeafId={props.selectedLeafId}
+                onSelectLeaf={(leaf, leafPath) =>
+                  props.onSelectLeaf(leaf, [node().label, ...leafPath])
+                }
+                path={[...path(), node().label]}
+                isOpen={props.isOpen}
+                onToggle={props.onToggle}
+                leafActions={props.leafActions}
+                leafDetail={props.leafDetail}
+                leafStatus={props.leafStatus}
+              />
+            )}
+          </Show>
         )}
+      </For>
     </ul>
   );
 }
 
-function BranchRow({
-  node,
-  query,
-  selectedLeafId,
-  onSelectLeaf,
-  path,
-  isOpen,
-  onToggle,
-  leafActions,
-  leafDetail,
-  leafStatus,
-}: {
+interface BranchRowProps {
   node: NavNode;
   query: string;
   selectedLeafId?: string;
@@ -114,134 +104,130 @@ function BranchRow({
   path: string[];
   isOpen?: (path: string[]) => boolean;
   onToggle?: (path: string[]) => void;
-  leafActions?: (leaf: NavLeaf) => React.ReactNode;
-  leafDetail?: (leaf: NavLeaf) => React.ReactNode;
-  leafStatus?: (leaf: NavLeaf) => React.ReactNode;
-}) {
-  // Always declared (hooks can't be conditional); ignored when controlled.
-  const [localOpen, setLocalOpen] = useState(node.expanded ?? false);
-  const controlled = isOpen !== undefined && onToggle !== undefined;
-  const open = controlled ? isOpen(path) : localOpen;
+  leafActions?: (leaf: NavLeaf) => JSX.Element;
+  leafDetail?: (leaf: NavLeaf) => JSX.Element;
+  leafStatus?: (leaf: NavLeaf) => JSX.Element;
+}
+
+function BranchRow(props: BranchRowProps): JSX.Element {
+  // Used only in the uncontrolled case; harmless otherwise.
+  // deliberate one-time seed: a row
+  // is re-created when its node changes, and `expanded` is the initial state only
+  // eslint-disable-next-line solid/reactivity
+  const [localOpen, setLocalOpen] = createSignal(props.node.expanded ?? false);
+  const controlled = () => props.isOpen !== undefined && props.onToggle !== undefined;
+  const open = () => (controlled() ? props.isOpen!(props.path) : localOpen());
   // A branch with nothing under it stays collapsed whatever the stored state or
   // `node.expanded` says — its row is disabled, so the user could not close it
   // again.
-  const empty = !hasLeaves(node);
+  const empty = () => !hasLeaves(props.node);
   // A non-empty query force-expands matching branches. Deliberately does NOT
   // write through to the controlled state: clearing the search must return the
   // tree to what the user actually left open, not to all-expanded.
-  const expanded = !empty && (query ? true : open);
+  const expanded = () => !empty() && (props.query ? true : open());
 
   return (
     <li>
       <button
-        onClick={() => (controlled ? onToggle(path) : setLocalOpen((v) => !v))}
-        disabled={empty}
-        aria-expanded={empty ? undefined : expanded}
-        className={
+        onClick={() => (controlled() ? props.onToggle!(props.path) : setLocalOpen((v) => !v))}
+        disabled={empty()}
+        aria-expanded={empty() ? undefined : expanded()}
+        class={
           "flex w-full items-start gap-2 rounded px-1.5 py-1 text-left text-sm transition-colors " +
-          (empty ? "cursor-default opacity-50" : "hover:bg-gray-100")
+          (empty() ? "cursor-default opacity-50" : "hover:bg-gray-100")
         }
       >
         <Icon
-          name={expanded ? "expand_more" : "chevron_right"}
+          name={expanded() ? "expand_more" : "chevron_right"}
           size={18}
           color={chromeIconColor()}
-          className="mt-px flex-shrink-0"
+          class="mt-px flex-shrink-0"
         />
         <NavIcon
-          name={node.icon}
-          color={node.color}
+          name={props.node.icon}
+          color={props.node.color}
           size={18}
-          className="mt-px flex-shrink-0 text-gray-500"
+          class="mt-px flex-shrink-0 text-gray-500"
         />
-        <span
-          className={
-            "break-words font-medium " + (empty ? "text-gray-400" : "text-gray-800")
-          }
-        >
-          {node.label}
+        <span class={"break-words font-medium " + (empty() ? "text-gray-400" : "text-gray-800")}>
+          {props.node.label}
         </span>
       </button>
-      {expanded && (
-        <div className="ml-3 border-l border-gray-100 pl-1">
+      <Show when={expanded()}>
+        <div class="ml-3 border-l border-gray-100 pl-1">
           <NavTree
-            items={node.children}
-            query={query}
-            selectedLeafId={selectedLeafId}
-            onSelectLeaf={onSelectLeaf}
-            path={path}
-            isOpen={isOpen}
-            onToggle={onToggle}
-            leafActions={leafActions}
-            leafDetail={leafDetail}
-            leafStatus={leafStatus}
+            items={props.node.children}
+            query={props.query}
+            selectedLeafId={props.selectedLeafId}
+            onSelectLeaf={props.onSelectLeaf}
+            path={props.path}
+            isOpen={props.isOpen}
+            onToggle={props.onToggle}
+            leafActions={props.leafActions}
+            leafDetail={props.leafDetail}
+            leafStatus={props.leafStatus}
           />
         </div>
-      )}
+      </Show>
     </li>
   );
 }
 
-function LeafRow({
-  leaf,
-  selected,
-  onSelect,
-  actions,
-  detail,
-  status,
-}: {
+interface LeafRowProps {
   leaf: NavLeaf;
   selected: boolean;
   onSelect: () => void;
   /** Inline menu right of the row: always shown while selected, on hover otherwise. */
-  actions?: React.ReactNode;
+  actions?: JSX.Element;
   /** Panel shown below the row while it is selected (info). */
-  detail?: React.ReactNode;
+  detail?: JSX.Element;
   /** Always-visible indicator after the label (e.g. on-map check). */
-  status?: React.ReactNode;
-}) {
+  status?: JSX.Element;
+}
+
+function LeafRow(props: LeafRowProps): JSX.Element {
   return (
     <li>
       <div
-        className={
+        class={
           "group flex w-full items-center gap-1 rounded pr-1 transition-colors hover:bg-gray-100 " +
-          (selected ? "bg-blue-50" : "")
+          (props.selected ? "bg-blue-50" : "")
         }
       >
         <button
-          onClick={onSelect}
-          aria-expanded={actions ? selected : undefined}
-          className={
+          onClick={() => props.onSelect?.()}
+          aria-expanded={props.actions ? props.selected : undefined}
+          class={
             "flex min-w-0 flex-1 items-start gap-2 px-1.5 py-1 pl-7 text-left text-sm " +
-            (selected ? "text-blue-700" : "text-gray-700")
+            (props.selected ? "text-blue-700" : "text-gray-700")
           }
         >
           {/* items-start, not items-center: a label that wraps to two lines would
               otherwise centre the icon against the whole block, belonging to
               neither line. mt-px centres the 18px icon on the 20px first line. */}
           <NavIcon
-            name={leaf.icon}
-            color={leaf.color}
+            name={props.leaf.icon}
+            color={props.leaf.color}
             size={18}
-            className="mt-px flex-shrink-0 text-orange-400"
+            class="mt-px flex-shrink-0 text-orange-400"
           />
           {/* Wraps rather than truncating: labels that differ only in their tail
               ("… <10%", "… <20%") are indistinguishable once elided. break-words
               catches a long unbroken token, which would widen the fixed-width
               panel instead. */}
-          <span className="break-words">{leaf.label}</span>
+          <span class="break-words">{props.leaf.label}</span>
         </button>
         {/* The action menu's map buttons already reflect the on-map state, so
             the status check is redundant (and would duplicate) while the menu
             is visible on hover. */}
-        {status && (
-          <div className={actions ? "group-hover:hidden" : undefined}>{status}</div>
-        )}
-        {actions && (
-          <div className={selected ? "flex" : "hidden group-hover:flex"}>{actions}</div>
-        )}
+        <Show when={props.status}>
+          <div class={props.actions ? "group-hover:hidden" : undefined}>{props.status}</div>
+        </Show>
+        <Show when={props.actions}>
+          <div class={props.selected ? "flex" : "hidden group-hover:flex"}>{props.actions}</div>
+        </Show>
       </div>
-      {selected && detail}
+      <Show when={props.selected}>{props.detail}</Show>
     </li>
   );
 }

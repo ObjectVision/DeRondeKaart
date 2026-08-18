@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Show, createEffect, createSignal, onCleanup, type JSX } from "solid-js";
 
 interface StreetViewProps {
   lng: number;
@@ -84,19 +84,14 @@ async function loadStreetViewLibrary(): Promise<GoogleStreetViewLibrary | null> 
   }
 }
 
-export function StreetView({
-  lng,
-  lat,
-  onClose,
-  embedded = false,
-}: StreetViewProps): React.JSX.Element {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const panoramaRef = useRef<GoogleStreetViewPanorama | null>(null);
-  const [status, setStatus] = useState<"loading" | "ok" | "unavailable">(
-    "loading",
-  );
+export function StreetView(props: StreetViewProps): JSX.Element {
+  let container!: HTMLDivElement;
+  let panorama: GoogleStreetViewPanorama | null = null;
+  const [status, setStatus] = createSignal<"loading" | "ok" | "unavailable">("loading");
 
-  useEffect(() => {
+  createEffect(() => {
+    const lng = props.lng;
+    const lat = props.lat;
     const signal = { cancelled: false };
 
     async function load() {
@@ -108,7 +103,6 @@ export function StreetView({
         setStatus("unavailable");
         return;
       }
-      if (!containerRef.current) return;
 
       const location = { lat, lng };
       const service = new library.StreetViewService();
@@ -125,82 +119,70 @@ export function StreetView({
 
           setStatus("ok");
 
-          // Re-check: getPanorama is async, so the panel may have unmounted
-          // between the request and this callback.
-          const container = containerRef.current;
-          if (!container) return;
-
-          if (!panoramaRef.current) {
-            panoramaRef.current = new library.StreetViewPanorama(
-              container,
-              {
-                addressControl: false,
-                fullscreenControl: false,
-                motionTracking: false,
-                motionTrackingControl: false,
-                zoomControl: false,
-                panControl: false,
-                linksControl: false,
-                enableCloseButton: false,
-              },
-            );
+          if (!panorama) {
+            panorama = new library.StreetViewPanorama(container, {
+              addressControl: false,
+              fullscreenControl: false,
+              motionTracking: false,
+              motionTrackingControl: false,
+              zoomControl: false,
+              panControl: false,
+              linksControl: false,
+              enableCloseButton: false,
+            });
           }
 
-          panoramaRef.current.setPano(data.location.pano);
-          panoramaRef.current.setPov({ heading: 0, pitch: 0 });
-          panoramaRef.current.setVisible(true);
+          panorama.setPano(data.location.pano);
+          panorama.setPov({ heading: 0, pitch: 0 });
+          panorama.setVisible(true);
         },
       );
     }
 
-    // Reset to the spinner before each (re)load. Flagged by
-    // react-hooks/set-state-in-effect, but the status is driven by the async
-    // Google Maps panorama lookup in `load()` — it cannot be derived at render.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    // Reset to the spinner before each (re)load: the status is driven by the
+    // async Google Maps panorama lookup in `load()` and cannot be derived.
     setStatus("loading");
     load();
 
-    return () => {
+    onCleanup(() => {
       signal.cancelled = true;
-    };
-  }, [lng, lat]);
+    });
+  });
 
   return (
     <div
-      className={
-        embedded
+      class={
+        props.embedded
           ? "flex flex-col"
           : "flex flex-col rounded-lg bg-white/90 shadow-md backdrop-blur-sm"
       }
     >
       {/* Header — omitted when embedded; the parent window owns the close button */}
-      {!embedded && (
-        <div className="flex items-center justify-between px-3 pt-2 pb-1">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+      <Show when={!props.embedded}>
+        <div class="flex items-center justify-between px-3 pt-2 pb-1">
+          <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500">
             Street View
           </h3>
           <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors text-sm leading-none px-1"
+            onClick={() => props.onClose?.()}
+            class="text-gray-400 hover:text-gray-600 transition-colors text-sm leading-none px-1"
             aria-label="Close"
           >
             &times;
           </button>
         </div>
-      )}
+      </Show>
 
       {/* Body */}
-      <div
-        className={`relative h-40 overflow-hidden rounded-b-lg ${embedded ? "w-full" : "w-72"}`}
-      >
-        <div ref={containerRef} className="absolute inset-0" />
-        {status !== "ok" && (
-          <div className="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-gray-400">
-            {status === "loading"
+      <div class={`relative h-40 overflow-hidden rounded-b-lg ${props.embedded ? "w-full" : "w-72"}`}>
+        <div ref={container} class="absolute inset-0" />
+        <Show when={status() !== "ok"}>
+          <div class="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-gray-400">
+            {status() === "loading"
               ? "Street View laden…"
               : "Geen Street View beschikbaar op deze locatie"}
           </div>
-        )}
+        </Show>
       </div>
     </div>
   );

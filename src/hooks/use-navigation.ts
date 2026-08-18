@@ -1,6 +1,5 @@
-import { useCallback, useMemo, useRef } from "react";
-import type { MapRef } from "react-map-gl/maplibre";
-import type { MapViewHandle } from "@/components/map/MapView";
+import type { Accessor } from "solid-js";
+import type { MapAccessor, MapViewHandle } from "@/components/map/map-view-config";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import type { LayerConfig } from "@/layers";
 import {
@@ -15,11 +14,9 @@ type MapSlot = "a" | "b";
 interface UseNavigationOptions {
   mapLeftLayers: ReturnType<typeof useMapLayers>;
   mapRightLayers: ReturnType<typeof useMapLayers>;
-  mapLeftRef: React.RefObject<MapViewHandle | null>;
-  mapRightRef: React.RefObject<MapViewHandle | null>;
+  mapLeft: Accessor<MapViewHandle | null>;
+  mapRight: Accessor<MapViewHandle | null>;
 }
-
-const emptyRef: React.RefObject<MapRef | null> = { current: null };
 
 /**
  * Resolve a navigation leaf id to its LayerConfig.
@@ -47,62 +44,53 @@ async function resolveConfig(
  * the same addLayer/removeLayer functions the URL commands and Legend use, so
  * all three share one source of truth.
  */
-export function useNavigation({
-  mapLeftLayers,
-  mapRightLayers,
-  mapLeftRef,
-  mapRightRef,
-}: UseNavigationOptions) {
-  const configsRef = useRef<LayerConfig[] | null>(null);
+export function useNavigation(options: UseNavigationOptions) {
+  let configs: LayerConfig[] | null = null;
 
-  const getConfigs = useCallback(async () => {
-    if (!configsRef.current) {
-      configsRef.current = await loadLayerConfigs();
+  async function getConfigs() {
+    if (!configs) {
+      configs = await loadLayerConfigs();
     }
-    return configsRef.current;
-  }, []);
+    return configs;
+  }
 
-  const isOnMap = useCallback(
-    (id: string, slot: MapSlot): boolean => {
-      const entries = slot === "b" ? mapRightLayers.layerEntries : mapLeftLayers.layerEntries;
-      return entries.some((e) => e.config.id === id);
-    },
-    [mapLeftLayers.layerEntries, mapRightLayers.layerEntries],
-  );
+  function isOnMap(id: string, slot: MapSlot): boolean {
+    const entries =
+      slot === "b"
+        ? options.mapRightLayers.layerEntries()
+        : options.mapLeftLayers.layerEntries();
+    return entries.some((e) => e.config.id === id);
+  }
 
-  const toggleOnMap = useCallback(
-    async (id: string, slot: MapSlot) => {
-      const side = slot === "b" ? mapRightLayers : mapLeftLayers;
-      const ref = slot === "b" ? mapRightRef : mapLeftRef;
-      const mapRef = ref.current?.mapRef ?? emptyRef;
+  async function toggleOnMap(id: string, slot: MapSlot) {
+    const side = slot === "b" ? options.mapRightLayers : options.mapLeftLayers;
+    const handle = slot === "b" ? options.mapRight : options.mapLeft;
+    // Resolved lazily and null-tolerant: map B is conditionally mounted, and
+    // the layer helpers treat a null map as "not there yet".
+    const getMap: MapAccessor = () => handle()?.map() ?? null;
 
-      if (isOnMap(id, slot)) {
-        side.removeLayer(id, mapRef);
-        return;
-      }
+    if (isOnMap(id, slot)) {
+      side.removeLayer(id, getMap);
+      return;
+    }
 
-      const config = await resolveConfig(id, getConfigs);
-      if (!config) {
-        console.warn(
-          isFilterLayerId(id)
-            ? `Combination layer "${id}" is no longer defined`
-            : `Layer "${id}" not found in layers.json`,
-        );
-        return;
-      }
-      await side.addLayer(config, mapRef);
-    },
-    [mapLeftLayers, mapRightLayers, mapLeftRef, mapRightRef, isOnMap, getConfigs],
-  );
+    const config = await resolveConfig(id, getConfigs);
+    if (!config) {
+      console.warn(
+        isFilterLayerId(id)
+          ? `Combination layer "${id}" is no longer defined`
+          : `Layer "${id}" not found in layers.json`,
+      );
+      return;
+    }
+    await side.addLayer(config, getMap);
+  }
 
   // The right map can only receive layers once the left map has at least one:
   // comparison is left-anchored, so an empty left map has nothing to compare against.
-  const leftHasLayers = mapLeftLayers.layerEntries.length > 0;
+  const leftHasLayers = () => options.mapLeftLayers.layerEntries().length > 0;
 
-  return useMemo(
-    () => ({ isOnMap, toggleOnMap, leftHasLayers }),
-    [isOnMap, toggleOnMap, leftHasLayers],
-  );
+  return { isOnMap, toggleOnMap, leftHasLayers };
 }
 
 export type NavigationApi = ReturnType<typeof useNavigation>;

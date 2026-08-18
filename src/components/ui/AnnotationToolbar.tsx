@@ -1,3 +1,4 @@
+import { For, Show, type JSX } from "solid-js";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { PresenceBadge } from "@/components/annotations/PresenceBadge";
@@ -39,63 +40,55 @@ export interface AnnotationToolbarProps {
  * the corner). App keeps the wrapper so that coupling stays visible where the
  * layout decision is made.
  */
-export function AnnotationToolbar({
-  active,
-  drawTool,
-  onSetTool,
-  onToggleMode,
-  collabRoomId,
-  collabPeers,
-  collabConnected,
-}: AnnotationToolbarProps) {
+export function AnnotationToolbar(props: AnnotationToolbarProps): JSX.Element {
   return (
-    <div className="flex flex-shrink-0 items-center gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+    <div class="flex flex-shrink-0 items-center gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
       {/* Drawing toolbar — left of the mode toggle, only in the mode. */}
-      {active && (
-        <>
-          {DRAW_TOOLS.map(({ tool, icon, label }) => {
-            const armed = drawTool === tool;
+      <Show when={props.active}>
+        <For each={DRAW_TOOLS}>
+          {(entry) => {
+            const armed = () => props.drawTool === entry.tool;
             return (
               <Button
-                key={tool}
                 variant="ghost"
                 size="icon-sm"
-                onClick={() => onSetTool(armed ? null : tool)}
-                title={label}
-                aria-label={label}
-                aria-pressed={armed}
+                onClick={() => props.onSetTool(armed() ? null : entry.tool)}
+                title={entry.label}
+                aria-label={entry.label}
+                aria-pressed={armed()}
               >
                 <Icon
-                  name={icon}
+                  name={entry.icon}
                   size={chromeIconSize()}
-                  color={armed ? chromeIconColor() : undefined}
-                  className={armed ? undefined : "text-gray-400"}
+                  color={armed() ? chromeIconColor() : undefined}
+                  class={armed() ? undefined : "text-gray-400"}
                 />
               </Button>
             );
-          })}
-          <div className="h-4 w-px bg-gray-200" aria-hidden />
-        </>
-      )}
+          }}
+        </For>
+        <div class="h-4 w-px bg-gray-200" aria-hidden />
+      </Show>
       <Button
         variant="ghost"
         size="icon-sm"
-        onClick={onToggleMode}
-        title={active ? "Annotaties sluiten" : "Annotaties"}
-        aria-label={active ? "Annotaties sluiten" : "Annotaties"}
-        aria-pressed={active}
+        onClick={props.onToggleMode}
+        title={props.active ? "Annotaties sluiten" : "Annotaties"}
+        aria-label={props.active ? "Annotaties sluiten" : "Annotaties"}
+        aria-pressed={props.active}
       >
         {/* Two literal `name` props rather than one ternary: the icon-font
             subsetter scans for `name="…"` and would miss the second string. */}
-        {active ? (
+        <Show
+          when={props.active}
+          fallback={<Icon name="edit" size={chromeIconSize()} class="text-gray-400" />}
+        >
           <Icon name="edit_off" size={chromeIconSize()} color={chromeIconColor()} />
-        ) : (
-          <Icon name="edit" size={chromeIconSize()} className="text-gray-400" />
-        )}
+        </Show>
       </Button>
-      {active && collabRoomId && (
-        <PresenceBadge peers={collabPeers} connected={collabConnected} />
-      )}
+      <Show when={props.active && props.collabRoomId}>
+        <PresenceBadge peers={props.collabPeers} connected={props.collabConnected} />
+      </Show>
     </div>
   );
 }

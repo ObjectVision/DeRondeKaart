@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { createEffect, createSignal, onCleanup, type Accessor } from "solid-js";
 import { loadChartsConfig } from "@/layers/charts";
 import {
   computeChartData,
   computeStatistics,
+  filterEpoch,
   loadTableForConfig,
   type ResolvedChart,
   type ResolvedStat,
@@ -25,28 +26,34 @@ const UNAVAILABLE: ChartDataState = { charts: [], stats: [], unavailable: true }
 
 /**
  * Chart data + statistics for the analytics panel of one layer, restricted to
- * rows passing the area filter. `version` is the area-filter version; a bump
- * recomputes the aggregations.
+ * rows passing the area and box filters.
+ *
+ * No `version` parameter: the effect reads `filterEpoch()`, which subscribes it
+ * to both filter stores directly. React had to be handed that number because it
+ * could not observe the stores itself.
  */
-export interface UseChartDataResult extends ChartDataState {
+export interface UseChartDataResult {
+  charts: Accessor<ResolvedChart[]>;
+  stats: Accessor<ResolvedStat[]>;
+  /**
+   * True when no attribute table could be loaded at all — distinct from a table
+   * that simply yielded no rows, so the panel can explain itself instead of
+   * rendering blank.
+   */
+  unavailable: Accessor<boolean>;
   /** True while a table load is in flight. */
-  loading: boolean;
+  loading: Accessor<boolean>;
 }
 
-export function useChartData(
-  config: LayerConfig | null,
-  version: number,
-): UseChartDataResult {
-  const [result, setResult] = useState(EMPTY);
-  const [loading, setLoading] = useState(false);
+export function useChartData(config: Accessor<LayerConfig | null>): UseChartDataResult {
+  const [result, setResult] = createSignal(EMPTY);
+  const [loading, setLoading] = createSignal(false);
 
-  const configId = config?.id;
-  useEffect(() => {
-    if (!config) {
-      // Synchronous reset on the "no layer selected" path. Flagged by
-      // react-hooks/set-state-in-effect, but this hook's whole job is to turn an
-      // async table load into state; there is nothing to derive during render.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+  createEffect(() => {
+    const current = config();
+    // Tracked here so a filter change recomputes even though the layer did not.
+    const version = filterEpoch();
+    if (!current) {
       setResult(EMPTY);
       setLoading(false);
       return;
@@ -57,7 +64,7 @@ export function useChartData(
       try {
         const [library, table] = await Promise.all([
           loadChartsConfig(),
-          loadTableForConfig(config),
+          loadTableForConfig(current),
         ]);
         if (cancelled) return;
         if (!table) {
@@ -67,37 +74,36 @@ export function useChartData(
         // Memo key must identify the TABLE, not the layer: two layers sharing
         // one sidecar have different `source` values but identical data, and
         // keying on `source` would compute it twice under different keys.
-        const tableKey = config.attributeSource ?? config.source;
+        const tableKey = current.attributeSource ?? current.source;
 
-        const charts = (config.charts ?? [])
+        const charts = (current.charts ?? [])
           .map((id) => {
             const chart = library.get(id);
-            if (!chart) console.warn(`layers.json: layer "${config.id}" references unknown chart "${id}"`);
+            if (!chart) console.warn(`layers.json: layer "${current.id}" references unknown chart "${id}"`);
             return chart;
           })
           .filter((c): c is NonNullable<typeof c> => c !== undefined)
           .slice(0, 4)
           .map((chart) => computeChartData(table, chart, tableKey, version));
 
-        const stats = computeStatistics(table, config.statistics ?? [], tableKey, version);
+        const stats = computeStatistics(table, current.statistics ?? [], tableKey, version);
         setResult({ charts, stats, unavailable: false });
       } catch (err) {
-        console.warn(`charts: failed to compute data for "${config.id}"`, err);
+        console.warn(`charts: failed to compute data for "${current.id}"`, err);
         if (!cancelled) setResult(UNAVAILABLE);
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => {
+    onCleanup(() => {
       cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [configId, version]);
+    });
+  });
 
   return {
-    charts: result.charts,
-    stats: result.stats,
-    unavailable: result.unavailable,
+    charts: () => result().charts,
+    stats: () => result().stats,
+    unavailable: () => result().unavailable,
     loading,
   };
 }

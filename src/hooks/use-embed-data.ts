@@ -1,7 +1,6 @@
-import { useEffect, useCallback } from "react";
-import type { MapRef } from "react-map-gl/maplibre";
+import { createEffect, onMount, onCleanup, type Accessor } from "solid-js";
 import type { Feature } from "geojson";
-import type { MapViewHandle } from "@/components/map/MapView";
+import type { MapAccessor, MapViewHandle } from "@/components/map/map-view-config";
 import type { GeometryType, LayerConfig, LayerStyle } from "@/layers";
 import type { useMapLayers } from "./use-map-layers";
 
@@ -34,14 +33,12 @@ export interface EmbedConfig {
 
 interface UseEmbedDataOptions {
   mapLeftLayers: ReturnType<typeof useMapLayers>;
-  mapLeftRef: React.RefObject<MapViewHandle | null>;
+  mapLeft: Accessor<MapViewHandle | null>;
   /** The left map is ready — triggers the `map-ready` handshake to the parent. */
-  ready: boolean;
+  ready: Accessor<boolean>;
   /** Apply runtime UI-config overrides from a `map-config` message. */
   onConfig?: (config: EmbedConfig) => void;
 }
-
-const emptyRef: React.RefObject<MapRef | null> = { current: null };
 
 /**
  * postMessage bridge for in-memory data layers, the dynamic-data counterpart of
@@ -63,43 +60,34 @@ const emptyRef: React.RefObject<MapRef | null> = { current: null };
  * Validation is shape-based (no origin allow-list), consistent with the
  * existing map-command bridge.
  */
-export function useEmbedData({
-  mapLeftLayers,
-  mapLeftRef,
-  ready,
-  onConfig,
-}: UseEmbedDataOptions): void {
-  const applyDataset = useCallback(
-    (dataset: EmbedDataset) => {
-      const mapRef = mapLeftRef.current?.mapRef ?? emptyRef;
+export function useEmbedData(options: UseEmbedDataOptions): void {
+  // Resolved lazily and null-tolerant: the layer helpers treat a null map as
+  // "not mounted yet".
+  const getMap: MapAccessor = () => options.mapLeft()?.map() ?? null;
 
-      // Replace-on-update: every host update resends the full dataset.
-      // removeLayer is a no-op when the id isn't present.
-      mapLeftLayers.removeLayer(dataset.id, mapRef);
-      if (!Array.isArray(dataset.features) || dataset.features.length === 0) return;
+  function applyDataset(dataset: EmbedDataset) {
+    // Replace-on-update: every host update resends the full dataset.
+    // removeLayer is a no-op when the id isn't present.
+    options.mapLeftLayers.removeLayer(dataset.id, getMap);
+    if (!Array.isArray(dataset.features) || dataset.features.length === 0) return;
 
-      const config: LayerConfig = {
-        id: dataset.id,
-        name: dataset.name || dataset.id,
-        source: "",
-        format: "geojson",
-        geometryType: dataset.geometryType,
-        style: dataset.style ?? {},
-        data: { type: "FeatureCollection", features: dataset.features },
-      };
-      void mapLeftLayers.addLayer(config, mapRef);
-    },
-    [mapLeftLayers, mapLeftRef],
-  );
+    const config: LayerConfig = {
+      id: dataset.id,
+      name: dataset.name || dataset.id,
+      source: "",
+      format: "geojson",
+      geometryType: dataset.geometryType,
+      style: dataset.style ?? {},
+      data: { type: "FeatureCollection", features: dataset.features },
+    };
+    void options.mapLeftLayers.addLayer(config, getMap);
+  }
 
-  const removeDataset = useCallback(
-    (id: string) => {
-      mapLeftLayers.removeLayer(id, mapLeftRef.current?.mapRef ?? emptyRef);
-    },
-    [mapLeftLayers, mapLeftRef],
-  );
+  function removeDataset(id: string) {
+    options.mapLeftLayers.removeLayer(id, getMap);
+  }
 
-  useEffect(() => {
+  onMount(() => {
     function handleMessage(event: MessageEvent) {
       const data = event.data;
       if (!data || typeof data !== "object") return;
@@ -116,7 +104,7 @@ export function useEmbedData({
           removeDataset(data.id);
         }
       } else if (data.type === "map-config") {
-        onConfig?.({
+        options.onConfig?.({
           searchbar: data.searchbar,
           navigation: data.navigation,
           streetview: data.streetview,
@@ -127,14 +115,14 @@ export function useEmbedData({
     }
 
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [applyDataset, removeDataset, onConfig]);
+    onCleanup(() => window.removeEventListener("message", handleMessage));
+  });
 
   // Ready handshake: tell the embedding host it can start sending messages.
-  useEffect(() => {
-    if (!ready) return;
+  createEffect(() => {
+    if (!options.ready()) return;
     if (window.parent && window.parent !== window) {
       window.parent.postMessage({ type: "map-ready", v: 1 }, "*");
     }
-  }, [ready]);
+  });
 }

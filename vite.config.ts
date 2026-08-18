@@ -2,7 +2,7 @@ import fs from "fs"
 import path from "path"
 import type { Plugin } from "vite"
 import { defineConfig, loadEnv } from 'vite'
-import react from '@vitejs/plugin-react'
+import solid from 'vite-plugin-solid'
 import tailwindcss from '@tailwindcss/vite'
 import { subsetIconFont } from './scripts/subset-icon-font'
 import { precompressDir } from './scripts/precompress-dist'
@@ -116,7 +116,7 @@ export default defineConfig(({ mode }) => {
   const project = env.VITE_CONFIG_PROJECT || undefined
 
   return {
-    plugins: [react(), tailwindcss(), configOverlay(project), subsetIconFont(__dirname), precompressDist()],
+    plugins: [solid(), tailwindcss(), configOverlay(project), subsetIconFont(__dirname), precompressDist()],
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),
@@ -157,9 +157,7 @@ export default defineConfig(({ mode }) => {
             if (!id.includes("node_modules")) return
             if (id.includes("parquet-wasm")) return "vendor-parquet"
             if (id.includes("apache-arrow")) return "vendor-arrow"
-            if (id.includes("maplibre") || id.includes("react-map-gl")) {
-              return "vendor-maplibre"
-            }
+            if (id.includes("maplibre")) return "vendor-maplibre"
           },
         },
       },

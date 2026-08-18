@@ -1,9 +1,10 @@
+import { For, Show, type JSX } from "solid-js";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 
 export interface SectionToggle {
-  /** Stable key for React. */
+  /** Stable key identifying the section. */
   key: string;
   /** Material Symbols icon name, e.g. "filter_alt" / "layers". */
   icon: string;
@@ -16,47 +17,47 @@ export interface SectionToggle {
   onToggle: () => void;
 }
 
+interface SectionToggleBarProps {
+  toggles: SectionToggle[];
+  /** "vertical" (default) stacks the buttons; "horizontal" lays them out as a row. */
+  orientation?: "vertical" | "horizontal";
+}
+
 /**
  * A self-sized card of icon buttons that minimize/restore the sidebar sections.
  * Rendered as its own card below the zoom controls. Each button reflects its
  * section's state: highlighted when open, muted when minimized. Renders nothing
  * when there are no toggles.
  */
-export function SectionToggleBar({
-  toggles,
-  orientation = "vertical",
-}: {
-  toggles: SectionToggle[];
-  /** "vertical" (default) stacks the buttons; "horizontal" lays them out as a row. */
-  orientation?: "vertical" | "horizontal";
-}) {
-  if (toggles.length === 0) return null;
-
+export function SectionToggleBar(props: SectionToggleBarProps): JSX.Element {
   return (
-    <div
-      className={`flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm ${
-        orientation === "horizontal" ? "flex-row" : "flex-col"
-      }`}
-    >
-      {toggles.map((t) => (
-        <Button
-          key={t.key}
-          variant="ghost"
-          size="icon-sm"
-          onClick={t.onToggle}
-          title={t.title}
-          aria-label={t.title}
-          aria-pressed={t.active}
-          disabled={t.disabled}
-        >
-          <Icon
-            name={t.icon}
-            size={chromeIconSize()}
-            color={t.disabled ? undefined : chromeIconColor()}
-            className={t.disabled ? "text-gray-300" : undefined}
-          />
-        </Button>
-      ))}
-    </div>
+    <Show when={props.toggles.length > 0}>
+      <div
+        class={`flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm ${
+          (props.orientation ?? "vertical") === "horizontal" ? "flex-row" : "flex-col"
+        }`}
+      >
+        <For each={props.toggles}>
+          {(t) => (
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={t.onToggle}
+              title={t.title}
+              aria-label={t.title}
+              aria-pressed={t.active}
+              disabled={t.disabled}
+            >
+              <Icon
+                name={t.icon}
+                size={chromeIconSize()}
+                color={t.disabled ? undefined : chromeIconColor()}
+                class={t.disabled ? "text-gray-300" : undefined}
+              />
+            </Button>
+          )}
+        </For>
+      </div>
+    </Show>
   );
 }

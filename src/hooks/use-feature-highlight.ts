@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef } from "react";
-import type { MapViewHandle } from "@/components/map/MapView";
+import { createEffect, onCleanup, type Accessor } from "solid-js";
+import type { MapViewHandle } from "@/components/map/map-view-config";
 import type { LayerConfig } from "@/layers";
 import { canHighlight } from "@/layers";
 import { tileSourceId } from "@/hooks/use-map-layers";
@@ -35,87 +35,83 @@ export interface UseFeatureHighlightResult {
  * while the pointer wanders off it.
  */
 export function useFeatureHighlight(
-  mapViewRef: React.RefObject<MapViewHandle | null>,
+  mapView: Accessor<MapViewHandle | null>,
 ): UseFeatureHighlightResult {
   // The currently-flagged feature per kind, so it can be cleared before the next
-  // one is set. Held in a ref, not state: this runs from mousemove and must not
-  // re-render, and the previous key has to be readable synchronously.
-  const active = useRef<Record<HighlightKind, FeatureKey | null>>({
+  // one is set. A plain object rather than a signal: nothing renders from it, it
+  // is written from mousemove, and the previous key has to be readable
+  // synchronously.
+  const active: Record<HighlightKind, FeatureKey | null> = {
     highlight: null,
     selected: null,
-  });
+  };
 
-  const apply = useCallback(
-    (kind: HighlightKind, config: LayerConfig | null, featureId: string | number | null) => {
-      const map = mapViewRef.current?.mapRef?.current?.getMap();
-      if (!map) return;
+  function apply(
+    kind: HighlightKind,
+    config: LayerConfig | null,
+    featureId: string | number | null,
+  ) {
+    const map = mapView()?.map();
+    if (!map) return;
 
-      const previous = active.current[kind];
-      const next: FeatureKey | null =
-        config && featureId !== null && canHighlight(config)
-          ? {
-              source: tileSourceId(config),
-              // Read at call time rather than cached: a timeseries layer
-              // rewrites `sourceLayer` in place on every step, and a stale value
-              // addresses a feature that is no longer there.
-              sourceLayer: config.sourceLayer,
-              id: featureId,
-            }
-          : null;
+    const previous = active[kind];
+    const next: FeatureKey | null =
+      config && featureId !== null && canHighlight(config)
+        ? {
+            source: tileSourceId(config),
+            // Read at call time rather than cached: a timeseries layer
+            // rewrites `sourceLayer` in place on every step, and a stale value
+            // addresses a feature that is no longer there.
+            sourceLayer: config.sourceLayer,
+            id: featureId,
+          }
+        : null;
 
-      // Unchanged: bail before touching the map. Mousemove is unthrottled, so
-      // without this every pixel of travel would re-set the same feature state.
-      if (
-        previous?.id === next?.id &&
-        previous?.source === next?.source &&
-        previous?.sourceLayer === next?.sourceLayer
-      ) {
-        return;
-      }
+    // Unchanged: bail before touching the map. Mousemove is unthrottled, so
+    // without this every pixel of travel would re-set the same feature state.
+    if (
+      previous?.id === next?.id &&
+      previous?.source === next?.source &&
+      previous?.sourceLayer === next?.sourceLayer
+    ) {
+      return;
+    }
 
-      // Clearing is done by writing `false`, not by removeFeatureState.
-      //
-      // MapLibre 6.3.0 throws from removeFeatureState when the feature's state
-      // was already flushed to a tile: it records `deletedStates[layer][id] =
-      // null`, and coalesceChanges then calls Object.keys() on that null,
-      // failing with "Cannot convert undefined or null to object" on EVERY
-      // subsequent render — the map stops painting. A basemap swap makes it
-      // certain, because the flush happens before the pointer next moves.
-      //
-      // Setting the flag false is equivalent here: the paint expressions test
-      // `["boolean", ["feature-state", kind], false]`, so false and absent
-      // render identically, and no state is ever deleted.
-      if (previous && map.getSource(previous.source)) {
-        map.setFeatureState(previous, { [kind]: false });
-      }
+    // Clearing is done by writing `false`, not by removeFeatureState.
+    //
+    // MapLibre 6.3.0 throws from removeFeatureState when the feature's state
+    // was already flushed to a tile: it records `deletedStates[layer][id] =
+    // null`, and coalesceChanges then calls Object.keys() on that null,
+    // failing with "Cannot convert undefined or null to object" on EVERY
+    // subsequent render — the map stops painting. A basemap swap makes it
+    // certain, because the flush happens before the pointer next moves.
+    //
+    // Setting the flag false is equivalent here: the paint expressions test
+    // `["boolean", ["feature-state", kind], false]`, so false and absent
+    // render identically, and no state is ever deleted.
+    if (previous && map.getSource(previous.source)) {
+      map.setFeatureState(previous, { [kind]: false });
+    }
 
-      if (next && map.getSource(next.source)) {
-        map.setFeatureState(next, { [kind]: true });
-      }
+    if (next && map.getSource(next.source)) {
+      map.setFeatureState(next, { [kind]: true });
+    }
 
-      active.current[kind] = next;
-    },
-    [mapViewRef],
-  );
+    active[kind] = next;
+  }
 
-  const setHovered = useCallback(
-    (config: LayerConfig | null, featureId: string | number | null) => {
-      apply("highlight", config, featureId);
-    },
-    [apply],
-  );
+  function setHovered(config: LayerConfig | null, featureId: string | number | null) {
+    apply("highlight", config, featureId);
+  }
 
-  const setSelected = useCallback(
-    (config: LayerConfig | null, featureId: string | number | null) => {
-      apply("selected", config, featureId);
-    },
-    [apply],
-  );
+  function setSelected(config: LayerConfig | null, featureId: string | number | null) {
+    apply("selected", config, featureId);
+  }
 
-  const clearAll = useCallback(() => {
+  function clearAll() {
     apply("highlight", null, null);
     apply("selected", null, null);
-  }, [apply]);
+  }
 
   // A basemap swap calls setStyle, which drops every source together with its
   // feature state. Forget the held keys as soon as that happens rather than
@@ -124,20 +120,21 @@ export function useFeatureHighlight(
   //
   // `styledata` also fires for ordinary style edits, which is harmless — the
   // keys are only a cache, and a stale hover is re-set on the next mousemove.
-  useEffect(() => {
-    const map = mapViewRef.current?.mapRef?.current?.getMap();
+  //
+  // Tracks `mapView()?.map()`, so a map that mounts later (the right pane) gets
+  // the listener as soon as it exists rather than never.
+  createEffect(() => {
+    const map = mapView()?.map();
     if (!map) return;
 
     function forget() {
-      active.current.highlight = null;
-      active.current.selected = null;
+      active.highlight = null;
+      active.selected = null;
     }
 
     map.on("styledata", forget);
-    return () => {
-      map.off("styledata", forget);
-    };
-  }, [mapViewRef]);
+    onCleanup(() => map.off("styledata", forget));
+  });
 
   return { setHovered, setSelected, clearAll };
 }

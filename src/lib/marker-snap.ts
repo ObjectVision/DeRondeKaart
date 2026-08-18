@@ -1,5 +1,5 @@
-import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
-import type { MapViewHandle } from "@/components/map/MapView";
+import type { Accessor } from "solid-js";
+import type { MapLayerMouseEvent, MapViewHandle } from "@/components/map/map-view-config";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { buildNativeLayerDefs, expandForMapQueries, isNativeVectorFormat } from "@/layers";
 
@@ -15,7 +15,7 @@ import { buildNativeLayerDefs, expandForMapQueries, isNativeVectorFormat } from 
  */
 export function resolveMarkerPoint(
   event: MapLayerMouseEvent,
-  mapViewRef: React.RefObject<MapViewHandle | null>,
+  mapView: Accessor<MapViewHandle | null>,
   layerEntries: LayerEntry[],
 ): { lng: number; lat: number } | null {
   // Composite entries expand to their children — the configs actually on the map.
@@ -25,7 +25,7 @@ export function resolveMarkerPoint(
   if (pointEntries.length === 0) return null;
 
   // --- Native point layers (MVT/PMTiles/FlatGeobuf) ---
-  const map = mapViewRef.current?.mapRef?.current?.getMap();
+  const map = mapView()?.map();
   if (map) {
     const mvtLayerIds: string[] = [];
     for (const entry of pointEntries) {

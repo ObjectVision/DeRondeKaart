@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { createEffect, type Accessor } from "solid-js";
 import type { AddLayerObject, Map as MapLibreMap } from "maplibre-gl";
-import type { MapViewHandle } from "@/components/map/MapView";
+import type { MapViewHandle } from "@/components/map/map-view-config";
 import { loadIconBitmap } from "@/layers/icon-sprite";
 import {
   EMPTY_FC,
@@ -79,78 +79,64 @@ function markerLayer(config: ClickMarkerConfig): AddLayerObject {
  * wipes both the sprite image and the layer); call it from `onLabelsReady`.
  */
 export function useClickMarkerLayers(
-  point: ClickPoint | null,
-  mapViewRef: React.RefObject<MapViewHandle | null>,
-  config: ClickMarkerConfig = DEFAULT_CLICK_MARKER,
+  point: Accessor<ClickPoint | null>,
+  mapView: Accessor<MapViewHandle | null>,
+  config: Accessor<ClickMarkerConfig> = () => DEFAULT_CLICK_MARKER,
 ): { resync: () => void } {
-  // Latest inputs, read by `resync` — which fires from a map event, long after
-  // the render that produced them. Written in an effect, never in render.
-  const latestRef = useRef({ point, config });
   // Guards against two concurrent rasterizations racing to addImage (which
   // throws on a duplicate id).
-  const pendingRef = useRef<Promise<void> | null>(null);
+  let pending: Promise<void> | null = null;
 
-  const ensureImage = useCallback(
-    (map: MapLibreMap, icon: string): Promise<void> | null => {
-      if (map.hasImage(IMAGE_ID)) return null;
-      if (pendingRef.current) return pendingRef.current;
+  function ensureImage(map: MapLibreMap, icon: string): Promise<void> | null {
+    if (map.hasImage(IMAGE_ID)) return null;
+    if (pending) return pending;
 
-      const url = resolveMarkerIconUrl(icon);
-      const work = loadIconBitmap(url, ICON_BASE_PX * ICON_SCALE, ICON_BASE_PX * ICON_SCALE)
-        .then((bitmap) => {
-          // The style may have been swapped while the image was loading.
-          if (map.hasImage(IMAGE_ID)) return;
-          map.addImage(IMAGE_ID, bitmap, { sdf: true, pixelRatio: ICON_SCALE });
-        })
-        .catch((err) => {
-          console.error(`Failed to load click marker icon "${url}":`, err);
-        })
-        .finally(() => {
-          pendingRef.current = null;
-        });
+    const url = resolveMarkerIconUrl(icon);
+    const work = loadIconBitmap(url, ICON_BASE_PX * ICON_SCALE, ICON_BASE_PX * ICON_SCALE)
+      .then((bitmap) => {
+        // The style may have been swapped while the image was loading.
+        if (map.hasImage(IMAGE_ID)) return;
+        map.addImage(IMAGE_ID, bitmap, { sdf: true, pixelRatio: ICON_SCALE });
+      })
+      .catch((err) => {
+        console.error(`Failed to load click marker icon "${url}":`, err);
+      })
+      .finally(() => {
+        pending = null;
+      });
 
-      pendingRef.current = work;
-      return work;
-    },
-    [],
-  );
+    pending = work;
+    return work;
+  }
 
-  const draw = useCallback(
-    (current: ClickPoint | null, cfg: ClickMarkerConfig) => {
-      const map = mapViewRef.current?.mapRef.current?.getMap();
-      if (!styleReady(map)) return;
+  function draw(current: ClickPoint | null, cfg: ClickMarkerConfig) {
+    const map = mapView()?.map();
+    if (!styleReady(map)) return;
 
-      const paint = () => {
-        if (!styleReady(map) || !map.hasImage(IMAGE_ID)) return;
-        const data = current
-          ? featureCollection({
-              type: "Feature" as const,
-              properties: {},
-              geometry: { type: "Point" as const, coordinates: [current.lng, current.lat] },
-            })
-          : EMPTY_FC;
-        syncGeoJsonOverlay(map, SOURCE_ID, [markerLayer(cfg)], data);
-      };
+    function paint() {
+      if (!styleReady(map) || !map.hasImage(IMAGE_ID)) return;
+      const data = current
+        ? featureCollection({
+            type: "Feature" as const,
+            properties: {},
+            geometry: { type: "Point" as const, coordinates: [current.lng, current.lat] },
+          })
+        : EMPTY_FC;
+      syncGeoJsonOverlay(map, SOURCE_ID, [markerLayer(cfg)], data);
+    }
 
-      // The image must be in the sprite before addLayer, and loading it is async.
-      const pending = ensureImage(map, cfg.icon);
-      if (pending) {
-        void pending.then(paint);
-        return;
-      }
-      paint();
-    },
-    [mapViewRef, ensureImage],
-  );
+    // The image must be in the sprite before addLayer, and loading it is async.
+    const inFlight = ensureImage(map, cfg.icon);
+    if (inFlight) {
+      void inFlight.then(paint);
+      return;
+    }
+    paint();
+  }
 
-  useEffect(() => {
-    latestRef.current = { point, config };
-    draw(point, config);
-  }, [point, config, draw]);
+  createEffect(() => draw(point(), config()));
 
-  const resync = useCallback(() => {
-    const { point: p, config: c } = latestRef.current;
-    draw(p, c);
-  }, [draw]);
-  return useMemo(() => ({ resync }), [resync]);
+  // Fires from a map event, outside any reactive scope; reading the accessors
+  // here is what the React version needed `latestRef` for.
+  return { resync: () => draw(point(), config()) };
 }

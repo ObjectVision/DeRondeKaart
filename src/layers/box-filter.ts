@@ -13,22 +13,33 @@
  * through the "unrecognized" case, which silently passed every row — the box
  * tool looked armed but changed no numbers.
  */
+import { createSignal } from "solid-js";
 import type { Table } from "apache-arrow";
 import type { MultiPolygon, Polygon } from "geojson";
 
 /** Selection rectangle as [minLng, minLat, maxLng, maxLat]. */
 export type BBox = [number, number, number, number];
 
-const store: { bbox: BBox | null; version: number } = { bbox: null, version: 0 };
+/**
+ * The store is a signal rather than a plain object plus a version counter.
+ *
+ * The counter existed only to give React a scalar it could hold in state as a
+ * cache key — the store was the real source of truth and React could not
+ * observe it. A signal *is* observable, so every reader (chart aggregation,
+ * the map expressions, the legend) re-runs on its own when the box changes,
+ * and callers no longer have to thread a version through their state.
+ */
+const [boxFilter, setBoxFilterSignal] = createSignal<BBox | null>(null);
 
 /**
- * Replace the active box (or clear it with null). Returns the new store
- * version (used as chart-data cache key component).
+ * The active selection rectangle, or null when the tool has not drawn one.
+ * Reading this inside a memo or effect subscribes that computation to it.
  */
-export function setBoxFilter(bbox: BBox | null): number {
-  store.bbox = bbox;
-  store.version += 1;
-  return store.version;
+export { boxFilter };
+
+/** Replace the active box, or clear it with null. */
+export function setBoxFilter(bbox: BBox | null): void {
+  setBoxFilterSignal(() => bbox);
 }
 
 // ---------------------------------------------------------------------------
@@ -300,7 +311,7 @@ export function extendRowBbox(table: Table, index: number, into: BBox): boolean 
  * unreadable geometry fails the row (it cannot be located).
  */
 export function arrowRowMatchesBoxFilter(table: Table, index: number): boolean {
-  const bbox = store.bbox;
+  const bbox = boxFilter();
   if (!bbox) return true;
   const geometry = resolveGeometry(table);
   if (!geometry) return true;

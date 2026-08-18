@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { createMemo, createSignal, type Accessor } from "solid-js";
 import { isLeaf, type NavItem, type NavNode } from "@/layers/navigation";
 import { readStorage, writeStorage } from "@/lib/storage";
 
@@ -70,39 +70,35 @@ function readStored(): Record<string, boolean> {
  * sessionStorage, not localStorage: the tree returns to its configured shape in a
  * new tab, matching how the panel minimize flags behave (see use-session-flag.ts).
  */
-export function useNavExpansion(tree: NavNode[]): {
+export function useNavExpansion(tree: Accessor<NavNode[]>): {
   isOpen: (path: string[]) => boolean;
   toggle: (path: string[]) => void;
 } {
   // Overrides only — what the user has actually toggled this session. Kept
   // separate from the seed so a config change is picked up for untouched
   // branches instead of being masked by a stale snapshot.
-  const [overrides, setOverrides] = useState<Record<string, boolean>>(readStored);
+  const [overrides, setOverrides] = createSignal<Record<string, boolean>>(readStored());
 
   // `tree` is loaded once and cached by loadNavigation, but re-seeding is cheap
-  // and keeps this correct if it ever changes identity.
-  const seed = useMemo(() => seedFromTree(tree), [tree]);
+  // and keeps this correct if it ever changes.
+  const seed = createMemo(() => seedFromTree(tree()));
 
-  const isOpen = useCallback(
-    (path: string[]) => {
-      const key = pathKey(path);
-      return overrides[key] ?? seed[key] ?? false;
-    },
-    [overrides, seed],
-  );
+  // Reads both signals, so a row calling this in its JSX re-runs when the user
+  // toggles any branch — no subscription plumbing of its own.
+  function isOpen(path: string[]) {
+    const key = pathKey(path);
+    return overrides()[key] ?? seed()[key] ?? false;
+  }
 
-  const toggle = useCallback(
-    (path: string[]) => {
-      const key = pathKey(path);
-      setOverrides((current) => {
-        const now = current[key] ?? seed[key] ?? false;
-        const next = { ...current, [key]: !now };
-        writeStorage(sessionStorage, STORAGE_KEY, JSON.stringify(next));
-        return next;
-      });
-    },
-    [seed],
-  );
+  function toggle(path: string[]) {
+    const key = pathKey(path);
+    setOverrides((current) => {
+      const now = current[key] ?? seed()[key] ?? false;
+      const next = { ...current, [key]: !now };
+      writeStorage(sessionStorage, STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }
 
   return { isOpen, toggle };
 }

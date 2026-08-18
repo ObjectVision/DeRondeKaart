@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createEffect, createMemo, createSignal, onCleanup, type Accessor } from "solid-js";
 import type { AddLayerObject } from "maplibre-gl";
 import type { Feature, MultiPolygon, Polygon, Position } from "geojson";
 import { loadParquetBatches } from "@/layers";
 import { extendRowBbox, rowGeometryToGeoJson, type BBox } from "@/layers/box-filter";
 import type { AreaFilterState } from "@/hooks/use-area-filter";
 import { geodesicRing } from "@/lib/geo";
-import type { MapViewHandle } from "@/components/map/MapView";
+import type { MapViewHandle } from "@/components/map/map-view-config";
 import { styleReady, syncGeoJsonOverlay } from "@/layers/geojson-overlay";
 
 /**
@@ -42,12 +42,14 @@ function outerRings(geometry: Polygon | MultiPolygon): Position[][] {
  * to the configured studyarea layers). The geometry comes from the filter's
  * own parquet table, already cached by the option loading.
  */
-export function useFilteredStudyArea(areaFilter: AreaFilterState): FilteredStudyArea | null {
-  const { entries, selections } = areaFilter;
-
+export function useFilteredStudyArea(
+  areaFilter: AreaFilterState,
+): Accessor<FilteredStudyArea | null> {
   // Finest level with a selection wins (same walk as the filter fly-to). The
   // token identifies the selection, so a stale async result is never returned.
-  const finest = useMemo(() => {
+  const finest = createMemo(() => {
+    const entries = areaFilter.entries();
+    const selections = areaFilter.selections();
     for (let i = entries.length - 1; i >= 0; i--) {
       const codes = selections.get(entries[i].key);
       if (codes && codes.size > 0) {
@@ -59,16 +61,17 @@ export function useFilteredStudyArea(areaFilter: AreaFilterState): FilteredStudy
       }
     }
     return null;
-  }, [entries, selections]);
+  });
 
-  const [result, setResult] = useState<{ token: string; data: FilteredStudyArea } | null>(
+  const [result, setResult] = createSignal<{ token: string; data: FilteredStudyArea } | null>(
     null,
   );
 
-  useEffect(() => {
-    if (!finest) return; // nothing selected — the token gate below yields null
+  createEffect(() => {
+    const current = finest();
+    if (!current) return; // nothing selected — the token gate below yields null
     let cancelled = false;
-    const { entry, codes, token } = finest;
+    const { entry, codes, token } = current;
     (async () => {
       try {
         // Cached by loadParquetBatches — no refetch after the options load.
@@ -105,14 +108,19 @@ export function useFilteredStudyArea(areaFilter: AreaFilterState): FilteredStudy
       }
     })();
 
-    return () => {
+    onCleanup(() => {
       cancelled = true;
-    };
-  }, [finest]);
+    });
+  });
 
   // Only hand out data matching the CURRENT selection: no selection or a
   // still-loading one falls back to the configured studyarea (null).
-  return finest && result && result.token === finest.token ? result.data : null;
+  const data = createMemo(() => {
+    const current = finest();
+    const loaded = result();
+    return current && loaded && loaded.token === current.token ? loaded.data : null;
+  });
+  return data;
 }
 
 const BUFFER_SOURCE_ID = "filtered-study-buffer";
@@ -152,35 +160,26 @@ const AREA_LAYERS: AddLayerObject[] = [
  * wipes them); call it from the map's `onLabelsReady`.
  */
 export function useFilteredStudyAreaLayers(
-  data: FilteredStudyArea | null,
-  mapViewRef: React.RefObject<MapViewHandle | null>,
+  data: Accessor<FilteredStudyArea | null>,
+  mapView: Accessor<MapViewHandle | null>,
 ): { resync: () => void } {
-  // The latest data, read by `resync` — which fires from a map event, long
-  // after the render that produced it. Written in an effect, never in render.
-  const dataRef = useRef<FilteredStudyArea | null>(data);
+  function draw(current: FilteredStudyArea | null) {
+    const map = mapView()?.map();
+    if (!styleReady(map)) return;
 
-  const draw = useCallback(
-    (current: FilteredStudyArea | null) => {
-      const map = mapViewRef.current?.mapRef.current?.getMap();
-      if (!styleReady(map)) return;
+    syncGeoJsonOverlay(map, BUFFER_SOURCE_ID, BUFFER_LAYERS, {
+      type: "FeatureCollection",
+      features: current ? [current.buffer] : [],
+    });
+    syncGeoJsonOverlay(map, AREA_SOURCE_ID, AREA_LAYERS, {
+      type: "FeatureCollection",
+      features: current ? current.area : [],
+    });
+  }
 
-      syncGeoJsonOverlay(map, BUFFER_SOURCE_ID, BUFFER_LAYERS, {
-        type: "FeatureCollection",
-        features: current ? [current.buffer] : [],
-      });
-      syncGeoJsonOverlay(map, AREA_SOURCE_ID, AREA_LAYERS, {
-        type: "FeatureCollection",
-        features: current ? current.area : [],
-      });
-    },
-    [mapViewRef],
-  );
+  createEffect(() => draw(data()));
 
-  useEffect(() => {
-    dataRef.current = data;
-    draw(data);
-  }, [data, draw]);
-
-  const resync = useCallback(() => draw(dataRef.current), [draw]);
-  return useMemo(() => ({ resync }), [resync]);
+  // Fires from a map event, outside any reactive scope; reading the accessor
+  // here is what the React version needed `dataRef` for.
+  return { resync: () => draw(data()) };
 }

@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { createEffect, type Accessor } from "solid-js";
 import type { AddLayerObject } from "maplibre-gl";
-import type { MapViewHandle } from "@/components/map/MapView";
+import type { MapViewHandle } from "@/components/map/map-view-config";
 import type { BBox } from "@/layers/box-filter";
 import {
   EMPTY_FC,
@@ -35,56 +35,48 @@ const LAYERS: AddLayerObject[] = [
  *
  * Returns a `resync` to re-add the layers after a basemap swap (`setStyle()`
  * wipes them); call it from the map's `onLabelsReady`.
+ *
+ * `resync` fires from a map event, outside any reactive scope, and simply reads
+ * `box()` — the React version needed a ref mirroring it for exactly this.
  */
 export function useSelectionBoxLayers(
-  box: BBox | null,
-  mapViewRef: React.RefObject<MapViewHandle | null>,
+  box: Accessor<BBox | null>,
+  mapView: Accessor<MapViewHandle | null>,
 ): { resync: () => void } {
-  // The latest box, read by `resync` — which fires from a map event, long
-  // after the render that produced it. Written in an effect, never in render.
-  const boxRef = useRef<BBox | null>(box);
+  function draw(current: BBox | null) {
+    const map = mapView()?.map();
+    if (!styleReady(map)) return;
 
-  const draw = useCallback(
-    (current: BBox | null) => {
-      const map = mapViewRef.current?.mapRef.current?.getMap();
-      if (!styleReady(map)) return;
+    if (!current) {
+      syncGeoJsonOverlay(map, SOURCE_ID, LAYERS, EMPTY_FC);
+      return;
+    }
 
-      if (!current) {
-        syncGeoJsonOverlay(map, SOURCE_ID, LAYERS, EMPTY_FC);
-        return;
-      }
-
-      const [minLng, minLat, maxLng, maxLat] = current;
-      syncGeoJsonOverlay(
-        map,
-        SOURCE_ID,
-        LAYERS,
-        featureCollection({
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "Polygon",
-            coordinates: [
-              [
-                [minLng, minLat],
-                [maxLng, minLat],
-                [maxLng, maxLat],
-                [minLng, maxLat],
-                [minLng, minLat],
-              ],
+    const [minLng, minLat, maxLng, maxLat] = current;
+    syncGeoJsonOverlay(
+      map,
+      SOURCE_ID,
+      LAYERS,
+      featureCollection({
+        type: "Feature",
+        properties: {},
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [minLng, minLat],
+              [maxLng, minLat],
+              [maxLng, maxLat],
+              [minLng, maxLat],
+              [minLng, minLat],
             ],
-          },
-        }),
-      );
-    },
-    [mapViewRef],
-  );
+          ],
+        },
+      }),
+    );
+  }
 
-  useEffect(() => {
-    boxRef.current = box;
-    draw(box);
-  }, [box, draw]);
+  createEffect(() => draw(box()));
 
-  const resync = useCallback(() => draw(boxRef.current), [draw]);
-  return useMemo(() => ({ resync }), [resync]);
+  return { resync: () => draw(box()) };
 }

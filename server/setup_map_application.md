@@ -1,6 +1,6 @@
 # Setting up a map application
 
-Provisions one **React/Vite** map-application instance behind nginx, built from a
+Provisions one **SolidJS/Vite** map-application instance behind nginx, built from a
 GitHub repo and auto-redeployed on every push to a branch. Automated by
 [`setup_map_application.sh`](setup_map_application.sh).
 
@@ -18,7 +18,7 @@ multi-instance model.
 
 | Path | Purpose |
 |---|---|
-| `/srv/<slug>` | cloned Vite/React source repo |
+| `/srv/<slug>` | cloned Vite/SolidJS source repo |
 | `/var/www/<slug>` | nginx webroot (built `dist/`) |
 | `/etc/nginx/sites-available/<slug>` | nginx server block (symlinked into `sites-enabled/`) |
 | `/usr/local/bin/deploy-<slug>.sh` | deploy script (pull → `npm ci` → `vite build` → rsync) |
@@ -32,8 +32,9 @@ Shared, installed once: nginx, git, **Node.js**, the webhook daemon on
 
 ## Notable nginx / deploy behaviour
 
-- **SPA fallback** — unknown URLs serve `/index.html` so the React router handles
-  routing client-side.
+- **SPA fallback** — unknown URLs serve `/index.html`, so a deep-linked share URL
+  reaches the bundle instead of 404ing on a path nginx has no file for. The app
+  has no router; the parameters are read from the URL after boot.
 - **Immutable assets** — `^~ /assets/` (hashed Vite output) is cached one year,
   `Cache-Control: public, immutable`.
 - **Embeddable** — by default no framing header is set, so the app can be iframed
@@ -52,7 +53,7 @@ Shared, installed once: nginx, git, **Node.js**, the webhook daemon on
 |---|---|---|
 | `--slug NAME` | Instance slug | *(required)* |
 | `--host HOST` | Hostname | *(required)* |
-| `--repo URL` | Git remote of the Vite/React source | *(required)* |
+| `--repo URL` | Git remote of the Vite/SolidJS source | *(required)* |
 | `--branch NAME` | Git branch to deploy | `main` |
 | `--node-version N` | Node.js major version to install if missing | `20` |
 | `--frame-ancestors V` | CSP `frame-ancestors` value | *(blank — embeddable anywhere)* |

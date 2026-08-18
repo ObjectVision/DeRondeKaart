@@ -1,12 +1,14 @@
-import { useCallback, useRef } from "react";
-import type { MapViewHandle } from "@/components/map/MapView";
+import type { Accessor } from "solid-js";
+import type {
+  MapViewHandle,
+  ViewState,
+} from "@/components/map/map-view-config";
 import type { Annotation } from "@/types/annotation";
 import type { AnnotationsState } from "./use-annotations";
 import type { CollabIdentity } from "@/lib/collab-identity";
 import type { AreaFilterState } from "./use-area-filter";
 import type { UseMapLayersResult } from "./use-map-layers";
 import type { AnnotationHit } from "./use-annotation-tool";
-import type { ViewState } from "@/components/map/MapView";
 import { ANNOT_LAYERS, annotationKind } from "@/layers/annotation-style";
 import { restoreSnapshot } from "@/lib/annotation-restore";
 import { isUrlAddressable } from "@/lib/share-url";
@@ -22,6 +24,11 @@ import { centroid } from "@/lib/geo";
  * or queries the map. App keeps the parts that interleave with rendering —
  * selection state, the popup anchor, and the pointer dispatch that fans a click
  * out across annotations, box-select, feature-pick and Street View.
+ *
+ * Everything here reads its inputs through accessors at call time, so the
+ * latest-value refs the React version carried (one each for the two sides'
+ * layers and for the annotation list, all three flagged with an
+ * `eslint-disable react-hooks/refs`) are gone.
  */
 export interface UseAnnotationCommandsOptions {
   annotations: AnnotationsState;
@@ -30,14 +37,9 @@ export interface UseAnnotationCommandsOptions {
   areaFilter: AreaFilterState;
   mapLeftLayers: UseMapLayersResult;
   mapRightLayers: UseMapLayersResult;
-  viewState: ViewState;
-  mapLeftRef: React.RefObject<MapViewHandle | null>;
-  mapRightRef: React.RefObject<MapViewHandle | null>;
-  /**
-   * App's live mirror of `areaFilter`. Shared rather than mirrored again here
-   * because the host-filter bridge reads the same ref.
-   */
-  areaFilterRef: React.RefObject<AreaFilterState>;
+  viewState: Accessor<ViewState>;
+  mapLeft: Accessor<MapViewHandle | null>;
+  mapRight: Accessor<MapViewHandle | null>;
 }
 
 export interface UseAnnotationCommandsResult {
@@ -57,156 +59,118 @@ export interface UseAnnotationCommandsResult {
   captureSnapshot: () => AnnotationSnapshot;
 }
 
-export function useAnnotationCommands({
-  annotations,
-  identity,
-  areaFilter,
-  mapLeftLayers,
-  mapRightLayers,
-  viewState,
-  mapLeftRef,
-  mapRightRef,
-  areaFilterRef,
-}: UseAnnotationCommandsOptions): UseAnnotationCommandsResult {
-  // Live refs for the async snapshot restore: layer adds await full data loads,
-  // so state objects captured at click time go stale mid-run.
-  /* eslint-disable react-hooks/refs -- deliberate latest-value mirrors */
-  const mapLeftLayersRef = useRef(mapLeftLayers);
-  mapLeftLayersRef.current = mapLeftLayers;
-  const mapRightLayersRef = useRef(mapRightLayers);
-  mapRightLayersRef.current = mapRightLayers;
-  const annotationListRef = useRef(annotations.annotations);
-  annotationListRef.current = annotations.annotations;
-  /* eslint-enable react-hooks/refs */
-  const restoreTokenRef = useRef(0);
+export function useAnnotationCommands(
+  options: UseAnnotationCommandsOptions,
+): UseAnnotationCommandsResult {
+  let restoreToken = 0;
 
   // Everything an annotation restores: filter selections, both sides'
   // (URL-addressable) layer ids + hidden ids, and the camera.
-  const captureSnapshot = useCallback(
-    (): AnnotationSnapshot => ({
-      areaFilterSelections: selectionsToJson(areaFilter.selections),
+  function captureSnapshot(): AnnotationSnapshot {
+    const view = options.viewState();
+    return {
+      areaFilterSelections: selectionsToJson(options.areaFilter.selections()),
       mapA: {
-        layerIds: mapLeftLayers.layerEntries
+        layerIds: options.mapLeftLayers
+          .layerEntries()
           .filter(isUrlAddressable)
           .map((e) => e.config.id),
-        hiddenIds: [...mapLeftLayers.hiddenIds],
+        hiddenIds: [...options.mapLeftLayers.hiddenIds()],
       },
       mapB: {
-        layerIds: mapRightLayers.layerEntries
+        layerIds: options.mapRightLayers
+          .layerEntries()
           .filter(isUrlAddressable)
           .map((e) => e.config.id),
-        hiddenIds: [...mapRightLayers.hiddenIds],
+        hiddenIds: [...options.mapRightLayers.hiddenIds()],
       },
       view: {
-        longitude: viewState.longitude,
-        latitude: viewState.latitude,
-        zoom: viewState.zoom,
+        longitude: view.longitude,
+        latitude: view.latitude,
+        zoom: view.zoom,
       },
-    }),
-    [areaFilter.selections, mapLeftLayers, mapRightLayers, viewState],
-  );
+    };
+  }
 
   // The fields every new annotation shares, whatever its shape.
-  const newAnnotationBase = useCallback(
-    () => ({
+  function newAnnotationBase() {
+    return {
       id: crypto.randomUUID(),
       title: "",
       description: "",
-      color: identity.color,
-      author: identity.name,
+      color: options.identity.color,
+      author: options.identity.name,
       createdAt: Date.now(),
       snapshot: captureSnapshot(),
-    }),
-    [identity, captureSnapshot],
-  );
+    };
+  }
 
-  const createCircle = useCallback(
-    (center: { lng: number; lat: number }, radiusM: number): string => {
-      const annotation: Annotation = { ...newAnnotationBase(), center, radiusM };
-      annotations.add(annotation);
-      return annotation.id;
-    },
-    [annotations, newAnnotationBase],
-  );
+  function createCircle(center: { lng: number; lat: number }, radiusM: number): string {
+    const annotation: Annotation = { ...newAnnotationBase(), center, radiusM };
+    options.annotations.add(annotation);
+    return annotation.id;
+  }
 
-  const createPolygon = useCallback(
-    (points: Array<{ lng: number; lat: number }>): string => {
-      const annotation: Annotation = {
-        ...newAnnotationBase(),
-        center: centroid(points),
-        radiusM: 0,
-        points,
-      };
-      annotations.add(annotation);
-      return annotation.id;
-    },
-    [annotations, newAnnotationBase],
-  );
+  function createPolygon(points: Array<{ lng: number; lat: number }>): string {
+    const annotation: Annotation = {
+      ...newAnnotationBase(),
+      center: centroid(points),
+      radiusM: 0,
+      points,
+    };
+    options.annotations.add(annotation);
+    return annotation.id;
+  }
 
-  const createPin = useCallback(
-    (center: { lng: number; lat: number }): string => {
-      const annotation: Annotation = {
-        ...newAnnotationBase(),
-        center,
-        radiusM: 0,
-        pin: true,
-      };
-      annotations.add(annotation);
-      return annotation.id;
-    },
-    [annotations, newAnnotationBase],
-  );
+  function createPin(center: { lng: number; lat: number }): string {
+    const annotation: Annotation = {
+      ...newAnnotationBase(),
+      center,
+      radiusM: 0,
+      pin: true,
+    };
+    options.annotations.add(annotation);
+    return annotation.id;
+  }
 
-  const move = useCallback(
-    (id: string, center: { lng: number; lat: number }) => {
-      annotations.update(id, { center });
-    },
-    [annotations],
-  );
+  function move(id: string, center: { lng: number; lat: number }) {
+    options.annotations.update(id, { center });
+  }
 
-  const editPoints = useCallback(
-    (
-      id: string,
-      points: Array<{ lng: number; lat: number }>,
-      center: { lng: number; lat: number },
-    ) => {
-      annotations.update(id, { points, center });
-    },
-    [annotations],
-  );
+  function editPoints(
+    id: string,
+    points: Array<{ lng: number; lat: number }>,
+    center: { lng: number; lat: number },
+  ) {
+    options.annotations.update(id, { points, center });
+  }
 
-  const resize = useCallback(
-    (id: string, radiusM: number) => {
-      annotations.update(id, { radiusM });
-    },
-    [annotations],
-  );
+  function resize(id: string, radiusM: number) {
+    options.annotations.update(id, { radiusM });
+  }
 
   // Plain click on a circle: bring the session back to the annotation's
   // snapshot. Local-only — peers' maps don't move.
-  const restore = useCallback(
-    (id: string) => {
-      const annotation = annotationListRef.current.find((a) => a.id === id);
-      if (!annotation) return;
-      const token = ++restoreTokenRef.current;
-      void restoreSnapshot(
-        annotation.snapshot,
-        {
-          applySelections: (next) => areaFilterRef.current.applySelections(next),
-          getSideA: () => ({
-            layers: mapLeftLayersRef.current,
-            mapRef: mapLeftRef.current?.mapRef ?? { current: null },
-          }),
-          getSideB: () => ({
-            layers: mapRightLayersRef.current,
-            mapRef: mapRightRef.current?.mapRef ?? { current: null },
-          }),
+  function restore(id: string) {
+    const annotation = options.annotations.annotations().find((a) => a.id === id);
+    if (!annotation) return;
+    const token = ++restoreToken;
+    void restoreSnapshot(
+      annotation.snapshot,
+      {
+        applySelections: (next) => options.areaFilter.applySelections(next),
+        sideA: {
+          layers: options.mapLeftLayers,
+          map: () => options.mapLeft()?.map() ?? null,
         },
-        () => restoreTokenRef.current !== token,
-      );
-    },
-    [areaFilterRef, mapLeftRef, mapRightRef],
-  );
+        sideB: {
+          layers: options.mapRightLayers,
+          map: () => options.mapRight()?.map() ?? null,
+        },
+      },
+      () => restoreToken !== token,
+    );
+  }
 
   // Synchronous pick against a side's annotation layers, deciding at mousedown
   // what the gesture edits. Handles (vertices, then edges) win over shape
@@ -218,62 +182,59 @@ export function useAnnotationCommands({
   // `icon-allow-overlap` / `text-ignore-placement` so MapLibre's collision
   // engine can never cull a symbol out of pickability (deck's layers had no
   // collision detection at all, so everything was always pickable).
-  const pickAt = useCallback(
-    (side: "a" | "b", point: { x: number; y: number }): AnnotationHit | null => {
-      const map = (side === "a" ? mapLeftRef.current : mapRightRef.current)
-        ?.mapRef.current?.getMap();
-      if (!map) return null;
+  function pickAt(side: "a" | "b", point: { x: number; y: number }): AnnotationHit | null {
+    const map = (side === "a" ? options.mapLeft() : options.mapRight())?.map();
+    if (!map) return null;
 
-      const query = (layerIds: string[], radius: number) => {
-        const present = layerIds.filter((id) => map.getLayer(id));
-        if (present.length === 0) return [];
-        return map.queryRenderedFeatures(
-          [
-            [point.x - radius, point.y - radius],
-            [point.x + radius, point.y + radius],
-          ],
-          { layers: present },
-        );
-      };
-      // MapLibre carries no datum, so features reference their annotation by
-      // id and it is resolved against the live list.
-      const byId = (id: unknown): Annotation | null =>
-        annotationListRef.current.find((a) => a.id === id) ?? null;
+    function query(layerIds: string[], radius: number) {
+      const present = layerIds.filter((id) => map!.getLayer(id));
+      if (present.length === 0) return [];
+      return map!.queryRenderedFeatures(
+        [
+          [point.x - radius, point.y - radius],
+          [point.x + radius, point.y + radius],
+        ],
+        { layers: present },
+      );
+    }
+    // MapLibre carries no datum, so features reference their annotation by
+    // id and it is resolved against the live list.
+    function byId(id: unknown): Annotation | null {
+      return options.annotations.annotations().find((a) => a.id === id) ?? null;
+    }
 
-      const vertex = query([ANNOT_LAYERS.vertices], 6)[0];
-      if (vertex) {
-        const annotation = byId(vertex.properties?.annotationId);
-        if (annotation) {
-          return { type: "vertex", annotation, index: Number(vertex.properties?.index) };
-        }
+    const vertex = query([ANNOT_LAYERS.vertices], 6)[0];
+    if (vertex) {
+      const annotation = byId(vertex.properties?.annotationId);
+      if (annotation) {
+        return { type: "vertex", annotation, index: Number(vertex.properties?.index) };
       }
-      const edge = query([ANNOT_LAYERS.edges], 4)[0];
-      if (edge) {
-        const annotation = byId(edge.properties?.annotationId);
-        if (annotation) {
-          return { type: "edge", annotation, index: Number(edge.properties?.index) };
-        }
+    }
+    const edge = query([ANNOT_LAYERS.edges], 4)[0];
+    if (edge) {
+      const annotation = byId(edge.properties?.annotationId);
+      if (annotation) {
+        return { type: "edge", annotation, index: Number(edge.properties?.index) };
       }
+    }
 
-      const body = query(
-        [ANNOT_LAYERS.icons, ANNOT_LAYERS.shapesFill, ANNOT_LAYERS.shapesLine],
-        2,
-      )[0];
-      if (body) {
-        const annotation = byId(body.properties?.annotationId);
-        if (annotation) {
-          // The icon layer carries pins AND iconified shapes; `pin` is what
-          // distinguishes them (deck used separate layers for the same split).
-          if (body.layer?.id === ANNOT_LAYERS.icons && !annotation.pin) {
-            return { type: "icon", annotation };
-          }
-          return { type: annotationKind(annotation), annotation };
+    const body = query(
+      [ANNOT_LAYERS.icons, ANNOT_LAYERS.shapesFill, ANNOT_LAYERS.shapesLine],
+      2,
+    )[0];
+    if (body) {
+      const annotation = byId(body.properties?.annotationId);
+      if (annotation) {
+        // The icon layer carries pins AND iconified shapes; `pin` is what
+        // distinguishes them (deck used separate layers for the same split).
+        if (body.layer?.id === ANNOT_LAYERS.icons && !annotation.pin) {
+          return { type: "icon", annotation };
         }
+        return { type: annotationKind(annotation), annotation };
       }
-      return null;
-    },
-    [mapLeftRef, mapRightRef],
-  );
+    }
+    return null;
+  }
 
   return {
     createCircle,

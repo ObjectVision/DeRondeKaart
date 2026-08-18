@@ -1,6 +1,5 @@
-import { useCallback } from "react";
-import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
-import type { MapViewHandle } from "@/components/map/MapView";
+import type { Accessor } from "solid-js";
+import type { MapLayerMouseEvent, MapViewHandle } from "@/components/map/map-view-config";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import type { UseFeaturePickResult } from "@/hooks/use-feature-pick";
 import type { UseHoverCursorResult } from "@/hooks/use-hover-cursor";
@@ -17,10 +16,10 @@ export interface MapPointerSide {
 }
 
 export interface UseMapPointerOptions {
-  mapLeftRef: React.RefObject<MapViewHandle | null>;
-  mapRightRef: React.RefObject<MapViewHandle | null>;
-  leftEntries: LayerEntry[];
-  rightEntries: LayerEntry[];
+  mapLeft: Accessor<MapViewHandle | null>;
+  mapRight: Accessor<MapViewHandle | null>;
+  leftEntries: Accessor<LayerEntry[]>;
+  rightEntries: Accessor<LayerEntry[]>;
   pickA: UseFeaturePickResult;
   pickB: UseFeaturePickResult;
   hoverA: UseHoverCursorResult;
@@ -28,7 +27,7 @@ export interface UseMapPointerOptions {
   boxSelect: BoxSelectState;
   annotationTool: AnnotationToolState;
   /** Annotation mode is on — draw gestures take precedence over picking. */
-  annotationActive: boolean;
+  annotationActive: Accessor<boolean>;
   annotationToggle: () => void;
   /** Broadcasts the live cursor to collab peers; a no-op outside a room. */
   setCursor: (point: LngLat) => void;
@@ -65,143 +64,69 @@ export interface UseMapPointerResult {
  * and the crosshair, so arming one has to disarm the other — the same mutual
  * exclusion the handlers below depend on.
  */
-export function useMapPointer({
-  mapLeftRef,
-  mapRightRef,
-  leftEntries,
-  rightEntries,
-  pickA,
-  pickB,
-  hoverA,
-  hoverB,
-  boxSelect,
-  annotationTool,
-  annotationActive,
-  annotationToggle,
-  setCursor,
-  setPopupPoint,
-  handleMapClick,
-}: UseMapPointerOptions): UseMapPointerResult {
-  const { active: boxSelectActive, toggle: boxSelectToggle } = boxSelect;
+export function useMapPointer(options: UseMapPointerOptions): UseMapPointerResult {
+  function onClickA(e: MapLayerMouseEvent) {
+    // While a draw tool is armed, clicks belong to its gesture (MapLibre
+    // fires click after mouseup) — don't drop the marker or open FeatureInfo.
+    if (options.boxSelect.active() || options.annotationActive()) return;
+    options.pickA.handleClick(e);
+    options.pickB.clear(); // one popup: the latest click wins
+    options.setPopupPoint({ x: e.point.x, y: e.point.y });
+    options.handleMapClick(e, resolveMarkerPoint(e, options.mapLeft, options.leftEntries()));
+  }
 
-  // Pull the callbacks out so the memo deps are the stable function identities
-  // rather than the hook result objects, which change on every state change.
-  const pickAClick = pickA.handleClick;
-  const pickBClick = pickB.handleClick;
-  const pickAClear = pickA.clear;
-  const pickBClear = pickB.clear;
+  function onClickB(e: MapLayerMouseEvent) {
+    if (options.boxSelect.active() || options.annotationActive()) return;
+    options.pickB.handleClick(e);
+    options.pickA.clear();
+    options.setPopupPoint({ x: e.point.x, y: e.point.y });
+    options.handleMapClick(e, resolveMarkerPoint(e, options.mapRight, options.rightEntries()));
+  }
 
-  const onClickA = useCallback(
-    (e: MapLayerMouseEvent) => {
-      // While a draw tool is armed, clicks belong to its gesture (MapLibre
-      // fires click after mouseup) — don't drop the marker or open FeatureInfo.
-      if (boxSelectActive || annotationActive) return;
-      pickAClick(e);
-      pickBClear(); // one popup: the latest click wins
-      setPopupPoint({ x: e.point.x, y: e.point.y });
-      handleMapClick(e, resolveMarkerPoint(e, mapLeftRef, leftEntries));
-    },
-    [
-      boxSelectActive,
-      annotationActive,
-      pickAClick,
-      pickBClear,
-      handleMapClick,
-      setPopupPoint,
-      mapLeftRef,
-      leftEntries,
-    ],
-  );
+  function onMouseMoveA(e: MapLayerMouseEvent) {
+    options.hoverA.handleMouseMove(e);
+    options.boxSelect.handleMouseMove(e);
+    options.annotationTool.handleMouseMove(e);
+    // Broadcast the live cursor to collab peers (no-op outside a room).
+    options.setCursor({ lng: e.lngLat.lng, lat: e.lngLat.lat });
+  }
 
-  const onClickB = useCallback(
-    (e: MapLayerMouseEvent) => {
-      if (boxSelectActive || annotationActive) return;
-      pickBClick(e);
-      pickAClear();
-      setPopupPoint({ x: e.point.x, y: e.point.y });
-      handleMapClick(e, resolveMarkerPoint(e, mapRightRef, rightEntries));
-    },
-    [
-      boxSelectActive,
-      annotationActive,
-      pickBClick,
-      pickAClear,
-      handleMapClick,
-      setPopupPoint,
-      mapRightRef,
-      rightEntries,
-    ],
-  );
-
-  const hoverAMove = hoverA.handleMouseMove;
-  const hoverBMove = hoverB.handleMouseMove;
-  const boxSelectMove = boxSelect.handleMouseMove;
-  const annotationMove = annotationTool.handleMouseMove;
-
-  const onMouseMoveA = useCallback(
-    (e: MapLayerMouseEvent) => {
-      hoverAMove(e);
-      boxSelectMove(e);
-      annotationMove(e);
-      // Broadcast the live cursor to collab peers (no-op outside a room).
-      setCursor({ lng: e.lngLat.lng, lat: e.lngLat.lat });
-    },
-    [hoverAMove, boxSelectMove, annotationMove, setCursor],
-  );
-
-  const onMouseMoveB = useCallback(
-    (e: MapLayerMouseEvent) => {
-      hoverBMove(e);
-      boxSelectMove(e);
-      annotationMove(e);
-      setCursor({ lng: e.lngLat.lng, lat: e.lngLat.lat });
-    },
-    [hoverBMove, boxSelectMove, annotationMove, setCursor],
-  );
+  function onMouseMoveB(e: MapLayerMouseEvent) {
+    options.hoverB.handleMouseMove(e);
+    options.boxSelect.handleMouseMove(e);
+    options.annotationTool.handleMouseMove(e);
+    options.setCursor({ lng: e.lngLat.lng, lat: e.lngLat.lat });
+  }
 
   // Mouse down/up dispatch to whichever draw tool is armed (they're mutually
   // exclusive; see the toggles below). The annotation gesture needs to know
   // which map it started on — picks must hit that side's overlay.
-  const boxSelectDown = boxSelect.handleMouseDown;
-  const boxSelectUp = boxSelect.handleMouseUp;
-  const annotationDown = annotationTool.handleMouseDown;
-  const annotationUp = annotationTool.handleMouseUp;
+  function onMouseDownA(e: MapLayerMouseEvent) {
+    if (options.annotationActive()) options.annotationTool.handleMouseDown(e, "a");
+    else options.boxSelect.handleMouseDown(e);
+  }
 
-  const onMouseDownA = useCallback(
-    (e: MapLayerMouseEvent) => {
-      if (annotationActive) annotationDown(e, "a");
-      else boxSelectDown(e);
-    },
-    [annotationActive, annotationDown, boxSelectDown],
-  );
+  function onMouseDownB(e: MapLayerMouseEvent) {
+    if (options.annotationActive()) options.annotationTool.handleMouseDown(e, "b");
+    else options.boxSelect.handleMouseDown(e);
+  }
 
-  const onMouseDownB = useCallback(
-    (e: MapLayerMouseEvent) => {
-      if (annotationActive) annotationDown(e, "b");
-      else boxSelectDown(e);
-    },
-    [annotationActive, annotationDown, boxSelectDown],
-  );
-
-  const onMouseUp = useCallback(
-    (e: MapLayerMouseEvent) => {
-      if (annotationActive) annotationUp(e);
-      else boxSelectUp(e);
-    },
-    [annotationActive, annotationUp, boxSelectUp],
-  );
+  function onMouseUp(e: MapLayerMouseEvent) {
+    if (options.annotationActive()) options.annotationTool.handleMouseUp(e);
+    else options.boxSelect.handleMouseUp(e);
+  }
 
   // The two draw tools both claim mousedown + the crosshair — arming one
   // disarms the other.
-  const toggleAnnotationTool = useCallback(() => {
-    if (!annotationActive && boxSelectActive) boxSelectToggle();
-    annotationToggle();
-  }, [annotationActive, boxSelectActive, boxSelectToggle, annotationToggle]);
+  function toggleAnnotationTool() {
+    if (!options.annotationActive() && options.boxSelect.active()) options.boxSelect.toggle();
+    options.annotationToggle();
+  }
 
-  const toggleAreaSelect = useCallback(() => {
-    if (!boxSelectActive && annotationActive) annotationToggle();
-    boxSelectToggle();
-  }, [boxSelectActive, annotationActive, annotationToggle, boxSelectToggle]);
+  function toggleAreaSelect() {
+    if (!options.boxSelect.active() && options.annotationActive()) options.annotationToggle();
+    options.boxSelect.toggle();
+  }
 
   return {
     a: { onClick: onClickA, onMouseMove: onMouseMoveA, onMouseDown: onMouseDownA },

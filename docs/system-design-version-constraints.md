@@ -60,11 +60,13 @@ don't lose time on it.
 **Dropping `typescript-eslint` is not the trade it looks like.** It is not 20 TS
 rules in exchange for TS 7: it is the only TypeScript **parser**, so ESLint
 could not read `.ts`/`.tsx` at all and *every* rule would stop running —
-including `eslint-plugin-react-hooks`, which has caught real bugs here (the
-"cannot update ref during render" class). Measured: TS 7 cuts `tsc -b` from
+including `eslint-plugin-solid`, whose `solid/reactivity` rule is the only
+automated guard against the silent "props destructured, component never updates
+again" failure. Measured: TS 7 cuts `tsc -b` from
 ~3.0s to ~0.2s, which is ~20% of a 14.2s build whose slowest step is ~9s of
 brotli/font work. Not worth every lint rule in the project.
 
 **Nothing here reaches the shipped bundle.** `tsconfig.app.json` sets `noEmit`,
-esbuild does all transpilation, and `typescript` is a devDependency. The
+`vite-plugin-solid` (Babel) lowers the JSX and Vite's bundler transpiles the
+rest, and `typescript` is a devDependency. The
 constraint costs developers a faster typecheck and costs users nothing.

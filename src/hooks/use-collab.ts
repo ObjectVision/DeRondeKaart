@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createEffect, createSignal, onCleanup, type Accessor } from "solid-js";
 import type * as Y from "yjs";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { getCollabIdentity, type CollabIdentity } from "@/lib/collab-identity";
@@ -22,10 +22,10 @@ function collabWsUrl(): string {
 
 export interface CollabState {
   /** Joined room id (UUID), or null while the session is local-only. */
-  roomId: string | null;
-  connected: boolean;
+  roomId: Accessor<string | null>;
+  connected: Accessor<boolean>;
   /** Remote participants' presence (self excluded). */
-  peers: CollabPresence[];
+  peers: Accessor<CollabPresence[]>;
   /** Connect the session doc to a room. No-op when already in that room. */
   startSession(roomId: string): void;
   /** Broadcast the local cursor (throttled); null = pointer left the map. */
@@ -38,122 +38,115 @@ export interface CollabState {
 /**
  * Collaboration lifecycle for the annotation session: attaches a Hocuspocus
  * provider to the shared Y.Doc when a room is joined, and bridges the Yjs
- * Awareness protocol (live cursors, selection highlights) to React state.
+ * Awareness protocol (live cursors, selection highlights) into signals.
  * Cursors are ephemeral awareness state — never stored in the doc.
  */
 export function useCollab(doc: Y.Doc): CollabState {
-  const [roomId, setRoomId] = useState<string | null>(null);
-  const [connected, setConnected] = useState(false);
-  const [peers, setPeers] = useState<CollabPresence[]>([]);
-  const providerRef = useRef<HocuspocusProvider | null>(null);
-  const identity = useMemo(() => getCollabIdentity(), []);
+  const [roomId, setRoomId] = createSignal<string | null>(null);
+  const [connected, setConnected] = createSignal(false);
+  const [peers, setPeers] = createSignal<CollabPresence[]>([]);
+  const identity = getCollabIdentity();
 
+  // None of the following is rendered, so all of it is plain local state.
+  let provider: HocuspocusProvider | null = null;
   // Cursor throttle: remember the latest position, send at most every 40 ms
   // (trailing edge so the final resting position always goes out).
-  const cursorRef = useRef<{ lng: number; lat: number } | null>(null);
-  const cursorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const cursorLastSentRef = useRef(0);
+  let cursor: { lng: number; lat: number } | null = null;
+  let cursorTimer: ReturnType<typeof setTimeout> | null = null;
+  let cursorLastSent = 0;
+  // Awareness updates arrive one per message; coalesce everything that lands in
+  // the same frame into a single peers update.
+  let peersRaf: number | null = null;
 
-  // Awareness updates arrive per-message; batch the React mirror per frame so
-  // several peers at 25 Hz don't trigger hundreds of re-renders per second.
-  const peersRafRef = useRef<number | null>(null);
+  function startSession(nextRoomId: string) {
+    if (provider) {
+      if (roomId() === nextRoomId) return;
+      provider.destroy();
+      provider = null;
+    }
+    const next = new HocuspocusProvider({
+      url: collabWsUrl(),
+      name: nextRoomId,
+      document: doc,
+      onStatus: ({ status }) => setConnected(status === "connected"),
+      onAwarenessChange: ({ states }) => {
+        if (peersRaf !== null) return;
+        peersRaf = requestAnimationFrame(() => {
+          peersRaf = null;
+          const self = next.awareness?.clientID;
+          setPeers(
+            states
+              .filter((s) => s.clientId !== self && s.user)
+              .map((s) => ({
+                user: s.user,
+                cursor: s.cursor ?? null,
+                activeAnnotationId: s.activeAnnotationId ?? null,
+              })),
+          );
+        });
+      },
+    });
+    next.setAwarenessField("user", identity);
+    next.setAwarenessField("cursor", null);
+    next.setAwarenessField("activeAnnotationId", null);
+    provider = next;
+    setRoomId(nextRoomId);
+  }
 
-  const startSession = useCallback(
-    (nextRoomId: string) => {
-      if (providerRef.current) {
-        if (roomId === nextRoomId) return;
-        providerRef.current.destroy();
-        providerRef.current = null;
-      }
-      const provider = new HocuspocusProvider({
-        url: collabWsUrl(),
-        name: nextRoomId,
-        document: doc,
-        onStatus: ({ status }) => setConnected(status === "connected"),
-        onAwarenessChange: ({ states }) => {
-          if (peersRafRef.current !== null) return;
-          peersRafRef.current = requestAnimationFrame(() => {
-            peersRafRef.current = null;
-            const self = provider.awareness?.clientID;
-            setPeers(
-              states
-                .filter((s) => s.clientId !== self && s.user)
-                .map((s) => ({
-                  user: s.user,
-                  cursor: s.cursor ?? null,
-                  activeAnnotationId: s.activeAnnotationId ?? null,
-                })),
-            );
-          });
-        },
-      });
-      provider.setAwarenessField("user", identity);
-      provider.setAwarenessField("cursor", null);
-      provider.setAwarenessField("activeAnnotationId", null);
-      providerRef.current = provider;
-      setRoomId(nextRoomId);
-    },
-    [doc, identity, roomId],
-  );
-
-  const setCursor = useCallback((pos: { lng: number; lat: number } | null) => {
-    cursorRef.current = pos;
-    const provider = providerRef.current;
+  function setCursor(pos: { lng: number; lat: number } | null) {
+    cursor = pos;
     if (!provider) return;
-    if (cursorTimerRef.current !== null) return; // trailing send already queued
-    const send = () => {
-      cursorLastSentRef.current = performance.now();
-      providerRef.current?.setAwarenessField("cursor", cursorRef.current);
-    };
-    const elapsed = performance.now() - cursorLastSentRef.current;
+    if (cursorTimer !== null) return; // trailing send already queued
+    function send() {
+      cursorLastSent = performance.now();
+      provider?.setAwarenessField("cursor", cursor);
+    }
+    const elapsed = performance.now() - cursorLastSent;
     if (elapsed >= CURSOR_THROTTLE_MS) {
       send();
     } else {
-      cursorTimerRef.current = setTimeout(() => {
-        cursorTimerRef.current = null;
+      cursorTimer = setTimeout(() => {
+        cursorTimer = null;
         send();
       }, CURSOR_THROTTLE_MS - elapsed);
     }
-  }, []);
+  }
 
-  const setActiveAnnotation = useCallback((id: string | null) => {
-    providerRef.current?.setAwarenessField("activeAnnotationId", id);
-  }, []);
+  function setActiveAnnotation(id: string | null) {
+    provider?.setAwarenessField("activeAnnotationId", id);
+  }
 
   // Clear the broadcast cursor when the pointer leaves the page or the tab
   // loses focus — otherwise peers see it frozen at the last map position.
-  useEffect(() => {
-    if (!roomId) return;
-    const clear = () => setCursor(null);
+  createEffect(() => {
+    if (!roomId()) return;
+    function clear() {
+      setCursor(null);
+    }
     document.documentElement.addEventListener("mouseleave", clear);
     window.addEventListener("blur", clear);
-    return () => {
+    onCleanup(() => {
       document.documentElement.removeEventListener("mouseleave", clear);
       window.removeEventListener("blur", clear);
-    };
-  }, [roomId, setCursor]);
+    });
+  });
 
-  // Destroy the provider on unmount (awareness auto-clears for peers). App
-  // never unmounts in practice; this covers StrictMode/dev teardown.
-  useEffect(() => {
-    return () => {
-      if (cursorTimerRef.current !== null) clearTimeout(cursorTimerRef.current);
-      if (peersRafRef.current !== null) cancelAnimationFrame(peersRafRef.current);
-      providerRef.current?.destroy();
-      providerRef.current = null;
-    };
-  }, []);
+  // Destroy the provider on teardown (awareness auto-clears for peers). App
+  // never unmounts in practice; this covers dev teardown.
+  onCleanup(() => {
+    if (cursorTimer !== null) clearTimeout(cursorTimer);
+    if (peersRaf !== null) cancelAnimationFrame(peersRaf);
+    provider?.destroy();
+    provider = null;
+  });
 
-  return useMemo(
-    () => ({
-      roomId,
-      connected,
-      peers,
-      startSession,
-      setCursor,
-      setActiveAnnotation,
-      identity,
-    }),
-    [roomId, connected, peers, startSession, setCursor, setActiveAnnotation, identity],
-  );
+  return {
+    roomId,
+    connected,
+    peers,
+    startSession,
+    setCursor,
+    setActiveAnnotation,
+    identity,
+  };
 }

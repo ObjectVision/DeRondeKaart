@@ -1,3 +1,4 @@
+import { Match, Switch, type JSX } from "solid-js";
 import type { ResolvedChart } from "@/layers/chart-data";
 import { DonutChart } from "./DonutChart";
 import { BarChart } from "./BarChart";
@@ -8,23 +9,37 @@ interface ChartCardProps {
 }
 
 /** One chart tile in the analytics panel. */
-export function ChartCard({ chart }: ChartCardProps): React.JSX.Element {
-  const { config, data, total } = chart;
+export function ChartCard(props: ChartCardProps): JSX.Element {
+  const empty = () => props.chart.data.length === 0 || props.chart.total === 0;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-2.5">
-      <h4 className="mb-2 text-xs font-semibold text-gray-700">{config.title}</h4>
-      {data.length === 0 || total === 0 ? (
-        <div className="flex h-24 items-center justify-center text-xs text-gray-400">
-          Geen data binnen filter
-        </div>
-      ) : config.type === "donut" ? (
-        <DonutChart data={data} total={total} format={config.format} />
-      ) : config.type === "bar" ? (
-        <BarChart data={data} total={total} format={config.format} />
-      ) : (
-        <LineChart data={data} format={config.format} />
-      )}
+    <div class="rounded-xl border border-gray-200 bg-white p-2.5">
+      <h4 class="mb-2 text-xs font-semibold text-gray-700">{props.chart.config.title}</h4>
+      <Switch
+        fallback={
+          <LineChart data={props.chart.data} format={props.chart.config.format} />
+        }
+      >
+        <Match when={empty()}>
+          <div class="flex h-24 items-center justify-center text-xs text-gray-400">
+            Geen data binnen filter
+          </div>
+        </Match>
+        <Match when={props.chart.config.type === "donut"}>
+          <DonutChart
+            data={props.chart.data}
+            total={props.chart.total}
+            format={props.chart.config.format}
+          />
+        </Match>
+        <Match when={props.chart.config.type === "bar"}>
+          <BarChart
+            data={props.chart.data}
+            total={props.chart.total}
+            format={props.chart.config.format}
+          />
+        </Match>
+      </Switch>
     </div>
   );
 }

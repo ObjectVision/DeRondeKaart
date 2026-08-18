@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
+import { createEffect, createSignal, onCleanup, type Accessor } from "solid-js";
+import type { MapLayerMouseEvent } from "@/components/map/map-view-config";
 import { centroid, distanceMeters, nearestPointOnSegment } from "@/lib/geo";
 import type { Annotation } from "@/types/annotation";
 
@@ -133,17 +133,17 @@ export interface AnnotationToolOptions {
 
 export interface AnnotationToolState {
   /** The annotation mode is on (toolbar toggle). */
-  active: boolean;
+  active: Accessor<boolean>;
   toggle: () => void;
   /** Turn the mode on (idempotent) — used when a share link joins a collab room. */
   activate: () => void;
   /** Armed drawing tool, or null — with no tool the map navigates as usual. */
-  tool: AnnotationToolKind | null;
+  tool: Accessor<AnnotationToolKind | null>;
   setTool: (tool: AnnotationToolKind | null) => void;
   /** In-progress shape while drawing a new annotation (null otherwise). */
-  draft: AnnotationDraft | null;
+  draft: Accessor<AnnotationDraft | null>;
   /** Selected annotation (edit popup target), or null. */
-  selectedId: string | null;
+  selectedId: Accessor<string | null>;
   select: (id: string | null) => void;
   handleMouseDown: (e: MapLayerMouseEvent, side: "a" | "b") => void;
   handleMouseMove: (e: MapLayerMouseEvent) => void;
@@ -177,161 +177,151 @@ export interface AnnotationToolState {
  * - Delete/Backspace → delete the selected annotation (unless typing in a field)
  */
 export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToolState {
-  const [active, setActive] = useState(false);
-  const [tool, setTool] = useState<AnnotationToolKind | null>(null);
-  const [draft, setDraft] = useState<AnnotationDraft | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const dragRef = useRef<DragState | null>(null);
-  const lastEditWriteRef = useRef(0);
+  const [active, setActive] = createSignal(false);
+  const [tool, setTool] = createSignal<AnnotationToolKind | null>(null);
+  const [draft, setDraft] = createSignal<AnnotationDraft | null>(null);
+  const [selectedId, setSelectedId] = createSignal<string | null>(null);
+  // Plain locals: neither is rendered, and both must be readable synchronously
+  // from inside the MapLibre handlers.
+  let dragState: DragState | null = null;
+  let lastEditWrite = 0;
 
-  // Latest callbacks behind a stable ref, so the mouse handlers keep a stable
-  // identity (they're threaded into MapView's memoized props).
-  const optionsRef = useRef(options);
-  useEffect(() => {
-    optionsRef.current = options;
-  });
-
-  const cancelDrag = useCallback(() => {
-    const drag = dragRef.current;
-    dragRef.current = null;
+  function cancelDrag() {
+    const drag = dragState;
+    dragState = null;
     setDraft(null);
     // A cancelled move/resize/vertex drag already wrote live positions — revert.
     if (drag && drag.mode === "move") {
-      optionsRef.current.onMove(drag.id, drag.startCenter);
+      options.onMove(drag.id, drag.startCenter);
     } else if (drag && drag.mode === "resize") {
-      optionsRef.current.onResize(drag.id, drag.startRadiusM);
+      options.onResize(drag.id, drag.startRadiusM);
     } else if (drag && drag.mode === "move-poly") {
-      optionsRef.current.onEditPoints(drag.id, drag.startPoints, centroid(drag.startPoints));
+      options.onEditPoints(drag.id, drag.startPoints, centroid(drag.startPoints));
     } else if (drag && drag.mode === "vertex") {
-      optionsRef.current.onEditPoints(drag.id, drag.revertPoints, centroid(drag.revertPoints));
+      options.onEditPoints(drag.id, drag.revertPoints, centroid(drag.revertPoints));
     }
-  }, []);
+  }
 
-  const select = useCallback((id: string | null) => {
+  function select(id: string | null) {
     setSelectedId(id);
-  }, []);
+  }
 
-  const toggle = useCallback(() => {
-    setActive((prev) => {
-      if (prev) {
-        dragRef.current = null;
-        setDraft(null);
-        setSelectedId(null);
-      }
-      return !prev;
-    });
+  function toggle() {
+    if (active()) {
+      dragState = null;
+      setDraft(null);
+      setSelectedId(null);
+    }
+    setActive(!active());
     setTool(null);
-  }, []);
+  }
 
-  const activate = useCallback(() => {
+  function activate() {
     setActive(true);
-  }, []);
+  }
 
-  const handleMouseDown = useCallback(
-    (e: MapLayerMouseEvent, side: "a" | "b") => {
-      if (!active) return;
-      const startPoint = { x: e.point.x, y: e.point.y };
-      const startLngLat = { lng: e.lngLat.lng, lat: e.lngLat.lat };
+  function handleMouseDown(e: MapLayerMouseEvent, side: "a" | "b") {
+    if (!active()) return;
+    const startPoint = { x: e.point.x, y: e.point.y };
+    const startLngLat = { lng: e.lngLat.lng, lat: e.lngLat.lat };
 
-      const hit = optionsRef.current.pickAnnotationAt(side, startPoint);
-      if (hit) {
-        // Suppress MapLibre's drag-pan for this gesture only.
-        e.preventDefault();
-        const a = hit.annotation;
-        if (hit.type === "vertex" && a.points) {
-          dragRef.current = {
-            mode: "vertex",
-            id: a.id,
-            index: hit.index,
-            points: a.points,
-            revertPoints: a.points,
-            startPoint,
-          };
-        } else if (hit.type === "edge" && a.points && a.id === selectedId) {
-          // Figma-style edge split: insert a vertex on the edge right away;
-          // the rest of the gesture (if any) drags the new vertex.
-          const insertAt = hit.index + 1;
-          const onEdge = nearestPointOnSegment(
-            startLngLat,
-            a.points[hit.index],
-            a.points[(hit.index + 1) % a.points.length],
-          );
-          const points = [
-            ...a.points.slice(0, insertAt),
-            onEdge,
-            ...a.points.slice(insertAt),
-          ];
-          optionsRef.current.onEditPoints(a.id, points, centroid(points));
-          dragRef.current = {
-            mode: "vertex",
-            id: a.id,
-            index: insertAt,
-            points,
-            revertPoints: a.points,
-            startPoint,
-          };
-        } else if ((hit.type === "polygon" || hit.type === "edge") && a.points) {
-          dragRef.current = {
-            mode: "move-poly",
-            id: a.id,
-            startPoints: a.points,
-            startLngLat,
-            startPoint,
-          };
-        } else if (hit.type === "pin" || (hit.type === "icon" && !a.points)) {
-          // Pins and far-zoom circle icons have no rim to grab — drag moves.
-          dragRef.current = {
-            mode: "move",
-            id: a.id,
-            startCenter: a.center,
-            startRadiusM: a.radiusM,
-            startLngLat,
-            startPoint,
-          };
-        } else if (hit.type === "icon" && a.points) {
-          // Far-zoom polygon icon: drag translates the whole ring.
-          dragRef.current = {
-            mode: "move-poly",
-            id: a.id,
-            startPoints: a.points,
-            startLngLat,
-            startPoint,
-          };
-        } else {
-          // Inner 75% of the radius drags the circle; the rim band resizes it.
-          const mode =
-            distanceMeters(startLngLat, a.center) / a.radiusM > 0.75
-              ? "resize"
-              : "move";
-          dragRef.current = {
-            mode,
-            id: a.id,
-            startCenter: a.center,
-            startRadiusM: a.radiusM,
-            startLngLat,
-            startPoint,
-          };
-        }
-      } else if (tool === "circle") {
-        e.preventDefault();
-        dragRef.current = { mode: "create", center: startLngLat, startPoint };
-      } else if (tool === "polygon") {
-        e.preventDefault();
-        dragRef.current = { mode: "create-poly", start: startLngLat, startPoint };
-      } else if (tool === "pin") {
-        e.preventDefault();
-        dragRef.current = { mode: "create-pin", startPoint };
+    const hit = options.pickAnnotationAt(side, startPoint);
+    if (hit) {
+      // Suppress MapLibre's drag-pan for this gesture only.
+      e.preventDefault();
+      const a = hit.annotation;
+      if (hit.type === "vertex" && a.points) {
+        dragState = {
+          mode: "vertex",
+          id: a.id,
+          index: hit.index,
+          points: a.points,
+          revertPoints: a.points,
+          startPoint,
+        };
+      } else if (hit.type === "edge" && a.points && a.id === selectedId()) {
+        // Figma-style edge split: insert a vertex on the edge right away;
+        // the rest of the gesture (if any) drags the new vertex.
+        const insertAt = hit.index + 1;
+        const onEdge = nearestPointOnSegment(
+          startLngLat,
+          a.points[hit.index],
+          a.points[(hit.index + 1) % a.points.length],
+        );
+        const points = [
+          ...a.points.slice(0, insertAt),
+          onEdge,
+          ...a.points.slice(insertAt),
+        ];
+        options.onEditPoints(a.id, points, centroid(points));
+        dragState = {
+          mode: "vertex",
+          id: a.id,
+          index: insertAt,
+          points,
+          revertPoints: a.points,
+          startPoint,
+        };
+      } else if ((hit.type === "polygon" || hit.type === "edge") && a.points) {
+        dragState = {
+          mode: "move-poly",
+          id: a.id,
+          startPoints: a.points,
+          startLngLat,
+          startPoint,
+        };
+      } else if (hit.type === "pin" || (hit.type === "icon" && !a.points)) {
+        // Pins and far-zoom circle icons have no rim to grab — drag moves.
+        dragState = {
+          mode: "move",
+          id: a.id,
+          startCenter: a.center,
+          startRadiusM: a.radiusM,
+          startLngLat,
+          startPoint,
+        };
+      } else if (hit.type === "icon" && a.points) {
+        // Far-zoom polygon icon: drag translates the whole ring.
+        dragState = {
+          mode: "move-poly",
+          id: a.id,
+          startPoints: a.points,
+          startLngLat,
+          startPoint,
+        };
       } else {
-        // No tool armed: let the map pan; remember the start point only to
-        // recognize a plain click (deselect) on mouseup.
-        dragRef.current = { mode: "pan", startPoint };
+        // Inner 75% of the radius drags the circle; the rim band resizes it.
+        const mode =
+          distanceMeters(startLngLat, a.center) / a.radiusM > 0.75
+            ? "resize"
+            : "move";
+        dragState = {
+          mode,
+          id: a.id,
+          startCenter: a.center,
+          startRadiusM: a.radiusM,
+          startLngLat,
+          startPoint,
+        };
       }
-    },
-    [active, tool, selectedId],
-  );
+    } else if (tool() === "circle") {
+      e.preventDefault();
+      dragState = { mode: "create", center: startLngLat, startPoint };
+    } else if (tool() === "polygon") {
+      e.preventDefault();
+      dragState = { mode: "create-poly", start: startLngLat, startPoint };
+    } else if (tool() === "pin") {
+      e.preventDefault();
+      dragState = { mode: "create-pin", startPoint };
+    } else {
+    // No tool armed: let the map pan; remember the start point only to
+    // recognize a plain click (deselect) on mouseup.
+    dragState = { mode: "pan", startPoint };
+    }
+  }
 
-  const handleMouseMove = useCallback((e: MapLayerMouseEvent) => {
-    const drag = dragRef.current;
+  function handleMouseMove(e: MapLayerMouseEvent) {
+    const drag = dragState;
     if (!drag) return;
     if (drag.mode === "pan") return; // the map handles the drag itself
     if (drag.mode === "create-pin") return; // placed on mouseup, no preview
@@ -351,15 +341,15 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
 
     // Live-write moves/resizes (throttled) so collaborators see the drag.
     const now = performance.now();
-    if (now - lastEditWriteRef.current < EDIT_THROTTLE_MS) return;
-    lastEditWriteRef.current = now;
+    if (now - lastEditWrite < EDIT_THROTTLE_MS) return;
+    lastEditWrite = now;
     if (drag.mode === "move") {
-      optionsRef.current.onMove(drag.id, {
+      options.onMove(drag.id, {
         lng: drag.startCenter.lng + (e.lngLat.lng - drag.startLngLat.lng),
         lat: drag.startCenter.lat + (e.lngLat.lat - drag.startLngLat.lat),
       });
     } else if (drag.mode === "resize") {
-      optionsRef.current.onResize(
+      options.onResize(
         drag.id,
         Math.max(MIN_RADIUS_M, distanceMeters(drag.startCenter, e.lngLat)),
       );
@@ -370,136 +360,134 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
         lng: p.lng + dLng,
         lat: p.lat + dLat,
       }));
-      optionsRef.current.onEditPoints(drag.id, points, centroid(points));
+      options.onEditPoints(drag.id, points, centroid(points));
     } else if (drag.mode === "vertex") {
       const points = drag.points.map((p, i) =>
         i === drag.index ? { lng: e.lngLat.lng, lat: e.lngLat.lat } : p,
       );
-      optionsRef.current.onEditPoints(drag.id, points, centroid(points));
+      options.onEditPoints(drag.id, points, centroid(points));
     }
-  }, []);
+  }
 
-  const handleMouseUp = useCallback(
-    (e: MapLayerMouseEvent) => {
-      const drag = dragRef.current;
-      if (!drag) return;
-      dragRef.current = null;
-      setDraft(null);
+  function handleMouseUp(e: MapLayerMouseEvent) {
+    const drag = dragState;
+    if (!drag) return;
+    dragState = null;
+    setDraft(null);
 
-      const dx = e.point.x - drag.startPoint.x;
-      const dy = e.point.y - drag.startPoint.y;
-      const isClick = Math.hypot(dx, dy) < MIN_DRAG_PX;
+    const dx = e.point.x - drag.startPoint.x;
+    const dy = e.point.y - drag.startPoint.y;
+    const isClick = Math.hypot(dx, dy) < MIN_DRAG_PX;
 
-      if (drag.mode === "pan") {
-        // Plain click on empty map: just deselect. A real drag panned the map.
-        if (isClick) setSelectedId(null);
-        return;
-      }
+    if (drag.mode === "pan") {
+      // Plain click on empty map: just deselect. A real drag panned the map.
+      if (isClick) setSelectedId(null);
+      return;
+    }
 
-      if (drag.mode === "create") {
-        if (isClick) {
-          // Plain click while a draw tool is armed: deselect, keep the tool
-          // armed so the next drag still places the shape.
-          setSelectedId(null);
-          return;
-        }
-        const radiusM = distanceMeters(drag.center, e.lngLat);
-        if (radiusM < MIN_RADIUS_M) return;
-        const id = optionsRef.current.onCreate(drag.center, radiusM);
-        setSelectedId(id);
-        // One shape per arming — placing it returns to map navigation.
-        setTool(null);
-        return;
-      }
-
-      if (drag.mode === "create-poly") {
-        if (isClick) {
-          setSelectedId(null);
-          return;
-        }
-        if (distanceMeters(drag.start, e.lngLat) < MIN_POLY_DIAG_M) return;
-        const id = optionsRef.current.onCreatePolygon(
-          triangleFromBbox(drag.start, e.lngLat),
-        );
-        setSelectedId(id);
-        setTool(null);
-        return;
-      }
-
-      if (drag.mode === "create-pin") {
-        // Click or drag alike: the pin lands where the mouse was released.
-        const id = optionsRef.current.onCreatePin({
-          lng: e.lngLat.lng,
-          lat: e.lngLat.lat,
-        });
-        setSelectedId(id);
-        setTool(null);
-        return;
-      }
-
+    if (drag.mode === "create") {
       if (isClick) {
-        // A vertex/edge gesture that ends as a click: the edge split (applied
-        // on mousedown) stands; a plain vertex click changes nothing.
-        if (drag.mode === "vertex") return;
-        // Plain click on an annotation: select + restore its snapshot.
-        setSelectedId(drag.id);
-        optionsRef.current.onRestore(drag.id);
+        // Plain click while a draw tool is armed: deselect, keep the tool
+        // armed so the next drag still places the shape.
+        setSelectedId(null);
         return;
       }
+      const radiusM = distanceMeters(drag.center, e.lngLat);
+      if (radiusM < MIN_RADIUS_M) return;
+      const id = options.onCreate(drag.center, radiusM);
+      setSelectedId(id);
+      // One shape per arming — placing it returns to map navigation.
+      setTool(null);
+      return;
+    }
 
-      // Final commit of the drag's end position (the throttle may have
-      // swallowed the last few mousemoves).
-      if (drag.mode === "move") {
-        optionsRef.current.onMove(drag.id, {
-          lng: drag.startCenter.lng + (e.lngLat.lng - drag.startLngLat.lng),
-          lat: drag.startCenter.lat + (e.lngLat.lat - drag.startLngLat.lat),
-        });
-      } else if (drag.mode === "resize") {
-        optionsRef.current.onResize(
-          drag.id,
-          Math.max(MIN_RADIUS_M, distanceMeters(drag.startCenter, e.lngLat)),
-        );
-      } else if (drag.mode === "move-poly") {
-        const dLng = e.lngLat.lng - drag.startLngLat.lng;
-        const dLat = e.lngLat.lat - drag.startLngLat.lat;
-        const points = drag.startPoints.map((p) => ({
-          lng: p.lng + dLng,
-          lat: p.lat + dLat,
-        }));
-        optionsRef.current.onEditPoints(drag.id, points, centroid(points));
-      } else if (drag.mode === "vertex") {
-        const points = drag.points.map((p, i) =>
-          i === drag.index ? { lng: e.lngLat.lng, lat: e.lngLat.lat } : p,
-        );
-        optionsRef.current.onEditPoints(drag.id, points, centroid(points));
+    if (drag.mode === "create-poly") {
+      if (isClick) {
+        setSelectedId(null);
+        return;
       }
-    },
-    [],
-  );
+      if (distanceMeters(drag.start, e.lngLat) < MIN_POLY_DIAG_M) return;
+      const id = options.onCreatePolygon(
+        triangleFromBbox(drag.start, e.lngLat),
+      );
+      setSelectedId(id);
+      setTool(null);
+      return;
+    }
+
+    if (drag.mode === "create-pin") {
+      // Click or drag alike: the pin lands where the mouse was released.
+      const id = options.onCreatePin({
+        lng: e.lngLat.lng,
+        lat: e.lngLat.lat,
+      });
+      setSelectedId(id);
+      setTool(null);
+      return;
+    }
+
+    if (isClick) {
+      // A vertex/edge gesture that ends as a click: the edge split (applied
+      // on mousedown) stands; a plain vertex click changes nothing.
+      if (drag.mode === "vertex") return;
+      // Plain click on an annotation: select + restore its snapshot.
+      setSelectedId(drag.id);
+      options.onRestore(drag.id);
+      return;
+    }
+
+    // Final commit of the drag's end position (the throttle may have
+    // swallowed the last few mousemoves).
+    if (drag.mode === "move") {
+      options.onMove(drag.id, {
+        lng: drag.startCenter.lng + (e.lngLat.lng - drag.startLngLat.lng),
+        lat: drag.startCenter.lat + (e.lngLat.lat - drag.startLngLat.lat),
+      });
+    } else if (drag.mode === "resize") {
+      options.onResize(
+        drag.id,
+        Math.max(MIN_RADIUS_M, distanceMeters(drag.startCenter, e.lngLat)),
+      );
+    } else if (drag.mode === "move-poly") {
+      const dLng = e.lngLat.lng - drag.startLngLat.lng;
+      const dLat = e.lngLat.lat - drag.startLngLat.lat;
+      const points = drag.startPoints.map((p) => ({
+        lng: p.lng + dLng,
+        lat: p.lat + dLat,
+      }));
+      options.onEditPoints(drag.id, points, centroid(points));
+    } else if (drag.mode === "vertex") {
+      const points = drag.points.map((p, i) =>
+        i === drag.index ? { lng: e.lngLat.lng, lat: e.lngLat.lat } : p,
+      );
+      options.onEditPoints(drag.id, points, centroid(points));
+    }
+  }
 
   // MapLibre won't fire its mouseup when the button is released outside the
   // canvas — cancel any leftover drag from the window as a fallback.
-  useEffect(() => {
-    if (!active) return;
+  createEffect(() => {
+    if (!active()) return;
     function onWindowMouseUp() {
-      if (dragRef.current) cancelDrag();
+      if (dragState) cancelDrag();
     }
     window.addEventListener("mouseup", onWindowMouseUp);
-    return () => window.removeEventListener("mouseup", onWindowMouseUp);
-  }, [active, cancelDrag]);
+    onCleanup(() => window.removeEventListener("mouseup", onWindowMouseUp));
+  });
 
   // Escape: cancel an in-progress drag, otherwise deselect (close the popup),
   // otherwise disarm the drawing tool. Deliberately does NOT exit the mode —
   // that's the toolbar button's job.
   // Delete/Backspace: delete the selected annotation — unless the keystroke is
   // editing text (the popup's title/description fields).
-  useEffect(() => {
-    if (!active) return;
+  createEffect(() => {
+    if (!active()) return;
     function onKeyDown(e: KeyboardEvent) {
+      const selected = selectedId();
       if (e.key === "Escape") {
-        if (dragRef.current) {
+        if (dragState) {
           cancelDrag();
-        } else if (selectedId) {
+        } else if (selected) {
           setSelectedId(null);
         } else {
           setTool(null);
@@ -508,33 +496,30 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
       }
       if (
         (e.key === "Delete" || e.key === "Backspace") &&
-        selectedId &&
-        !dragRef.current &&
+        selected &&
+        !dragState &&
         !isEditingText(e.target)
       ) {
         e.preventDefault();
         setSelectedId(null);
-        optionsRef.current.onDelete(selectedId);
+        options.onDelete(selected);
       }
     }
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [active, cancelDrag, selectedId]);
+    onCleanup(() => window.removeEventListener("keydown", onKeyDown));
+  });
 
-  return useMemo(
-    () => ({
-      active,
-      toggle,
-      activate,
-      tool,
-      setTool,
-      draft,
-      selectedId,
-      select,
-      handleMouseDown,
-      handleMouseMove,
-      handleMouseUp,
-    }),
-    [active, toggle, activate, tool, draft, selectedId, select, handleMouseDown, handleMouseMove, handleMouseUp],
-  );
+  return {
+    active,
+    toggle,
+    activate,
+    tool,
+    setTool,
+    draft,
+    selectedId,
+    select,
+    handleMouseDown,
+    handleMouseMove,
+    handleMouseUp,
+  };
 }

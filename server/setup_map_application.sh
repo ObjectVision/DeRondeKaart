@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# setup_map_application.sh — provision one React/Vite map-application instance.
+# setup_map_application.sh — provision one SolidJS/Vite map-application instance.
 #
 # Builds a Vite SPA from a GitHub repo, serves it over HTTPS with SPA fallback
 # and immutable hashed-asset caching, and auto-deploys on push to the tracked
@@ -26,14 +26,14 @@ source "$SCRIPT_DIR/common.sh"
 
 usage() {
   cat <<EOF
-${_C_BOLD}setup_map_application.sh${_C_RESET} — provision a React/Vite map app instance.
+${_C_BOLD}setup_map_application.sh${_C_RESET} — provision a SolidJS/Vite map app instance.
 
 Usage: $0 [options]
 
 Options:
 $(print_kv "--slug NAME"        "instance id, namespaces all paths (e.g. woonzorglimburg_map)")
 $(print_kv "--host HOST"        "hostname (e.g. map.woonzorglimburg.nl)")
-$(print_kv "--repo URL"         "git remote of the Vite/React source repo")
+$(print_kv "--repo URL"         "git remote of the Vite/SolidJS source repo")
 $(print_kv "--branch NAME"      "git branch to deploy (default: main)")
 $(print_kv "--config-project S" "config overlay to build (configs/<S>/ over public/); blank = defaults")
 $(print_kv "--node-version N"   "Node.js major version to install if missing (default: 20)")
@@ -93,7 +93,7 @@ ask SLUG "Instance slug" ""
 validate_slug "$SLUG"
 ask HOST "Hostname" ""
 validate_host "$HOST"
-ask REPO         "Git repository URL (Vite/React source)" ""
+ask REPO         "Git repository URL (Vite/SolidJS source)" ""
 ask BRANCH       "Git branch"                             "main"
 # config-project: blank means build the default configs from public/. A value
 # selects configs/<value>/ to overlay (VITE_CONFIG_PROJECT at build time).
@@ -357,7 +357,9 @@ server {
     root $WEBROOT;
     index index.html;
 
-    # SPA fallback: unknown URLs serve index.html so the React router takes over.
+    # SPA fallback: unknown URLs serve index.html. The app has no router — this
+    # exists so a deep-linked share URL (?cmd=/#basemap=) reaches the bundle
+    # instead of 404ing on a path nginx has no file for.
     location / { try_files \$uri \$uri/ /index.html; }
 
     # RFC 9116. Explicit block so the SPA fallback can never answer it with
@@ -401,7 +403,7 @@ $FRAME_HEADER
     # Intentionally ON despite scanners flagging BREACH. BREACH needs a secret
     # (session/CSRF token) reflected into a COMPRESSED response body; this app
     # serves static assets and public map data with no per-user secrets in any
-    # response. The bundles are large (WASM + deck.gl), so disabling this would
+    # response. The bundles are large (WASM + MapLibre), so disabling this would
     # be a real performance regression for a public site. The fileserver
     # separately sets `gzip off` for range-read binaries — for a different
     # reason (Range support), see setup_fileserver.sh.
