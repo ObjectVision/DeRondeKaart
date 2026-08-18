@@ -20,6 +20,13 @@ export interface CombineLayersDialogProps {
    * GeoStyler rules. The caller filters; this component only presents.
    */
   layers: LayerConfig[];
+  /**
+   * The timeseries step a layer currently shows, for the layers that have one.
+   * Folded into the generated name because a combination is a snapshot: without
+   * it, two combinations built from one layer at different steps would be
+   * indistinguishable in the "Combinaties" list.
+   */
+  stepFor: (layerId: string) => number | undefined;
   /** Create the combined layer from the chosen classes. */
   onCreate: (name: string, refs: ClassRef[]) => void;
 }
@@ -43,16 +50,42 @@ function refKey(ref: ClassRef): string {
  * of one layer, `+` as "and" between layers. Grouping by layer also mirrors the
  * score, which counts layers matched rather than classes ticked.
  */
-function autoName(layers: LayerConfig[], selected: ClassRef[]): string {
+function autoName(
+  layers: LayerConfig[],
+  selected: ClassRef[],
+  stepFor: (layerId: string) => number | undefined,
+): string {
   const parts: string[] = [];
   for (const layer of layers) {
     const names = selected
       .filter((ref) => ref.layerId === layer.id)
       .map((ref) => ref.ruleName);
     if (names.length === 0) continue;
-    parts.push(`${layer.name} ${names.join(" / ")}`);
+    parts.push(`${layerLabel(layer, stepFor)} ${names.join(" / ")}`);
   }
   return parts.join(" + ");
+}
+
+/**
+ * A layer's name, carrying its step for a timeseries layer — the combination
+ * freezes that step, so the name is where it stays visible afterwards.
+ */
+function layerLabel(
+  layer: LayerConfig,
+  stepFor: (layerId: string) => number | undefined,
+): string {
+  const step = stepForLayer(layer, stepFor);
+  if (step === undefined) return layer.name;
+  return `${layer.name} (${step})`;
+}
+
+/** The step a layer shows, or undefined when it is not a timeseries layer. */
+function stepForLayer(
+  layer: LayerConfig,
+  stepFor: (layerId: string) => number | undefined,
+): number | undefined {
+  if (!layer.timeseries) return undefined;
+  return stepFor(layer.id) ?? layer.timeseries.start;
 }
 
 /**
@@ -87,7 +120,7 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
   const [name, setName] = createSignal("");
   const [nameEdited, setNameEdited] = createSignal(false);
 
-  const generated = createMemo(() => autoName(props.layers, selected()));
+  const generated = createMemo(() => autoName(props.layers, selected(), props.stepFor));
   const effectiveName = () => (nameEdited() ? name() : generated());
 
   const selectedKeys = createMemo(() => new Set(selected().map(refKey)));
@@ -186,6 +219,13 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
                           <span class="block truncate text-xs text-gray-500">
                             {layer.subname}
                           </span>
+                        </Show>
+                        <Show when={stepForLayer(layer, props.stepFor)}>
+                          {(step) => (
+                            <span class="block truncate text-xs text-gray-500">
+                              Jaar {step()}
+                            </span>
+                          )}
                         </Show>
                       </span>
                       <Icon

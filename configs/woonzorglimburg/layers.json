@@ -7103,7 +7103,8 @@
       },
       "featureinfo": {
         "template": "<div><b>Aandeel 0-17 jaar: klasse [[ class ]]</b></div>"
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/aandeel_j0_17_m5_%YEAR%.cog.tif"
     },
     {
       "id": "aandeel_j18_29",
@@ -7233,7 +7234,8 @@
       },
       "featureinfo": {
         "template": "<div><b>Aandeel 18-29 jaar: [[ class ]]</b></div>"
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/aandeel_j18_29_m5_%YEAR%.cog.tif"
     },
     {
       "id": "aandeel_j30_44",
@@ -7363,7 +7365,8 @@
       },
       "featureinfo": {
         "template": "<div><b>Aandeel 30-44 jaar: [[ class ]]</b></div>"
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/aandeel_j30_44_m5_%YEAR%.cog.tif"
     },
     {
       "id": "aandeel_j45_66",
@@ -7493,7 +7496,8 @@
       },
       "featureinfo": {
         "template": "<div><b>Aandeel 45-66 jaar: [[ class ]]</b></div>"
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/aandeel_j45_66_m5_%YEAR%.cog.tif"
     },
     {
       "id": "aandeel_j67_74",
@@ -7623,7 +7627,8 @@
       },
       "featureinfo": {
         "template": "<div><b>Aandeel 67-74 jaar: [[ class ]]</b></div>"
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/aandeel_j67_74_m5_%YEAR%.cog.tif"
     },
     {
       "id": "aandeel_j75_plus",
@@ -7753,7 +7758,8 @@
       },
       "featureinfo": {
         "template": "<div><b>Aandeel 75 jaar en ouder: [[ class ]]</b></div>"
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/aandeel_j75_plus_m5_%YEAR%.cog.tif"
     },
     {
       "id": "oosr_2",

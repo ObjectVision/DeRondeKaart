@@ -408,6 +408,12 @@ export interface LayerConfig {
    * can only be combined cell-by-cell when every input is on the same grid, so a
    * layer without this companion is not offered. Every raster referenced here
    * must have been produced at the SAME `--zoom` as the others.
+   *
+   * On a timeseries layer this is a TEMPLATE carrying `timeseries.placeholder`,
+   * resolved to the step the legend shows when the combination is created (see
+   * `filterRasterForStep`). The resulting score grid is a snapshot: moving the
+   * slider afterwards repaints the vector layer but leaves the combination on
+   * the step it was built from.
    */
   filterRaster?: string;
   /**
