@@ -63,7 +63,11 @@ function TimeseriesControl(props: TimeseriesControlProps): JSX.Element {
             step={ts().step}
             value={props.step}
             onInput={(e) => props.onSetStep(props.config.id, Number(e.currentTarget.value))}
-            class="h-1 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-gray-200 accent-blue-600"
+            class="h-1 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-gray-200"
+            // accent-color inline rather than Tailwind's `accent-*`: the brand
+            // blue is a runtime value (map.json `chromeIconColor`), so it cannot
+            // be a static utility class.
+            style={{ "accent-color": chromeIconColor() }}
             aria-label={`Jaar ${props.config.name}`}
           />
           <span class="w-10 flex-shrink-0 text-right text-xs tabular-nums text-gray-600">
