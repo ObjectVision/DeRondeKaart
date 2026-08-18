@@ -7,7 +7,7 @@ production VM (`cicada@37.97.169.242`):
 |---|---|---|
 | Hugo landing page | [`setup_landing_page.sh`](setup_landing_page.sh) | [setup_landing_page.md](setup_landing_page.md) |
 | Geospatial file server | [`setup_fileserver.sh`](setup_fileserver.sh) | [setup_fileserver.md](setup_fileserver.md) |
-| React/Vite map application | [`setup_map_application.sh`](setup_map_application.sh) | [setup_map_application.md](setup_map_application.md) |
+| SolidJS/Vite map application | [`setup_map_application.sh`](setup_map_application.sh) | [setup_map_application.md](setup_map_application.md) |
 | Collaborative-annotation server | [`setup_collab_server.sh`](setup_collab_server.sh) | [setup_collab_server.md](setup_collab_server.md) |
 
 All scripts source [`common.sh`](common.sh) for shared helpers.

@@ -1,5 +1,5 @@
-import { useCallback, useState } from "react";
-import type { MapLayerMouseEvent } from "react-map-gl/maplibre";
+import { createSignal, type Accessor } from "solid-js";
+import type { MapLayerMouseEvent } from "@/components/map/map-view-config";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import type { FeatureInfoResult, UseFeaturePickResult } from "@/hooks/use-feature-pick";
 
@@ -10,28 +10,28 @@ export interface LngLat {
 }
 
 export interface UseClickPopupOptions {
-  /** map.json `streetview`, host-overridable. When false no Street View is opened. */
-  streetviewEnabled: boolean;
+  /** map.json `streetview`, host-overridable at runtime — hence an accessor. */
+  streetviewEnabled: Accessor<boolean>;
   pickA: UseFeaturePickResult;
   pickB: UseFeaturePickResult;
-  leftEntries: LayerEntry[];
-  rightEntries: LayerEntry[];
+  leftEntries: Accessor<LayerEntry[]>;
+  rightEntries: Accessor<LayerEntry[]>;
 }
 
 export interface UseClickPopupResult {
   /** Latest click position, in map-local px — anchors the popup. */
-  popupPoint: { x: number; y: number } | null;
+  popupPoint: Accessor<{ x: number; y: number } | null>;
   setPopupPoint: (point: { x: number; y: number } | null) => void;
   /** Where the marker sits, before the config's enabled flag is applied. */
-  clickMarker: LngLat | null;
+  clickMarker: Accessor<LngLat | null>;
   /** Street View target, or null when closed / disabled. */
-  streetView: LngLat | null;
+  streetView: Accessor<LngLat | null>;
   /** Drops the marker (and Street View) at a click. */
   handleMapClick: (e: MapLayerMouseEvent, snapped: LngLat | null) => void;
   /** Whichever map was clicked last; null when nothing is picked. */
-  pickResult: FeatureInfoResult | null;
+  pickResult: Accessor<FeatureInfoResult | null>;
   /** The entries that `pickResult` came from, for label lookup. */
-  pickEntries: LayerEntry[];
+  pickEntries: Accessor<LayerEntry[]>;
   /** Closes the whole popup: both picks, Street View and the anchor. */
   closePopup: () => void;
 }
@@ -51,48 +51,38 @@ export interface UseClickPopupResult {
  * The per-map marker *overlays* stay in App: they are gated on the right map's
  * mount to keep their GL resources from outliving it.
  */
-export function useClickPopup({
-  streetviewEnabled,
-  pickA,
-  pickB,
-  leftEntries,
-  rightEntries,
-}: UseClickPopupOptions): UseClickPopupResult {
+export function useClickPopup(options: UseClickPopupOptions): UseClickPopupResult {
   // Shared Street View panel — reflects the most recent click on either map.
-  const [streetView, setStreetView] = useState<LngLat | null>(null);
+  const [streetView, setStreetView] = createSignal<LngLat | null>(null);
   // Shared click marker — a single dot dropped at the most recent click on either map.
-  const [clickMarker, setClickMarker] = useState<LngLat | null>(null);
+  const [clickMarker, setClickMarker] = createSignal<LngLat | null>(null);
   // Screen position of the most recent click — anchors the Details/Street View
   // popup just below the pointer. Both maps fill the app root, so the map-local
   // point doubles as a root-relative position.
-  const [popupPoint, setPopupPoint] = useState<{ x: number; y: number } | null>(null);
+  const [popupPoint, setPopupPoint] = createSignal<{ x: number; y: number } | null>(null);
 
   // Drop the marker (and optional Street View) at a click. When the click hit a
   // point feature, `snapped` carries that feature's location so the marker lands
   // exactly on the point; otherwise we use the raw cursor lngLat.
-  const handleMapClick = useCallback(
-    (e: MapLayerMouseEvent, snapped: LngLat | null) => {
-      const point = snapped ?? { lng: e.lngLat.lng, lat: e.lngLat.lat };
-      setClickMarker(point);
-      if (!streetviewEnabled) return;
-      setStreetView(point);
-    },
-    [streetviewEnabled],
-  );
+  function handleMapClick(e: MapLayerMouseEvent, snapped: LngLat | null) {
+    const point = snapped ?? { lng: e.lngLat.lng, lat: e.lngLat.lat };
+    setClickMarker(point);
+    if (!options.streetviewEnabled()) return;
+    setStreetView(point);
+  }
 
   // One shared popup: the latest click's pick result (the other map's pick is
   // cleared on click) plus Street View, closed together by its single button.
-  const pickResult = pickA.result ?? pickB.result;
-  const pickEntries = pickA.result ? leftEntries : rightEntries;
+  const pickResult = () => options.pickA.result() ?? options.pickB.result();
+  const pickEntries = () =>
+    options.pickA.result() ? options.leftEntries() : options.rightEntries();
 
-  const pickAClear = pickA.clear;
-  const pickBClear = pickB.clear;
-  const closePopup = useCallback(() => {
-    pickAClear();
-    pickBClear();
+  function closePopup() {
+    options.pickA.clear();
+    options.pickB.clear();
     setStreetView(null);
     setPopupPoint(null);
-  }, [pickAClear, pickBClear]);
+  }
 
   return {
     popupPoint,

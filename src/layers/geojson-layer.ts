@@ -1,8 +1,9 @@
-import type { MapRef } from "react-map-gl/maplibre";
+import type { MapAccessor } from "@/components/map/map-view-config";
 import type { AddLayerObject } from "maplibre-gl";
 import { anchorForConfig } from "@/components/map/map-view-config";
 import { buildNativeLayerDefs } from "./mvt-style";
 import { ensureHatchImages } from "./hatch-pattern";
+import { styleReady } from "./geojson-overlay";
 import type { LayerConfig } from "./types";
 
 /**
@@ -53,10 +54,12 @@ function layerDefsFor(config: LayerConfig): AddLayerObject[] {
 /** Add (or refresh) the source and its layers. Idempotent. */
 export function addGeoJsonLayer(
   config: LayerConfig,
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
 ): void {
-  const map = mapRef.current?.getMap();
-  if (!map || !config.data) return;
+  const map = getMap();
+  // See addMvtLayer: the map exists before its style does, and addSource throws
+  // until the style JSON has landed. syncImperativeLayers replays this.
+  if (!styleReady(map) || !config.data) return;
 
   const sourceId = geojsonSourceId(config);
   const source = map.getSource(sourceId);
@@ -80,9 +83,9 @@ export function addGeoJsonLayer(
 /** Remove the source and its layers. Idempotent. */
 export function removeGeoJsonLayer(
   config: LayerConfig,
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
 ): void {
-  const map = mapRef.current?.getMap();
+  const map = getMap();
   if (!map) return;
   for (const spec of layerDefsFor(config)) {
     if (map.getLayer(spec.id)) map.removeLayer(spec.id);

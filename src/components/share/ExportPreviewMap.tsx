@@ -1,16 +1,12 @@
-import {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import type { ViewStateChangeEvent } from "react-map-gl/maplibre";
+import { createEffect, createSignal, onCleanup, onMount, type JSX } from "solid-js";
+import type {
+  MapAccessor,
+  MapViewHandle,
+  ViewState,
+  ViewStateChangeEvent,
+} from "@/components/map/map-view-config";
 import type { Map as MapLibreMap } from "maplibre-gl";
 import { MapView } from "@/components/map/MapView";
-import type { MapViewHandle, ViewState } from "@/components/map/MapView";
 import { useMapLayers, type LayerEntry } from "@/hooks/use-map-layers";
 import { useStudyAreaLayer } from "@/hooks/use-study-area-layer";
 import {
@@ -25,208 +21,185 @@ export interface ExportPreviewHandle {
   getMap(): MapLibreMap | null;
 }
 
+interface ExportPreviewMapProps {
+  entries: LayerEntry[];
+  hiddenIds: Set<string>;
+  hiddenRules: globalThis.Map<string, Set<string>>;
+  basemapId: string;
+  studyAreaId?: string;
+  /** Gebiedsfilter-driven studyarea; replaces the configured one when set. */
+  filteredStudy?: FilteredStudyArea | null;
+  /** Annotations to draw on the export (empty/omitted = none). */
+  annotations?: Annotation[];
+  initialViewState: ViewState;
+  ref?: (handle: ExportPreviewHandle) => void;
+}
+
 /**
  * The circular export preview: a third MapView instance that mirrors the main
  * map's layers so the user can fine-tune the PNG framing without disturbing
  * the live map. Sources and layers belong to a map's own style, so this
  * component replays the source entries into its own useMapLayers().
  */
-export const ExportPreviewMap = forwardRef<
-  ExportPreviewHandle,
-  {
-    entries: LayerEntry[];
-    hiddenIds: Set<string>;
-    hiddenRules: globalThis.Map<string, Set<string>>;
-    basemapId: string;
-    studyAreaId?: string;
-    /** Gebiedsfilter-driven studyarea; replaces the configured one when set. */
-    filteredStudy?: FilteredStudyArea | null;
-    /** Annotations to draw on the export (empty/omitted = none). */
-    annotations?: Annotation[];
-    initialViewState: ViewState;
-  }
->(function ExportPreviewMap(
-  {
-    entries,
-    hiddenIds,
-    hiddenRules,
-    basemapId,
-    studyAreaId,
-    filteredStudy,
-    annotations,
-    initialViewState,
-  },
-  ref,
-) {
+export function ExportPreviewMap(props: ExportPreviewMapProps): JSX.Element {
   const layers = useMapLayers();
-  const mapHandle = useRef<MapViewHandle>(null);
+  const [mapView, setMapView] = createSignal<MapViewHandle | null>(null);
+  const getMap: MapAccessor = () => mapView()?.map() ?? null;
+
   // Same swap as the main maps: a gebiedsfilter selection replaces the
   // configured studyarea (skip loading it entirely — the dialog is a per-open
   // snapshot, so the choice never flips while mounted). Native MapLibre layers
   // on this map's own style, re-added by handleLabelsReady.
-  const studyArea = useStudyAreaLayer(filteredStudy ? undefined : studyAreaId, mapHandle);
-  const filteredStudyOverlay = useFilteredStudyAreaLayers(filteredStudy ?? null, mapHandle);
-  const [viewState, setViewState] = useState<ViewState>(initialViewState);
+  const studyArea = useStudyAreaLayer(
+    () => (props.filteredStudy ? undefined : props.studyAreaId),
+    mapView,
+  );
+  const filteredStudyOverlay = useFilteredStudyAreaLayers(
+    () => props.filteredStudy ?? null,
+    mapView,
+  );
+  const [viewState, setViewState] = createSignal<ViewState>(props.initialViewState);
+
   // Annotations on the export: native MapLibre sources on this map's own
   // style, static view — no draft, selection, or peers (so no drag handles
-  // either, which is why nothing here needs the deck layer hook).
-  const annotationList = useMemo(() => annotations ?? [], [annotations]);
-  const annotSource = useAnnotationSource(mapHandle, {
+  // either).
+  const annotationList = () => props.annotations ?? [];
+  const annotSource = useAnnotationSource(mapView, {
     annotations: annotationList,
-    draft: null,
-    selectedId: null,
-    peers: [],
-    identityColor: "#000000",
-    visible: annotationList.length > 0,
-    zoom: viewState.zoom,
+    draft: () => null,
+    selectedId: () => null,
+    peers: () => [],
+    identityColor: () => "#000000",
+    visible: () => annotationList().length > 0,
+    zoom: () => viewState().zoom,
     // Titles become callout labels below the exported circle (map-capture.ts).
-    showLabels: false,
+    showLabels: () => false,
     // The 2048px capture scales the ~430px preview ~5×. Rasterizing the sprite
     // images at 8× (24 → 192px, the SVGs' intrinsic raster size) and declaring
     // that back as `pixelRatio` keeps pins/icons crisp at the capture scale
     // without changing their drawn size. Live maps use 4.
-    iconScale: 8,
+    iconScale: () => 8,
   });
-  // Bumped per reconcile run so a superseded (StrictMode double-invoke, or a
-  // fast layer switch) run stops applying mid-loop. See the effect below.
-  const replayGeneration = useRef(0);
-  // Layer ids this instance has added. Tracked here rather than read back from
-  // `layers.layerEntries` because addLayer's state commit is async — within one
-  // synchronous reconcile pass the hook's entries are still stale.
-  const presentIdsRef = useRef<Set<string>>(new Set());
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      getMap: () => mapHandle.current?.mapRef.current?.getMap() ?? null,
-    }),
-    [],
-  );
+  // Bumped per reconcile run so a run superseded by a fast layer switch stops
+  // applying mid-loop.
+  let replayGeneration = 0;
+
+  // publishing the handle once, at
+  // setup; the handle's members are accessors so the caller always sees current values
+  // eslint-disable-next-line solid/reactivity
+  props.ref?.({ getMap: () => getMap() });
 
   // Reconcile this instance's layers to match `entries`. Runs on mount AND
   // whenever the source layer set changes — a host `open-circular` message that
   // swaps layers must not remount this component (that tears down the MapLibre
   // map and refetches the basemap, sprites and tiles), so the diff happens here
   // instead. Sequential per layer: addLayer resolves after all batches are
-  // loaded, so the hide that follows sees every deck child layer. MVT/COG adds
+  // loaded, so the hide that follows sees every child layer. MVT/COG adds
   // no-op until the map exists — handleLabelsReady re-syncs them below.
   //
-  // Keyed on the id list, not the `entries` array identity: App rebuilds that
-  // array on unrelated renders.
-  const entryIds = entries.map((e) => e.config.id).join(",");
-  // Latest props for the async body — it must not re-run when only the hidden
-  // sets change identity, but it must read their current values.
-  const reconcileInputsRef = useRef({ entries, hiddenIds, hiddenRules });
-  reconcileInputsRef.current = { entries, hiddenIds, hiddenRules };
+  // Tracks the id LIST, not the `entries` array identity.
+  createEffect(() => {
+    const entryIds = props.entries.map((e) => e.config.id).join(",");
+    void entryIds; // the tracked dependency
 
-  useEffect(() => {
-    // Generation token instead of a cancellation flag: StrictMode runs
-    // cleanup+effect again immediately after mount, and cancelling would abort
-    // the loop after its first await — only the first layer would ever land.
-    // A superseded run simply stops applying once a newer one starts; on a real
-    // unmount the remaining setState calls hit a dead instance, which React
-    // ignores.
-    const generation = ++replayGeneration.current;
+    const generation = ++replayGeneration;
 
     (async () => {
-      const previewMapRef = () => mapHandle.current?.mapRef ?? { current: null };
-      const { entries: want, hiddenIds: hidden, hiddenRules: rules } =
-        reconcileInputsRef.current;
+      // Read untracked at run time, so a change to only the hidden sets does
+      // not restart the reconcile but the current values are still applied.
+      const want = props.entries;
+      const hidden = props.hiddenIds;
+      const rules = props.hiddenRules;
 
       const desired = new Set(want.map((e) => e.config.id));
       // Drop layers no longer wanted. removeLayer also tears down the native
       // MVT/COG source, so re-adding the same id later is safe.
-      for (const id of [...presentIdsRef.current]) {
-        if (desired.has(id)) continue;
-        layers.removeLayer(id, previewMapRef());
-        presentIdsRef.current.delete(id);
+      for (const entry of [...layers.layerEntries()]) {
+        if (desired.has(entry.config.id)) continue;
+        layers.removeLayer(entry.config.id, getMap);
       }
 
       for (const entry of want) {
-        if (generation !== replayGeneration.current) return;
+        if (generation !== replayGeneration) return;
         const id = entry.config.id;
-        if (!presentIdsRef.current.has(id)) {
-          // Marked present BEFORE the await so a newer run overlapping this one
-          // doesn't add the same layer twice. addLayer is itself idempotent on
-          // id and rolls back its own entry if loading throws.
-          presentIdsRef.current.add(id);
+        // `layerEntries()` is authoritative within this synchronous pass:
+        // addLayer commits its entry before awaiting the data load, and rolls
+        // it back if loading throws. (React needed a separate id set here,
+        // because its state commit lagged the pass.)
+        if (!layers.layerEntries().some((e) => e.config.id === id)) {
           // atEnd: `want` mirrors the live map's draw order, so append verbatim —
           // re-seeding by band would make the preview's z-order differ from the map.
-          await layers.addLayer(entry.config, previewMapRef(), { atEnd: true });
-          if (generation !== replayGeneration.current) return;
+          await layers.addLayer(entry.config, getMap, { atEnd: true });
+          if (generation !== replayGeneration) return;
         }
         if (hidden.has(id)) {
-          layers.hideLayer(id, previewMapRef());
+          layers.hideLayer(id, getMap);
         }
         for (const ruleName of rules.get(id) ?? []) {
-          layers.toggleRule(id, ruleName, previewMapRef());
+          layers.toggleRule(id, ruleName, getMap);
         }
       }
 
       // Native MVT/COG layers are skipped by addLayer until the style exists;
       // safe to call repeatedly.
-      layers.syncImperativeLayers(previewMapRef());
+      layers.syncImperativeLayers(getMap);
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entryIds]);
+  });
 
   // MVT/COG layers are native MapLibre layers — re-add them once the style
   // (and after any basemap logic) is ready. syncImperativeLayers also replays
   // hidden layers and hidden classes, which fresh native layers don't carry.
-  const handleLabelsReady = useCallback(() => {
-    const mapRef = mapHandle.current?.mapRef;
-    if (!mapRef) return;
-    layers.syncImperativeLayers(mapRef);
+  function handleLabelsReady() {
+    if (!mapView()) return;
+    layers.syncImperativeLayers(getMap);
     // These overlays live outside useMapLayers, so they need their own re-add.
     studyArea.resync();
     filteredStudyOverlay.resync();
     annotSource.resync();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [layers.syncImperativeLayers, studyArea, filteredStudyOverlay, annotSource]);
+  }
 
-  const handleMove = useCallback((evt: ViewStateChangeEvent) => {
+  function handleMove(evt: ViewStateChangeEvent) {
     setViewState((prev) => ({ ...prev, ...evt.viewState, pitch: 0, bearing: 0 }));
-  }, []);
+  }
 
   // Follow externally driven view changes. The preview seeds its own viewState
   // at mount (so user pan/zoom is local), but when the host reframes the map —
   // e.g. a gebiedsfilter fly-to arriving via `open-circular`/`map-command`
   // after mount — App feeds the new camera in through initialViewState. Adopt
   // it so the circle tracks the filter instead of staying on the mount frame.
-  const lastInitialRef = useRef(initialViewState);
-  useEffect(() => {
+  let lastInitial = props.initialViewState;
+  createEffect(() => {
+    const next = props.initialViewState;
     if (
-      initialViewState.longitude === lastInitialRef.current.longitude &&
-      initialViewState.latitude === lastInitialRef.current.latitude &&
-      initialViewState.zoom === lastInitialRef.current.zoom
+      next.longitude === lastInitial.longitude &&
+      next.latitude === lastInitial.latitude &&
+      next.zoom === lastInitial.zoom
     ) {
       return;
     }
-    lastInitialRef.current = initialViewState;
-    setViewState((prev) => ({ ...prev, ...initialViewState }));
-  }, [initialViewState]);
+    lastInitial = next;
+    setViewState((prev) => ({ ...prev, ...next }));
+  });
 
   // The dialog portal mounts the container in one commit — make sure MapLibre
   // measures the final layout box.
-  useEffect(() => {
-    const raf = requestAnimationFrame(() => {
-      mapHandle.current?.mapRef.current?.getMap()?.resize();
-    });
-    return () => cancelAnimationFrame(raf);
-  }, []);
+  onMount(() => {
+    const raf = requestAnimationFrame(() => getMap()?.resize());
+    onCleanup(() => cancelAnimationFrame(raf));
+  });
 
   return (
     <MapView
-      ref={mapHandle}
-      basemapId={basemapId}
+      ref={setMapView}
+      basemapId={props.basemapId}
       style={{ width: "100%", height: "100%" }}
-      viewState={viewState}
+      viewState={viewState()}
       onMove={handleMove}
       onLabelsReady={handleLabelsReady}
       // PNG capture reads this map's canvas at idle — the buffer must survive
-      // past the frame (deck.gl's interleaved draws included). Preview-only;
-      // the main maps skip the flag's perf cost.
+      // past the frame. Preview-only; the main maps skip the flag's perf cost.
       preserveDrawingBuffer
     />
   );
-});
+}

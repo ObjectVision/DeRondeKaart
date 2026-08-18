@@ -5,7 +5,7 @@
 # Sourced by:
 #   setup_landing_page.sh   (Hugo landing site)
 #   setup_fileserver.sh     (geospatial file server)
-#   setup_map_application.sh (React/Vite SPA)
+#   setup_map_application.sh (SolidJS/Vite SPA)
 #
 # These scripts are meant to be run ON the target server (e.g. cicada@37.97.169.242)
 # by a user with passwordless sudo. Everything is namespaced by an instance SLUG so

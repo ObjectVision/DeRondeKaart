@@ -42,9 +42,9 @@ working alone.
 "who is looking at which annotation" are **Yjs Awareness** state — broadcast to
 peers, never written to the document, so nothing survives a disconnect. Two
 rate limits keep it cheap: cursor updates throttle to ~25 Hz with a trailing
-send so the final resting position always arrives, and awareness→React updates
+send so the final resting position always arrives, and awareness→signal updates
 are batched per animation frame, otherwise several peers would trigger hundreds
-of re-renders a second.
+of cursor-layer rebuilds a second.
 
 Identity ([collab-identity.ts](../src/lib/collab-identity.ts)) is a
 `localStorage`-persisted pseudonym drawn from a Dutch flora/fauna list plus a

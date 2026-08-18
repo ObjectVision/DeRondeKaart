@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Show, createEffect, createSignal, onCleanup, type JSX } from "solid-js";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
@@ -27,14 +27,7 @@ const COMMIT_DEBOUNCE_MS = 300;
  *
  * The info panel stacks above the titlebox row, growing away from the shape.
  */
-export function AnnotationEditPopup({
-  annotation,
-  x,
-  y,
-  onChange,
-  onRecapture,
-  onDelete,
-}: {
+interface AnnotationEditPopupProps {
   annotation: Annotation;
   /** Projected screen position of the shape's top point (app-root relative). */
   x: number;
@@ -44,83 +37,75 @@ export function AnnotationEditPopup({
   onRecapture: () => void;
   /** Delete the annotation (also deselects — the popup unmounts). */
   onDelete: () => void;
-}) {
-  const ref = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLInputElement>(null);
-  const descriptionRef = useRef<HTMLTextAreaElement>(null);
-  const [infoOpen, setInfoOpen] = useState(false);
-  const [editingDescription, setEditingDescription] = useState(false);
-  const [title, setTitle] = useState(annotation.title);
-  const [description, setDescription] = useState(annotation.description);
-  const commitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const pendingRef = useRef<Partial<Pick<Annotation, "title" | "description">>>({});
-  // The debounced commit fires from a timer / blur handler / unmount cleanup and
-  // must call the LATEST onChange without that callback's identity re-arming the
-  // timer.
-  //
-  // Not useEffectEvent: `commit` is invoked from plain event handlers and a
-  // setTimeout, and effect events may only be called from effects — doing so
-  // trips react-hooks/rules-of-hooks. The render-time write is the documented
-  // "latest value" idiom and is read only later, never during render.
-  const onChangeRef = useRef(onChange);
-  // eslint-disable-next-line react-hooks/refs
-  onChangeRef.current = onChange;
+}
 
-  // No "selection switched" reset effect: App keys this component on
-  // `annotation.id`, so selecting another annotation remounts it and every
-  // useState above re-initialises from the new props automatically.
+export function AnnotationEditPopup(props: AnnotationEditPopupProps): JSX.Element {
+  let root!: HTMLDivElement;
+  let titleInput!: HTMLInputElement;
+  let descriptionInput: HTMLTextAreaElement | undefined;
+  const [infoOpen, setInfoOpen] = createSignal(false);
+  const [editingDescription, setEditingDescription] = createSignal(false);
+  // Local drafts, seeded once — App mounts this per annotation id, and the
+  // effects below adopt remote edits while the field is not focused.
+  /* eslint-disable solid/reactivity -- deliberate one-time seeds; see above */
+  const [title, setTitle] = createSignal(props.annotation.title);
+  const [description, setDescription] = createSignal(props.annotation.description);
+  /* eslint-enable solid/reactivity */
+  let commitTimer: ReturnType<typeof setTimeout> | null = null;
+  let pending: Partial<Pick<Annotation, "title" | "description">> = {};
+
+  // No "selection switched" reset effect: App mounts this per annotation id, so
+  // selecting another annotation re-creates it and every signal above
+  // re-initialises from the new props automatically.
 
   // Remote edits (a peer typing in the same annotation): adopt them unless the
   // local field is focused — the focused editor's keystrokes win locally.
-  useEffect(() => {
-    if (document.activeElement !== titleRef.current) setTitle(annotation.title);
-  }, [annotation.title]);
-  useEffect(() => {
-    if (document.activeElement !== descriptionRef.current) {
-      setDescription(annotation.description);
-    }
-  }, [annotation.description]);
+  createEffect(() => {
+    const remote = props.annotation.title;
+    if (document.activeElement !== titleInput) setTitle(remote);
+  });
+  createEffect(() => {
+    const remote = props.annotation.description;
+    if (document.activeElement !== descriptionInput) setDescription(remote);
+  });
 
   // Starting a description edit puts the caret in the textarea.
-  useEffect(() => {
-    if (editingDescription) descriptionRef.current?.focus();
-  }, [editingDescription]);
+  createEffect(() => {
+    if (editingDescription()) descriptionInput?.focus();
+  });
 
-  const commit = () => {
-    if (commitTimer.current) clearTimeout(commitTimer.current);
-    commitTimer.current = null;
-    const pending = pendingRef.current;
-    pendingRef.current = {};
-    if (Object.keys(pending).length > 0) onChangeRef.current(pending);
-  };
+  // Fires from a timer, a blur handler and the cleanup below, and calls the
+  // LATEST onChange simply by reading it off props — React needed a ref plus an
+  // `eslint-disable react-hooks/refs` to get the same thing.
+  function commit() {
+    if (commitTimer) clearTimeout(commitTimer);
+    commitTimer = null;
+    const patch = pending;
+    pending = {};
+    if (Object.keys(patch).length > 0) props.onChange(patch);
+  }
 
-  const queue = (patch: Partial<Pick<Annotation, "title" | "description">>) => {
-    pendingRef.current = { ...pendingRef.current, ...patch };
-    if (commitTimer.current) clearTimeout(commitTimer.current);
-    commitTimer.current = setTimeout(commit, COMMIT_DEBOUNCE_MS);
-  };
+  function queue(patch: Partial<Pick<Annotation, "title" | "description">>) {
+    pending = { ...pending, ...patch };
+    if (commitTimer) clearTimeout(commitTimer);
+    commitTimer = setTimeout(commit, COMMIT_DEBOUNCE_MS);
+  }
 
   // Flush the pending edit when the chrome closes/unmounts.
-  useEffect(() => {
-    return () => {
-      if (commitTimer.current) clearTimeout(commitTimer.current);
-      const pending = pendingRef.current;
-      pendingRef.current = {};
-      if (Object.keys(pending).length > 0) onChangeRef.current(pending);
-    };
-  }, []);
+  onCleanup(commit);
 
   // Clamp to the app root; the stack's bottom sits above the shape's top
   // point (menus grow upward), flipping below it when there is no room above.
-  useLayoutEffect(() => {
-    const el = ref.current;
-    const parent = el?.parentElement;
-    if (!el || !parent) return;
+  createEffect(() => {
+    const x = props.x;
+    const y = props.y;
+    const parent = root.parentElement;
+    if (!parent) return;
 
     function place() {
-      if (!el || !parent) return;
-      const width = el.offsetWidth;
-      const height = el.offsetHeight;
+      if (!parent) return;
+      const width = root.offsetWidth;
+      const height = root.offsetHeight;
       const maxLeft = parent.clientWidth - width - EDGE_MARGIN;
       const left = Math.max(EDGE_MARGIN, Math.min(x - width / 2, maxLeft));
       let top = y - POINTER_OFFSET - height;
@@ -131,36 +116,36 @@ export function AnnotationEditPopup({
             ? below
             : Math.max(EDGE_MARGIN, parent.clientHeight - height - EDGE_MARGIN);
       }
-      el.style.left = `${left}px`;
-      el.style.top = `${top}px`;
+      root.style.left = `${left}px`;
+      root.style.top = `${top}px`;
     }
 
     place();
     const observer = new ResizeObserver(place);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [x, y]);
+    observer.observe(root);
+    onCleanup(() => observer.disconnect());
+  });
 
   return (
     <div
-      ref={ref}
-      className="absolute z-40 flex flex-col items-center gap-2"
-      style={{ left: x, top: y - POINTER_OFFSET }}
+      ref={root}
+      class="absolute z-40 flex flex-col items-center gap-2"
+      style={{ left: `${props.x}px`, top: `${props.y - POINTER_OFFSET}px` }}
     >
-      {infoOpen && (
-        <div className="w-72 rounded-xl bg-white/95 p-3 text-xs text-gray-600 shadow-md backdrop-blur-sm">
-          <div className="flex items-start justify-between gap-2">
-            <div className="min-w-0">
-              <p className="flex items-center gap-1.5 font-semibold text-gray-700">
+      <Show when={infoOpen()}>
+        <div class="w-72 rounded-xl bg-white/95 p-3 text-xs text-gray-600 shadow-md backdrop-blur-sm">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <p class="flex items-center gap-1.5 font-semibold text-gray-700">
                 <span
-                  className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
-                  style={{ backgroundColor: annotation.color }}
+                  class="h-2.5 w-2.5 flex-shrink-0 rounded-full"
+                  style={{ "background-color": props.annotation.color }}
                   aria-hidden
                 />
-                {annotation.author}
+                {props.annotation.author}
               </p>
-              <p className="text-gray-400">
-                {new Date(annotation.createdAt).toLocaleString("nl-NL", {
+              <p class="text-gray-400">
+                {new Date(props.annotation.createdAt).toLocaleString("nl-NL", {
                   dateStyle: "medium",
                   timeStyle: "short",
                 })}
@@ -169,79 +154,85 @@ export function AnnotationEditPopup({
             <Button
               variant="ghost"
               size="icon-sm"
-              className="flex-shrink-0"
+              class="flex-shrink-0"
               onClick={() => {
-                if (editingDescription) commit();
+                if (editingDescription()) commit();
                 setEditingDescription((v) => !v);
               }}
               title={
-                editingDescription
+                editingDescription()
                   ? "Beschrijving bewerken stoppen"
                   : "Beschrijving bewerken"
               }
               aria-label="Beschrijving bewerken"
-              aria-pressed={editingDescription}
+              aria-pressed={editingDescription()}
             >
-              <Icon
-                name={editingDescription ? "edit_off" : "edit"}
-                size={chromeIconSize()}
-                color={editingDescription ? chromeIconColor() : undefined}
-                className={editingDescription ? undefined : "text-gray-400"}
-              />
+              {/* Two literal `name` props rather than one expression: the
+                  icon-font subsetter scans for `name="…"` literals. */}
+              <Show
+                when={editingDescription()}
+                fallback={
+                  <Icon name="edit" size={chromeIconSize()} class="text-gray-400" />
+                }
+              >
+                <Icon name="edit_off" size={chromeIconSize()} color={chromeIconColor()} />
+              </Show>
             </Button>
           </div>
-          {editingDescription ? (
+          <Show
+            when={editingDescription()}
+            fallback={
+              <Show
+                when={description()}
+                fallback={<p class="mt-2 italic text-gray-400">Geen beschrijving</p>}
+              >
+                <p class="mt-2 whitespace-pre-wrap">{description()}</p>
+              </Show>
+            }
+          >
             <textarea
-              ref={descriptionRef}
-              value={description}
-              onChange={(e) => {
-                setDescription(e.target.value);
-                queue({ description: e.target.value });
+              ref={descriptionInput}
+              value={description()}
+              onInput={(e) => {
+                setDescription(e.currentTarget.value);
+                queue({ description: e.currentTarget.value });
               }}
               onBlur={commit}
               placeholder="Beschrijving of analyse"
               rows={3}
-              className="mt-2 w-full resize-none rounded-lg bg-white/95 px-3 py-1.5 text-xs text-gray-700 shadow-sm outline-none ring-1 ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
+              class="mt-2 w-full resize-none rounded-lg bg-white/95 px-3 py-1.5 text-xs text-gray-700 shadow-sm outline-none ring-1 ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
             />
-          ) : description ? (
-            <p className="mt-2 whitespace-pre-wrap">{description}</p>
-          ) : (
-            <p className="mt-2 italic text-gray-400">Geen beschrijving</p>
-          )}
+          </Show>
         </div>
-      )}
-      <div className="flex items-center gap-1">
+      </Show>
+      <div class="flex items-center gap-1">
         {/* Titlebox doubles as the title editor — type to rename. */}
         <input
-          ref={titleRef}
+          ref={titleInput}
           type="text"
-          value={title}
-          onChange={(e) => {
-            setTitle(e.target.value);
-            queue({ title: e.target.value });
+          value={title()}
+          onInput={(e) => {
+            setTitle(e.currentTarget.value);
+            queue({ title: e.currentTarget.value });
           }}
           onBlur={commit}
           onKeyDown={(e) => {
             // Enter confirms; keep Escape's deselect behavior after a blur.
-            if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+            if (e.key === "Enter") e.currentTarget.blur();
           }}
           placeholder="Zonder titel"
           aria-label="Titel van de annotatie"
-          className="w-56 rounded-xl bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-md outline-none backdrop-blur-sm placeholder:font-normal placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
+          class="w-56 rounded-xl bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-md outline-none backdrop-blur-sm placeholder:font-normal placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
         />
-        <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+        <div class="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
           <Button
             variant="ghost"
             size="icon-sm"
-            onClick={onRecapture}
+            onClick={props.onRecapture}
             title="Kaartstatus opnieuw vastleggen"
             aria-label="Kaartstatus opnieuw vastleggen"
           >
-            <Icon
-              name="screenshot_frame_2"
-              size={chromeIconSize()}
-              className="text-gray-400"
-            />
+            <Icon name="screenshot_frame_2" size={chromeIconSize()} class="text-gray-400" />
           </Button>
           <Button
             variant="ghost"
@@ -249,26 +240,26 @@ export function AnnotationEditPopup({
             onClick={() => setInfoOpen((v) => !v)}
             title="Annotatie-informatie"
             aria-label="Annotatie-informatie"
-            aria-expanded={infoOpen}
+            aria-expanded={infoOpen()}
           >
             <Icon
               name="info"
               size={chromeIconSize()}
-              color={infoOpen ? chromeIconColor() : undefined}
-              className={infoOpen ? undefined : "text-gray-400"}
+              color={infoOpen() ? chromeIconColor() : undefined}
+              class={infoOpen() ? undefined : "text-gray-400"}
             />
           </Button>
           <Button
             variant="ghost"
             size="icon-sm"
-            onClick={onDelete}
+            onClick={props.onDelete}
             title="Annotatie verwijderen"
             aria-label="Annotatie verwijderen"
           >
             <Icon
               name="delete"
               size={chromeIconSize()}
-              className="text-gray-400 hover:text-red-500"
+              class="text-gray-400 hover:text-red-500"
             />
           </Button>
         </div>

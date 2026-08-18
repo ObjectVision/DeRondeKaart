@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { createSignal, type Accessor } from "solid-js";
 import { readStorage, writeStorage } from "@/lib/storage";
 
 /**
@@ -9,21 +9,18 @@ import { readStorage, writeStorage } from "@/lib/storage";
 export function useSessionFlag(
   key: string,
   initial: boolean,
-): [boolean, (next: boolean) => void, () => void] {
-  const [value, setValue] = useState<boolean>(() => {
-    const stored = readStorage(sessionStorage, key);
-    return stored === null ? initial : stored === "1";
-  });
+): [Accessor<boolean>, (next: boolean) => void, () => void] {
+  const stored = readStorage(sessionStorage, key);
+  const [value, setValue] = createSignal<boolean>(stored === null ? initial : stored === "1");
 
-  const set = useCallback(
-    (next: boolean) => {
-      setValue(next);
-      writeStorage(sessionStorage, key, next ? "1" : "0");
-    },
-    [key],
-  );
+  function set(next: boolean) {
+    setValue(next);
+    writeStorage(sessionStorage, key, next ? "1" : "0");
+  }
 
-  const toggle = useCallback(() => set(!value), [set, value]);
+  function toggle() {
+    set(!value());
+  }
 
   return [value, set, toggle];
 }

@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { Show, createEffect, createSignal, onCleanup, type JSX } from "solid-js";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
@@ -7,10 +7,15 @@ import { chromeIconColor, chromeIconSize } from "@/config/map-config";
 /** Shown when a layer has metainfo but no short description of its own. */
 const NO_DESCRIPTION = "Geen omschrijving beschikbaar.";
 
-// Layer id -> its description/meta presence. Module-level and read straight
-// through during render, mirroring LeafMeta: a layer already resolved paints
-// without a state round-trip. `undefined` from .get() means "not resolved yet".
-const infoCache = new Map<string, { description?: string; hasMeta: boolean }>();
+interface LayerInfo {
+  description?: string;
+  hasMeta: boolean;
+}
+
+// Layer id -> its description/meta presence. Module-level and shared by every
+// instance, so a layer already resolved paints immediately. `undefined` from
+// .get() means "not resolved yet".
+const infoCache = new Map<string, LayerInfo>();
 
 interface LayerDescriptionProps {
   layerId: string;
@@ -31,63 +36,76 @@ interface LayerDescriptionProps {
  * description nor meta shows no panel (see Sidebar.handleRowClick). What this
  * component decides is the content of a panel that is already open.
  */
-export function LayerDescription({
-  layerId,
-  onOpenMeta,
-  layerName,
-}: LayerDescriptionProps): React.JSX.Element {
-  const info = infoCache.get(layerId);
-  const [, rerender] = useReducer((x: number) => x + 1, 0);
+export function LayerDescription(props: LayerDescriptionProps): JSX.Element {
+  // Holds the resolved entry for the CURRENT layer id. React drove this with a
+  // `useReducer` counter purely to force a repaint after writing the module
+  // cache; a signal carries the value itself.
+  const [info, setInfo] = createSignal<LayerInfo | undefined>(
+    // cache-warm seed only; the
+    // effect below re-resolves whenever `layerId` changes
+    // eslint-disable-next-line solid/reactivity
+    infoCache.get(props.layerId),
+  );
 
   // loadLayerConfigs memoizes its parse, so this is a cache read after the
   // first caller anywhere in the app.
-  useEffect(() => {
-    if (infoCache.has(layerId)) return;
+  createEffect(() => {
+    const layerId = props.layerId;
+    const cached = infoCache.get(layerId);
+    if (cached) {
+      setInfo(cached);
+      return;
+    }
+    setInfo(undefined);
+
     let alive = true;
     loadLayerConfigs()
       .then((configs) => {
         const config = getLayerConfigById(configs, layerId);
-        infoCache.set(layerId, {
+        const resolved: LayerInfo = {
           description: config?.description,
           hasMeta: Boolean(config?.meta),
-        });
-        if (alive) rerender();
+        };
+        infoCache.set(layerId, resolved);
+        if (alive) setInfo(resolved);
       })
       .catch((err) => {
         console.warn(`Failed to resolve description for "${layerId}":`, err);
-        infoCache.set(layerId, { hasMeta: false });
-        if (alive) rerender();
+        const resolved: LayerInfo = { hasMeta: false };
+        infoCache.set(layerId, resolved);
+        if (alive) setInfo(resolved);
       });
-    return () => {
+
+    onCleanup(() => {
       alive = false;
-    };
-  }, [layerId]);
+    });
+  });
 
-  if (info === undefined) {
-    return <span className="text-gray-400">Laden…</span>;
-  }
-
-  const canOpenMeta = info.hasMeta && onOpenMeta !== undefined;
+  const canOpenMeta = () => Boolean(info()?.hasMeta) && props.onOpenMeta !== undefined;
 
   return (
-    <div className="flex items-center gap-2">
-      {/* `min-w-0` lets the paragraph wrap instead of forcing the row wider than
-          its container, which would push the button out of view. */}
-      <p className="min-w-0 flex-1">{info.description ?? NO_DESCRIPTION}</p>
-      {/* Middle right, vertically centred against the text. Disabled rather than
-          hidden when the layer has no metainfo, matching the legend row's info
-          button. `flex-shrink-0` keeps it square as the text grows. */}
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        className="flex-shrink-0"
-        disabled={!canOpenMeta}
-        onClick={() => onOpenMeta?.(layerId, layerName ?? layerId)}
-        title={canOpenMeta ? "Informatie" : "Metadata (nog niet beschikbaar)"}
-        aria-label={`Informatie ${layerName ?? layerId}`}
-      >
-        <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
-      </Button>
-    </div>
+    <Show when={info()} fallback={<span class="text-gray-400">Laden…</span>}>
+      {(resolved) => (
+        <div class="flex items-center gap-2">
+          {/* `min-w-0` lets the paragraph wrap instead of forcing the row wider than
+              its container, which would push the button out of view. */}
+          <p class="min-w-0 flex-1">{resolved().description ?? NO_DESCRIPTION}</p>
+          {/* Middle right, vertically centred against the text. Disabled rather than
+              hidden when the layer has no metainfo, matching the legend row's info
+              button. `flex-shrink-0` keeps it square as the text grows. */}
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            class="flex-shrink-0"
+            disabled={!canOpenMeta()}
+            onClick={() => props.onOpenMeta?.(props.layerId, props.layerName ?? props.layerId)}
+            title={canOpenMeta() ? "Informatie" : "Metadata (nog niet beschikbaar)"}
+            aria-label={`Informatie ${props.layerName ?? props.layerId}`}
+          >
+            <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
+          </Button>
+        </div>
+      )}
+    </Show>
   );
 }

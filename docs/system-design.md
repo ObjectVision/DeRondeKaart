@@ -32,8 +32,8 @@ The formats the map can read.
 
 | Package | We use | Why |
 |---|---|---|
-| `react`·`react-dom` ^19.2 | — | |
-| `@base-ui/react` ^1.3 | `Button` and `Dialog` | User interface elements for interaction |
+| `solid-js` ^1.9 | `createSignal`/`createMemo`/`createEffect`, `Show`/`For`, `Portal` | The reactive layer. Compiles JSX to fine-grained DOM updates: there is no virtual DOM and no re-render, so a signal write touches only the nodes bound to it |
+| — | [button.tsx](../src/components/ui/button.tsx), [dialog.tsx](../src/components/ui/dialog.tsx) | The two UI primitives are hand-rolled (~80 lines): a styled `<button>` and a `<Portal>`-based dialog with its own focus trap, `Escape` and backdrop-click. No component kit is used |
 | `material-symbols` ^0.45 | `@import "material-symbols/outlined.css"`, rendered as ligature text by `Icon`/`NavIcon` | Icon's such as the `share` icon |
 
 #### Charts
@@ -45,9 +45,12 @@ The formats the map can read.
 
 ### Build tooling
 
-`vite` ^8.0 with `@vitejs/plugin-react` and `@tailwindcss/vite`;
-`typescript` ~5.9; `eslint` ^10 with `typescript-eslint` ^8,
-`eslint-plugin-react-hooks` ^7 and `eslint-plugin-react-refresh`.
+`vite` ^8.0 with `vite-plugin-solid` and `@tailwindcss/vite`;
+`typescript` ~5.9 (`jsx: "preserve"`, `jsxImportSource: "solid-js"` — Solid's
+Babel transform, not TypeScript, lowers the JSX); `eslint` ^10 with
+`typescript-eslint` ^8 and `eslint-plugin-solid`, whose `solid/reactivity` rule
+is set to **error**: Solid props are getters, so destructuring one reads it once
+and the component then silently never updates.
 
 ### Indirect dependencies
 
@@ -198,15 +201,19 @@ registering per map would double-register.
 
 ### 3.3 Module stores for cross-cutting filter state
 
-Filter selections live in **module-level stores**, not React state
+Filter selections live in **module-level stores** outside any component
 ([area-filter.ts](../src/layers/area-filter.ts),
 [box-filter.ts](../src/layers/box-filter.ts)). MapLibre filter expressions,
-feature picking and chart aggregation all read the same store directly; React
-holds only a `version` counter, used as a cache key.
+feature picking and chart aggregation all read the same store directly.
+
+Each store *is* a Solid signal, so there is no bridge: a component that reads
+`areaFilterLevels()` or `boxFilter()` subscribes to it like any other signal,
+and the imperative callers (a `moveend` listener, a worker completion) call the
+same accessor synchronously from outside every reactive scope.
 
 | | Area filter | Box filter |
 |---|---|---|
-| Shape | `{ version, levels: [{ key, codes: Set<string>, digits: string[] }] }` | `{ version, bbox: [minLng, minLat, maxLng, maxLat] \| null }` |
+| Shape | `Accessor<[{ key, codes: Set<string>, digits: string[] }]>` | `Accessor<[minLng, minLat, maxLng, maxLat] \| null>` |
 | Written by | `setAreaFilterSelection(Map<key, Set<code>>)` | `setBoxFilter(bbox \| null)` |
 | Owning hook | [use-area-filter.ts](../src/hooks/use-area-filter.ts) | [use-box-select.ts](../src/hooks/use-box-select.ts) |
 | Inactive when | `levels` is empty | `bbox` is `null` |
@@ -221,15 +228,16 @@ bag (`featureMatchesAreaFilter`). §6 covers the shared semantics.
 Readers run across ~14k rows per redraw, so some derived state is precomputed
 into the store: the area filter keeps each code's digit prefix alongside the raw
 code, and both modules cache column resolution in a `WeakMap` keyed on the Arrow
-batch or `Table`, invalidated by `version`.
+batch or `Table`, invalidated by the identity of the current levels array.
 
-**The `version` counter is the whole React bridge.** The writer returns it and
-the owning hook parks it in state — `setVersion(setBoxFilter(next))` — so it is
-the only store state React holds, and it is a cache key, never data. A bump does
-two things: `useChartData` clears its cached aggregates, and
-[App.tsx](../src/App.tsx) re-runs `setFilter` over the live layers. Charts use
-`areaFilter.version + boxSelect.version` as one key; the sum works because both
-counters only increase.
+**This replaced a `version` counter.** Under React the stores were not
+observable, so each writer bumped an integer that the owning hook parked in
+state; that counter was the entire bridge between the store and the UI. With
+signals the state itself propagates, so the counter is gone from both stores.
+One derived counter survives, in
+[chart-data.ts](../src/layers/chart-data.ts): `filterEpoch()` increments when
+either store changes, because the chart aggregation cache is keyed by a
+primitive.
 
 ### 3.4 Single source of truth per concern
 
@@ -252,43 +260,54 @@ counters only increase.
 Code is split by responsibility, not by feature: one hook per capability, with
 presentation kept out of the data engine.
 
-`src/` holds **19,130 lines across 107 TypeScript files**.
+`src/` holds **22,487 lines across 120 TypeScript files**.
 
 | Directory | Files | Lines | Responsibility |
 |---|---|---|---|
-| [src/hooks/](../src/hooks/) | 30 | 5,532 | Feature logic — one hook per capability |
-| [src/components/](../src/components/) | 36 | 5,052 | Presentation (map, legend, navigation, charts, annotations, share) |
-| [src/layers/](../src/layers/) | 23 | 4,304 | The data engine: formats, loaders, styling, filtering, aggregation |
-| [src/lib/](../src/lib/) | 11 | 1,388 | Pure utilities: capture, geometry, share URLs, formatting |
+| [src/components/](../src/components/) | 40 | 6,540 | Presentation (map, legend, navigation, charts, annotations, share) |
+| [src/hooks/](../src/hooks/) | 32 | 5,622 | Feature logic — one hook per capability |
+| [src/layers/](../src/layers/) | 27 | 5,387 | The data engine: formats, loaders, styling, filtering, aggregation |
+| [src/lib/](../src/lib/) | 14 | 1,734 | Pure utilities: capture, geometry, share URLs, formatting |
 | [src/vendor/](../src/vendor/) | 2 | 1,082 | Generated parquet-wasm bindings |
-| [src/config/](../src/config/) | 1 | 494 | `map.json` loading, UI flags, initial view |
+| [src/config/](../src/config/) | 1 | 541 | `map.json` loading, UI flags, initial view |
 | [src/types/](../src/types/) | 2 | 143 | Ambient declarations (annotations, Google Streetview) |
+| `src/` (root) | 2 | 1,438 | `App.tsx` composition root and the `main.tsx` bootstrap |
+
+"Hooks" is kept as the directory name and the `use*` prefix, but these are Solid
+**primitives**: each runs once, at setup, and wires signals and effects. They are
+not re-invoked per render — there is no render — so the rules that governed React
+hooks (call order, dependency arrays, stable identities) do not apply.
 
 ### Largest modules
 
 | Lines | File | Note |
 |---|---|---|
-| 1126 | [use-map-layers.ts](../src/hooks/use-map-layers.ts) | Layer engine |
-| 1099 | [App.tsx](../src/App.tsx) | Composition root |
+| 1390 | [App.tsx](../src/App.tsx) | Composition root |
+| 1211 | [use-map-layers.ts](../src/hooks/use-map-layers.ts) | Layer engine |
 | 977 | [parquet_wasm.d.ts](../src/vendor/parquet-wasm/parquet_wasm.d.ts) | Generated bindings |
-| 697 | [map-capture.ts](../src/lib/map-capture.ts) | WebGL capture and PNG compositing |
-| 562 | [legend.tsx](../src/components/ui/legend.tsx) | Legend rows, per-class toggles, drag reorder |
-| 540 | [use-annotation-tool.ts](../src/hooks/use-annotation-tool.ts) | Drawing interaction model |
-| 494 | [map-config.ts](../src/config/map-config.ts) | `map.json` validation |
+| 720 | [map-capture.ts](../src/lib/map-capture.ts) | WebGL capture and PNG compositing |
+| 642 | [legend.tsx](../src/components/ui/legend.tsx) | Legend rows, per-class toggles, drag reorder |
+| 541 | [map-config.ts](../src/config/map-config.ts) | `map.json` validation |
+| 525 | [use-annotation-tool.ts](../src/hooks/use-annotation-tool.ts) | Drawing interaction model |
+| 506 | [mvt-style.ts](../src/layers/mvt-style.ts) | GeoStyler → MapLibre paint translation |
 | 489 | [annotation-style.ts](../src/layers/annotation-style.ts) | Annotation symbolizers |
-| 446 | [mvt-style.ts](../src/layers/mvt-style.ts) | GeoStyler → MapLibre paint translation |
 
 ### The hooks layer
 
-Thirty hooks, each owning one capability: `use-map-layers`, `use-layer-handlers`,
-`use-navigation`, `use-nav-expansion`, `use-area-filter`, `use-host-filter`,
-`use-box-select`, `use-chart-data`, `use-charts-panel`, `use-feature-pick`,
+Thirty-two hooks, each owning one capability: `use-map-layers`,
+`use-layer-handlers`, `use-filter-layers`, `use-navigation`, `use-nav-expansion`,
+`use-area-filter`, `use-host-filter`, `use-box-select`, `use-chart-data`,
+`use-charts-panel`, `use-feature-pick`, `use-feature-highlight`,
 `use-click-popup`, `use-map-pointer`, `use-annotations`, `use-annotation-tool`,
 `use-annotation-commands`, `use-annotation-source`, `use-collab`,
 `use-url-commands`, `use-embed-data`, `use-map-snapshot`, `use-share-state`,
 `use-study-area-layer`, `use-filtered-study-area`, `use-click-marker-layer`,
 `use-selection-box-layer`, `use-hover-cursor`, `use-basemap`,
 `use-panel-minimize`, `use-auto-collapse`, `use-session-flag`.
+
+Every one of them takes and returns **accessors** (`Accessor<T>`), never plain
+snapshots: that is what lets a caller pass state that does not exist yet — the
+right map's handle, a layer stack still loading — without the hook re-running.
 
 Nearly all of them are extractions from `App.tsx` rather than new features. The
 most recent five, and the reason each is a unit:
@@ -297,10 +316,7 @@ most recent five, and the reason each is a unit:
   swap requires stays in App, because the list of overlays to re-add is per-map.
 - **`use-panel-minimize`** — the three session-persisted window flags plus the
   small-screen auto-collapse. Grouped because auto-collapse writes all three
-  together in the priority order Navigatie → Statistieken → Kaartlagen. Its
-  setters are passed through untouched: `useSessionFlag`'s `toggle` closes over
-  its value, and re-wrapping it would defeat the memos that keep the `Sidebar`
-  from re-rendering per map frame.
+  together in the priority order Navigatie → Statistieken → Kaartlagen.
 - **`use-charts-panel`** — which layer the statistics panel shows. Owns the
   selected id rather than exposing it, because the id is deliberately *kept* when
   its layer is removed (so re-adding restores the selection) and only the resolved

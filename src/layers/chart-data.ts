@@ -5,8 +5,8 @@
  * rendering and picking use) AND the drawn box selection, if any.
  */
 import type { Table } from "apache-arrow";
-import { arrowRowMatchesAreaFilter } from "./area-filter";
-import { arrowRowMatchesBoxFilter } from "./box-filter";
+import { areaFilterLevels, arrowRowMatchesAreaFilter } from "./area-filter";
+import { arrowRowMatchesBoxFilter, boxFilter } from "./box-filter";
 import { CHART_COLORS, type ChartConfig } from "./charts";
 import type { LayerConfig, StatisticConfig } from "./types";
 import { loadParquetBatches } from "./parquet-loader";
@@ -100,7 +100,31 @@ function warnMissingColumn(source: string, field: string) {
   console.warn(`charts: field "${field}" not found in ${source}`);
 }
 
-/** Bounded memo per (source, spec id, filter version). */
+/**
+ * Scalar cache key for the bounded memo below, derived from the two filter
+ * stores rather than maintained by hand.
+ *
+ * Both `setAreaFilterSelection` and `setBoxFilter` always allocate a fresh
+ * value, so reference inequality detects a real change; the counter exists only
+ * because `memoized` needs a primitive to compare. Reading it also subscribes
+ * the caller to both filters, which is what drives recomputation.
+ */
+let lastLevels: unknown = null;
+let lastBox: unknown = null;
+let filterEpochCounter = 0;
+
+export function filterEpoch(): number {
+  const levels = areaFilterLevels();
+  const box = boxFilter();
+  if (levels !== lastLevels || box !== lastBox) {
+    lastLevels = levels;
+    lastBox = box;
+    filterEpochCounter += 1;
+  }
+  return filterEpochCounter;
+}
+
+/** Bounded memo per (source, spec id, filter epoch). */
 const memo = new Map<string, ResolvedChart | ResolvedStat[]>();
 let memoVersion = -1;
 

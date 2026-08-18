@@ -14,7 +14,11 @@
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",
     "noEmit": true,
-    "jsx": "react-jsx",
+    // Solid compiles JSX itself (vite-plugin-solid / babel-preset-solid) into
+    // template cloning plus explicit effects, so TypeScript must hand the JSX
+    // through untouched rather than lowering it to a factory call.
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
 
     /* Linting */
     "strict": true,

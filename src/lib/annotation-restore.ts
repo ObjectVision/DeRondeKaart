@@ -1,23 +1,25 @@
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
-import type { useMapLayers } from "@/hooks/use-map-layers";
+import type { UseMapLayersResult } from "@/hooks/use-map-layers";
 import { flyToView } from "@/lib/fly-to";
 import { selectionsFromJson, type AnnotationSnapshot } from "@/types/annotation";
-import type { MapRef } from "react-map-gl/maplibre";
+import type { MapAccessor } from "@/components/map/map-view-config";
 
 export interface RestoreSide {
-  layers: ReturnType<typeof useMapLayers>;
-  mapRef: React.RefObject<MapRef | null>;
+  layers: UseMapLayersResult;
+  map: MapAccessor;
 }
 
 export interface RestoreDeps {
   /** Apply a full gebiedsfilter selection map (useAreaFilter.applySelections). */
   applySelections(next: Map<string, Set<string>>): void;
   /**
-   * Live side accessors — layer adds await full loads, so the sides' state
-   * moves under this async function; getters keep the reconciliation fresh.
+   * The two sides. Layer adds await full data loads, so the sides' state moves
+   * under this async function — but every member of `layers` is an accessor, so
+   * reading one mid-run always yields the current value. (The React version
+   * passed `getSideA()`/`getSideB()` thunks to achieve the same thing.)
    */
-  getSideA(): RestoreSide;
-  getSideB(): RestoreSide;
+  sideA: RestoreSide;
+  sideB: RestoreSide;
 }
 
 /**
@@ -44,13 +46,13 @@ export async function restoreSnapshot(
 
   const sides: Array<{
     target: AnnotationSnapshot["mapA"];
-    getSide: () => RestoreSide;
+    side: RestoreSide;
   }> = [
-    { target: snapshot.mapA, getSide: deps.getSideA },
-    { target: snapshot.mapB, getSide: deps.getSideB },
+    { target: snapshot.mapA, side: deps.sideA },
+    { target: snapshot.mapB, side: deps.sideB },
   ];
 
-  for (const { target, getSide } of sides) {
+  for (const { target, side } of sides) {
     // Snapshots can reference layers since removed from layers.json (or from
     // another instance's config) — skip those, keep the rest of the restore.
     const targetIds = target.layerIds.filter((id) => {
@@ -60,31 +62,29 @@ export async function restoreSnapshot(
     });
     const targetSet = new Set(targetIds);
 
-    const side = getSide();
-    for (const entry of side.layers.layerEntries) {
+    for (const entry of side.layers.layerEntries()) {
       if (!targetSet.has(entry.config.id)) {
-        side.layers.removeLayer(entry.config.id, side.mapRef);
+        side.layers.removeLayer(entry.config.id, side.map);
       }
     }
 
-    const currentIds = new Set(side.layers.layerEntries.map((e) => e.config.id));
+    const currentIds = new Set(side.layers.layerEntries().map((e) => e.config.id));
     for (const id of targetIds) {
       if (currentIds.has(id)) continue;
       const config = getLayerConfigById(configs, id);
       // atEnd: `layerIds` is a stored draw order, so append verbatim rather than
       // re-seeding by band (which would undo a dragged order on restore).
-      if (config) await getSide().layers.addLayer(config, getSide().mapRef, { atEnd: true });
+      if (config) await side.layers.addLayer(config, side.map, { atEnd: true });
       if (isCancelled()) return;
     }
 
     // Hidden reconciliation, against the post-add state.
-    const fresh = getSide();
     const hiddenTarget = new Set(target.hiddenIds);
     for (const id of targetIds) {
       const shouldHide = hiddenTarget.has(id);
-      const isHidden = fresh.layers.hiddenIds.has(id);
-      if (shouldHide && !isHidden) fresh.layers.hideLayer(id, fresh.mapRef);
-      else if (!shouldHide && isHidden) fresh.layers.toggleLayer(id, fresh.mapRef);
+      const isHidden = side.layers.hiddenIds().has(id);
+      if (shouldHide && !isHidden) side.layers.hideLayer(id, side.map);
+      else if (!shouldHide && isHidden) side.layers.toggleLayer(id, side.map);
     }
   }
 }

@@ -8,6 +8,8 @@
  * and are skipped during picking.
  */
 
+import { createSignal } from "solid-js";
+
 /** One dropdown in the Filter section, as configured in filter.json. */
 export interface AreaFilterEntry {
   /** Display name of the filter, e.g. "Gemeente". */
@@ -93,10 +95,21 @@ interface AreaFilterLevel {
   digits: string[];
 }
 
-const store: { version: number; levels: AreaFilterLevel[] } = {
-  version: 0,
-  levels: [],
-};
+/**
+ * The active selection, as a signal.
+ *
+ * This replaces a plain object plus a `version` counter. The counter existed to
+ * give React a scalar cache key for state it could not otherwise observe; a
+ * signal is observable directly, so the map expressions, chart aggregation and
+ * legend each re-run on their own when the selection changes.
+ *
+ * The per-batch column cache below keys on the levels ARRAY IDENTITY instead of
+ * the counter — `setAreaFilterSelection` always builds a fresh array, so
+ * identity changes exactly when the counter used to increment.
+ */
+const [areaFilterLevels, setAreaFilterLevels] = createSignal<AreaFilterLevel[]>([]);
+
+export { areaFilterLevels };
 
 /** Known CBS code columns for the hierarchy fallback, finest first. */
 const CODE_FIELDS = ["bu_code", "wk_code", "gm_code"];
@@ -114,26 +127,19 @@ function digitsMatch(a: string, b: string): boolean {
 
 /**
  * Replace the active selection (key field -> selected codes). Empty sets are
- * dropped; an empty overall selection deactivates the filter. Returns the new
- * store version (used for deck.gl updateTriggers).
+ * dropped; an empty overall selection deactivates the filter.
  */
-export function setAreaFilterSelection(selection: Map<string, Set<string>>): number {
+export function setAreaFilterSelection(selection: Map<string, Set<string>>): void {
   const levels: AreaFilterLevel[] = [];
   for (const [key, codes] of selection) {
     if (codes.size === 0) continue;
     levels.push({ key, codes, digits: [...codes].map(digitsOf) });
   }
-  store.levels = levels;
-  store.version += 1;
-  return store.version;
-}
-
-export function getAreaFilterVersion(): number {
-  return store.version;
+  setAreaFilterLevels(levels);
 }
 
 export function isAreaFilterActive(): boolean {
-  return store.levels.length > 0;
+  return areaFilterLevels().length > 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -162,17 +168,22 @@ interface ResolvedColumn {
   exact: boolean;
 }
 
-/** Per-record-batch memo of resolved test columns, invalidated per version. */
+/**
+ * Per-record-batch memo of resolved test columns, invalidated whenever the
+ * selection is replaced — detected by the levels array's identity, since
+ * `setAreaFilterSelection` always allocates a new one.
+ */
 const batchColumnCache = new WeakMap<
   object,
-  { version: number; cols: (ResolvedColumn | null)[] }
+  { levels: AreaFilterLevel[]; cols: (ResolvedColumn | null)[] }
 >();
 
 function resolveColumns(batch: ArrowBatch): (ResolvedColumn | null)[] {
+  const levels = areaFilterLevels();
   const cached = batchColumnCache.get(batch);
-  if (cached && cached.version === store.version) return cached.cols;
+  if (cached && cached.levels === levels) return cached.cols;
 
-  const cols = store.levels.map<ResolvedColumn | null>((level) => {
+  const cols = levels.map<ResolvedColumn | null>((level) => {
     const exact = batch.getChild(level.key);
     if (exact) return { col: exact, exact: true };
     for (const field of CODE_FIELDS) {
@@ -182,7 +193,7 @@ function resolveColumns(batch: ArrowBatch): (ResolvedColumn | null)[] {
     }
     return null; // level not applicable to this layer
   });
-  batchColumnCache.set(batch, { version: store.version, cols });
+  batchColumnCache.set(batch, { levels, cols });
   return cols;
 }
 
@@ -192,15 +203,16 @@ function resolveColumns(batch: ArrowBatch): (ResolvedColumn | null)[] {
  * an empty selection passes everything.
  */
 export function arrowRowMatchesAreaFilter(info: ArrowFilterInfo): boolean {
-  if (store.levels.length === 0) return true;
+  const levels = areaFilterLevels();
+  if (levels.length === 0) return true;
   const cols = resolveColumns(info.data.data);
-  for (let i = 0; i < store.levels.length; i++) {
+  for (let i = 0; i < levels.length; i++) {
     const resolved = cols[i];
     if (!resolved) continue;
     const value = resolved.col.get(info.index);
     if (value === null || value === undefined) return false;
     const code = String(value);
-    const level = store.levels[i];
+    const level = levels[i];
     if (resolved.exact) {
       if (!level.codes.has(code)) return false;
     } else {
@@ -234,10 +246,11 @@ export function arrowRowMatchesAreaFilter(info: ArrowFilterInfo): boolean {
  * transparent" state to suppress in the pick path.
  */
 export function areaFilterExpression(): unknown[] | null {
-  if (store.levels.length === 0) return null;
+  const levels = areaFilterLevels();
+  if (levels.length === 0) return null;
 
   const clauses: unknown[] = [];
-  for (const level of store.levels) {
+  for (const level of levels) {
     // Exact match on the level's own key when the layer carries that column.
     const exact: unknown[] = [
       "match",
@@ -277,17 +290,18 @@ export function areaFilterExpression(): unknown[] | null {
 }
 
 /** Same semantics as {@link arrowRowMatchesAreaFilter}, over picked props. */
-export function featureMatchesAreaFilter(props: Record<string, unknown>): boolean {
-  if (store.levels.length === 0) return true;
-  for (const level of store.levels) {
-    let value = props[level.key];
+export function featureMatchesAreaFilter(properties: Record<string, unknown>): boolean {
+  const levels = areaFilterLevels();
+  if (levels.length === 0) return true;
+  for (const level of levels) {
+    let value = properties[level.key];
     let exact = true;
     if (value === undefined) {
       const fallbackField = CODE_FIELDS.find(
-        (field) => field !== level.key && props[field] !== undefined,
+        (field) => field !== level.key && properties[field] !== undefined,
       );
       if (!fallbackField) continue; // level not applicable
-      value = props[fallbackField];
+      value = properties[fallbackField];
       exact = false;
     }
     if (value === null) return false;

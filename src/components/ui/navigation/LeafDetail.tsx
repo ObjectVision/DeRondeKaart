@@ -1,3 +1,4 @@
+import type { JSX } from "solid-js";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
 import { LayerDescription } from "./LayerDescription";
@@ -14,69 +15,59 @@ interface LeafDetailProps {
   onOpenMeta?: (layerId: string, layerName: string) => void;
 }
 
-export function LeafDetail({
-  leaf,
-  path,
-  nav,
-  onBack,
-  onOpenMeta,
-}: LeafDetailProps): React.JSX.Element {
-  const onA = nav.isOnMap(leaf.id, "a");
-  const onB = nav.isOnMap(leaf.id, "b");
+export function LeafDetail(props: LeafDetailProps): JSX.Element {
+  const onA = () => props.nav.isOnMap(props.leaf.id, "a");
+  const onB = () => props.nav.isOnMap(props.leaf.id, "b");
   // The right map can only be added to once the left map holds a layer. Adding is
   // blocked while the left map is empty; removing an existing right-map layer stays allowed.
-  const rightDisabled = !nav.leftHasLayers && !onB;
+  const rightDisabled = () => !props.nav.leftHasLayers() && !onB();
 
   return (
-    <div className="flex flex-col gap-3">
+    <div class="flex flex-col gap-3">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-1.5 text-xs text-gray-500">
+      <div class="flex items-center gap-1.5 text-xs text-gray-500">
         <button
-          onClick={onBack}
-          className="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-gray-100"
+          onClick={() => props.onBack?.()}
+          class="flex items-center gap-1 rounded px-1 py-0.5 hover:bg-gray-100"
           title="Terug"
         >
           <Icon name="chevron_left" size={16} />
         </button>
-        <span className="truncate">{path.join(" › ")}</span>
+        <span class="truncate">{props.path.join(" › ")}</span>
       </div>
 
-      <h3 className="text-sm font-semibold text-gray-900">{leaf.label}</h3>
+      <h3 class="text-sm font-semibold text-gray-900">{props.leaf.label}</h3>
 
       {/* Short description + info button opening the full metainfo */}
-      <div className="text-sm leading-relaxed text-gray-600">
+      <div class="text-sm leading-relaxed text-gray-600">
         <LayerDescription
-          layerId={leaf.id}
-          layerName={leaf.label}
-          onOpenMeta={onOpenMeta}
+          layerId={props.leaf.id}
+          layerName={props.leaf.label}
+          onOpenMeta={props.onOpenMeta}
         />
       </div>
 
       {/* Add to map */}
-      <div className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-gray-500">Laag toevoegen aan:</span>
-        <div className="flex gap-2">
+      <div class="flex flex-col gap-1.5">
+        <span class="text-xs font-medium text-gray-500">Laag toevoegen aan:</span>
+        <div class="flex gap-2">
           <Button
-            variant={onA ? "default" : "outline"}
+            variant={onA() ? "default" : "outline"}
             size="sm"
-            onClick={() => nav.toggleOnMap(leaf.id, "a")}
+            onClick={() => props.nav.toggleOnMap(props.leaf.id, "a")}
           >
             <Icon name="map" size={16} />
-            {onA ? "Linker kaart ✓" : "Linker kaart"}
+            {onA() ? "Linker kaart ✓" : "Linker kaart"}
           </Button>
           <Button
-            variant={onB ? "default" : "outline"}
+            variant={onB() ? "default" : "outline"}
             size="sm"
-            disabled={rightDisabled}
-            title={
-              rightDisabled
-                ? "Voeg eerst een laag toe aan de linker kaart"
-                : undefined
-            }
-            onClick={() => nav.toggleOnMap(leaf.id, "b")}
+            disabled={rightDisabled()}
+            title={rightDisabled() ? "Voeg eerst een laag toe aan de linker kaart" : undefined}
+            onClick={() => props.nav.toggleOnMap(props.leaf.id, "b")}
           >
             <Icon name="map" size={16} />
-            {onB ? "Rechter kaart ✓" : "Rechter kaart"}
+            {onB() ? "Rechter kaart ✓" : "Rechter kaart"}
           </Button>
         </div>
       </div>

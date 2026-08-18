@@ -1,10 +1,11 @@
 import { deserialize } from "flatgeobuf/lib/mjs/geojson.js";
 import type { Map as MapLibreMap, GeoJSONSource } from "maplibre-gl";
 import type { Feature } from "geojson";
-import type { MapRef } from "react-map-gl/maplibre";
+import type { MapAccessor } from "@/components/map/map-view-config";
 import type { LayerConfig } from "./types";
 import { buildNativeLayerDefs } from "./mvt-style";
 import { ensureHatchImages } from "./hatch-pattern";
+import { styleReady } from "./geojson-overlay";
 import { anchorForConfig } from "@/components/map/map-view-config";
 
 /**
@@ -19,7 +20,7 @@ import { anchorForConfig } from "@/components/map/map-view-config";
  * cache: what's loaded depends on the camera, so state lives in per-(map,
  * config) sessions instead. The WeakMap keying handles the left/right compare
  * maps and the export-preview map without extra wiring — every lifecycle
- * caller already passes its own mapRef.
+ * caller already passes its own getMap.
  */
 
 /** Default zoom cutoff when the config doesn't specify `minzoom`. */
@@ -172,9 +173,10 @@ async function refetch(session: FgbSession): Promise<void> {
  * mounts) — existing sources/layers are kept, a missing source is re-created
  * seeded with the session's features so a style swap restores instantly.
  */
-export function addFlatgeobufLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>): void {
-  const map = mapRef.current?.getMap();
-  if (!map) return;
+export function addFlatgeobufLayer(config: LayerConfig, getMap: MapAccessor): void {
+  const map = getMap();
+  // See addMvtLayer: replayed by syncImperativeLayers once the style is up.
+  if (!styleReady(map)) return;
 
   const beforeId = anchorForConfig(config);
   const sourceId = `fgb-source-${config.id}`;
@@ -249,8 +251,8 @@ export function addFlatgeobufLayer(config: LayerConfig, mapRef: React.RefObject<
 }
 
 /** Stop viewport-driven loading and remove the layer's source + layers. */
-export function removeFlatgeobufLayer(config: LayerConfig, mapRef: React.RefObject<MapRef | null>): void {
-  const map = mapRef.current?.getMap();
+export function removeFlatgeobufLayer(config: LayerConfig, getMap: MapAccessor): void {
+  const map = getMap();
   if (!map) return;
 
   const session = sessionFor(map, config.id);
@@ -275,10 +277,10 @@ export function removeFlatgeobufLayer(config: LayerConfig, mapRef: React.RefObje
  */
 export function setFlatgeobufHidden(
   configId: string,
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
   hidden: boolean,
 ): void {
-  const map = mapRef.current?.getMap();
+  const map = getMap();
   if (!map) return;
   const session = sessionFor(map, configId);
   if (!session || session.hidden === hidden) return;

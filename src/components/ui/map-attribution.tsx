@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { For, Show, createSignal, type JSX } from "solid-js";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
@@ -21,12 +21,7 @@ const DATA_CREDITS = [
  */
 const SOFTWARE_CREDITS = [
   { label: "MapLibre GL JS", license: "BSD-3", href: "https://maplibre.org/" },
-  { label: "React", license: "MIT", href: "https://react.dev/" },
-  {
-    label: "react-map-gl",
-    license: "MIT",
-    href: "https://visgl.github.io/react-map-gl/",
-  },
+  { label: "SolidJS", license: "MIT", href: "https://www.solidjs.com/" },
   { label: "Apache Arrow", license: "Apache-2.0", href: "https://arrow.apache.org/" },
   {
     label: "parquet-wasm",
@@ -46,7 +41,6 @@ const SOFTWARE_CREDITS = [
   },
   { label: "D3", license: "ISC", href: "https://d3js.org/" },
   { label: "Tailwind CSS", license: "MIT", href: "https://tailwindcss.com/" },
-  { label: "Base UI", license: "MIT", href: "https://base-ui.com/" },
   { label: "Geist (font)", license: "OFL-1.1", href: "https://vercel.com/font" },
   {
     label: "Material Symbols",
@@ -61,69 +55,73 @@ const SOFTWARE_CREDITS = [
  * MapView): an app-styled info toolbutton, bottom right. Clicking it opens a
  * small card with the map data attribution and open source software credits.
  */
-export function MapAttribution(): React.JSX.Element {
-  const [open, setOpen] = useState(false);
+export function MapAttribution(): JSX.Element {
+  const [open, setOpen] = createSignal(false);
 
   return (
-    <div className="flex flex-col items-end gap-2">
-      {open && (
-        <div className="max-w-72 rounded-xl bg-white/95 p-3 text-xs text-gray-600 shadow-md backdrop-blur-sm">
-          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+    <div class="flex flex-col items-end gap-2">
+      <Show when={open()}>
+        <div class="max-w-72 rounded-xl bg-white/95 p-3 text-xs text-gray-600 shadow-md backdrop-blur-sm">
+          <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
             De Ronde kaart
           </h3>
-          <p className="mb-3 leading-snug">
+          <p class="mb-3 leading-snug">
             De Ronde kaart is het startpunt van gesprek, maakt het mogelijk
             ruimtelijke vraagstukken op inzichtelijke wijze samen aan te
             vliegen en te delen.
           </p>
-          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
             Kaartgegevens
           </h3>
-          <ul className="flex flex-col gap-0.5">
-            {DATA_CREDITS.map((c) => (
-              <li key={c.label}>
-                <a
-                  href={c.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
-                  {c.label}
-                </a>
-              </li>
-            ))}
+          <ul class="flex flex-col gap-0.5">
+            <For each={DATA_CREDITS}>
+              {(c) => (
+                <li>
+                  <a
+                    href={c.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="hover:underline"
+                  >
+                    {c.label}
+                  </a>
+                </li>
+              )}
+            </For>
           </ul>
-          <h3 className="mb-1 mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <h3 class="mb-1 mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
             Open source-software
           </h3>
-          <p className="flex flex-wrap gap-x-1.5 gap-y-0.5 text-[11px] leading-snug">
-            {SOFTWARE_CREDITS.map((c, i) => (
-              <span key={c.label} className="whitespace-nowrap">
-                <a
-                  href={c.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
-                  {c.label}
-                </a>{" "}
-                <span className="text-gray-400">({c.license})</span>
-                {i < SOFTWARE_CREDITS.length - 1 && (
-                  <span className="text-gray-300"> ·</span>
-                )}
-              </span>
-            ))}
+          <p class="flex flex-wrap gap-x-1.5 gap-y-0.5 text-[11px] leading-snug">
+            <For each={SOFTWARE_CREDITS}>
+              {(c, i) => (
+                <span class="whitespace-nowrap">
+                  <a
+                    href={c.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="hover:underline"
+                  >
+                    {c.label}
+                  </a>{" "}
+                  <span class="text-gray-400">({c.license})</span>
+                  <Show when={i() < SOFTWARE_CREDITS.length - 1}>
+                    <span class="text-gray-300"> ·</span>
+                  </Show>
+                </span>
+              )}
+            </For>
           </p>
         </div>
-      )}
-      <div className="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
+      </Show>
+      <div class="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
         <Button
           variant="ghost"
           size="icon-sm"
           onClick={() => setOpen((v) => !v)}
           title="Kaartinformatie"
           aria-label="Kaartinformatie"
-          aria-expanded={open}
+          aria-expanded={open()}
         >
           <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
         </Button>

@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef, useState } from "react";
+import { For, Show, createSignal, type JSX } from "solid-js";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
@@ -19,57 +19,59 @@ interface LegendRow {
   interactive: boolean;
 }
 
-/**
- * Play/pause + scrub control for a timeseries layer, shown under its legend
- * classes. Dragging the slider pauses playback: scrubbing and playing at the
- * same time would fight over the rendered step.
- */
-function TimeseriesControl({
-  config,
-  step,
-  playing,
-  onTogglePlay,
-  onSetStep,
-}: {
+interface TimeseriesControlProps {
   config: LayerEntry["config"];
   step: number;
   playing: boolean;
   onTogglePlay: (layerId: string) => void;
   onSetStep: (layerId: string, value: number) => void;
-}) {
-  const ts = config.timeseries;
-  if (!ts) return null;
+}
 
+/**
+ * Play/pause + scrub control for a timeseries layer, shown under its legend
+ * classes. Dragging the slider pauses playback: scrubbing and playing at the
+ * same time would fight over the rendered step.
+ */
+function TimeseriesControl(props: TimeseriesControlProps): JSX.Element {
   return (
-    <div className="ml-5 flex items-center gap-2 px-1.5 py-1">
-      <button
-        onClick={() => onTogglePlay(config.id)}
-        className="flex-shrink-0 leading-none text-gray-600 hover:text-gray-900 transition-colors"
-        title={playing ? "Pauzeer" : "Afspelen"}
-        aria-label={playing ? `Pauzeer ${config.name}` : `Speel ${config.name} af`}
-      >
-        {/* Two literal `name` props, not a ternary inside one: the icon-font
-            subsetter scans for `name="…"` and would miss the second string. */}
-        {playing ? (
-          <Icon name="pause_circle" size={chromeIconSize()} color={chromeIconColor()} />
-        ) : (
-          <Icon name="play_circle" size={chromeIconSize()} color={chromeIconColor()} />
-        )}
-      </button>
-      <input
-        type="range"
-        min={ts.start}
-        max={ts.end}
-        step={ts.step}
-        value={step}
-        onChange={(e) => onSetStep(config.id, Number(e.target.value))}
-        className="h-1 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-gray-200 accent-blue-600"
-        aria-label={`Jaar ${config.name}`}
-      />
-      <span className="w-10 flex-shrink-0 text-right text-xs tabular-nums text-gray-600">
-        {step}
-      </span>
-    </div>
+    <Show when={props.config.timeseries}>
+      {(ts) => (
+        <div class="ml-5 flex items-center gap-2 px-1.5 py-1">
+          <button
+            onClick={() => props.onTogglePlay(props.config.id)}
+            class="flex-shrink-0 leading-none text-gray-600 hover:text-gray-900 transition-colors"
+            title={props.playing ? "Pauzeer" : "Afspelen"}
+            aria-label={
+              props.playing ? `Pauzeer ${props.config.name}` : `Speel ${props.config.name} af`
+            }
+          >
+            {/* Two literal `name` props, not a ternary inside one: the icon-font
+                subsetter scans for `name="…"` and would miss the second string. */}
+            <Show
+              when={props.playing}
+              fallback={
+                <Icon name="play_circle" size={chromeIconSize()} color={chromeIconColor()} />
+              }
+            >
+              <Icon name="pause_circle" size={chromeIconSize()} color={chromeIconColor()} />
+            </Show>
+          </button>
+          <input
+            type="range"
+            min={ts().start}
+            max={ts().end}
+            step={ts().step}
+            value={props.step}
+            onInput={(e) => props.onSetStep(props.config.id, Number(e.currentTarget.value))}
+            class="h-1 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-gray-200 accent-blue-600"
+            aria-label={`Jaar ${props.config.name}`}
+          />
+          <span class="w-10 flex-shrink-0 text-right text-xs tabular-nums text-gray-600">
+            {props.step}
+          </span>
+        </div>
+      )}
+    </Show>
   );
 }
 
@@ -146,29 +148,9 @@ interface LegendProps {
   onReorder?: (layerId: string, toIndex: number) => void;
 }
 
-/** Stable identity, so a drag-less list doesn't re-bind the drag effect. */
-const noop = () => {};
+function noop() {}
 
-function LayerList({
-  entries,
-  hiddenIds,
-  hiddenRules,
-  dimmedIds,
-  layerSteps,
-  playingIds,
-  onToggle,
-  onToggleDim,
-  onToggleRule,
-  onTogglePlay,
-  onSetStep,
-  onRemove,
-  onOpenMeta,
-  onMove,
-  moveDirection,
-  moveDisabled,
-  onReorder,
-  scrollRef,
-}: {
+interface LayerListProps {
   entries: LayerEntry[];
   hiddenIds: Set<string>;
   hiddenRules: globalThis.Map<string, Set<string>>;
@@ -186,348 +168,348 @@ function LayerList({
   moveDirection?: "right" | "left";
   moveDisabled?: boolean;
   onReorder?: (layerId: string, toDisplayIndex: number) => void;
-  scrollRef?: React.RefObject<HTMLElement | null>;
-}) {
+  scrollEl?: () => HTMLElement | null | undefined;
+}
+
+function LayerList(props: LayerListProps): JSX.Element {
   // `entries` is display order (top of map first). The hook reports the slot in
   // that same space; Legend converts to draw order.
   const drag = useRowDrag(
-    entries.map((e) => e.config.id),
-    onReorder ?? noop,
-    scrollRef,
+    () => props.entries.map((e) => e.config.id),
+    (id, to) => (props.onReorder ?? noop)(id, to),
+    () => props.scrollEl?.(),
   );
 
   // Which row has its actions revealed. A single id rather than a set: only one
   // row expands at a time, so opening another implicitly closes the previous one.
   // A removed row unmounts, leaving a stale id that matches nothing — no cleanup.
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = createSignal<string | null>(null);
 
-  if (entries.length === 0) return null;
-
-  let moveTitle: string;
-  if (moveDisabled) {
-    moveTitle = "Voeg eerst een laag toe aan de linker kaart";
-  } else if (moveDirection === "left") {
-    moveTitle = "Naar linker kaart";
-  } else {
-    moveTitle = "Naar rechter kaart";
-  }
+  const moveTitle = () => {
+    if (props.moveDisabled) return "Voeg eerst een laag toe aan de linker kaart";
+    if (props.moveDirection === "left") return "Naar linker kaart";
+    return "Naar rechter kaart";
+  };
 
   return (
-    <div>
-      {/* gap-1 between LAYERS, against no gap between a layer's class rows —
-          that difference is what groups the classes under their layer. */}
-      <ul className="flex flex-col gap-1">
-        {entries.map(({ config }, rowIndex) => {
-          const isVisible = !hiddenIds.has(config.id);
-          const isDimmed = dimmedIds.has(config.id);
-          const isDragging = drag.draggingId === config.id;
-          // COG rules are a read-only legend key: the raster is styled per-pixel
-          // by a color function, so individual classes can't be toggled the way
-          // deck-layer rules can. Render them as non-interactive swatches.
-          const isCog = config.format === "cog";
-          // Two sources of legend classes, normalized to one shape:
-          //  - the layer's own geostyler rules (keyed by bare rule name), or
-          //  - for a composite WITHOUT its own geostyler, each child's rules in
-          //    order, keyed "<childIndex>:<name>" so same-named classes in
-          //    different children stay independent.
-          const ownRules = config.geostyler?.rules;
-          const rows: LegendRow[] = ownRules?.length
-            ? ownRules.map((rule) => ({ rule, key: rule.name, interactive: !isCog }))
-            : compositeLegendRules(config).map((ref) => ({
-                rule: ref.rule,
-                key: ref.key,
-                interactive: ref.interactive,
-              }));
-          const hasRules = rows.length > 0;
-          // A single rule is indistinguishable from the layer itself: the parent
-          // row already shows its swatch, so listing it again just duplicates the
-          // name. Only break out per-rule class toggles when there are ≥2 rules.
-          const showRuleList = rows.length > 1;
-          const layerHiddenRules = hiddenRules.get(config.id);
-          const isExpanded = expandedId === config.id;
+    <Show when={props.entries.length > 0}>
+      <div>
+        {/* gap-1 between LAYERS, against no gap between a layer's class rows —
+            that difference is what groups the classes under their layer. */}
+        <ul class="flex flex-col gap-1">
+          <For each={props.entries}>
+            {(entry, rowIndex) => {
+              const config = entry.config;
+              const isVisible = () => !props.hiddenIds.has(config.id);
+              const isDimmed = () => props.dimmedIds.has(config.id);
+              const isDragging = () => drag.draggingId() === config.id;
+              // COG rules are a read-only legend key: the raster is styled per-pixel
+              // by a color function, so individual classes can't be toggled the way
+              // deck-layer rules can. Render them as non-interactive swatches.
+              const isCog = config.format === "cog";
+              // Two sources of legend classes, normalized to one shape:
+              //  - the layer's own geostyler rules (keyed by bare rule name), or
+              //  - for a composite WITHOUT its own geostyler, each child's rules in
+              //    order, keyed "<childIndex>:<name>" so same-named classes in
+              //    different children stay independent.
+              const ownRules = config.geostyler?.rules;
+              const rows: LegendRow[] = ownRules?.length
+                ? ownRules.map((rule) => ({ rule, key: rule.name, interactive: !isCog }))
+                : compositeLegendRules(config).map((ref) => ({
+                    rule: ref.rule,
+                    key: ref.key,
+                    interactive: ref.interactive,
+                  }));
+              const hasRules = rows.length > 0;
+              // A single rule is indistinguishable from the layer itself: the parent
+              // row already shows its swatch, so listing it again just duplicates the
+              // name. Only break out per-rule class toggles when there are ≥2 rules.
+              const showRuleList = rows.length > 1;
+              const layerHiddenRules = () => props.hiddenRules.get(config.id);
+              const isExpanded = () => expandedId() === config.id;
 
-          return (
-            <li key={config.id} ref={drag.rowRef(config.id)}>
-              {/* Where the dragged row would land. Rendered inside the row it
-                  precedes so it needs no extra list item. */}
-              {drag.overIndex === rowIndex && (
-                <div className="-mt-px mb-px h-0.5 rounded-full bg-[#3E74A7]" />
-              )}
-              {/* Layer row: swatch = visibility; name = visibility; × = remove */}
-              <div
-                className={`group flex items-center rounded transition-colors ${
-                  isDragging ? "bg-gray-100 opacity-60" : "hover:bg-gray-100"
-                }`}
-              >
-                {onReorder && (
-                  <span
-                    // A dedicated handle: the rest of the row toggles visibility,
-                    // so dragging from anywhere would fight that. Not a <button>
-                    // — it has no click action and must not take Enter/Space.
-                    role="separator"
-                    aria-label={`Versleep ${config.name} om de tekenorde te wijzigen`}
-                    title="Versleep om de tekenorde te wijzigen"
-                    className="flex-shrink-0 cursor-grab touch-none pl-0.5 pr-0.5 text-gray-300 hover:text-gray-500 active:cursor-grabbing"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
-                      drag.start(config.id, e.clientY);
-                    }}
-                    onTouchStart={(e) => drag.start(config.id, e.touches[0].clientY)}
-                  >
-                    <Icon name="drag_indicator" size={14} />
-                  </span>
-                )}
-                {/* No swatch when the class list is shown below: the row is a
-                    heading for those classes, and painting it with the FIRST
-                    rule's colour reads as if that class were the layer. A
-                    single-rule layer keeps its swatch — there the rule and the
-                    layer are the same thing (see showRuleList above). */}
-                {showRuleList ? (
-                  <span className="flex-shrink-0 pl-1.5" />
-                ) : (
-                  <button
-                    onClick={() => onToggle(config.id)}
-                    className="flex-shrink-0 px-1.5 py-1"
-                    title="Zichtbaarheid"
-                    aria-label={`Zichtbaarheid ${config.name}`}
-                  >
-                    <Swatch
-                      spec={
-                        hasRules
-                          ? ruleSwatchSpec(rows[0].rule)
-                          : styleSwatchSpec(config.style, config.geometryType)
-                      }
-                      size={12}
-                      hidden={!isVisible}
-                    />
-                  </button>
-                )}
-                <button
-                  onClick={() => onToggle(config.id)}
-                  // flex-col: the optional subname sits UNDER the name, so the
-                  // two stack. `items-start` keeps them left-aligned once the
-                  // row is taller than a single line.
-                  className="flex min-w-0 flex-1 flex-col items-start justify-center py-1 pr-1.5 text-left text-sm"
-                  title="Zichtbaarheid"
-                >
-                  <span
-                    // truncate: with the actions expanded the row has less room,
-                    // so a long name must ellipsize rather than push them out.
-                    className={`max-w-full truncate ${
-                      isVisible
-                        ? "text-gray-800 font-medium"
-                        : "text-gray-400 line-through"
+              return (
+                <li ref={drag.rowRef(config.id)}>
+                  {/* Where the dragged row would land. Rendered inside the row it
+                      precedes so it needs no extra list item. */}
+                  <Show when={drag.overIndex() === rowIndex()}>
+                    <div class="-mt-px mb-px h-0.5 rounded-full bg-[#3E74A7]" />
+                  </Show>
+                  {/* Layer row: swatch = visibility; name = visibility; × = remove */}
+                  <div
+                    class={`group flex items-center rounded transition-colors ${
+                      isDragging() ? "bg-gray-100 opacity-60" : "hover:bg-gray-100"
                     }`}
                   >
-                    {config.name}
-                  </span>
-                  {/* The unit the layer's values are measured in. Same greyed
-                      treatment as the name when the layer is hidden, so the row
-                      reads as one unit rather than a live subtitle under a
-                      struck-through name. */}
-                  {config.subname && (
-                    <span
-                      className={`max-w-full truncate text-xs ${
-                        isVisible ? "text-gray-500" : "text-gray-400 line-through"
-                      }`}
-                    >
-                      {config.subname}
-                    </span>
-                  )}
-                </button>
-                {/* Layer actions, revealed to the LEFT of the chevron so it keeps
-                    its place at the row's right edge. The name (min-w-0 flex-1)
-                    truncates to make room, so the row never grows wider than the
-                    card (see --width-panel in index.css). */}
-                {isExpanded && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => onToggleDim(config.id)}
-                      aria-label={`Transparantie ${config.name}`}
-                      aria-pressed={isDimmed}
-                      title={isDimmed ? "Transparantie opheffen" : "Transparantie"}
-                    >
-                      {/* Two literal name= strings rather than one expression: the
-                          build-time subsetter scans for `name="…"` and would miss
-                          a computed one, dropping the glyph from the font. */}
-                      {isDimmed ? (
-                        <Icon
-                          name="format_color_reset"
-                          size={chromeIconSize()}
-                          color={chromeIconColor()}
-                        />
-                      ) : (
-                        <Icon name="opacity" size={chromeIconSize()} color={chromeIconColor()} />
-                      )}
-                    </Button>
-                    {/* Disabled rather than hidden when the layer has no `meta`,
-                        so every row keeps the same set of actions. */}
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      disabled={!config.meta || !onOpenMeta}
-                      onClick={() => onOpenMeta?.(config.id, config.name)}
-                      aria-label={`Informatie ${config.name}`}
-                      title={
-                        config.meta && onOpenMeta
-                          ? "Informatie"
-                          : "Metadata (nog niet beschikbaar)"
+                    <Show when={props.onReorder}>
+                      <span
+                        // A dedicated handle: the rest of the row toggles visibility,
+                        // so dragging from anywhere would fight that. Not a <button>
+                        // — it has no click action and must not take Enter/Space.
+                        role="separator"
+                        aria-label={`Versleep ${config.name} om de tekenorde te wijzigen`}
+                        title="Versleep om de tekenorde te wijzigen"
+                        class="flex-shrink-0 cursor-grab touch-none pl-0.5 pr-0.5 text-gray-300 hover:text-gray-500 active:cursor-grabbing"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          drag.start(config.id, e.clientY);
+                        }}
+                        onTouchStart={(e) => drag.start(config.id, e.touches[0].clientY)}
+                      >
+                        <Icon name="drag_indicator" size={14} />
+                      </span>
+                    </Show>
+                    {/* No swatch when the class list is shown below: the row is a
+                        heading for those classes, and painting it with the FIRST
+                        rule's colour reads as if that class were the layer. A
+                        single-rule layer keeps its swatch — there the rule and the
+                        layer are the same thing (see showRuleList above). */}
+                    <Show
+                      when={showRuleList}
+                      fallback={
+                        <button
+                          onClick={() => props.onToggle(config.id)}
+                          class="flex-shrink-0 px-1.5 py-1"
+                          title="Zichtbaarheid"
+                          aria-label={`Zichtbaarheid ${config.name}`}
+                        >
+                          <Swatch
+                            spec={
+                              hasRules
+                                ? ruleSwatchSpec(rows[0].rule)
+                                : styleSwatchSpec(config.style, config.geometryType)
+                            }
+                            size={12}
+                            hidden={!isVisible()}
+                          />
+                        </button>
                       }
                     >
-                      <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => onRemove(config.id)}
-                      aria-label={`Verwijder ${config.name}`}
-                      title="Laag verwijderen"
+                      <span class="flex-shrink-0 pl-1.5" />
+                    </Show>
+                    <button
+                      onClick={() => props.onToggle(config.id)}
+                      // flex-col: the optional subname sits UNDER the name, so the
+                      // two stack. `items-start` keeps them left-aligned once the
+                      // row is taller than a single line.
+                      class="flex min-w-0 flex-1 flex-col items-start justify-center py-1 pr-1.5 text-left text-sm"
+                      title="Zichtbaarheid"
                     >
-                      <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
-                    </Button>
-                    {onMove && (
+                      <span
+                        // truncate: with the actions expanded the row has less room,
+                        // so a long name must ellipsize rather than push them out.
+                        class={`max-w-full truncate ${
+                          isVisible() ? "text-gray-800 font-medium" : "text-gray-400 line-through"
+                        }`}
+                      >
+                        {config.name}
+                      </span>
+                      {/* The unit the layer's values are measured in. Same greyed
+                          treatment as the name when the layer is hidden, so the row
+                          reads as one unit rather than a live subtitle under a
+                          struck-through name. */}
+                      <Show when={config.subname}>
+                        <span
+                          class={`max-w-full truncate text-xs ${
+                            isVisible() ? "text-gray-500" : "text-gray-400 line-through"
+                          }`}
+                        >
+                          {config.subname}
+                        </span>
+                      </Show>
+                    </button>
+                    {/* Layer actions, revealed to the LEFT of the chevron so it keeps
+                        its place at the row's right edge. The name (min-w-0 flex-1)
+                        truncates to make room, so the row never grows wider than the
+                        card (see --width-panel in index.css). */}
+                    <Show when={isExpanded()}>
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        disabled={moveDisabled}
-                        onClick={() => onMove(config.id)}
-                        aria-label={
-                          moveDirection === "left"
-                            ? `Verplaats ${config.name} naar linker kaart`
-                            : `Verplaats ${config.name} naar rechter kaart`
-                        }
-                        title={moveTitle}
+                        onClick={() => props.onToggleDim(config.id)}
+                        aria-label={`Transparantie ${config.name}`}
+                        aria-pressed={isDimmed()}
+                        title={isDimmed() ? "Transparantie opheffen" : "Transparantie"}
                       >
-                        <Icon
-                          name={moveDirection === "left" ? "arrow_circle_left" : "arrow_circle_right"}
-                          size={chromeIconSize()}
-                          color={moveDisabled ? undefined : chromeIconColor()}
-                          className={moveDisabled ? "text-gray-300" : undefined}
-                        />
-                      </Button>
-                    )}
-                  </>
-                )}
-                {/* Toggles those actions, so removal and the cross-map move
-                    aren't a stray click away in a narrow card. */}
-                <Button
-                  variant="ghost"
-                  size="icon-sm"
-                  onClick={() =>
-                    setExpandedId((cur) => (cur === config.id ? null : config.id))
-                  }
-                  aria-expanded={isExpanded}
-                  aria-label={`Acties voor ${config.name}`}
-                  title={isExpanded ? "Acties verbergen" : "Acties tonen"}
-                >
-                  {/* Kebab rather than a chevron: the actions appear beside it
-                      rather than in a panel it points at, so a directional arrow
-                      misdescribed the gesture. Same glyph either way — the
-                      aria-expanded state carries open/closed. */}
-                  <Icon name="more_vert" size={chromeIconSize()} color={chromeIconColor()} />
-                </Button>
-              </div>
-
-              {/* Per-rule class toggles — only when there's more than one rule */}
-              {showRuleList && isVisible && (
-                // No gap between class rows: they belong to the layer above and
-                // should read as one block. The space that separates LAYERS
-                // comes from the outer list instead (see gap-1 there).
-                <ul className="ml-5 flex flex-col">
-                  {rows.map((row) => {
-                    const isRuleHidden = layerHiddenRules?.has(row.key) ?? false;
-                    const swatch = (
-                      <Swatch spec={ruleSwatchSpec(row.rule)} size={10} hidden={isRuleHidden} />
-                    );
-
-                    // Static legend key (no per-class toggle) for layer types
-                    // that can't hide one class — COG rasters.
-                    if (!row.interactive) {
-                      return (
-                        <li key={row.key}>
-                          <div className="flex w-full items-center gap-2 px-1.5 py-px text-xs">
-                            {swatch}
-                            <span className="text-gray-600">{row.rule.name}</span>
-                          </div>
-                        </li>
-                      );
-                    }
-
-                    return (
-                      <li key={row.key}>
-                        <button
-                          onClick={() => onToggleRule(config.id, row.key)}
-                          className="flex w-full items-center gap-2 rounded px-1.5 py-px text-left text-xs hover:bg-gray-100 transition-colors"
+                        {/* Two literal name= strings rather than one expression: the
+                            build-time subsetter scans for `name="…"` and would miss
+                            a computed one, dropping the glyph from the font. */}
+                        <Show
+                          when={isDimmed()}
+                          fallback={
+                            <Icon
+                              name="opacity"
+                              size={chromeIconSize()}
+                              color={chromeIconColor()}
+                            />
+                          }
                         >
-                          {swatch}
-                          <span
-                            className={
-                              isRuleHidden
-                                ? "text-gray-400 line-through"
-                                : "text-gray-600"
+                          <Icon
+                            name="format_color_reset"
+                            size={chromeIconSize()}
+                            color={chromeIconColor()}
+                          />
+                        </Show>
+                      </Button>
+                      {/* Disabled rather than hidden when the layer has no `meta`,
+                          so every row keeps the same set of actions. */}
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        disabled={!config.meta || !props.onOpenMeta}
+                        onClick={() => props.onOpenMeta?.(config.id, config.name)}
+                        aria-label={`Informatie ${config.name}`}
+                        title={
+                          config.meta && props.onOpenMeta
+                            ? "Informatie"
+                            : "Metadata (nog niet beschikbaar)"
+                        }
+                      >
+                        <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => props.onRemove(config.id)}
+                        aria-label={`Verwijder ${config.name}`}
+                        title="Laag verwijderen"
+                      >
+                        <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+                      </Button>
+                      <Show when={props.onMove}>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          disabled={props.moveDisabled}
+                          onClick={() => props.onMove?.(config.id)}
+                          aria-label={
+                            props.moveDirection === "left"
+                              ? `Verplaats ${config.name} naar linker kaart`
+                              : `Verplaats ${config.name} naar rechter kaart`
+                          }
+                          title={moveTitle()}
+                        >
+                          <Show
+                            when={props.moveDirection === "left"}
+                            fallback={
+                              <Icon
+                                name="arrow_circle_right"
+                                size={chromeIconSize()}
+                                color={props.moveDisabled ? undefined : chromeIconColor()}
+                                class={props.moveDisabled ? "text-gray-300" : undefined}
+                              />
                             }
                           >
-                            {row.rule.name}
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
+                            <Icon
+                              name="arrow_circle_left"
+                              size={chromeIconSize()}
+                              color={props.moveDisabled ? undefined : chromeIconColor()}
+                              class={props.moveDisabled ? "text-gray-300" : undefined}
+                            />
+                          </Show>
+                        </Button>
+                      </Show>
+                    </Show>
+                    {/* Toggles those actions, so removal and the cross-map move
+                        aren't a stray click away in a narrow card. */}
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      onClick={() => setExpandedId((cur) => (cur === config.id ? null : config.id))}
+                      aria-expanded={isExpanded()}
+                      aria-label={`Acties voor ${config.name}`}
+                      title={isExpanded() ? "Acties verbergen" : "Acties tonen"}
+                    >
+                      {/* Kebab rather than a chevron: the actions appear beside it
+                          rather than in a panel it points at, so a directional arrow
+                          misdescribed the gesture. Same glyph either way — the
+                          aria-expanded state carries open/closed. */}
+                      <Icon name="more_vert" size={chromeIconSize()} color={chromeIconColor()} />
+                    </Button>
+                  </div>
 
-              {/* Timeseries playback, under the classes it animates */}
-              {config.timeseries && isVisible && (
-                <TimeseriesControl
-                  config={config}
-                  step={layerSteps.get(config.id) ?? config.timeseries.start}
-                  playing={playingIds.has(config.id)}
-                  onTogglePlay={onTogglePlay}
-                  onSetStep={onSetStep}
-                />
-              )}
-            </li>
-          );
-        })}
-        {/* Drop slot past the last row = the bottom of the draw order. */}
-        {drag.overIndex === entries.length && (
-          <li aria-hidden className="-mt-px h-0.5 rounded-full bg-[#3E74A7]" />
-        )}
-      </ul>
-    </div>
+                  {/* Per-rule class toggles — only when there's more than one rule */}
+                  <Show when={showRuleList && isVisible()}>
+                    {/* No gap between class rows: they belong to the layer above and
+                        should read as one block. The space that separates LAYERS
+                        comes from the outer list instead (see gap-1 there). */}
+                    <ul class="ml-5 flex flex-col">
+                      <For each={rows}>
+                        {(row) => {
+                          const isRuleHidden = () => layerHiddenRules()?.has(row.key) ?? false;
+                          return (
+                            <li>
+                              {/* Static legend key (no per-class toggle) for layer
+                                  types that can't hide one class — COG rasters. */}
+                              <Show
+                                when={row.interactive}
+                                fallback={
+                                  <div class="flex w-full items-center gap-2 px-1.5 py-px text-xs">
+                                    <Swatch
+                                      spec={ruleSwatchSpec(row.rule)}
+                                      size={10}
+                                      hidden={isRuleHidden()}
+                                    />
+                                    <span class="text-gray-600">{row.rule.name}</span>
+                                  </div>
+                                }
+                              >
+                                <button
+                                  onClick={() => props.onToggleRule(config.id, row.key)}
+                                  class="flex w-full items-center gap-2 rounded px-1.5 py-px text-left text-xs hover:bg-gray-100 transition-colors"
+                                >
+                                  <Swatch
+                                    spec={ruleSwatchSpec(row.rule)}
+                                    size={10}
+                                    hidden={isRuleHidden()}
+                                  />
+                                  <span
+                                    class={
+                                      isRuleHidden()
+                                        ? "text-gray-400 line-through"
+                                        : "text-gray-600"
+                                    }
+                                  >
+                                    {row.rule.name}
+                                  </span>
+                                </button>
+                              </Show>
+                            </li>
+                          );
+                        }}
+                      </For>
+                    </ul>
+                  </Show>
+
+                  {/* Timeseries playback, under the classes it animates */}
+                  <Show when={config.timeseries && isVisible()}>
+                    <TimeseriesControl
+                      config={config}
+                      step={props.layerSteps.get(config.id) ?? config.timeseries!.start}
+                      playing={props.playingIds.has(config.id)}
+                      onTogglePlay={props.onTogglePlay}
+                      onSetStep={props.onSetStep}
+                    />
+                  </Show>
+                </li>
+              );
+            }}
+          </For>
+          {/* Drop slot past the last row = the bottom of the draw order. */}
+          <Show when={drag.overIndex() === props.entries.length}>
+            <li aria-hidden class="-mt-px h-0.5 rounded-full bg-[#3E74A7]" />
+          </Show>
+        </ul>
+      </div>
+    </Show>
   );
 }
 
 /**
- * Memoized: App re-renders ~60×/sec during a pan (view state), and every
- * Legend prop is referentially stable across those renders.
+ * No memo wrapper: App's camera updates no longer re-render this at all — only
+ * the DOM nodes bound to a changed signal update.
  */
-export const Legend = memo(function Legend({
-  entries,
-  hiddenIds,
-  hiddenRules,
-  dimmedIds,
-  layerSteps,
-  playingIds,
-  onToggle,
-  onToggleDim,
-  onToggleRule,
-  onTogglePlay,
-  onSetStep,
-  onRemove,
-  onOpenMeta,
-  onMove,
-  moveDirection,
-  moveDisabled,
-  onOpenBasemaps,
-  onOpenCombine,
-  canCombine = false,
-  onClose,
-  maxHeightClass = "max-h-[50vh]",
-  onReorder,
-}: LegendProps) {
+export function Legend(props: LegendProps): JSX.Element {
   // Top-of-map first, so reading the legend top-down matches what covers what.
   //
   // `entries` is bottom-to-top draw order, hence the reverse. The extra sort
@@ -536,15 +518,18 @@ export const Legend = memo(function Legend({
   // a `foreground-layers` config always paints above a default-band one, whatever
   // their array positions. Array order still decides everything within a group,
   // which is what a drag changes. Array .sort is stable, so the reverse supplies
-  // that within-group ordering.
-  const visible = entries
-    .filter((e) => !e.config.excludeFromLegend)
-    .reverse()
-    .sort((a, b) => foregroundRank(b.config) - foregroundRank(a.config));
+  // that within-group ordering. (`.filter` already returns a fresh array, so the
+  // in-place `.reverse()`/`.sort()` never touch the caller's own.)
+  const visible = () =>
+    props.entries
+      .filter((e) => !e.config.excludeFromLegend)
+      .reverse()
+      .sort((a, b) => foregroundRank(b.config) - foregroundRank(a.config));
+
   // Only the left-map legend hosts the basemap picker + collapse button.
-  const showChrome = Boolean(onOpenBasemaps);
+  const showChrome = () => Boolean(props.onOpenBasemaps);
   // Shared with LayerList so a drag can auto-scroll the card.
-  const cardRef = useRef<HTMLDivElement>(null);
+  let card: HTMLDivElement | undefined;
 
   /**
    * Translate a drop slot in display space (0 = top row) into an index in
@@ -557,54 +542,47 @@ export const Legend = memo(function Legend({
    * already removed, so both spaces are computed without it. Exhaustively checked
    * against reorderLayer's semantics for every list size and drop slot.
    */
-  const handleReorder = useCallback(
-    (layerId: string, toDisplayIndex: number) => {
-      if (!onReorder) return;
-      const displayIds = visible.map((e) => e.config.id);
-      const fromDisplay = displayIds.indexOf(layerId);
-      // Dropping below your own row shifts every slot up by one once you're gone.
-      const slot = toDisplayIndex > fromDisplay ? toDisplayIndex - 1 : toDisplayIndex;
+  function handleReorder(layerId: string, toDisplayIndex: number) {
+    if (!props.onReorder) return;
+    const displayIds = visible().map((e) => e.config.id);
+    const fromDisplay = displayIds.indexOf(layerId);
+    // Dropping below your own row shifts every slot up by one once you're gone.
+    const slot = toDisplayIndex > fromDisplay ? toDisplayIndex - 1 : toDisplayIndex;
 
-      const without = entries.filter((e) => e.config.id !== layerId);
-      const below = displayIds.filter((id) => id !== layerId)[slot];
-      // The row that will sit just below the dragged one fixes the target; no row
-      // means it was dropped past the last display row, i.e. the map's bottom.
-      const target = below
-        ? without.findIndex((e) => e.config.id === below) + 1
-        : 0;
-      onReorder(layerId, target);
-    },
-    [onReorder, visible, entries],
-  );
+    const without = props.entries.filter((e) => e.config.id !== layerId);
+    const below = displayIds.filter((id) => id !== layerId)[slot];
+    // The row that will sit just below the dragged one fixes the target; no row
+    // means it was dropped past the last display row, i.e. the map's bottom.
+    const target = below ? without.findIndex((e) => e.config.id === below) + 1 : 0;
+    props.onReorder(layerId, target);
+  }
 
   return (
     <div
-      ref={cardRef}
-      className={`app-scrollbar w-panel ${maxHeightClass} overflow-y-auto rounded-2xl bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3`}
+      ref={card}
+      class={`app-scrollbar w-panel ${props.maxHeightClass ?? "max-h-[50vh]"} overflow-y-auto rounded-2xl bg-white/90 p-2 shadow-md backdrop-blur-sm sm:p-3`}
     >
-      <div className="mb-2 flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Legenda
-        </h3>
-        {showChrome && (
-          <div className="flex items-center">
+      <div class="mb-2 flex items-center justify-between">
+        <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500">Legenda</h3>
+        <Show when={showChrome()}>
+          <div class="flex items-center">
             <Button
               variant="ghost"
               size="icon-sm"
-              onClick={onOpenBasemaps}
+              onClick={props.onOpenBasemaps}
               title="Referentielagen kiezen"
               aria-label="Referentielagen kiezen"
             >
               <Icon name="map" size={chromeIconSize()} color={chromeIconColor()} />
             </Button>
-            {onOpenCombine && (
+            <Show when={props.onOpenCombine}>
               <Button
                 variant="ghost"
                 size="icon-sm"
-                onClick={onOpenCombine}
-                disabled={!canCombine}
+                onClick={props.onOpenCombine}
+                disabled={!props.canCombine}
                 title={
-                  canCombine
+                  props.canCombine
                     ? "Lagen combineren"
                     : "Geen van de actieve lagen kan gecombineerd worden"
                 }
@@ -616,48 +594,49 @@ export const Legend = memo(function Legend({
                 <Icon
                   name="masked_transitions_add"
                   size={chromeIconSize()}
-                  color={canCombine ? chromeIconColor() : "#9CA3AF"}
+                  color={props.canCombine ? chromeIconColor() : "#9CA3AF"}
                 />
               </Button>
-            )}
-            {onClose && (
+            </Show>
+            <Show when={props.onClose}>
               <Button
                 variant="ghost"
                 size="icon-sm"
-                onClick={onClose}
+                onClick={props.onClose}
                 title="Kaartlagen verbergen"
                 aria-label="Kaartlagen verbergen"
               >
                 <Icon name="remove" size={chromeIconSize()} color={chromeIconColor()} />
               </Button>
-            )}
+            </Show>
           </div>
-        )}
+        </Show>
       </div>
-      {visible.length === 0 ? (
-        <p className="text-xs text-gray-400">Nog geen lagen toegevoegd</p>
-      ) : (
+      <Show
+        when={visible().length > 0}
+        fallback={<p class="text-xs text-gray-400">Nog geen lagen toegevoegd</p>}
+      >
         <LayerList
-          entries={visible}
-          hiddenIds={hiddenIds}
-          hiddenRules={hiddenRules}
-          dimmedIds={dimmedIds}
-          layerSteps={layerSteps}
-          playingIds={playingIds}
-          onToggle={onToggle}
-          onToggleDim={onToggleDim}
-          onToggleRule={onToggleRule}
-          onTogglePlay={onTogglePlay}
-          onSetStep={onSetStep}
-          onRemove={onRemove}
-          onOpenMeta={onOpenMeta}
-          onMove={onMove}
-          moveDirection={moveDirection}
-          moveDisabled={moveDisabled}
-          onReorder={onReorder ? handleReorder : undefined}
-          scrollRef={cardRef}
+          entries={visible()}
+          hiddenIds={props.hiddenIds}
+          hiddenRules={props.hiddenRules}
+          dimmedIds={props.dimmedIds}
+          layerSteps={props.layerSteps}
+          playingIds={props.playingIds}
+          onToggle={props.onToggle}
+          onToggleDim={props.onToggleDim}
+          onToggleRule={props.onToggleRule}
+          onTogglePlay={props.onTogglePlay}
+          onSetStep={props.onSetStep}
+          onRemove={props.onRemove}
+          onOpenMeta={props.onOpenMeta}
+          onMove={props.onMove}
+          moveDirection={props.moveDirection}
+          moveDisabled={props.moveDisabled}
+          onReorder={props.onReorder ? handleReorder : undefined}
+          scrollEl={() => card}
         />
-      )}
+      </Show>
     </div>
   );
-});
+}

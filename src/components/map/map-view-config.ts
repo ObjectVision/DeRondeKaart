@@ -1,10 +1,14 @@
 /**
- * Map constants and pure helpers used across the app.
+ * Map constants, shared map types, and pure helpers used across the app.
  *
- * Split out of MapView.tsx so that file exports only components: mixing
- * component and non-component exports breaks React Fast Refresh, which then
- * full-reloads the page (and drops all map state) on every edit.
+ * Split out of MapView.tsx so that file exports only components. The map types
+ * live here rather than in MapView.tsx so that no module has to import a type
+ * from a component file in order to talk about the map — `layers/`, `lib/` and
+ * `config/` all need them and none of them should depend on a component.
  */
+
+import type { Accessor } from "solid-js";
+import type { Map as MapLibreMap, MapMouseEvent } from "maplibre-gl";
 
 export const INITIAL_VIEW_STATE = {
   longitude: 5.0,
@@ -15,6 +19,53 @@ export const INITIAL_VIEW_STATE = {
 };
 
 export type ViewState = typeof INITIAL_VIEW_STATE;
+
+/**
+ * Late-bound access to the live MapLibre instance; null before the map has been
+ * constructed. Replaces react-map-gl's `MapRef`, which also proxied every `Map`
+ * method and the declarative props — the app used neither, every call site
+ * immediately reached for `getMap()` and worked against the raw instance.
+ *
+ * A plain function type, so it doubles as a Solid accessor (reading it inside an
+ * effect subscribes that effect to the map appearing) and as something the
+ * imperative callers outside any reactive scope — the composite host on
+ * `moveend`, worker completions — can call directly.
+ */
+export type MapAccessor = Accessor<MapLibreMap | null>;
+
+/**
+ * Handle a `MapView` publishes to its parent via `ref`.
+ *
+ * Both members are accessors rather than the mutable refs the React version
+ * used: `drawMode` was a ref purely so `use-hover-cursor`'s MapLibre callback
+ * could read the current value without a stale closure, which is exactly what a
+ * signal gives for free.
+ */
+export interface MapViewHandle {
+  /** The live MapLibre instance, or null until the map has mounted. */
+  map: MapAccessor;
+  /** Live flag: the area-select draw mode is armed (crosshair cursor). */
+  drawMode: Accessor<boolean>;
+  setDrawMode(armed: boolean): void;
+}
+
+/**
+ * Pointer event on the map.
+ *
+ * react-map-gl's `MapLayerMouseEvent` added a `features` array, populated by
+ * running `queryRenderedFeatures` for the layers named in `interactiveLayerIds`.
+ * This app never set that prop and never read `features` — picking goes through
+ * `queryRenderedFeatures` explicitly (see use-feature-pick.ts) so that it can
+ * control the query box and layer set — so the plain MapLibre event is enough.
+ */
+export type MapLayerMouseEvent = MapMouseEvent;
+
+/**
+ * Camera change reported while the map moves. Only `viewState` is ever read.
+ */
+export interface ViewStateChangeEvent {
+  viewState: ViewState;
+}
 
 /**
  * Selectable background basemaps. Each entry pairs a base style (background +

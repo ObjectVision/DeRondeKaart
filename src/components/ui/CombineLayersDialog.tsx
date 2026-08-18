@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { For, Show, createMemo, createSignal, type JSX } from "solid-js";
 
 import { DialogContent, DialogRoot, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -69,32 +69,28 @@ function autoName(layers: LayerConfig[], selected: ClassRef[]): string {
  * which it is left alone — an edited name surviving the next checkbox click is
  * the point of making it editable.
  *
- * State is per-opening: the caller remounts this component each time it opens
- * (a `key`), so a fresh combination starts empty rather than inheriting a
- * selection whose layers may since have left the map. That is why there is no
- * reset effect here.
+ * State is per-opening: the caller only renders this component while the dialog
+ * is open (a `<Show>`), so each opening mounts it fresh and a new combination
+ * starts empty rather than inheriting a selection whose layers may since have
+ * left the map. That is why there is no reset effect here. (React achieved the
+ * same by remounting via a changing `key`.)
  */
-export function CombineLayersDialog({
-  open,
-  onOpenChange,
-  layers,
-  onCreate,
-}: CombineLayersDialogProps): React.JSX.Element {
-  const [selected, setSelected] = useState<ClassRef[]>([]);
+export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Element {
+  const [selected, setSelected] = createSignal<ClassRef[]>([]);
   // Every layer starts expanded, so the classes are visible without a click.
-  const [expanded, setExpanded] = useState<Set<string>>(
-    () => new Set(layers.map((layer) => layer.id)),
+  const [expanded, setExpanded] = createSignal<Set<string>>(
+    // one-time seed: the dialog is
+    // mounted per opening, so this IS the state for this opening
+    // eslint-disable-next-line solid/reactivity
+    new Set(props.layers.map((layer) => layer.id)),
   );
-  const [name, setName] = useState("");
-  const [nameEdited, setNameEdited] = useState(false);
+  const [name, setName] = createSignal("");
+  const [nameEdited, setNameEdited] = createSignal(false);
 
-  const generated = useMemo(() => autoName(layers, selected), [layers, selected]);
-  const effectiveName = nameEdited ? name : generated;
+  const generated = createMemo(() => autoName(props.layers, selected()));
+  const effectiveName = () => (nameEdited() ? name() : generated());
 
-  const selectedKeys = useMemo(
-    () => new Set(selected.map(refKey)),
-    [selected],
-  );
+  const selectedKeys = createMemo(() => new Set(selected().map(refKey)));
 
   function toggleClass(layerId: string, ruleName: string) {
     const key = refKey({ layerId, ruleName });
@@ -119,26 +115,26 @@ export function CombineLayersDialog({
   }
 
   function handleCreate() {
-    if (selected.length === 0) return;
-    onCreate(effectiveName.trim() || generated, selected);
-    onOpenChange(false);
+    if (selected().length === 0) return;
+    props.onCreate(effectiveName().trim() || generated(), selected());
+    props.onOpenChange(false);
   }
 
   return (
-    <DialogRoot open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[min(34rem,calc(100vw-2rem))]">
-        <div className="mb-5 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
+    <DialogRoot open={props.open} onOpenChange={props.onOpenChange}>
+      <DialogContent class="w-[min(34rem,calc(100vw-2rem))]">
+        <div class="mb-5 flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
             <Icon name="masked_transitions_add" size={chromeIconSize()} color={chromeIconColor()} />
             {/* Same treatment as the "Themas" and "Legenda" panel headings. */}
-            <DialogTitle className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <DialogTitle class="text-xs font-semibold uppercase tracking-wide text-gray-500">
               Lagen combineren
             </DialogTitle>
           </div>
           <Button
             variant="ghost"
             size="icon-sm"
-            onClick={() => onOpenChange(false)}
+            onClick={() => props.onOpenChange(false)}
             title="Sluiten"
             aria-label="Sluiten"
           >
@@ -146,99 +142,103 @@ export function CombineLayersDialog({
           </Button>
         </div>
 
-        <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
           Naam nieuwe laag
         </label>
         <input
           type="text"
-          value={effectiveName}
-          onChange={(e) => {
+          value={effectiveName()}
+          onInput={(e) => {
             setNameEdited(true);
-            setName(e.target.value);
+            setName(e.currentTarget.value);
           }}
           placeholder="Naam nieuwe laag"
-          className="mb-5 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-400"
+          class="mb-5 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-400"
         />
 
-        <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+        <div class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
           Geselecteerde lagen
         </div>
-        {layers.length === 0 ? (
-          <p className="mb-5 text-sm text-gray-500">
-            Voeg eerst kaartlagen met klassen toe aan de kaart.
-          </p>
-        ) : (
-          <div className="mb-5 flex flex-col gap-2">
-            {layers.map((layer) => {
-              const isOpen = expanded.has(layer.id);
-              const rules = layer.geostyler?.rules ?? [];
-              return (
-                <div key={layer.id} className="rounded-lg border border-gray-200">
-                  <button
-                    type="button"
-                    onClick={() => toggleExpanded(layer.id)}
-                    aria-expanded={isOpen}
-                    className="flex w-full cursor-pointer items-center justify-between gap-2 px-3 py-2 text-left"
-                  >
-                    <span className="min-w-0">
-                      <span className="block truncate text-sm text-gray-900">{layer.name}</span>
-                      {layer.subname ? (
-                        <span className="block truncate text-xs text-gray-500">
-                          {layer.subname}
-                        </span>
-                      ) : null}
-                    </span>
-                    <Icon
-                      name={isOpen ? "expand_more" : "chevron_right"}
-                      size={chromeIconSize()}
-                      className="flex-shrink-0 text-gray-400"
-                    />
-                  </button>
-                  {isOpen && (
-                    <div className="border-t border-gray-100 px-3 py-2">
-                      <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                        Klassen
+        <Show
+          when={props.layers.length > 0}
+          fallback={
+            <p class="mb-5 text-sm text-gray-500">
+              Voeg eerst kaartlagen met klassen toe aan de kaart.
+            </p>
+          }
+        >
+          <div class="mb-5 flex flex-col gap-2">
+            <For each={props.layers}>
+              {(layer) => {
+                const isOpen = () => expanded().has(layer.id);
+                const rules = () => layer.geostyler?.rules ?? [];
+                return (
+                  <div class="rounded-lg border border-gray-200">
+                    <button
+                      type="button"
+                      onClick={() => toggleExpanded(layer.id)}
+                      aria-expanded={isOpen()}
+                      class="flex w-full cursor-pointer items-center justify-between gap-2 px-3 py-2 text-left"
+                    >
+                      <span class="min-w-0">
+                        <span class="block truncate text-sm text-gray-900">{layer.name}</span>
+                        <Show when={layer.subname}>
+                          <span class="block truncate text-xs text-gray-500">
+                            {layer.subname}
+                          </span>
+                        </Show>
+                      </span>
+                      <Icon
+                        name={isOpen() ? "expand_more" : "chevron_right"}
+                        size={chromeIconSize()}
+                        class="flex-shrink-0 text-gray-400"
+                      />
+                    </button>
+                    <Show when={isOpen()}>
+                      <div class="border-t border-gray-100 px-3 py-2">
+                        <div class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                          Klassen
+                        </div>
+                        <div class="flex flex-wrap gap-x-3 gap-y-1">
+                          <For each={rules()}>
+                            {(rule) => {
+                              const checked = () =>
+                                selectedKeys().has(
+                                  refKey({ layerId: layer.id, ruleName: rule.name }),
+                                );
+                              return (
+                                <button
+                                  type="button"
+                                  role="checkbox"
+                                  aria-checked={checked()}
+                                  onClick={() => toggleClass(layer.id, rule.name)}
+                                  class="flex cursor-pointer items-center gap-1.5 rounded p-1 text-left"
+                                >
+                                  <Icon
+                                    name={checked() ? "check_box" : "check_box_outline_blank"}
+                                    size={chromeIconSize()}
+                                    color={checked() ? chromeIconColor() : undefined}
+                                    class={
+                                      checked() ? "flex-shrink-0" : "flex-shrink-0 text-gray-400"
+                                    }
+                                  />
+                                  <span class="text-xs text-gray-600">{rule.name}</span>
+                                </button>
+                              );
+                            }}
+                          </For>
+                        </div>
                       </div>
-                      <div className="flex flex-wrap gap-x-3 gap-y-1">
-                        {rules.map((rule, index) => {
-                          // Rule names are the legend's labels and can repeat
-                          // within a layer, so the index disambiguates the key.
-                          const ruleName = rule.name;
-                          const checked = selectedKeys.has(
-                            refKey({ layerId: layer.id, ruleName }),
-                          );
-                          return (
-                            <button
-                              key={`${ruleName}-${index}`}
-                              type="button"
-                              role="checkbox"
-                              aria-checked={checked}
-                              onClick={() => toggleClass(layer.id, ruleName)}
-                              className="flex cursor-pointer items-center gap-1.5 rounded p-1 text-left"
-                            >
-                              <Icon
-                                name={checked ? "check_box" : "check_box_outline_blank"}
-                                size={chromeIconSize()}
-                                color={checked ? chromeIconColor() : undefined}
-                                className={
-                                  checked ? "flex-shrink-0" : "flex-shrink-0 text-gray-400"
-                                }
-                              />
-                              <span className="text-xs text-gray-600">{ruleName}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                    </Show>
+                  </div>
+                );
+              }}
+            </For>
           </div>
-        )}
+        </Show>
 
-        <div className="flex justify-end gap-2">
-          <Button onClick={handleCreate} disabled={selected.length === 0}>
+        <div class="flex justify-end gap-2">
+          <Button onClick={handleCreate} disabled={selected().length === 0}>
             Laag maken
           </Button>
         </div>

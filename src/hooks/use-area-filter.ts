@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createSignal, onMount, onCleanup, type Accessor } from "solid-js";
 import { loadParquetBatches } from "@/layers";
 import {
   loadAreaFilterConfig,
@@ -19,7 +19,7 @@ export interface AreaFilterOption {
 }
 
 export interface AreaFilterState {
-  entries: AreaFilterEntry[];
+  entries: Accessor<AreaFilterEntry[]>;
   /**
    * Options for a dropdown, narrowed by coarser selections (cascade).
    * `against` overrides which selection map does the narrowing — needed when a
@@ -39,7 +39,7 @@ export interface AreaFilterState {
    * Selected codes per key field. Single-selection: each level holds at most
    * one code (kept as a Set so the store/predicate layer stays unchanged).
    */
-  selections: Map<string, Set<string>>;
+  selections: Accessor<Map<string, Set<string>>>;
   /** Select a single value for a level, or clear it with `null`. */
   setValue(key: string, code: string | null): void;
   clearLevel(key: string): void;
@@ -49,13 +49,11 @@ export interface AreaFilterState {
    * setValue. Flies only with `{ fly: true }` — the snapshot restore carries its
    * own camera, while a host filter message wants the usual fly-to.
    *
-   * Prefer this over looping setValue: setValue rebuilds from the `selections`
-   * render closure, so N calls in one synchronous pass each discard the
+   * Prefer this over looping setValue: setValue rebuilds from the current
+   * `selections`, so N calls in one synchronous pass each discard the
    * previous one's result (last write wins, for both the commit and the fly-to).
    */
   applySelections(next: Map<string, Set<string>>, opts?: { fly?: boolean }): void;
-  /** Mirrors the module store version; bumps on every selection change. */
-  version: number;
 }
 
 /** Known CBS code columns that can appear as parent references on options. */
@@ -212,7 +210,7 @@ async function flyToSelection(
 }
 
 /**
- * React state for the Filter section: loads filter.json + the option tables,
+ * State for the Filter section: loads filter.json + the option tables,
  * cascades dropdown options coarse-to-fine, prunes orphaned selections, and
  * keeps the module-level area-filter store (read by rendering/picking) in sync.
  * With `flyTo` enabled (map.json `filterFlyTo`), every selection change flies
@@ -224,33 +222,28 @@ export function useAreaFilter(options?: {
   onFlyToBbox?: (bbox: BBox) => void;
 }): AreaFilterState {
   const flyToEnabled = options?.flyTo ?? true;
-  // Held in a ref so a caller passing an inline callback doesn't change
-  // setValue's identity on every render.
-  //
-  // Not useEffectEvent: this is consumed from useCallback bodies (setValue /
-  // applySelections), and effect events may only be called from effects —
-  // doing so trips react-hooks/rules-of-hooks. The render-time write is the
-  // documented "latest value" idiom and is safe here because the value is only
-  // ever read later, from a user-triggered callback.
-  const onFlyToBboxRef = useRef(options?.onFlyToBbox);
-  // eslint-disable-next-line react-hooks/refs
-  onFlyToBboxRef.current = options?.onFlyToBbox;
-  const onFlyToBbox = (bbox: BBox) => onFlyToBboxRef.current?.(bbox);
-  const [entries, setEntries] = useState<AreaFilterEntry[]>([]);
-  const [optionsByKey, setOptionsByKey] = useState<Map<string, AreaFilterOption[]>>(
+  // Read at call time rather than captured, so a caller passing an inline
+  // callback is always the one invoked. React needed a ref plus a render-time
+  // write to achieve this without destabilising setValue's identity; nothing
+  // here depends on callback identity, so the indirection is gone.
+  function onFlyToBbox(bbox: BBox) {
+    options?.onFlyToBbox?.(bbox);
+  }
+
+  const [entries, setEntries] = createSignal<AreaFilterEntry[]>([]);
+  const [optionsByKey, setOptionsByKey] = createSignal<Map<string, AreaFilterOption[]>>(
     new Map(),
   );
-  const [selections, setSelections] = useState<Map<string, Set<string>>>(new Map());
-  const [version, setVersion] = useState(0);
+  const [selections, setSelections] = createSignal<Map<string, Set<string>>>(new Map());
 
-  useEffect(() => {
+  onMount(() => {
     let cancelled = false;
     (async () => {
       const config = await loadAreaFilterConfig();
       if (cancelled) return;
 
       const loaded: AreaFilterEntry[] = [];
-      const options = new Map<string, AreaFilterOption[]>();
+      const byKey = new Map<string, AreaFilterOption[]>();
       // The sources are the same URLs as the CBS layers in layers.json, so
       // loadParquetBatches' table cache means one download per session.
       await Promise.all(
@@ -260,7 +253,7 @@ export function useAreaFilter(options?: {
             const extracted = extractOptions(table, entry);
             if (extracted) {
               loaded.push(entry);
-              options.set(entry.key, extracted);
+              byKey.set(entry.key, extracted);
             }
           } catch (err) {
             console.warn(`filter.json: failed to load options for "${entry.name}"`, err);
@@ -271,123 +264,101 @@ export function useAreaFilter(options?: {
       // Preserve filter.json order (= cascade order) regardless of load order.
       loaded.sort((a, b) => config.indexOf(a) - config.indexOf(b));
       setEntries(loaded);
-      setOptionsByKey(options);
+      setOptionsByKey(byKey);
     })();
-    return () => {
+    onCleanup(() => {
       cancelled = true;
-    };
-  }, []);
+    });
+  });
 
-  const optionsFor = useCallback(
-    (
-      entry: AreaFilterEntry,
-      against: Map<string, Set<string>> = selections,
-    ): AreaFilterOption[] => {
-      const options = optionsByKey.get(entry.key) ?? [];
-      const index = entries.indexOf(entry);
-      // Narrow by the nearest coarser level with a non-empty selection.
-      for (let i = index - 1; i >= 0; i--) {
-        const ancestor = entries[i];
-        const selected = against.get(ancestor.key);
-        if (!selected || selected.size === 0) continue;
-        return options.filter((o) => optionMatchesAncestor(o, ancestor.key, selected));
-      }
-      return options;
-    },
-    [entries, optionsByKey, selections],
-  );
+  function optionsFor(
+    entry: AreaFilterEntry,
+    against: Map<string, Set<string>> = selections(),
+  ): AreaFilterOption[] {
+    const opts = optionsByKey().get(entry.key) ?? [];
+    const list = entries();
+    const index = list.indexOf(entry);
+    // Narrow by the nearest coarser level with a non-empty selection.
+    for (let i = index - 1; i >= 0; i--) {
+      const ancestor = list[i];
+      const selected = against.get(ancestor.key);
+      if (!selected || selected.size === 0) continue;
+      return opts.filter((o) => optionMatchesAncestor(o, ancestor.key, selected));
+    }
+    return opts;
+  }
 
-  const isEnabled = useCallback(
-    (entry: AreaFilterEntry): boolean =>
-      dependenciesSatisfied(entry, entries, selections),
-    [entries, selections],
-  );
+  function isEnabled(entry: AreaFilterEntry): boolean {
+    return dependenciesSatisfied(entry, entries(), selections());
+  }
 
-  /** Push the new selection into the module store and mirror its version. */
-  const commit = useCallback(
-    (next: Map<string, Set<string>>) => {
-      // Drop selections whose dependencies are no longer met (keeps the map in
-      // sync with the disabled dropdowns).
-      pruneDisabledSelections(next, entries);
-      setSelections(next);
-      setVersion(setAreaFilterSelection(next));
-    },
-    [entries],
-  );
+  /** Push the new selection into the module store, which is itself a signal. */
+  function commit(next: Map<string, Set<string>>) {
+    // Drop selections whose dependencies are no longer met (keeps the map in
+    // sync with the disabled dropdowns).
+    pruneDisabledSelections(next, entries());
+    setSelections(() => next);
+    setAreaFilterSelection(next);
+  }
 
-  const setValue = useCallback(
-    (key: string, code: string | null) => {
-      const next = new Map(selections);
-      // Single-selection: replace the level with the chosen code (or clear it).
-      next.set(key, code === null ? new Set() : new Set([code]));
+  function setValue(key: string, code: string | null) {
+    const list = entries();
+    const next = new Map(selections());
+    // Single-selection: replace the level with the chosen code (or clear it).
+    next.set(key, code === null ? new Set() : new Set([code]));
 
-      // Prune finer selections orphaned by the change: every selected code in
-      // a finer level must still pass the same ancestor test its options use.
-      const keyIndex = entries.findIndex((e) => e.key === key);
-      for (let i = keyIndex + 1; i < entries.length; i++) {
-        const finer = entries[i];
-        const finerSelected = next.get(finer.key);
-        if (!finerSelected || finerSelected.size === 0) continue;
+    // Prune finer selections orphaned by the change: every selected code in
+    // a finer level must still pass the same ancestor test its options use.
+    const keyIndex = list.findIndex((e) => e.key === key);
+    for (let i = keyIndex + 1; i < list.length; i++) {
+      const finer = list[i];
+      const finerSelected = next.get(finer.key);
+      if (!finerSelected || finerSelected.size === 0) continue;
 
-        let ancestor: AreaFilterEntry | null = null;
-        for (let j = i - 1; j >= 0; j--) {
-          const candidate = next.get(entries[j].key);
-          if (candidate && candidate.size > 0) {
-            ancestor = entries[j];
-            break;
-          }
+      let ancestor: AreaFilterEntry | null = null;
+      for (let j = i - 1; j >= 0; j--) {
+        const candidate = next.get(list[j].key);
+        if (candidate && candidate.size > 0) {
+          ancestor = list[j];
+          break;
         }
-        if (!ancestor) continue;
-
-        const ancestorCodes = next.get(ancestor.key)!;
-        const finerOptions = optionsByKey.get(finer.key) ?? [];
-        const kept = new Set(
-          [...finerSelected].filter((selectedCode) => {
-            const option = finerOptions.find((o) => o.code === selectedCode);
-            return option
-              ? optionMatchesAncestor(option, ancestor!.key, ancestorCodes)
-              : false;
-          }),
-        );
-        next.set(finer.key, kept);
       }
+      if (!ancestor) continue;
 
-      commit(next);
-      if (flyToEnabled) {
-        void flyToSelection(entries, next, onFlyToBbox);
-      }
-    },
-    [selections, entries, optionsByKey, commit, flyToEnabled],
-  );
+      const ancestorCodes = next.get(ancestor.key)!;
+      const finerOptions = optionsByKey().get(finer.key) ?? [];
+      const kept = new Set(
+        [...finerSelected].filter((selectedCode) => {
+          const option = finerOptions.find((o) => o.code === selectedCode);
+          return option ? optionMatchesAncestor(option, ancestor!.key, ancestorCodes) : false;
+        }),
+      );
+      next.set(finer.key, kept);
+    }
 
-  const clearLevel = useCallback(
-    (key: string) => {
-      const next = new Map(selections);
-      next.set(key, new Set());
-      // Finer selections that don't depend on this level stay valid within the
-      // (now wider) unfiltered options; `commit` prunes any that do depend on it.
-      commit(next);
-    },
-    [selections, commit],
-  );
+    commit(next);
+    if (flyToEnabled) {
+      void flyToSelection(list, next, onFlyToBbox);
+    }
+  }
 
-  const applySelections = useCallback(
-    (next: Map<string, Set<string>>, opts?: { fly?: boolean }) => {
-      // commit() prunes IN PLACE, so `copy` is the post-prune truth by the time
-      // flyToSelection reads it — same object, same ordering as setValue.
-      const copy = new Map(next);
-      commit(copy);
-      if (opts?.fly && flyToEnabled) {
-        void flyToSelection(entries, copy, onFlyToBbox);
-      }
-    },
-    [commit, entries, flyToEnabled],
-  );
+  function clearLevel(key: string) {
+    const next = new Map(selections());
+    next.set(key, new Set());
+    // Finer selections that don't depend on this level stay valid within the
+    // (now wider) unfiltered options; `commit` prunes any that do depend on it.
+    commit(next);
+  }
 
-  // Stable identity so React.memo consumers (Sidebar) don't re-render on
-  // unrelated App renders.
-  return useMemo(
-    () => ({ entries, optionsFor, isEnabled, selections, setValue, clearLevel, applySelections, version }),
-    [entries, optionsFor, isEnabled, selections, setValue, clearLevel, applySelections, version],
-  );
+  function applySelections(next: Map<string, Set<string>>, opts?: { fly?: boolean }) {
+    // commit() prunes IN PLACE, so `copy` is the post-prune truth by the time
+    // flyToSelection reads it — same object, same ordering as setValue.
+    const copy = new Map(next);
+    commit(copy);
+    if (opts?.fly && flyToEnabled) {
+      void flyToSelection(entries(), copy, onFlyToBbox);
+    }
+  }
+
+  return { entries, optionsFor, isEnabled, selections, setValue, clearLevel, applySelections };
 }

@@ -14,14 +14,21 @@ These are the conventions the codebase already follows. Match them.
 
 ### Functions
 
-- Declare functions with the `function` keyword. Arrow functions are for inline callbacks and the bodies of `useCallback`/`useMemo` only.
+- Declare functions with the `function` keyword. Arrow functions are for inline callbacks, derived accessors (`const open = () => ...`) and the bodies of `createMemo`/`createEffect` only.
 - Every **exported** function carries an explicit return type annotation. Module-local helpers may rely on inference.
 - When a hook returns more than a handful of members, declare a named result interface (`UseMapLayersResult`) rather than annotating an inline object type.
 
-### React
+### SolidJS
 
+- **Never destructure props.** Solid props are getters; destructuring reads each one once, outside any tracking scope, and the component then silently never updates again. Read `props.x` at the point of use, or use `splitProps`/`mergeProps`. `solid/reactivity` is an ESLint **error** and is the automated guard for this — treat a report as a bug, and when it is a genuine false positive (an imperative MapLibre listener, a deliberate one-time seed) suppress it with a `-- why` on the line.
 - Props get a named `interface XProps` declared above the component. Never an inline object type in the parameter list.
-- Components return `React.JSX.Element` (or `React.JSX.Element | null` when they can render nothing).
+- Components return `JSX.Element` from `solid-js` (or `JSX.Element | null` when they can render nothing).
+- Hooks take and return **accessors** (`Accessor<T>`), not snapshots — a caller must be able to pass state that does not exist yet (a map that has not mounted) without the hook re-running.
+- Conditionals are `<Show>`, lists are `<For>` (`<Index>` when item identity is positional). There is no `key` prop: to force a fresh mount, mount the component inside a `<Show>` whose condition changes, or use `<Show keyed>`.
+- Style objects are `JSX.CSSProperties`, which extends csstype's **hyphenated** properties: `{ "background-color": c }`, and lengths are strings (`` `${size}px` ``).
+- `class`, not `className`; `onInput`, not `onChange`; `e.currentTarget.value`, not `e.target.value`.
+- Binding a prop directly to a native element's event (`onClick={props.onClose}`) compiles to a static handler and will not see a later prop change — wrap it: `onClick={() => props.onClose?.()}`.
+- There is no memoization tax to pay: no `useCallback`, no `React.memo`, no dependency arrays. Don't reintroduce them by hand.
 
 ### Control flow
 

@@ -1,6 +1,7 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
-import type { MapRef } from "react-map-gl/maplibre";
+import type { MapAccessor } from "@/components/map/map-view-config";
 import type { FeatureInfoConfig, GeoStylerRule, LayerConfig } from "./types";
+import { styleReady } from "./geojson-overlay";
 
 /**
  * "composite" layers: one layers.json entry composed of inline child layer
@@ -24,15 +25,15 @@ export interface CompositeHost {
    * Load one child (dispatch on its format) and apply the parent's current
    * hidden/rule-visibility state to whatever it created.
    */
-  addChild(config: LayerConfig, mapRef: React.RefObject<MapRef | null>): void;
+  addChild(config: LayerConfig, getMap: MapAccessor): void;
   /** Remove a child's native sources/layers. */
-  removeChild(config: LayerConfig, mapRef: React.RefObject<MapRef | null>): void;
+  removeChild(config: LayerConfig, getMap: MapAccessor): void;
 }
 
 interface CompositeSession {
   parent: LayerConfig;
   map: MapLibreMap;
-  mapRef: React.RefObject<MapRef | null>;
+  getMap: MapAccessor;
   host: CompositeHost;
   /** Ids of children currently dispatched (marked before the async load resolves). */
   loaded: Set<string>;
@@ -143,7 +144,7 @@ function sync(session: CompositeSession): void {
       // so the next zoom-in retries.
       session.loaded.add(child.id);
       try {
-        session.host.addChild(child, session.mapRef);
+        session.host.addChild(child, session.getMap);
       } catch (err) {
         session.loaded.delete(child.id);
         console.error(`Failed to load composite child "${child.id}":`, err);
@@ -151,13 +152,13 @@ function sync(session: CompositeSession): void {
     } else if (inRange && loaded && isNativeFormat(child)) {
       // Idempotent native re-add (skips sources/layers that already exist).
       try {
-        session.host.addChild(child, session.mapRef);
+        session.host.addChild(child, session.getMap);
       } catch (err) {
         console.error(`Failed to re-sync composite child "${child.id}":`, err);
       }
     } else if (!inRange && loaded) {
       session.loaded.delete(child.id);
-      session.host.removeChild(child, session.mapRef);
+      session.host.removeChild(child, session.getMap);
     }
   }
 }
@@ -170,18 +171,20 @@ function sync(session: CompositeSession): void {
  */
 export function addCompositeLayer(
   parent: LayerConfig,
-  mapRef: React.RefObject<MapRef | null>,
+  getMap: MapAccessor,
   host: CompositeHost,
 ): void {
-  const map = mapRef.current?.getMap();
-  if (!map) return; // re-invoked by syncImperativeLayers once the map exists
+  const map = getMap();
+  // Also not while the style is still loading: the children this session adds
+  // go through the same addSource path. syncImperativeLayers re-invokes it.
+  if (!styleReady(map)) return;
 
   let session = sessionFor(map, parent.id);
   if (!session) {
     const newSession: CompositeSession = {
       parent,
       map,
-      mapRef,
+      getMap,
       host,
       loaded: new Set(),
       onMoveEnd: () => sync(newSession),
@@ -199,8 +202,8 @@ export function addCompositeLayer(
 }
 
 /** Tear down: stop watching zoom and unload every loaded child. */
-export function removeCompositeLayer(parent: LayerConfig, mapRef: React.RefObject<MapRef | null>): void {
-  const map = mapRef.current?.getMap();
+export function removeCompositeLayer(parent: LayerConfig, getMap: MapAccessor): void {
+  const map = getMap();
   if (!map) return;
   const session = sessionFor(map, parent.id);
   if (!session) return;
@@ -209,7 +212,7 @@ export function removeCompositeLayer(parent: LayerConfig, mapRef: React.RefObjec
   sessions.get(map)?.delete(parent.id);
   for (const child of childrenOf(parent)) {
     if (session.loaded.has(child.id)) {
-      session.host.removeChild(child, mapRef);
+      session.host.removeChild(child, getMap);
     }
   }
   session.loaded.clear();

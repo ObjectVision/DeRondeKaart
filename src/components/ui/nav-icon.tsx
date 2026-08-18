@@ -1,3 +1,4 @@
+import { Show, type JSX } from "solid-js";
 import { cn } from "@/lib/utils";
 
 /**
@@ -15,6 +16,13 @@ function isSvgIcon(name: string): boolean {
 function svgIconUrl(name: string): string {
   if (name.startsWith("/") || name.startsWith(".") || name.includes("://")) return name;
   return `/icons/${name}`;
+}
+
+interface IconProps {
+  name: string;
+  size?: number;
+  color?: string;
+  class?: string;
 }
 
 /**
@@ -36,47 +44,51 @@ function svgIconUrl(name: string): string {
  * letterbox a non-square asset — a 200x133 icon in a 24x24 box draws 24w x 16h,
  * two thirds the height of the glyphs beside it, which reads as "the icon is
  * too small" rather than "the box is the wrong shape".
+ *
+ * The name is read through `props` rather than destructured: destructuring a
+ * Solid prop reads it once, so an icon whose name changes would never repaint.
  */
-export function Icon({
-  name,
-  size = 24,
-  color,
-  className,
-}: {
-  name: string;
-  size?: number;
-  color?: string;
-  className?: string;
-}) {
-  if (isSvgIcon(name)) {
-    return (
+export function Icon(props: IconProps): JSX.Element {
+  const size = () => props.size ?? 24;
+
+  return (
+    <Show
+      when={isSvgIcon(props.name)}
+      fallback={
+        <span
+          aria-hidden
+          class={cn("material-symbols-outlined leading-none select-none", props.class)}
+          style={{ "font-size": `${size()}px`, color: props.color }}
+        >
+          {props.name}
+        </span>
+      }
+    >
       <img
         aria-hidden
         alt=""
-        src={svgIconUrl(name)}
+        src={svgIconUrl(props.name)}
         // Attributes are the pre-load intrinsic-size hint (square is the right
         // guess: most assets here are). The style below is what actually sizes
         // it, so a wide asset only reflows the row once, before first paint.
-        width={size}
-        height={size}
-        className={cn("inline-block select-none", className)}
-        // `maxWidth: none` overrides Tailwind preflight's `img { max-width: 100% }`,
+        width={size()}
+        height={size()}
+        class={cn("inline-block select-none", props.class)}
+        // `max-width: none` overrides Tailwind preflight's `img { max-width: 100% }`,
         // which would otherwise re-clamp a wide icon inside a narrow flex row —
         // reintroducing the squashing this avoids.
-        style={{ height: size, width: "auto", maxWidth: "none" }}
+        style={{ height: `${size()}px`, width: "auto", "max-width": "none" }}
         draggable={false}
       />
-    );
-  }
-  return (
-    <span
-      aria-hidden
-      className={cn("material-symbols-outlined leading-none select-none", className)}
-      style={{ fontSize: size, color }}
-    >
-      {name}
-    </span>
+    </Show>
   );
+}
+
+interface NavIconProps {
+  name?: string;
+  size?: number;
+  color?: string;
+  class?: string;
 }
 
 /**
@@ -85,21 +97,16 @@ export function Icon({
  *
  * Renders **nothing** when no icon is configured, rather than substituting a
  * placeholder glyph: an absent `icon` in navigation.json means "no icon here",
- * and a stand-in dot reads as a real (but meaningless) icon. Returning null
+ * and a stand-in dot reads as a real (but meaningless) icon. Rendering nothing
  * also lets the surrounding flex `gap` collapse, so the label sits flush
  * instead of being indented by an invisible box.
  */
-export function NavIcon({
-  name,
-  size,
-  color,
-  className,
-}: {
-  name?: string;
-  size?: number;
-  color?: string;
-  className?: string;
-}) {
-  if (!name) return null;
-  return <Icon name={name} size={size} color={color} className={className} />;
+export function NavIcon(props: NavIconProps): JSX.Element {
+  return (
+    <Show when={props.name}>
+      {(name) => (
+        <Icon name={name()} size={props.size} color={props.color} class={props.class} />
+      )}
+    </Show>
+  );
 }

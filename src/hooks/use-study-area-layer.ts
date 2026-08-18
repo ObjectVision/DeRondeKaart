@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef } from "react";
-import type { MapViewHandle } from "@/components/map/MapView";
+import { createEffect, onCleanup, type Accessor } from "solid-js";
+import type { MapViewHandle } from "@/components/map/map-view-config";
 import {
   loadLayerConfigs,
   getLayerConfigById,
@@ -31,40 +31,41 @@ import type { LayerConfig } from "@/layers";
  * another, but native layers persist on the map until removed.
  */
 export function useStudyAreaLayer(
-  studyAreaId: string | undefined,
-  mapViewRef: React.RefObject<MapViewHandle | null>,
+  studyAreaId: Accessor<string | undefined>,
+  mapView: Accessor<MapViewHandle | null>,
 ): { resync: () => void } {
   // The resolved config, kept for `resync` (which must not re-fetch) and for
-  // removal (the id alone can't name the layers to remove).
-  const configRef = useRef<LayerConfig | null>(null);
+  // removal (the id alone can't name the layers to remove). Plain variable:
+  // nothing renders from it.
+  let config: LayerConfig | null = null;
 
-  const apply = useCallback(() => {
-    const config = configRef.current;
-    const mapRef = mapViewRef.current?.mapRef;
-    const map = mapRef?.current?.getMap();
-    if (!config || !mapRef || !map) return;
+  function apply() {
+    const handle = mapView();
+    const map = handle?.map();
+    if (!config || !handle || !map) return;
     // `addSource` throws "Style is not done loading" if the style JSON hasn't
     // landed yet — and the config fetch usually wins that race on first load.
     // Skipping here is safe: `resync` runs from onLabelsReady once the style
     // (and the anchors) are ready, which is what actually puts the layers up.
     if (!map.style || !(map.style as unknown as { _loaded?: boolean })._loaded) return;
-    addMvtLayer(config, mapRef);
-  }, [mapViewRef]);
+    addMvtLayer(config, handle.map);
+  }
 
-  const remove = useCallback(() => {
-    const config = configRef.current;
-    const map = mapViewRef.current?.mapRef.current?.getMap();
-    configRef.current = null;
-    if (!config || !map) return;
-    for (const def of buildNativeLayerDefs(config)) {
+  function remove() {
+    const current = config;
+    const map = mapView()?.map();
+    config = null;
+    if (!current || !map) return;
+    for (const def of buildNativeLayerDefs(current)) {
       if (map.getLayer(def.id)) map.removeLayer(def.id);
     }
-    const sourceId = tileSourceId(config);
+    const sourceId = tileSourceId(current);
     if (map.getSource(sourceId)) map.removeSource(sourceId);
-  }, [mapViewRef]);
+  }
 
-  useEffect(() => {
-    if (!studyAreaId) {
+  createEffect(() => {
+    const id = studyAreaId();
+    if (!id) {
       remove();
       return;
     }
@@ -74,33 +75,33 @@ export function useStudyAreaLayer(
     (async () => {
       try {
         const configs = await loadLayerConfigs();
-        const config = getLayerConfigById(configs, studyAreaId);
+        const resolved = getLayerConfigById(configs, id);
         if (cancelled) return;
-        if (!config) {
-          console.warn(`map.json: studyarea "${studyAreaId}" not found in layers.json`);
+        if (!resolved) {
+          console.warn(`map.json: studyarea "${id}" not found in layers.json`);
           return;
         }
         // Native vector formats only. A COG/composite study area would need a
         // different add path, and the parquet/geoarrow formats this hook used
         // to accept no longer render at all.
-        if (!isNativeVectorFormat(config.format)) {
+        if (!isNativeVectorFormat(resolved.format)) {
           console.warn(
-            `map.json: studyarea "${studyAreaId}" has unsupported format "${config.format}" ` +
+            `map.json: studyarea "${id}" has unsupported format "${resolved.format}" ` +
               `(expected mvt/pmtiles/flatgeobuf)`,
           );
           return;
         }
-        configRef.current = config;
+        config = resolved;
         apply();
       } catch (err) {
-        if (!cancelled) console.error(`Failed to load studyarea "${studyAreaId}":`, err);
+        if (!cancelled) console.error(`Failed to load studyarea "${id}":`, err);
       }
     })();
 
-    return () => {
+    onCleanup(() => {
       cancelled = true;
-    };
-  }, [studyAreaId, apply, remove]);
+    });
+  });
 
   return { resync: apply };
 }

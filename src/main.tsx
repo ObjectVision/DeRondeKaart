@@ -1,5 +1,4 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { render } from 'solid-js/web'
 import './index.css'
 import App from './App.tsx'
 import { loadMapConfig, toInitialViewState } from '@/config/map-config'
@@ -14,8 +13,8 @@ async function bootstrap() {
   // That view mounts no MapView, so the map's onLoad — which dismisses the
   // splash everywhere else — never fires here.
   if (embedCircular) dismissSplash()
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
+  render(
+    () => (
       <App
         embedCircular={embedCircular}
         initialViewState={toInitialViewState(mapConfig)}
@@ -36,7 +35,8 @@ async function bootstrap() {
         clickMarker={mapConfig.clickMarker}
         basemapDefault={mapConfig.basemap}
       />
-    </StrictMode>,
+    ),
+    document.getElementById('root')!,
   )
 }
 
