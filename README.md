@@ -1,186 +1,95 @@
-# React + TypeScript + Vite
+# De Ronde kaart
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An open-source web map application for geospatial data, focused on transparent
+visualisation, clear styling and thorough metainfo while staying fast.
 
-Currently, two official plugins are available:
+It is a config-driven MapLibre viewer: a single-view client-side SPA with no
+router and no server rendering. What a deployment shows — layers, filters,
+charts, navigation tree, feature flags — comes from five JSON files fetched at
+runtime, not from the code. One codebase serves every project.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+**Stack:** SolidJS 1.9 · MapLibre GL JS 6 · Vite 8 · TypeScript 5.9 · Tailwind v4.
+Data arrives as PMTiles, MVT, Cloud-Optimized GeoTIFF, FlatGeobuf or GeoJSON,
+with Parquet attribute sidecars decoded to Apache Arrow in a WebAssembly worker.
 
-## Prerequisites
-
-- Node.js 20+ and npm
-
-Install dependencies:
-
-```bash
-npm install 
-```
-
-## Running locally
-
-Start the Vite dev server with HMR:
+## Getting started
 
 ```bash
+npm ci
 npm run dev
 ```
 
-The app is served at http://localhost:5173 by default.
+| Script | Does |
+|---|---|
+| `npm run dev` | Vite dev server |
+| `npm run build` | `tsc -b` then `vite build` → `dist/` |
+| `npm run lint` | ESLint. `solid/reactivity` is an **error** — see below |
+| `npm test` | Vitest (filter stores, layer engine, overlay reactivity) |
+| `npm run preview` | Serve a production build locally |
 
-## Production build
+Requires Node `^20.19.0 || >=22.12.0` (the floor Vite and Rolldown set).
 
-Type-check and bundle the app into `dist/`:
+Some behaviour differs between dev and a production build — the MapLibre worker
+URL in particular. Check `npm run build && npm run preview` before trusting a
+change that touches the map.
+
+## Selecting a project configuration
+
+A build bakes in one project's config overlay, chosen at build time:
 
 ```bash
-npm run build
+VITE_CONFIG_PROJECT=woonzorglimburg npm run build
 ```
 
-Preview the production build locally:
+`configs/<project>/` is layered over the `public/` defaults; files are replaced
+whole, and anything a project omits falls back to the default. Building with no
+`VITE_CONFIG_PROJECT` produces a valid but content-free app. See
+[configs/README.md](configs/README.md).
 
-```bash
-npm run preview
-```
+## Working on the code
 
-## URL parameters
+[CLAUDE.md](CLAUDE.md) holds the house conventions. The one that bites hardest:
 
-The map is driven by URL hash parameters (everything after `#`). Hash params are processed on load and whenever the hash changes — embeds can mutate the iframe's `src` to push new commands without reloading. The hash is cleared after processing.
+> **Never destructure props.** Solid props are getters — destructuring reads each
+> one once, outside any tracking scope, and the component then silently never
+> updates again.
 
-The same commands can also be sent via `postMessage` to the iframe (see `test-embed.html`); the parameter names match the URL form.
+The same hazard has a runtime-only cousin that no linter catches: a Solid effect
+subscribes to *what it actually read on its last run*, so an early `return` above
+an accessor read silently unsubscribes the effect from it. Read your reactive
+inputs before any guard that can bail out.
 
-### Layer commands
+## Documentation
 
-Layer commands come as three index-aligned, repeating parameters:
+| | |
+|---|---|
+| [docs/system-design.md](docs/system-design.md) | Architecture, module structure, layers, filtering, charts, config system |
+| [docs/system-design-styling.md](docs/system-design-styling.md) | GeoStyler → MapLibre paint translation |
+| [docs/system-design-collaboration.md](docs/system-design-collaboration.md) | Shared annotations (Yjs / Hocuspocus) |
+| [docs/system-design-power-bi.md](docs/system-design-power-bi.md) | Power BI visual and the postMessage bridge |
+| [docs/system-design-version-constraints.md](docs/system-design-version-constraints.md) | Why certain versions are pinned |
+| [docs/preprocessing-pipeline.md](docs/preprocessing-pipeline.md) | Turning source data into the served formats |
+| [server/README.md](server/README.md) | VM provisioning and deployment |
 
-| Param | Required for | Values |
-|---|---|---|
-| `cmd` | all | `add`, `remove`, `hide`, `refresh` |
-| `map` | add/remove/hide | `a` or `b` (defaults to `a` if omitted) |
-| `layer` | add/remove/hide | a layer `id` from `public/layers.json` |
+## Repository layout
 
-The Nth `cmd` pairs with the Nth `map` and Nth `layer`. Commands are applied in order.
+| Path | Contents |
+|---|---|
+| `src/` | The application |
+| `public/` · `configs/` | Default config files, and per-project overlays |
+| `scripts/` | Build-time tooling (icon-font subsetting, asset precompression) |
+| `server/` | Bash provisioning for nginx, deploy webhooks and the side services |
+| `collab-server/` · `drop-server/` | Standalone Node services, each with its own tests |
+| `powerbi-visual/` | Power BI custom visual embedding the app |
+| `data/` | Python preprocessing scripts |
+| `deploy/` | nginx config for the container image |
 
-**Examples**
+## Deployment
 
-Add the Wijken layer to map A on load:
+`vite build` emits a static `dist/` — hashed assets under `assets/`, plus `.br`
+and `.gz` siblings for nginx `brotli_static`/`gzip_static`. It is served as
+plain static files behind nginx.
 
-```
-http://localhost:5173/#cmd=add&map=a&layer=gemeente
-```
-
-Add a layer to each side — comparison mode activates automatically:
-
-```
-http://localhost:5173/#cmd=add&map=a&layer=gemeente&cmd=add&map=b&layer=wijken-limburg-parquet
-```
-
-Remove a layer:
-
-```
-http://localhost:5173/#cmd=remove&map=a&layer=gemeente
-```
-
-Hide a layer (keeps it loaded but invisible — toggle from the legend to re-show):
-
-```
-http://localhost:5173/#cmd=hide&map=a&layer=gemeente
-```
-
-Force a full page reload (no `map`/`layer` needed):
-
-```
-http://localhost:5173/#cmd=refresh
-```
-
-### View commands
-
-`zoom` and `center` set the camera. They can be combined with each other and with layer commands.
-
-| Param | Format | Range |
-|---|---|---|
-| `zoom` | number | `0`–`22` |
-| `center` | `lng,lat` | lng `-180`–`180`, lat `-85.05`–`85.05` |
-
-**Examples**
-
-Zoom to 10:
-
-```
-http://localhost:5173/#zoom=10
-```
-
-Center on Maastricht:
-
-```
-http://localhost:5173/#center=5.69,50.85
-```
-
-Add a layer and frame Limburg in one URL:
-
-```
-http://localhost:5173/#cmd=add&map=a&layer=gemeente&zoom=9&center=5.7,51.0
-```
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Provisioning and the GitHub-webhook deploy live in
+[server/setup_map_application.md](server/setup_map_application.md). A
+`Dockerfile` and `docker-compose.yml` cover the container route.
