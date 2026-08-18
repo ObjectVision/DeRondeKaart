@@ -1787,7 +1787,8 @@
       "featureinfo": {
         "template": "<div><b>COMBI1824: [[ COMBI1824 ]]</b></div>"
       },
-      "sourceLayer": "veerkracht_limburg_2026"
+      "sourceLayer": "veerkracht_limburg_2026",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/veerkracht_limburg.cog.tif"
     },
     {
       "id": "focus_limburg",
@@ -1976,7 +1977,8 @@
       "featureinfo": {
         "template": "<div><b>FOCUS24: [[ FOCUS24 ]]</b></div>"
       },
-      "sourceLayer": "veerkracht_limburg_2026"
+      "sourceLayer": "veerkracht_limburg_2026",
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/focus_limburg.cog.tif"
     },
     {
       "id": "Sociaal_dominante_klasse",
