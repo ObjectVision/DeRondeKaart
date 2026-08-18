@@ -28,9 +28,9 @@ interface TimeseriesControlProps {
 }
 
 /**
- * Play/pause + scrub control for a timeseries layer, shown under its legend
- * classes. Dragging the slider pauses playback: scrubbing and playing at the
- * same time would fight over the rendered step.
+ * Play/pause + scrub control for a timeseries layer, shown under its layer name
+ * and above its legend classes. Dragging the slider pauses playback: scrubbing
+ * and playing at the same time would fight over the rendered step.
  */
 function TimeseriesControl(props: TimeseriesControlProps): JSX.Element {
   return (
@@ -428,6 +428,20 @@ function LayerList(props: LayerListProps): JSX.Element {
                     </Button>
                   </div>
 
+                  {/* Timeseries playback, directly under the layer name: the step
+                      it scrubs applies to the whole layer, not to the individual
+                      classes, so it reads as part of the layer's own header rather
+                      than as a trailer to the class list. */}
+                  <Show when={config.timeseries && isVisible()}>
+                    <TimeseriesControl
+                      config={config}
+                      step={props.layerSteps.get(config.id) ?? config.timeseries!.start}
+                      playing={props.playingIds.has(config.id)}
+                      onTogglePlay={props.onTogglePlay}
+                      onSetStep={props.onSetStep}
+                    />
+                  </Show>
+
                   {/* Per-rule class toggles — only when there's more than one rule */}
                   <Show when={showRuleList && isVisible()}>
                     {/* No gap between class rows: they belong to the layer above and
@@ -479,17 +493,6 @@ function LayerList(props: LayerListProps): JSX.Element {
                         }}
                       </For>
                     </ul>
-                  </Show>
-
-                  {/* Timeseries playback, under the classes it animates */}
-                  <Show when={config.timeseries && isVisible()}>
-                    <TimeseriesControl
-                      config={config}
-                      step={props.layerSteps.get(config.id) ?? config.timeseries!.start}
-                      playing={props.playingIds.has(config.id)}
-                      onTogglePlay={props.onTogglePlay}
-                      onSetStep={props.onSetStep}
-                    />
                   </Show>
                 </li>
               );
