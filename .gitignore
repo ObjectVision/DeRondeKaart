@@ -33,3 +33,4 @@ data/**
 *.key
 .env
 .env.*
+/.vs
