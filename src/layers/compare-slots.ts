@@ -56,52 +56,47 @@ export function isCompareSelectable(config: LayerConfig): boolean {
   return Boolean(config.compareSelectable && config.highlightable);
 }
 
-/** The lowest slot number nobody holds, or -1 when all four are taken. */
-function freeSlot(current: CompareSelection[]): number {
-  for (let slot = 0; slot < MAX_COMPARE_SLOTS; slot++) {
-    if (!current.some((selection) => selection.slot === slot)) return slot;
-  }
-  return NO_COMPARE_SLOT;
-}
-
-export interface ToggleResult {
-  /** What the store now holds. */
-  selections: CompareSelection[];
-  /** True when the click was refused because every slot was taken. */
-  full: boolean;
+/**
+ * Number the selections by their place in the list: oldest holds slot 0.
+ *
+ * The slot is a position rather than a claim, which is what makes the rollover
+ * below work — dropping the oldest shifts everyone one colour down instead of
+ * leaving a hole for the newcomer to fill.
+ */
+function withSlots(selections: Omit<CompareSelection, "slot">[]): CompareSelection[] {
+  return selections.map((selection, index) => ({ ...selection, slot: index }));
 }
 
 /**
  * Add a feature to the comparison, or drop it when it is already in.
  *
- * A fifth selection is refused rather than evicting the oldest: the user picked
- * those four, and silently replacing one of them loses work they cannot see was
- * lost. The caller reports the refusal.
+ * Selecting a fifth area rolls the oldest out: it leaves the comparison, the
+ * remaining three each move one colour down, and the new area takes the last
+ * colour. So the four on screen are always the four most recently clicked, and
+ * the colours always run in selection order.
+ *
+ * Returns what the store now holds.
  */
 export function toggleCompareSelection(
   entry: Omit<CompareSelection, "slot">,
-): ToggleResult {
+): CompareSelection[] {
   const current = compareSelections();
   const existing = current.find(
     (selection) => selection.layerId === entry.layerId && selection.featureId === entry.featureId,
   );
-  if (existing) {
-    const next = current.filter((selection) => selection !== existing);
-    setCompareSelections(next);
-    return { selections: next, full: false };
-  }
 
-  const slot = freeSlot(current);
-  if (slot === NO_COMPARE_SLOT) return { selections: current, full: true };
+  const kept = existing
+    ? current.filter((selection) => selection !== existing)
+    : [...current, entry].slice(-MAX_COMPARE_SLOTS);
 
-  const next = [...current, { ...entry, slot }];
+  const next = withSlots(kept);
   setCompareSelections(next);
-  return { selections: next, full: false };
+  return next;
 }
 
-/** Drop one selection by slot. */
+/** Drop one selection by slot; the ones after it move a colour down. */
 export function removeCompareSelection(slot: number): CompareSelection[] {
-  const next = compareSelections().filter((selection) => selection.slot !== slot);
+  const next = withSlots(compareSelections().filter((selection) => selection.slot !== slot));
   setCompareSelections(next);
   return next;
 }

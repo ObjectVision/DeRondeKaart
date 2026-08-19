@@ -56,14 +56,21 @@ Bands within a layer must be mutually exclusive; overlapping ones are rejected
 (they would emit both geometries into the same tiles). Gaps are allowed but
 warned about — no tiles are produced for a layer in an uncovered zoom range.
 
+``--allow-overlapping-bands`` lifts that rule for the case where sharing tiles
+is the point: an administrative selection layer that carries gemeente, wijk and
+buurt at EVERY zoom, so the style can show one level per zoom while a feature
+selected at one level stays drawable at another. Tell the levels apart by an
+attribute (a ``statcode`` prefix, say) in the style's filter, and expect the
+archive to grow roughly with the number of levels.
+
 Note that the archive's ``vector_layers`` metadata reports the **union** of a
 target layer's bands (a 6-11 + 12-14 split is advertised as ``6-14``), not the
 per-band split. The banding is real — it governs which source contributes tiles
 at which zoom — it is simply not visible in that metadata field.
 
-Attributes are copied as-is apart from lowercasing field names (and, with
-``--unquote``, stripping quote characters that some exports bake into string
-*values* — see below). Unlike the
+Attributes are copied as-is apart from lowercasing field names (with
+``--rename OLD=NEW`` to give one an explicit output name, and ``--unquote`` to
+strip quote characters that some exports bake into string *values* — see below). Unlike the
 sibling converters there is NO numeric downcasting and NO ring-winding
 normalization, deliberately: MVT stores attributes as varints (so a narrower
 integer dtype costs exactly the same bytes), and GDAL re-clips and
@@ -82,6 +89,19 @@ them verbatim). ``--unquote`` strips ONE matching leading/trailing ``'`` from
 every string value during staging, so ``'s1a'`` becomes ``s1a`` and the
 empty-marker ``''`` becomes an empty string. It is opt-in: a value that
 legitimately starts and ends with an apostrophe would otherwise be mangled.
+
+Renaming fields (--rename)
+--------------------------
+``--rename OLD=NEW`` renames a field on the way in, matched case-insensitively
+against the source spelling. It exists for bands that feed ONE target layer from
+different files: the CBS gemeente/wijk/buurt exports each carry their own code
+column (``GM_CODE``/``WK_CODE``/``BU_CODE``), and a single layer needs a single
+name for it:
+
+    --rename GM_CODE=statcode --rename WK_CODE=statcode --rename BU_CODE=statcode
+
+There is no collision check: renaming two fields of the SAME file onto one name
+gives duplicate output columns and GDAL keeps the last one.
 
 Usage:
     # Single file -> single layer named after the file stem
@@ -136,6 +156,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -293,7 +315,11 @@ def group_sources(sources: list[LayerSource]) -> dict[str, list[LayerSource]]:
     return grouped
 
 
-def validate_sources(grouped: dict[str, list[LayerSource]], log=print) -> list[str]:
+def validate_sources(
+    grouped: dict[str, list[LayerSource]],
+    log=print,
+    allow_overlap: bool = False,
+) -> list[str]:
     """Check inputs exist and zoom bands don't overlap. Returns error strings."""
     errors: list[str] = []
     for name, sources in grouped.items():
@@ -313,10 +339,16 @@ def validate_sources(grouped: dict[str, list[LayerSource]], log=print) -> list[s
             key=lambda t: t[0],
         )
         for (lo_a, hi_a, a), (lo_b, hi_b, b) in zip(banded, banded[1:]):
-            if lo_b <= hi_a:
+            if lo_b <= hi_a and not allow_overlap:
                 errors.append(
                     f"layer {name!r}: zoom bands overlap between "
                     f"{a.path.name} (z{lo_a}-{hi_a}) and {b.path.name} (z{lo_b}-{hi_b})"
+                    " (--allow-overlapping-bands if that is deliberate)"
+                )
+            elif lo_b <= hi_a:
+                log(
+                    f"  Overlapping bands in layer {name!r}: {a.path.name} and "
+                    f"{b.path.name} both cover z{lo_b}-{min(hi_a, hi_b)}"
                 )
             elif lo_b > hi_a + 1:
                 log(
@@ -369,20 +401,35 @@ def _key(src: LayerSource) -> str:
     return f"{src.name}\x00{src.path}\x00{src.minzoom}\x00{src.maxzoom}"
 
 
-def _lowercased_layer(dataset, layer):
-    """Return ``(layer, result_set)`` with all field names lowercased.
+def _renamed_layer(dataset, layer, renames: dict[str, str] | None = None):
+    """Return ``(layer, result_set)`` with field names lowercased and remapped.
 
     Field definitions are sealed once a layer is copied (GDAL >= 3.9 raises
     ``SetName() not allowed on a sealed object``), so the rename has to happen
     during selection. ``result_set`` is None when nothing needed renaming — the
     caller only releases it when it isn't.
+
+    ``renames`` maps a source field to its output name and is matched on both
+    the original and the lowercased spelling, so ``--rename GM_CODE=statcode``
+    works whatever case the file uses. It is applied INSTEAD of lowercasing for
+    the fields it names; everything else still lowercases as before.
+
+    No collision check: renaming two fields onto one name, or onto a name the
+    layer already has, produces duplicate output columns and GDAL keeps the
+    last. Bands feeding one target layer are the intended use — each file
+    carries its own code field — so a collision means the map is wrong.
     """
     defn = layer.GetLayerDefn()
     names = [defn.GetFieldDefn(i).GetName() for i in range(defn.GetFieldCount())]
-    if all(n == n.lower() for n in names):
+    mapping = renames or {}
+
+    def target(name: str) -> str:
+        return mapping.get(name) or mapping.get(name.lower()) or name.lower()
+
+    if all(n == target(n) for n in names):
         return layer, None
 
-    selected = ", ".join(f'"{n}" AS "{n.lower()}"' for n in names)
+    selected = ", ".join(f'"{n}" AS "{target(n)}"' for n in names)
     result = dataset.ExecuteSQL(f'SELECT {selected} FROM "{layer.GetName()}"')
     if result is None:
         # Fall back to the original names rather than failing the conversion.
@@ -438,6 +485,7 @@ def stage_sources(
     ogr,
     log=print,
     unquote: bool = False,
+    renames: dict[str, str] | None = None,
 ) -> tuple[object, list[object], int]:
     """Copy every input into one in-memory OGR dataset, one layer per source.
 
@@ -473,7 +521,7 @@ def stage_sources(
             # Lowercase field names on the way in (house convention across the
             # converters). Field definitions are sealed once copied, so do the
             # renaming with a SELECT ... AS aliasing pass and stage its result.
-            source_layer, result_set = _lowercased_layer(in_ds, in_layer)
+            source_layer, result_set = _renamed_layer(in_ds, in_layer, renames)
             out_layer = mem_ds.CopyLayer(source_layer, layer_name)
             if result_set is not None:
                 in_ds.ReleaseResultSet(result_set)
@@ -495,6 +543,84 @@ def stage_sources(
     return mem_ds, keep_alive, total
 
 
+def bridge_staging(mem_ds, gdal, ogr, log=print):
+    """Make the staged dataset acceptable to ``VectorTranslate`` on old bindings.
+
+    GDAL 3.8 unified the OGR and GDAL Python classes; before that,
+    ``ogr.Driver.CreateDataSource`` returns an ``ogr.DataSource``, which
+    ``VectorTranslate`` rejects with ``argument 2 of type 'GDALDatasetShadow *'``.
+    Copying the staged layers into an in-memory GPKG gives a path string, which
+    every version accepts.
+
+    Returns ``(source_argument, cleanup)``. On a current GDAL this is the staged
+    dataset itself and a no-op — nothing is copied.
+    """
+    if isinstance(mem_ds, gdal.Dataset):
+        return mem_ds, lambda: None
+
+    log("  Old GDAL bindings; bridging staged layers through /vsimem")
+    vsi_path = "/vsimem/staging.gpkg"
+    gpkg = ogr.GetDriverByName("GPKG").CreateDataSource(vsi_path)
+    if gpkg is None:
+        raise RuntimeError("could not create the /vsimem staging GPKG")
+    for i in range(mem_ds.GetLayerCount()):
+        layer = mem_ds.GetLayer(i)
+        if gpkg.CopyLayer(layer, layer.GetName()) is None:
+            raise RuntimeError(f"could not stage {layer.GetName()!r} into the bridge")
+    gpkg = None  # flush
+
+    def cleanup():
+        gdal.Unlink(vsi_path)
+
+    return vsi_path, cleanup
+
+
+def repack_mbtiles(mbtiles_path: Path, output_path: Path, log=print) -> None:
+    """Repack an MBTiles pyramid into PMTiles, for GDAL builds without the driver.
+
+    Uses the pure-Python ``pmtiles`` package. It is imported here rather than at
+    module scope because it is only needed on the fallback path — and often not
+    importable in the same interpreter as GDAL: the GDAL Python that ships with
+    QGIS has no working ``ssl``, so pip cannot install into it. Set
+    ``PMTILES_PYTHON`` to an interpreter that does have the package and the
+    repack runs there instead.
+
+    Nothing is re-tiled: the tiles GDAL wrote are copied across as they are.
+    """
+    if output_path.exists():
+        output_path.unlink()
+
+    external = os.environ.get("PMTILES_PYTHON")
+    if not external:
+        try:
+            from pmtiles.convert import mbtiles_to_pmtiles  # noqa: PLC0415
+        except ImportError as exc:
+            raise RuntimeError(
+                "PMTiles driver missing and the `pmtiles` package is not importable. "
+                "Install it (pip install pmtiles), or point PMTILES_PYTHON at an "
+                "interpreter that has it."
+            ) from exc
+        log(f"Repack   {mbtiles_path.name} -> {output_path.name}")
+        mbtiles_to_pmtiles(str(mbtiles_path), str(output_path), maxzoom=None)
+    else:
+        log(f"Repack   {mbtiles_path.name} -> {output_path.name} (via {external})")
+        subprocess.run(
+            [
+                external,
+                "-c",
+                "import sys; from pmtiles.convert import mbtiles_to_pmtiles; "
+                "mbtiles_to_pmtiles(sys.argv[1], sys.argv[2], maxzoom=None)",
+                str(mbtiles_path),
+                str(output_path),
+            ],
+            check=True,
+        )
+
+    if not output_path.exists():
+        raise RuntimeError(f"repack produced no {output_path.name}")
+    mbtiles_path.unlink()
+
+
 def convert(
     grouped: dict[str, list[LayerSource]],
     output_path: Path,
@@ -507,6 +633,7 @@ def convert(
     max_size: int | None = None,
     max_features: int | None = None,
     unquote: bool = False,
+    renames: dict[str, str] | None = None,
 ) -> None:
     """Build one PMTiles archive from the grouped layer sources.
 
@@ -520,7 +647,7 @@ def convert(
 
     staged_names, conf = build_conf(grouped)
     mem_ds, keep_alive, total = stage_sources(
-        grouped, staged_names, ogr, log=log, unquote=unquote
+        grouped, staged_names, ogr, log=log, unquote=unquote, renames=renames
     )
 
     options = [
@@ -547,14 +674,27 @@ def convert(
     band_note = f", {len(conf)} CONF entr{'y' if len(conf) == 1 else 'ies'}" if conf else ""
     log(f"Writing  {output_path} (z{minzoom}-{maxzoom}, {total} feature(s){band_note})")
 
+    # The PMTiles driver is GDAL >= 3.8. Older builds (QGIS 3.26 ships 3.5)
+    # still write the identical tile pyramid to MBTiles — same MVT writer, same
+    # CONF/MINZOOM/MAXZOOM options — so fall back to that and repack. The
+    # repack is a container change only: the tiles are copied verbatim.
+    direct = ogr.GetDriverByName("PMTiles") is not None
+    tile_target = output_path if direct else output_path.with_suffix(".mbtiles")
+    if not direct:
+        log("  PMTiles driver missing (GDAL < 3.8); writing MBTiles and repacking")
+        if tile_target.exists():
+            tile_target.unlink()
+
+    src_arg, cleanup_bridge = bridge_staging(mem_ds, gdal, ogr, log=log)
+
     out_ds = None
     try:
         # One translate builds the whole pyramid: the driver clips, simplifies
         # and reprojects to Web Mercator itself (do NOT pass dstSRS).
         out_ds = gdal.VectorTranslate(
-            str(output_path),
-            mem_ds,
-            format="PMTiles",
+            str(tile_target),
+            src_arg,
+            format="PMTiles" if direct else "MBTiles",
             datasetCreationOptions=options,
         )
         if out_ds is None:
@@ -562,8 +702,13 @@ def convert(
     finally:
         # Flush and release in dependency order (output, staging, then inputs).
         out_ds = None
+        src_arg = None
         mem_ds = None
         keep_alive.clear()
+        cleanup_bridge()
+
+    if not direct:
+        repack_mbtiles(tile_target, output_path, log=log)
 
     size = output_path.stat().st_size
     log(f"Wrote {output_path.name} ({size:,} bytes)")
@@ -714,6 +859,26 @@ def main(argv: list[str]) -> int:
         help="Maximum features per tile; the rest are dropped (GDAL default: 200000)",
     )
     parser.add_argument(
+        "--allow-overlapping-bands",
+        action="store_true",
+        help=(
+            "Permit several sources of one layer to cover the same zooms. Off by "
+            "default because it is normally a mistake; deliberate when the layer "
+            "holds levels that a style tells apart by attribute (see the docstring)"
+        ),
+    )
+    parser.add_argument(
+        "--rename",
+        action="append",
+        default=[],
+        metavar="OLD=NEW",
+        help=(
+            "Rename a field on the way in, e.g. --rename GM_CODE=statcode. "
+            "Repeatable; matched case-insensitively against the source field. "
+            "Use it to give bands that feed one layer a shared column name"
+        ),
+    )
+    parser.add_argument(
         "--unquote",
         action="store_true",
         help=(
@@ -733,6 +898,14 @@ def main(argv: list[str]) -> int:
         print("error: --layer and --spec are mutually exclusive", file=sys.stderr)
         return 2
 
+    renames: dict[str, str] = {}
+    for pair in args.rename:
+        old, sep, new = pair.partition("=")
+        if not sep or not old or not new:
+            print(f"error: --rename expects OLD=NEW, got {pair!r}", file=sys.stderr)
+            return 2
+        renames[old] = new
+
     # Everything convert() takes beyond the layers and the zoom range: dataset
     # creation options, plus --unquote which acts during staging instead.
     passthrough = {
@@ -742,6 +915,7 @@ def main(argv: list[str]) -> int:
         "max_size": args.max_size,
         "max_features": args.max_features,
         "unquote": args.unquote,
+        "renames": renames,
     }
 
     # Explicit composition mode: --layer flags or a --spec file.
@@ -773,7 +947,7 @@ def main(argv: list[str]) -> int:
             output_path = (Path.cwd() / output_path).resolve()
 
         grouped = group_sources(sources)
-        errors = validate_sources(grouped)
+        errors = validate_sources(grouped, allow_overlap=args.allow_overlapping_bands)
         if errors:
             for err in errors:
                 print(f"error: {err}", file=sys.stderr)

@@ -9,6 +9,7 @@ import {
   removeCompareSelection,
   toggleCompareSelection,
 } from "@/layers/compare-slots";
+import { buildNativeLayerDefs, isHighlightLayerId } from "@/layers/mvt-style";
 import type { LayerConfig } from "@/layers/types";
 
 function area(n: number) {
@@ -20,30 +21,48 @@ beforeEach(() => {
 });
 
 describe("compare slots", () => {
-  it("assigns slots in order and reuses a freed one", () => {
+  it("numbers selections by position, oldest first", () => {
     toggleCompareSelection(area(1));
     toggleCompareSelection(area(2));
     expect(compareSelections().map((s) => s.slot)).toEqual([0, 1]);
 
-    // Freeing slot 0 must hand it to the next area rather than growing to 2.
+    // Removing the first moves the second a colour down rather than leaving a hole.
     removeCompareSelection(0);
+    expect(compareSelections().map((s) => [s.code, s.slot])).toEqual([["BU0002", 0]]);
+
     toggleCompareSelection(area(3));
-    expect(compareSelections().map((s) => s.slot).sort()).toEqual([0, 1]);
+    expect(compareSelections().map((s) => [s.code, s.slot])).toEqual([
+      ["BU0002", 0],
+      ["BU0003", 1],
+    ]);
   });
 
   it("toggles an already-selected area off", () => {
     toggleCompareSelection(area(1));
-    const result = toggleCompareSelection(area(1));
-    expect(result.full).toBe(false);
+    expect(toggleCompareSelection(area(1))).toHaveLength(0);
     expect(compareSelections()).toHaveLength(0);
   });
 
-  it("refuses a fifth area instead of evicting one", () => {
+  it("rolls the oldest out when a fifth area is clicked", () => {
     for (let n = 1; n <= MAX_COMPARE_SLOTS; n++) toggleCompareSelection(area(n));
-    const result = toggleCompareSelection(area(99));
-    expect(result.full).toBe(true);
+    expect(compareSelections().map((s) => [s.code, s.slot])).toEqual([
+      ["BU0001", 0],
+      ["BU0002", 1],
+      ["BU0003", 2],
+      ["BU0004", 3],
+    ]);
+
+    toggleCompareSelection(area(5));
+
+    // The first is gone, the rest each moved one colour down, and the newcomer
+    // took the last colour.
     expect(compareSelections()).toHaveLength(MAX_COMPARE_SLOTS);
-    expect(compareSelections().some((s) => s.code === "BU0099")).toBe(false);
+    expect(compareSelections().map((s) => [s.code, s.slot])).toEqual([
+      ["BU0002", 0],
+      ["BU0003", 1],
+      ["BU0004", 2],
+      ["BU0005", 3],
+    ]);
   });
 
   it("gives every slot its own colour", () => {
@@ -62,5 +81,46 @@ describe("compare slots", () => {
     // addressed and the outline would silently never appear.
     expect(isCompareSelectable({ ...base, compareSelectable: true })).toBe(false);
     expect(isCompareSelectable({ ...base, highlightable: true })).toBe(false);
+  });
+});
+
+describe("compare outline layers", () => {
+  it("are built for a selectable layer and survive the dim tool", () => {
+    const config = {
+      id: "selectie_gemeente",
+      name: "Selectie",
+      source: "https://example.test/selectie.pmtiles",
+      format: "pmtiles",
+      sourceLayer: "gemeente",
+      geometryType: "polygon",
+      style: { color: [0, 0, 0, 255], opacity: 0 },
+      highlightable: true,
+      compareSelectable: true,
+      idProperty: "gm_code",
+    } as unknown as LayerConfig;
+
+    const ids = buildNativeLayerDefs(config).map((def) => def.id);
+    expect(ids).toContain("pmtiles-layer-selectie_gemeente-compare");
+    expect(ids).toContain("pmtiles-layer-selectie_gemeente-compare-casing");
+    // The dim tool must skip them, or fading a layer would fade the selection
+    // drawn on top of it.
+    expect(isHighlightLayerId("pmtiles-layer-selectie_gemeente-compare")).toBe(true);
+    expect(isHighlightLayerId("pmtiles-layer-selectie_gemeente-compare-casing")).toBe(true);
+  });
+
+  it("are absent when the layer did not opt in", () => {
+    const config = {
+      id: "gewoon",
+      name: "Gewoon",
+      source: "https://example.test/x.pmtiles",
+      format: "pmtiles",
+      sourceLayer: "x",
+      geometryType: "polygon",
+      style: {},
+      highlightable: true,
+    } as unknown as LayerConfig;
+
+    const ids = buildNativeLayerDefs(config).map((def) => def.id);
+    expect(ids.some((id) => id.includes("-compare"))).toBe(false);
   });
 });

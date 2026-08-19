@@ -22,7 +22,10 @@ interface FeatureKey {
 }
 
 export interface UseCompareSelectionResult {
-  /** Add or remove the clicked feature. Returns false when all slots are taken. */
+  /**
+   * Add or remove the clicked feature; a fifth rolls the oldest out. False only
+   * when the layer never offered itself for comparison.
+   */
   toggle: (config: LayerConfig, featureId: string | number, code: string, label: string) => boolean;
   /** Drop one selection by slot. */
   remove: (slot: number) => void;
@@ -96,14 +99,7 @@ export function useCompareSelection(
     label: string,
   ): boolean {
     if (!isCompareSelectable(config)) return false;
-    const result = toggleCompareSelection({
-      featureId,
-      layerId: config.id,
-      code,
-      label,
-    });
-    if (result.full) return false;
-    sync(result.selections);
+    sync(toggleCompareSelection({ featureId, layerId: config.id, code, label }));
     return true;
   }
 

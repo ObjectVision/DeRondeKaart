@@ -1,9 +1,13 @@
-import { createSignal, onMount, type Accessor } from "solid-js";
+import { createEffect, createSignal, type Accessor } from "solid-js";
 
-import type { MapLayerMouseEvent, MapViewHandle } from "@/components/map/map-view-config";
-import type { LayerConfig } from "@/layers";
-import { buildNativeLayerDefs } from "@/layers/mvt-style";
-import { clearCompareSelections, compareSelections } from "@/layers/compare-slots";
+import type { MapAccessor, MapLayerMouseEvent, MapViewHandle } from "@/components/map/map-view-config";
+import { getLayerConfigById, loadLayerConfigs, type LayerConfig } from "@/layers";
+import { buildNativeLayerDefs, isHighlightLayerId } from "@/layers/mvt-style";
+import {
+  clearCompareSelections,
+  compareSelections,
+  isCompareSelectable,
+} from "@/layers/compare-slots";
 import {
   levelForZoom,
   loadComplementaryConfig,
@@ -12,8 +16,12 @@ import {
 import { useCompareSelection } from "@/hooks/use-compare-selection";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 
-/** Property names carrying a human-readable area name, most specific first. */
-const NAME_CANDIDATES = ["bu_naam", "wk_naam", "gm_naam", "naam", "name"];
+/**
+ * Property names carrying a human-readable area name, most specific first.
+ * `statnaam` is the CBS export's own spelling; the wijk and buurt files carry
+ * no name at all, so those areas fall back to their code.
+ */
+const NAME_CANDIDATES = ["bu_naam", "wk_naam", "gm_naam", "statnaam", "naam", "name"];
 
 export interface UseComplementaryDashboardResult {
   /** The parsed config; `null` until it has loaded. */
@@ -28,8 +36,6 @@ export interface UseComplementaryDashboardResult {
   closePanel: () => void;
   removeSlot: (slot: number) => void;
   clearAll: () => void;
-  /** Set when a click was refused because all four slots were taken. */
-  notice: Accessor<string | null>;
 }
 
 /**
@@ -44,14 +50,65 @@ export interface UseComplementaryDashboardResult {
 export function useComplementaryDashboard(
   mapLeft: Accessor<MapViewHandle | null>,
   entries: Accessor<LayerEntry[]>,
+  addLayer: (config: LayerConfig, map: MapAccessor, options?: { atEnd?: boolean }) => Promise<void>,
+  ready: Accessor<boolean>,
 ): UseComplementaryDashboardResult {
   const [config, setConfig] = createSignal<ComplementaryConfig | null>(null);
   const [panelOpen, setPanelOpen] = createSignal(false);
-  const [notice, setNotice] = createSignal<string | null>(null);
   const [codeColumn, setCodeColumn] = createSignal("bu_code");
 
-  onMount(() => {
-    void loadComplementaryConfig().then(setConfig);
+  const getMap: MapAccessor = () => mapLeft()?.map() ?? null;
+
+  /**
+   * Put the selection layers on the map ourselves.
+   *
+   * `layers.json` is a catalogue: a layer reaches the map only through the
+   * navigation tree, `pickLayer`, `studyarea` or a share URL. These are none of
+   * those — they are invisible, excluded from the legend, and exist purely to
+   * be clicked — so the config that names them is what adds them. Same shape as
+   * App's `pickLayer` effect, which cannot serve here because it holds a single
+   * id and the comparison needs one layer per zoom level.
+   *
+   * `atEnd` keeps them at the bottom of the draw order, and going through
+   * `addLayer` (rather than a study-area-style side channel) is what makes them
+   * real layer entries: only those are queried, and `syncImperativeLayers`
+   * replays them after a basemap swap.
+   */
+  let layersAdded = false;
+  createEffect(() => {
+    if (!ready() || layersAdded) return;
+    layersAdded = true;
+    void (async () => {
+      try {
+        const [complementary, configs] = await Promise.all([
+          loadComplementaryConfig(),
+          loadLayerConfigs(),
+        ]);
+        setConfig(complementary);
+
+        for (const level of complementary.levels) {
+          const layerConfig = getLayerConfigById(configs, level.layer);
+          if (!layerConfig) {
+            console.warn(
+              `dashboard_complementary.json: level layer "${level.layer}" not found in layers.json`,
+            );
+            continue;
+          }
+          if (!isCompareSelectable(layerConfig)) {
+            console.warn(
+              `dashboard_complementary.json: level layer "${level.layer}" is not selectable; ` +
+                `it needs both "highlightable" and "compareSelectable" in layers.json`,
+            );
+            continue;
+          }
+          await addLayer(layerConfig, getMap, { atEnd: true });
+        }
+      } catch (err) {
+        // Non-fatal: without the layers the map simply has nothing to select,
+        // which is how it behaved before the mode existed.
+        console.warn("Kon de selectielagen niet toevoegen", err);
+      }
+    })();
   });
 
   const configById = (layerId: string): LayerConfig | undefined =>
@@ -67,33 +124,35 @@ export function useComplementaryDashboard(
     const level = levelForZoom(current, map.getZoom());
     if (!level) return false;
 
-    const layerConfig = configById(level.layerId);
+    const layerConfig = configById(level.layer);
     if (!layerConfig) return false;
 
     // Same id source the pick path uses, so the query matches exactly the
-    // layers this config actually put on the map.
+    // layers this config actually put on the map — minus the outlines.
+    //
+    // The outlines are excluded deliberately: they carry no zoom filter, so a
+    // selected gemeente keeps a 3px comparison line at buurt zoom, and clicking
+    // that line would toggle the gemeente instead of selecting the buurt under
+    // the cursor. Only the data layer answers a click, and its filter is what
+    // decides which level a click at this zoom means.
     const layerIds = buildNativeLayerDefs(layerConfig)
       .map((def) => def.id)
-      .filter((id) => map.getLayer(id));
+      .filter((id) => !isHighlightLayerId(id) && map.getLayer(id));
     if (layerIds.length === 0) return false;
 
     const [feature] = map.queryRenderedFeatures(e.point, { layers: layerIds });
     if (!feature || feature.id === undefined) return false;
 
     const properties = feature.properties ?? {};
-    const code = properties[level.codeColumn];
+    const code = properties[level.code];
     if (typeof code !== "string" || code === "") return false;
 
     const nameKey = NAME_CANDIDATES.find((key) => typeof properties[key] === "string");
     const label = nameKey ? String(properties[nameKey]) : code;
 
-    setCodeColumn(level.codeColumn);
-    const added = selection.toggle(layerConfig, feature.id, code, label);
-    if (!added && compareSelections().length > 0) {
-      setNotice("Er kunnen maximaal vier gebieden vergeleken worden.");
-    } else {
-      setNotice(null);
-    }
+    setCodeColumn(level.code);
+    // A fifth area rolls the oldest out, so this never refuses.
+    selection.toggle(layerConfig, feature.id, code, label);
     // The click was on a selection area either way — consumed, so no popup.
     return true;
   }
@@ -101,12 +160,10 @@ export function useComplementaryDashboard(
   function clearAll() {
     selection.clear();
     setPanelOpen(false);
-    setNotice(null);
   }
 
   function removeSlot(slot: number) {
     selection.remove(slot);
-    setNotice(null);
     if (compareSelections().length === 0) setPanelOpen(false);
   }
 
@@ -119,7 +176,6 @@ export function useComplementaryDashboard(
     closePanel: () => setPanelOpen(false),
     removeSlot,
     clearAll,
-    notice,
   };
 }
 

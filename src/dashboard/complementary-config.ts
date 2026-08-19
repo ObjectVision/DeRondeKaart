@@ -4,46 +4,45 @@
  * The file names layers rather than describing them: a selection layer has to
  * exist in `layers.json` with `highlightable` + `compareSelectable`, because
  * `promoteId` is fixed when the source is created and cannot be turned on for a
- * layer afterwards. This config only decides which of those layers is used at
- * which zoom, and what the panel shows.
+ * layer afterwards. This config only decides which layer is clicked at which
+ * zoom, and what the panel shows.
  */
 import type { DashboardWidget } from "@/dashboard/layout-config";
 import { buildLayout } from "@/dashboard/layout-config";
 
 const FILE = "dashboard_complementary.json";
 
+/** One administrative level, selected from its `minzoom` up to the next one's. */
+export interface ComplementaryLevel {
+  /** `layers.json` id of the selection layer. */
+  layer: string;
+  /** Column the comparison filters on, e.g. `"bu_code"`. */
+  code: string;
+  /** Lowest zoom at which this level is the one being clicked. */
+  minzoom: number;
+}
+
 export interface ComplementaryConfig {
-  /** Layer clicked below {@link buurtZoom} — the coarser level. */
-  gemeenteLayer?: string;
-  /** Layer clicked at or above {@link buurtZoom}. */
-  buurtLayer?: string;
-  /**
-   * Zoom at which selection switches from the coarse to the fine layer, so a
-   * user can pick a gemeente, zoom in and add buurten to the same comparison.
-   */
-  buurtZoom: number;
-  /** Column the comparison queries on per level. */
-  gemeenteCode: string;
-  buurtCode: string;
+  /** Levels in ascending `minzoom` order; empty disables the comparison. */
+  levels: ComplementaryLevel[];
   /** Widgets rendered per selected area, side by side. */
   widgets: DashboardWidget[];
 }
 
-const DEFAULT_BUURT_ZOOM = 12;
-
 let cached: ComplementaryConfig | null = null;
 
 function emptyConfig(): ComplementaryConfig {
-  return {
-    buurtZoom: DEFAULT_BUURT_ZOOM,
-    gemeenteCode: "gm_code",
-    buurtCode: "bu_code",
-    widgets: [],
-  };
+  return { levels: [], widgets: [] };
 }
 
-function optionalString(raw: unknown): string | undefined {
-  return typeof raw === "string" && raw !== "" ? raw : undefined;
+function validateLevel(raw: unknown): ComplementaryLevel | null {
+  if (typeof raw !== "object" || raw === null) return null;
+  const obj = raw as Record<string, unknown>;
+  if (typeof obj.layer !== "string" || obj.layer === "") return null;
+  if (typeof obj.code !== "string" || obj.code === "") return null;
+  const minzoom = Number(obj.minzoom ?? 0);
+  if (!Number.isFinite(minzoom) || minzoom < 0 || minzoom > 24) return null;
+  return { layer: obj.layer, code: obj.code, minzoom };
 }
 
 /** Build from already-parsed JSON. Exported for tests. */
@@ -55,20 +54,20 @@ export function buildComplementaryConfig(data: unknown): ComplementaryConfig {
   const obj = data as Record<string, unknown>;
   const config = emptyConfig();
 
-  config.gemeenteLayer = optionalString(obj.gemeenteLayer);
-  config.buurtLayer = optionalString(obj.buurtLayer);
-  config.gemeenteCode = optionalString(obj.gemeenteCode) ?? config.gemeenteCode;
-  config.buurtCode = optionalString(obj.buurtCode) ?? config.buurtCode;
-
-  const zoom = Number(obj.buurtZoom);
-  if (obj.buurtZoom !== undefined) {
-    if (Number.isFinite(zoom) && zoom >= 0 && zoom <= 24) {
-      config.buurtZoom = zoom;
-    } else {
-      console.warn(
-        `${FILE}: invalid "buurtZoom" ${JSON.stringify(obj.buurtZoom)}; using ${DEFAULT_BUURT_ZOOM}`,
-      );
+  if (Array.isArray(obj.levels)) {
+    for (const raw of obj.levels) {
+      const level = validateLevel(raw);
+      if (!level) {
+        console.warn(`${FILE}: dropping invalid level ${JSON.stringify(raw)}`);
+        continue;
+      }
+      config.levels.push(level);
     }
+    // Sorted so the lookup can take the last level the zoom has reached,
+    // whatever order the file lists them in.
+    config.levels.sort((a, b) => a.minzoom - b.minzoom);
+  } else if (obj.levels !== undefined) {
+    console.warn(`${FILE}: "levels" is not an array; comparison unavailable`);
   }
 
   // The widget list is the same shape as a dashboard layout's, so it is parsed
@@ -78,7 +77,7 @@ export function buildComplementaryConfig(data: unknown): ComplementaryConfig {
   return config;
 }
 
-/** Load the comparison config. Never throws; a bad file yields no widgets. */
+/** Load the comparison config. Never throws; a bad file yields no levels. */
 export async function loadComplementaryConfig(): Promise<ComplementaryConfig> {
   if (cached) return cached;
 
@@ -100,16 +99,17 @@ export async function loadComplementaryConfig(): Promise<ComplementaryConfig> {
 }
 
 /**
- * Which selection layer a click at this zoom belongs to, and which code column
- * the comparison then filters on. `null` when the config names no layer for
- * that level, which is how a project offers only one of the two.
+ * The level a click at this zoom belongs to: the last one whose `minzoom` the
+ * map has reached. `null` below the coarsest level, which is how a project
+ * keeps the comparison off until the user has zoomed in far enough to aim.
  */
 export function levelForZoom(
   config: ComplementaryConfig,
   zoom: number,
-): { layerId: string; codeColumn: string } | null {
-  const fine = zoom >= config.buurtZoom;
-  const layerId = fine ? config.buurtLayer : config.gemeenteLayer;
-  if (!layerId) return null;
-  return { layerId, codeColumn: fine ? config.buurtCode : config.gemeenteCode };
+): ComplementaryLevel | null {
+  let found: ComplementaryLevel | null = null;
+  for (const level of config.levels) {
+    if (zoom >= level.minzoom) found = level;
+  }
+  return found;
 }
