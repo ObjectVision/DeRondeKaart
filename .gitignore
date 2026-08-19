@@ -33,5 +33,3 @@ data/**
 *.key
 .env
 .env.*
-
-plans/**
