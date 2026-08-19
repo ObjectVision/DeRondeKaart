@@ -55,7 +55,7 @@ contract.
 
 The **initial state** is configuration: `map.json` supplies the starting
 centre, zoom, study area outline, and ~15 UI feature flags (search, share,
-annotations, combinations, Street View, navigation mode…). A deployment that
+annotations, Street View, navigation mode…). A deployment that
 disables a feature flag simply does not render that function (SD §9).
 
 ## 3. Layer configuration, class breaks and visualisations
@@ -70,7 +70,7 @@ class attribute or band value; the app styles and labels those classes
 is what makes the legend exhaustive and the map readable — a viewer can always
 name what a colour means.
 
-Within that rule, six kinds of layer are supported.
+Within that rule, five kinds of layer are supported.
 
 | Kind | Typical content | How it is drawn |
 |---|---|---|
@@ -79,7 +79,6 @@ Within that rule, six kinds of layer are supported.
 | **Line layers** | Roads, railways, routes, and administrative boundaries drawn as outlines only | A `Line` class per rule. A boundary layer is a polygon source with a transparent fill and a coloured stroke |
 | **Continuous surfaces → classified raster** | Quantities that exist everywhere rather than per feature: heat demand, accessibility, density, elevation | A Cloud-Optimized GeoTIFF, classified **per pixel through the same rule syntax** as a vector layer — band values are exposed as `band0`, `band1`, … and the first matching rule paints the pixel; nodata is transparent. A raster that already carries its own colours (`embeddedColors`) is drawn as-is and its rules only populate the legend |
 | **Composite layers** | One theme whose best source differs by zoom: generalized polygons when zoomed out, full detail when zoomed in | Several child sources under **one** navigation, legend and share entry; each child loads only while the map zoom is inside its band. The zoom-band mechanism in the tile pyramid is the data-side counterpart ([preprocessing-pipeline.md](preprocessing-pipeline.md)) |
-| **Derived combination layers** | The result of *Criteria combineren* (§5): how many of the chosen criteria each location satisfies | Computed in the browser cell by cell over a shared uniform grid, then drawn as an ordinary raster layer. This is the one place a **ramp** appears — a diverging red-to-blue scale over the score, which is an ordinal count, not a measured value |
 
 Two properties cut across the kinds. A **timeseries** layer is one logical
 layer over many yearly sources, played or scrubbed from the legend (§5). Any
@@ -150,9 +149,7 @@ Beyond meta-info, layers relate to each other through the configuration:
 `navigation.json` groups layers into a category tree with icons and colours;
 `charts.json` is a shared library of chart definitions that layers reference
 by id; several layers may share one attribute sidecar (aggregated once); and a
-timeseries layer is one logical layer over many yearly tile sets. The viewer
-can also **combine** classes from several active layers into a new derived
-layer (§5).
+timeseries layer is one logical layer over many yearly tile sets.
 
 ## 5. The legend — the layer control
 
@@ -173,10 +170,6 @@ can:
 - **Open the metainfo dialog** from the ⓘ button (§4).
 - **Switch the basemap** (vector cartography ↔ aerial photo) from the
   *Referentielagen* dialog.
-- **Combine criteria** (*Criteria combineren*): pick individual classes from
-  the active layers and create a named combination layer from them — used to
-  build "areas that are in class X of layer A *and* class Y of layer B" views
-  without leaving the browser.
 
 ## 6. Selection and filtering
 
