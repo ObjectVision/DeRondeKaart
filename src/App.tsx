@@ -29,7 +29,7 @@ import { viewForBbox } from "@/lib/fly-to";
 import { areaFilterLevels } from "@/layers/area-filter";
 import type { BBox } from "@/layers/box-filter";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
-import type { LayerConfig } from "@/layers";
+import type { LayerConfig, ScoreClass } from "@/layers";
 import {
   DEFAULT_CLICK_MARKER,
   DEFAULT_MAP_CONTROLS,
@@ -861,7 +861,7 @@ function App(rawProps: AppProps): JSX.Element {
   const showCombinationsTheme = () =>
     props.combinationsEnabled && filterLayers.leaves().length > 0;
 
-  function handleCreateCombination(name: string, refs: ClassRef[]) {
+  function handleCreateCombination(name: string, refs: ClassRef[], classes: ScoreClass[]) {
     // Inputs come from the legend's stack (what the dialog offered), but the
     // result always lands on the LEFT map — `useFilterLayers` is bound to that
     // stack's addLayer/removeLayer, and a combination is one new layer that
@@ -873,7 +873,7 @@ function App(rawProps: AppProps): JSX.Element {
     const stepFor = (layerId: string) => legend.layerSteps().get(layerId);
     // Fire-and-forget: reading and scoring the rasters takes a moment, and the
     // hook surfaces both progress and failure through its own state.
-    void filterLayers.create(name, refs, configs, [getMapLeft], stepFor);
+    void filterLayers.create(name, refs, configs, [getMapLeft], stepFor, classes);
   }
 
   // Layers offered for combining: those the LEGEND is showing that define

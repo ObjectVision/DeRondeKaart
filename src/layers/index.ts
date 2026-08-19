@@ -47,8 +47,9 @@ export {
   rampFor,
   layerCountOf,
   filterLayerConfig,
+  defaultScoreClasses,
 } from "./filter-layers";
-export type { FilterLayerDef } from "./filter-layers";
+export type { FilterLayerDef, ScoreClass } from "./filter-layers";
 export { loadChartsConfig, CHART_COLORS, isChartEligible } from "./charts";
 export type {
   ChartType,

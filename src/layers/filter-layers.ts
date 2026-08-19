@@ -17,8 +17,18 @@ export interface FilterLayerDef {
    * {@link layerCountOf}, which is the top of the score range, not `refs.length`.
    */
   refs: ClassRef[];
-  /** Ramp over scores 1..layerCount, index 0 = score 1. */
-  colors: string[];
+  /**
+   * Legend classes over scores 1..layerCount, index 0 = score 1. Defaults come
+   * from {@link defaultScoreClasses}; the combine dialog may hand over labels
+   * and colours the user edited in its preview.
+   */
+  classes: ScoreClass[];
+}
+
+/** One legend class of a combination — the class for score `index + 1`. */
+export interface ScoreClass {
+  label: string;
+  color: string;
 }
 
 /**
@@ -117,6 +127,24 @@ function scoreLabel(score: number, total: number): string {
 }
 
 /**
+ * The legend a selection would produce untouched: the ramp colours paired with
+ * the "x van y criteria" labels.
+ *
+ * Exported because the combine dialog previews the legend before the layer
+ * exists, and the preview has to start from exactly what creation would use —
+ * two independent defaults would drift apart.
+ */
+export function defaultScoreClasses(refs: ClassRef[]): ScoreClass[] {
+  const total = layerCountOf(refs);
+  // rampFor(0) still yields one colour; an empty selection has no legend at all.
+  if (total === 0) return [];
+  return rampFor(total).map((color, index) => ({
+    label: scoreLabel(index + 1, total),
+    color,
+  }));
+}
+
+/**
  * Rebuild a combination's LayerConfig from its stored definition.
  *
  * Lives beside the store rather than in the hook because it is needed wherever a
@@ -133,15 +161,11 @@ function scoreLabel(score: number, total: number): string {
  * key rather than driving a colour function.
  */
 export function filterLayerConfig(def: FilterLayerDef): LayerConfig {
-  const total = layerCountOf(def.refs);
-  const rules: GeoStylerRule[] = def.colors.map((color, index) => {
-    const score = index + 1;
-    return {
-      name: scoreLabel(score, total),
-      filter: ["==", "band0", score],
-      symbolizers: [{ kind: "Fill", color }],
-    };
-  });
+  const rules: GeoStylerRule[] = def.classes.map((item, index) => ({
+    name: item.label,
+    filter: ["==", "band0", index + 1],
+    symbolizers: [{ kind: "Fill", color: item.color }],
+  }));
 
   return {
     id: def.id,
@@ -157,17 +181,22 @@ export function filterLayerConfig(def: FilterLayerDef): LayerConfig {
   };
 }
 
-/** Add a combination, returning the new definition and the store version. */
+/**
+ * Add a combination, returning the new definition and the store version.
+ *
+ * `classes` defaults to the untouched legend: one entry per attainable score,
+ * i.e. per LAYER — not per ticked class.
+ */
 export function addFilterLayer(
   name: string,
   refs: ClassRef[],
+  classes: ScoreClass[] = defaultScoreClasses(refs),
 ): { def: FilterLayerDef; version: number } {
   const def: FilterLayerDef = {
     id: `filter__${store.nextId}`,
     name,
     refs,
-    // One colour per attainable score, i.e. per LAYER — not per ticked class.
-    colors: rampFor(layerCountOf(refs)),
+    classes,
   };
   store.nextId += 1;
   store.defs = [...store.defs, def];
