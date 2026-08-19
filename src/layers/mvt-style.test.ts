@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { buildNativeLayerDefs, isHighlightLayerId } from "@/layers/mvt-style";
+import { chromeIconColor } from "@/config/map-config";
+import { SELECTABLE_RULE, buildNativeLayerDefs, isHighlightLayerId } from "@/layers/mvt-style";
 import type { LayerConfig } from "@/layers/types";
 
 /**
@@ -46,7 +47,7 @@ function selectionConfig(): LayerConfig {
 describe("rawFilter", () => {
   it("becomes the data layer's filter verbatim", () => {
     const defs = buildNativeLayerDefs(selectionConfig());
-    const data = defs.find((def) => !isHighlightLayerId(def.id));
+    const data = defs.find((def) => def.ruleName === "Gebied");
     expect(data?.filter).toEqual(ZOOM_FILTER);
   });
 
@@ -63,5 +64,35 @@ describe("rawFilter", () => {
     for (const outline of outlines) {
       expect(outline.filter).toBeUndefined();
     }
+  });
+});
+
+describe("selectable outline", () => {
+  const selectableDef = () =>
+    buildNativeLayerDefs(selectionConfig()).find((def) => def.id.endsWith(`-${SELECTABLE_RULE}`));
+
+  it("draws a thin line in the chrome accent", () => {
+    const def = selectableDef();
+    expect(def?.type).toBe("line");
+    expect(def?.paint["line-color"]).toBe(chromeIconColor());
+    expect(def?.paint["line-width"]).toBe(1);
+  });
+
+  /** Unlike the selection outlines, this one marks what is clickable *now*. */
+  it("carries the data layer's zoom filter", () => {
+    expect(selectableDef()?.filter).toEqual(ZOOM_FILTER);
+  });
+
+  it("draws under the highlight and comparison outlines", () => {
+    const defs = buildNativeLayerDefs(selectionConfig());
+    const selectable = defs.findIndex((def) => def.id.endsWith(`-${SELECTABLE_RULE}`));
+    const firstOutline = defs.findIndex((def) => isHighlightLayerId(def.id));
+    expect(selectable).toBeLessThan(firstOutline);
+  });
+
+  it("is left off a layer that cannot be compared", () => {
+    const config = { ...selectionConfig(), compareSelectable: false } as LayerConfig;
+    const defs = buildNativeLayerDefs(config);
+    expect(defs.some((def) => def.id.endsWith(`-${SELECTABLE_RULE}`))).toBe(false);
   });
 });
