@@ -4,9 +4,22 @@ import {
   HIGHLIGHT_COLOR,
   HIGHLIGHT_WIDTH,
   HIGHLIGHT_CASING_COLOR,
+  HIGHLIGHT_CASING_PAD,
   HIGHLIGHT_CASING_WIDTH,
   canHighlight,
 } from "./feature-id";
+import {
+  COMPARE_SLOT_COLORS,
+  NO_COMPARE_SLOT,
+  isCompareSelectable,
+} from "./compare-slots";
+
+/** Stroke width of a comparison outline — wider than the hover highlight,
+ * because it is meant to stay readable while the user reads the panel. */
+const COMPARE_WIDTH = 3;
+
+/** Dash pattern, in multiples of the line width. */
+const COMPARE_DASHARRAY = [2, 1.5];
 
 /**
  * Rule-name suffix of the highlight outline layer. Exported so the dim tool can
@@ -17,11 +30,24 @@ export const HIGHLIGHT_RULE = "highlight";
 /** Rule-name suffix of the casing drawn under the highlight outline. */
 export const HIGHLIGHT_CASING_RULE = "highlight-casing";
 
-/** Whether `layerId` names a highlight outline layer, or its casing. */
+/** Rule-name suffix of the dashboard comparison outline. */
+export const COMPARE_RULE = "compare";
+
+/** Rule-name suffix of the casing drawn under the comparison outline. */
+export const COMPARE_CASING_RULE = "compare-casing";
+
+/** Whether `layerId` names a highlight or comparison outline layer, or its casing. */
 export function isHighlightLayerId(id: string): boolean {
-  // The two suffixes are disjoint — "…-highlight-casing" does not end in
+  // The suffixes are disjoint — "…-highlight-casing" does not end in
   // "-highlight" — so this stays an exact test rather than a substring match.
-  return id.endsWith(`-${HIGHLIGHT_RULE}`) || id.endsWith(`-${HIGHLIGHT_CASING_RULE}`);
+  // The comparison outlines are included because they answer the same question:
+  // dimming a layer must not fade the selection drawn on top of it.
+  return (
+    id.endsWith(`-${HIGHLIGHT_RULE}`) ||
+    id.endsWith(`-${HIGHLIGHT_CASING_RULE}`) ||
+    id.endsWith(`-${COMPARE_RULE}`) ||
+    id.endsWith(`-${COMPARE_CASING_RULE}`)
+  );
 }
 
 /**
@@ -166,7 +192,66 @@ function layerId(config: LayerConfig, ruleName?: string): string {
  * one layer — or two when a polygon also sets `lineColor` (fill + stroke).
  */
 export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
-  return [...buildStyleLayerDefs(config), ...buildHighlightLayerDefs(config)];
+  return [
+    ...buildStyleLayerDefs(config),
+    ...buildHighlightLayerDefs(config),
+    ...buildCompareLayerDefs(config),
+  ];
+}
+
+/**
+ * The comparison outlines: a dashed stroke over a white casing, drawn for the
+ * features holding one of the four comparison slots and coloured per slot.
+ *
+ * Dashed rather than solid to keep it apart from the hover/click highlight,
+ * which the same layer still shows — one feature can be both.
+ *
+ * Built here rather than through `RawStyleOverrides` because that escape hatch
+ * only applies to symbolizer-driven layers; `buildHighlightLayerDefs` and this
+ * one hand-write their paint, so `line-dasharray` is set directly.
+ *
+ * `compareSlot` is a NUMBER in feature state, not a boolean per slot: one
+ * `match` expression then paints all four, and clearing is writing -1 rather
+ * than removing state — see the MapLibre 6.3 note in use-feature-highlight.ts.
+ */
+function buildCompareLayerDefs(config: LayerConfig): NativeLayerDef[] {
+  if (!isCompareSelectable(config) || !canHighlight(config)) return [];
+
+  const slot = ["feature-state", "compareSlot"];
+  const selected = ["!=", ["coalesce", slot, NO_COMPARE_SLOT], NO_COMPARE_SLOT];
+  const onOff = (on: number, off: number): unknown[] => ["case", selected, on, off];
+
+  const colorBySlot: unknown[] = ["match", ["coalesce", slot, NO_COMPARE_SLOT]];
+  COMPARE_SLOT_COLORS.forEach((color, index) => {
+    colorBySlot.push(index, color);
+  });
+  colorBySlot.push("transparent");
+
+  return [
+    {
+      id: layerId(config, COMPARE_CASING_RULE),
+      ruleName: "",
+      type: "line",
+      paint: {
+        "line-color": HIGHLIGHT_CASING_COLOR,
+        "line-width": onOff(COMPARE_WIDTH + 2 * HIGHLIGHT_CASING_PAD, 0),
+        "line-opacity": onOff(1, 0),
+      },
+      layout: {},
+    },
+    {
+      id: layerId(config, COMPARE_RULE),
+      ruleName: "",
+      type: "line",
+      paint: {
+        "line-color": colorBySlot,
+        "line-width": onOff(COMPARE_WIDTH, 0),
+        "line-opacity": onOff(1, 0),
+        "line-dasharray": COMPARE_DASHARRAY,
+      },
+      layout: {},
+    },
+  ];
 }
 
 /**

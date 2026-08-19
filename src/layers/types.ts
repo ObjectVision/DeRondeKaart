@@ -327,6 +327,18 @@ export interface LayerConfig {
    */
   highlightcasing?: boolean | { color?: string; width?: number };
   /**
+   * Offer this layer's features for the dashboard's area comparison: a click
+   * assigns the feature one of four numbered slots, each outlined in its own
+   * colour (see `compare-slots.ts`).
+   *
+   * Load-time and opt-in for the same reason as `highlightable`, whose
+   * `promoteId` it depends on: a layer cannot start carrying stable feature ids
+   * without recreating its source. `dashboard_complementary.json` picks which
+   * of the opted-in layers serves gemeente and which serves buurt; this only
+   * says the layer is eligible.
+   */
+  compareSelectable?: boolean;
+  /**
    * Property holding a stable, unique feature id, used as `promoteId`.
    * Auto-detected from ID_CANDIDATES when omitted; set this when the layer
    * keys on something else, or when a candidate matches but is not unique.

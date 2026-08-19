@@ -57,6 +57,25 @@ export interface MapControlsConfig {
   zoom: boolean;
 }
 
+/**
+ * map.json `dashboard` — which dashboard modes a project offers.
+ *
+ * One key rather than two booleans because the modes are a single editorial
+ * choice per project, and the four names read in the config file without a
+ * schema at hand.
+ */
+export type DashboardMode = "off" | "standalone" | "complementary" | "both";
+
+/** Whether `?mode=dashboard` may boot the map-less dashboard. */
+export function standaloneDashboardEnabled(mode: DashboardMode): boolean {
+  return mode === "standalone" || mode === "both";
+}
+
+/** Whether the map app may offer area comparison ("meer informatie"). */
+export function complementaryDashboardEnabled(mode: DashboardMode): boolean {
+  return mode === "complementary" || mode === "both";
+}
+
 /** Server-editable initial-view configuration, loaded from `public/map.json`. */
 export interface MapConfig {
   /** Map center as [longitude, latitude]. */
@@ -144,6 +163,17 @@ export interface MapConfig {
    * `filterRaster` companions can combine anything.
    */
   combinations: boolean;
+  /**
+   * Which dashboard modes this project offers. Defaults to `"off"`.
+   *
+   * - `"standalone"` — `?mode=dashboard` boots the map-less dashboard.
+   * - `"complementary"` — the map stays live and areas can be compared in it.
+   * - `"both"` — either entry point works.
+   *
+   * Read through {@link standaloneDashboardEnabled} /
+   * {@link complementaryDashboardEnabled} rather than compared by hand.
+   */
+  dashboard: DashboardMode;
   /**
    * Whether the annotation tool is available: the top-right toolbutton that
    * arms circle-drawing (with per-circle title/description + a snapshot of
@@ -262,6 +292,7 @@ const DEFAULT_MAP_CONFIG: MapConfig = {
   share: true,
   filterFlyTo: true,
   combinations: false,
+  dashboard: "off",
   annotations: false,
   mapControls: DEFAULT_MAP_CONTROLS,
   clickMarker: DEFAULT_CLICK_MARKER,
@@ -458,6 +489,20 @@ export async function loadMapConfig(): Promise<MapConfig> {
     );
   }
 
+  let dashboard = DEFAULT_MAP_CONFIG.dashboard;
+  if (
+    data.dashboard === "off" ||
+    data.dashboard === "standalone" ||
+    data.dashboard === "complementary" ||
+    data.dashboard === "both"
+  ) {
+    dashboard = data.dashboard;
+  } else if (data.dashboard !== undefined) {
+    console.warn(
+      `map.json: invalid "dashboard" ${JSON.stringify(data.dashboard)}; using "off"`,
+    );
+  }
+
   let basemap: string | undefined;
   if (typeof data.basemap === "string" && isBasemapId(data.basemap)) {
     basemap = data.basemap;
@@ -520,6 +565,7 @@ export async function loadMapConfig(): Promise<MapConfig> {
     share,
     filterFlyTo,
     combinations,
+    dashboard,
     annotations,
     mapControls,
     clickMarker,

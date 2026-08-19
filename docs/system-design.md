@@ -137,7 +137,7 @@ Four principles organise the system.
 
 ### 3.1 Config-driven
 
-Five JSON files define behaviour (§11). The app ships with empty implementations in
+Nine JSON files define behaviour (§11) — five for the map, four for the dashboard. The app ships with empty implementations in
 `public/`; a tenant's real files in `configs/<project>/` are swapped in at build
 or dev time, selected by the `VITE_CONFIG_PROJECT` environment variable.
 
@@ -491,6 +491,8 @@ from Parquet to PMTiles, and the silence is why it went unnoticed.
 | **Sharing** | [share-url.ts](../src/lib/share-url.ts), [ShareDialog.tsx](../src/components/share/ShareDialog.tsx) | Hash-encoded state, share link, circular PNG export |
 | **PNG export** | [map-capture.ts](../src/lib/map-capture.ts) | 2048² circular export with legend and callouts |
 | **Circular embed** | [CircularExportView.tsx](../src/components/share/CircularExportView.tsx) | `?embed=circular` or `open-circular` message |
+| **Dashboard (standalone)** | [dashboard/](../src/dashboard/), [components/dashboard/](../src/components/dashboard/) | `?mode=dashboard` map-less view over parquet via DuckDB-Wasm, gated by `map.json`'s `dashboard`; the engine is loaded only on that route |
+| **Area comparison** | [use-complementary-dashboard.ts](../src/hooks/use-complementary-dashboard.ts), [compare-slots.ts](../src/layers/compare-slots.ts) | Up to 4 areas clicked into coloured slots (dashed outlines via a numeric `compareSlot` feature state), compared in the "meer informatie" panel |
 
 ## 9. Configuration system
 
@@ -500,9 +502,13 @@ from Parquet to PMTiles, and the silence is why it went unnoticed.
 | `navigation.json` | [navigation.ts](../src/layers/navigation.ts) `loadNavigation` | Category tree |
 | `charts.json` | [charts.ts](../src/layers/charts.ts) `loadChartsConfig` | Chart library |
 | `filter.json` | [area-filter.ts](../src/layers/area-filter.ts) `loadAreaFilterConfig` | Area filter levels |
-| `map.json` | [map-config.ts](../src/config/map-config.ts) `loadMapConfig` | Initial view, study area, ~15 UI flags |
+| `map.json` | [map-config.ts](../src/config/map-config.ts) `loadMapConfig` | Initial view, study area, ~16 UI flags |
+| `dashboard_semantic_model.json` | [semantic-model.ts](../src/dashboard/semantic-model.ts) `loadSemanticModel` | Parquet tables, relationships, measures |
+| `dashboard_standalone.json` / `dashboard_export.json` | [layout-config.ts](../src/dashboard/layout-config.ts) | Widget grid, on screen and in print |
+| `dashboard_complementary.json` | [complementary-config.ts](../src/dashboard/complementary-config.ts) | Selection layers, zoom threshold, comparison widgets |
 
-All five are cached at module level after first load.
+All are cached at module level after first load. The dashboard files are fetched only when a
+dashboard mode is entered.
 
 ---
 
