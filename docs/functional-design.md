@@ -44,7 +44,8 @@ contract.
 |---|---|---|
 | **Active layers** — the ordered list per map side (A left, B right), with per-layer visibility, per-class visibility, dim state and timeseries step | per map side | Sharing via URL (layer list and layer-level hides; per-class hides and dim do not travel) |
 | **Camera** — centre and zoom; the map is north-up by intent (rotation is not part of the product) | shared by both maps | URL |
-| **Basemap** — reference layer choice (vector cartography or *luchtfoto* aerial) | shared | URL (only when non-default) |
+| **Background reference layer** (*achtergrond referentielaag*) — the base cartography beneath all thematic layers: greyed built-up area, as vector cartography or *luchtfoto* aerial | shared | URL (only when non-default) |
+| **Overlay reference layer** (*voorgrond referentielaag*) — topographic orientation drawn *above* the thematic layers: typically roads, railways, water, and labels | shared | follows the background choice |
 | **Area filter** — the gemeente/wijk/buurt selection (§6) | shared, cross-cutting | not in URL (deliberate: a link shows the map, the recipient sets their own scope) |
 | **Box selection** — a drawn rectangle scoping the statistics (§6) | shared | session only |
 | **Feature pick / popup** — the clicked feature, its info popup, optional click marker and Street View target | one at a time, across both maps | session only |
