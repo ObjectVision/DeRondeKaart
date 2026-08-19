@@ -205,7 +205,7 @@ e-mails and dashboards without any integration code. Sharing also offers a
 **circular PNG export** (map with legend and callouts) and a matching
 `?embed=circular` view for embedding.
 
-## 9. Comparison mode — the vergelijkingsschuif
+## 9. Comparison mode — the "vergelijkingsschuif"
 
 Comparison is a core function, not an add-on: the product exists to put two
 states of the world side by side — scenario against scenario, year against
@@ -239,7 +239,6 @@ The map is intended north-up: rotation is not part of the interaction model
 | Pick a feature (§6) | click | tap |
 | Box selection (§6) | with the tool armed: press-drag-release (a movement under ~3 px still counts as a plain click); `Escape` cancels or clears | with the tool armed: touch-drag |
 | Comparison slider (§9) | drag the handle | drag the handle |
-| Annotations | click/drag per shape tool | touch equivalents |
 | Popups and dialogs | `Escape` closes, backdrop click closes | tap outside |
 
 Hover-only affordances (cursor changes, hover highlights) are enhancements,
