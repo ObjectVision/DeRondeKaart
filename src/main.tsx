@@ -1,11 +1,34 @@
 import { render } from 'solid-js/web'
 import './index.css'
 import App from './App.tsx'
-import { loadMapConfig, toInitialViewState } from '@/config/map-config'
+import {
+  complementaryDashboardEnabled,
+  loadMapConfig,
+  standaloneDashboardEnabled,
+  toInitialViewState,
+} from '@/config/map-config'
 import { dismissSplash } from '@/lib/splash'
 
 async function bootstrap() {
   const mapConfig = await loadMapConfig()
+  // `?mode=dashboard` boots the map-less dashboard, when map.json allows it.
+  // The capability wins over the URL: a link shared into a project that does
+  // not offer the dashboard opens the map rather than an error.
+  if (new URLSearchParams(window.location.search).get('mode') === 'dashboard') {
+    if (standaloneDashboardEnabled(mapConfig.dashboard)) {
+      // Like the circular embed below: no MapView mounts, so the map's onLoad —
+      // which dismisses the splash everywhere else — never fires here.
+      dismissSplash()
+      // Dynamic: this is what keeps the dashboard and DuckDB out of the map
+      // application's bundle entirely.
+      const { DashboardApp } = await import('@/dashboard/standalone')
+      render(() => <DashboardApp />, document.getElementById('root')!)
+      return
+    }
+    console.warn(
+      `map.json: dashboard "${mapConfig.dashboard}"; ?mode=dashboard ignored`,
+    )
+  }
   // `?embed=circular` boots straight into the standalone circular-export view
   // (only the circle + legend + title) for embedding on a webpage.
   const embedCircular =
@@ -30,6 +53,7 @@ async function bootstrap() {
         shareEnabled={mapConfig.share}
         filterFlyToEnabled={mapConfig.filterFlyTo}
         combinationsEnabled={mapConfig.combinations}
+        complementaryDashboardEnabled={complementaryDashboardEnabled(mapConfig.dashboard)}
         annotationsEnabled={mapConfig.annotations}
         mapControls={mapConfig.mapControls}
         clickMarker={mapConfig.clickMarker}

@@ -28,7 +28,7 @@ Config-driven MapLibre viewer ("De Ronde kaart" / northwake): single-view SolidJ
 
 ## Config system (what a build ships)
 
-- Five JSON files fetched at runtime: `map.json`, `layers.json`, `filter.json`, `charts.json`, `navigation.json`. `public/` holds neutral defaults; `configs/<slug>/` is a per-project overlay.
+- Nine JSON files fetched at runtime: `map.json`, `layers.json`, `filter.json`, `charts.json`, `navigation.json`, and the four `dashboard_*.json` (semantic model, standalone, complementary, export) read only when map.json enables the dashboard. `public/` holds neutral defaults; `configs/<slug>/` is a per-project overlay.
 - Selected at build/dev time: `VITE_CONFIG_PROJECT=woonzorglimburg npm run build`. PowerShell: `$env:VITE_CONFIG_PROJECT = "woonzorglimburg"; npm run dev`.
 - Overlay replaces files **whole** (no merging); omitted files fall back to `public/`. An unknown slug aborts the build. Details: `configs/README.md`.
 

@@ -25,6 +25,7 @@ import {
 } from "@/hooks/use-filtered-study-area";
 import { useClickMarkerLayers } from "@/hooks/use-click-marker-layer";
 import { useMapPointer } from "@/hooks/use-map-pointer";
+import { useComplementaryDashboard } from "@/hooks/use-complementary-dashboard";
 import { viewForBbox } from "@/lib/fly-to";
 import { areaFilterLevels } from "@/layers/area-filter";
 import type { BBox } from "@/layers/box-filter";
@@ -75,6 +76,8 @@ import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
 import { InfoPopup } from "@/components/ui/info-popup";
 import { BasemapDialog } from "@/components/ui/BasemapDialog";
+import { CompareBar } from "@/components/dashboard/CompareBar";
+import { ComparePanel } from "@/components/dashboard/ComparePanel";
 import { CombineLayersDialog } from "@/components/ui/CombineLayersDialog";
 import type { ClassRef } from "@/components/ui/CombineLayersDialog";
 import { LayerMetaDialog } from "@/components/ui/LayerMetaDialog";
@@ -128,6 +131,8 @@ interface AppProps {
   filterFlyToEnabled?: boolean;
   /** map.json `combinations` — the "Criteria combineren" toolbutton + Combinaties thema. */
   combinationsEnabled?: boolean;
+  /** map.json `dashboard` allows "complementary" — area comparison in the map. */
+  complementaryDashboardEnabled?: boolean;
   annotationsEnabled?: boolean;
   mapControls?: MapControlsConfig;
   clickMarker?: ClickMarkerConfig;
@@ -157,6 +162,7 @@ function App(rawProps: AppProps): JSX.Element {
       shareEnabled: true,
       filterFlyToEnabled: true,
       combinationsEnabled: false,
+      complementaryDashboardEnabled: false,
       annotationsEnabled: false,
       mapControls: DEFAULT_MAP_CONTROLS,
       clickMarker: DEFAULT_CLICK_MARKER,
@@ -484,6 +490,13 @@ function App(rawProps: AppProps): JSX.Element {
   // One click, move or drag fanned out across picking, hover, area-select,
   // annotation drawing, the click marker and collab presence — plus the mutual
   // exclusion between the two draw tools.
+  // Area comparison ("meer informatie"). Bound to the LEFT map: one set of
+  // areas, and feature state belongs to one map's sources.
+  // eslint-disable-next-line solid/reactivity -- a capability flag, fixed for the session
+  const compare = props.complementaryDashboardEnabled
+    ? useComplementaryDashboard(mapLeftView, mapLeftLayers.layerEntries)
+    : null;
+
   const pointer = useMapPointer({
     mapLeft: mapLeftView,
     mapRight: mapRightView,
@@ -497,6 +510,7 @@ function App(rawProps: AppProps): JSX.Element {
     annotationTool,
     annotationActive,
     annotationToggle,
+    compareClick: compare ? (e) => compare.handleClick(e) : undefined,
     setCursor,
     setPopupPoint,
     handleMapClick,
@@ -1238,6 +1252,37 @@ function App(rawProps: AppProps): JSX.Element {
             alone, which the spacer keeps pinned bottom-left as before.
             pointer-events-none so the empty space around the cards doesn't
             swallow map clicks — each card re-enables its own. */}
+        {/* Area comparison, bottom-centered: the bar is a thin always-visible
+            summary, the panel is what actually queries. Same z-30 overlay band
+            as the card stacks, pointer-events-none around them. */}
+        <Show when={compare}>
+          {(dashboard) => (
+            <div class="pointer-events-none absolute bottom-2 left-1/2 z-30 flex w-[min(64rem,calc(100vw-2rem))] -translate-x-1/2 flex-col items-center gap-2 sm:bottom-4">
+              <Show when={dashboard().panelOpen() && dashboard().config()}>
+                {(config) => (
+                  <ComparePanel
+                    config={config()}
+                    codeColumn={dashboard().codeColumn()}
+                    onClose={() => dashboard().closePanel()}
+                    onRemove={(slot) => dashboard().removeSlot(slot)}
+                  />
+                )}
+              </Show>
+              <Show when={dashboard().notice()}>
+                {(notice) => (
+                  <p class="pointer-events-auto rounded-full bg-white/95 px-3 py-1 text-xs text-gray-600 shadow-md">
+                    {notice()}
+                  </p>
+                )}
+              </Show>
+              <CompareBar
+                onOpen={() => dashboard().openPanel()}
+                onClear={() => dashboard().clearAll()}
+              />
+            </div>
+          )}
+        </Show>
+
         <div class="pointer-events-none absolute bottom-2 left-2 top-2 z-30 flex flex-col items-start gap-2 sm:bottom-4 sm:left-4 sm:top-4">
           <Show when={sidebarActive()}>
             <Sidebar

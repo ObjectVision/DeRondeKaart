@@ -34,6 +34,16 @@ export interface UseMapPointerOptions {
   /** From useClickPopup: records the click anchor and drops the marker. */
   setPopupPoint: (point: { x: number; y: number } | null) => void;
   handleMapClick: (e: MapLayerMouseEvent, snapped: LngLat | null) => void;
+  /**
+   * Dashboard comparison, on the LEFT map only: when it consumes the click the
+   * feature goes into a comparison slot and no popup opens. Returns false when
+   * the click was not on a selectable area, so the normal path runs.
+   *
+   * Left-only because the comparison is one set of areas, and a second map's
+   * feature state is a different source — the same reason combinations land on
+   * the left map.
+   */
+  compareClick?: (e: MapLayerMouseEvent) => boolean;
 }
 
 export interface UseMapPointerResult {
@@ -69,6 +79,10 @@ export function useMapPointer(options: UseMapPointerOptions): UseMapPointerResul
     // While a draw tool is armed, clicks belong to its gesture (MapLibre
     // fires click after mouseup) — don't drop the marker or open FeatureInfo.
     if (options.boxSelect.active() || options.annotationActive()) return;
+    // The comparison claims the click before picking does: an area that is
+    // being added to the comparison should not also open a feature popup on
+    // top of the panel the user is about to read.
+    if (options.compareClick?.(e)) return;
     options.pickA.handleClick(e);
     options.pickB.clear(); // one popup: the latest click wins
     options.setPopupPoint({ x: e.point.x, y: e.point.y });
