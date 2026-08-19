@@ -48,7 +48,7 @@ addProtocol("cog", cogProtocol);
 const pmtilesProtocol = new PmtilesProtocol();
 addProtocol("pmtiles", pmtilesProtocol.tile);
 
-// Register the in-memory score-grid protocol ("Lagen combineren"). It has to be
+// Register the in-memory score-grid protocol ("Criteria combineren"). It has to be
 // in place before any `cogmem://` source is added — MapLibre falls back to a
 // plain fetch for an unregistered scheme, which fails with "URL scheme not
 // supported" — and a combination can be created as soon as the map is up.

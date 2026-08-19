@@ -404,7 +404,7 @@ export interface LayerConfig {
    * `data/convert-tif-to-cog-10m.py`. Band value = the index of the matching
    * `geostyler.rules` entry; 255 = nodata.
    *
-   * Its presence is what makes a layer eligible for "Lagen combineren": classes
+   * Its presence is what makes a layer eligible for "Criteria combineren": classes
    * can only be combined cell-by-cell when every input is on the same grid, so a
    * layer without this companion is not offered. Every raster referenced here
    * must have been produced at the SAME `--zoom` as the others.

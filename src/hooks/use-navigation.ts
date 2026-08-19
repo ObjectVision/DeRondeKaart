@@ -21,7 +21,7 @@ interface UseNavigationOptions {
 /**
  * Resolve a navigation leaf id to its LayerConfig.
  *
- * Combination layers ("Lagen combineren") are created in the session and have no
+ * Combination layers ("Criteria combineren") are created in the session and have no
  * `layers.json` entry, so they are rebuilt from the filter store instead. Their
  * ids are checked FIRST and without loading layers.json: the id space is
  * disjoint (`filter__*`), and toggling one off and on again must not depend on a

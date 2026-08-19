@@ -123,7 +123,7 @@ interface LegendProps {
   /** Opens the basemap picker. Its presence also gates the whole chrome row. */
   onOpenBasemaps?: () => void;
   /**
-   * Opens the "Lagen combineren" dialog. Omit to hide the button entirely (the
+   * Opens the "Criteria combineren" dialog. Omit to hide the button entirely (the
    * `combinations` map.json flag is off, or this is the right-map legend).
    */
   onOpenCombine?: () => void;
@@ -590,10 +590,10 @@ export function Legend(props: LegendProps): JSX.Element {
                 disabled={!props.canCombine}
                 title={
                   props.canCombine
-                    ? "Lagen combineren"
-                    : "Geen van de actieve lagen kan gecombineerd worden"
+                    ? "Criteria combineren"
+                    : "Geen van de actieve lagen levert criteria om te combineren"
                 }
-                aria-label="Lagen combineren"
+                aria-label="Criteria combineren"
               >
                 {/* Greyed out rather than hidden when nothing can be combined:
                     the button disappearing as layers come and go would read as

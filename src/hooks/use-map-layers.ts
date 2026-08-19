@@ -878,7 +878,7 @@ function addCogLayer(config: LayerConfig, getMap: MapAccessor) {
   }
 
   if (!map.getSource(sourceId)) {
-    // In-memory score grids ("Lagen combineren") are served by a protocol
+    // In-memory score grids ("Criteria combineren") are served by a protocol
     // registered on the MAIN thread only. A `url:` source resolves its TileJSON
     // inside the worker, which holds a SEPARATE protocol registry and so falls
     // back to a plain fetch ("URL scheme cogmem is not supported"). Naming the
