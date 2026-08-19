@@ -8,7 +8,9 @@ import path from "node:path";
  * precompression) that have no business running for a test process.
  */
 export default defineConfig({
-  plugins: [solid()],
+  // `hot: false`: solid-refresh has no HMR runtime under Vitest and its
+  // injected `file:///@solid-refresh` import fails to resolve there.
+  plugins: [solid({ hot: false })],
   resolve: {
     alias: { "@": path.resolve(import.meta.dirname, "./src") },
     // vite-plugin-solid needs the browser/dev build of solid-js; without this

@@ -1,4 +1,4 @@
-import { For, Show, createMemo, createSignal, type JSX } from "solid-js";
+import { For, Show, batch, createMemo, createSignal, type JSX } from "solid-js";
 
 import { DialogContent, DialogRoot, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -201,8 +201,16 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
           type="text"
           value={effectiveName()}
           onInput={(e) => {
-            setNameEdited(true);
-            setName(e.currentTarget.value);
+            // Read the field before writing either signal: a write flushes the
+            // value binding synchronously, so on the first keystroke it would
+            // rewrite the input from the still-empty `name` and the read would
+            // come back blank. Batched so the binding runs once, after both
+            // signals hold their new values.
+            const value = e.currentTarget.value;
+            batch(() => {
+              setNameEdited(true);
+              setName(value);
+            });
           }}
           placeholder="Naam nieuwe laag"
           class="mb-5 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-400"
