@@ -27,7 +27,7 @@ roles interact with it:
 |---|---|---|
 | **Viewer** — policy analysts and advisors at provinces, municipalities, housing and care organisations (the deployments to date: *Woonzorganalyse Limburg*, *Startanalyse 2026*) | Explore thematic layers, filter to their own gemeente/wijk/buurt, compare scenarios side by side, read the numbers behind the map, share what they found | None beyond a browser. The app must be self-explanatory on desktop **and tablet** |
 | **Configuration author** — the modeller or data steward of a deployment | Define every layer, class break, chart, filter level and navigation entry in five JSON files; prepare the data itself upstream in GeoDMS (see [preprocessing-pipeline.md](preprocessing-pipeline.md)) | GeoDMS, JSON; no app-code changes needed for a new deployment (SD §3.1) |
-| **Embedder / integrator** | Drive the app from a host: a Power BI report pushing data and filters, a website embedding the circular map view, a colleague opening a shared URL | The URL command and `postMessage` surface (SD §8) |
+| **Embedder / integrator** | Use the app as a standalone page or embed it in an IFrame on another website — the full map or the circular embed view — driving layers, view and data through URL commands and host messages; a colleague opening a shared URL | The URL command and `postMessage` surface (SD §8) |
 
 There is deliberately **no login and no server-side state**: everything a
 viewer sees is determined by the deployment's configuration plus the state
