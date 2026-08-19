@@ -51,12 +51,12 @@ const store: { version: number; defs: FilterLayerDef[]; nextId: number } = {
 
 /**
  * Spectral ramp for scores, red through yellow to blue: score 1 (matching one
- * kenmerk) is red and the top score blue, so the cells that satisfy everything
+ * criterion) is red and the top score blue, so the cells that satisfy everything
  * read as the calm end of the scale and the partial matches stand out as warm.
  *
  * Seven stops, sampled by {@link rampFor}. It is a diverging scheme, so it stays
  * legible at any step count and its midpoint (#ffffbf) is deliberately the
- * palest — a combination with an odd number of layers puts "half the kenmerken"
+ * palest — a combination with an odd number of layers puts "half the criteria"
  * there.
  */
 const SCORE_RAMP = [
@@ -109,11 +109,11 @@ export function rampFor(count: number): string[] {
 
 /**
  * Dutch label for a combination's score class: with 3 layers, score 2 reads
- * "2 van 3 kenmerken". `total` is the LAYER count — one layer is one kenmerk,
- * however many of its classes were ticked.
+ * "2 van 3 criteria". `total` is the LAYER count — one layer is one criterion,
+ * however many of its classes were ticked. The dialog uses the same word.
  */
 function scoreLabel(score: number, total: number): string {
-  return `${score} van ${total} kenmerken`;
+  return `${score} van ${total} criteria`;
 }
 
 /**

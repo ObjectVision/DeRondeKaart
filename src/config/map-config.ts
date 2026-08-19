@@ -138,7 +138,7 @@ export interface MapConfig {
    */
   filterFlyTo: boolean;
   /**
-   * Whether the "Lagen combineren" feature is available: the `masked_transitions_add`
+   * Whether the "Criteria combineren" feature is available: the `masked_transitions_add`
    * toolbutton and its dialog, plus the "Combinaties" theme appended to the
    * navigation tree. Defaults to `false` — only configs whose layers carry
    * `filterRaster` companions can combine anything.

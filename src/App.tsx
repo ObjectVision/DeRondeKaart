@@ -126,7 +126,7 @@ interface AppProps {
   chartsPanelEnabled?: boolean;
   shareEnabled?: boolean;
   filterFlyToEnabled?: boolean;
-  /** map.json `combinations` — the "Lagen combineren" toolbutton + Combinaties thema. */
+  /** map.json `combinations` — the "Criteria combineren" toolbutton + Combinaties thema. */
   combinationsEnabled?: boolean;
   annotationsEnabled?: boolean;
   mapControls?: MapControlsConfig;
@@ -185,7 +185,7 @@ function App(rawProps: AppProps): JSX.Element {
   const mapLeftLayers = useMapLayers();
   const mapRightLayers = useMapLayers();
 
-  // Session-scoped combination layers ("Lagen combineren"). Bound to the LEFT
+  // Session-scoped combination layers ("Criteria combineren"). Bound to the LEFT
   // stack: a combination is one new layer, so it belongs to one map.
   const filterLayers = useFilterLayers(
     mapLeftLayers.addLayer,
@@ -1078,7 +1078,7 @@ function App(rawProps: AppProps): JSX.Element {
           </div>
         </Show>
 
-        {/* "Lagen combineren" dialog — classes across the active layers. Mounted
+        {/* "Criteria combineren" dialog — classes across the active layers. Mounted
             only while open, so each opening starts from a clean selection. */}
         <Show when={props.combinationsEnabled && combineOpen()}>
           <CombineLayersDialog

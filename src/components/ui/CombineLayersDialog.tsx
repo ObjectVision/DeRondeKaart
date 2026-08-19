@@ -42,13 +42,13 @@ function refKey(ref: ClassRef): string {
 }
 
 /**
- * Auto-generated layer name: each layer contributes `"<layer> <a / b>"`, and the
- * layers are joined with `" + "` — e.g.
+ * Auto-generated layer name: each criterion contributes `"<layer> <a / b>"`, and
+ * the criteria are joined with `" + "` — e.g.
  * `"Supermarkt binnen 500 m + 3-30-300 goed/zeer goed"`.
  *
  * The two separators carry the scoring rule: `/` reads as "or" between classes
- * of one layer, `+` as "and" between layers. Grouping by layer also mirrors the
- * score, which counts layers matched rather than classes ticked.
+ * of one criterion, `+` as "and" between criteria. Grouping by layer also mirrors
+ * the score, which counts criteria met rather than classes ticked.
  */
 function autoName(
   layers: LayerConfig[],
@@ -89,9 +89,19 @@ function stepForLayer(
 }
 
 /**
- * "Lagen combineren" — pick classes across the active layers and turn them into
- * one scored layer, where a cell's class is how many of the chosen filters it
- * passes.
+ * The rule the checkboxes obey, stated in the panel and repeated as hover help
+ * on each class — the feedback that prompted it was that the ticks only became
+ * legible after reading the resulting map.
+ */
+const CRITERION_HINT =
+  "Het criterium telt mee wanneer de waarde van het object binnen een geactiveerde klasse valt.";
+
+/**
+ * "Criteria combineren" — pick classes across the active layers and turn them
+ * into one scored layer, where a cell's class is how many of the chosen criteria
+ * it meets. One layer is one criterion, however many of its classes are ticked;
+ * the dialog says so up front, because the scoring is otherwise only legible
+ * from the resulting map.
  *
  * Only classes that layers **already define** are offerable: the checkboxes come
  * from `geostyler.rules[].name`, the same source the legend renders, so a
@@ -161,7 +171,7 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
             <Icon name="masked_transitions_add" size={chromeIconSize()} color={chromeIconColor()} />
             {/* Same treatment as the "Themas" and "Legenda" panel headings. */}
             <DialogTitle class="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              Lagen combineren
+              Criteria combineren
             </DialogTitle>
           </div>
           <Button
@@ -173,6 +183,15 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
           >
             <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
           </Button>
+        </div>
+
+        {/* There is one scoring method and it is hardcoded, so this states it
+            rather than offering a choice. */}
+        <div class="mb-5 rounded-lg bg-gray-50 px-3 py-2">
+          <div class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Combinatiestrategie
+          </div>
+          <div class="text-sm text-gray-900">Telling van voldane criteria zonder weging</div>
         </div>
 
         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -190,13 +209,15 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
         />
 
         <div class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Geselecteerde lagen
+          Criteria
         </div>
+        <p class="mb-2 text-xs text-gray-500">{CRITERION_HINT}</p>
         <Show
           when={props.layers.length > 0}
           fallback={
             <p class="mb-5 text-sm text-gray-500">
-              Voeg eerst kaartlagen met klassen toe aan de kaart.
+              Voeg eerst kaartlagen met klassen toe aan de kaart om criteria te kunnen
+              combineren.
             </p>
           }
         >
@@ -252,6 +273,7 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
                                   role="checkbox"
                                   aria-checked={checked()}
                                   onClick={() => toggleClass(layer.id, rule.name)}
+                                  title={CRITERION_HINT}
                                   class="flex cursor-pointer items-center gap-1.5 rounded p-1 text-left"
                                 >
                                   <Icon
