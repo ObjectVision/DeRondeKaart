@@ -7,52 +7,61 @@ beforeEach(() => {
 });
 
 const CONFIG = {
-  gemeenteLayer: "gemeente_klik",
-  buurtLayer: "buurt_klik",
-  buurtZoom: 12,
+  levels: [
+    { layer: "selectie_gemeente", code: "gm_code", minzoom: 0 },
+    { layer: "selectie_wijk", code: "wk_code", minzoom: 9 },
+    { layer: "selectie_buurt", code: "bu_code", minzoom: 12 },
+  ],
   widgets: [{ kind: "statistic", ref: "inwoners" }],
 };
 
 describe("buildComplementaryConfig", () => {
-  it("reads the layers, zoom and widgets", () => {
+  it("reads the levels and widgets", () => {
     const config = buildComplementaryConfig(CONFIG);
-    expect(config.gemeenteLayer).toBe("gemeente_klik");
-    expect(config.buurtLayer).toBe("buurt_klik");
-    expect(config.buurtZoom).toBe(12);
+    expect(config.levels.map((level) => level.layer)).toEqual([
+      "selectie_gemeente",
+      "selectie_wijk",
+      "selectie_buurt",
+    ]);
     expect(config.widgets).toHaveLength(1);
   });
 
-  it("falls back on an out-of-range zoom and drops invalid widgets", () => {
+  it("sorts levels by minzoom whatever order the file lists them in", () => {
     const config = buildComplementaryConfig({
-      ...CONFIG,
-      buurtZoom: 99,
+      levels: [CONFIG.levels[2], CONFIG.levels[0], CONFIG.levels[1]],
+    });
+    expect(config.levels.map((level) => level.minzoom)).toEqual([0, 9, 12]);
+  });
+
+  it("drops levels without a layer or code, and invalid widgets", () => {
+    const config = buildComplementaryConfig({
+      levels: [{ layer: "x" }, { code: "gm_code" }, CONFIG.levels[0]],
       widgets: [{ kind: "statistic" }, { kind: "chart", ref: "x" }],
     });
-    expect(config.buurtZoom).toBe(12);
+    expect(config.levels).toHaveLength(1);
     // A statistic without a ref resolves against nothing.
     expect(config.widgets).toHaveLength(1);
   });
 
-  it("defaults the code columns", () => {
-    const config = buildComplementaryConfig({});
-    expect(config.gemeenteCode).toBe("gm_code");
-    expect(config.buurtCode).toBe("bu_code");
+  it("yields an empty config for a non-object body", () => {
+    expect(buildComplementaryConfig("nee").levels).toHaveLength(0);
   });
 });
 
 describe("levelForZoom", () => {
-  it("switches layer and code column at the threshold", () => {
+  it("takes the last level the zoom has reached", () => {
     const config = buildComplementaryConfig(CONFIG);
-    expect(levelForZoom(config, 11.9)).toEqual({
-      layerId: "gemeente_klik",
-      codeColumn: "gm_code",
-    });
-    expect(levelForZoom(config, 12)).toEqual({ layerId: "buurt_klik", codeColumn: "bu_code" });
+    expect(levelForZoom(config, 0)?.layer).toBe("selectie_gemeente");
+    expect(levelForZoom(config, 8.9)?.layer).toBe("selectie_gemeente");
+    expect(levelForZoom(config, 9)?.layer).toBe("selectie_wijk");
+    expect(levelForZoom(config, 11.9)?.layer).toBe("selectie_wijk");
+    expect(levelForZoom(config, 12)?.layer).toBe("selectie_buurt");
+    expect(levelForZoom(config, 18)?.code).toBe("bu_code");
   });
 
-  it("is null for a level the project does not offer", () => {
-    const config = buildComplementaryConfig({ ...CONFIG, gemeenteLayer: undefined });
-    expect(levelForZoom(config, 8)).toBeNull();
-    expect(levelForZoom(config, 14)).not.toBeNull();
+  it("is null below the coarsest level and when there are none", () => {
+    const config = buildComplementaryConfig({ levels: [CONFIG.levels[1], CONFIG.levels[2]] });
+    expect(levelForZoom(config, 6)).toBeNull();
+    expect(levelForZoom(buildComplementaryConfig({}), 12)).toBeNull();
   });
 });

@@ -494,7 +494,12 @@ function App(rawProps: AppProps): JSX.Element {
   // areas, and feature state belongs to one map's sources.
   // eslint-disable-next-line solid/reactivity -- a capability flag, fixed for the session
   const compare = props.complementaryDashboardEnabled
-    ? useComplementaryDashboard(mapLeftView, mapLeftLayers.layerEntries)
+    ? useComplementaryDashboard(
+        mapLeftView,
+        mapLeftLayers.layerEntries,
+        mapLeftLayers.addLayer,
+        mapLeftReady,
+      )
     : null;
 
   const pointer = useMapPointer({
@@ -1266,13 +1271,6 @@ function App(rawProps: AppProps): JSX.Element {
                     onClose={() => dashboard().closePanel()}
                     onRemove={(slot) => dashboard().removeSlot(slot)}
                   />
-                )}
-              </Show>
-              <Show when={dashboard().notice()}>
-                {(notice) => (
-                  <p class="pointer-events-auto rounded-full bg-white/95 px-3 py-1 text-xs text-gray-600 shadow-md">
-                    {notice()}
-                  </p>
                 )}
               </Show>
               <CompareBar

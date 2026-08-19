@@ -133,6 +133,9 @@ function applyRawOverrides(
 ): NativeLayerDef {
   if (sym.paint) def.paint = { ...def.paint, ...sym.paint };
   if (sym.layout) def.layout = { ...def.layout, ...sym.layout };
+  // Replaces rather than merges: a filter is one expression, and half of one
+  // means nothing.
+  if (sym.rawFilter) def.filter = sym.rawFilter;
 
   if (sym.type && sym.type !== def.type) {
     // A vector source cannot feed a raster layer; MapLibre would throw at
