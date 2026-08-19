@@ -9,6 +9,7 @@ import {
   getFilterLayers,
   removeFilterLayer,
   type FilterLayerDef,
+  type ScoreClass,
 } from "@/layers/filter-layers";
 import { computeScoreGrid, type ScoreInput } from "@/layers/filter-raster";
 import { registerScoreGrid, unregisterScoreGrid } from "@/layers/score-protocol";
@@ -30,6 +31,8 @@ export interface UseFilterLayersResult {
     configs: LayerConfig[],
     maps: MapAccessor[],
     stepFor: (layerId: string) => number | undefined,
+    /** Legend classes from the dialog's preview; omit for the default ramp. */
+    classes?: ScoreClass[],
   ) => Promise<void>;
   /** Remove a combination from the maps and release its grid. */
   remove: (id: string, maps: MapAccessor[]) => void;
@@ -56,6 +59,7 @@ export function useFilterLayers(
     configs: LayerConfig[],
     maps: MapAccessor[],
     stepFor: (layerId: string) => number | undefined,
+    classes?: ScoreClass[],
   ) {
     setError(null);
     setBusy(true);
@@ -90,9 +94,13 @@ export function useFilterLayers(
         return;
       }
 
-      const { def } = addFilterLayer(name, refs);
+      const { def } = addFilterLayer(name, refs, classes);
       const grid = await computeScoreGrid(inputs);
-      registerScoreGrid(def.id, grid, def.colors);
+      registerScoreGrid(
+        def.id,
+        grid,
+        def.classes.map((item) => item.color),
+      );
 
       const config = filterLayerConfig(def);
       for (const map of maps) {
@@ -122,7 +130,7 @@ export function useFilterLayers(
     defs().map((def) => ({
       id: def.id,
       label: def.name,
-      color: def.colors[def.colors.length - 1],
+      color: def.classes[def.classes.length - 1].color,
     }));
 
   return { defs, leaves, busy, error, create, remove };

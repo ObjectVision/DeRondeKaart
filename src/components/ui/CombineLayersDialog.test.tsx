@@ -2,7 +2,8 @@ import { afterEach, describe, expect, it } from "vitest";
 import { cleanup, fireEvent, render, screen } from "@solidjs/testing-library";
 
 import { CombineLayersDialog } from "@/components/ui/CombineLayersDialog";
-import type { LayerConfig } from "@/layers";
+import type { ClassRef } from "@/components/ui/CombineLayersDialog";
+import type { LayerConfig, ScoreClass } from "@/layers";
 
 function layer(id: string, name: string, ruleNames: string[]): LayerConfig {
   return {
@@ -23,16 +24,26 @@ function layer(id: string, name: string, ruleNames: string[]): LayerConfig {
 
 const LAYERS = [layer("a", "Supermarkt", ["goed", "matig"]), layer("b", "Groen", ["hoog"])];
 
-function renderDialog() {
+type CreateHandler = (name: string, refs: ClassRef[], classes: ScoreClass[]) => void;
+
+function renderDialog(onCreate: CreateHandler = () => {}) {
   return render(() => (
     <CombineLayersDialog
       open
       onOpenChange={() => {}}
       layers={LAYERS}
       stepFor={() => undefined}
-      onCreate={() => {}}
+      onCreate={onCreate}
     />
   ));
+}
+
+function labelInput(score: number): HTMLInputElement {
+  return screen.getByLabelText("Tekst voor klasse " + score) as HTMLInputElement;
+}
+
+function colorInput(score: number): HTMLInputElement {
+  return screen.getByLabelText("Kleur voor klasse " + score) as HTMLInputElement;
 }
 
 function nameInput(): HTMLInputElement {
@@ -71,5 +82,50 @@ describe("CombineLayersDialog name field", () => {
 
     fireEvent.click(screen.getByText("hoog"));
     expect(nameInput().value).toBe("Supermarkt goed / matig + Groen hoog");
+  });
+});
+
+describe("CombineLayersDialog legend preview", () => {
+  it("shows one class per criterion, with the default label and colour", () => {
+    renderDialog();
+    expect(screen.queryByLabelText("Tekst voor klasse 1")).toBeNull();
+
+    fireEvent.click(screen.getByText("goed"));
+    expect(labelInput(1).value).toBe("1 van 1 criteria");
+    expect(screen.queryByLabelText("Tekst voor klasse 2")).toBeNull();
+
+    fireEvent.click(screen.getByText("hoog"));
+    expect(labelInput(1).value).toBe("1 van 2 criteria");
+    expect(labelInput(2).value).toBe("2 van 2 criteria");
+    // The ramp takes its ends for two criteria: red for the weakest score.
+    expect(colorInput(1).value).toBe("#d53e4f");
+  });
+
+  it("resets edited labels when the criteria change", () => {
+    renderDialog();
+    fireEvent.click(screen.getByText("goed"));
+    fireEvent.input(labelInput(1), { target: { value: "Voldoet" } });
+    expect(labelInput(1).value).toBe("Voldoet");
+
+    fireEvent.click(screen.getByText("hoog"));
+    expect(labelInput(1).value).toBe("1 van 2 criteria");
+  });
+
+  it("hands the edited legend to onCreate, falling back for a cleared label", () => {
+    const created: ScoreClass[][] = [];
+    renderDialog((_name, _refs, classes) => created.push(classes));
+
+    fireEvent.click(screen.getByText("goed"));
+    fireEvent.click(screen.getByText("hoog"));
+    fireEvent.input(labelInput(1), { target: { value: "Half" } });
+    fireEvent.input(colorInput(1), { target: { value: "#123456" } });
+    fireEvent.input(labelInput(2), { target: { value: "   " } });
+    fireEvent.click(screen.getByText("Laag maken"));
+
+    expect(created).toHaveLength(1);
+    expect(created[0]).toEqual([
+      { label: "Half", color: "#123456" },
+      { label: "2 van 2 criteria", color: "#3288bd" },
+    ]);
   });
 });
