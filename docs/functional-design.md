@@ -129,10 +129,10 @@ can:
 - **Open the metainfo dialog** from the ⓘ button (§4).
 - **Switch the basemap** (vector cartography ↔ aerial photo) from the
   *Referentielagen* dialog.
-- **Combine layers**: pick individual classes from the active layers and
-  create a named combination layer from them — used to build "areas that are
-  in class X of layer A *and* class Y of layer B" views without leaving the
-  browser.
+- **Combine criteria** (*Criteria combineren*): pick individual classes from
+  the active layers and create a named combination layer from them — used to
+  build "areas that are in class X of layer A *and* class Y of layer B" views
+  without leaving the browser.
 
 ## 6. Selection and filtering
 
