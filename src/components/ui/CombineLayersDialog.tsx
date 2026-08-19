@@ -1,10 +1,19 @@
-import { For, Show, createMemo, createSignal, type JSX } from "solid-js";
+import {
+  For,
+  Index,
+  Show,
+  batch,
+  createEffect,
+  createMemo,
+  createSignal,
+  type JSX,
+} from "solid-js";
 
 import { DialogContent, DialogRoot, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconColor, chromeIconSize } from "@/config/map-config";
-import type { LayerConfig } from "@/layers";
+import { defaultScoreClasses, type LayerConfig, type ScoreClass } from "@/layers";
 
 /** One chosen class: a layer plus the name of one of its GeoStyler rules. */
 export interface ClassRef {
@@ -27,8 +36,8 @@ export interface CombineLayersDialogProps {
    * indistinguishable in the "Combinaties" list.
    */
   stepFor: (layerId: string) => number | undefined;
-  /** Create the combined layer from the chosen classes. */
-  onCreate: (name: string, refs: ClassRef[]) => void;
+  /** Create the combined layer from the chosen classes and its legend. */
+  onCreate: (name: string, refs: ClassRef[], classes: ScoreClass[]) => void;
 }
 
 /**
@@ -129,6 +138,15 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
   );
   const [name, setName] = createSignal("");
   const [nameEdited, setNameEdited] = createSignal(false);
+  const [classes, setClasses] = createSignal<ScoreClass[]>([]);
+
+  // The legend follows the criteria: a change to the selection changes how many
+  // score classes exist and what they mean, so edited labels and colours would
+  // no longer describe them. Unlike the name — which the user keeps once typed
+  // — the preview is reset, and the panel says so.
+  createEffect(() => {
+    setClasses(defaultScoreClasses(selected()));
+  });
 
   const generated = createMemo(() => autoName(props.layers, selected(), props.stepFor));
   const effectiveName = () => (nameEdited() ? name() : generated());
@@ -157,9 +175,20 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
     });
   }
 
+  function updateClass(index: number, patch: Partial<ScoreClass>) {
+    setClasses((prev) => prev.map((item, i) => (i === index ? { ...item, ...patch } : item)));
+  }
+
   function handleCreate() {
     if (selected().length === 0) return;
-    props.onCreate(effectiveName().trim() || generated(), selected());
+    // A label cleared to nothing falls back to its default rather than putting a
+    // blank row in the legend.
+    const defaults = defaultScoreClasses(selected());
+    const legend = classes().map((item, index) => ({
+      color: item.color,
+      label: item.label.trim() || defaults[index].label,
+    }));
+    props.onCreate(effectiveName().trim() || generated(), selected(), legend);
     props.onOpenChange(false);
   }
 
@@ -201,8 +230,16 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
           type="text"
           value={effectiveName()}
           onInput={(e) => {
-            setNameEdited(true);
-            setName(e.currentTarget.value);
+            // Read the field before writing either signal: a write flushes the
+            // value binding synchronously, so on the first keystroke it would
+            // rewrite the input from the still-empty `name` and the read would
+            // come back blank. Batched so the binding runs once, after both
+            // signals hold their new values.
+            const value = e.currentTarget.value;
+            batch(() => {
+              setNameEdited(true);
+              setName(value);
+            });
           }}
           placeholder="Naam nieuwe laag"
           class="mb-5 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-400"
@@ -296,6 +333,47 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
                 );
               }}
             </For>
+          </div>
+        </Show>
+
+        <Show when={classes().length > 0}>
+          <div class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Legenda
+          </div>
+          <p class="mb-2 text-xs text-gray-500">
+            Zo komt de nieuwe laag in de legenda te staan. Kleur en tekst zijn aan te
+            passen; bij het wijzigen van de criteria worden ze teruggezet.
+          </p>
+          <div class="mb-5 flex flex-col gap-1.5">
+            {/* <Index>, not <For>: the rows are positional, and rebuilding them on
+                every keystroke would take the focus out of the field being typed in. */}
+            <Index each={classes()}>
+              {(item, index) => (
+                <div class="flex items-center gap-2">
+                  <input
+                    type="color"
+                    value={item().color}
+                    onInput={(e) => updateClass(index, { color: e.currentTarget.value })}
+                    title="Kleur van deze klasse"
+                    aria-label={`Kleur voor klasse ${index + 1}`}
+                    class="h-8 w-10 flex-shrink-0 cursor-pointer rounded border border-gray-200 bg-white p-0.5"
+                  />
+                  <input
+                    type="text"
+                    value={item().label}
+                    onInput={(e) => {
+                      // Read before writing, as with the name field: the write
+                      // flushes the value binding synchronously.
+                      const label = e.currentTarget.value;
+                      updateClass(index, { label });
+                    }}
+                    title="Tekst van deze klasse"
+                    aria-label={`Tekst voor klasse ${index + 1}`}
+                    class="w-full rounded-lg border border-gray-200 px-2 py-1 text-xs outline-none focus:border-gray-400"
+                  />
+                </div>
+              )}
+            </Index>
           </div>
         </Show>
 
