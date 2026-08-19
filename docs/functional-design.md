@@ -60,26 +60,69 @@ disables a feature flag simply does not render that function (SD §9).
 
 ## 3. Layer configuration, class breaks and visualisations
 
+### 3.1 What kinds of layers exist
+
+Every thematic layer is **classified**: it shows which class each feature or
+cell falls in, never a raw value painted through a continuous colour ramp. The
+class breaks are decided upstream in GeoDMS and written into the data as a
+class attribute or band value; the app styles and labels those classes
+([preprocessing-pipeline.md](preprocessing-pipeline.md)). That single decision
+is what makes the legend exhaustive and the map readable — a viewer can always
+name what a colour means.
+
+Within that rule, six kinds of layer are supported.
+
+| Kind | Typical content | How it is drawn |
+|---|---|---|
+| **Categorical polygon coverage** — the dominant case | An exhaustive tiling of the study area: buurten, wijken, grid cells, walking-distance zones, suitability classes. Geometry is multi-polygon; a feature may be several disjoint rings | One `Fill` class per rule, optionally with an outline. A class can be drawn as a **diagonal hatch** instead of a flat fill, which is how "not applicable" or "excluded" classes read as absent without disappearing from the legend |
+| **Point layers** | Facilities and locations: GP practices, pharmacies, care homes, stops | A `Mark` (circle, sized by radius) for statistical points, or an `Icon` (a named symbol) where the category matters more than the count. Clicking snaps the marker to the feature, not the cursor pixel |
+| **Line layers** | Roads, railways, routes, and administrative boundaries drawn as outlines only | A `Line` class per rule. A boundary layer is a polygon source with a transparent fill and a coloured stroke |
+| **Continuous surfaces → classified raster** | Quantities that exist everywhere rather than per feature: heat demand, accessibility, density, elevation | A Cloud-Optimized GeoTIFF, classified **per pixel through the same rule syntax** as a vector layer — band values are exposed as `band0`, `band1`, … and the first matching rule paints the pixel; nodata is transparent. A raster that already carries its own colours (`embeddedColors`) is drawn as-is and its rules only populate the legend |
+| **Composite layers** | One theme whose best source differs by zoom: generalized polygons when zoomed out, full detail when zoomed in | Several child sources under **one** navigation, legend and share entry; each child loads only while the map zoom is inside its band. The zoom-band mechanism in the tile pyramid is the data-side counterpart ([preprocessing-pipeline.md](preprocessing-pipeline.md)) |
+| **Derived combination layers** | The result of *Criteria combineren* (§5): how many of the chosen criteria each location satisfies | Computed in the browser cell by cell over a shared uniform grid, then drawn as an ordinary raster layer. This is the one place a **ramp** appears — a diverging red-to-blue scale over the score, which is an ordinal count, not a measured value |
+
+Two properties cut across the kinds. A **timeseries** layer is one logical
+layer over many yearly sources, played or scrubbed from the legend (§5). Any
+tile-based layer may carry an attribute **sidecar** so its charts and
+Kerncijfers cover the whole dataset rather than the tiles in view (§6).
+
+The proportions in practice: *Startanalyse 2026* is 201 layers, all polygon
+coverages, most with six classes and the largest with 21; *Woonzorganalyse
+Limburg* mixes 51 polygon, 17 point and 3 line layers.
+
+Two capabilities exist in the renderer but are not part of the intended product
+today: **3-D extrusion** and **heatmaps**. Both can be reached by a raw style
+override on a rule, and neither is used by any deployment — they are an escape
+hatch, not a supported visualisation.
+
+### 3.2 What a layer entry declares
+
 Everything renderable is declared in `layers.json`, the deployment's layer
 catalogue. A layer entry gives (SD §9, §5):
 
-- **Identity and description** — `id`, display `name`, a one-line
+- **Identity and description** — `id`, display `name`, an optional `subname`
+  carrying the unit the values are measured in ("GJ/jaar per WEQ"), a one-line
   `description`, and a `meta` reference (§4).
 - **Data** — a `source` URL plus `format` (PMTiles, MVT, COG, FlatGeobuf,
-  GeoJSON), the `sourceLayer` inside tiled sources, and `geometryType`. Large
-  attribute sets ride in a Parquet/Arrow `attributeSource` sidecar so charts
-  aggregate the *whole* dataset, not just the tiles in view (SD §7).
+  GeoJSON, or `composite`), the `sourceLayer` inside tiled sources, and
+  `geometryType` (`point` / `line` / `polygon`), which decides how the class
+  swatches are drawn and how a click resolves. Large attribute sets ride in a
+  Parquet/Arrow `attributeSource` sidecar so charts aggregate the *whole*
+  dataset, not just the tiles in view (SD §7). A FlatGeobuf layer loads only
+  from a configured zoom inwards, reading just the current viewport — the
+  format for detail that is only meaningful up close.
 - **Placement** — a z-order band (`beforeid` anchor: background, map,
   foreground, overlay, study area; SD §5.4) so thematic fills never cover
   roads and labels.
 - **Style: class breaks as GeoStyler rules.** A layer's classification is a
   list of named rules, each pairing a *filter* (which features belong to the
   class, e.g. `["==","class",1]` or range comparisons) with *symbolizers* (how
-  the class looks: fill, line, point mark, icon, heatmap, extrusion — or raster
-  colouring for COG, using the same rule syntax). Rules are evaluated first
-  match wins. **The class-break values themselves are computed upstream** — the
-  GeoDMS stage classifies and writes a class attribute; the app only styles and
-  labels the classes ([preprocessing-pipeline.md](preprocessing-pipeline.md),
+  the class looks: fill, line, point mark or icon — or per-pixel raster
+  colouring for a COG, using the same rule syntax). Rules are evaluated first
+  match wins, so specific classes go before catch-alls. **The class-break
+  values themselves are computed upstream** — the GeoDMS stage classifies and
+  writes a class attribute; the app only styles and labels the classes
+  ([preprocessing-pipeline.md](preprocessing-pipeline.md),
   [system-design-styling.md](system-design-styling.md)).
 - **Behaviour flags** — `featureinfo` popup template, `charts` and
   `statistics` references, `timeseries` (a year placeholder in the source that
