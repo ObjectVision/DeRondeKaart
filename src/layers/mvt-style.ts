@@ -1,3 +1,5 @@
+import { chromeIconColor } from "@/config/map-config";
+
 import type { LayerConfig, GeoStylerRule, GeoStylerFilter, FillSymbolizer, LineSymbolizer, MarkSymbolizer, IconSymbolizer, NativeLayerType, RawStyleOverrides } from "./types";
 import { hatchPatternId, resolveHatch } from "./hatch-pattern";
 import {
@@ -29,6 +31,15 @@ export const HIGHLIGHT_RULE = "highlight";
 
 /** Rule-name suffix of the casing drawn under the highlight outline. */
 export const HIGHLIGHT_CASING_RULE = "highlight-casing";
+
+/** Stroke width of the outline marking which areas a click can select. */
+const SELECTABLE_WIDTH = 1;
+
+/** Opacity of that outline — a hint at the grid, not a data layer. */
+const SELECTABLE_OPACITY = 0.6;
+
+/** Rule-name suffix of the outline around the selectable areas. */
+export const SELECTABLE_RULE = "selectable";
 
 /** Rule-name suffix of the dashboard comparison outline. */
 export const COMPARE_RULE = "compare";
@@ -195,10 +206,52 @@ function layerId(config: LayerConfig, ruleName?: string): string {
  * one layer — or two when a polygon also sets `lineColor` (fill + stroke).
  */
 export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
+  const styleDefs = buildStyleLayerDefs(config);
   return [
-    ...buildStyleLayerDefs(config),
+    ...styleDefs,
+    ...buildSelectableOutlineDefs(config, styleDefs),
     ...buildHighlightLayerDefs(config),
     ...buildCompareLayerDefs(config),
+  ];
+}
+
+/**
+ * A thin outline around the areas a click can put into a comparison slot.
+ *
+ * The selection layer paints nothing of its own (`fill-opacity: 0`), so without
+ * this there is no sign that the map is divided into clickable areas at all —
+ * hovering finds an outline, but only once the pointer is already on one.
+ *
+ * It takes the data layer's own filter rather than a copy of it: that filter is
+ * what decides which level a click at this zoom means (gemeente / wijk / buurt
+ * in `layers.json`), so borrowing it is what keeps the drawn grid and the
+ * clickable grid the same thing. Only borrowed from a single-rule layer — with
+ * several rules there is no one filter to speak of, and the outline then covers
+ * the whole layer.
+ *
+ * Static paint, no feature state: this is the resting state of the layer, and
+ * the hover and comparison outlines draw over it.
+ */
+function buildSelectableOutlineDefs(
+  config: LayerConfig,
+  styleDefs: NativeLayerDef[],
+): NativeLayerDef[] {
+  if (!isCompareSelectable(config) || config.geometryType !== "polygon") return [];
+
+  return [
+    {
+      id: layerId(config, SELECTABLE_RULE),
+      ruleName: "",
+      type: "line",
+      filter: styleDefs.length === 1 ? styleDefs[0].filter : undefined,
+      paint: {
+        // map.json's accent, so the grid reads as chrome rather than as data.
+        "line-color": chromeIconColor(),
+        "line-width": SELECTABLE_WIDTH,
+        "line-opacity": SELECTABLE_OPACITY,
+      },
+      layout: {},
+    },
   ];
 }
 
