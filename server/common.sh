@@ -546,7 +546,14 @@ ExecStart=${WEBHOOK_BIN} \\
     -verbose
 Restart=on-failure
 RestartSec=5s
-NoNewPrivileges=true
+# Deliberately false: the deploy scripts this daemon launches end with
+# \`sudo systemctl restart <service>\` (allow-listed per service in
+# /etc/sudoers.d/). NoNewPrivileges=true is inherited by every child, which
+# makes that sudo fail with "the no new privileges flag is set" — the deploy
+# then updates the files but silently never restarts the service.
+# The sudoers entries stay the real privilege boundary: one exact systemctl
+# command per service, nothing else.
+NoNewPrivileges=false
 PrivateTmp=true
 
 [Install]

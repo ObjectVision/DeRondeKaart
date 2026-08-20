@@ -1,3 +1,5 @@
+![De Ronde kaart](public/logo.svg)
+
 # De Ronde kaart
 
 An open-source web map application for geospatial data, focused on transparent
