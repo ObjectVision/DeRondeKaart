@@ -12,14 +12,7 @@ import {
   toggleCompareSelection,
   type CompareSelection,
 } from "@/layers/compare-slots";
-import { tileSourceId } from "@/hooks/use-map-layers";
-
-/** What `setFeatureState` needs to address one feature. */
-interface FeatureKey {
-  source: string;
-  sourceLayer: string | undefined;
-  id: string | number;
-}
+import { featureKey, writeFeatureState, type FeatureKey } from "@/layers/feature-state";
 
 export interface UseCompareSelectionResult {
   /**
@@ -41,12 +34,12 @@ export interface UseCompareSelectionResult {
  * one feature, this holds up to four at once and paints them in different
  * colours from one numeric state (see buildCompareLayerDefs).
  *
- * The two rules that hook documents apply here unchanged:
- * - **Clear by writing `NO_COMPARE_SLOT`, never `removeFeatureState`.** MapLibre
- *   6.3.0 throws from the latter once the state has been flushed to a tile, and
- *   the map then stops painting entirely.
- * - **Forget the held keys on `styledata`**, because a basemap swap drops every
- *   source together with its feature state.
+ * Clearing writes `NO_COMPARE_SLOT` rather than removing the state — see
+ * `writeFeatureState`, which both hooks share, for the MapLibre 6.3.0 crash
+ * that rule avoids. Unlike the hover highlight, this hook RE-APPLIES on
+ * `styledata` instead of only forgetting: a basemap swap drops every source
+ * with its feature state, and the outlines would otherwise disappear while the
+ * panel still lists the areas.
  */
 export function useCompareSelection(
   mapView: Accessor<MapViewHandle | null>,
@@ -57,15 +50,6 @@ export function useCompareSelection(
   // Not a signal: nothing renders from it and the panel reads the store.
   let active: Array<{ key: FeatureKey; slot: number }> = [];
 
-  function keyFor(config: LayerConfig, featureId: string | number): FeatureKey {
-    return {
-      source: tileSourceId(config),
-      // Read at call time: a timeseries layer rewrites `sourceLayer` in place.
-      sourceLayer: config.sourceLayer,
-      id: featureId,
-    };
-  }
-
   /** Push the store's state onto the map, clearing whatever it replaces. */
   function sync(selections: CompareSelection[]) {
     const map = mapView()?.map();
@@ -75,18 +59,18 @@ export function useCompareSelection(
     }
 
     for (const entry of active) {
-      if (map.getSource(entry.key.source)) {
-        map.setFeatureState(entry.key, { compareSlot: NO_COMPARE_SLOT });
-      }
+      writeFeatureState(map, entry.key, "compareSlot", NO_COMPARE_SLOT);
     }
 
     const next: Array<{ key: FeatureKey; slot: number }> = [];
     for (const selection of selections) {
       const config = configById(selection.layerId);
       if (!config || !canHighlight(config)) continue;
-      const key = keyFor(config, selection.featureId);
+      const key = featureKey(config, selection.featureId);
+      // Only hold keys that were really written: a source can be missing in the
+      // window after a basemap swap, and a held key must stay clearable.
       if (!map.getSource(key.source)) continue;
-      map.setFeatureState(key, { compareSlot: selection.slot });
+      writeFeatureState(map, key, "compareSlot", selection.slot);
       next.push({ key, slot: selection.slot });
     }
     active = next;
