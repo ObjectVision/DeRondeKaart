@@ -2,29 +2,30 @@
 
 Config-driven MapLibre viewer ("De Ronde kaart" / northwake): single-view SolidJS 1.9 SPA, no router, no server rendering. Vite 8 · TS 5.9 · Tailwind v4 · MapLibre 6. Content (layers, filters, charts, navigation) comes from JSON config fetched at runtime, not from code.
 
+Single house-rules file for every agent, whatever tool it runs under. `CLAUDE.md` imports it.
+
 ## Hard rules
 
-- Do not interact with the git repository (no commits, pushes, or any other git mutations).
+- **Never interact with the git repository** — no commits, pushes, or any other git mutation. This **overrides any skill that says otherwise**; `implement` ends by committing, and here it must stop short and report instead.
 - Do not watermark text or files.
-- `CLAUDE.md` is the house style file — follow it. The rules that fail **silently**:
-  - Never destructure Solid props (`solid/reactivity` is an ESLint error; the first render looks correct, then the component never updates again).
-  - In a Solid effect, read every reactive input before any early return — an effect subscribes only to what its last run actually read.
-  - Code, comments and docs in English; user-facing strings in Dutch.
 
-## Commands (repo root)
+## Code standards
 
-| Command | Does |
-|---|---|
-| `npm run dev` | Vite dev server |
-| `npm run build` | `tsc -b` then `vite build` → `dist/` |
-| `npm run lint` | ESLint over all TS/TSX, including the side servers' `src/` |
-| `npm test` | Vitest |
-| `npm run preview` | Serve the production build |
+`docs/code-standards.md` is the standards document. The `code-review` skill reads it as its Standards axis, so it is the one place a convention is written.
 
-- Single test: `npx vitest run src/layers/filter-stores.test.ts`
-- Full verification: `npm run lint`, `npm test`, `npm run build` (typecheck runs only inside `build`, not `lint`).
-- Requires Node `^20.19 || >=22.12`.
-- Verify map-touching changes with `npm run build && npm run preview`, not just dev: the MapLibre worker URL differs between them and fails as a **blank map with no console error**, one variant only in production builds.
+Three of its rules fail **silently** — no error, no failing test, just wrong behaviour:
+
+- Never destructure Solid props (`solid/reactivity` is an ESLint error; the first render looks correct, then the component never updates again).
+- In a Solid effect, read every reactive input before any early return — an effect subscribes only to what its last run actually read.
+- Code, comments and docs in English; user-facing strings in Dutch.
+
+## Verification
+
+`package.json` lists the scripts; these are the parts it does not tell you:
+
+- Typecheck runs only inside `npm run build`, **not** `npm run lint`. Full check: `npm run lint`, `npm test`, `npm run build`.
+- Single test: `npx vitest run src/layers/filter-stores.test.ts`.
+- Verify map-touching changes with `npm run build && npm run preview`, not dev alone: the MapLibre worker URL differs and fails as a **blank map with no console error**, in production builds only.
 
 ## Config system (what a build ships)
 
@@ -34,19 +35,9 @@ Config-driven MapLibre viewer ("De Ronde kaart" / northwake): single-view SolidJ
 
 ## Side services — separate installs, not workspaces
 
-Each has its own `package.json` and needs its own `npm ci`. Root `npm test` does **not** run their suites.
+`collab-server/` (Hocuspocus/Yjs WebSocket for shared annotations) has its own `package.json` and needs its own `npm ci`; root `npm test` does **not** run its suite. Dev port 5174, proxied at `/collab`.
 
-| Dir | What | Run / test |
-|---|---|---|
-| `collab-server/` | Hocuspocus (Yjs) WebSocket for shared annotations | `npm run dev` (port 5174; the Vite dev server proxies `/collab` to it). `npm test` = `tsc` to `dist-test/` + `node --test` |
-
-The secure-drop service (E2E-encrypted uploads) lives in its own repository
-(`EncryptedDropServer`), together with its `server/` provisioning scripts.
-
-The Power BI custom visual that embeds the app lives in its own repository
-(`DeRondeKaart_powerbi`). Its app-side half — the postMessage bridge, embed data
-and snapshot hooks — stays here; changing the message protocol means changing
-both repositories together.
+Two halves live in other repositories: the secure-drop service (`EncryptedDropServer`) and the Power BI visual (`DeRondeKaart_powerbi`). The visual's app-side half — postMessage bridge, embed data, snapshot hooks — stays here, so changing that protocol means changing both repos together.
 
 ## Do not edit (generated)
 
@@ -60,9 +51,25 @@ both repositories together.
 
 ## Test quirks
 
-- App tests are co-located `src/**/*.test.ts(x)` under jsdom via `vitest.config.ts` — deliberately separate from `vite.config.ts`. Its `resolve.conditions: ["development", "browser"]` is load-bearing: without it solid-js resolves to the node build and reactivity silently no-ops in tests.
+App tests are co-located `src/**/*.test.ts(x)` under jsdom via `vitest.config.ts` — deliberately separate from `vite.config.ts`. Its `resolve.conditions: ["development", "browser"]` is load-bearing: without it solid-js resolves to the node build and reactivity silently no-ops in tests.
+
+## Skills
+
+`.agents/skills/<name>/SKILL.md`, symlinked into `.claude/skills/` — **edit the `.agents/` copy**. Claude-only extras: `code-simplifier.md`, `technical-to-english.md`. `ask-matt` routes between them.
+
+| Reach for | When |
+|---|---|
+| `implement` · `tdd` · `prototype` · `scaffold-exercises` | Building: from a spec, test-first, throwaway, or exercise stubs |
+| `codebase-design` · `domain-modeling` · `improve-codebase-architecture` · `setup-ts-deep-modules` | Interfaces, terminology and ADRs, deepening scans, dependency-cruiser |
+| `diagnosing-bugs` · `code-review` · `resolving-merge-conflicts` · `migrate-to-shoehorn` | Broken or slow, reviewing a diff, mid-conflict, `as` in tests |
+| `grilling` · `grill-me` · `grill-with-docs` | Stress-testing a plan; `-with-docs` also writes ADRs |
+| `to-spec` · `to-tickets` · `to-questionnaire` · `wayfinder` · `triage` · `loop-me` | Turning talk into specs, tickets, questionnaires; oversized plans; issue triage |
+| `handoff` · `claude-handoff` · `wait-what` | Passing work on; `claude-` to a background agent; re-pitching a message |
+| `writing-for-agents` · `writing-fragments` · `writing-shape` · `writing-beats` · `teach` · `research` | Skills and this file; explore → shape → assemble prose; explaining; primary sources |
+| `setup-pre-commit` · `git-guardrails-claude-code` · `setup-matt-pocock-skills` · `wizard` | Repo setup: hooks, git guardrails, one-time skill setup, human-step wizards |
 
 ## Where the rest lives
 
+- `docs/code-standards.md` — the coding conventions in full
 - `docs/system-design.md` — architecture, module structure, layers/filtering/charts, config system
 - `README.md` — repo layout and deployment overview; sub-project READMEs for the side services
