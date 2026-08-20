@@ -50,19 +50,6 @@ whole, and anything a project omits falls back to the default. Building with no
 `VITE_CONFIG_PROJECT` produces a valid but content-free app. See
 [configs/README.md](configs/README.md).
 
-## Working on the code
-
-[CLAUDE.md](CLAUDE.md) holds the house conventions. The one that bites hardest:
-
-> **Never destructure props.** Solid props are getters — destructuring reads each
-> one once, outside any tracking scope, and the component then silently never
-> updates again.
-
-The same hazard has a runtime-only cousin that no linter catches: a Solid effect
-subscribes to *what it actually read on its last run*, so an early `return` above
-an accessor read silently unsubscribes the effect from it. Read your reactive
-inputs before any guard that can bail out.
-
 ## Documentation
 
 | | |
@@ -73,18 +60,6 @@ inputs before any guard that can bail out.
 | [docs/system-design-version-constraints.md](docs/system-design-version-constraints.md) | Why certain versions are pinned |
 | [docs/preprocessing-pipeline.md](docs/preprocessing-pipeline.md) | Turning source data into the served formats |
 | [server/README.md](server/README.md) | VM provisioning and deployment |
-
-## Repository layout
-
-| Path | Contents |
-|---|---|
-| `src/` | The application |
-| `public/` · `configs/` | Default config files, and per-project overlays |
-| `scripts/` | Build-time tooling (icon-font subsetting, asset precompression) |
-| `server/` | Bash provisioning for nginx, deploy webhooks and the side services |
-| `collab-server/` | Standalone Node service, with its own tests |
-| `data/` | Python preprocessing scripts |
-| `deploy/` | nginx config for the container image |
 
 ## Deployment
 
@@ -102,20 +77,9 @@ De Ronde kaart is free and open source software.
 All code in this repository is licensed under the GNU Affero General Public License, Version 3.0
 ([LICENSE](LICENSE) or [https://www.gnu.org/licenses/agpl-3.0.html](https://www.gnu.org/licenses/agpl-3.0.html)).
 
-The AGPL is a strong copyleft license: if you modify this software and let other people use it
-over a network, you have to offer them the source of your modified version. That network clause
-is the difference between the AGPL and the ordinary GPL, and it is deliberate here — this is a
-web application, so it is normally *used* rather than *distributed*, and the plain GPL would
-never be triggered.
-
 The map data, tiles and per-project configuration a deployment serves are **not** part of this
 software and are not covered by this license. They carry whatever terms their publisher sets —
 see the relevant `configs/<project>/` overlay and the layer metainfo for attribution.
 
 Third-party dependencies keep their own licenses; run `npm ls --all` or read `package-lock.json`
 for the resolved set.
-
-### Your contributions
-
-Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in
-the work by you shall be licensed as above, without any additional terms or conditions.
