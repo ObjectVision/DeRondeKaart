@@ -1,6 +1,8 @@
-![De Ronde kaart](public/logo.svg)
+# ![De Ronde kaart](public/logo.svg)
 
-# De Ronde kaart
+[![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](#license)
+[![Built with SolidJS](https://img.shields.io/badge/built%20with-SolidJS-2c4f7c.svg)](https://www.solidjs.com)
+[![Powered by MapLibre](https://img.shields.io/badge/powered%20by-MapLibre-295daa.svg)](https://maplibre.org)
 
 An open-source web map application for geospatial data, focused on transparent
 visualisation, clear styling and thorough metainfo while staying fast.
@@ -93,3 +95,27 @@ plain static files behind nginx.
 Provisioning and the GitHub-webhook deploy live in
 [server/setup_map_application.md](server/setup_map_application.md). A
 `Dockerfile` and `docker-compose.yml` cover the container route.
+
+## License
+
+De Ronde kaart is free and open source software.
+All code in this repository is licensed under the GNU Affero General Public License, Version 3.0
+([LICENSE](LICENSE) or [https://www.gnu.org/licenses/agpl-3.0.html](https://www.gnu.org/licenses/agpl-3.0.html)).
+
+The AGPL is a strong copyleft license: if you modify this software and let other people use it
+over a network, you have to offer them the source of your modified version. That network clause
+is the difference between the AGPL and the ordinary GPL, and it is deliberate here — this is a
+web application, so it is normally *used* rather than *distributed*, and the plain GPL would
+never be triggered.
+
+The map data, tiles and per-project configuration a deployment serves are **not** part of this
+software and are not covered by this license. They carry whatever terms their publisher sets —
+see the relevant `configs/<project>/` overlay and the layer metainfo for attribution.
+
+Third-party dependencies keep their own licenses; run `npm ls --all` or read `package-lock.json`
+for the resolved set.
+
+### Your contributions
+
+Unless you explicitly state otherwise, any contribution intentionally submitted for inclusion in
+the work by you shall be licensed as above, without any additional terms or conditions.
