@@ -39,7 +39,9 @@ Each has its own `package.json` and needs its own `npm ci`. Root `npm test` does
 | Dir | What | Run / test |
 |---|---|---|
 | `collab-server/` | Hocuspocus (Yjs) WebSocket for shared annotations | `npm run dev` (port 5174; the Vite dev server proxies `/collab` to it). `npm test` = `tsc` to `dist-test/` + `node --test` |
-| `drop-server/` | E2E-encrypted upload-only drop service | Same test pattern. `npm run page:vendor` populates the gitignored `page/vendor/` with libsodium |
+
+The secure-drop service (E2E-encrypted uploads) lives in its own repository
+(`EncryptedDropServer`), together with its `server/` provisioning scripts.
 
 The Power BI custom visual that embeds the app lives in its own repository
 (`DeRondeKaart_powerbi`). Its app-side half — the postMessage bridge, embed data
@@ -49,7 +51,7 @@ both repositories together.
 ## Do not edit (generated)
 
 - `src/vendor/parquet-wasm/` — wasm-bindgen output (`scripts/build-parquet-wasm.sh`)
-- `dist/`, `collab-server/dist*/`, `drop-server/dist*/`
+- `dist/`, `collab-server/dist*/`
 
 ## Version pins — read `docs/system-design-version-constraints.md` before upgrading
 

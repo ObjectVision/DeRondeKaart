@@ -78,7 +78,7 @@ inputs before any guard that can bail out.
 | `public/` · `configs/` | Default config files, and per-project overlays |
 | `scripts/` | Build-time tooling (icon-font subsetting, asset precompression) |
 | `server/` | Bash provisioning for nginx, deploy webhooks and the side services |
-| `collab-server/` · `drop-server/` | Standalone Node services, each with its own tests |
+| `collab-server/` | Standalone Node service, with its own tests |
 | `data/` | Python preprocessing scripts |
 | `deploy/` | nginx config for the container image |
 
