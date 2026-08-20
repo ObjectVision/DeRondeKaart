@@ -548,27 +548,51 @@ function App(rawProps: AppProps): JSX.Element {
   // `atEnd` keeps it at the bottom of the draw order, so a layer the user adds
   // later paints above it. addLayer is a no-op for an id already present, which
   // is what makes re-running this safe.
+  //
+  // `pickLayerAdded` latches only once the layer is really on the map, never
+  // before the await: loadLayerConfigs fetches a large layers.json and then a
+  // PMTiles range read per highlightable config, so under a slow server it can
+  // resolve long after onLabelsReady already replayed an empty stack. Latching
+  // up front made that failure permanent — the entry sat in layerEntries (so the
+  // legend and the pick filters counted it) while addMvtLayer had silently
+  // no-oped against a style that was not ready. `pickLayerLoading` is the
+  // separate in-flight guard, so a second effect run cannot start a duplicate
+  // load while the first is still settling.
   let pickLayerAdded = false;
+  let pickLayerLoading = false;
   createEffect(() => {
-    if (!props.pickLayerId || !mapLeftReady() || pickLayerAdded) return;
-    pickLayerAdded = true;
+    if (!props.pickLayerId || !mapLeftReady() || pickLayerAdded || pickLayerLoading) return;
+    pickLayerLoading = true;
     const pickLayerId = props.pickLayerId;
     loadLayerConfigs()
       // async continuation: reads the
       // layer stack when the configs land, deliberately outside this effect's scope
       // eslint-disable-next-line solid/reactivity
-      .then((configs) => {
+      .then(async (configs) => {
         const config = getLayerConfigById(configs, pickLayerId);
         if (!config) {
+          // Nothing to retry: the id is simply wrong, and re-running would only
+          // repeat the warning on every basemap swap.
+          pickLayerAdded = true;
           console.warn(`map.json: pickLayer "${pickLayerId}" not found in layers.json`);
           return;
         }
-        void mapLeftLayers.addLayer(config, getMapLeft, { atEnd: true });
+        await mapLeftLayers.addLayer(config, getMapLeft, { atEnd: true });
+        // The configs may have landed after onLabelsReady replayed an empty
+        // stack, leaving addLayer's own native add a no-op against a style that
+        // was still swapping. Replaying here is idempotent and is what actually
+        // puts the layer on the map in that case.
+        mapLeftLayers.syncImperativeLayers(getMapLeft);
+        pickLayerAdded = true;
       })
       .catch((err) => {
         // Non-fatal: without it the map simply has nothing to click, which is
-        // how every other config behaves.
+        // how every other config behaves. Deliberately left un-latched so a
+        // later effect run can try again.
         console.warn(`Failed to add pickLayer "${pickLayerId}":`, err);
+      })
+      .finally(() => {
+        pickLayerLoading = false;
       });
   });
 
