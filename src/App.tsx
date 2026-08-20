@@ -290,7 +290,16 @@ function App(rawProps: AppProps): JSX.Element {
   const highlightB = useFeatureHighlight(mapRightView);
 
   // Hover cursor (pointer over clickable features, grab otherwise) for each map
-  const hoverA = useHoverCursor(mapLeftLayers.layerEntries, mapLeftView, highlightA.setHovered);
+  //
+  // The comparison predicate is passed as a closure because `compare` is
+  // declared further down; it is only ever called from mousemove, by which time
+  // both exist. Left map only, matching where comparison clicks are accepted.
+  const hoverA = useHoverCursor(
+    mapLeftLayers.layerEntries,
+    mapLeftView,
+    highlightA.setHovered,
+    (point) => compare?.isSelectableAt(point) ?? false,
+  );
   const hoverB = useHoverCursor(mapRightLayers.layerEntries, mapRightView, highlightB.setHovered);
 
   // The shared click popup: marker point, Street View target, popup anchor, and
