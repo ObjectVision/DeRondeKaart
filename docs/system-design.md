@@ -682,6 +682,9 @@ location block as `.parquet` and `.tif`.
 ## 11. (optional) subsystems
 
 **Collaboration on the map see [system-design-collaboration.md](system-design-collaboration.md).**
-**Power-Bi custom visual see [system-design-power-bi.md](system-design-power-bi.md).**
+**Power-Bi custom visual — the visual itself lives in the `DeRondeKaart_powerbi`
+repository. Its app-side half stays here: the postMessage bridge
+(`src/dashboard/postmessage-bridge.ts`), `use-embed-data.ts` and
+`use-map-snapshot.ts`.**
 
 ---

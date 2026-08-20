@@ -213,7 +213,7 @@ Four routes, all resolving through one bbox-to-camera heuristic (SD §3.4):
    place name or address. Enabled per deployment via `map.json`.
 3. **URL** — a link can carry `zoom` and `center` (§8).
 4. **Host commands** — an embedding host (Power BI) sends a raw bbox and the
-   app resolves the camera ([system-design-power-bi.md](system-design-power-bi.md)).
+   app resolves the camera.
 
 The configured initial view and study area (`map.json`) define where a fresh
 session starts.
@@ -289,5 +289,5 @@ reachable by click/tap, which is what keeps the tablet experience complete.
 | Style model and the three render targets | [system-design-styling.md](system-design-styling.md) |
 | Data preparation: GeoDMS → converters → tiles, and why generalization happens upstream | [preprocessing-pipeline.md](preprocessing-pipeline.md) |
 | Collaborative annotation | [system-design-collaboration.md](system-design-collaboration.md) |
-| Power BI custom visual | [system-design-power-bi.md](system-design-power-bi.md) |
+| Power BI custom visual | `DeRondeKaart_powerbi` repository |
 | Dependency version constraints | [system-design-version-constraints.md](system-design-version-constraints.md) |
