@@ -55,7 +55,7 @@ App tests are co-located `src/**/*.test.ts(x)` under jsdom via `vitest.config.ts
 
 ## Skills
 
-`.agents/skills/<name>/SKILL.md`, symlinked into `.claude/skills/` — **edit the `.agents/` copy**. Claude-only extras: `code-simplifier.md`, `technical-to-english.md`. `ask-matt` routes between them.
+`.agents/skills/<name>/SKILL.md` — **edit the `.agents/` copy**. `ask-matt` routes between them.
 
 | Reach for | When |
 |---|---|
