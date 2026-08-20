@@ -44,6 +44,17 @@ Shared, installed once: nginx, git, **Node.js**, the webhook daemon on
   so the webhook answers within GitHub's 10 s timeout. A **non-blocking** `tsc -b`
   logs type errors without aborting; only a genuine `vite build` failure aborts,
   so a broken/empty `dist` is never published.
+- **One build at a time** — a burst of commits used to start one detached build
+  per push, all against the same checkout: they exhausted the VM, and could
+  interleave badly enough to publish a mix of two commits. Builds now coalesce
+  into **run one, queue one, drop the rest** via two `flock` locks under `/run`.
+  Dropping is safe: every build begins with `git reset --hard origin/<branch>`,
+  so the queued build checks out the *newest* commit whenever it starts. A burst
+  of ten pushes therefore ends on the same commit as the last push, having run
+  at most two builds. The log shows `Build already queued; dropping this trigger`
+  for each discarded push, and `Waiting for any in-flight build` for the queued
+  one. Locks live on tmpfs and release on process death, so an OOM-killed or
+  power-cut build cannot wedge future deploys.
 
 ---
 

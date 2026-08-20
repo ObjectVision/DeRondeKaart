@@ -181,6 +181,10 @@ write_root_file "$DEPLOY_SCRIPT" 0755 <<EOF
 setsid -f bash -c '
 set -euo pipefail
 exec >> $DEPLOY_LOG 2>&1
+echo "--- Deploy triggered: \$(date --iso-8601=seconds) ---"
+
+$(deploy_lock_preamble "$SLUG")
+
 echo "--- Deploy started: \$(date --iso-8601=seconds) ---"
 
 cd $REPO_DIR
