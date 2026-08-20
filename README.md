@@ -66,7 +66,6 @@ inputs before any guard that can bail out.
 | [docs/system-design.md](docs/system-design.md) | Architecture, module structure, layers, filtering, charts, config system |
 | [docs/system-design-styling.md](docs/system-design-styling.md) | GeoStyler → MapLibre paint translation |
 | [docs/system-design-collaboration.md](docs/system-design-collaboration.md) | Shared annotations (Yjs / Hocuspocus) |
-| [docs/system-design-power-bi.md](docs/system-design-power-bi.md) | Power BI visual and the postMessage bridge |
 | [docs/system-design-version-constraints.md](docs/system-design-version-constraints.md) | Why certain versions are pinned |
 | [docs/preprocessing-pipeline.md](docs/preprocessing-pipeline.md) | Turning source data into the served formats |
 | [server/README.md](server/README.md) | VM provisioning and deployment |
@@ -80,7 +79,6 @@ inputs before any guard that can bail out.
 | `scripts/` | Build-time tooling (icon-font subsetting, asset precompression) |
 | `server/` | Bash provisioning for nginx, deploy webhooks and the side services |
 | `collab-server/` · `drop-server/` | Standalone Node services, each with its own tests |
-| `powerbi-visual/` | Power BI custom visual embedding the app |
 | `data/` | Python preprocessing scripts |
 | `deploy/` | nginx config for the container image |
 

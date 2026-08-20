@@ -1,5 +1,0 @@
-node_modules/
-dist/
-.tmp/
-*.pbiviz
-webpack.statistics*

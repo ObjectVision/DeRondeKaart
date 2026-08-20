@@ -10,8 +10,6 @@ export default defineConfig([
   globalIgnores([
     'dist',
     'dist-ssr',
-    // pbiviz writes visualPlugin.ts/.d.ts here on every package/start.
-    'powerbi-visual/.tmp',
     // tsc output of collab-server's src and its test build.
     'collab-server/dist',
     'collab-server/dist-test',
