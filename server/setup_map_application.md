@@ -107,8 +107,8 @@ For **private repositories**, add a deploy key first (see the same section in
 
 ## Per-project configuration
 
-The five config JSONs (`map.json`, `layers.json`, `filter.json`, `charts.json`,
-`navigation.json`) are selected at **build time** via `--config-project <slug>`, which
+The config JSONs (`map.json`, `layers.json`, `filter.json`, `charts.json`,
+`navigation.json` and the four `dashboard_*.json`) are selected at **build time** via `--config-project <slug>`, which
 sets `VITE_CONFIG_PROJECT` for both the first build and every webhook rebuild. It overlays
 `configs/<slug>/` in the repo on top of the `public/` defaults (see the repo's
 `configs/README.md`). Blank builds the neutral `public/` defaults.

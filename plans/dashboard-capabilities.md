@@ -193,3 +193,31 @@ flowchart TD
 
 1. **Phase 1 — capability + standalone:** `dashboard` flag in map.json, semantic model, lazily-loaded DuckDB engine, standalone layout, postMessage, PDF export.
 2. **Phase 2 — complementary:** selection layer + slot outlines + "meer informatie" comparison panel + multi-series charts.
+
+---
+
+## Implementation notes (built 2026-08-19)
+
+Both phases are implemented. Where the build departed from the plan above:
+
+- **`compareSlot` lives in its own hook**, `src/hooks/use-compare-selection.ts`, rather than
+  inside `use-feature-highlight.ts`. That hook holds one key per kind; the comparison holds
+  four at once and paints them from one numeric state, so widening its `HighlightKind` would
+  have made both harder to read. Its two rules are carried over verbatim: clear by writing
+  `NO_COMPARE_SLOT`, never `removeFeatureState`; forget and re-apply on `styledata`.
+- **A selection layer opts in through `LayerConfig.compareSelectable`** (plus `highlightable`),
+  not by being named in `dashboard_complementary.json` alone. `mvt-style.ts` builds the outline
+  layers from the config it is handed and has no access to the dashboard's JSON; an opt-in flag
+  also keeps the two zero-width line layers off every other highlightable layer.
+- **Layout widgets gained `measures`**, because a `charts.json` chart describes columns while
+  the dashboard queries measures. Absent, the chart's `data.fields[].field` names are read as
+  measure ids.
+- **The engine returns plain row objects**, not an Arrow `Table`: `@duckdb/duckdb-wasm` bundles
+  its own apache-arrow whose `Table` is structurally incompatible with the app's, and dashboard
+  results are aggregates rather than streamed batches.
+- **Laziness assertion 2 is sharper than written.** The entry chunk does mention
+  `vendor-duckdb` — `ComparePanel` is statically imported by `App`, and its `await import()`
+  compiles to a `__vite__mapDeps` entry. What matters, and what holds, is that duckdb appears
+  in no static import and in no `modulepreload` in `index.html`.
+- **Not done:** the two DuckDB wasm bundles (39 MB + 35 MB) push `precompress-dist` from ~4s to
+  ~134s per build; brotli q11 was left in place deliberately.

@@ -85,6 +85,20 @@ export interface RawStyleOverrides {
    * geometry; an unusable pairing is warned about in mvt-style.ts.
    */
   type?: NativeLayerType;
+  /**
+   * REPLACES the rule's generated filter with a raw MapLibre expression.
+   *
+   * Separate from `filter`, which is a GeoStyler filter and goes through a
+   * translator that only understands comparisons — a raw expression put there
+   * would be silently mangled.
+   *
+   * The reason it exists: a filter may read `["zoom"]`, which no GeoStyler
+   * filter can express. That is what lets one layer hold several administrative
+   * levels and show one per zoom, while the highlight and comparison outlines —
+   * which carry no filter — keep painting a selected feature at every zoom.
+   * Evaluated at the tile's integer zoom, not the fractional display zoom.
+   */
+  rawFilter?: unknown[];
 }
 
 export interface FillSymbolizer extends RawStyleOverrides {
@@ -326,6 +340,18 @@ export interface LayerConfig {
    * the selection there.
    */
   highlightcasing?: boolean | { color?: string; width?: number };
+  /**
+   * Offer this layer's features for the dashboard's area comparison: a click
+   * assigns the feature one of four numbered slots, each outlined in its own
+   * colour (see `compare-slots.ts`).
+   *
+   * Load-time and opt-in for the same reason as `highlightable`, whose
+   * `promoteId` it depends on: a layer cannot start carrying stable feature ids
+   * without recreating its source. `dashboard_complementary.json` picks which
+   * of the opted-in layers serves gemeente and which serves buurt; this only
+   * says the layer is eligible.
+   */
+  compareSelectable?: boolean;
   /**
    * Property holding a stable, unique feature id, used as `promoteId`.
    * Auto-detected from ID_CANDIDATES when omitted; set this when the layer

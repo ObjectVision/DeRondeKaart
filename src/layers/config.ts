@@ -127,6 +127,39 @@ function validateHighlightable(layer: Record<string, unknown>, id: string): bool
 }
 
 /**
+ * `compareSelectable`: offer the layer's features to the dashboard's area
+ * comparison.
+ *
+ * Refused without `highlightable`, which is not a style preference here but a
+ * hard dependency: `highlightable` is what gives the source its `promoteId`,
+ * and without a stable feature id the click has nothing to put in a slot and
+ * `setFeatureState` writes into the void. Silently accepting it produced a
+ * layer that looked correctly configured and never responded.
+ */
+function validateCompareSelectable(
+  layer: Record<string, unknown>,
+  id: string,
+  highlightable: boolean | undefined,
+): boolean | undefined {
+  const raw = layer.compareSelectable;
+  if (raw === undefined) return undefined;
+  if (typeof raw !== "boolean") {
+    console.warn(
+      `layers.json: layer "${id}" has invalid "compareSelectable" ${JSON.stringify(raw)}; ignoring`,
+    );
+    return undefined;
+  }
+  if (raw && !highlightable) {
+    console.warn(
+      `layers.json: layer "${id}" sets "compareSelectable" without "highlightable"; ` +
+        `its features would carry no id to select. Ignoring.`,
+    );
+    return undefined;
+  }
+  return raw;
+}
+
+/**
  * `highlightcasing`: `true` for the defaults, or an object overriding either
  * field. Mirrors the `hatch` symbolizer's flag-or-overrides shape.
  */
@@ -371,6 +404,9 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     }
   }
 
+  // Read once: `compareSelectable` is only meaningful alongside it.
+  const highlightable = validateHighlightable(layer, layer.id as string);
+
   return {
     id: layer.id as string,
     name: layer.name as string,
@@ -388,11 +424,12 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     featureinfo: (layer.featureinfo as LayerConfig["featureinfo"]) ?? undefined,
     excludeFromLegend: (layer.excludeFromLegend as boolean) ?? undefined,
     excludeFromPicking: (layer.excludeFromPicking as boolean) ?? undefined,
-    highlightable: validateHighlightable(layer, layer.id as string),
+    highlightable,
     highlightcolor: validateOptionalString(layer.highlightcolor, layer.id as string, "highlightcolor"),
     highlightcasing: validateHighlightCasing(layer.highlightcasing, layer.id as string),
     idProperty: validateOptionalString(layer.idProperty, layer.id as string, "idProperty"),
     excludeFromComparison: (layer.excludeFromComparison as boolean) ?? undefined,
+    compareSelectable: validateCompareSelectable(layer, layer.id as string, highlightable),
     beforeid: (layer.beforeid as string) ?? undefined,
     minzoom: validateZoomBound(layer.minzoom, layer.id as string, "minzoom"),
     maxzoom: validateZoomBound(layer.maxzoom, layer.id as string, "maxzoom"),

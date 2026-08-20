@@ -2,14 +2,7 @@ import { createEffect, onCleanup, type Accessor } from "solid-js";
 import type { MapViewHandle } from "@/components/map/map-view-config";
 import type { LayerConfig } from "@/layers";
 import { canHighlight } from "@/layers";
-import { tileSourceId } from "@/hooks/use-map-layers";
-
-/** What `setFeatureState` needs to address one feature. */
-interface FeatureKey {
-  source: string;
-  sourceLayer: string | undefined;
-  id: string | number;
-}
+import { featureKey, sameFeature, writeFeatureState, type FeatureKey } from "@/layers/feature-state";
 
 /** Feature-state flags the highlight layer's paint expressions read. */
 type HighlightKind = "highlight" | "selected";
@@ -57,45 +50,15 @@ export function useFeatureHighlight(
     const previous = active[kind];
     const next: FeatureKey | null =
       config && featureId !== null && canHighlight(config)
-        ? {
-            source: tileSourceId(config),
-            // Read at call time rather than cached: a timeseries layer
-            // rewrites `sourceLayer` in place on every step, and a stale value
-            // addresses a feature that is no longer there.
-            sourceLayer: config.sourceLayer,
-            id: featureId,
-          }
+        ? featureKey(config, featureId)
         : null;
 
-    // Unchanged: bail before touching the map. Mousemove is unthrottled, so
-    // without this every pixel of travel would re-set the same feature state.
-    if (
-      previous?.id === next?.id &&
-      previous?.source === next?.source &&
-      previous?.sourceLayer === next?.sourceLayer
-    ) {
-      return;
-    }
+    if (sameFeature(previous, next)) return;
 
-    // Clearing is done by writing `false`, not by removeFeatureState.
-    //
-    // MapLibre 6.3.0 throws from removeFeatureState when the feature's state
-    // was already flushed to a tile: it records `deletedStates[layer][id] =
-    // null`, and coalesceChanges then calls Object.keys() on that null,
-    // failing with "Cannot convert undefined or null to object" on EVERY
-    // subsequent render — the map stops painting. A basemap swap makes it
-    // certain, because the flush happens before the pointer next moves.
-    //
-    // Setting the flag false is equivalent here: the paint expressions test
-    // `["boolean", ["feature-state", kind], false]`, so false and absent
-    // render identically, and no state is ever deleted.
-    if (previous && map.getSource(previous.source)) {
-      map.setFeatureState(previous, { [kind]: false });
-    }
-
-    if (next && map.getSource(next.source)) {
-      map.setFeatureState(next, { [kind]: true });
-    }
+    // `false` is this channel's resting value; see writeFeatureState for why
+    // clearing never uses removeFeatureState.
+    if (previous) writeFeatureState(map, previous, kind, false);
+    if (next) writeFeatureState(map, next, kind, true);
 
     active[kind] = next;
   }

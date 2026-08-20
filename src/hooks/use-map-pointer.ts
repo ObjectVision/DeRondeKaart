@@ -34,6 +34,16 @@ export interface UseMapPointerOptions {
   /** From useClickPopup: records the click anchor and drops the marker. */
   setPopupPoint: (point: { x: number; y: number } | null) => void;
   handleMapClick: (e: MapLayerMouseEvent, snapped: LngLat | null) => void;
+  /**
+   * Dashboard comparison, on the LEFT map only: when it consumes the click the
+   * feature goes into a comparison slot and no popup opens. Returns false when
+   * the click was not on a selectable area, so the normal path runs.
+   *
+   * Left-only because the comparison is one set of areas, and a second map's
+   * feature state is a different source — the same reason combinations land on
+   * the left map.
+   */
+  compareClick?: (e: MapLayerMouseEvent) => boolean;
 }
 
 export interface UseMapPointerResult {
@@ -69,8 +79,26 @@ export function useMapPointer(options: UseMapPointerOptions): UseMapPointerResul
     // While a draw tool is armed, clicks belong to its gesture (MapLibre
     // fires click after mouseup) — don't drop the marker or open FeatureInfo.
     if (options.boxSelect.active() || options.annotationActive()) return;
-    options.pickA.handleClick(e);
-    options.pickB.clear(); // one popup: the latest click wins
+    // The comparison claims the click before picking does: an area that is
+    // being added to the comparison should not also open a feature popup on
+    // top of the panel the user is about to read.
+    //
+    // Only the PICK is suppressed. The click marker and Street View still run:
+    // they are a separate concern from feature info, and the popup renders a
+    // Street View-only state (titled "Street View") when there is no pick.
+    const claimedByCompare = options.compareClick?.(e) ?? false;
+
+    if (claimedByCompare) {
+      // Clear both explicitly: a pick left from an earlier click would
+      // otherwise stay open and merely re-anchor over the panel, which is the
+      // very thing this guard exists to prevent.
+      options.pickA.clear();
+      options.pickB.clear();
+    } else {
+      options.pickA.handleClick(e);
+      options.pickB.clear(); // one popup: the latest click wins
+    }
+
     options.setPopupPoint({ x: e.point.x, y: e.point.y });
     options.handleMapClick(e, resolveMarkerPoint(e, options.mapLeft, options.leftEntries()));
   }

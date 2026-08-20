@@ -4,6 +4,8 @@ export { loadArrowBatches } from "./arrow-loader";
 export { invalidateTableCache, clearTableCache } from "./table-cache";
 export { buildNativeLayerDefs, isNativeVectorFormat, iconSpriteId, isHighlightLayerId } from "./mvt-style";
 export { canHighlight, cachedIdProperty, prefetchIdProperty, HIGHLIGHT_COLOR } from "./feature-id";
+export { featureKey, sameFeature, writeFeatureState } from "./feature-state";
+export type { FeatureKey } from "./feature-state";
 export { addFlatgeobufLayer, removeFlatgeobufLayer, setFlatgeobufHidden } from "./flatgeobuf-loader";
 export {
   addCompositeLayer,

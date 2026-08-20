@@ -1,12 +1,18 @@
 # Per-project configuration
 
-The map application is specified by five JSON files fetched at runtime from the site root:
+The map application is specified by nine JSON files fetched at runtime from the site root:
 
 - `map.json` — map view, controls, feature flags
 - `layers.json` — data layers
 - `filter.json` — area filters
 - `charts.json` — chart definitions
 - `navigation.json` — navigation tree
+- `dashboard_semantic_model.json` — dashboard tables, relationships, measures
+- `dashboard_standalone.json` — standalone dashboard layout
+- `dashboard_complementary.json` — in-map area comparison
+- `dashboard_export.json` — dashboard print/PDF layout
+
+The four `dashboard_*` files are only read when `map.json` enables the dashboard.
 
 ## Defaults vs. overrides
 
@@ -79,6 +85,37 @@ The table in `src/components/map/map-view-config.ts` (`BASEMAPS`) is the source 
 
 This value only **seeds** a session: a basemap the user picks is remembered in
 `sessionStorage` and wins on reload, and a basemap in a share URL wins over both.
+
+## `map.json`: the dashboard
+
+`map.json` decides which dashboard modes a project offers:
+
+```json
+"dashboard": "both"
+```
+
+| value | `?mode=dashboard` | Comparison in the map |
+|---|---|---|
+| `"off"` *(default)* | — | — |
+| `"standalone"` | ✓ | — |
+| `"complementary"` | — | ✓ |
+| `"both"` | ✓ | ✓ |
+
+The capability wins over the URL: `?mode=dashboard` on a project that does not offer the
+standalone mode logs a warning and opens the map, so a link shared into the wrong project
+degrades rather than erroring.
+
+`"complementary"` additionally needs a **selection layer** in `layers.json` carrying both
+`highlightable` and `compareSelectable` (the `buurt_klik` pattern: invisible polygons,
+excluded from legend and comparison). It has to be declared there rather than in
+`dashboard_complementary.json` because feature ids come from `promoteId`, which MapLibre only
+accepts when the source is created. `dashboard_complementary.json` then names which layer
+serves gemeente, which serves buurt, and the zoom at which clicking switches between them.
+
+Enabling it means the four `dashboard_*.json` files have to say something — the neutral
+defaults in `public/` describe an empty dashboard. `dashboard_semantic_model.json` names its
+own parquet URLs, so the standalone dashboard works in a project with no map layers at all;
+the files are only fetched when the dashboard actually opens.
 
 ## Adding a new project
 

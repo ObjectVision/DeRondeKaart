@@ -32,8 +32,8 @@ The container serves the app on port 80 internally, mapped to `MAP_PORT` (defaul
 
 ## 2. Configure the project (config overlay)
 
-The five config JSONs (`map.json`, `layers.json`, `filter.json`, `charts.json`,
-`navigation.json`) are selected **at build time** via the `CONFIG_PROJECT` build arg.
+The config JSONs (`map.json`, `layers.json`, `filter.json`, `charts.json`,
+`navigation.json` and the four `dashboard_*.json`) are selected **at build time** via the `CONFIG_PROJECT` build arg.
 It picks a `configs/<project>/` directory that is overlaid on the `public/` defaults
 (see [`../configs/README.md`](../configs/README.md)). Files a project omits fall back
 to the `public/` default.
