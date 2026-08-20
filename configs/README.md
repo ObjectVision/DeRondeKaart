@@ -86,6 +86,34 @@ The table in `src/components/map/map-view-config.ts` (`BASEMAPS`) is the source 
 This value only **seeds** a session: a basemap the user picks is remembered in
 `sessionStorage` and wins on reload, and a basemap in a share URL wins over both.
 
+## `map.json`: the pick layer
+
+`map.json` may name one layer that is added to the left map at startup, so a click anywhere
+has a feature to hit before the user has added anything:
+
+```json
+"pickLayer": "buurt_klik"
+```
+
+The value is a layer **id** from `layers.json`; an id that matches nothing logs a warning and
+leaves the map with nothing to click. The layer is added like any other, so it is replayed
+after a basemap swap and takes part in feature picking — it is not a side channel.
+
+The named layer has to be declared for this job. The `buurt_klik` pattern in
+`startanalyse2026/` is the reference: invisible polygons (`"style": { "opacity": 0 }`) that
+are `excludeFromLegend` and `excludeFromComparison`, plus **`highlightable: true`** — without
+that flag the source gets no `promoteId`, its features carry no id, and nothing highlights.
+`highlightable` also requires an `mvt`/`pmtiles` format, since only vector tiles have stable
+feature ids.
+
+Highlight appearance defaults to a **red outline over a white casing**, so the common case
+needs no styling at all. `highlightcolor` overrides the outline and `highlightcasing` the
+casing (`true` for the defaults, or `{ "color", "width" }`); a casing narrower than the
+outline is refused with a warning, since it would paint nothing.
+
+`pickLayer` is unrelated to the dashboard's selection layer below, though one layer can serve
+both — that additionally needs `compareSelectable`.
+
 ## `map.json`: the dashboard
 
 `map.json` decides which dashboard modes a project offers:
