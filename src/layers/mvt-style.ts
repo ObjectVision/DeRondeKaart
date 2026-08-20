@@ -1,12 +1,27 @@
+import { chromeIconColor } from "@/config/map-config";
+
 import type { LayerConfig, GeoStylerRule, GeoStylerFilter, FillSymbolizer, LineSymbolizer, MarkSymbolizer, IconSymbolizer, NativeLayerType, RawStyleOverrides } from "./types";
 import { hatchPatternId, resolveHatch } from "./hatch-pattern";
 import {
   HIGHLIGHT_COLOR,
   HIGHLIGHT_WIDTH,
   HIGHLIGHT_CASING_COLOR,
+  HIGHLIGHT_CASING_PAD,
   HIGHLIGHT_CASING_WIDTH,
   canHighlight,
 } from "./feature-id";
+import {
+  COMPARE_SLOT_COLORS,
+  NO_COMPARE_SLOT,
+  isCompareSelectable,
+} from "./compare-slots";
+
+/** Stroke width of a comparison outline — wider than the hover highlight,
+ * because it is meant to stay readable while the user reads the panel. */
+const COMPARE_WIDTH = 3;
+
+/** Dash pattern, in multiples of the line width. */
+const COMPARE_DASHARRAY = [2, 1.5];
 
 /**
  * Rule-name suffix of the highlight outline layer. Exported so the dim tool can
@@ -17,11 +32,33 @@ export const HIGHLIGHT_RULE = "highlight";
 /** Rule-name suffix of the casing drawn under the highlight outline. */
 export const HIGHLIGHT_CASING_RULE = "highlight-casing";
 
-/** Whether `layerId` names a highlight outline layer, or its casing. */
+/** Stroke width of the outline marking which areas a click can select. */
+const SELECTABLE_WIDTH = 1;
+
+/** Opacity of that outline — a hint at the grid, not a data layer. */
+const SELECTABLE_OPACITY = 0.6;
+
+/** Rule-name suffix of the outline around the selectable areas. */
+export const SELECTABLE_RULE = "selectable";
+
+/** Rule-name suffix of the dashboard comparison outline. */
+export const COMPARE_RULE = "compare";
+
+/** Rule-name suffix of the casing drawn under the comparison outline. */
+export const COMPARE_CASING_RULE = "compare-casing";
+
+/** Whether `layerId` names a highlight or comparison outline layer, or its casing. */
 export function isHighlightLayerId(id: string): boolean {
-  // The two suffixes are disjoint — "…-highlight-casing" does not end in
+  // The suffixes are disjoint — "…-highlight-casing" does not end in
   // "-highlight" — so this stays an exact test rather than a substring match.
-  return id.endsWith(`-${HIGHLIGHT_RULE}`) || id.endsWith(`-${HIGHLIGHT_CASING_RULE}`);
+  // The comparison outlines are included because they answer the same question:
+  // dimming a layer must not fade the selection drawn on top of it.
+  return (
+    id.endsWith(`-${HIGHLIGHT_RULE}`) ||
+    id.endsWith(`-${HIGHLIGHT_CASING_RULE}`) ||
+    id.endsWith(`-${COMPARE_RULE}`) ||
+    id.endsWith(`-${COMPARE_CASING_RULE}`)
+  );
 }
 
 /**
@@ -107,6 +144,9 @@ function applyRawOverrides(
 ): NativeLayerDef {
   if (sym.paint) def.paint = { ...def.paint, ...sym.paint };
   if (sym.layout) def.layout = { ...def.layout, ...sym.layout };
+  // Replaces rather than merges: a filter is one expression, and half of one
+  // means nothing.
+  if (sym.rawFilter) def.filter = sym.rawFilter;
 
   if (sym.type && sym.type !== def.type) {
     // A vector source cannot feed a raster layer; MapLibre would throw at
@@ -166,7 +206,108 @@ function layerId(config: LayerConfig, ruleName?: string): string {
  * one layer — or two when a polygon also sets `lineColor` (fill + stroke).
  */
 export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
-  return [...buildStyleLayerDefs(config), ...buildHighlightLayerDefs(config)];
+  const styleDefs = buildStyleLayerDefs(config);
+  return [
+    ...styleDefs,
+    ...buildSelectableOutlineDefs(config, styleDefs),
+    ...buildHighlightLayerDefs(config),
+    ...buildCompareLayerDefs(config),
+  ];
+}
+
+/**
+ * A thin outline around the areas a click can put into a comparison slot.
+ *
+ * The selection layer paints nothing of its own (`fill-opacity: 0`), so without
+ * this there is no sign that the map is divided into clickable areas at all —
+ * hovering finds an outline, but only once the pointer is already on one.
+ *
+ * It takes the data layer's own filter rather than a copy of it: that filter is
+ * what decides which level a click at this zoom means (gemeente / wijk / buurt
+ * in `layers.json`), so borrowing it is what keeps the drawn grid and the
+ * clickable grid the same thing. Only borrowed from a single-rule layer — with
+ * several rules there is no one filter to speak of, and the outline then covers
+ * the whole layer.
+ *
+ * Static paint, no feature state: this is the resting state of the layer, and
+ * the hover and comparison outlines draw over it.
+ */
+function buildSelectableOutlineDefs(
+  config: LayerConfig,
+  styleDefs: NativeLayerDef[],
+): NativeLayerDef[] {
+  if (!isCompareSelectable(config) || config.geometryType !== "polygon") return [];
+
+  return [
+    {
+      id: layerId(config, SELECTABLE_RULE),
+      ruleName: "",
+      type: "line",
+      filter: styleDefs.length === 1 ? styleDefs[0].filter : undefined,
+      paint: {
+        // map.json's accent, so the grid reads as chrome rather than as data.
+        "line-color": chromeIconColor(),
+        "line-width": SELECTABLE_WIDTH,
+        "line-opacity": SELECTABLE_OPACITY,
+      },
+      layout: {},
+    },
+  ];
+}
+
+/**
+ * The comparison outlines: a dashed stroke over a white casing, drawn for the
+ * features holding one of the four comparison slots and coloured per slot.
+ *
+ * Dashed rather than solid to keep it apart from the hover/click highlight,
+ * which the same layer still shows — one feature can be both.
+ *
+ * Built here rather than through `RawStyleOverrides` because that escape hatch
+ * only applies to symbolizer-driven layers; `buildHighlightLayerDefs` and this
+ * one hand-write their paint, so `line-dasharray` is set directly.
+ *
+ * `compareSlot` is a NUMBER in feature state, not a boolean per slot: one
+ * `match` expression then paints all four, and clearing is writing -1 rather
+ * than removing state — see the MapLibre 6.3 note in use-feature-highlight.ts.
+ */
+function buildCompareLayerDefs(config: LayerConfig): NativeLayerDef[] {
+  if (!isCompareSelectable(config) || !canHighlight(config)) return [];
+
+  const slot = ["feature-state", "compareSlot"];
+  const selected = ["!=", ["coalesce", slot, NO_COMPARE_SLOT], NO_COMPARE_SLOT];
+  const onOff = (on: number, off: number): unknown[] => ["case", selected, on, off];
+
+  const colorBySlot: unknown[] = ["match", ["coalesce", slot, NO_COMPARE_SLOT]];
+  COMPARE_SLOT_COLORS.forEach((color, index) => {
+    colorBySlot.push(index, color);
+  });
+  colorBySlot.push("transparent");
+
+  return [
+    {
+      id: layerId(config, COMPARE_CASING_RULE),
+      ruleName: "",
+      type: "line",
+      paint: {
+        "line-color": HIGHLIGHT_CASING_COLOR,
+        "line-width": onOff(COMPARE_WIDTH + 2 * HIGHLIGHT_CASING_PAD, 0),
+        "line-opacity": onOff(1, 0),
+      },
+      layout: {},
+    },
+    {
+      id: layerId(config, COMPARE_RULE),
+      ruleName: "",
+      type: "line",
+      paint: {
+        "line-color": colorBySlot,
+        "line-width": onOff(COMPARE_WIDTH, 0),
+        "line-opacity": onOff(1, 0),
+        "line-dasharray": COMPARE_DASHARRAY,
+      },
+      layout: {},
+    },
+  ];
 }
 
 /**

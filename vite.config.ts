@@ -158,6 +158,10 @@ export default defineConfig(({ mode }) => {
             if (id.includes("parquet-wasm")) return "vendor-parquet"
             if (id.includes("apache-arrow")) return "vendor-arrow"
             if (id.includes("maplibre")) return "vendor-maplibre"
+            // Naming this chunk does not put it on the entry graph: what keeps
+            // DuckDB out of the map bundle is that nothing imports
+            // src/dashboard/duckdb-engine.ts statically.
+            if (id.includes("@duckdb/duckdb-wasm")) return "vendor-duckdb"
           },
         },
       },

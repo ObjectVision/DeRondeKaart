@@ -12,10 +12,36 @@ import type { LayerConfig, StatisticConfig } from "./types";
 import { loadParquetBatches } from "./parquet-loader";
 import { loadArrowBatches } from "./arrow-loader";
 
+/** One comparee a datum belongs to, when a chart plots several side by side. */
+export interface ChartSeries {
+  label: string;
+  color: string;
+}
+
 export interface ChartDatum {
   label: string;
   value: number;
   color: string;
+  /**
+   * Set only by the dashboard's area comparison, where the same measure is
+   * plotted for up to four areas at once. Absent everywhere else, and the
+   * charts render exactly as before when it is.
+   */
+  series?: ChartSeries;
+}
+
+/**
+ * The distinct series in a dataset, in first-appearance order. Empty for
+ * single-series data, which is what the charts branch on.
+ */
+export function chartSeries(data: ChartDatum[]): ChartSeries[] {
+  const byLabel = new Map<string, ChartSeries>();
+  for (const datum of data) {
+    if (datum.series && !byLabel.has(datum.series.label)) {
+      byLabel.set(datum.series.label, datum.series);
+    }
+  }
+  return [...byLabel.values()];
 }
 
 export interface ResolvedChart {

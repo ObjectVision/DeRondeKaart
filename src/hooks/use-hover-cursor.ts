@@ -6,8 +6,9 @@ import { geojsonLayerIds } from "@/layers/geojson-layer";
 import type { LayerConfig } from "@/layers";
 
 /**
- * Drives the map cursor to `pointer` over clickable features (layers with
- * `featureinfo` and not excluded from picking).
+ * Drives the map cursor to `pointer` over clickable features: layers with
+ * `featureinfo` that are not excluded from picking, plus the dashboard's
+ * comparison areas, which are clickable through a different path.
  *
  * The cursor is written straight onto the canvas: a cheap
  * `queryRenderedFeatures` per mousemove decides, and clearing it back to `""`
@@ -30,6 +31,13 @@ export function useHoverCursor(
    * when there is none. Optional: the cursor works without a highlight driver.
    */
   onHover?: (config: LayerConfig | null, featureId: string | number | null) => void,
+  /**
+   * Whether a click here would select a dashboard comparison area. Those layers
+   * set `excludeFromPicking` — they open the panel rather than a popup — so the
+   * clickable set below does not see them, yet they are just as clickable and
+   * must show the same pointer.
+   */
+  isSelectableAt?: (point: MapLayerMouseEvent["point"]) => boolean,
 ): UseHoverCursorResult {
   // Highlightable layers, independent of whether they answer clicks.
   const highlightEntries = createMemo(() =>
@@ -78,7 +86,7 @@ export function useHoverCursor(
     }
 
     if (layerIds.length === 0 && highlightIds.length === 0) {
-      canvas.style.cursor = "";
+      canvas.style.cursor = isSelectableAt?.(event.point) ? "pointer" : "";
       onHover?.(null, null);
       return;
     }
@@ -89,7 +97,9 @@ export function useHoverCursor(
     const features = map.queryRenderedFeatures(event.point, { layers: queryIds });
 
     const clickable = new Set(layerIds);
-    canvas.style.cursor = features.some((f) => clickable.has(f.layer.id)) ? "pointer" : "";
+    const overClickable =
+      features.some((f) => clickable.has(f.layer.id)) || Boolean(isSelectableAt?.(event.point));
+    canvas.style.cursor = overClickable ? "pointer" : "";
 
     if (onHover) {
       const hit = features.find((f) => highlightIds.includes(f.layer.id));
