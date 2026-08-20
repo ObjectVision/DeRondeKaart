@@ -82,9 +82,23 @@ export function useMapPointer(options: UseMapPointerOptions): UseMapPointerResul
     // The comparison claims the click before picking does: an area that is
     // being added to the comparison should not also open a feature popup on
     // top of the panel the user is about to read.
-    if (options.compareClick?.(e)) return;
-    options.pickA.handleClick(e);
-    options.pickB.clear(); // one popup: the latest click wins
+    //
+    // Only the PICK is suppressed. The click marker and Street View still run:
+    // they are a separate concern from feature info, and the popup renders a
+    // Street View-only state (titled "Street View") when there is no pick.
+    const claimedByCompare = options.compareClick?.(e) ?? false;
+
+    if (claimedByCompare) {
+      // Clear both explicitly: a pick left from an earlier click would
+      // otherwise stay open and merely re-anchor over the panel, which is the
+      // very thing this guard exists to prevent.
+      options.pickA.clear();
+      options.pickB.clear();
+    } else {
+      options.pickA.handleClick(e);
+      options.pickB.clear(); // one popup: the latest click wins
+    }
+
     options.setPopupPoint({ x: e.point.x, y: e.point.y });
     options.handleMapClick(e, resolveMarkerPoint(e, options.mapLeft, options.leftEntries()));
   }
