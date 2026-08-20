@@ -30,6 +30,11 @@ export interface UseComplementaryDashboardResult {
   codeColumn: Accessor<string>;
   /** Handles a map click; false means "not mine, run the normal path". */
   handleClick: (e: MapLayerMouseEvent) => boolean;
+  /**
+   * Whether a click at this point would select an area — drives the pointer
+   * cursor, so it must stay the same test `handleClick` applies.
+   */
+  isSelectableAt: (point: MapLayerMouseEvent["point"]) => boolean;
   /** True while the comparison panel is open. */
   panelOpen: Accessor<boolean>;
   openPanel: () => void;
@@ -116,16 +121,24 @@ export function useComplementaryDashboard(
 
   const selection = useCompareSelection(mapLeft, configById);
 
-  function handleClick(e: MapLayerMouseEvent): boolean {
+  /**
+   * The selectable feature at a point, or null when the point misses.
+   *
+   * Shared by the click handler and the hover cursor so the two can never
+   * disagree about what is selectable: the cursor turning into a pointer is a
+   * promise that a click there will land, and re-deriving the rule separately
+   * would let the zoom level or the outline exclusion drift between them.
+   */
+  function selectableAt(point: MapLayerMouseEvent["point"]) {
     const current = config();
     const map = mapLeft()?.map();
-    if (!current || !map) return false;
+    if (!current || !map) return null;
 
     const level = levelForZoom(current, map.getZoom());
-    if (!level) return false;
+    if (!level) return null;
 
     const layerConfig = configById(level.layer);
-    if (!layerConfig) return false;
+    if (!layerConfig) return null;
 
     // Same id source the pick path uses, so the query matches exactly the
     // layers this config actually put on the map — minus the outlines.
@@ -138,10 +151,25 @@ export function useComplementaryDashboard(
     const layerIds = buildNativeLayerDefs(layerConfig)
       .map((def) => def.id)
       .filter((id) => !isHighlightLayerId(id) && map.getLayer(id));
-    if (layerIds.length === 0) return false;
+    if (layerIds.length === 0) return null;
 
-    const [feature] = map.queryRenderedFeatures(e.point, { layers: layerIds });
-    if (!feature || feature.id === undefined) return false;
+    const [feature] = map.queryRenderedFeatures(point, { layers: layerIds });
+    if (!feature || feature.id === undefined) return null;
+
+    // `featureId` is returned separately so the caller keeps the narrowing this
+    // guard established — reading it back off `feature` would widen to
+    // `undefined` again.
+    return { feature, featureId: feature.id, layerConfig, level };
+  }
+
+  function isSelectableAt(point: MapLayerMouseEvent["point"]): boolean {
+    return selectableAt(point) !== null;
+  }
+
+  function handleClick(e: MapLayerMouseEvent): boolean {
+    const hit = selectableAt(e.point);
+    if (!hit) return false;
+    const { feature, featureId, layerConfig, level } = hit;
 
     const properties = feature.properties ?? {};
     const code = properties[level.code];
@@ -152,7 +180,7 @@ export function useComplementaryDashboard(
 
     setCodeColumn(level.code);
     // A fifth area rolls the oldest out, so this never refuses.
-    selection.toggle(layerConfig, feature.id, code, label);
+    selection.toggle(layerConfig, featureId, code, label);
     // The click was on a selection area either way — consumed, so no popup.
     return true;
   }
@@ -171,6 +199,7 @@ export function useComplementaryDashboard(
     config,
     codeColumn,
     handleClick,
+    isSelectableAt,
     panelOpen,
     openPanel: () => setPanelOpen(true),
     closePanel: () => setPanelOpen(false),
