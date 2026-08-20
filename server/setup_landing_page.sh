@@ -32,6 +32,7 @@ $(print_kv "--slug NAME"          "instance id, namespaces all paths (e.g. woonz
 $(print_kv "--host HOST"          "primary hostname (e.g. woonzorglimburg.nl)")
 $(print_kv "--alias HOST"         "extra hostname that 301s to primary; repeatable (e.g. www.woonzorglimburg.nl)")
 $(print_kv "--embed-host URL"     "origin this page may <iframe> (CSP frame-src); repeatable (e.g. https://map.startanalyse2026.nl)")
+$(print_kv "--embed-port N"       "proxy /api/embed-config to a Power BI embed-token service on 127.0.0.1:N; blank = off")
 $(print_kv "--repo URL"           "git remote of the Hugo source repo")
 $(print_kv "--branch NAME"        "git branch to deploy (default: main)")
 $(print_kv "--hugo-version VER"   "Hugo extended version to install (default: 0.161.1)")
@@ -45,7 +46,7 @@ EOF
 
 # --- defaults / parameter holders ---
 SLUG=""; HOST=""; ALIASES=(); REPO=""; BRANCH=""; HUGO_VERSION=""
-SECRET=""; EMAIL=""; NO_TLS=0; EMBED_HOSTS=()
+SECRET=""; EMAIL=""; NO_TLS=0; EMBED_HOSTS=(); EMBED_PORT=""; EMBED_PORT_SET=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -57,6 +58,8 @@ while [ $# -gt 0 ]; do
     --alias=*)       ALIASES+=("${1#*=}"); shift ;;
     --embed-host)    EMBED_HOSTS+=("$2"); shift 2 ;;
     --embed-host=*)  EMBED_HOSTS+=("${1#*=}"); shift ;;
+    --embed-port)    EMBED_PORT="$2"; EMBED_PORT_SET=1; shift 2 ;;
+    --embed-port=*)  EMBED_PORT="${1#*=}"; EMBED_PORT_SET=1; shift ;;
     --repo)          REPO="$2"; shift 2 ;;
     --repo=*)        REPO="${1#*=}"; shift ;;
     --branch)        BRANCH="$2"; shift 2 ;;
@@ -91,6 +94,18 @@ fi
 ask REPO   "Git repository URL (Hugo source)"  ""
 ask BRANCH "Git branch"                        "main"
 ask HUGO_VERSION "Hugo extended version"        "0.161.1"
+# embed-port: blank means no Power BI embed-token proxy. The port belongs to a
+# service provisioned by setup_service_principal.sh in the DeRondeKaart_powerbi
+# repo, which prints the port it used. Embedding a Power BI report needs BOTH
+# this flag and --embed-host https://app.powerbi.com (the CSP frame-src entry);
+# with only the proxy the token arrives but the iframe is blocked.
+if [ "$EMBED_PORT_SET" != "1" ] && [ "$ASSUME_YES" != "1" ]; then
+  ask EMBED_PORT "Power BI embed-token service port on 127.0.0.1 (blank = none)" " "
+  EMBED_PORT="${EMBED_PORT# }"
+fi
+if [ -n "$EMBED_PORT" ]; then
+  [[ "$EMBED_PORT" =~ ^[0-9]+$ ]] || die "Invalid --embed-port '$EMBED_PORT'."
+fi
 ask_secret SECRET "GitHub webhook secret (HMAC)"
 if [ "$NO_TLS" != "1" ]; then
   ask EMAIL "Email for Let's Encrypt"          ""
@@ -109,6 +124,7 @@ info "slug            : $SLUG"
 info "primary host    : $HOST"
 info "aliases         : ${ALIASES[*]:-(none)}"
 info "embeds (frame-src): ${EMBED_HOSTS[*]:-(none — page embeds nothing)}"
+info "embed-token proxy : $([ -n "$EMBED_PORT" ] && echo "/api/embed-config -> 127.0.0.1:$EMBED_PORT" || echo "(off)")"
 info "repo / branch   : $REPO ($BRANCH)"
 info "webroot         : $WEBROOT"
 info "repo dir        : $REPO_DIR"
@@ -225,6 +241,28 @@ if [ "${#EMBED_HOSTS[@]}" -gt 0 ]; then
   CSP_LANDING="$CSP_LANDING; frame-src ${EMBED_HOSTS[*]}"
 fi
 
+# Power BI embed-token proxy. Same pattern as /hooks and the map app's /collab:
+# a path on this host forwarded to a localhost daemon, so the visitor's call is
+# same-origin (no CORS anywhere) and this host's certificate covers it.
+#
+# The service mints a read-only token for exactly one report and takes no
+# parameters, so nothing here needs to filter the request — see
+# service_principal/README.md in the DeRondeKaart_powerbi repo.
+if [ -n "$EMBED_PORT" ]; then
+  EMBED_BLOCK="    location = /api/embed-config {
+        proxy_pass http://127.0.0.1:$EMBED_PORT/api/embed-config;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_read_timeout 30s;
+        # The response carries a credential: no caching, anywhere, ever.
+        proxy_hide_header Cache-Control;
+        add_header Cache-Control \"no-store\" always;
+    }"
+else
+  EMBED_BLOCK="    # No Power BI embed-token service proxied (re-run with --embed-port to enable)."
+fi
+
 log "Writing nginx site"
 {
   # Redirect block for aliases (only over HTTP until certbot runs; then it upgrades it).
@@ -253,6 +291,8 @@ server {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_read_timeout 30s;
     }
+
+$EMBED_BLOCK
 
     error_page 404 /404.html;
     location = /404.html { internal; }
@@ -296,6 +336,16 @@ echo
 ok "Landing page '$SLUG' is set up."
 info "URL          : $BASE_URL"
 info "Deploy hook  : https://$HOST/hooks/$HOOK_ID"
+if [ -n "$EMBED_PORT" ]; then
+  info "Embed config : ${BASE_URL}api/embed-config  ->  127.0.0.1:$EMBED_PORT"
+  # A Power BI embed needs the proxy AND the CSP entry; with only the proxy the
+  # token arrives and the iframe is still blocked, which looks like a blank page.
+  case " ${EMBED_HOSTS[*]-} " in
+    *" https://app.powerbi.com "*) ;;
+    *) warn "No --embed-host https://app.powerbi.com given: the CSP will block"
+       warn "  the Power BI iframe and the report renders as an empty grey box." ;;
+  esac
+fi
 echo
 log "Configure the GitHub webhook on the source repo:"
 info "Payload URL  : https://$HOST/hooks/$HOOK_ID"

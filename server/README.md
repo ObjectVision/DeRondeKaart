@@ -16,6 +16,13 @@ The collab server is the odd one out: it listens on `127.0.0.1:<port>` only
 and has no nginx site or hostname — map app instances expose it at
 `wss://<map-host>/collab` via `setup_map_application.sh --collab-port <port>`.
 
+A fifth service lives in a different repo and follows the same localhost-only
+pattern: the **Power BI embed-token service**
+(`service_principal/setup_service_principal.sh` in `DeRondeKaart_powerbi`),
+which landing pages expose at `https://<landing-host>/api/embed-config` via
+`setup_landing_page.sh --embed-port <port>`. That repo carries its own copy of
+`common.sh`; this one is canonical, so fix shared helpers here first.
+
 ## Multi-instance model
 
 Every service is provisioned as a named **instance** identified by a `--slug`.
