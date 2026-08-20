@@ -604,6 +604,56 @@ webhook_upsert_hook() {
 }
 
 # ---------------------------------------------------------------------------
+# Deploy build coalescing
+# ---------------------------------------------------------------------------
+# deploy_lock_preamble <slug>   -> prints the shell prologue for a deploy body
+#
+# A push storm used to start one detached build per commit, all against the
+# same working directory: they exhausted the VM and, worse, could interleave
+# (one build compiling while the next ran `git reset --hard` under it, so the
+# published dist mixed two commits).
+#
+# This serialises them into "run one, queue one, drop the rest" using two
+# locks. Dropping is safe because every build starts with
+# `git reset --hard origin/<branch>`: whenever the queued build finally runs it
+# checks out the LATEST commit, not the one that triggered it. So a burst of
+# ten pushes ends on the same commit preemption would have reached, without
+# ever killing a build mid-`rsync` and leaving a half-published webroot.
+#
+# Why two locks: one `flock -n` alone would drop pushes arriving during a
+# build, so the newest commit might never deploy. One blocking `flock` alone
+# would queue every push, recreating the pile-up.
+#
+# Locks live in /run (tmpfs, cleared on reboot) so a lock held by a build the
+# machine lost to a power cut cannot outlive it. flock also releases a lock
+# automatically when the fd closes — including on SIGKILL — so an OOM-killed
+# build cannot wedge the queue, which matters when resource exhaustion is the
+# very thing being fixed.
+#
+# Caller contract: keep the build body FOREGROUND. flock(1) warns that a forked
+# background process inherits the holding fd, which would keep the lock alive
+# past the build.
+deploy_lock_preamble() {
+  local slug="$1"
+  cat <<EOF
+# Serialise builds: run one, queue at most one, drop the rest.
+# See deploy_lock_preamble in server/common.sh for why.
+exec 9>/run/${slug}-deploy.pending.lock
+if ! flock -n 9; then
+  echo "--- Build already queued; dropping this trigger: \$(date --iso-8601=seconds) ---"
+  exit 0
+fi
+exec 8>/run/${slug}-deploy.run.lock
+echo "--- Waiting for any in-flight build: \$(date --iso-8601=seconds) ---"
+flock 8
+# Free the queue slot now that we hold the build lock, so the NEXT push can
+# queue behind us. Holding it for the whole build would drop every later
+# push and strand the newest commit undeployed.
+exec 9>&-
+EOF
+}
+
+# ---------------------------------------------------------------------------
 # Git repo clone/update as the deploy user
 # ---------------------------------------------------------------------------
 ensure_repo() {

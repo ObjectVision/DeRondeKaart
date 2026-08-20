@@ -167,6 +167,10 @@ BRANCH="$BRANCH"
 LOG="$DEPLOY_LOG"
 
 exec >> "\$LOG" 2>&1
+echo "--- Deploy triggered: \$(date --iso-8601=seconds) ---"
+
+$(deploy_lock_preamble "$SLUG")
+
 echo "--- Deploy started: \$(date --iso-8601=seconds) ---"
 
 cd "\$REPO_DIR"

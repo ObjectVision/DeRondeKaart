@@ -56,6 +56,9 @@ all defaults non-interactively.
    `hugo --minify --baseURL https://<host>/ --destination /var/www/<slug>`.
 5. **Deploy script** — write `/usr/local/bin/deploy-<slug>.sh` that fetches, hard-
    resets to `origin/<branch>`, and rebuilds. It logs to `/var/log/<slug>-deploy.log`.
+   Builds coalesce (**run one, queue one, drop the rest**) via two `flock` locks
+   under `/run`, so a burst of commits cannot pile up concurrent builds. The
+   queued build re-runs `git reset --hard`, so it lands on the newest commit.
 6. **Webhook** — ensure the shared webhook daemon exists, then **generate/register
    the HMAC secret** as hook id `deploy-<slug>` (leaving other instances' hooks
    untouched; the daemon is restarted so it re-reads `hooks.json`).

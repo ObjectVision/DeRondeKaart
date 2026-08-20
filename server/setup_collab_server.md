@@ -65,6 +65,9 @@ Shared, installed once: nginx, git, **Node.js**, `build-essential`/`python3`
 6. **Deploy script** — backgrounded (`setsid -f`) pull → build → service
    restart, logging to `/var/log/<slug>-deploy.log`. A sudoers drop-in allows
    the passwordless restart.
+   Builds coalesce (**run one, queue one, drop the rest**) via two `flock` locks
+   under `/run`, so a burst of commits cannot pile up concurrent builds. The
+   queued build re-runs `git reset --hard`, so it lands on the newest commit.
 7. **Webhook** — register hook id `deploy-<slug>` with the shared daemon.
 
 ---
