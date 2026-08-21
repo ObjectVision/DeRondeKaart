@@ -526,10 +526,13 @@ ensure_webhook_daemon() {
     ok "Created empty $WEBHOOK_HOOKS"
   fi
 
-  # systemd unit (created once; -hotreload picks up hooks.json changes)
-  if [ ! -f "$WEBHOOK_SERVICE" ]; then
-    log "Creating webhook systemd service (runs as ${DEPLOY_USER}, 127.0.0.1:${WEBHOOK_PORT})"
-    write_root_file "$WEBHOOK_SERVICE" 0644 <<EOF
+  # systemd unit. Written unconditionally: it is generated content, like the
+  # hooks.json entries above. The previous "only if absent" guard meant any
+  # later fix to the unit silently never reached an already-provisioned host
+  # -- which is exactly how the missing RuntimeDirectory= below went unnoticed
+  # and broke every deploy on both servers.
+  log "Writing webhook systemd service (runs as ${DEPLOY_USER}, 127.0.0.1:${WEBHOOK_PORT})"
+  write_root_file "$WEBHOOK_SERVICE" 0644 <<EOF
 [Unit]
 Description=adnanh webhook listener (shared deploy hooks)
 After=network.target
@@ -555,16 +558,23 @@ RestartSec=5s
 # command per service, nothing else.
 NoNewPrivileges=false
 PrivateTmp=true
+# The deploy scripts' flock files live here. /run itself is root-owned, so a
+# daemon running as ${DEPLOY_USER} cannot create them directly; RuntimeDirectory
+# makes systemd create and chown this subdir on every start, and clean it up on
+# stop. Keeping the locks on /run (tmpfs) preserves the reboot/SIGKILL release
+# semantics deploy_lock_preamble depends on.
+RuntimeDirectory=deploy-locks
+RuntimeDirectoryMode=0755
 
 [Install]
 WantedBy=multi-user.target
 EOF
-    sudo systemctl daemon-reload
-    sudo systemctl enable --now webhook
-    ok "webhook service enabled and started"
-  else
-    sudo systemctl start webhook 2>/dev/null || true
-  fi
+  sudo systemctl daemon-reload
+  sudo systemctl enable --now webhook
+  # daemon-reload alone does not restart a running unit, so a changed
+  # RuntimeDirectory= (or User=) would not take effect until the next reboot.
+  sudo systemctl restart webhook
+  ok "webhook service enabled and (re)started"
 }
 
 # webhook_upsert_hook <id> <execute-command> <working-dir> <secret> [branch]
@@ -624,8 +634,11 @@ webhook_upsert_hook() {
 # build, so the newest commit might never deploy. One blocking `flock` alone
 # would queue every push, recreating the pile-up.
 #
-# Locks live in /run (tmpfs, cleared on reboot) so a lock held by a build the
-# machine lost to a power cut cannot outlive it. flock also releases a lock
+# Locks live in /run/deploy-locks (tmpfs, cleared on reboot) so a lock held by
+# a build the machine lost to a power cut cannot outlive it. That dir is
+# created and owned by systemd via RuntimeDirectory= on webhook.service,
+# because /run itself is root-owned and the daemon runs unprivileged.
+# flock also releases a lock
 # automatically when the fd closes — including on SIGKILL — so an OOM-killed
 # build cannot wedge the queue, which matters when resource exhaustion is the
 # very thing being fixed.
@@ -636,14 +649,19 @@ webhook_upsert_hook() {
 deploy_lock_preamble() {
   local slug="$1"
   cat <<EOF
+# Any failure below is otherwise invisible: the webhook daemon reports success
+# to GitHub as soon as it spawns this script, so a die under set -e leaves no
+# trace but a missing "Deploy finished" line. Make it explicit in the log.
+trap 'echo "--- DEPLOY FAILED (exit \$?) at line \$LINENO: \$(date --iso-8601=seconds) ---"' ERR
+
 # Serialise builds: run one, queue at most one, drop the rest.
 # See deploy_lock_preamble in server/common.sh for why.
-exec 9>/run/${slug}-deploy.pending.lock
+exec 9>/run/deploy-locks/${slug}-deploy.pending.lock
 if ! flock -n 9; then
   echo "--- Build already queued; dropping this trigger: \$(date --iso-8601=seconds) ---"
   exit 0
 fi
-exec 8>/run/${slug}-deploy.run.lock
+exec 8>/run/deploy-locks/${slug}-deploy.run.lock
 echo "--- Waiting for any in-flight build: \$(date --iso-8601=seconds) ---"
 flock 8
 # Free the queue slot now that we hold the build lock, so the NEXT push can
