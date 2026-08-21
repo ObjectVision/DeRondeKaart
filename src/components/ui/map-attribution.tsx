@@ -1,4 +1,5 @@
-import { For, Show, createSignal, type JSX } from "solid-js";
+import { For, createSignal, type JSX } from "solid-js";
+import { DialogContent, DialogRoot, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
@@ -53,19 +54,41 @@ const SOFTWARE_CREDITS = [
 /**
  * Replacement for MapLibre's default attribution control (disabled in
  * MapView): an app-styled info toolbutton, bottom right. Clicking it opens a
- * small card with the map data attribution and open source software credits.
+ * centered modal with the map data attribution and open source software
+ * credits.
+ *
+ * The same shell and width as LayerMetaDialog and BasemapDialog: these are the
+ * app's "chrome" windows and are meant to read as one family. The credits are
+ * a wall of small print, so the corner card they used to live in was the wrong
+ * shape for them.
  */
 export function MapAttribution(): JSX.Element {
   const [open, setOpen] = createSignal(false);
 
   return (
     <div class="flex flex-col items-end gap-2">
-      <Show when={open()}>
-        <div class="max-w-72 rounded-xl bg-white/95 p-3 text-xs text-gray-600 shadow-md backdrop-blur-sm">
-          <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-            De Ronde kaart
-          </h3>
-          <p class="mb-3 leading-snug">
+      <DialogRoot open={open()} onOpenChange={setOpen}>
+        {/* Same width as the other chrome dialogs. DialogContent owns the
+            `overflow-y-auto`, so `app-scrollbar` lands here to match the
+            navigation and legend cards' scrollbar. */}
+        <DialogContent class="app-scrollbar w-[min(40rem,calc(100vw-2rem))] text-sm text-gray-600">
+          <div class="mb-5 flex items-center justify-between gap-2">
+            {/* Same heading treatment as the metainfo and "Referentielagen"
+                dialogs. */}
+            <DialogTitle class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              De Ronde kaart
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => setOpen(false)}
+              title="Sluiten"
+              aria-label="Sluiten"
+            >
+              <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+            </Button>
+          </div>
+          <p class="mb-5 leading-relaxed">
             De Ronde kaart is het startpunt van gesprek, maakt het mogelijk
             ruimtelijke vraagstukken op inzichtelijke wijze samen aan te
             vliegen en te delen.
@@ -89,13 +112,15 @@ export function MapAttribution(): JSX.Element {
               )}
             </For>
           </ul>
-          <h3 class="mb-1 mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <h3 class="mb-1 mt-5 text-xs font-semibold uppercase tracking-wide text-gray-500">
             Open source-software
           </h3>
-          <p class="flex flex-wrap gap-x-1.5 gap-y-0.5 text-[11px] leading-snug">
+          {/* Two columns at this width: the list is long and each entry is
+              short, so one column per line would leave most of the row empty. */}
+          <ul class="grid grid-cols-1 gap-x-6 gap-y-0.5 text-xs leading-relaxed sm:grid-cols-2">
             <For each={SOFTWARE_CREDITS}>
-              {(c, i) => (
-                <span class="whitespace-nowrap">
+              {(c) => (
+                <li>
                   <a
                     href={c.href}
                     target="_blank"
@@ -105,15 +130,12 @@ export function MapAttribution(): JSX.Element {
                     {c.label}
                   </a>{" "}
                   <span class="text-gray-400">({c.license})</span>
-                  <Show when={i() < SOFTWARE_CREDITS.length - 1}>
-                    <span class="text-gray-300"> ·</span>
-                  </Show>
-                </span>
+                </li>
               )}
             </For>
-          </p>
-        </div>
-      </Show>
+          </ul>
+        </DialogContent>
+      </DialogRoot>
       <div class="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
         <Button
           variant="ghost"
