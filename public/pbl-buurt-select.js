@@ -6,8 +6,10 @@
  * left on its own gemeente picker, which still works by hand.
  *
  * The gemeente is derived from the buurt code rather than passed in. A CBS
- * code is "BU" + a 4-digit gemeente + a 4-digit buurt, so BU19040213 is
- * gemeente 1904 (Stichtse Vecht). That avoids depending on a gemeente name
+ * code is "BU" + a 4-digit gemeente + a 4-character buurt, so BU19040213 is
+ * gemeente 1904 (Stichtse Vecht). Only the gemeente half is numeric — the buurt
+ * half is alphanumeric (BU0363FF03 in Amsterdam), and PBL's own data treats it
+ * as an opaque string. That avoids depending on a gemeente name
  * from our own tiles, and avoids matching names at all: PBL's gemeente
  * table is Latin-1 and contains both commas and non-ASCII
  * ("Sudwest-Fryslan"), so name comparison is a needless failure mode.
@@ -23,7 +25,7 @@
 
   var params = new URLSearchParams(window.location.search);
   var buurt = params.get("bu");
-  if (!buurt || /^BU\d{8}$/.test(buurt) === false) return;
+  if (!buurt || /^BU\d{4}[0-9A-Z]{4}$/.test(buurt) === false) return;
   var gemeenteCode = "GM" + buurt.slice(2, 6);
 
   var GIVE_UP_MS = 60000;
