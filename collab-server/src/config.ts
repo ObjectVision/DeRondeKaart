@@ -3,8 +3,7 @@
  *
  * Every value has a safe, finite default so the guards are active even when
  * nothing is set — there is deliberately no "unlimited" fallback. Operators
- * tune these via systemd `Environment=` lines (or docker-compose `environment`);
- * see collab-server/README.md.
+ * tune these via systemd `Environment=` lines; see collab-server/README.md.
  */
 
 function num(name: string, fallback: number): number {

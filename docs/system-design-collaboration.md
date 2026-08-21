@@ -6,8 +6,8 @@ both of which this file replaces in full.
 
 **This subsystem is optional.** It is gated on the `annotations` flag in
 `map.json` (default `false`), and collaborative *sessions* additionally require
-`share`. The collab server is a separate deployable — a `docker-compose`
-service, not part of the static bundle. With the flag off, or the server absent,
+`share`. The collab server is a separate deployable — a systemd service
+provisioned by `server/setup_collab_server.sh`, not part of the static bundle. With the flag off, or the server absent,
 the rest of the app is unaffected: annotations simply stay local to the browser.
 Of the shipped configurations, only `woonzorglimburg` turns it on.
 

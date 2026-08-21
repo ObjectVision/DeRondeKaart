@@ -45,12 +45,9 @@ npm run build
 If `VITE_CONFIG_PROJECT` names a directory that does not exist under `configs/`, the build
 aborts with an error — a typo can never silently ship the defaults.
 
-In deployment the var is set per instance:
-
-- **rsync deploy** — pass `--config-project <slug>` to `server/setup_map_application.sh`;
-  it bakes `VITE_CONFIG_PROJECT` into the generated deploy script.
-- **Docker** — pass `--build-arg CONFIG_PROJECT=<slug>` (or set `CONFIG_PROJECT` for
-  `docker compose build`).
+In deployment the var is set per instance: pass `--config-project <slug>` to
+`server/setup_map_application.sh`, which bakes `VITE_CONFIG_PROJECT` into the
+generated deploy script.
 
 ## `map.json`: the starting basemap
 

@@ -23,9 +23,8 @@ npm run build
 PORT=5174 DB_PATH=./data/annotations.db npm start
 ```
 
-Or via the repo's `docker-compose.yml` (`collab` service), or provisioned on a
-bare host with `../server/setup_collab_server.sh` (systemd unit + nginx proxy
-location via `setup_map_application.sh --collab-port`).
+Or provisioned on a bare host with `../server/setup_collab_server.sh` (systemd
+unit + nginx proxy location via `setup_map_application.sh --collab-port`).
 
 ## Security model (v1 — read before exposing)
 
@@ -68,6 +67,5 @@ server-config `onStoreDocument` would run *after* SQLite (config hooks are
 appended last), so SQLite would already have written the bad document.
 
 Defaults are safe if unset. To change a value in production, set the env var on
-the service (systemd `Environment=` line, or docker-compose `environment:`) —
-see below. `npm test` covers the validators, the flood limiter, the TTL GC, and
+the service (a systemd `Environment=` line) — see below. `npm test` covers the validators, the flood limiter, the TTL GC, and
 an end-to-end "oversized room is not persisted" check.
