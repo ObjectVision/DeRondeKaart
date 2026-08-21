@@ -4,17 +4,8 @@
 [![Built with SolidJS](https://img.shields.io/badge/built%20with-SolidJS-2c4f7c.svg)](https://www.solidjs.com)
 [![Powered by MapLibre](https://img.shields.io/badge/powered%20by-MapLibre-295daa.svg)](https://maplibre.org)
 
-An open-source web map application for geospatial data, focused on transparent
-visualisation, clear styling and thorough metainfo while staying fast.
-
-It is a config-driven MapLibre viewer: a single-view client-side SPA with no
-router and no server rendering. What a deployment shows — layers, filters,
-charts, navigation tree, feature flags — comes from five JSON files fetched at
-runtime, not from the code. One codebase serves every project.
-
-**Stack:** SolidJS 1.9 · MapLibre GL JS 6 · Vite 8 · TypeScript 5.9 · Tailwind v4.
-Data arrives as PMTiles, MVT, Cloud-Optimized GeoTIFF, FlatGeobuf or GeoJSON,
-with Parquet attribute sidecars decoded to Apache Arrow in a WebAssembly worker.
+De Ronde kaart is a performant open-source mapping application for web. Focused on transparant 
+visualisation of geospatial models, its data and underlying mathematical relations.
 
 ## Getting started
 
