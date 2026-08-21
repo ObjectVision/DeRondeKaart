@@ -5,6 +5,9 @@ import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 import { cn } from "@/lib/utils";
 
+/** Where this application's own source lives. */
+const SOURCE_REPO = "https://github.com/ObjectVision/DeRondeKaart";
+
 /** Map data / imagery credits — attribution required by the providers. */
 const DATA_CREDITS = [
   { label: "© OpenFreeMap", href: "https://openfreemap.org/" },
@@ -430,6 +433,21 @@ export function MapAttribution(): JSX.Element {
                   )}
                 </For>
               </ul>
+              <h3 class="mb-1 mt-5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Broncode
+              </h3>
+              <p class="text-xs leading-relaxed">
+                <a
+                  href={SOURCE_REPO}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="hover:underline"
+                >
+                  {/* The bare URL, not a friendly label: it doubles as the
+                      address to type when the link cannot be clicked. */}
+                  {SOURCE_REPO}
+                </a>
+              </p>
             </Match>
           </Switch>
         </DialogContent>
