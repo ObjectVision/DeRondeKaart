@@ -5,11 +5,15 @@ import type { LayerEntry } from "@/hooks/use-map-layers";
 const PBL_SUMMARY_PAGE = "/pbl-samenvatting.html";
 
 /**
- * A CBS neighbourhood code: "BU" followed by a 4-digit gemeente and a 4-digit
- * buurt. The viewer derives the gemeente from it, so the shape is load-bearing
- * and checked rather than assumed.
+ * A CBS neighbourhood code: "BU" followed by a 4-digit gemeente and a 4-character
+ * buurt. The viewer derives the gemeente from it, so the digits of that half are
+ * load-bearing and checked rather than assumed.
+ *
+ * The buurt half is alphanumeric, not numeric: Amsterdam's are letter-led
+ * throughout (BU0363FF03 is Bedrijvenpark Lutkemeer). Requiring digits there
+ * rejected all 517 of its neighbourhoods.
  */
-const BU_CODE_RE = /^BU\d{8}$/;
+const BU_CODE_RE = /^BU\d{4}[0-9A-Z]{4}$/;
 
 /** A picked feature, as carried in FeatureInfoResult.featuresByLayer. */
 interface PickedFeature {
