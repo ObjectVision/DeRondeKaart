@@ -4,8 +4,8 @@
 [![Built with SolidJS](https://img.shields.io/badge/built%20with-SolidJS-2c4f7c.svg)](https://www.solidjs.com)
 [![Powered by MapLibre](https://img.shields.io/badge/powered%20by-MapLibre-295daa.svg)](https://maplibre.org)
 
-De Ronde kaart is a performant open-source mapping application for web. Focused on transparant 
-visualisation of geospatial models, its data and underlying mathematical relations.
+De Ronde kaart is a performant open-source mapping application for the web. Focused on transparant 
+visualisation of geospatial models, its data, underlying mathematical relations and collaborative exploration.
 
 ## Getting started
 
@@ -21,12 +21,6 @@ npm run dev
 | `npm run lint` | ESLint. `solid/reactivity` is an **error** — see below |
 | `npm test` | Vitest (filter stores, layer engine, overlay reactivity) |
 | `npm run preview` | Serve a production build locally |
-
-Requires Node `^20.19.0 || >=22.12.0` (the floor Vite and Rolldown set).
-
-Some behaviour differs between dev and a production build — the MapLibre worker
-URL in particular. Check `npm run build && npm run preview` before trusting a
-change that touches the map.
 
 ## Selecting a project configuration
 
@@ -46,7 +40,7 @@ whole, and anything a project omits falls back to the default. Building with no
 | | |
 |---|---|
 | [docs/system-design.md](docs/system-design.md) | Architecture, module structure, layers, filtering, charts, config system |
-| [docs/system-design-styling.md](docs/system-design-styling.md) | GeoStyler → MapLibre paint translation |
+| [docs/system-design-styling.md](docs/system-design-styling.md) | Style spec |
 | [docs/system-design-collaboration.md](docs/system-design-collaboration.md) | Shared annotations (Yjs / Hocuspocus) |
 | [docs/system-design-version-constraints.md](docs/system-design-version-constraints.md) | Why certain versions are pinned |
 | [docs/preprocessing-pipeline.md](docs/preprocessing-pipeline.md) | Turning source data into the served formats |
