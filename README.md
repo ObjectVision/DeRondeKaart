@@ -10,7 +10,7 @@ visualisation of geospatial models, its data, underlying mathematical relations 
 ## Getting started
 
 ```bash
-npm ci
+npm install
 npm run dev
 ```
 
