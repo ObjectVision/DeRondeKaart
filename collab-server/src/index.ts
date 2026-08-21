@@ -14,7 +14,9 @@ import { createCollabServer } from "./server.js";
  *
  * Environment (limits live in config.ts):
  *   HOST     bind address (default 127.0.0.1 — never expose this port directly;
- *            nginx terminates TLS and proxies /collab. Docker sets 0.0.0.0.)
+ *            nginx terminates TLS and proxies /collab. The systemd unit written
+ *            by server/setup_collab_server.sh leaves this unset on purpose, so
+ *            the loopback default stands.)
  *   PORT     listen port (default 5174)
  *   DB_PATH  SQLite file (default ./data/annotations.db)
  */

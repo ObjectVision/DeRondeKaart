@@ -52,8 +52,7 @@ and `.gz` siblings for nginx `brotli_static`/`gzip_static`. It is served as
 plain static files behind nginx.
 
 Provisioning and the GitHub-webhook deploy live in
-[server/setup_map_application.md](server/setup_map_application.md). A
-`Dockerfile` and `docker-compose.yml` cover the container route.
+[server/setup_map_application.md](server/setup_map_application.md).
 
 ## License
 
