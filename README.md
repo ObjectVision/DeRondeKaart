@@ -4,7 +4,7 @@
 [![Built with SolidJS](https://img.shields.io/badge/built%20with-SolidJS-2c4f7c.svg)](https://www.solidjs.com)
 [![Powered by MapLibre](https://img.shields.io/badge/powered%20by-MapLibre-295daa.svg)](https://maplibre.org)
 
-De Ronde kaart is a performant open-source mapping application for the Web. Focused on transparant 
+De Ronde kaart is a performant open-source mapping application for the Web. Focused on simplicity; on transparant 
 visualisation of geospatial models, its data, underlying mathematical relations and collaborative exploration.
 
 ## Getting started
