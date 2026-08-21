@@ -1,4 +1,4 @@
-import { For, createSignal, type JSX } from "solid-js";
+import { For, Match, Switch, createSignal, type JSX } from "solid-js";
 import { DialogContent, DialogRoot, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
@@ -62,8 +62,17 @@ const SOFTWARE_CREDITS = [
  * a wall of small print, so the corner card they used to live in was the wrong
  * shape for them.
  */
+/** The dialog's tabs, left to right. "Handleiding" is the one it opens on. */
+const TABS = [
+  { id: "handleiding", label: "Handleiding" },
+  { id: "attributie", label: "Attributie" },
+] as const;
+
+type TabId = (typeof TABS)[number]["id"];
+
 export function MapAttribution(): JSX.Element {
   const [open, setOpen] = createSignal(false);
+  const [tab, setTab] = createSignal<TabId>("handleiding");
 
   return (
     <div class="flex flex-col items-end gap-2">
@@ -73,11 +82,25 @@ export function MapAttribution(): JSX.Element {
             navigation and legend cards' scrollbar. */}
         <DialogContent class="app-scrollbar w-[min(40rem,calc(100vw-2rem))] text-sm text-gray-600">
           <div class="mb-5 flex items-center justify-between gap-2">
-            {/* Same heading treatment as the metainfo and "Referentielagen"
-                dialogs. */}
-            <DialogTitle class="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              De Ronde kaart
-            </DialogTitle>
+            {/* Mark and title travel together on the left, so `justify-between`
+                keeps only the close button pushed to the right. */}
+            <div class="flex items-center gap-2">
+              {/* The app mark, from public/favicon.svg — the same file the
+                  browser tab uses, so there is one source of truth for it.
+                  Decorative: the title beside it already names the app. */}
+              <img
+                src="/favicon.svg"
+                alt=""
+                aria-hidden
+                draggable={false}
+                class="h-6 w-6 shrink-0"
+              />
+              {/* Same heading treatment as the metainfo and "Referentielagen"
+                  dialogs. */}
+              <DialogTitle class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                De Ronde kaart
+              </DialogTitle>
+            </div>
             <Button
               variant="ghost"
               size="icon-sm"
@@ -88,52 +111,94 @@ export function MapAttribution(): JSX.Element {
               <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
             </Button>
           </div>
-          <p class="mb-5 leading-relaxed">
-            De Ronde kaart is het startpunt van gesprek, maakt het mogelijk
-            ruimtelijke vraagstukken op inzichtelijke wijze samen aan te
-            vliegen en te delen.
-          </p>
-          <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Kaartgegevens
-          </h3>
-          <ul class="flex flex-col gap-0.5">
-            <For each={DATA_CREDITS}>
-              {(c) => (
-                <li>
-                  <a
-                    href={c.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="hover:underline"
+
+          {/* Tab strip. The labels carry the same type spec as the title above
+              them — `text-xs font-semibold uppercase tracking-wide` — so the
+              window's two rows of chrome read as one; only color and the
+              underline mark which tab is active. The negative margin lets the
+              rule run the full width of the window instead of stopping at the
+              dialog's own padding. */}
+          <div class="-mx-6 mb-5 flex gap-0 border-b border-gray-200 px-6">
+            <For each={TABS}>
+              {(t) => {
+                const isActive = () => t.id === tab();
+                return (
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive()}
+                    onClick={() => setTab(t.id)}
+                    class={`px-2 py-1 text-xs font-semibold uppercase tracking-wide transition-colors ${
+                      isActive()
+                        ? "border-b-2 border-blue-500 text-blue-600"
+                        : "text-gray-500 hover:text-gray-700"
+                    }`}
                   >
-                    {c.label}
-                  </a>
-                </li>
-              )}
+                    {t.label}
+                  </button>
+                );
+              }}
             </For>
-          </ul>
-          <h3 class="mb-1 mt-5 text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Open source-software
-          </h3>
-          {/* Two columns at this width: the list is long and each entry is
-              short, so one column per line would leave most of the row empty. */}
-          <ul class="grid grid-cols-1 gap-x-6 gap-y-0.5 text-xs leading-relaxed sm:grid-cols-2">
-            <For each={SOFTWARE_CREDITS}>
-              {(c) => (
-                <li>
-                  <a
-                    href={c.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="hover:underline"
-                  >
-                    {c.label}
-                  </a>{" "}
-                  <span class="text-gray-400">({c.license})</span>
-                </li>
-              )}
-            </For>
-          </ul>
+          </div>
+
+          <Switch>
+            {/* Deliberately empty: the manual has not been written yet. The
+                min-height holds the window at a stable size rather than letting
+                it collapse to just the tab strip. */}
+            <Match when={tab() === "handleiding"}>
+              <div class="min-h-40" />
+            </Match>
+
+            <Match when={tab() === "attributie"}>
+              <p class="mb-5 leading-relaxed">
+                De Ronde kaart is het startpunt van gesprek, maakt het mogelijk
+                ruimtelijke vraagstukken op inzichtelijke wijze samen aan te
+                vliegen en te delen.
+              </p>
+              <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Kaartgegevens
+              </h3>
+              <ul class="flex flex-col gap-0.5">
+                <For each={DATA_CREDITS}>
+                  {(c) => (
+                    <li>
+                      <a
+                        href={c.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="hover:underline"
+                      >
+                        {c.label}
+                      </a>
+                    </li>
+                  )}
+                </For>
+              </ul>
+              <h3 class="mb-1 mt-5 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                Open source-software
+              </h3>
+              {/* Two columns at this width: the list is long and each entry is
+                  short, so one column per line would leave most of the row
+                  empty. */}
+              <ul class="grid grid-cols-1 gap-x-6 gap-y-0.5 text-xs leading-relaxed sm:grid-cols-2">
+                <For each={SOFTWARE_CREDITS}>
+                  {(c) => (
+                    <li>
+                      <a
+                        href={c.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="hover:underline"
+                      >
+                        {c.label}
+                      </a>{" "}
+                      <span class="text-gray-400">({c.license})</span>
+                    </li>
+                  )}
+                </For>
+              </ul>
+            </Match>
+          </Switch>
         </DialogContent>
       </DialogRoot>
       <div class="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
