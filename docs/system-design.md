@@ -34,11 +34,10 @@ The formats the map can read.
 
 #### UI
 
-| Package | We use | Why |
+| Package | Why |
 |---|---|---|
-| `solid-js` ^1.9 | `createSignal`/`createMemo`/`createEffect`, `Show`/`For`, `Portal` | The reactive layer. Compiles JSX to fine-grained DOM updates: there is no virtual DOM and no re-render, so a signal write touches only the nodes bound to it |
-| — | [button.tsx](../src/components/ui/button.tsx), [dialog.tsx](../src/components/ui/dialog.tsx) | The two UI primitives are hand-rolled (~80 lines): a styled `<button>` and a `<Portal>`-based dialog with its own focus trap, `Escape` and backdrop-click. No component kit is used |
-| `material-symbols` ^0.45 | `@import "material-symbols/outlined.css"`, rendered as ligature text by `Icon`/`NavIcon` | Icon's such as the `share` icon |
+| `solid-js` ^1.9 |  The reactive layer. Compiles JSX to fine-grained DOM updates: there is no virtual DOM and no re-render, so a signal write touches only the nodes bound to it |
+| `material-symbols` ^0.45 | Icon's such as the `share` icon |
 
 #### Charts
 
