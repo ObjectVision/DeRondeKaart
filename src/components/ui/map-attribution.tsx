@@ -386,11 +386,6 @@ export function MapAttribution(): JSX.Element {
             </Match>
 
             <Match when={tab() === "attributie"}>
-              <p class="mb-5 leading-relaxed">
-                De Ronde kaart is het startpunt van gesprek, maakt het mogelijk
-                ruimtelijke vraagstukken op inzichtelijke wijze samen aan te
-                vliegen en te delen.
-              </p>
               <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Kaartgegevens
               </h3>
