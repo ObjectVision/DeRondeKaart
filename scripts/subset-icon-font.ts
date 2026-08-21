@@ -26,11 +26,17 @@ import subsetFont from "subset-font";
 const ICON_NAME_RE = /^[a-z0-9_]+$/;
 
 /**
- * Icon names the source scan cannot find because they are selected at runtime,
- * e.g. `name={onMap ? "check_circle" : "circle"}` — the regex below requires the
- * quote to follow `name=` directly, so neither branch of a ternary is seen.
+ * Icon names the source scan cannot find, because the scan only matches a
+ * literal `name="…"` prop. Two ways a name escapes it:
  *
- * Keep in sync with the conditional `<Icon name={...}>` props in src/.
+ *   - chosen at runtime: `name={onMap ? "check_circle" : "circle"}` — the regex
+ *     requires the quote to follow `name=` directly, so neither branch is seen;
+ *   - passed as data: an icon named in a plain object and rendered generically
+ *     as `<Icon name={t.icon}>`, e.g. the section toggles in App.tsx.
+ *
+ * Keep in sync with both. A name missing here is dropped from the subset and
+ * renders as its own raw text — in built bundles only (this plugin is
+ * `apply: "build"`), so a dev run gives no warning.
  */
 const RUNTIME_ICON_NAMES = [
   "add", // meta layer links (LeafMeta), sidebar
@@ -48,6 +54,7 @@ const RUNTIME_ICON_NAMES = [
   "edit_off",
   "expand_more", // expanded tree node
   "format_color_reset", // legend, layer dimmed
+  "layers", // App.tsx section toggle, "Navigatie tonen"
   "opacity", // legend, layer at full opacity
   "radio_button_checked", // single-select control
   "radio_button_unchecked",
