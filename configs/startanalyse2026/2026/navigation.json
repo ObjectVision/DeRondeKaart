@@ -1,6 +1,6 @@
 [
   {
-    "label": "Kernkaarten 2026",
+    "label": "Kernkaarten",
     "icon": "LN.svg",
     "expanded": false,
     "children": [
@@ -9,20 +9,8 @@
         "expanded": false,
         "children": [
           {
-            "id": "374",
-            "label": "Laagste nationale kosten <10% kostenverschil (LN)",
-            "a": false,
-            "b": false
-          },
-          {
             "id": "357",
             "label": "Laagste nationale kosten <20% kostenverschil (LN)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "375",
-            "label": "Laagste nationale kosten <30% kostenverschil (LN)",
             "a": false,
             "b": false
           },
@@ -133,7 +121,7 @@
     ]
   },
   {
-    "label": "Laagste nationale kosten 2026",
+    "label": "Laagste nationale kosten",
     "icon": "LN.svg",
     "expanded": false,
     "children": [
@@ -302,7 +290,7 @@
     ]
   },
   {
-    "label": "Gevoeligheidsanalyses 2026",
+    "label": "Gevoeligheidsanalyses",
     "icon": "GLN.svg",
     "expanded": false,
     "children": [
@@ -729,7 +717,7 @@
     ]
   },
   {
-    "label": "Strategie 1: eWP 2026",
+    "label": "Strategie 1: eWP",
     "icon": "S1.svg",
     "expanded": false,
     "children": [
@@ -880,7 +868,7 @@
     ]
   },
   {
-    "label": "Strategie 2: MT-warmtenet 2026",
+    "label": "Strategie 2: MT-warmtenet",
     "icon": "S2.svg",
     "expanded": false,
     "children": [
@@ -1043,7 +1031,7 @@
     ]
   },
   {
-    "label": "Strategie 3: Combi LT-WN & eWP 2026",
+    "label": "Strategie 3: Combi LT-WN & eWP",
     "icon": "S3.svg",
     "expanded": false,
     "children": [
@@ -1212,7 +1200,7 @@
     ]
   },
   {
-    "label": "Strategie 4: hWP met klimaatneutraal gas 2026",
+    "label": "Strategie 4: hWP met klimaatneutraal gas",
     "icon": "S4.svg",
     "expanded": false,
     "children": [
@@ -1363,7 +1351,7 @@
     ]
   },
   {
-    "label": "Basisgegevens 2026",
+    "label": "Basisgegevens",
     "icon": "BG.svg",
     "expanded": false,
     "children": [
@@ -1442,7 +1430,7 @@
     ]
   },
   {
-    "label": "Referentie 2023 2026",
+    "label": "Referentie 2023",
     "icon": "R23.svg",
     "expanded": false,
     "children": [
@@ -1569,7 +1557,7 @@
     ]
   },
   {
-    "label": "Referentie 2030 2026",
+    "label": "Referentie 2030",
     "icon": "R30.svg",
     "expanded": false,
     "children": [
