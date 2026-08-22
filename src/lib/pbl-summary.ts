@@ -47,6 +47,42 @@ export function pblSummaryUrl(buurtCode: string): string {
 }
 
 /**
+ * How long the parent waits for the frame's verdict before uncovering it
+ * anyway.
+ *
+ * public/pbl-buurt-select.js reports every terminal outcome, so this is only
+ * reached when the frame never gets that far — a script that failed to parse,
+ * an assets host that hangs rather than errors. Its own deadline is 60s per
+ * `waitFor` and two run in sequence, so waiting for that would mean up to two
+ * minutes of logo. Better to show PBL's page, whatever state it reached.
+ *
+ * The same reasoning as dismissSplash() in lib/splash.ts: the timeout, not the
+ * event, is what guarantees the splash comes down.
+ */
+export const PBL_SUMMARY_TIMEOUT_MS = 20000;
+
+/** What the framed viewer reports back once it stops trying. */
+export type PblSummaryStatus = "loading" | "ready" | "failed";
+
+/**
+ * Read a `message` event as a verdict from the framed viewer, or null when it is
+ * not one.
+ *
+ * The origin check is the point: this window also receives postMessage traffic
+ * from an embedding host (see use-url-commands.ts), and the frame is same-origin
+ * by design, so anything from elsewhere is not ours to act on.
+ */
+export function pblStatusFromMessage(event: MessageEvent): PblSummaryStatus | null {
+  if (event.origin !== window.location.origin) return null;
+  const data: unknown = event.data;
+  if (!data || typeof data !== "object") return null;
+  const { type } = data as { type?: unknown };
+  if (type === "pbl-summary-ready") return "ready";
+  if (type === "pbl-summary-failed") return "failed";
+  return null;
+}
+
+/**
  * True when any layer under the pointer answers clicks with PBL's neighbourhood
  * summary. The popup uses it to size itself: an embedded viewer needs far more
  * room than an attribute table.

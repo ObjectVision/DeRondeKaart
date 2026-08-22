@@ -23,9 +23,40 @@
   // the same CSP reason; it must run before anything below touches the page.
   kaartenbak_init();
 
+  /*
+   * Tell the embedding app how the auto-select ended, so it can lift the splash
+   * it holds over this frame while we drive PBL's UI.
+   *
+   * The frame's own `load` event is useless for that: it fires once this
+   * document and its subresources are in, which is while PBL's gemeente picker
+   * is still on screen and long before the summary paints. Only this script
+   * knows when the neighbourhood is actually selected.
+   *
+   * EVERY terminal path must report, success or not — a silent exit would leave
+   * the splash covering a page the user could otherwise still operate by hand.
+   * Same-origin by design (see pbl-samenvatting.html), so the target origin is
+   * pinned rather than "*".
+   */
+  function report(ok) {
+    try {
+      window.parent.postMessage(
+        { type: ok ? "pbl-summary-ready" : "pbl-summary-failed" },
+        window.location.origin,
+      );
+    } catch (err) {
+      // Not framed, or a parent we are not allowed to touch. Nothing to do:
+      // standalone the page is simply used by hand.
+    }
+  }
+
   var params = new URLSearchParams(window.location.search);
   var buurt = params.get("bu");
-  if (!buurt || /^BU\d{4}[0-9A-Z]{4}$/.test(buurt) === false) return;
+  if (!buurt || /^BU\d{4}[0-9A-Z]{4}$/.test(buurt) === false) {
+    // No code to select: PBL's own picker is the whole UI here, so let the
+    // parent uncover it immediately rather than waiting for a timeout.
+    report(false);
+    return;
+  }
   var gemeenteCode = "GM" + buurt.slice(2, 6);
 
   var GIVE_UP_MS = 60000;
@@ -101,10 +132,15 @@
         throw new Error("no markeerBuurt");
       }
       window.markeerBuurt(buurt);
+      // The summary is on screen: this is the only moment the parent can trust.
+      report(true);
     })
     .catch(function (err) {
       // Deliberately non-fatal: the viewer is fully usable by hand, so a
       // failed auto-select should degrade to that rather than blank out.
       console.warn("PBL auto-select failed:", err && err.message);
+      // Report it too, so the parent uncovers PBL's picker instead of holding
+      // the splash until its own timeout expires.
+      report(false);
     });
 })();

@@ -11,7 +11,13 @@ import {
 import type { FeatureInfoResult } from "@/hooks/use-feature-pick";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { resolveTemplate, renderTemplate } from "@/layers";
-import { buurtCodeOf, pblSummaryUrl } from "@/lib/pbl-summary";
+import {
+  buurtCodeOf,
+  pblStatusFromMessage,
+  pblSummaryUrl,
+  PBL_SUMMARY_TIMEOUT_MS,
+  type PblSummaryStatus,
+} from "@/lib/pbl-summary";
 
 interface PblSummaryProps {
   /** Null when the clicked feature carries no usable `bu_code`. */
@@ -23,6 +29,33 @@ interface PblSummaryProps {
  * origin (see public/pbl-samenvatting.html for why it is not framed directly).
  */
 function PblSummary(props: PblSummaryProps): JSX.Element {
+  const [status, setStatus] = createSignal<PblSummaryStatus>("loading");
+
+  createEffect(() => {
+    // Read first, before anything can return early: this must re-arm when the
+    // user clicks a different neighbourhood without closing the popup, and an
+    // effect subscribes only to what its last run actually read.
+    const code = props.buurtCode;
+    // A new frame is loading, so drop any verdict about the previous one —
+    // otherwise the second click shows a ready state over a blank frame.
+    setStatus("loading");
+    if (!code) return;
+
+    function onMessage(event: MessageEvent) {
+      const next = pblStatusFromMessage(event);
+      if (next) setStatus(next);
+    }
+    window.addEventListener("message", onMessage);
+
+    // Backstop for a frame that never reports at all (see the constant).
+    const timer = setTimeout(() => setStatus("failed"), PBL_SUMMARY_TIMEOUT_MS);
+
+    onCleanup(() => {
+      window.removeEventListener("message", onMessage);
+      clearTimeout(timer);
+    });
+  });
+
   return (
     <Show
       when={props.buurtCode}
@@ -36,13 +69,34 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
         <div class="flex min-h-0 flex-col">
           {/* PBL's content is a fixed 750px wide and grows to whatever height it is
               given, so the frame fills the window and the window is sized to match —
-              no inner scrollbar, no empty margins. */}
-          <iframe
-            src={pblSummaryUrl(code())}
-            title="Samenvatting Startanalyse"
-            class="h-[78vh] w-full border-0"
-            loading="lazy"
-          />
+              no inner scrollbar, no empty margins.
+
+              The splash sits over the frame rather than replacing it, so the
+              frame keeps loading underneath and the popup never changes height:
+              InfoPopup re-places itself on every resize, so a placeholder that
+              grew or shrank would make the window jump when it went away. */}
+          <div class="relative h-[78vh] w-full">
+            <iframe
+              src={pblSummaryUrl(code())}
+              title="Samenvatting Startanalyse"
+              class="h-full w-full border-0"
+            />
+            <Show when={status() === "loading"}>
+              {/* The app's own mark, matching the boot splash. /logo.svg is
+                  preloaded in index.html, so it is warm in cache and paints at
+                  once — a splash that itself flickered would defeat the point.
+                  `pointer-events-none` keeps it purely visual; it covers the
+                  frame only while there is nothing there to click. */}
+              <div
+                class="pointer-events-none absolute inset-0 flex items-center justify-center bg-white"
+                role="status"
+                aria-label="Samenvatting wordt geladen"
+              >
+                <img src="/logo.svg" alt="" class="w-[min(60%,320px)]" draggable={false} />
+              </div>
+            </Show>
+          </div>
+          {/* Outside the frame wrapper, so the splash never covers the way out. */}
           <a
             href={pblSummaryUrl(code())}
             target="_blank"
