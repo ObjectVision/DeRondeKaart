@@ -77,11 +77,37 @@ export function complementaryDashboardEnabled(mode: DashboardMode): boolean {
 }
 
 /** Server-editable initial-view configuration, loaded from `public/map.json`. */
+/** One selectable config variant, e.g. a model year. */
+export interface VariantItem {
+  /** Directory name under the project config dir, e.g. "2026". */
+  id: string;
+  /** Dutch label for the host page to show. */
+  label: string;
+}
+
+/**
+ * Optional runtime config variants. When present, `layers.json` and
+ * `navigation.json` are fetched from `/<variant-id>/` instead of the site root,
+ * and the host page can switch between them without reloading the app.
+ * See `src/config/variant.ts`.
+ */
+export interface VariantsConfig {
+  /** Variant selected when the URL names none. Defaults to the first item. */
+  default?: string;
+  items: VariantItem[];
+}
+
 export interface MapConfig {
   /** Map center as [longitude, latitude]. */
   center: [number, number];
   /** Initial zoom level. */
   zoom: number;
+  /**
+   * Optional set of config variants (e.g. model years 2025/2026) the project
+   * ships side by side. Omitted for single-dataset projects, which keeps their
+   * config fetches at the site root exactly as before.
+   */
+  variants?: VariantsConfig;
   /**
    * Optional id (from layers.json) of a layer that is always loaded and pinned
    * on top of every other layer — including the basemap labels — on both maps.
@@ -318,6 +344,62 @@ function validateZoom(value: unknown): number | null {
   return Math.max(0, Math.min(22, z));
 }
 
+/**
+ * Validate the optional `variants` block. Returns null (variants disabled) for
+ * anything malformed, so a typo degrades to the single-dataset behaviour that
+ * every project had before rather than breaking the boot.
+ *
+ * Ids become URL path segments, so they are restricted to characters that are
+ * safe unescaped and cannot walk out of the project directory.
+ */
+const VARIANT_ID_RE = /^[A-Za-z0-9_-]+$/;
+
+function validateVariants(value: unknown): VariantsConfig | null {
+  if (value === undefined) return null;
+  if (typeof value !== "object" || value === null || Array.isArray(value)) {
+    console.warn(`map.json: invalid "variants" ${JSON.stringify(value)}; ignoring`);
+    return null;
+  }
+  const raw = value as Record<string, unknown>;
+  if (!Array.isArray(raw.items)) {
+    console.warn('map.json: "variants" needs an "items" array; ignoring');
+    return null;
+  }
+
+  const items: VariantItem[] = [];
+  for (const entry of raw.items) {
+    if (typeof entry !== "object" || entry === null) continue;
+    const { id, label } = entry as Record<string, unknown>;
+    if (typeof id !== "string" || !VARIANT_ID_RE.test(id)) {
+      console.warn(`map.json: invalid variant id ${JSON.stringify(id)}; skipping`);
+      continue;
+    }
+    if (items.some((i) => i.id === id)) {
+      console.warn(`map.json: duplicate variant id "${id}"; skipping`);
+      continue;
+    }
+    items.push({ id, label: typeof label === "string" && label ? label : id });
+  }
+
+  if (items.length === 0) {
+    console.warn('map.json: "variants" has no usable items; ignoring');
+    return null;
+  }
+
+  let def = items[0].id;
+  if (typeof raw.default === "string") {
+    if (items.some((i) => i.id === raw.default)) {
+      def = raw.default;
+    } else {
+      console.warn(
+        `map.json: variants.default "${raw.default}" is not in items; using "${def}"`,
+      );
+    }
+  }
+
+  return { default: def, items };
+}
+
 /** Coerce an [r,g,b] or [r,g,b,a] array of 0–255 ints into a color tuple. */
 function validateColor(value: unknown): [number, number, number, number] | null {
   if (!Array.isArray(value) || (value.length !== 3 && value.length !== 4)) return null;
@@ -549,9 +631,12 @@ export async function loadMapConfig(): Promise<MapConfig> {
   }
   navIconSizeValue = navIcon;
 
+  const variants = validateVariants(data.variants);
+
   return {
     center: center ?? DEFAULT_MAP_CONFIG.center,
     zoom: zoom ?? DEFAULT_MAP_CONFIG.zoom,
+    variants: variants ?? undefined,
     studyarea,
     pickLayer,
     streetview,

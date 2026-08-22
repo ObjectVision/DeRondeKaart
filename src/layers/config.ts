@@ -1,5 +1,6 @@
 import type { LayerConfig, LayersFile, LayerFormat, StatisticConfig, TimeseriesConfig } from "./types";
 import { canHighlight, prefetchIdProperty, HIGHLIGHT_WIDTH } from "./feature-id";
+import { configPath, variantCacheKey } from "@/config/variant";
 
 // "geojson" is deliberately absent: it is an in-memory format (LayerConfig.data)
 // constructed programmatically (e.g. by the Power BI bridge), never via layers.json.
@@ -9,7 +10,26 @@ const VALID_FORMATS: LayerFormat[] = ["mvt", "cog", "flatgeobuf", "pmtiles", "co
 // itself (no nesting) are deliberately absent.
 const CHILD_FORMATS: LayerFormat[] = ["mvt", "cog", "flatgeobuf", "pmtiles"];
 
-let cachedConfig: LayerConfig[] | null = null;
+/**
+ * Parsed layers.json per config variant (key from `variantCacheKey`, "" when
+ * the project has no variants — the single-entry case every project but
+ * startanalyse2026 sees).
+ *
+ * Both variants are kept once loaded rather than replaced. Parsing is the
+ * expensive part: startanalyse2026's layers.json is ~1.9 MB and the load below
+ * follows it with a PMTiles range read per highlightable layer, so re-paying it
+ * on every switch would make a variant toggle feel like the page reload the
+ * feature exists to avoid.
+ */
+const cachedConfigs = new globalThis.Map<string, LayerConfig[]>();
+
+/**
+ * In-flight loads, keyed like the cache. Without this, two callers awaiting
+ * `loadLayerConfigs()` before the first resolves would both fetch and both run
+ * the PMTiles prefetch — the old `let cache` had the same gap, but a variant
+ * switch makes concurrent first-calls the normal case rather than a race.
+ */
+const inFlight = new globalThis.Map<string, Promise<LayerConfig[]>>();
 
 /** Sidecar table URL for the analytics panel (see LayerConfig.attributeSource). */
 function validateAttributeSource(raw: unknown, id: string): string | undefined {
@@ -460,40 +480,67 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
 }
 
 export async function loadLayerConfigs(): Promise<LayerConfig[]> {
-  if (cachedConfig) return cachedConfig;
+  // Resolved once, up front: the active variant must not change midway through
+  // an await or the result would be filed under the wrong key.
+  const key = variantCacheKey("layers.json");
+  const cached = cachedConfigs.get(key);
+  if (cached) return cached;
 
-  const response = await fetch("/layers.json");
-  if (!response.ok) {
-    throw new Error(`Failed to load layers.json: ${response.statusText}`);
+  const pending = inFlight.get(key);
+  if (pending) return pending;
+
+  const load = (async (): Promise<LayerConfig[]> => {
+    const response = await fetch(configPath("layers.json"));
+    if (!response.ok) {
+      throw new Error(`Failed to load layers.json: ${response.statusText}`);
+    }
+
+    const data: LayersFile = await response.json();
+
+    if (!data.layers || !Array.isArray(data.layers)) {
+      console.warn("layers.json: missing or invalid \"layers\" array");
+      return [];
+    }
+
+    const configs = data.layers
+      .map((l, i) => validateLayerConfig(l as unknown as Record<string, unknown>, i))
+      .filter((l): l is LayerConfig => l !== null);
+
+    // Resolve highlight id properties before any layer can be added.
+    //
+    // `promoteId` is fixed when a source is created and cannot be set afterwards,
+    // and the native add is synchronous (deferring it reorders the z-order
+    // anchors) — so the lookup cannot happen there. Doing it here, behind the
+    // memoized load every add path already awaits, means the answer is cached by
+    // the time addSource asks. Reads are per archive, not per layer: ~20 requests
+    // covering 200 configs, and only for layers that opted in.
+    await Promise.all(
+      configs.filter((config) => canHighlight(config)).map((config) => prefetchIdProperty(config)),
+    );
+
+    return configs;
+  })();
+
+  inFlight.set(key, load);
+  try {
+    const configs = await load;
+    cachedConfigs.set(key, configs);
+    return configs;
+  } finally {
+    // Cleared either way: a failed load must not be retried from a rejected
+    // promise for the rest of the session.
+    inFlight.delete(key);
   }
+}
 
-  const data: LayersFile = await response.json();
-
-  if (!data.layers || !Array.isArray(data.layers)) {
-    console.warn("layers.json: missing or invalid \"layers\" array");
-    cachedConfig = [];
-    return cachedConfig;
-  }
-
-  cachedConfig = data.layers
-    .map((l, i) => validateLayerConfig(l as unknown as Record<string, unknown>, i))
-    .filter((l): l is LayerConfig => l !== null);
-
-  // Resolve highlight id properties before any layer can be added.
-  //
-  // `promoteId` is fixed when a source is created and cannot be set afterwards,
-  // and the native add is synchronous (deferring it reorders the z-order
-  // anchors) — so the lookup cannot happen there. Doing it here, behind the
-  // memoized load every add path already awaits, means the answer is cached by
-  // the time addSource asks. Reads are per archive, not per layer: ~20 requests
-  // covering 200 configs, and only for layers that opted in.
-  await Promise.all(
-    cachedConfig
-      .filter((config) => canHighlight(config))
-      .map((config) => prefetchIdProperty(config)),
-  );
-
-  return cachedConfig;
+/**
+ * Drop the parsed layers for one variant (or all of them). Used when a variant
+ * switch has to re-read from disk; the normal switch path keeps both variants
+ * cached and never calls this.
+ */
+export function clearLayerConfigCache(variant?: string): void {
+  if (variant === undefined) cachedConfigs.clear();
+  else cachedConfigs.delete(variant);
 }
 
 export function getLayerConfigById(

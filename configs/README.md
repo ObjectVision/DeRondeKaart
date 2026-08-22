@@ -142,6 +142,67 @@ defaults in `public/` describe an empty dashboard. `dashboard_semantic_model.jso
 own parquet URLs, so the standalone dashboard works in a project with no map layers at all;
 the files are only fetched when the dashboard actually opens.
 
+## Config variants (multiple datasets in one build)
+
+A project can ship several **variants** of the same map — typically model years —
+and switch between them at runtime without reloading the app. Only
+`layers.json` and `navigation.json` differ per variant; `map.json`,
+`filter.json` and `charts.json` are shared.
+
+Put each variant's two files in a subdirectory named after the variant id, and
+declare the variants in `map.json`:
+
+```
+configs/startanalyse2026/
+  map.json          <- shared, declares the variants
+  filter.json       <- shared
+  charts.json       <- shared
+  2025/
+    layers.json
+    navigation.json
+  2026/
+    layers.json
+    navigation.json
+```
+
+```json
+"variants": {
+  "default": "2025",
+  "items": [
+    { "id": "2025", "label": "Startanalyse 2025" },
+    { "id": "2026", "label": "Startanalyse 2026" }
+  ]
+}
+```
+
+The subdirectory is served at a matching URL prefix (`/2026/layers.json`), so
+both variants ship in one build. Only **one** level of nesting is served.
+
+Omit the `variants` block and everything behaves as it always has — the config
+files stay at the site root. Ids must match `[A-Za-z0-9_-]+` because they become
+URL path segments; a malformed block logs a warning and disables variants rather
+than breaking the boot.
+
+### Switching at runtime
+
+There is no in-app control: the switch is driven from outside, so a host page
+embedding the map in an iframe stays in charge of which dataset is shown.
+
+```js
+// from the embedding page
+mapFrame.contentWindow.postMessage({ type: "set-variant", id: "2026" }, "*");
+```
+
+A `variant` URL parameter does the same for deep links (`?variant=2026`), and is
+also read from the share-link hash. Share links **carry the active variant
+automatically** — necessary because layer ids are reused between variants, so a
+link without it would reopen the same ids against a different year's data.
+
+Switching removes every layer the user added from both maps. The basemap, the
+`studyarea` layer, the `pickLayer` and the current view all survive. That the
+added layers go is deliberate rather than a limitation: with ids reused across
+variants, keeping them would silently repoint each layer at another year.
+
 ## Adding a new project
 
 1. Create `configs/<project>/`.
@@ -153,3 +214,6 @@ the files are only fetched when the dashboard actually opens.
 
 - `woonzorglimburg/` — the Limburg deployment (`map.woonzorglimburg.nl`). Overrides all five
   config files.
+- `startanalyse2026/` — the national Startanalyse viewer. Shares `map.json`, `filter.json`
+  and `charts.json`, and ships `layers.json` + `navigation.json` per model year under
+  `2025/` and `2026/` (see [Config variants](#config-variants-multiple-datasets-in-one-build)).

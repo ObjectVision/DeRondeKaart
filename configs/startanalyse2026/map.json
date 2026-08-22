@@ -4,6 +4,19 @@
     52.0
   ],
   "zoom": 7,
+  "variants": {
+    "default": "2025",
+    "items": [
+      {
+        "id": "2025",
+        "label": "Startanalyse 2025"
+      },
+      {
+        "id": "2026",
+        "label": "Startanalyse 2026"
+      }
+    ]
+  },
   "studyarea": "studiegebied_nederland",
   "pickLayer": "buurt_klik",
   "basemap": "kleur-labels-only",

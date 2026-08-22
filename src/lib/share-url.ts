@@ -1,5 +1,6 @@
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { DEFAULT_BASEMAP_ID } from "@/components/map/map-view-config";
+import { VARIANT_PARAM, variantId } from "@/config/variant";
 
 /**
  * State serialized into a share URL. Mirrors (in reverse) what
@@ -52,6 +53,15 @@ export function buildShareUrl(state: ShareUrlState, base?: string): string {
   if (state.basemapId && state.basemapId !== DEFAULT_BASEMAP_ID) {
     params.set("basemap", state.basemapId);
   }
+
+  // The active config variant, when the project has any. Read from the module
+  // rather than taken as state: layer ids are reused between variants, so a
+  // link without it would reopen the same ids against whichever variant the
+  // recipient happens to land on and show a different year's data under the
+  // right names. Omitted entirely for projects with no variants, keeping their
+  // links byte-identical to before.
+  const variant = variantId();
+  if (variant) params.set(VARIANT_PARAM, variant);
 
   // The parser index-aligns getAll("cmd")/getAll("map")/getAll("layer"), so
   // every command must append all three keys.

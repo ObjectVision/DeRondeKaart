@@ -63,3 +63,78 @@ describe("map.json dashboard capability", () => {
     expect(complementaryDashboardEnabled("both")).toBe(true);
   });
 });
+
+describe('map.json variants', () => {
+  it("is undefined when the key is absent, leaving the project single-dataset", async () => {
+    stubMapJson({ center: [5, 52], zoom: 7 });
+    const config = await loadMapConfig();
+    expect(config.variants).toBeUndefined();
+  });
+
+  it("accepts a well-formed block and defaults to the declared default", async () => {
+    stubMapJson({
+      variants: {
+        default: "2026",
+        items: [
+          { id: "2025", label: "Startanalyse 2025" },
+          { id: "2026", label: "Startanalyse 2026" },
+        ],
+      },
+    });
+    const config = await loadMapConfig();
+    expect(config.variants?.default).toBe("2026");
+    expect(config.variants?.items.map((i) => i.id)).toEqual(["2025", "2026"]);
+  });
+
+  it("falls back to the first item when default names an unknown id", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson({
+      variants: { default: "1999", items: [{ id: "2025", label: "A" }] },
+    });
+    const config = await loadMapConfig();
+    expect(config.variants?.default).toBe("2025");
+  });
+
+  it("labels a variant by its id when no label is given", async () => {
+    stubMapJson({ variants: { items: [{ id: "2025" }] } });
+    const config = await loadMapConfig();
+    expect(config.variants?.items[0].label).toBe("2025");
+  });
+
+  // Ids become URL path segments, so a traversal attempt must not survive
+  // validation and reach configPath().
+  it.each([" ", "..", "../secret", "a/b", ""])(
+    "rejects the unsafe id %j",
+    async (id) => {
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+      stubMapJson({ variants: { items: [{ id, label: "x" }] } });
+      const config = await loadMapConfig();
+      expect(config.variants).toBeUndefined();
+    },
+  );
+
+  it("drops a duplicate id rather than shadowing the first", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson({
+      variants: {
+        items: [
+          { id: "2025", label: "First" },
+          { id: "2025", label: "Second" },
+        ],
+      },
+    });
+    const config = await loadMapConfig();
+    expect(config.variants?.items).toHaveLength(1);
+    expect(config.variants?.items[0].label).toBe("First");
+  });
+
+  it.each([null, 42, "2026", [], { items: "no" }, { items: [] }])(
+    "ignores the malformed block %j",
+    async (variants) => {
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+      stubMapJson({ variants });
+      const config = await loadMapConfig();
+      expect(config.variants).toBeUndefined();
+    },
+  );
+});

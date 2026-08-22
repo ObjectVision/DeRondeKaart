@@ -7,10 +7,14 @@ import {
   standaloneDashboardEnabled,
   toInitialViewState,
 } from '@/config/map-config'
+import { initVariants } from '@/config/variant'
 import { dismissSplash } from '@/lib/splash'
 
 async function bootstrap() {
   const mapConfig = await loadMapConfig()
+  // Before anything fetches layers.json or navigation.json: those two resolve
+  // through the active variant, so the variant has to be chosen first.
+  initVariants(mapConfig.variants)
   // `?mode=dashboard` boots the map-less dashboard, when map.json allows it.
   // The capability wins over the URL: a link shared into a project that does
   // not offer the dashboard opens the map rather than an error.

@@ -18,6 +18,18 @@ import {
 const metaUrlCache = new Map<string, string[] | null>();
 const metaCache = new Map<string, string | null>();
 
+/**
+ * Forget the layer-id → meta-URL mapping. Called on a config-variant switch:
+ * ids are reused between variants, so an id resolved under the old variant
+ * would otherwise keep pointing at the old year's meta pages.
+ *
+ * `metaCache` is deliberately kept — it is keyed by URL, and a URL means the
+ * same document whichever variant asked for it.
+ */
+export function clearMetaUrlCache(): void {
+  metaUrlCache.clear();
+}
+
 interface LeafMetaProps {
   layerId: string;
   /**

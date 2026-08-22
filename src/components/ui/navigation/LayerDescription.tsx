@@ -17,6 +17,14 @@ interface LayerInfo {
 // .get() means "not resolved yet".
 const infoCache = new Map<string, LayerInfo>();
 
+/**
+ * Forget every resolved description. Called on a config-variant switch, where
+ * the same layer id describes a different layer.
+ */
+export function clearLayerInfoCache(): void {
+  infoCache.clear();
+}
+
 interface LayerDescriptionProps {
   layerId: string;
   /** Opens the metainfo dialog. Omit to render the info button disabled. */

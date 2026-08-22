@@ -1,9 +1,9 @@
 import { createEffect, onMount, onCleanup, type Accessor } from "solid-js";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
-import type { LayerConfig } from "@/layers";
 import type { MapAccessor, MapViewHandle } from "@/components/map/map-view-config";
 import { isUrlAddressable } from "@/lib/share-url";
 import { isBasemapId } from "@/components/map/map-view-config";
+import { VARIANT_PARAM } from "@/config/variant";
 import type { useMapLayers } from "./use-map-layers";
 
 interface MapSide {
@@ -44,6 +44,12 @@ interface UseUrlCommandsOptions {
    * before an `open-circular` snapshots the preview.
    */
   onSetFilter?: (filter: Record<string, string | null>) => void | Promise<void>;
+  /**
+   * A `set-variant` message or a `variant` URL param asked for a different
+   * config variant. Awaited so any layer commands that follow resolve against
+   * the new variant's layers.json rather than the outgoing one.
+   */
+  onSetVariant?: (id: string) => unknown | Promise<unknown>;
 }
 
 /** Room ids are UUIDv4 — anything else is rejected (also server-side). */
@@ -118,7 +124,6 @@ function parseCommands(params: URLSearchParams): LayerCommand[] {
 }
 
 export function useUrlCommands(options: UseUrlCommandsOptions): void {
-  let cachedConfigs: LayerConfig[] | null = null;
   let processedInitialHash = false;
 
   /** Null-tolerant map accessor for a side; map B is conditionally mounted. */
@@ -126,12 +131,11 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
     return () => side.view()?.map() ?? null;
   }
 
-  async function getConfigs() {
-    if (!cachedConfigs) {
-      cachedConfigs = await loadLayerConfigs();
-    }
-    return cachedConfigs;
-  }
+  // Straight through to the memoized loader rather than a local mirror: after a
+  // config-variant switch a mirror would still hold the previous variant's
+  // configs, and ids are reused across variants — so an `add` command would
+  // resolve to a plausible but wrong layer instead of failing loudly.
+  const getConfigs = () => loadLayerConfigs();
 
   async function processCommands(commands: LayerCommand[]) {
     const configs = await getConfigs();
@@ -203,7 +207,7 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
     }
   }
 
-  function processHash() {
+  async function processHash() {
     const hash = window.location.hash.slice(1); // remove leading #
     if (!hash) return;
 
@@ -224,9 +228,18 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
       console.warn(`Unknown basemap id: "${basemapRaw}"`);
     }
 
-    if (commands.length > 0 || hasView || annotRoom || basemap) {
+    // A variant in the hash (set-variant's URL counterpart, and what share
+    // links carry). Validated by the switch itself, which warns on an unknown
+    // id rather than leaving the app pointed at a missing directory.
+    const variantRaw = params.get(VARIANT_PARAM);
+
+    if (commands.length > 0 || hasView || annotRoom || basemap || variantRaw) {
       if (hasView) options.applyView(view);
-      if (commands.length > 0) processCommands(commands);
+      // Awaited BEFORE the commands: layer ids are reused across variants, so
+      // an `add` processed against the outgoing variant would resolve to a
+      // different layer of the same id and quietly show the wrong year.
+      if (variantRaw) await options.onSetVariant?.(variantRaw);
+      if (commands.length > 0) await processCommands(commands);
       // The joined room lives on in state — the hash is still cleared below,
       // like every other processed command.
       if (annotRoom) options.onAnnotationRoom?.(annotRoom);
@@ -244,12 +257,12 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
     // Process initial hash on first ready
     if (!processedInitialHash) {
       processedInitialHash = true;
-      processHash();
+      void processHash();
     }
 
     // Listen for hash changes (iframe src changes, programmatic navigation)
     function handleHashChange() {
-      processHash();
+      void processHash();
     }
 
     window.addEventListener("hashchange", handleHashChange);
@@ -268,6 +281,16 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
 
     async function handleMessage(event: MessageEvent) {
       if (!event.data || typeof event.data !== "object") return;
+
+      // Host switches the config variant (e.g. model year). Handled before
+      // map-command so a host can send both in one batch and have the commands
+      // resolve against the variant it just selected.
+      if (event.data.type === "set-variant") {
+        const { id } = event.data as { type: string; id?: unknown };
+        if (typeof id === "string") await options.onSetVariant?.(id);
+        else console.warn('set-variant: missing or non-string "id"');
+        return;
+      }
 
       if (event.data.type === "map-command") {
         const { commands, view, filter } = event.data as {

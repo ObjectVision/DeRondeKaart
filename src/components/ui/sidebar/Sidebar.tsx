@@ -1,4 +1,4 @@
-import { Show, createMemo, createSignal, onMount, type JSX } from "solid-js";
+import { Show, createEffect, createMemo, createSignal, type JSX } from "solid-js";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
 import { LayerDescription } from "@/components/ui/navigation/LayerDescription";
@@ -10,6 +10,7 @@ import { useNavExpansion } from "@/hooks/use-nav-expansion";
 import type { NavigationApi } from "@/hooks/use-navigation";
 import type { AreaFilterState } from "@/hooks/use-area-filter";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
+import { variantId } from "@/config/variant";
 
 interface LeafStateToggleProps {
   leaf: NavLeaf;
@@ -106,11 +107,16 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   // from the legend's info tool.
   const [infoLayers, setInfoLayers] = createSignal<Map<string, string>>(new Map());
 
-  onMount(() => {
+  // An effect rather than onMount: a config-variant switch replaces both files,
+  // and onMount fires once. Reading `variantId()` first — before any await or
+  // early return — is what subscribes this to the switch.
+  createEffect(() => {
+    variantId();
     loadNavigation()
       .then(setTree)
       .catch((err) => console.error("Failed to load navigation.json:", err));
-    // loadLayerConfigs memoizes, so this shares the parse with useNavigation.
+    // loadLayerConfigs memoizes per variant, so this shares the parse with
+    // useNavigation.
     loadLayerConfigs()
       .then((configs) =>
         setInfoLayers(

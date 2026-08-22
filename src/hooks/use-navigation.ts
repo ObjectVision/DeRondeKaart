@@ -45,14 +45,12 @@ async function resolveConfig(
  * all three share one source of truth.
  */
 export function useNavigation(options: UseNavigationOptions) {
-  let configs: LayerConfig[] | null = null;
-
-  async function getConfigs() {
-    if (!configs) {
-      configs = await loadLayerConfigs();
-    }
-    return configs;
-  }
+  // No local mirror of the configs: `loadLayerConfigs` memoizes per config
+  // variant, so calling it each time is free and — unlike a private cache here
+  // — always answers for the variant that is active *now*. A mirror would keep
+  // handing out the previous variant's configs after a switch, toggling layers
+  // that no longer exist onto the map.
+  const getConfigs = () => loadLayerConfigs();
 
   function isOnMap(id: string, slot: MapSlot): boolean {
     const entries =
