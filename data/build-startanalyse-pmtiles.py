@@ -35,9 +35,18 @@ Needs the GDAL Python bindings (``osgeo``), which on Windows come from OSGeo4W
 and not from pip. The script looks for an interpreter that has them, starting
 with the current one and falling back to ``C:\\OSGeo4W\\bin\\python-qgis.bat``.
 
+With ``--upload`` the built archives are copied to the data host that serves
+``https://data.startanalyse2026.nl/pmtiles/``. They go to a staging folder first
+and are moved into place in one step, so a viewer never range-reads a half
+written archive. There is no rollback copy — a bad build overwrites the good
+one, so check a rebuild locally before uploading it.
+
 Usage:
     # Every dataset of the default year
     python3 build-startanalyse-pmtiles.py
+
+    # Rebuild from a fresh GeoDMS export and publish it
+    python3 build-startanalyse-pmtiles.py --srcdir C:\\LocalData\\startanalyse_2_0\\2025 --upload
 
     # One dataset (or a glob) — for tuning zooms without a 46-file rebuild
     python3 build-startanalyse-pmtiles.py --only strat1
@@ -45,6 +54,9 @@ Usage:
 
     # Resume an interrupted run
     python3 build-startanalyse-pmtiles.py --skip-existing
+
+    # Publish what is already built, without rebuilding
+    python3 build-startanalyse-pmtiles.py --skip-existing --upload
 """
 from __future__ import annotations
 
@@ -65,6 +77,14 @@ GEOJSON_TO_PMTILES = HERE / "convert-geojson-to-pmtiles.py"
 # Where OSGeo4W puts its interpreter on Windows. Only used as a fallback when
 # the current one has no GDAL bindings.
 OSGEO4W_PYTHON = Path(r"C:\OSGeo4W\bin\python-qgis.bat")
+
+# The data host behind https://data.startanalyse2026.nl/pmtiles/.
+DEFAULT_REMOTE = "cicada@149.210.181.180:/var/www/startanalyse2026_data/pmtiles"
+
+# Windows ships OpenSSH here. Prefer it over anything earlier on PATH: the
+# MSYS/Git-for-Windows build of ssh cannot talk to the Windows ssh-agent, so it
+# fails with "Permission denied (publickey)" while this one authenticates.
+WINDOWS_OPENSSH = Path(r"C:\Windows\System32\OpenSSH")
 
 GEOJSON_SUFFIXES = (".geojson", ".json")
 
@@ -171,6 +191,77 @@ def build_one(
         )
 
 
+def resolve_ssh_tool(name: str) -> str:
+    """Locate an OpenSSH binary, preferring the one Windows ships."""
+    if sys.platform == "win32":
+        bundled = WINDOWS_OPENSSH / f"{name}.exe"
+        if bundled.is_file():
+            return str(bundled)
+
+    found = shutil.which(name)
+    if found is None:
+        raise SystemExit(f"error: {name} not found on PATH — cannot upload")
+    return found
+
+
+def split_remote(remote: str) -> tuple[str, str]:
+    """``user@host:/path`` -> ``("user@host", "/path")``."""
+    host, separator, path = remote.partition(":")
+    if not separator or not path:
+        raise SystemExit(
+            f"error: --remote must look like user@host:/path, got {remote!r}"
+        )
+    return host, path.rstrip("/")
+
+
+def run_ssh(ssh: str, host: str, script: str) -> None:
+    """Run a shell snippet on the data host."""
+    result = subprocess.run([ssh, host, script], check=False, text=True)
+    if result.returncode != 0:
+        raise SystemExit(f"error: remote command failed (exit {result.returncode})")
+
+
+def upload(files: list[Path], remote: str) -> None:
+    """Copy archives to the data host, swapping them in from a staging folder.
+
+    scp writes straight into the destination file, so copying over a live
+    archive would let a viewer range-read a truncated one for the minute or so
+    the transfer lasts. Staging plus a ``mv`` on the same filesystem makes each
+    replacement a rename instead.
+    """
+    ssh = resolve_ssh_tool("ssh")
+    scp = resolve_ssh_tool("scp")
+    host, path = split_remote(remote)
+    staging = f"{path}/.staging-{time.strftime('%Y%m%d-%H%M%S')}"
+
+    total = sum(p.stat().st_size for p in files)
+    print(f"\nUploading {len(files)} archive(s), {total:,} bytes -> {remote}")
+
+    run_ssh(ssh, host, f"mkdir -p '{staging}'")
+    try:
+        command = [scp, *(str(p) for p in files), f"{host}:{staging}/"]
+        result = subprocess.run(command, check=False, text=True)
+        if result.returncode != 0:
+            raise SystemExit(f"error: scp failed (exit {result.returncode})")
+
+        # One mv per archive, then drop the staging folder. Not atomic across
+        # the set — a viewer mid-swap can see a mix of old and new — but each
+        # individual archive is always complete.
+        run_ssh(ssh, host, f"mv '{staging}'/*.pmtiles '{path}/' && rmdir '{staging}'")
+    except BaseException:
+        run_ssh_quietly(ssh, host, f"rm -rf '{staging}'")
+        raise
+
+    print("Upload done. Remote sizes:")
+    names = " ".join(f"'{path}/{p.name}'" for p in files)
+    run_ssh(ssh, host, f"stat -c '%s  %y  %n' {names}")
+
+
+def run_ssh_quietly(ssh: str, host: str, script: str) -> None:
+    """Best-effort cleanup — the failure that got us here is the one to report."""
+    subprocess.run([ssh, host, script], check=False, capture_output=True, text=True)
+
+
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
@@ -183,6 +274,16 @@ def main(argv: list[str]) -> int:
         default=DEFAULT_YEAR,
         metavar="YYYY",
         help=f"Year folder under {GEOJSON_ROOT.name}/ (default: {DEFAULT_YEAR})",
+    )
+    parser.add_argument(
+        "--srcdir",
+        default=None,
+        metavar="PATH",
+        help=(
+            "Folder holding the GeoJSON exports "
+            f"(default: {GEOJSON_ROOT}/<year>). Use this to build straight from "
+            "a GeoDMS export without copying it into the repo tree."
+        ),
     )
     parser.add_argument(
         "--only",
@@ -229,13 +330,26 @@ def main(argv: list[str]) -> int:
         action="store_true",
         help="Leave archives that already exist alone instead of rebuilding them",
     )
+    parser.add_argument(
+        "--upload",
+        action="store_true",
+        help="Publish the archives to the data host once they are all built",
+    )
+    parser.add_argument(
+        "--remote",
+        default=DEFAULT_REMOTE,
+        metavar="USER@HOST:/PATH",
+        help=f"Upload destination (default: {DEFAULT_REMOTE})",
+    )
     args = parser.parse_args(argv[1:])
 
     if not GEOJSON_TO_PMTILES.is_file():
         print(f"error: missing sibling script: {GEOJSON_TO_PMTILES}", file=sys.stderr)
         return 2
 
-    year_dir = GEOJSON_ROOT / args.year
+    year_dir = Path(args.srcdir) if args.srcdir else GEOJSON_ROOT / args.year
+    if not year_dir.is_absolute():
+        year_dir = (Path.cwd() / year_dir).resolve()
     outdir = Path(args.outdir) if args.outdir else PMTILES_ROOT / args.year
     if not outdir.is_absolute():
         outdir = (Path.cwd() / outdir).resolve()
@@ -278,6 +392,10 @@ def main(argv: list[str]) -> int:
         f"({total:,} bytes total)"
         + (f", {skipped} reused" if skipped else "")
     )
+
+    if args.upload:
+        upload([p for p in built if p.is_file()], args.remote)
+
     return 0
 
 
