@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { buurtCodeOf, pblSummaryUrl } from "@/lib/pbl-summary";
+import {
+  buurtCodeOf,
+  pblStatusFromMessage,
+  pblSummaryUrl,
+  PBL_SUMMARY_TIMEOUT_MS,
+} from "@/lib/pbl-summary";
 
 /**
  * The code shape is the whole point of these tests. `buurtCodeOf` gates whether
@@ -52,5 +57,52 @@ describe("buurtCodeOf", () => {
 describe("pblSummaryUrl", () => {
   it("passes the code as the bu parameter", () => {
     expect(pblSummaryUrl("BU0363FF03")).toBe("/pbl-samenvatting.html?bu=BU0363FF03");
+  });
+});
+
+/**
+ * The frame reports its own readiness because the iframe's native `load` event
+ * fires while PBL's gemeente picker is still on screen — far too early to lift
+ * the splash. These guard the two things that can go wrong with that: acting on
+ * a message from somewhere else, and never lifting the splash at all.
+ */
+describe("pblStatusFromMessage", () => {
+  /** A message event as the framed viewer sends it, from a given origin. */
+  function message(data: unknown, origin = window.location.origin): MessageEvent {
+    return { origin, data } as MessageEvent;
+  }
+
+  it("reads the ready verdict", () => {
+    expect(pblStatusFromMessage(message({ type: "pbl-summary-ready" }))).toBe("ready");
+  });
+
+  it("reads the failed verdict", () => {
+    expect(pblStatusFromMessage(message({ type: "pbl-summary-failed" }))).toBe("failed");
+  });
+
+  // This window also receives postMessage traffic from an embedding host, so a
+  // message from anywhere but our own origin must not move the splash.
+  it("ignores a message from another origin", () => {
+    expect(
+      pblStatusFromMessage(message({ type: "pbl-summary-ready" }, "https://evil.example")),
+    ).toBeNull();
+  });
+
+  it.each([
+    { type: "map-command" },
+    { type: "open-circular" },
+    { type: "set-variant", id: "2026" },
+    { type: "pbl-summary-something-else" },
+    {},
+    null,
+    "pbl-summary-ready",
+    42,
+  ])("ignores the unrelated payload %j", (data) => {
+    expect(pblStatusFromMessage(message(data))).toBeNull();
+  });
+
+  it("caps the wait well under the frame's own two-stage 60s deadline", () => {
+    expect(PBL_SUMMARY_TIMEOUT_MS).toBeGreaterThan(0);
+    expect(PBL_SUMMARY_TIMEOUT_MS).toBeLessThan(60000);
   });
 });
