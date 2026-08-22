@@ -22,6 +22,13 @@ import { precompressDir } from './scripts/precompress-dist'
  *
  * When `VITE_CONFIG_PROJECT` is unset, behaviour is unchanged (pure `public/`
  * defaults). A set-but-missing project directory aborts the build/dev server.
+ *
+ * One level of subdirectory is also served, which is what makes runtime config
+ * variants possible: `configs/<slug>/2026/layers.json` is reachable at
+ * `/2026/layers.json`, so two variants of the same file can coexist in one
+ * build. See `src/config/variant.ts`. The depth limit is deliberate — variants
+ * are the only use case, and walking arbitrarily deep would quietly turn the
+ * whole project directory into a served tree.
  */
 function configOverlay(project: string | undefined): Plugin {
   const configsRoot = path.resolve(__dirname, "configs")
@@ -37,13 +44,25 @@ function configOverlay(project: string | undefined): Plugin {
     }
   }
 
-  /** Files (basenames) the project overrides, e.g. ["map.json", "navigation.json"]. */
+  /**
+   * Files the project overrides, as paths relative to the project dir and
+   * always with forward slashes, e.g. ["map.json", "2026/layers.json"] — the
+   * form they take in a URL. Descends one level only (see the note above).
+   */
   function overrideFiles(): string[] {
     if (!projectDir) return []
-    return fs
-      .readdirSync(projectDir, { withFileTypes: true })
-      .filter((e) => e.isFile())
-      .map((e) => e.name)
+    const out: string[] = []
+    for (const entry of fs.readdirSync(projectDir, { withFileTypes: true })) {
+      if (entry.isFile()) {
+        out.push(entry.name)
+      } else if (entry.isDirectory()) {
+        const sub = path.join(projectDir, entry.name)
+        for (const child of fs.readdirSync(sub, { withFileTypes: true })) {
+          if (child.isFile()) out.push(`${entry.name}/${child.name}`)
+        }
+      }
+    }
+    return out
   }
 
   let outDir = "dist"
@@ -63,8 +82,12 @@ function configOverlay(project: string | undefined): Plugin {
       const files = new Set(overrideFiles())
       server.middlewares.use((req, res, next) => {
         if (!req.url) return next()
-        // Strip query string and leading slash to get the requested basename.
+        // Strip query string and leading slash to get the requested path,
+        // relative to the project dir (e.g. "map.json", "2026/layers.json").
         const name = req.url.split("?")[0].replace(/^\/+/, "")
+        // Membership in `files` is the security boundary as well as the lookup:
+        // only paths this project actually contains are ever opened, so a
+        // crafted "../" can never escape the project dir.
         if (!files.has(name)) return next()
         const filePath = path.join(projectDir, name)
         fs.readFile(filePath, (err, data) => {
@@ -80,7 +103,11 @@ function configOverlay(project: string | undefined): Plugin {
       if (!projectDir) return
       const targetDir = path.resolve(__dirname, outDir)
       for (const name of overrideFiles()) {
-        fs.copyFileSync(path.join(projectDir, name), path.join(targetDir, name))
+        const dest = path.join(targetDir, name)
+        // A variant subdirectory has no counterpart in public/, so it does not
+        // exist in the output yet — copyFileSync would throw ENOENT.
+        fs.mkdirSync(path.dirname(dest), { recursive: true })
+        fs.copyFileSync(path.join(projectDir, name), dest)
       }
     },
   }

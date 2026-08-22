@@ -45,6 +45,8 @@ import { useClickPopup } from "@/hooks/use-click-popup";
 import { useHoverCursor } from "@/hooks/use-hover-cursor";
 import { useFeatureHighlight } from "@/hooks/use-feature-highlight";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
+import { useVariantSwitch } from "@/hooks/use-variant-switch";
+import { variantId } from "@/config/variant";
 import { useEmbedData, type EmbedConfig } from "@/hooks/use-embed-data";
 import { useMapSnapshot } from "@/hooks/use-map-snapshot";
 import { useNavigation } from "@/hooks/use-navigation";
@@ -560,7 +562,19 @@ function App(rawProps: AppProps): JSX.Element {
   // load while the first is still settling.
   let pickLayerAdded = false;
   let pickLayerLoading = false;
+  let pickLayerVariant: string | null = null;
   createEffect(() => {
+    // Read first, before any early return: an effect subscribes only to what
+    // its last run actually read, so a run that bailed out on `mapLeftReady`
+    // without touching this would never wake for a variant switch.
+    const variant = variantId();
+    // A switch removes every layer entry, the pick layer included, and rebinds
+    // the id to a different layer. Re-arm so the effect adds it again from the
+    // new variant's configs.
+    if (variant !== pickLayerVariant) {
+      pickLayerVariant = variant;
+      pickLayerAdded = false;
+    }
     if (!props.pickLayerId || !mapLeftReady() || pickLayerAdded || pickLayerLoading) return;
     pickLayerLoading = true;
     const pickLayerId = props.pickLayerId;
@@ -745,6 +759,16 @@ function App(rawProps: AppProps): JSX.Element {
   // ready). In the standalone circular embed the main left map is never
   // mounted, so gate on embedCircular too — layer entries populate without a
   // live map (ExportPreviewMap re-syncs any native MVT/COG layers itself).
+  // Config-variant switching (e.g. model year 2025 ⇄ 2026), driven by the host
+  // page over postMessage or by a `variant` URL param. Clears both maps and
+  // repoints the layer/navigation configs; the basemap, study area and view
+  // survive. The pick layer is re-added by its own effect, which tracks
+  // `variantId()`, so nothing is passed for `onResetPickLayer`.
+  const { switchVariant } = useVariantSwitch({
+    mapLeft: { layers: mapLeftLayers, view: mapLeftView },
+    mapRight: { layers: mapRightLayers, view: mapRightView },
+  });
+
   useUrlCommands({
     mapLeft: { layers: mapLeftLayers, view: mapLeftView }, // "linker kaart"
     mapRight: { layers: mapRightLayers, view: mapRightView }, // "rechter kaart"
@@ -754,6 +778,7 @@ function App(rawProps: AppProps): JSX.Element {
     onBasemap: setBasemap,
     onOpenCircular: openCircular,
     onSetFilter: setFilterFromHost,
+    onSetVariant: switchVariant,
   });
 
   // Apply runtime UI-config overrides from an embedding host (Power BI visual).

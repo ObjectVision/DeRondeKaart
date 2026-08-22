@@ -1,4 +1,4 @@
-import { For, Show, createEffect, createMemo, createSignal, onCleanup, onMount, type JSX } from "solid-js";
+import { For, Show, createEffect, createMemo, createSignal, onCleanup, type JSX } from "solid-js";
 import { Button } from "@/components/ui/button";
 import { NavIcon, Icon } from "@/components/ui/nav-icon";
 import { NavTree } from "./NavTree";
@@ -14,6 +14,7 @@ import {
 import type { NavigationApi } from "@/hooks/use-navigation";
 import { withAlpha } from "@/lib/utils";
 import { chromeIconColor, chromeIconSize, navIconSize } from "@/config/map-config";
+import { variantId } from "@/config/variant";
 
 interface SelectedLeaf {
   leaf: NavLeaf;
@@ -64,7 +65,11 @@ export function NavigationPanel(props: NavigationPanelProps): JSX.Element {
   let mirror: HTMLDivElement | undefined;
   const [visibleCount, setVisibleCount] = createSignal(Infinity);
 
-  onMount(() => {
+  // An effect rather than onMount, so a config-variant switch rebuilds the
+  // tree. `variantId()` is read first — an effect only subscribes to what it
+  // actually read on its last run.
+  createEffect(() => {
+    variantId();
     loadNavigation()
       .then(setTree)
       .catch((err) => console.error("Failed to load navigation.json:", err));

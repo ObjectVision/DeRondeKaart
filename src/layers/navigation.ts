@@ -1,4 +1,5 @@
 import { chromeIconColor } from "@/config/map-config";
+import { configPath, variantCacheKey } from "@/config/variant";
 
 /** A selectable layer in the navigation tree. */
 export interface NavLeaf {
@@ -52,7 +53,12 @@ export function hasLeaves(node: NavNode): boolean {
   return node.children.some((child) => (isLeaf(child) ? true : hasLeaves(child)));
 }
 
-let cachedNavigation: NavNode[] | null = null;
+/**
+ * Parsed navigation.json per config variant (key from `variantCacheKey`, ""
+ * when the project declares no variants). Both variants stay cached so a
+ * switch back is instant — see the note on the equivalent map in `config.ts`.
+ */
+const cachedNavigations = new globalThis.Map<string, NavNode[]>();
 
 /**
  * Remove empty placeholder leaves (`id === "" && label === ""`) so empty
@@ -72,9 +78,11 @@ function pruneItems(items: NavItem[]): NavItem[] {
 }
 
 export async function loadNavigation(): Promise<NavNode[]> {
-  if (cachedNavigation) return cachedNavigation;
+  const key = variantCacheKey("navigation.json");
+  const cached = cachedNavigations.get(key);
+  if (cached) return cached;
 
-  const response = await fetch("/navigation.json");
+  const response = await fetch(configPath("navigation.json"));
   if (!response.ok) {
     throw new Error(`Failed to load navigation.json: ${response.statusText}`);
   }
@@ -82,16 +90,23 @@ export async function loadNavigation(): Promise<NavNode[]> {
   const data: unknown = await response.json();
   if (!Array.isArray(data)) {
     console.warn("navigation.json: expected a top-level array");
-    cachedNavigation = [];
-    return cachedNavigation;
+    cachedNavigations.set(key, []);
+    return [];
   }
 
-  cachedNavigation = (data as NavNode[]).map((node) => ({
+  const tree = (data as NavNode[]).map((node) => ({
     ...node,
     children: pruneItems(node.children ?? []),
   }));
+  cachedNavigations.set(key, tree);
 
-  return cachedNavigation;
+  return tree;
+}
+
+/** Drop the parsed navigation tree for one variant, or all of them. */
+export function clearNavigationCache(variant?: string): void {
+  if (variant === undefined) cachedNavigations.clear();
+  else cachedNavigations.delete(variant);
 }
 
 /** Label of the injected theme holding user-created combination layers. */
