@@ -1,5 +1,6 @@
 import type { ViewState } from "@/components/map/MapView";
 import { isBasemapId } from "@/components/map/map-view-config";
+import { loadConfig, clearConfigCache } from "@/config/load-config";
 
 /** Appearance of the marker dropped where the user clicks the map. */
 export interface ClickMarkerConfig {
@@ -305,6 +306,8 @@ export const DEFAULT_CLICK_MARKER: ClickMarkerConfig = {
 };
 
 /** Fallback view, matching the hardcoded INITIAL_VIEW_STATE in MapView.tsx. */
+const MAP_CONFIG_FILE = "map.json";
+
 const DEFAULT_MAP_CONFIG: MapConfig = {
   center: [5.0, 52.0],
   zoom: 7,
@@ -503,19 +506,19 @@ function validateMapControls(value: unknown): MapControlsConfig {
  * back to {@link DEFAULT_MAP_CONFIG} so an embedded map always loads.
  */
 export async function loadMapConfig(): Promise<MapConfig> {
-  let data: Record<string, unknown>;
-  try {
-    const response = await fetch("/map.json");
-    if (!response.ok) {
-      console.warn(`map.json: failed to load (${response.statusText}); using defaults`);
-      return DEFAULT_MAP_CONFIG;
-    }
-    data = await response.json();
-  } catch (err) {
-    console.warn("map.json: not found or invalid JSON; using defaults", err);
-    return DEFAULT_MAP_CONFIG;
-  }
+  // Not memoized, unlike the other eight: this runs once at boot, before the
+  // variant system is initialised (it is map.json that declares the variants),
+  // and re-reading it is how a test drives a different config.
+  clearConfigCache(MAP_CONFIG_FILE);
+  return loadConfig({
+    name: MAP_CONFIG_FILE,
+    onError: () => DEFAULT_MAP_CONFIG,
+    parse: (raw) => buildMapConfig(raw as Record<string, unknown>),
+  });
+}
 
+/** Validate and default every field of a parsed map.json. */
+function buildMapConfig(data: Record<string, unknown>): MapConfig {
   const center = validateCenter(data.center);
   if (data.center !== undefined && center === null) {
     console.warn(`map.json: invalid "center" ${JSON.stringify(data.center)}; using default`);

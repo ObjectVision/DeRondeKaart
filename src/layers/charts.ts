@@ -4,6 +4,7 @@
  * via `LayerConfig.charts`.
  */
 import type { ChartValueFormat, LayerConfig } from "./types";
+import { loadConfig } from "@/config/load-config";
 
 /** Formats whose own `source` is an attribute table the panel can read. */
 const CHART_FORMATS = ["geoarrow", "parquet"];
@@ -73,7 +74,6 @@ const CHART_TYPES: ChartType[] = ["donut", "bar", "line"];
 const AGGREGATIONS: ChartAggregation[] = ["sum", "mean", "count"];
 const FORMATS: ChartValueFormat[] = ["number", "percent", "currency"];
 
-let cachedCharts: Map<string, ChartConfig> | null = null;
 
 function validateChart(raw: unknown): ChartConfig | null {
   if (typeof raw !== "object" || raw === null) return null;
@@ -117,40 +117,29 @@ function validateChart(raw: unknown): ChartConfig | null {
  * warning; duplicate ids first-wins.
  */
 export async function loadChartsConfig(): Promise<Map<string, ChartConfig>> {
-  if (cachedCharts) return cachedCharts;
-
-  let data: unknown;
-  try {
-    const response = await fetch("/charts.json");
-    if (!response.ok) {
-      console.warn(`charts.json: failed to load (${response.statusText}); no charts available`);
-      return (cachedCharts = new Map());
-    }
-    data = await response.json();
-  } catch (err) {
-    console.warn("charts.json: not found or invalid JSON; no charts available", err);
-    return (cachedCharts = new Map());
-  }
-
-  const list = (data as { charts?: unknown }).charts;
-  if (!Array.isArray(list)) {
-    console.warn('charts.json: expected { "charts": [...] }; no charts available');
-    return (cachedCharts = new Map());
-  }
-
-  const charts = new Map<string, ChartConfig>();
-  for (const raw of list) {
-    const chart = validateChart(raw);
-    if (!chart) {
-      console.warn(`charts.json: dropping invalid chart ${JSON.stringify(raw)}`);
-      continue;
-    }
-    if (charts.has(chart.id)) {
-      console.warn(`charts.json: duplicate chart id "${chart.id}"; keeping the first`);
-      continue;
-    }
-    charts.set(chart.id, chart);
-  }
-  cachedCharts = charts;
-  return charts;
+  return loadConfig({
+    name: "charts.json",
+    onError: () => new Map<string, ChartConfig>(),
+    parse: (data) => {
+      const list = (data as { charts?: unknown }).charts;
+      const charts = new Map<string, ChartConfig>();
+      if (!Array.isArray(list)) {
+        console.warn('charts.json: expected { "charts": [...] }; no charts available');
+        return charts;
+      }
+      for (const raw of list) {
+        const chart = validateChart(raw);
+        if (!chart) {
+          console.warn(`charts.json: dropping invalid chart ${JSON.stringify(raw)}`);
+          continue;
+        }
+        if (charts.has(chart.id)) {
+          console.warn(`charts.json: duplicate chart id "${chart.id}"; keeping the first`);
+          continue;
+        }
+        charts.set(chart.id, chart);
+      }
+      return charts;
+    },
+  });
 }
