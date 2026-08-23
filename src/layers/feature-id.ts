@@ -1,5 +1,6 @@
 import { PMTiles } from "pmtiles";
 import type { LayerConfig } from "./types";
+import { registerVariantScopedCache } from "@/config/variant-scope";
 
 /**
  * Feature identity for highlighting.
@@ -170,6 +171,19 @@ export function clearIdPropertyCache(): void {
   archiveFields.clear();
   idPropertyByConfig.clear();
 }
+
+/**
+ * Only the id-keyed half is variant-scoped. `archiveFields` is keyed by archive
+ * URL, so it stays: the fields of a PMTiles file do not depend on which
+ * catalogue pointed at it, and re-reading them costs a range request per
+ * archive.
+ *
+ * `idPropertyByConfig` is keyed by layer id, which IS reused between variants.
+ * Left uncleared, a layer could take the other year's `promoteId` — and since
+ * `promoteId` is fixed when the source is created, highlighting would silently
+ * key on the wrong field or stop working, with nothing logged.
+ */
+registerVariantScopedCache(() => idPropertyByConfig.clear());
 
 /**
  * Whether `config` can carry a highlight: opted in, and on a format whose

@@ -1,8 +1,7 @@
 import { loadLayerConfigs } from "@/layers";
 import { loadNavigation } from "@/layers/navigation";
 import { isVariantId, setVariant, variantId } from "@/config/variant";
-import { clearLayerInfoCache } from "@/components/ui/navigation/LayerDescription";
-import { clearMetaUrlCache } from "@/components/ui/navigation/LeafMeta";
+import { clearVariantScopedCaches } from "@/config/variant-scope";
 import { MAP_SIDES, forSide, type MapSide, type MapSidePair } from "@/lib/map-side";
 
 export interface UseVariantSwitchOptions extends MapSidePair<MapSide> {
@@ -63,10 +62,9 @@ export function useVariantSwitch(options: UseVariantSwitchOptions) {
     // native sources/layers it owns.
     for (const side of MAP_SIDES) clearSide(forSide(options, side));
 
-    // Id-keyed caches whose keys mean something different under the new
-    // variant. (LeafMeta's URL-keyed HTML cache is safe and deliberately kept.)
-    clearLayerInfoCache();
-    clearMetaUrlCache();
+    // Whatever registered itself as variant-scoped. Each cache declares that
+    // where it is defined, so a new one cannot be forgotten here.
+    clearVariantScopedCaches();
 
     if (!setVariant(id)) return false;
 
