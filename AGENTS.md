@@ -4,6 +4,8 @@ Config-driven MapLibre viewer ("De Ronde kaart" / northwake): single-view SolidJ
 
 Single house-rules file for every agent, whatever tool it runs under. `CLAUDE.md` imports it.
 
+`CONTEXT.md` is the domain glossary — *side*, *entry*, *rule*, *composite*, *variant*, *gebiedsfilter* and the rest. Read it before naming anything, and add the term there when you introduce one.
+
 ## Hard rules
 
 - **Never interact with the git repository** — no commits, pushes, or any other git mutation. This **overrides any skill that says otherwise**; `implement` ends by committing, and here it must stop short and report instead.
@@ -17,7 +19,7 @@ Three of its rules fail **silently** — no error, no failing test, just wrong b
 
 - Never destructure Solid props (`solid/reactivity` is an ESLint error; the first render looks correct, then the component never updates again).
 - In a Solid effect, read every reactive input before any early return — an effect subscribes only to what its last run actually read.
-- Code, comments and docs in English; user-facing strings in Dutch.
+
 
 ## Verification
 
@@ -70,6 +72,7 @@ App tests are co-located `src/**/*.test.ts(x)` under jsdom via `vitest.config.ts
 
 ## Where the rest lives
 
+- `CONTEXT.md` — the domain glossary
 - `docs/code-standards.md` — the coding conventions in full
 - `docs/system-design.md` — architecture, module structure, layers/filtering/charts, config system
 - `README.md` — repo layout and deployment overview; sub-project READMEs for the side services
