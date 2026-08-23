@@ -1,6 +1,6 @@
 import { createEffect, createSignal, type Accessor } from "solid-js";
 
-import type { MapAccessor, MapLayerMouseEvent, MapViewHandle } from "@/components/map/map-view-config";
+import type { MapLayerMouseEvent, MapViewHandle } from "@/components/map/map-view-config";
 import { getLayerConfigById, loadLayerConfigs, type LayerConfig } from "@/layers";
 import { buildNativeLayerDefs, isHighlightLayerId } from "@/layers/mvt-style";
 import {
@@ -55,14 +55,12 @@ export interface UseComplementaryDashboardResult {
 export function useComplementaryDashboard(
   mapLeft: Accessor<MapViewHandle | null>,
   entries: Accessor<LayerEntry[]>,
-  addLayer: (config: LayerConfig, map: MapAccessor, options?: { atEnd?: boolean }) => Promise<void>,
+  addLayer: (config: LayerConfig, options?: { atEnd?: boolean }) => Promise<void>,
   ready: Accessor<boolean>,
 ): UseComplementaryDashboardResult {
   const [config, setConfig] = createSignal<ComplementaryConfig | null>(null);
   const [panelOpen, setPanelOpen] = createSignal(false);
   const [codeColumn, setCodeColumn] = createSignal("bu_code");
-
-  const getMap: MapAccessor = () => mapLeft()?.map() ?? null;
 
   /**
    * Put the selection layers on the map ourselves.
@@ -106,7 +104,7 @@ export function useComplementaryDashboard(
             );
             continue;
           }
-          await addLayer(layerConfig, getMap, { atEnd: true });
+          await addLayer(layerConfig, { atEnd: true });
         }
       } catch (err) {
         // Non-fatal: without the layers the map simply has nothing to select,

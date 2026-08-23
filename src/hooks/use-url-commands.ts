@@ -1,6 +1,6 @@
 import { createEffect, onMount, onCleanup, type Accessor } from "solid-js";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
-import type { MapAccessor, MapViewHandle } from "@/components/map/map-view-config";
+import type { MapViewHandle } from "@/components/map/map-view-config";
 import { isUrlAddressable } from "@/lib/share-url";
 import { isBasemapId } from "@/components/map/map-view-config";
 import { VARIANT_PARAM } from "@/config/variant";
@@ -126,11 +126,6 @@ function parseCommands(params: URLSearchParams): LayerCommand[] {
 export function useUrlCommands(options: UseUrlCommandsOptions): void {
   let processedInitialHash = false;
 
-  /** Null-tolerant map accessor for a side; map B is conditionally mounted. */
-  function mapOf(side: MapSide): MapAccessor {
-    return () => side.view()?.map() ?? null;
-  }
-
   // Straight through to the memoized loader rather than a local mirror: after a
   // config-variant switch a mirror would still hold the previous variant's
   // configs, and ids are reused across variants — so an `add` command would
@@ -156,20 +151,18 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
           continue;
         }
 
-        const getMap = mapOf(side);
-
         switch (command.cmd) {
           case "add":
             // atEnd: the command sequence is already in draw order (share links
             // emit bottom-up), so append verbatim. Band seeding would re-lift a
             // foreground layer above one the user dragged on top of it.
-            if (config) await side.layers.addLayer(config, getMap, { atEnd: true });
+            if (config) await side.layers.addLayer(config, { atEnd: true });
             break;
           case "remove":
-            if (command.layer) side.layers.removeLayer(command.layer, getMap);
+            if (command.layer) side.layers.removeLayer(command.layer);
             break;
           case "hide":
-            if (command.layer) side.layers.hideLayer(command.layer, getMap);
+            if (command.layer) side.layers.hideLayer(command.layer);
             break;
         }
       }
@@ -182,7 +175,6 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
   async function reconcileLeftLayers(layerIds: string[]) {
     const configs = await getConfigs();
     const mapLeft = options.mapLeft;
-    const getMap = mapOf(mapLeft);
 
     const desired = new Set<string>();
     for (const id of layerIds) {
@@ -195,7 +187,7 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
     // Remove extras (only url-addressable ones — never host-pushed data).
     for (const entry of mapLeft.layers.layerEntries()) {
       if (!desired.has(entry.config.id) && isUrlAddressable(entry)) {
-        mapLeft.layers.removeLayer(entry.config.id, getMap);
+        mapLeft.layers.removeLayer(entry.config.id);
       }
     }
 
@@ -203,7 +195,7 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
     for (const id of desired) {
       if (present.has(id)) continue;
       const config = getLayerConfigById(configs, id);
-      if (config) await mapLeft.layers.addLayer(config, getMap);
+      if (config) await mapLeft.layers.addLayer(config);
     }
   }
 

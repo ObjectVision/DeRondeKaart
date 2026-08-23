@@ -67,7 +67,6 @@ describe("useFilterLayers.create", () => {
         "test",
         [{ layerId: "aandeel_j0_17", ruleName: "0-10%" }],
         [aandeelLayer()],
-        [],
         () => 2040,
       );
       expect(requestedUrls()).toEqual([
@@ -87,7 +86,6 @@ describe("useFilterLayers.create", () => {
         "test",
         [{ layerId: "aandeel_j0_17", ruleName: "0-10%" }],
         [aandeelLayer()],
-        [],
         () => undefined,
       );
       expect(requestedUrls()).toEqual([
@@ -113,7 +111,6 @@ describe("useFilterLayers.create", () => {
         "test",
         [{ layerId: "huisarts", ruleName: "0-10%" }],
         [plain],
-        [],
         () => 2040,
       );
       expect(requestedUrls()).toEqual(["https://example.test/huisarts_lb_m5.cog.tif"]);

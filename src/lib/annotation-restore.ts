@@ -2,11 +2,9 @@ import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import type { UseMapLayersResult } from "@/hooks/use-map-layers";
 import { flyToView } from "@/lib/fly-to";
 import { selectionsFromJson, type AnnotationSnapshot } from "@/types/annotation";
-import type { MapAccessor } from "@/components/map/map-view-config";
 
 export interface RestoreSide {
   layers: UseMapLayersResult;
-  map: MapAccessor;
 }
 
 export interface RestoreDeps {
@@ -64,7 +62,7 @@ export async function restoreSnapshot(
 
     for (const entry of side.layers.layerEntries()) {
       if (!targetSet.has(entry.config.id)) {
-        side.layers.removeLayer(entry.config.id, side.map);
+        side.layers.removeLayer(entry.config.id);
       }
     }
 
@@ -74,7 +72,7 @@ export async function restoreSnapshot(
       const config = getLayerConfigById(configs, id);
       // atEnd: `layerIds` is a stored draw order, so append verbatim rather than
       // re-seeding by band (which would undo a dragged order on restore).
-      if (config) await side.layers.addLayer(config, side.map, { atEnd: true });
+      if (config) await side.layers.addLayer(config, { atEnd: true });
       if (isCancelled()) return;
     }
 
@@ -83,8 +81,8 @@ export async function restoreSnapshot(
     for (const id of targetIds) {
       const shouldHide = hiddenTarget.has(id);
       const isHidden = side.layers.hiddenIds().has(id);
-      if (shouldHide && !isHidden) side.layers.hideLayer(id, side.map);
-      else if (!shouldHide && isHidden) side.layers.toggleLayer(id, side.map);
+      if (shouldHide && !isHidden) side.layers.hideLayer(id);
+      else if (!shouldHide && isHidden) side.layers.toggleLayer(id);
     }
   }
 }

@@ -1,6 +1,6 @@
 import { createEffect, onMount, onCleanup, type Accessor } from "solid-js";
 import type { Feature } from "geojson";
-import type { MapAccessor, MapViewHandle } from "@/components/map/map-view-config";
+import type { MapViewHandle } from "@/components/map/map-view-config";
 import type { GeometryType, LayerConfig, LayerStyle } from "@/layers";
 import type { useMapLayers } from "./use-map-layers";
 
@@ -61,14 +61,10 @@ interface UseEmbedDataOptions {
  * existing map-command bridge.
  */
 export function useEmbedData(options: UseEmbedDataOptions): void {
-  // Resolved lazily and null-tolerant: the layer helpers treat a null map as
-  // "not mounted yet".
-  const getMap: MapAccessor = () => options.mapLeft()?.map() ?? null;
-
   function applyDataset(dataset: EmbedDataset) {
     // Replace-on-update: every host update resends the full dataset.
     // removeLayer is a no-op when the id isn't present.
-    options.mapLeftLayers.removeLayer(dataset.id, getMap);
+    options.mapLeftLayers.removeLayer(dataset.id);
     if (!Array.isArray(dataset.features) || dataset.features.length === 0) return;
 
     const config: LayerConfig = {
@@ -80,11 +76,11 @@ export function useEmbedData(options: UseEmbedDataOptions): void {
       style: dataset.style ?? {},
       data: { type: "FeatureCollection", features: dataset.features },
     };
-    void options.mapLeftLayers.addLayer(config, getMap);
+    void options.mapLeftLayers.addLayer(config);
   }
 
   function removeDataset(id: string) {
-    options.mapLeftLayers.removeLayer(id, getMap);
+    options.mapLeftLayers.removeLayer(id);
   }
 
   onMount(() => {

@@ -1,5 +1,4 @@
 import { createSignal, type Accessor } from "solid-js";
-import type { MapAccessor } from "@/components/map/map-view-config";
 
 import type { ClassRef } from "@/components/ui/CombineLayersDialog";
 import { filterRasterForStep, type GeoStylerFilter, type LayerConfig } from "@/layers";
@@ -29,13 +28,12 @@ export interface UseFilterLayersResult {
     name: string,
     refs: ClassRef[],
     configs: LayerConfig[],
-    maps: MapAccessor[],
     stepFor: (layerId: string) => number | undefined,
     /** Legend classes from the dialog's preview; omit for the default ramp. */
     classes?: ScoreClass[],
   ) => Promise<void>;
-  /** Remove a combination from the maps and release its grid. */
-  remove: (id: string, maps: MapAccessor[]) => void;
+  /** Remove a combination from the map and release its grid. */
+  remove: (id: string) => void;
 }
 
 /**
@@ -46,8 +44,8 @@ export interface UseFilterLayersResult {
  * hook holds only the reactive state over it.
  */
 export function useFilterLayers(
-  addLayer: (config: LayerConfig, map: MapAccessor) => Promise<void>,
-  removeLayer: (layerId: string, map: MapAccessor) => void,
+  addLayer: (config: LayerConfig) => Promise<void>,
+  removeLayer: (layerId: string) => void,
 ): UseFilterLayersResult {
   const [defs, setDefs] = createSignal<FilterLayerDef[]>([]);
   const [busy, setBusy] = createSignal(false);
@@ -57,7 +55,6 @@ export function useFilterLayers(
     name: string,
     refs: ClassRef[],
     configs: LayerConfig[],
-    maps: MapAccessor[],
     stepFor: (layerId: string) => number | undefined,
     classes?: ScoreClass[],
   ) {
@@ -102,10 +99,7 @@ export function useFilterLayers(
         def.classes.map((item) => item.color),
       );
 
-      const config = filterLayerConfig(def);
-      for (const map of maps) {
-        await addLayer(config, map);
-      }
+      await addLayer(filterLayerConfig(def));
       setDefs(getFilterLayers());
     } catch (err) {
       // Surfaced in the UI rather than only logged: a failed combination
@@ -117,10 +111,8 @@ export function useFilterLayers(
     }
   }
 
-  function remove(id: string, maps: MapAccessor[]) {
-    for (const map of maps) {
-      removeLayer(id, map);
-    }
+  function remove(id: string) {
+    removeLayer(id);
     removeFilterLayer(id);
     unregisterScoreGrid(id);
     setDefs(getFilterLayers());

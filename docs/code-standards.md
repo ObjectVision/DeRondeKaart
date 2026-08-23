@@ -41,7 +41,7 @@ The `code-review` skill reads this file as its Standards axis. Three rules fail 
 - Don't wrap code in `try`/`catch` defensively when nothing in it throws.
 
 ## Comments
-
+- Only use comments when they are absolutely necessary
 - Comments explain *why*, not *what*. Don't restate what the line already says.
 - Delete commented-out code rather than leaving it in place.
 

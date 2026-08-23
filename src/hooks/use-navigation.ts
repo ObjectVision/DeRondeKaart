@@ -1,5 +1,5 @@
 import type { Accessor } from "solid-js";
-import type { MapAccessor, MapViewHandle } from "@/components/map/map-view-config";
+import type { MapViewHandle } from "@/components/map/map-view-config";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import type { LayerConfig } from "@/layers";
 import {
@@ -62,13 +62,9 @@ export function useNavigation(options: UseNavigationOptions) {
 
   async function toggleOnMap(id: string, slot: MapSlot) {
     const side = slot === "b" ? options.mapRightLayers : options.mapLeftLayers;
-    const handle = slot === "b" ? options.mapRight : options.mapLeft;
-    // Resolved lazily and null-tolerant: map B is conditionally mounted, and
-    // the layer helpers treat a null map as "not there yet".
-    const getMap: MapAccessor = () => handle()?.map() ?? null;
 
     if (isOnMap(id, slot)) {
-      side.removeLayer(id, getMap);
+      side.removeLayer(id);
       return;
     }
 
@@ -81,7 +77,7 @@ export function useNavigation(options: UseNavigationOptions) {
       );
       return;
     }
-    await side.addLayer(config, getMap);
+    await side.addLayer(config);
   }
 
   // The right map can only receive layers once the left map has at least one:

@@ -1,5 +1,5 @@
 import type { Accessor } from "solid-js";
-import type { MapAccessor, MapViewHandle } from "@/components/map/map-view-config";
+import type { MapViewHandle } from "@/components/map/map-view-config";
 import { loadLayerConfigs } from "@/layers";
 import { loadNavigation } from "@/layers/navigation";
 import { isVariantId, setVariant, variantId } from "@/config/variant";
@@ -45,11 +45,10 @@ export interface UseVariantSwitchOptions {
 export function useVariantSwitch(options: UseVariantSwitchOptions) {
   /** Remove every layer entry from one map. */
   function clearSide(side: MapSide) {
-    const getMap: MapAccessor = () => side.view()?.map() ?? null;
     // Copy first: removeLayer mutates the entries signal as it goes, so
     // iterating the live array would skip every second layer.
     for (const entry of [...side.layers.layerEntries()]) {
-      side.layers.removeLayer(entry.config.id, getMap);
+      side.layers.removeLayer(entry.config.id);
     }
   }
 
