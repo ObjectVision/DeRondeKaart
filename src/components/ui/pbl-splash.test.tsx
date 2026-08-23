@@ -1,45 +1,17 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { createEffect, createRoot, createSignal, onCleanup } from "solid-js";
-import { pblStatusFromMessage, PBL_SUMMARY_TIMEOUT_MS } from "@/lib/pbl-summary";
+import { createRoot, createSignal } from "solid-js";
+import { createPblSummaryStatus, PBL_SUMMARY_TIMEOUT_MS } from "@/lib/pbl-summary";
 import type { PblSummaryStatus } from "@/lib/pbl-summary";
 
 /**
- * The splash logic from PblSummary (feature-info.tsx), extracted verbatim.
+ * The splash that covers PBL's iframe while it boots.
  *
- * Rendering the component itself would mean standing up a MapLibre pick result
- * and a live iframe; the behaviour worth protecting is the reactive wiring, and
- * three things about it fail *silently* if they regress:
- *
- *   - not reading buurtCode before the early return -> the effect never re-runs
- *     for the next neighbourhood and the splash stays up forever;
- *   - not resetting to "loading" -> the second click shows the previous
- *     verdict over a blank frame;
- *   - no timeout -> a frame that never reports leaves the splash covering a
- *     page the user could otherwise operate by hand.
+ * These drive `createPblSummaryStatus` — the module `PblSummary` calls — rather
+ * than a copy of it. An earlier version of this file transcribed the effect out
+ * of the component, which meant reordering the two lines that matter left every
+ * test green. Rendering the component itself is still out of reach: it needs a
+ * MapLibre pick result and a live iframe.
  */
-function splashLogic(buurtCode: () => string | null) {
-  const [status, setStatus] = createSignal<PblSummaryStatus>("loading");
-
-  createEffect(() => {
-    const code = buurtCode();
-    setStatus("loading");
-    if (!code) return;
-
-    function onMessage(event: MessageEvent) {
-      const next = pblStatusFromMessage(event);
-      if (next) setStatus(next);
-    }
-    window.addEventListener("message", onMessage);
-    const timer = setTimeout(() => setStatus("failed"), PBL_SUMMARY_TIMEOUT_MS);
-
-    onCleanup(() => {
-      window.removeEventListener("message", onMessage);
-      clearTimeout(timer);
-    });
-  });
-
-  return status;
-}
 
 /** Deliver a message event the way the framed viewer would. */
 function send(type: string, origin = window.location.origin) {
@@ -60,7 +32,7 @@ describe("PBL summary splash", () => {
 
   it("starts covered", async () => {
     await createRoot(async (dispose) => {
-      const status = splashLogic(() => "BU0363FF03");
+      const status = createPblSummaryStatus(() => "BU0363FF03");
       await settle();
       expect(status()).toBe("loading");
       dispose();
@@ -69,7 +41,7 @@ describe("PBL summary splash", () => {
 
   it("lifts when the frame reports ready", async () => {
     await createRoot(async (dispose) => {
-      const status = splashLogic(() => "BU0363FF03");
+      const status = createPblSummaryStatus(() => "BU0363FF03");
       await settle();
       send("pbl-summary-ready");
       expect(status()).toBe("ready");
@@ -81,7 +53,7 @@ describe("PBL summary splash", () => {
   // must uncover the frame rather than hold the splash.
   it("lifts when the frame reports failure", async () => {
     await createRoot(async (dispose) => {
-      const status = splashLogic(() => "BU0363FF03");
+      const status = createPblSummaryStatus(() => "BU0363FF03");
       await settle();
       send("pbl-summary-failed");
       expect(status()).toBe("failed");
@@ -91,7 +63,7 @@ describe("PBL summary splash", () => {
 
   it("stays covered for a message from another origin", async () => {
     await createRoot(async (dispose) => {
-      const status = splashLogic(() => "BU0363FF03");
+      const status = createPblSummaryStatus(() => "BU0363FF03");
       await settle();
       send("pbl-summary-ready", "https://evil.example");
       expect(status()).toBe("loading");
@@ -101,7 +73,7 @@ describe("PBL summary splash", () => {
 
   it("lifts on the timeout when the frame never reports", async () => {
     await createRoot(async (dispose) => {
-      const status = splashLogic(() => "BU0363FF03");
+      const status = createPblSummaryStatus(() => "BU0363FF03");
       await settle();
       expect(status()).toBe("loading");
       vi.advanceTimersByTime(PBL_SUMMARY_TIMEOUT_MS + 1);
@@ -113,8 +85,7 @@ describe("PBL summary splash", () => {
   it("re-covers for the next neighbourhood and forgets the old verdict", async () => {
     await createRoot(async (dispose) => {
       const [buurtCode, setCode] = createSignal<string | null>("BU0363FF03");
-      // eslint-disable-next-line solid/reactivity -- splashLogic reads this inside its own createEffect
-      const status = splashLogic(buurtCode);
+      const status = createPblSummaryStatus(buurtCode);
       await settle();
 
       send("pbl-summary-ready");
@@ -135,8 +106,7 @@ describe("PBL summary splash", () => {
   it("does not leave the previous frame's timer armed", async () => {
     await createRoot(async (dispose) => {
       const [buurtCode, setCode] = createSignal<string | null>("BU0363FF03");
-      // eslint-disable-next-line solid/reactivity -- splashLogic reads this inside its own createEffect
-      const status = splashLogic(buurtCode);
+      const status = createPblSummaryStatus(buurtCode);
       await settle();
 
       // Most of the way to the first timeout, then switch.
@@ -154,10 +124,48 @@ describe("PBL summary splash", () => {
     });
   });
 
+  // The read-before-early-return rule, which is the one that fails silently.
+  //
+  // An effect subscribes only to what its last run actually read. Starting from
+  // null the run returns early, so if `buurtCode` is read AFTER that return it
+  // was never subscribed to — and the next neighbourhood never re-arms the
+  // splash. Switching between two non-null codes cannot catch this: the early
+  // return is not taken, so the read happens either way.
+  it("re-arms after a feature with no buurt code", async () => {
+    await createRoot(async (dispose) => {
+      const [buurtCode, setCode] = createSignal<string | null>(null);
+      const status = createPblSummaryStatus(buurtCode);
+      await settle();
+      expect(status()).toBe("loading");
+
+      // A neighbourhood that does have a code: the effect must run again.
+      setCode("BU0363FF03");
+      await settle();
+      send("pbl-summary-ready");
+      expect(status()).toBe("ready");
+      dispose();
+    });
+  });
+
+  it("arms the timeout after a feature with no buurt code", async () => {
+    await createRoot(async (dispose) => {
+      const [buurtCode, setCode] = createSignal<string | null>(null);
+      const status = createPblSummaryStatus(buurtCode);
+      await settle();
+
+      setCode("BU0363FF03");
+      await settle();
+      // The backstop belongs to the NEW frame; without a re-run there is none.
+      vi.advanceTimersByTime(PBL_SUMMARY_TIMEOUT_MS + 1);
+      expect(status()).toBe("failed");
+      dispose();
+    });
+  });
+
   it("stops listening once disposed", async () => {
     let status!: () => PblSummaryStatus;
     await createRoot(async (dispose) => {
-      status = splashLogic(() => "BU0363FF03");
+      status = createPblSummaryStatus(() => "BU0363FF03");
       await settle();
       dispose();
     });
@@ -167,7 +175,7 @@ describe("PBL summary splash", () => {
 
   it("shows nothing to lift when the feature has no buurt code", async () => {
     await createRoot(async (dispose) => {
-      const status = splashLogic(() => null);
+      const status = createPblSummaryStatus(() => null);
       await settle();
       // No frame is mounted in this case (the component renders the "geen
       // buurtcode" message instead), so no timer may be left running.
