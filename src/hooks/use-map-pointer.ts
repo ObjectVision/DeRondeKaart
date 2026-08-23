@@ -130,12 +130,12 @@ export function useMapPointer(options: UseMapPointerOptions): UseMapPointerResul
   // exclusive; see the toggles below). The annotation gesture needs to know
   // which map it started on — picks must hit that side's overlay.
   function onMouseDownA(e: MapLayerMouseEvent) {
-    if (options.annotationActive()) options.annotationTool.handleMouseDown(e, "a");
+    if (options.annotationActive()) options.annotationTool.handleMouseDown(e, "left");
     else options.boxSelect.handleMouseDown(e);
   }
 
   function onMouseDownB(e: MapLayerMouseEvent) {
-    if (options.annotationActive()) options.annotationTool.handleMouseDown(e, "b");
+    if (options.annotationActive()) options.annotationTool.handleMouseDown(e, "right");
     else options.boxSelect.handleMouseDown(e);
   }
 

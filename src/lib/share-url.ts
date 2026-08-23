@@ -1,6 +1,19 @@
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { DEFAULT_BASEMAP_ID } from "@/components/map/map-view-config";
 import { VARIANT_PARAM, variantId } from "@/config/variant";
+import {
+  MAP_SIDES,
+  forSide,
+  sideToWire,
+  type MapSideId,
+  type MapSidePair,
+} from "@/lib/map-side";
+
+/** What one map contributes to a share link. */
+export interface ShareUrlSide {
+  entries: LayerEntry[];
+  hiddenIds: Set<string>;
+}
 
 /**
  * State serialized into a share URL. Mirrors (in reverse) what
@@ -9,10 +22,7 @@ import { VARIANT_PARAM, variantId } from "@/config/variant";
  */
 export interface ShareUrlState {
   viewState: { longitude: number; latitude: number; zoom: number };
-  entriesA: LayerEntry[];
-  entriesB: LayerEntry[];
-  hiddenIdsA: Set<string>;
-  hiddenIdsB: Set<string>;
+  sides: MapSidePair<ShareUrlSide>;
   /**
    * Collaborative annotation room id (UUID). When set, the link carries an
    * `annot` param: recipients auto-enter annotation mode and join the room.
@@ -65,22 +75,19 @@ export function buildShareUrl(state: ShareUrlState, base?: string): string {
 
   // The parser index-aligns getAll("cmd")/getAll("map")/getAll("layer"), so
   // every command must append all three keys.
-  const appendCommand = (cmd: "add" | "hide", map: "a" | "b", layer: string) => {
+  const appendCommand = (cmd: "add" | "hide", side: MapSideId, layer: string) => {
     params.append("cmd", cmd);
-    params.append("map", map);
+    params.append("map", sideToWire(side));
     params.append("layer", layer);
   };
 
-  const sides: Array<{ map: "a" | "b"; entries: LayerEntry[]; hidden: Set<string> }> = [
-    { map: "a", entries: state.entriesA, hidden: state.hiddenIdsA },
-    { map: "b", entries: state.entriesB, hidden: state.hiddenIdsB },
-  ];
-  for (const side of sides) {
-    for (const entry of side.entries) {
+  for (const side of MAP_SIDES) {
+    const { entries, hiddenIds } = forSide(state.sides, side);
+    for (const entry of entries) {
       if (!isUrlAddressable(entry)) continue;
-      appendCommand("add", side.map, entry.config.id);
-      if (side.hidden.has(entry.config.id)) {
-        appendCommand("hide", side.map, entry.config.id);
+      appendCommand("add", side, entry.config.id);
+      if (hiddenIds.has(entry.config.id)) {
+        appendCommand("hide", side, entry.config.id);
       }
     }
   }

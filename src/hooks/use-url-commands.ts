@@ -1,15 +1,15 @@
 import { createEffect, onMount, onCleanup, type Accessor } from "solid-js";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
-import type { MapViewHandle } from "@/components/map/map-view-config";
 import { isUrlAddressable } from "@/lib/share-url";
 import { isBasemapId } from "@/components/map/map-view-config";
 import { VARIANT_PARAM } from "@/config/variant";
-import type { useMapLayers } from "./use-map-layers";
-
-interface MapSide {
-  layers: ReturnType<typeof useMapLayers>;
-  view: Accessor<MapViewHandle | null>;
-}
+import {
+  forSide,
+  sideFromWire,
+  type MapSide,
+  type MapSidePair,
+  type MapSideWire,
+} from "@/lib/map-side";
 
 export interface ViewUpdate {
   zoom?: number;
@@ -22,9 +22,7 @@ export interface ViewUpdate {
   bbox?: [number, number, number, number];
 }
 
-interface UseUrlCommandsOptions {
-  mapLeft: MapSide;
-  mapRight: MapSide;
+interface UseUrlCommandsOptions extends MapSidePair<MapSide> {
   ready: Accessor<boolean>;
   applyView: (view: ViewUpdate) => void;
   /** A share link carried an `annot` room id — join that collab session. */
@@ -56,9 +54,14 @@ interface UseUrlCommandsOptions {
 const ANNOT_ROOM_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/**
+ * One command off the wire — a share-link hash or a host `map-command`. `map`
+ * is the published wire spelling, not the app's own {@link MapSideId}; it is
+ * converted with `sideFromWire` at the point of use and nowhere else.
+ */
 interface LayerCommand {
   cmd: "add" | "remove" | "hide" | "refresh";
-  map?: "a" | "b";
+  map?: MapSideWire;
   layer?: string;
 }
 
@@ -112,7 +115,7 @@ function parseCommands(params: URLSearchParams): LayerCommand[] {
       continue;
     }
 
-    const map = (mapValues[i] ?? "a").toLowerCase() as "a" | "b";
+    const map = (mapValues[i] ?? "a").toLowerCase() as MapSideWire;
     const layer = layerValues[i];
 
     if (layer && ["add", "remove", "hide"].includes(cmd)) {
@@ -141,7 +144,7 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
           return;
         }
 
-        const side = command.map === "b" ? options.mapRight : options.mapLeft;
+        const side = forSide(options, sideFromWire(command.map));
         const config = command.layer
           ? getLayerConfigById(configs, command.layer)
           : undefined;
@@ -174,7 +177,7 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
   // pushed its own data doesn't get it clobbered by an open-circular request.
   async function reconcileLeftLayers(layerIds: string[]) {
     const configs = await getConfigs();
-    const mapLeft = options.mapLeft;
+    const mapLeft = options.left;
 
     const desired = new Set<string>();
     for (const id of layerIds) {

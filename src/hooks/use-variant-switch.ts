@@ -1,20 +1,11 @@
-import type { Accessor } from "solid-js";
-import type { MapViewHandle } from "@/components/map/map-view-config";
 import { loadLayerConfigs } from "@/layers";
 import { loadNavigation } from "@/layers/navigation";
 import { isVariantId, setVariant, variantId } from "@/config/variant";
 import { clearLayerInfoCache } from "@/components/ui/navigation/LayerDescription";
 import { clearMetaUrlCache } from "@/components/ui/navigation/LeafMeta";
-import type { useMapLayers } from "./use-map-layers";
+import { MAP_SIDES, forSide, type MapSide, type MapSidePair } from "@/lib/map-side";
 
-interface MapSide {
-  layers: ReturnType<typeof useMapLayers>;
-  view: Accessor<MapViewHandle | null>;
-}
-
-export interface UseVariantSwitchOptions {
-  mapLeft: MapSide;
-  mapRight: MapSide;
+export interface UseVariantSwitchOptions extends MapSidePair<MapSide> {
   /**
    * Re-add the map.json `pickLayer` after the switch. It is an ordinary layer
    * entry, so the teardown below removes it along with everything else.
@@ -70,8 +61,7 @@ export function useVariantSwitch(options: UseVariantSwitchOptions) {
     // Order matters. The maps are cleared while the OLD variant is still
     // active, because removeLayer resolves each entry's config to find the
     // native sources/layers it owns.
-    clearSide(options.mapLeft);
-    clearSide(options.mapRight);
+    for (const side of MAP_SIDES) clearSide(forSide(options, side));
 
     // Id-keyed caches whose keys mean something different under the new
     // variant. (LeafMeta's URL-keyed HTML cache is safe and deliberately kept.)

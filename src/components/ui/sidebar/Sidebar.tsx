@@ -24,9 +24,9 @@ interface LeafStateToggleProps {
  * every map it is on). The rest of the row handles add/meta — see handleRowClick.
  */
 function LeafStateToggle(props: LeafStateToggleProps): JSX.Element {
-  const onA = () => props.nav.isOnMap(props.leaf.id, "a");
-  const onB = () => props.nav.isOnMap(props.leaf.id, "b");
-  const onMap = () => onA() || onB();
+  const onLeft = () => props.nav.isOnMap(props.leaf.id, "left");
+  const onRight = () => props.nav.isOnMap(props.leaf.id, "right");
+  const onMap = () => onLeft() || onRight();
 
   return (
     <Button
@@ -38,10 +38,10 @@ function LeafStateToggle(props: LeafStateToggleProps): JSX.Element {
         e.stopPropagation();
         if (onMap()) {
           // Remove from every map the layer is on.
-          if (onA()) props.nav.toggleOnMap(props.leaf.id, "a");
-          if (onB()) props.nav.toggleOnMap(props.leaf.id, "b");
+          if (onLeft()) props.nav.toggleOnMap(props.leaf.id, "left");
+          if (onRight()) props.nav.toggleOnMap(props.leaf.id, "right");
         } else {
-          props.nav.toggleOnMap(props.leaf.id, "a"); // always add to the left map
+          props.nav.toggleOnMap(props.leaf.id, "left"); // always add to the left map
         }
       }}
       title={onMap() ? "Verwijder van kaart" : "Toon op linker kaart"}
@@ -157,18 +157,18 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       return;
     }
 
-    const onA = props.nav.isOnMap(leaf.id, "a");
-    const onB = props.nav.isOnMap(leaf.id, "b");
+    const onLeft = props.nav.isOnMap(leaf.id, "left");
+    const onRight = props.nav.isOnMap(leaf.id, "right");
 
-    if (!onA && !onB) {
-      props.nav.toggleOnMap(leaf.id, "a");
+    if (!onLeft && !onRight) {
+      props.nav.toggleOnMap(leaf.id, "left");
       setMetaOpenLeafId(infoLayers().has(leaf.id) ? leaf.id : null);
       return;
     }
 
     // On a map with the meta collapsed → remove from every map it is on.
-    if (onA) props.nav.toggleOnMap(leaf.id, "a");
-    if (onB) props.nav.toggleOnMap(leaf.id, "b");
+    if (onLeft) props.nav.toggleOnMap(leaf.id, "left");
+    if (onRight) props.nav.toggleOnMap(leaf.id, "right");
     setMetaOpenLeafId(null);
   }
 

@@ -19,11 +19,61 @@ function entry(id: string): LayerEntry {
 
 const BASE_STATE = {
   viewState: { longitude: 5, latitude: 52, zoom: 7 },
-  entriesA: [entry("374")],
-  entriesB: [],
-  hiddenIdsA: new Set<string>(),
-  hiddenIdsB: new Set<string>(),
+  sides: {
+    left: { entries: [entry("374")], hiddenIds: new Set<string>() },
+    right: { entries: [], hiddenIds: new Set<string>() },
+  },
 };
+
+/**
+ * The `map=a|b` spelling is a published format — every link already shared
+ * carries it, and use-url-commands parses the same keys back. The app calls the
+ * sides "left" and "right" internally, so these pin that the rename stopped at
+ * the wire.
+ */
+describe("share URL wire format", () => {
+  beforeEach(() => {
+    window.history.replaceState({}, "", "/");
+    initVariants(undefined);
+  });
+
+  it("emits the left map as map=a", () => {
+    const url = buildShareUrl(BASE_STATE, "https://example.org/");
+    expect(url).toContain("cmd=add&map=a&layer=374");
+  });
+
+  it("emits the right map as map=b", () => {
+    const url = buildShareUrl(
+      {
+        ...BASE_STATE,
+        sides: {
+          left: { entries: [], hiddenIds: new Set<string>() },
+          right: { entries: [entry("357")], hiddenIds: new Set<string>() },
+        },
+      },
+      "https://example.org/",
+    );
+    expect(url).toContain("cmd=add&map=b&layer=357");
+    expect(url).not.toContain("map=a");
+  });
+
+  it("keeps each side's commands on its own map, in order", () => {
+    const url = buildShareUrl(
+      {
+        ...BASE_STATE,
+        sides: {
+          left: { entries: [entry("374")], hiddenIds: new Set(["374"]) },
+          right: { entries: [entry("357")], hiddenIds: new Set<string>() },
+        },
+      },
+      "https://example.org/",
+    );
+    const params = new URLSearchParams(new URL(url).hash.slice(1));
+    expect(params.getAll("cmd")).toEqual(["add", "hide", "add"]);
+    expect(params.getAll("map")).toEqual(["a", "a", "b"]);
+    expect(params.getAll("layer")).toEqual(["374", "374", "357"]);
+  });
+});
 
 describe("share URL and config variants", () => {
   beforeEach(() => {

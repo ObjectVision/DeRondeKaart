@@ -16,11 +16,11 @@ interface LeafDetailProps {
 }
 
 export function LeafDetail(props: LeafDetailProps): JSX.Element {
-  const onA = () => props.nav.isOnMap(props.leaf.id, "a");
-  const onB = () => props.nav.isOnMap(props.leaf.id, "b");
+  const onLeft = () => props.nav.isOnMap(props.leaf.id, "left");
+  const onRight = () => props.nav.isOnMap(props.leaf.id, "right");
   // The right map can only be added to once the left map holds a layer. Adding is
   // blocked while the left map is empty; removing an existing right-map layer stays allowed.
-  const rightDisabled = () => !props.nav.leftHasLayers() && !onB();
+  const rightDisabled = () => !props.nav.leftHasLayers() && !onRight();
 
   return (
     <div class="flex flex-col gap-3">
@@ -52,22 +52,22 @@ export function LeafDetail(props: LeafDetailProps): JSX.Element {
         <span class="text-xs font-medium text-gray-500">Laag toevoegen aan:</span>
         <div class="flex gap-2">
           <Button
-            variant={onA() ? "default" : "outline"}
+            variant={onLeft() ? "default" : "outline"}
             size="sm"
-            onClick={() => props.nav.toggleOnMap(props.leaf.id, "a")}
+            onClick={() => props.nav.toggleOnMap(props.leaf.id, "left")}
           >
             <Icon name="map" size={16} />
-            {onA() ? "Linker kaart ✓" : "Linker kaart"}
+            {onLeft() ? "Linker kaart ✓" : "Linker kaart"}
           </Button>
           <Button
-            variant={onB() ? "default" : "outline"}
+            variant={onRight() ? "default" : "outline"}
             size="sm"
             disabled={rightDisabled()}
             title={rightDisabled() ? "Voeg eerst een laag toe aan de linker kaart" : undefined}
-            onClick={() => props.nav.toggleOnMap(props.leaf.id, "b")}
+            onClick={() => props.nav.toggleOnMap(props.leaf.id, "right")}
           >
             <Icon name="map" size={16} />
-            {onB() ? "Rechter kaart ✓" : "Rechter kaart"}
+            {onRight() ? "Rechter kaart ✓" : "Rechter kaart"}
           </Button>
         </div>
       </div>
