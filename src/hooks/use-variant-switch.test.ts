@@ -147,14 +147,18 @@ describe("useVariantSwitch", () => {
 
   it("re-adds the pick layer against the incoming variant, not the outgoing one", async () => {
     let variantWhenCalled: string | null = null;
-    let configNameWhenCalled: string | undefined;
     // Reads the same way App's addPickLayer does. What this pins is that the
     // callback runs after setVariant, not before: fire it while 2025 is still
     // active and the pick layer resolves to the outgoing year's data, which
     // looks fine and answers every click with the wrong figures.
-    const onResetPickLayer = vi.fn(async () => {
+    //
+    // `switchVariant` does not await the callback — App's is fire-and-forget,
+    // and blocking a switch on a layer load would freeze the UI — so the test
+    // holds its promise and awaits that itself.
+    let settled: Promise<string | undefined> = Promise.resolve(undefined);
+    const onResetPickLayer = vi.fn(() => {
       variantWhenCalled = variantId();
-      configNameWhenCalled = (await loadLayerConfigs())[0]?.name;
+      settled = loadLayerConfigs().then((configs) => configs[0]?.name);
     });
 
     await createRoot(async (dispose) => {
@@ -168,7 +172,7 @@ describe("useVariantSwitch", () => {
     });
 
     expect(variantWhenCalled).toBe("2026");
-    expect(configNameWhenCalled).toBe("Laagste kosten 2026");
+    expect(await settled).toBe("Laagste kosten 2026");
   });
 
   it("does not ask for the pick layer when the switch was refused", async () => {

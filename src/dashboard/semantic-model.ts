@@ -9,6 +9,7 @@
  * invalid entries are dropped with a warning rather than failing the page.
  */
 import type { ChartValueFormat } from "@/layers/types";
+import { loadConfig, setCachedConfig } from "@/config/load-config";
 
 /** How a measure collapses many rows into one number. */
 export type MeasureAggregation = "sum" | "mean" | "count" | "min" | "max";
@@ -73,7 +74,6 @@ const AGGREGATIONS: MeasureAggregation[] = ["sum", "mean", "count", "min", "max"
 const FORMATS: ChartValueFormat[] = ["number", "percent", "currency"];
 const COLUMN_ROLES: ColumnRole[] = ["measure", "dimension"];
 
-let cachedModel: SemanticModel | null = null;
 
 /** An empty model — what every failure path returns. */
 function emptyModel(): SemanticModel {
@@ -282,6 +282,9 @@ export function buildSemanticModel(data: unknown): SemanticModel {
   return model;
 }
 
+/** The file this model is loaded from. */
+const SEMANTIC_MODEL_FILE = "dashboard_semantic_model.json";
+
 /**
  * Load `public/dashboard_semantic_model.json`. Never throws: a missing or
  * invalid file yields an empty model, and the dashboard then renders its
@@ -293,28 +296,11 @@ export function buildSemanticModel(data: unknown): SemanticModel {
  * legitimate SQL.
  */
 export async function loadSemanticModel(): Promise<SemanticModel> {
-  if (cachedModel) return cachedModel;
-
-  let data: unknown;
-  try {
-    const response = await fetch("/dashboard_semantic_model.json");
-    if (!response.ok) {
-      console.warn(
-        `dashboard_semantic_model.json: failed to load (${response.statusText}); no model available`,
-      );
-      return (cachedModel = emptyModel());
-    }
-    data = await response.json();
-  } catch (err) {
-    console.warn(
-      "dashboard_semantic_model.json: not found or invalid JSON; no model available",
-      err,
-    );
-    return (cachedModel = emptyModel());
-  }
-
-  cachedModel = buildSemanticModel(data);
-  return cachedModel;
+  return loadConfig({
+    name: SEMANTIC_MODEL_FILE,
+    onError: emptyModel,
+    parse: buildSemanticModel,
+  });
 }
 
 /**
@@ -335,6 +321,6 @@ export function withTableUrls(
     tables.set(name, { ...table, url });
   }
   const next = { ...model, tables };
-  cachedModel = next;
+  setCachedConfig(SEMANTIC_MODEL_FILE, next);
   return next;
 }

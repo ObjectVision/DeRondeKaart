@@ -9,6 +9,7 @@
  */
 import type { DashboardWidget } from "@/dashboard/layout-config";
 import { buildLayout } from "@/dashboard/layout-config";
+import { loadConfig } from "@/config/load-config";
 
 const FILE = "dashboard_complementary.json";
 
@@ -29,7 +30,6 @@ export interface ComplementaryConfig {
   widgets: DashboardWidget[];
 }
 
-let cached: ComplementaryConfig | null = null;
 
 function emptyConfig(): ComplementaryConfig {
   return { levels: [], widgets: [] };
@@ -79,23 +79,11 @@ export function buildComplementaryConfig(data: unknown): ComplementaryConfig {
 
 /** Load the comparison config. Never throws; a bad file yields no levels. */
 export async function loadComplementaryConfig(): Promise<ComplementaryConfig> {
-  if (cached) return cached;
-
-  let data: unknown;
-  try {
-    const response = await fetch(`/${FILE}`);
-    if (!response.ok) {
-      console.warn(`${FILE}: failed to load (${response.statusText}); comparison unavailable`);
-      return (cached = emptyConfig());
-    }
-    data = await response.json();
-  } catch (err) {
-    console.warn(`${FILE}: not found or invalid JSON; comparison unavailable`, err);
-    return (cached = emptyConfig());
-  }
-
-  cached = buildComplementaryConfig(data);
-  return cached;
+  return loadConfig({
+    name: FILE,
+    onError: emptyConfig,
+    parse: buildComplementaryConfig,
+  });
 }
 
 /**

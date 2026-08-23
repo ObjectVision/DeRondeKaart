@@ -9,6 +9,7 @@
  */
 
 import { createSignal } from "solid-js";
+import { loadConfig } from "@/config/load-config";
 
 /** One dropdown in the Filter section, as configured in filter.json. */
 export interface AreaFilterEntry {
@@ -30,7 +31,6 @@ export interface AreaFilterEntry {
   dependsOn?: string[];
 }
 
-let cachedEntries: AreaFilterEntry[] | null = null;
 
 function isValidEntry(value: unknown): value is AreaFilterEntry {
   if (typeof value !== "object" || value === null) return false;
@@ -54,32 +54,21 @@ function isValidEntry(value: unknown): value is AreaFilterEntry {
  * order, coarse to fine.
  */
 export async function loadAreaFilterConfig(): Promise<AreaFilterEntry[]> {
-  if (cachedEntries) return cachedEntries;
-
-  let data: unknown;
-  try {
-    const response = await fetch("/filter.json");
-    if (!response.ok) {
-      console.warn(`filter.json: failed to load (${response.statusText}); no filters shown`);
-      return (cachedEntries = []);
-    }
-    data = await response.json();
-  } catch (err) {
-    console.warn("filter.json: not found or invalid JSON; no filters shown", err);
-    return (cachedEntries = []);
-  }
-
-  if (!Array.isArray(data)) {
-    console.warn("filter.json: expected a top-level array; no filters shown");
-    return (cachedEntries = []);
-  }
-
-  cachedEntries = data.filter((entry) => {
-    if (isValidEntry(entry)) return true;
-    console.warn(`filter.json: dropping invalid entry ${JSON.stringify(entry)}`);
-    return false;
+  return loadConfig({
+    name: "filter.json",
+    onError: () => [],
+    parse: (data) => {
+      if (!Array.isArray(data)) {
+        console.warn("filter.json: expected a top-level array; no filters shown");
+        return [];
+      }
+      return data.filter((entry) => {
+        if (isValidEntry(entry)) return true;
+        console.warn(`filter.json: dropping invalid entry ${JSON.stringify(entry)}`);
+        return false;
+      });
+    },
   });
-  return cachedEntries;
 }
 
 // ---------------------------------------------------------------------------

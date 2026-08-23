@@ -8,6 +8,8 @@
  * dropped with a warning.
  */
 
+import { loadConfig } from "@/config/load-config";
+
 /** What a widget renders. */
 export type WidgetKind = "chart" | "statistic" | "text";
 
@@ -55,12 +57,12 @@ const WIDGET_KINDS: WidgetKind[] = ["chart", "statistic", "text"];
 const PAGE_SIZES: DashboardExportLayout["pageSize"][] = ["A4", "A3", "letter"];
 const ORIENTATIONS: DashboardExportLayout["orientation"][] = ["portrait", "landscape"];
 
+const STANDALONE_FILE = "dashboard_standalone.json";
+const EXPORT_FILE = "dashboard_export.json";
+
 const MIN_COLUMNS = 1;
 const MAX_COLUMNS = 4;
 const DEFAULT_COLUMNS = 2;
-
-let cachedStandalone: DashboardLayout | null = null;
-let cachedExport: DashboardExportLayout | null = null;
 
 function emptyLayout(): DashboardLayout {
   return { columns: DEFAULT_COLUMNS, widgets: [] };
@@ -135,27 +137,14 @@ export function buildLayout(data: unknown, file: string): DashboardLayout {
   };
 }
 
-/** Fetch and parse one layout file, or `null` when it is absent/unreadable. */
-async function fetchLayout(file: string): Promise<unknown | null> {
-  try {
-    const response = await fetch(`/${file}`);
-    if (!response.ok) {
-      console.warn(`${file}: failed to load (${response.statusText})`);
-      return null;
-    }
-    return await response.json();
-  } catch (err) {
-    console.warn(`${file}: not found or invalid JSON`, err);
-    return null;
-  }
-}
 
 /** Load the standalone layout. Never throws; a bad file yields no widgets. */
 export async function loadStandaloneLayout(): Promise<DashboardLayout> {
-  if (cachedStandalone) return cachedStandalone;
-  const data = await fetchLayout("dashboard_standalone.json");
-  cachedStandalone = data === null ? emptyLayout() : buildLayout(data, "dashboard_standalone.json");
-  return cachedStandalone;
+  return loadConfig({
+    name: STANDALONE_FILE,
+    onError: emptyLayout,
+    parse: (data) => buildLayout(data, STANDALONE_FILE),
+  });
 }
 
 /**
@@ -164,23 +153,29 @@ export async function loadStandaloneLayout(): Promise<DashboardLayout> {
  * should not have to restate it.
  */
 export async function loadExportLayout(): Promise<DashboardExportLayout> {
-  if (cachedExport) return cachedExport;
+  // Parsed separately from the fallback below: a file that exists but defines no
+  // widgets still contributes its title/pageSize/orientation.
+  const parsed = await loadConfig({
+    name: EXPORT_FILE,
+    onError: () => ({ layout: emptyLayout(), obj: {} as Record<string, unknown> }),
+    parse: (data) => ({
+      layout: buildLayout(data, EXPORT_FILE),
+      obj: (typeof data === "object" && data !== null ? data : {}) as Record<string, unknown>,
+    }),
+  });
 
-  const data = await fetchLayout("dashboard_export.json");
-  const obj = (typeof data === "object" && data !== null ? data : {}) as Record<string, unknown>;
-  const parsed = data === null ? emptyLayout() : buildLayout(data, "dashboard_export.json");
-  const base = parsed.widgets.length > 0 ? parsed : await loadStandaloneLayout();
+  // A project happy printing what it shows should not have to restate it.
+  const base = parsed.layout.widgets.length > 0 ? parsed.layout : await loadStandaloneLayout();
 
-  cachedExport = {
+  return {
     ...base,
-    title: parsed.title ?? base.title,
-    subtitle: parsed.subtitle ?? base.subtitle,
-    pageSize: PAGE_SIZES.includes(obj.pageSize as DashboardExportLayout["pageSize"])
-      ? (obj.pageSize as DashboardExportLayout["pageSize"])
+    title: parsed.layout.title ?? base.title,
+    subtitle: parsed.layout.subtitle ?? base.subtitle,
+    pageSize: PAGE_SIZES.includes(parsed.obj.pageSize as DashboardExportLayout["pageSize"])
+      ? (parsed.obj.pageSize as DashboardExportLayout["pageSize"])
       : "A4",
-    orientation: ORIENTATIONS.includes(obj.orientation as DashboardExportLayout["orientation"])
-      ? (obj.orientation as DashboardExportLayout["orientation"])
+    orientation: ORIENTATIONS.includes(parsed.obj.orientation as DashboardExportLayout["orientation"])
+      ? (parsed.obj.orientation as DashboardExportLayout["orientation"])
       : "portrait",
   };
-  return cachedExport;
 }

@@ -1,5 +1,5 @@
 import { chromeIconColor } from "@/config/map-config";
-import { configPath, variantCacheKey } from "@/config/variant";
+import { loadConfig, clearConfigCache } from "@/config/load-config";
 
 /** A selectable layer in the navigation tree. */
 export interface NavLeaf {
@@ -54,13 +54,6 @@ export function hasLeaves(node: NavNode): boolean {
 }
 
 /**
- * Parsed navigation.json per config variant (key from `variantCacheKey`, ""
- * when the project declares no variants). Both variants stay cached so a
- * switch back is instant — see the note on the equivalent map in `config.ts`.
- */
-const cachedNavigations = new globalThis.Map<string, NavNode[]>();
-
-/**
  * Remove empty placeholder leaves (`id === "" && label === ""`) so empty
  * categories render cleanly, and recurse into sub-nodes.
  */
@@ -78,35 +71,26 @@ function pruneItems(items: NavItem[]): NavItem[] {
 }
 
 export async function loadNavigation(): Promise<NavNode[]> {
-  const key = variantCacheKey("navigation.json");
-  const cached = cachedNavigations.get(key);
-  if (cached) return cached;
-
-  const response = await fetch(configPath("navigation.json"));
-  if (!response.ok) {
-    throw new Error(`Failed to load navigation.json: ${response.statusText}`);
-  }
-
-  const data: unknown = await response.json();
-  if (!Array.isArray(data)) {
-    console.warn("navigation.json: expected a top-level array");
-    cachedNavigations.set(key, []);
-    return [];
-  }
-
-  const tree = (data as NavNode[]).map((node) => ({
-    ...node,
-    children: pruneItems(node.children ?? []),
-  }));
-  cachedNavigations.set(key, tree);
-
-  return tree;
+  return loadConfig({
+    name: "navigation.json",
+    // No onError, for the same reason as layers.json: an empty tree is
+    // indistinguishable from a project that configured no navigation.
+    parse: (data) => {
+      if (!Array.isArray(data)) {
+        console.warn("navigation.json: expected a top-level array");
+        return [];
+      }
+      return (data as NavNode[]).map((node) => ({
+        ...node,
+        children: pruneItems(node.children ?? []),
+      }));
+    },
+  });
 }
 
-/** Drop the parsed navigation tree for one variant, or all of them. */
-export function clearNavigationCache(variant?: string): void {
-  if (variant === undefined) cachedNavigations.clear();
-  else cachedNavigations.delete(variant);
+/** Drop the parsed navigation tree, for every variant. */
+export function clearNavigationCache(): void {
+  clearConfigCache("navigation.json");
 }
 
 /** Label of the injected theme holding user-created combination layers. */
