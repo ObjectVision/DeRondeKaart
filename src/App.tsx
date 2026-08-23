@@ -29,8 +29,8 @@ import { useComplementaryDashboard } from "@/hooks/use-complementary-dashboard";
 import { viewForBbox } from "@/lib/fly-to";
 import { areaFilterLevels } from "@/layers/area-filter";
 import type { BBox } from "@/layers/box-filter";
-import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import type { LayerConfig, ScoreClass } from "@/layers";
+import { addPickLayer } from "@/lib/pick-layer";
 import {
   DEFAULT_CLICK_MARKER,
   DEFAULT_MAP_CONTROLS,
@@ -428,27 +428,16 @@ function App(rawProps: AppProps): JSX.Element {
   const nav = useNavigation(mapSides);
 
   /**
-   * Put the map.json `pickLayer` on the left map. It answers clicks and is
-   * never in the legend, so nothing else adds it.
+   * Re-add the pick layer to every mounted map, after a variant switch cleared
+   * both stacks.
    *
-   * `atEnd` keeps it at the bottom of the draw order. Called once the map is
-   * ready, and again after a variant switch — it is an ordinary layer entry, so
-   * the switch's teardown removes it with everything else.
+   * The right map is conditionally rendered, so it gets one only when it is
+   * actually up; if it is not, `handleMapRightLoad` adds one whenever it next
+   * appears.
    */
-  async function addPickLayer() {
-    const pickLayerId = props.pickLayerId;
-    if (!pickLayerId) return;
-    try {
-      const config = getLayerConfigById(await loadLayerConfigs(), pickLayerId);
-      if (!config) {
-        console.warn(`map.json: pickLayer "${pickLayerId}" not found in layers.json`);
-        return;
-      }
-      await mapLeftLayers.addLayer(config, { atEnd: true });
-      mapLeftLayers.syncImperativeLayers();
-    } catch (err) {
-      console.warn(`Failed to add pickLayer "${pickLayerId}":`, err);
-    }
+  function resetPickLayers() {
+    void addPickLayer(mapSides.left, props.pickLayerId);
+    if (mapRightView()) void addPickLayer(mapSides.right, props.pickLayerId);
   }
 
   // Only the first ready map triggers this; re-adds after a variant switch come
@@ -457,7 +446,7 @@ function App(rawProps: AppProps): JSX.Element {
   createEffect(() => {
     if (!mapLeftReady() || pickLayerStarted) return;
     pickLayerStarted = true;
-    void addPickLayer();
+    void addPickLayer(mapSides.left, props.pickLayerId);
   });
 
   function addMetaLayerToLeftMap(id: string) {
@@ -567,7 +556,7 @@ function App(rawProps: AppProps): JSX.Element {
 
   const { switchVariant } = useVariantSwitch({
     ...mapSides,
-    onResetPickLayer: addPickLayer,
+    onResetPickLayer: resetPickLayers,
   });
 
   useUrlCommands({
@@ -614,6 +603,9 @@ function App(rawProps: AppProps): JSX.Element {
 
   function handleMapRightLoad() {
     mapRightLayers.syncImperativeLayers();
+    // The right map is mounted only while it has a layer, so this is where it
+    // first exists. Idempotent, so a later re-mount adds nothing.
+    void addPickLayer(mapSides.right, props.pickLayerId);
   }
 
   function handleMove(evt: ViewStateChangeEvent) {
