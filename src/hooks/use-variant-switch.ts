@@ -16,9 +16,8 @@ export interface UseVariantSwitchOptions {
   mapLeft: MapSide;
   mapRight: MapSide;
   /**
-   * Re-add the map.json `pickLayer` after the switch. It is added as an
-   * ordinary layer entry, so the teardown below removes it along with
-   * everything else — see the note in `switchVariant`.
+   * Re-add the map.json `pickLayer` after the switch. It is an ordinary layer
+   * entry, so the teardown below removes it along with everything else.
    */
   onResetPickLayer?: () => void;
 }
@@ -35,8 +34,8 @@ export interface UseVariantSwitchOptions {
  *   in `layerEntries()` and is likewise untouched.
  * - **The map view** (centre/zoom) is never read or written here.
  * - **The pick layer** is the exception: `App.tsx` adds it with `addLayer`, so
- *   it *is* an ordinary entry and gets removed with the rest. It is re-added
- *   via `onResetPickLayer`, which re-arms the effect that owns it.
+ *   it *is* an ordinary entry and gets removed with the rest. `onResetPickLayer`
+ *   puts it back once the new variant's configs are loaded.
  *
  * Everything the user added is removed. That is deliberate rather than a
  * limitation: layer ids are reused between variants, so "keep what is on the

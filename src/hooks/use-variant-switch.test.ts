@@ -127,6 +127,68 @@ describe("useVariantSwitch", () => {
     });
   });
 
+  // The pick layer is an ordinary entry, so the teardown above takes it with
+  // everything else. Nothing on screen says it is gone — clicks just stop
+  // answering — so these pin the callback that puts it back.
+  it("asks for the pick layer to be re-added after a switch", async () => {
+    const onResetPickLayer = vi.fn();
+
+    await createRoot(async (dispose) => {
+      const { switchVariant } = useVariantSwitch({
+        mapLeft: fakeSide(["374"]),
+        mapRight: fakeSide([]),
+        onResetPickLayer,
+      });
+      await switchVariant("2026");
+      dispose();
+    });
+
+    expect(onResetPickLayer).toHaveBeenCalledTimes(1);
+  });
+
+  it("re-adds the pick layer against the incoming variant, not the outgoing one", async () => {
+    let variantWhenCalled: string | null = null;
+    let configNameWhenCalled: string | undefined;
+    // Reads the same way App's addPickLayer does. What this pins is that the
+    // callback runs after setVariant, not before: fire it while 2025 is still
+    // active and the pick layer resolves to the outgoing year's data, which
+    // looks fine and answers every click with the wrong figures.
+    const onResetPickLayer = vi.fn(async () => {
+      variantWhenCalled = variantId();
+      configNameWhenCalled = (await loadLayerConfigs())[0]?.name;
+    });
+
+    await createRoot(async (dispose) => {
+      const { switchVariant } = useVariantSwitch({
+        mapLeft: fakeSide(["374"]),
+        mapRight: fakeSide([]),
+        onResetPickLayer,
+      });
+      await switchVariant("2026");
+      dispose();
+    });
+
+    expect(variantWhenCalled).toBe("2026");
+    expect(configNameWhenCalled).toBe("Laagste kosten 2026");
+  });
+
+  it("does not ask for the pick layer when the switch was refused", async () => {
+    const onResetPickLayer = vi.fn();
+
+    await createRoot(async (dispose) => {
+      const { switchVariant } = useVariantSwitch({
+        mapLeft: fakeSide(["374"]),
+        mapRight: fakeSide([]),
+        onResetPickLayer,
+      });
+      expect(await switchVariant("1999")).toBe(false);
+      expect(await switchVariant("2025")).toBe(false);
+      dispose();
+    });
+
+    expect(onResetPickLayer).not.toHaveBeenCalled();
+  });
+
   it("leaves the maps untouched for an unknown variant", async () => {
     const left = fakeSide(["374"]);
     const right = fakeSide([]);
