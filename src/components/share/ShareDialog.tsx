@@ -9,7 +9,8 @@ import type { FilteredStudyArea } from "@/hooks/use-filtered-study-area";
 import type { Annotation } from "@/types/annotation";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import type { ViewState } from "@/components/map/map-view-config";
-import { buildShareUrl } from "@/lib/share-url";
+import { buildShareUrl, type ShareUrlSide } from "@/lib/share-url";
+import type { MapSidePair } from "@/lib/map-side";
 import { legendItemsForEntries } from "@/lib/legend-style";
 import {
   captureMapAtResolution,
@@ -35,10 +36,8 @@ interface ShareDialogProps {
   hiddenIds: Set<string>;
   hiddenRules: globalThis.Map<string, Set<string>>;
   /** Both sides — the share URL reproduces the full A/B session. */
-  entriesA: LayerEntry[];
-  entriesB: LayerEntry[];
-  hiddenIdsA: Set<string>;
-  hiddenIdsB: Set<string>;
+  /** Both maps' layer state, as the link serializes it. */
+  sides: MapSidePair<ShareUrlSide>;
   basemapId: string;
   studyAreaId?: string;
   /** Gebiedsfilter-driven studyarea; replaces the configured one when set. */
@@ -77,10 +76,7 @@ export function ShareDialog(props: ShareDialogProps): JSX.Element {
   const shareUrl = createMemo(() =>
     buildShareUrl({
       viewState: props.viewState,
-      entriesA: props.entriesA,
-      entriesB: props.entriesB,
-      hiddenIdsA: props.hiddenIdsA,
-      hiddenIdsB: props.hiddenIdsB,
+      sides: props.sides,
       annotRoomId: props.annotRoomId,
       basemapId: props.basemapId,
     }),

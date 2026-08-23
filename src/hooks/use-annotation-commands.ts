@@ -14,6 +14,7 @@ import { restoreSnapshot } from "@/lib/annotation-restore";
 import { isUrlAddressable } from "@/lib/share-url";
 import { selectionsToJson, type AnnotationSnapshot } from "@/types/annotation";
 import { centroid } from "@/lib/geo";
+import type { MapSideId } from "@/lib/map-side";
 
 /**
  * The annotation write + pick operations, i.e. everything `useAnnotationTool`
@@ -54,7 +55,7 @@ export interface UseAnnotationCommandsResult {
   ) => void;
   resize: (id: string, radiusM: number) => void;
   restore: (id: string) => void;
-  pickAt: (side: "a" | "b", point: { x: number; y: number }) => AnnotationHit | null;
+  pickAt: (side: MapSideId, point: { x: number; y: number }) => AnnotationHit | null;
   /** Also used by the edit popup's "re-capture" action. */
   captureSnapshot: () => AnnotationSnapshot;
 }
@@ -159,8 +160,10 @@ export function useAnnotationCommands(
       annotation.snapshot,
       {
         applySelections: (next) => options.areaFilter.applySelections(next),
-        sideA: { layers: options.mapLeftLayers },
-        sideB: { layers: options.mapRightLayers },
+        sides: {
+          left: { layers: options.mapLeftLayers },
+          right: { layers: options.mapRightLayers },
+        },
       },
       () => restoreToken !== token,
     );
@@ -176,8 +179,8 @@ export function useAnnotationCommands(
   // `icon-allow-overlap` / `text-ignore-placement` so MapLibre's collision
   // engine can never cull a symbol out of pickability (deck's layers had no
   // collision detection at all, so everything was always pickable).
-  function pickAt(side: "a" | "b", point: { x: number; y: number }): AnnotationHit | null {
-    const map = (side === "a" ? options.mapLeft() : options.mapRight())?.map();
+  function pickAt(side: MapSideId, point: { x: number; y: number }): AnnotationHit | null {
+    const map = (side === "right" ? options.mapRight() : options.mapLeft())?.map();
     if (!map) return null;
 
     function query(layerIds: string[], radius: number) {

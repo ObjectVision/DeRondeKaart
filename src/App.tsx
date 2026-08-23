@@ -46,6 +46,7 @@ import { useHoverCursor } from "@/hooks/use-hover-cursor";
 import { useFeatureHighlight } from "@/hooks/use-feature-highlight";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
 import { useVariantSwitch } from "@/hooks/use-variant-switch";
+import type { MapSide, MapSidePair } from "@/lib/map-side";
 import { useEmbedData, type EmbedConfig } from "@/hooks/use-embed-data";
 import { useMapSnapshot } from "@/hooks/use-map-snapshot";
 import { useNavigation } from "@/hooks/use-navigation";
@@ -174,6 +175,11 @@ function App(rawProps: AppProps): JSX.Element {
 
   const mapLeftLayers = useMapLayers(getMapLeft);
   const mapRightLayers = useMapLayers(getMapRight);
+
+  const mapSides: MapSidePair<MapSide> = {
+    left: { layers: mapLeftLayers },
+    right: { layers: mapRightLayers },
+  };
 
   const filterLayers = useFilterLayers(
     mapLeftLayers.addLayer,
@@ -419,12 +425,7 @@ function App(rawProps: AppProps): JSX.Element {
     handleMapClick,
   });
 
-  const nav = useNavigation({
-    mapLeftLayers,
-    mapRightLayers,
-    mapLeft: mapLeftView,
-    mapRight: mapRightView,
-  });
+  const nav = useNavigation(mapSides);
 
   /**
    * Put the map.json `pickLayer` on the left map. It answers clicks and is
@@ -460,12 +461,12 @@ function App(rawProps: AppProps): JSX.Element {
   });
 
   function addMetaLayerToLeftMap(id: string) {
-    if (nav.isOnMap(id, "a")) return;
-    void nav.toggleOnMap(id, "a");
+    if (nav.isOnMap(id, "left")) return;
+    void nav.toggleOnMap(id, "left");
   }
 
   function isMetaLayerOnLeftMap(id: string) {
-    return nav.isOnMap(id, "a");
+    return nav.isOnMap(id, "left");
   }
 
   const {
@@ -565,14 +566,12 @@ function App(rawProps: AppProps): JSX.Element {
   });
 
   const { switchVariant } = useVariantSwitch({
-    mapLeft: { layers: mapLeftLayers, view: mapLeftView },
-    mapRight: { layers: mapRightLayers, view: mapRightView },
+    ...mapSides,
     onResetPickLayer: addPickLayer,
   });
 
   useUrlCommands({
-    mapLeft: { layers: mapLeftLayers, view: mapLeftView }, // "linker kaart"
-    mapRight: { layers: mapRightLayers, view: mapRightView }, // "rechter kaart"
+    ...mapSides,
     ready: () => mapLeftReady() || props.embedCircular,
     applyView,
     onAnnotationRoom: handleAnnotationRoom,
@@ -883,10 +882,16 @@ function App(rawProps: AppProps): JSX.Element {
             entries={shareSide().layerEntries()}
             hiddenIds={shareSide().hiddenIds()}
             hiddenRules={shareSide().hiddenRules()}
-            entriesA={mapLeftLayers.layerEntries()}
-            entriesB={mapRightLayers.layerEntries()}
-            hiddenIdsA={mapLeftLayers.hiddenIds()}
-            hiddenIdsB={mapRightLayers.hiddenIds()}
+            sides={{
+              left: {
+                entries: mapLeftLayers.layerEntries(),
+                hiddenIds: mapLeftLayers.hiddenIds(),
+              },
+              right: {
+                entries: mapRightLayers.layerEntries(),
+                hiddenIds: mapRightLayers.hiddenIds(),
+              },
+            }}
             basemapId={basemapId()}
             studyAreaId={props.studyAreaId}
             filteredStudy={filteredStudy()}

@@ -1,5 +1,3 @@
-import type { Accessor } from "solid-js";
-import type { MapViewHandle } from "@/components/map/map-view-config";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import type { LayerConfig } from "@/layers";
 import {
@@ -7,16 +5,9 @@ import {
   getFilterLayerById,
   isFilterLayerId,
 } from "@/layers/filter-layers";
-import type { useMapLayers } from "./use-map-layers";
+import { forSide, type MapSide, type MapSideId, type MapSidePair } from "@/lib/map-side";
 
-type MapSlot = "a" | "b";
-
-interface UseNavigationOptions {
-  mapLeftLayers: ReturnType<typeof useMapLayers>;
-  mapRightLayers: ReturnType<typeof useMapLayers>;
-  mapLeft: Accessor<MapViewHandle | null>;
-  mapRight: Accessor<MapViewHandle | null>;
-}
+type UseNavigationOptions = MapSidePair<MapSide>;
 
 /**
  * Resolve a navigation leaf id to its LayerConfig.
@@ -52,16 +43,13 @@ export function useNavigation(options: UseNavigationOptions) {
   // that no longer exist onto the map.
   const getConfigs = () => loadLayerConfigs();
 
-  function isOnMap(id: string, slot: MapSlot): boolean {
-    const entries =
-      slot === "b"
-        ? options.mapRightLayers.layerEntries()
-        : options.mapLeftLayers.layerEntries();
+  function isOnMap(id: string, slot: MapSideId): boolean {
+    const entries = forSide(options, slot).layers.layerEntries();
     return entries.some((e) => e.config.id === id);
   }
 
-  async function toggleOnMap(id: string, slot: MapSlot) {
-    const side = slot === "b" ? options.mapRightLayers : options.mapLeftLayers;
+  async function toggleOnMap(id: string, slot: MapSideId) {
+    const side = forSide(options, slot).layers;
 
     if (isOnMap(id, slot)) {
       side.removeLayer(id);
@@ -82,7 +70,7 @@ export function useNavigation(options: UseNavigationOptions) {
 
   // The right map can only receive layers once the left map has at least one:
   // comparison is left-anchored, so an empty left map has nothing to compare against.
-  const leftHasLayers = () => options.mapLeftLayers.layerEntries().length > 0;
+  const leftHasLayers = () => options.left.layers.layerEntries().length > 0;
 
   return { isOnMap, toggleOnMap, leftHasLayers };
 }

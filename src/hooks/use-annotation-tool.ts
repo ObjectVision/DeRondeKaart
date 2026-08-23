@@ -2,6 +2,7 @@ import { createEffect, createSignal, onCleanup, type Accessor } from "solid-js";
 import type { MapLayerMouseEvent } from "@/components/map/map-view-config";
 import { centroid, distanceMeters, nearestPointOnSegment } from "@/lib/geo";
 import type { Annotation } from "@/types/annotation";
+import type { MapSideId } from "@/lib/map-side";
 
 /** Below this screen-pixel drag distance a mouseup counts as a plain click. */
 const MIN_DRAG_PX = 3;
@@ -126,7 +127,7 @@ export interface AnnotationToolOptions {
   onDelete(id: string): void;
   /** Synchronous deck pick against the given map side's annotation layers. */
   pickAnnotationAt(
-    side: "a" | "b",
+    side: MapSideId,
     point: { x: number; y: number },
   ): AnnotationHit | null;
 }
@@ -145,7 +146,7 @@ export interface AnnotationToolState {
   /** Selected annotation (edit popup target), or null. */
   selectedId: Accessor<string | null>;
   select: (id: string | null) => void;
-  handleMouseDown: (e: MapLayerMouseEvent, side: "a" | "b") => void;
+  handleMouseDown: (e: MapLayerMouseEvent, side: MapSideId) => void;
   handleMouseMove: (e: MapLayerMouseEvent) => void;
   handleMouseUp: (e: MapLayerMouseEvent) => void;
 }
@@ -220,7 +221,7 @@ export function useAnnotationTool(options: AnnotationToolOptions): AnnotationToo
     setActive(true);
   }
 
-  function handleMouseDown(e: MapLayerMouseEvent, side: "a" | "b") {
+  function handleMouseDown(e: MapLayerMouseEvent, side: MapSideId) {
     if (!active()) return;
     const startPoint = { x: e.point.x, y: e.point.y };
     const startLngLat = { lng: e.lngLat.lng, lat: e.lngLat.lat };

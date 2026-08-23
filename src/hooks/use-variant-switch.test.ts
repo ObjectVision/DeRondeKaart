@@ -46,7 +46,6 @@ function fakeSide(ids: string[]) {
       layerEntries: () => entries,
       removeLayer,
     } as never,
-    view: () => null,
     removeLayer,
     remaining: () => entries.map((e) => e.config.id),
   };
@@ -81,7 +80,7 @@ describe("useVariantSwitch", () => {
     const right = fakeSide(["374"]);
 
     await createRoot(async (dispose) => {
-      const { switchVariant } = useVariantSwitch({ mapLeft: left, mapRight: right });
+      const { switchVariant } = useVariantSwitch({ left, right });
       const ok = await switchVariant("2026");
       expect(ok).toBe(true);
       dispose();
@@ -105,7 +104,7 @@ describe("useVariantSwitch", () => {
     const right = fakeSide([]);
 
     await createRoot(async (dispose) => {
-      const { switchVariant } = useVariantSwitch({ mapLeft: left, mapRight: right });
+      const { switchVariant } = useVariantSwitch({ left, right });
       // First visit to each variant fetches its two files.
       await switchVariant("2026");
       await switchVariant("2025");
@@ -135,8 +134,8 @@ describe("useVariantSwitch", () => {
 
     await createRoot(async (dispose) => {
       const { switchVariant } = useVariantSwitch({
-        mapLeft: fakeSide(["374"]),
-        mapRight: fakeSide([]),
+        left: fakeSide(["374"]),
+        right: fakeSide([]),
         onResetPickLayer,
       });
       await switchVariant("2026");
@@ -160,8 +159,8 @@ describe("useVariantSwitch", () => {
 
     await createRoot(async (dispose) => {
       const { switchVariant } = useVariantSwitch({
-        mapLeft: fakeSide(["374"]),
-        mapRight: fakeSide([]),
+        left: fakeSide(["374"]),
+        right: fakeSide([]),
         onResetPickLayer,
       });
       await switchVariant("2026");
@@ -177,8 +176,8 @@ describe("useVariantSwitch", () => {
 
     await createRoot(async (dispose) => {
       const { switchVariant } = useVariantSwitch({
-        mapLeft: fakeSide(["374"]),
-        mapRight: fakeSide([]),
+        left: fakeSide(["374"]),
+        right: fakeSide([]),
         onResetPickLayer,
       });
       expect(await switchVariant("1999")).toBe(false);
@@ -194,7 +193,7 @@ describe("useVariantSwitch", () => {
     const right = fakeSide([]);
 
     await createRoot(async (dispose) => {
-      const { switchVariant } = useVariantSwitch({ mapLeft: left, mapRight: right });
+      const { switchVariant } = useVariantSwitch({ left, right });
       expect(await switchVariant("1999")).toBe(false);
       dispose();
     });
@@ -209,7 +208,7 @@ describe("useVariantSwitch", () => {
     const right = fakeSide([]);
 
     await createRoot(async (dispose) => {
-      const { switchVariant } = useVariantSwitch({ mapLeft: left, mapRight: right });
+      const { switchVariant } = useVariantSwitch({ left, right });
       expect(await switchVariant("2025")).toBe(false);
       dispose();
     });

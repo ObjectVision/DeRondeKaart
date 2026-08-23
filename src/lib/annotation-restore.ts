@@ -1,11 +1,7 @@
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
-import type { UseMapLayersResult } from "@/hooks/use-map-layers";
 import { flyToView } from "@/lib/fly-to";
 import { selectionsFromJson, type AnnotationSnapshot } from "@/types/annotation";
-
-export interface RestoreSide {
-  layers: UseMapLayersResult;
-}
+import { forSide, type MapSide, type MapSidePair } from "@/lib/map-side";
 
 export interface RestoreDeps {
   /** Apply a full gebiedsfilter selection map (useAreaFilter.applySelections). */
@@ -13,11 +9,9 @@ export interface RestoreDeps {
   /**
    * The two sides. Layer adds await full data loads, so the sides' state moves
    * under this async function — but every member of `layers` is an accessor, so
-   * reading one mid-run always yields the current value. (The React version
-   * passed `getSideA()`/`getSideB()` thunks to achieve the same thing.)
+   * reading one mid-run always yields the current value.
    */
-  sideA: RestoreSide;
-  sideB: RestoreSide;
+  sides: MapSidePair<MapSide>;
 }
 
 /**
@@ -44,10 +38,12 @@ export async function restoreSnapshot(
 
   const sides: Array<{
     target: AnnotationSnapshot["mapA"];
-    side: RestoreSide;
+    side: MapSide;
   }> = [
-    { target: snapshot.mapA, side: deps.sideA },
-    { target: snapshot.mapB, side: deps.sideB },
+    // mapA/mapB are the PERSISTED snapshot keys — stored in Yjs documents that
+    // predate the left/right naming, so they stay as they are.
+    { target: snapshot.mapA, side: forSide(deps.sides, "left") },
+    { target: snapshot.mapB, side: forSide(deps.sides, "right") },
   ];
 
   for (const { target, side } of sides) {
