@@ -46,7 +46,6 @@ import { useHoverCursor } from "@/hooks/use-hover-cursor";
 import { useFeatureHighlight } from "@/hooks/use-feature-highlight";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
 import { useVariantSwitch } from "@/hooks/use-variant-switch";
-import { variantId } from "@/config/variant";
 import { useEmbedData, type EmbedConfig } from "@/hooks/use-embed-data";
 import { useMapSnapshot } from "@/hooks/use-map-snapshot";
 import { useNavigation } from "@/hooks/use-navigation";
@@ -427,36 +426,37 @@ function App(rawProps: AppProps): JSX.Element {
     mapRight: mapRightView,
   });
 
-  let pickLayerAdded = false;
-  let pickLayerLoading = false;
-  let pickLayerVariant: string | null = null;
-  createEffect(() => {
-    const variant = variantId();
-    if (variant !== pickLayerVariant) {
-      pickLayerVariant = variant;
-      pickLayerAdded = false;
-    }
-    if (!props.pickLayerId || !mapLeftReady() || pickLayerAdded || pickLayerLoading) return;
-    pickLayerLoading = true;
+  /**
+   * Put the map.json `pickLayer` on the left map. It answers clicks and is
+   * never in the legend, so nothing else adds it.
+   *
+   * `atEnd` keeps it at the bottom of the draw order. Called once the map is
+   * ready, and again after a variant switch — it is an ordinary layer entry, so
+   * the switch's teardown removes it with everything else.
+   */
+  async function addPickLayer() {
     const pickLayerId = props.pickLayerId;
-    loadLayerConfigs()
-      .then(async (configs) => {
-        const config = getLayerConfigById(configs, pickLayerId);
-        if (!config) {
-          pickLayerAdded = true;
-          console.warn(`map.json: pickLayer "${pickLayerId}" not found in layers.json`);
-          return;
-        }
-        await mapLeftLayers.addLayer(config, { atEnd: true });
-        mapLeftLayers.syncImperativeLayers();
-        pickLayerAdded = true;
-      })
-      .catch((err) => {
-        console.warn(`Failed to add pickLayer "${pickLayerId}":`, err);
-      })
-      .finally(() => {
-        pickLayerLoading = false;
-      });
+    if (!pickLayerId) return;
+    try {
+      const config = getLayerConfigById(await loadLayerConfigs(), pickLayerId);
+      if (!config) {
+        console.warn(`map.json: pickLayer "${pickLayerId}" not found in layers.json`);
+        return;
+      }
+      await mapLeftLayers.addLayer(config, { atEnd: true });
+      mapLeftLayers.syncImperativeLayers();
+    } catch (err) {
+      console.warn(`Failed to add pickLayer "${pickLayerId}":`, err);
+    }
+  }
+
+  // Only the first ready map triggers this; re-adds after a variant switch come
+  // from useVariantSwitch, which knows it just removed the layer.
+  let pickLayerStarted = false;
+  createEffect(() => {
+    if (!mapLeftReady() || pickLayerStarted) return;
+    pickLayerStarted = true;
+    void addPickLayer();
   });
 
   function addMetaLayerToLeftMap(id: string) {
@@ -567,6 +567,7 @@ function App(rawProps: AppProps): JSX.Element {
   const { switchVariant } = useVariantSwitch({
     mapLeft: { layers: mapLeftLayers, view: mapLeftView },
     mapRight: { layers: mapRightLayers, view: mapRightView },
+    onResetPickLayer: addPickLayer,
   });
 
   useUrlCommands({
