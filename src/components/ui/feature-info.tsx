@@ -11,13 +11,7 @@ import {
 import type { FeatureInfoResult } from "@/hooks/use-feature-pick";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { resolveTemplate, renderTemplate } from "@/layers";
-import {
-  buurtCodeOf,
-  pblStatusFromMessage,
-  pblSummaryUrl,
-  PBL_SUMMARY_TIMEOUT_MS,
-  type PblSummaryStatus,
-} from "@/lib/pbl-summary";
+import { buurtCodeOf, createPblSummaryStatus, pblSummaryUrl } from "@/lib/pbl-summary";
 
 interface PblSummaryProps {
   /** Null when the clicked feature carries no usable `bu_code`. */
@@ -29,32 +23,7 @@ interface PblSummaryProps {
  * origin (see public/pbl-samenvatting.html for why it is not framed directly).
  */
 function PblSummary(props: PblSummaryProps): JSX.Element {
-  const [status, setStatus] = createSignal<PblSummaryStatus>("loading");
-
-  createEffect(() => {
-    // Read first, before anything can return early: this must re-arm when the
-    // user clicks a different neighbourhood without closing the popup, and an
-    // effect subscribes only to what its last run actually read.
-    const code = props.buurtCode;
-    // A new frame is loading, so drop any verdict about the previous one —
-    // otherwise the second click shows a ready state over a blank frame.
-    setStatus("loading");
-    if (!code) return;
-
-    function onMessage(event: MessageEvent) {
-      const next = pblStatusFromMessage(event);
-      if (next) setStatus(next);
-    }
-    window.addEventListener("message", onMessage);
-
-    // Backstop for a frame that never reports at all (see the constant).
-    const timer = setTimeout(() => setStatus("failed"), PBL_SUMMARY_TIMEOUT_MS);
-
-    onCleanup(() => {
-      window.removeEventListener("message", onMessage);
-      clearTimeout(timer);
-    });
-  });
+  const status = createPblSummaryStatus(() => props.buurtCode);
 
   return (
     <Show

@@ -1,3 +1,4 @@
+import { createEffect, createSignal, onCleanup, type Accessor } from "solid-js";
 import type { FeatureInfoResult } from "@/hooks/use-feature-pick";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 
@@ -80,6 +81,54 @@ export function pblStatusFromMessage(event: MessageEvent): PblSummaryStatus | nu
   if (type === "pbl-summary-ready") return "ready";
   if (type === "pbl-summary-failed") return "failed";
   return null;
+}
+
+/**
+ * Track whether the framed viewer has finished, for one neighbourhood at a time.
+ *
+ * A module rather than an effect inline in the component, because what is worth
+ * protecting here fails *silently* and the component itself is not reachable
+ * from a test (rendering it needs a MapLibre pick result and a live iframe).
+ * Three ways it can break with nothing on screen to say so:
+ *
+ * - not reading `buurtCode` before the early return — the effect subscribes only
+ *   to what its last run read, so it would never re-arm for the next
+ *   neighbourhood and the splash would stay up for good;
+ * - not resetting to "loading" — the second click shows the previous verdict
+ *   over a blank frame;
+ * - no timeout — a frame that never reports leaves the splash covering a page
+ *   the user could otherwise operate by hand.
+ *
+ * Call inside a reactive owner; the listener and timer are torn down with it.
+ */
+export function createPblSummaryStatus(
+  buurtCode: Accessor<string | null>,
+): Accessor<PblSummaryStatus> {
+  const [status, setStatus] = createSignal<PblSummaryStatus>("loading");
+
+  createEffect(() => {
+    // Read first, before anything can return early — see the note above.
+    const code = buurtCode();
+    // A new frame is loading, so drop any verdict about the previous one.
+    setStatus("loading");
+    if (!code) return;
+
+    function onMessage(event: MessageEvent) {
+      const next = pblStatusFromMessage(event);
+      if (next) setStatus(next);
+    }
+    window.addEventListener("message", onMessage);
+
+    // Backstop for a frame that never reports at all (see the constant).
+    const timer = setTimeout(() => setStatus("failed"), PBL_SUMMARY_TIMEOUT_MS);
+
+    onCleanup(() => {
+      window.removeEventListener("message", onMessage);
+      clearTimeout(timer);
+    });
+  });
+
+  return status;
 }
 
 /**
