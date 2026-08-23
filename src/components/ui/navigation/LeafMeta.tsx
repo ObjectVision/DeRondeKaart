@@ -6,6 +6,7 @@ import {
   parseMetaLayerLink,
   type MetaLayerIndex,
 } from "@/lib/meta-layer-links";
+import { registerVariantScopedCache } from "@/config/variant-scope";
 
 // Module-level caches shared by every instance, so a layer already resolved
 // paints immediately. `metaUrlCache` maps layer id -> its meta URLs (null = the
@@ -29,6 +30,8 @@ const metaCache = new Map<string, string | null>();
 export function clearMetaUrlCache(): void {
   metaUrlCache.clear();
 }
+
+registerVariantScopedCache(clearMetaUrlCache);
 
 interface LeafMetaProps {
   layerId: string;

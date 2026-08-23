@@ -5,6 +5,7 @@ import { loadLayerConfigs } from "@/layers";
 import { clearLayerConfigCache } from "@/layers/config";
 import { loadNavigation, clearNavigationCache } from "@/layers/navigation";
 import { useVariantSwitch } from "./use-variant-switch";
+import { registerVariantScopedCache } from "@/config/variant-scope";
 import type { VariantsConfig } from "@/config/map-config";
 
 const VARIANTS: VariantsConfig = {
@@ -124,6 +125,34 @@ describe("useVariantSwitch", () => {
       expect(requested).toEqual(afterBothSeen);
       dispose();
     });
+  });
+
+  // Caches keyed by layer id hold the WRONG value after a switch, not a stale
+  // one — ids are reused between variants — and nothing errors when they do.
+  it("clears the caches that registered as variant-scoped", async () => {
+    const clear = vi.fn();
+    registerVariantScopedCache(clear);
+
+    await createRoot(async (dispose) => {
+      const { switchVariant } = useVariantSwitch({ left: fakeSide([]), right: fakeSide([]) });
+      await switchVariant("2026");
+      dispose();
+    });
+
+    expect(clear).toHaveBeenCalledTimes(1);
+  });
+
+  it("leaves them alone when the switch was refused", async () => {
+    const clear = vi.fn();
+    registerVariantScopedCache(clear);
+
+    await createRoot(async (dispose) => {
+      const { switchVariant } = useVariantSwitch({ left: fakeSide([]), right: fakeSide([]) });
+      expect(await switchVariant("1999")).toBe(false);
+      dispose();
+    });
+
+    expect(clear).not.toHaveBeenCalled();
   });
 
   // The pick layer is an ordinary entry, so the teardown above takes it with

@@ -3,6 +3,7 @@ import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconColor, chromeIconSize } from "@/config/map-config";
+import { registerVariantScopedCache } from "@/config/variant-scope";
 
 /** Shown when a layer has metainfo but no short description of its own. */
 const NO_DESCRIPTION = "Geen omschrijving beschikbaar.";
@@ -18,12 +19,14 @@ interface LayerInfo {
 const infoCache = new Map<string, LayerInfo>();
 
 /**
- * Forget every resolved description. Called on a config-variant switch, where
- * the same layer id describes a different layer.
+ * Forget every resolved description. Registered as variant-scoped: the same
+ * layer id describes a different layer under a different variant.
  */
 export function clearLayerInfoCache(): void {
   infoCache.clear();
 }
+
+registerVariantScopedCache(clearLayerInfoCache);
 
 interface LayerDescriptionProps {
   layerId: string;
