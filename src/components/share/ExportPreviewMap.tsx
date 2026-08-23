@@ -42,9 +42,9 @@ interface ExportPreviewMapProps {
  * component replays the source entries into its own useMapLayers().
  */
 export function ExportPreviewMap(props: ExportPreviewMapProps): JSX.Element {
-  const layers = useMapLayers();
   const [mapView, setMapView] = createSignal<MapViewHandle | null>(null);
   const getMap: MapAccessor = () => mapView()?.map() ?? null;
+  const layers = useMapLayers(getMap);
 
   // Same swap as the main maps: a gebiedsfilter selection replaces the
   // configured studyarea (skip loading it entirely — the dialog is a per-open
@@ -117,7 +117,7 @@ export function ExportPreviewMap(props: ExportPreviewMapProps): JSX.Element {
       // MVT/COG source, so re-adding the same id later is safe.
       for (const entry of [...layers.layerEntries()]) {
         if (desired.has(entry.config.id)) continue;
-        layers.removeLayer(entry.config.id, getMap);
+        layers.removeLayer(entry.config.id);
       }
 
       for (const entry of want) {
@@ -130,20 +130,20 @@ export function ExportPreviewMap(props: ExportPreviewMapProps): JSX.Element {
         if (!layers.layerEntries().some((e) => e.config.id === id)) {
           // atEnd: `want` mirrors the live map's draw order, so append verbatim —
           // re-seeding by band would make the preview's z-order differ from the map.
-          await layers.addLayer(entry.config, getMap, { atEnd: true });
+          await layers.addLayer(entry.config, { atEnd: true });
           if (generation !== replayGeneration) return;
         }
         if (hidden.has(id)) {
-          layers.hideLayer(id, getMap);
+          layers.hideLayer(id);
         }
         for (const ruleName of rules.get(id) ?? []) {
-          layers.toggleRule(id, ruleName, getMap);
+          layers.toggleRule(id, ruleName);
         }
       }
 
       // Native MVT/COG layers are skipped by addLayer until the style exists;
       // safe to call repeatedly.
-      layers.syncImperativeLayers(getMap);
+      layers.syncImperativeLayers();
     })();
   });
 
@@ -152,7 +152,7 @@ export function ExportPreviewMap(props: ExportPreviewMapProps): JSX.Element {
   // hidden layers and hidden classes, which fresh native layers don't carry.
   function handleLabelsReady() {
     if (!mapView()) return;
-    layers.syncImperativeLayers(getMap);
+    layers.syncImperativeLayers();
     // These overlays live outside useMapLayers, so they need their own re-add.
     studyArea.resync();
     filteredStudyOverlay.resync();

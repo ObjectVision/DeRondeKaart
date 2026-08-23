@@ -167,8 +167,14 @@ function App(rawProps: AppProps): JSX.Element {
   const [combineOpen, setCombineOpen] = createSignal(false);
   const sidebarMode = () => props.navigationMode === "sidebar";
 
-  const mapLeftLayers = useMapLayers();
-  const mapRightLayers = useMapLayers();
+  // Ahead of the layer stacks, which bind to these at construction.
+  const [mapLeftView, setMapLeftView] = createSignal<MapViewHandle | null>(null);
+  const [mapRightView, setMapRightView] = createSignal<MapViewHandle | null>(null);
+  const getMapLeft: MapAccessor = () => mapLeftView()?.map() ?? null;
+  const getMapRight: MapAccessor = () => mapRightView()?.map() ?? null;
+
+  const mapLeftLayers = useMapLayers(getMapLeft);
+  const mapRightLayers = useMapLayers(getMapRight);
 
   const filterLayers = useFilterLayers(
     mapLeftLayers.addLayer,
@@ -185,11 +191,6 @@ function App(rawProps: AppProps): JSX.Element {
       if (circularOnlyActive()) applyView({ bbox });
     },
   });
-
-  const [mapLeftView, setMapLeftView] = createSignal<MapViewHandle | null>(null);
-  const [mapRightView, setMapRightView] = createSignal<MapViewHandle | null>(null);
-  const getMapLeft: MapAccessor = () => mapLeftView()?.map() ?? null;
-  const getMapRight: MapAccessor = () => mapRightView()?.map() ?? null;
 
   const filteredStudy = useFilteredStudyArea(areaFilter);
   const studyAreaA = useStudyAreaLayer(
@@ -446,8 +447,8 @@ function App(rawProps: AppProps): JSX.Element {
           console.warn(`map.json: pickLayer "${pickLayerId}" not found in layers.json`);
           return;
         }
-        await mapLeftLayers.addLayer(config, getMapLeft, { atEnd: true });
-        mapLeftLayers.syncImperativeLayers(getMapLeft);
+        await mapLeftLayers.addLayer(config, { atEnd: true });
+        mapLeftLayers.syncImperativeLayers();
         pickLayerAdded = true;
       })
       .catch((err) => {
@@ -530,8 +531,8 @@ function App(rawProps: AppProps): JSX.Element {
       return;
     }
     untrack(() => {
-      mapLeftLayers.refreshAreaFilter([getMapLeft]);
-      mapRightLayers.refreshAreaFilter([getMapRight]);
+      mapLeftLayers.refreshAreaFilter();
+      mapRightLayers.refreshAreaFilter();
     });
   });
 
@@ -612,7 +613,7 @@ function App(rawProps: AppProps): JSX.Element {
   }
 
   function handleMapRightLoad() {
-    mapRightLayers.syncImperativeLayers(getMapRight);
+    mapRightLayers.syncImperativeLayers();
   }
 
   function handleMove(evt: ViewStateChangeEvent) {
@@ -624,27 +625,27 @@ function App(rawProps: AppProps): JSX.Element {
     }));
   }
 
-  const handlersA = useLayerHandlers(mapLeftLayers, mapLeftView);
-  const handlersB = useLayerHandlers(mapRightLayers, mapRightView);
+  const handlersA = useLayerHandlers(mapLeftLayers);
+  const handlersB = useLayerHandlers(mapRightLayers);
 
   const leftLegendLayers = () => (leftLegendUsesMapB() ? mapRightLayers : mapLeftLayers);
   const leftLegendHandlers = () => (leftLegendUsesMapB() ? handlersB : handlersA);
   function handleMoveToRight(layerId: string) {
     const entry = mapLeftLayers.layerEntries().find((e) => e.config.id === layerId);
     if (!entry) return;
-    void mapRightLayers.addLayer(entry.config, getMapRight);
-    mapLeftLayers.removeLayer(layerId, getMapLeft);
+    void mapRightLayers.addLayer(entry.config);
+    mapLeftLayers.removeLayer(layerId);
   }
 
   function handleMoveToLeft(layerId: string) {
     const entry = mapRightLayers.layerEntries().find((e) => e.config.id === layerId);
     if (!entry) return;
-    void mapLeftLayers.addLayer(entry.config, getMapLeft);
-    mapRightLayers.removeLayer(layerId, getMapRight);
+    void mapLeftLayers.addLayer(entry.config);
+    mapRightLayers.removeLayer(layerId);
   }
 
   function handleMapLeftLabelsReady() {
-    mapLeftLayers.syncImperativeLayers(getMapLeft);
+    mapLeftLayers.syncImperativeLayers();
     highlightA.clearAll();
     studyAreaA.resync();
     filteredStudyA.resync();
@@ -654,7 +655,7 @@ function App(rawProps: AppProps): JSX.Element {
   }
 
   function handleMapRightLabelsReady() {
-    mapRightLayers.syncImperativeLayers(getMapRight);
+    mapRightLayers.syncImperativeLayers();
     highlightB.clearAll();
     studyAreaB.resync();
     filteredStudyB.resync();
@@ -695,7 +696,7 @@ function App(rawProps: AppProps): JSX.Element {
     const legend = leftLegendLayers();
     const configs = legend.layerEntries().map((entry) => entry.config);
     const stepFor = (layerId: string) => legend.layerSteps().get(layerId);
-    void filterLayers.create(name, refs, configs, [getMapLeft], stepFor, classes);
+    void filterLayers.create(name, refs, configs, stepFor, classes);
   }
 
   const combinableLayers = createMemo(() =>
@@ -842,16 +843,16 @@ function App(rawProps: AppProps): JSX.Element {
                 dimmedIds={mapRightLayers.dimmedIds()}
                 layerSteps={mapRightLayers.layerSteps()}
                 playingIds={mapRightLayers.playingIds()}
-                onToggle={handlersB.toggle}
-                onToggleDim={handlersB.toggleDim}
-                onToggleRule={handlersB.toggleRule}
-                onTogglePlay={handlersB.togglePlay}
+                onToggle={mapRightLayers.toggleLayer}
+                onToggleDim={mapRightLayers.toggleDim}
+                onToggleRule={mapRightLayers.toggleRule}
+                onTogglePlay={mapRightLayers.togglePlay}
                 onSetStep={handlersB.setStep}
-                onRemove={handlersB.remove}
+                onRemove={mapRightLayers.removeLayer}
                 onOpenMeta={openLayerMeta}
                 onMove={handleMoveToLeft}
                 moveDirection="left"
-                onReorder={handlersB.reorder}
+                onReorder={mapRightLayers.reorderLayer}
               />
             </Show>
             <MapAttribution />
@@ -1083,14 +1084,14 @@ function App(rawProps: AppProps): JSX.Element {
                 dimmedIds={leftLegendLayers().dimmedIds()}
                 layerSteps={leftLegendLayers().layerSteps()}
                 playingIds={leftLegendLayers().playingIds()}
-                onToggle={leftLegendHandlers().toggle}
-                onToggleDim={leftLegendHandlers().toggleDim}
-                onToggleRule={leftLegendHandlers().toggleRule}
-                onTogglePlay={leftLegendHandlers().togglePlay}
+                onToggle={leftLegendLayers().toggleLayer}
+                onToggleDim={leftLegendLayers().toggleDim}
+                onToggleRule={leftLegendLayers().toggleRule}
+                onTogglePlay={leftLegendLayers().togglePlay}
                 onSetStep={leftLegendHandlers().setStep}
-                onRemove={leftLegendHandlers().remove}
+                onRemove={leftLegendLayers().removeLayer}
                 onOpenMeta={openLayerMeta}
-                onReorder={leftLegendHandlers().reorder}
+                onReorder={leftLegendLayers().reorderLayer}
                 onMove={leftLegendUsesMapB() ? handleMoveToLeft : handleMoveToRight}
                 moveDirection={leftLegendUsesMapB() ? "left" : "right"}
                 moveDisabled={

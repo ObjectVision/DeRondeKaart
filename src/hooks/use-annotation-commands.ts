@@ -159,14 +159,8 @@ export function useAnnotationCommands(
       annotation.snapshot,
       {
         applySelections: (next) => options.areaFilter.applySelections(next),
-        sideA: {
-          layers: options.mapLeftLayers,
-          map: () => options.mapLeft()?.map() ?? null,
-        },
-        sideB: {
-          layers: options.mapRightLayers,
-          map: () => options.mapRight()?.map() ?? null,
-        },
+        sideA: { layers: options.mapLeftLayers },
+        sideB: { layers: options.mapRightLayers },
       },
       () => restoreToken !== token,
     );

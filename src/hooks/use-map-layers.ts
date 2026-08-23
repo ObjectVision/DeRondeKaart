@@ -61,29 +61,33 @@ export interface UseMapLayersResult {
   hiddenRules: Accessor<globalThis.Map<string, Set<string>>>;
   layerSteps: Accessor<globalThis.Map<string, number>>;
   playingIds: Accessor<Set<string>>;
-  addLayer: (
-    config: LayerConfig,
-    getMap: MapAccessor,
-    opts?: { atEnd?: boolean },
-  ) => Promise<void>;
-  removeLayer: (layerId: string, getMap: MapAccessor) => void;
-  reorderLayer: (layerId: string, toIndex: number, getMap: MapAccessor) => void;
-  hideLayer: (layerId: string, getMap: MapAccessor) => void;
-  toggleLayer: (layerId: string, getMap: MapAccessor) => void;
+  addLayer: (config: LayerConfig, opts?: { atEnd?: boolean }) => Promise<void>;
+  removeLayer: (layerId: string) => void;
+  reorderLayer: (layerId: string, toIndex: number) => void;
+  hideLayer: (layerId: string) => void;
+  toggleLayer: (layerId: string) => void;
   /** Ids currently dimmed by the legend's transparency tool. */
   dimmedIds: Accessor<Set<string>>;
   /** Dim a layer to DIMMED_OPACITY, or restore its configured opacity. */
-  toggleDim: (layerId: string, getMap: MapAccessor) => void;
-  toggleRule: (layerId: string, ruleName: string, getMap: MapAccessor) => void;
-  setLayerStep: (layerId: string, value: number, getMaps: MapAccessor[]) => void;
+  toggleDim: (layerId: string) => void;
+  toggleRule: (layerId: string, ruleName: string) => void;
+  setLayerStep: (layerId: string, value: number) => void;
   togglePlay: (layerId: string) => void;
   stopPlay: (layerId: string) => void;
-  advanceStep: (layerId: string, getMaps: MapAccessor[]) => void;
-  refreshAreaFilter: (maps?: MapAccessor[]) => void;
-  syncImperativeLayers: (getMap: MapAccessor) => void;
+  advanceStep: (layerId: string) => void;
+  refreshAreaFilter: () => void;
+  syncImperativeLayers: () => void;
 }
 
-export function useMapLayers(): UseMapLayersResult {
+/**
+ * One layer stack, bound to one map for its lifetime.
+ *
+ * `getMap` resolves lazily and may yield null: map B is conditional and the
+ * export preview's map mounts after its stack exists, so every native write
+ * treats a null map as "not yet" and `syncImperativeLayers` replays once it
+ * appears.
+ */
+export function useMapLayers(getMap: MapAccessor): UseMapLayersResult {
   // Signals only. The React version paired five of these with a shadowing ref,
   // because the composite host (driven by a `moveend` listener) and the
   // timeseries interval tick both run outside React and needed the current
@@ -188,11 +192,7 @@ export function useMapLayers(): UseMapLayersResult {
    * feed an already-ordered sequence: re-seeding would lift a foreground layer
    * back above a layer the user had deliberately dragged on top of it.
    */
-  async function addLayer(
-    config: LayerConfig,
-    getMap: MapAccessor,
-    opts?: { atEnd?: boolean },
-  ) {
+  async function addLayer(config: LayerConfig, opts?: { atEnd?: boolean }) {
     // Inside the updater, so concurrent adds compose: several `add` commands in
     // one hash are dispatched together and each must see the others' entries.
     setLayerEntries((prev) => {
@@ -226,7 +226,7 @@ export function useMapLayers(): UseMapLayersResult {
     }
   }
 
-  function removeLayer(layerId: string, getMap: MapAccessor) {
+  function removeLayer(layerId: string) {
     const entry = layerEntries().find((e) => e.config.id === layerId);
 
     setLayerEntries((prev) => prev.filter((e) => e.config.id !== layerId));
@@ -272,7 +272,7 @@ export function useMapLayers(): UseMapLayersResult {
    * match. Overrides the config's `beforeid` band: after a reorder, array
    * position alone decides what paints over what.
    */
-  function reorderLayer(layerId: string, toIndex: number, getMap: MapAccessor) {
+  function reorderLayer(layerId: string, toIndex: number) {
     const prev = layerEntries();
     const from = prev.findIndex((e) => e.config.id === layerId);
     if (from < 0) return;
@@ -288,7 +288,7 @@ export function useMapLayers(): UseMapLayersResult {
     restackNativeLayers(next, getMap);
   }
 
-  function hideLayer(layerId: string, getMap: MapAccessor) {
+  function hideLayer(layerId: string) {
     setHiddenIds((prev) => {
       if (prev.has(layerId)) return prev;
       const next = new Set(prev);
@@ -307,7 +307,7 @@ export function useMapLayers(): UseMapLayersResult {
   // in the updater to see the post-toggle value, which made the updater impure
   // (and so double-invoked under StrictMode); a signal write lands immediately,
   // so the effect can simply follow it.
-  function toggleLayer(layerId: string, getMap: MapAccessor) {
+  function toggleLayer(layerId: string) {
     const next = new Set(hiddenIds());
     const willBeVisible = next.has(layerId);
     if (willBeVisible) {
@@ -324,7 +324,7 @@ export function useMapLayers(): UseMapLayersResult {
     }
   }
 
-  function toggleDim(layerId: string, getMap: MapAccessor) {
+  function toggleDim(layerId: string) {
     const next = new Set(dimmedIds());
     const willBeDimmed = !next.has(layerId);
     if (willBeDimmed) {
@@ -340,7 +340,7 @@ export function useMapLayers(): UseMapLayersResult {
     }
   }
 
-  function toggleRule(layerId: string, ruleName: string, getMap: MapAccessor) {
+  function toggleRule(layerId: string, ruleName: string) {
     const next = new globalThis.Map(hiddenRules());
     const layerRules = new Set(next.get(layerId) ?? []);
 
@@ -388,11 +388,14 @@ export function useMapLayers(): UseMapLayersResult {
   }
 
   /**
-   * Show a specific timeseries step for a layer, on every map it is on.
-   * Rebuilds the layer's rule layers against the substituted source layer —
-   * see `applyTimeseriesStep` for why remove+re-add is the only option.
+   * Show a specific timeseries step for a layer. Rebuilds the layer's rule
+   * layers against the substituted source layer — see `applyTimeseriesStep`
+   * for why remove+re-add is the only option.
+   *
+   * Takes no map list: a stack belongs to one map, so "every map the layer is
+   * on" is always just this one.
    */
-  function setLayerStep(layerId: string, value: number, getMaps: MapAccessor[]) {
+  function setLayerStep(layerId: string, value: number) {
     const entry = layerEntries().find((e) => e.config.id === layerId);
     const ts = entry?.config.timeseries;
     if (!entry || !ts) return;
@@ -406,9 +409,7 @@ export function useMapLayers(): UseMapLayersResult {
       layerHidden: hiddenIds().has(layerId),
       hiddenRuleNames: hiddenRules().get(layerId),
     };
-    for (const getMap of getMaps) {
-      applyTimeseriesStep(entry.config, next, getMap, hidden);
-    }
+    applyTimeseriesStep(entry.config, next, getMap, hidden);
 
     setLayerSteps((prev) => {
       const updated = new globalThis.Map(prev);
@@ -438,13 +439,13 @@ export function useMapLayers(): UseMapLayersResult {
   }
 
   /** Advance one step, looping back to `start` past the end. Drives playback. */
-  function advanceStep(layerId: string, getMaps: MapAccessor[]) {
+  function advanceStep(layerId: string) {
     const entry = layerEntries().find((e) => e.config.id === layerId);
     const ts = entry?.config.timeseries;
     if (!entry || !ts) return;
     const current = layerSteps().get(layerId) ?? ts.start;
     const next = current + ts.step > ts.end ? ts.start : current + ts.step;
-    setLayerStep(layerId, next, getMaps);
+    setLayerStep(layerId, next);
   }
 
   /**
@@ -453,15 +454,12 @@ export function useMapLayers(): UseMapLayersResult {
    * COG is a raster and stays unfiltered; `geojson` is host-pushed embed data
    * and is deliberately exempt (see `geojson-layer.ts`).
    *
-   * The React version took a leading `_version` argument it never used, purely
-   * so callers could key the call on the area filter's version counter. Callers
-   * now put this in an effect that reads the filter signal instead.
+   * Takes no arguments: callers put this in an effect that reads the area
+   * filter's signal, rather than passing a version counter to key it on.
    */
-  function refreshAreaFilter(getMaps: MapAccessor[] = []) {
+  function refreshAreaFilter() {
     for (const entry of layerEntries()) {
-      for (const getMap of getMaps) {
-        refreshNativeAreaFilter(entry.config, getMap);
-      }
+      refreshNativeAreaFilter(entry.config, getMap);
     }
   }
 
@@ -477,7 +475,7 @@ export function useMapLayers(): UseMapLayersResult {
    * layers, whose `visible` prop lives in React state and survives `setStyle`,
    * a MapLibre `visibility: "none"` is wiped along with the layer it sat on.
    */
-  function syncImperativeLayers(getMap: MapAccessor) {
+  function syncImperativeLayers() {
     for (const entry of layerEntries()) {
       if (entry.config.format === "composite") {
         addCompositeLayer(entry.config, getMap, compositeHost);

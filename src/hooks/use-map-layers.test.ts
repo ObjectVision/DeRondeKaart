@@ -54,12 +54,18 @@ function config(id: string, over: Partial<LayerConfig> = {}): LayerConfig {
   } as LayerConfig;
 }
 
-/** Run `body` inside a reactive root and dispose it afterwards. */
-async function withLayers(body: (layers: UseMapLayersResult) => Promise<void>) {
+/**
+ * Run `body` inside a reactive root and dispose it afterwards. The stack binds
+ * its map at construction, so the fake goes in here rather than at every call.
+ */
+async function withLayers(
+  body: (layers: UseMapLayersResult) => Promise<void>,
+  getMap: MapAccessor = noMap,
+) {
   let dispose = () => {};
   const layers = createRoot((d) => {
     dispose = d;
-    return useMapLayers();
+    return useMapLayers(getMap);
   });
   try {
     await body(layers);
@@ -71,7 +77,7 @@ async function withLayers(body: (layers: UseMapLayersResult) => Promise<void>) {
 describe("useMapLayers", () => {
   it("commits an entry before awaiting the data load", async () => {
     await withLayers(async (layers) => {
-      const pending = layers.addLayer(config("a"), noMap);
+      const pending = layers.addLayer(config("a"));
       // Not awaited yet: the entry is already there. This is what lets the
       // export preview's reconcile loop use layerEntries() as its own
       // "already added?" check within one synchronous pass.
@@ -83,8 +89,8 @@ describe("useMapLayers", () => {
 
   it("is idempotent for an id already present", async () => {
     await withLayers(async (layers) => {
-      await layers.addLayer(config("a"), noMap);
-      await layers.addLayer(config("a"), noMap);
+      await layers.addLayer(config("a"));
+      await layers.addLayer(config("a"));
       expect(layers.layerEntries()).toHaveLength(1);
     });
   });
@@ -94,9 +100,9 @@ describe("useMapLayers", () => {
       const seen: string[][] = [];
       createEffect(() => seen.push(layers.layerEntries().map((e) => e.config.id)));
 
-      await layers.addLayer(config("a"), noMap);
-      await layers.addLayer(config("b"), noMap);
-      layers.removeLayer("a", noMap);
+      await layers.addLayer(config("a"));
+      await layers.addLayer(config("b"));
+      layers.removeLayer("a");
 
       // Solid batches effects, so assert the settled value rather than each step.
       await Promise.resolve();
@@ -107,28 +113,28 @@ describe("useMapLayers", () => {
 
   it("toggles visibility and reports it on the next synchronous read", async () => {
     await withLayers(async (layers) => {
-      await layers.addLayer(config("a"), noMap);
+      await layers.addLayer(config("a"));
       expect(layers.hiddenIds().has("a")).toBe(false);
 
-      layers.toggleLayer("a", noMap);
+      layers.toggleLayer("a");
       // No await: the signal write landed, which is exactly what removed the
       // "run the map side effect inside the state updater" workaround.
       expect(layers.hiddenIds().has("a")).toBe(true);
 
-      layers.toggleLayer("a", noMap);
+      layers.toggleLayer("a");
       expect(layers.hiddenIds().has("a")).toBe(false);
     });
   });
 
   it("clears a removed layer's hidden, rule and timeseries state", async () => {
     await withLayers(async (layers) => {
-      await layers.addLayer(config("a"), noMap);
-      layers.hideLayer("a", noMap);
-      layers.toggleDim("a", noMap);
+      await layers.addLayer(config("a"));
+      layers.hideLayer("a");
+      layers.toggleDim("a");
       expect(layers.hiddenIds().has("a")).toBe(true);
       expect(layers.dimmedIds().has("a")).toBe(true);
 
-      layers.removeLayer("a", noMap);
+      layers.removeLayer("a");
       expect(layers.layerEntries()).toHaveLength(0);
       expect(layers.hiddenIds().has("a")).toBe(false);
       expect(layers.hiddenRules().has("a")).toBe(false);
@@ -144,17 +150,19 @@ describe("useMapLayers", () => {
     // synchronously, so the accessor yields a live-but-unloaded map. Without a
     // styleReady guard addSource throws, addLayer rolls the entry back, and the
     // right map unmounts again — the layer just disappears.
-    await withLayers(async (layers) => {
-      const getMap: MapAccessor = () => unloadedMap();
-      await layers.addLayer(config("a"), getMap);
-      expect(layers.layerEntries().map((e) => e.config.id)).toEqual(["a"]);
-    });
+    await withLayers(
+      async (layers) => {
+        await layers.addLayer(config("a"));
+        expect(layers.layerEntries().map((e) => e.config.id)).toEqual(["a"]);
+      },
+      () => unloadedMap(),
+    );
   });
 
   it("appends verbatim with atEnd, preserving a caller's ordering", async () => {
     await withLayers(async (layers) => {
-      await layers.addLayer(config("bottom"), noMap, { atEnd: true });
-      await layers.addLayer(config("top"), noMap, { atEnd: true });
+      await layers.addLayer(config("bottom"), { atEnd: true });
+      await layers.addLayer(config("top"), { atEnd: true });
       expect(layers.layerEntries().map((e) => e.config.id)).toEqual(["bottom", "top"]);
     });
   });
@@ -162,7 +170,7 @@ describe("useMapLayers", () => {
   it("keeps two instances independent, as the two map panes require", async () => {
     await withLayers(async (left) => {
       await withLayers(async (right) => {
-        await left.addLayer(config("a"), noMap);
+        await left.addLayer(config("a"));
         expect(left.layerEntries()).toHaveLength(1);
         expect(right.layerEntries()).toHaveLength(0);
       });
