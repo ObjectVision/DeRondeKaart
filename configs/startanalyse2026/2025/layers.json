@@ -16202,11 +16202,6 @@
         "rules": [
           {
             "name": "",
-            "filter": [
-              "==",
-              "$type",
-              "Polygon"
-            ],
             "symbolizers": [
               {
                 "kind": "Fill",
@@ -21895,11 +21890,6 @@
         "rules": [
           {
             "name": "WKO",
-            "filter": [
-              "==",
-              "$type",
-              "Polygon"
-            ],
             "symbolizers": [
               {
                 "kind": "Fill",
@@ -71941,6 +71931,570 @@
       "beforeid": "foreground-layers",
       "featureinfo": {
         "pbl": true
+      }
+    },
+    {
+      "id": "211",
+      "name": "Laagtemperatuur warmtebronnen (BG)",
+      "subname": "MW",
+      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/lt.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "lt",
+      "geometryType": "point",
+      "style": {
+        "opacity": 1
+      },
+      "geostyler": {
+        "name": "MW",
+        "rules": [
+          {
+            "name": "0 - 0.25",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                0
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                0.25
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#006837",
+                "radius": 2,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "0.25 - 0.50",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                0.25
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                0.5
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#229c52",
+                "radius": 3,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "0.50 - 1",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                0.5
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                1
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#b7e075",
+                "radius": 3.5,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "1 - 2",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                1
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                2
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#feeea2 ",
+                "radius": 4.5,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "2 - 5",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                2
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                5
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#f67b4a ",
+                "radius": 5.5,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "5 of meer",
+            "filter": [
+              ">=",
+              "mwcapaciteit",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#da372a ",
+                "radius": 6.5,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "210",
+      "name": "Midden temperatuur warmtebronnen (BG)",
+      "subname": "MW",
+      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/mt.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "mt",
+      "geometryType": "point",
+      "style": {
+        "opacity": 1
+      },
+      "geostyler": {
+        "name": "MW",
+        "rules": [
+          {
+            "name": "0 - 1",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                0
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                1
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#006837 ",
+                "radius": 2,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "1 - 3",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                1
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                3
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#229c52 ",
+                "radius": 2.5,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "3 - 5",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                3
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                5
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#74c365 ",
+                "radius": 3,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "5 - 10",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                5
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                10
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#b7e075 ",
+                "radius": 3.5,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "10 - 25",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                10
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                25
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#eaf6a2 ",
+                "radius": 5,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "25 - 50",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                25
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                50
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#feeea2 ",
+                "radius": 5.5,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "50 - 75",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                50
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                75
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#fdbf6f ",
+                "radius": 6.6,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "75 - 100",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                75
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                100
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#f67b4a ",
+                "radius": 7.5,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": "100 - 200",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "mwcapaciteit",
+                100
+              ],
+              [
+                "<",
+                "mwcapaciteit",
+                200
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#da372a ",
+                "radius": 8.5,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          },
+          {
+            "name": ">=200",
+            "filter": [
+              ">=",
+              "mwcapaciteit",
+              200
+            ],
+            "symbolizers": [
+              {
+                "kind": "Mark",
+                "color": "#a50026 ",
+                "radius": 10,
+                "strokeColor": "black",
+                "strokeWidth": 1,
+                "strokeOpacity": 1,
+                "wellKnownName": "circle"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "464",
+      "name": "Warmtenetten strategievariant s2a (BG)",
+      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/S2A_bronnen_connecties.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "S2A_bronnen_connecties",
+      "geometryType": "line",
+      "style": {
+        "opacity": 1
+      },
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "",
+            "symbolizers": [
+              {
+                "kind": "Line",
+                "color": "#1f77b4",
+                "width": 3,
+                "opacity": 1,
+                "paint": {
+                  "line-color": [
+                    "match",
+                    [
+                      "get",
+                      "bron_color"
+                    ],
+                    0,
+                    "#1f77b4",
+                    1,
+                    "#ff7f0e",
+                    2,
+                    "#2ca02c",
+                    3,
+                    "#d62728",
+                    4,
+                    "#db98a5",
+                    5,
+                    "#8c564b",
+                    6,
+                    "#e377c2",
+                    7,
+                    "#7f7f7f",
+                    8,
+                    "#bcbd22",
+                    9,
+                    "#17becf",
+                    "#1f77b4"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "466",
+      "name": "Warmtenetten strategievariant s2d (BG)",
+      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/S2D_bronnen_connecties.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "S2D_bronnen_connecties",
+      "geometryType": "line",
+      "style": {
+        "opacity": 1
+      },
+      "geostyler": {
+        "name": "",
+        "rules": [
+          {
+            "name": "",
+            "symbolizers": [
+              {
+                "kind": "Line",
+                "color": "#1f77b4",
+                "width": 3,
+                "opacity": 1,
+                "paint": {
+                  "line-color": [
+                    "match",
+                    [
+                      "get",
+                      "bron_color"
+                    ],
+                    0,
+                    "#1f77b4",
+                    1,
+                    "#ff7f0e",
+                    2,
+                    "#2ca02c",
+                    3,
+                    "#d62728",
+                    4,
+                    "#db98a5",
+                    5,
+                    "#8c564b",
+                    6,
+                    "#e377c2",
+                    7,
+                    "#7f7f7f",
+                    8,
+                    "#bcbd22",
+                    9,
+                    "#17becf",
+                    "#1f77b4"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       }
     }
   ]

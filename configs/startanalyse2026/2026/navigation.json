@@ -97,6 +97,24 @@
             "label": "Aantal woningequivalenten (BG)",
             "a": false,
             "b": false
+          },
+          {
+            "id": "210",
+            "label": "Midden temperatuur warmtebronnen (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "464",
+            "label": "Warmtenetten strategievariant s2a (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "466",
+            "label": "Warmtenetten strategievariant s2d (BG)",
+            "a": false,
+            "b": false
           }
         ]
       },
@@ -1009,6 +1027,12 @@
         "expanded": false,
         "children": [
           {
+            "id": "210",
+            "label": "Midden temperatuur warmtebronnen (BG)",
+            "a": false,
+            "b": false
+          },
+          {
             "id": "266",
             "label": "Warmte-koude opslag (BG)",
             "a": false,
@@ -1171,6 +1195,12 @@
         "label": "Bronnen",
         "expanded": false,
         "children": [
+          {
+            "id": "211",
+            "label": "Laagtemperatuur warmtebronnen (BG)",
+            "a": false,
+            "b": false
+          },
           {
             "id": "267",
             "label": "Aquathermie contour (BG)",
@@ -1404,6 +1434,30 @@
           {
             "id": "263",
             "label": "Geothermie contour (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "211",
+            "label": "Laagtemperatuur warmtebronnen (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "210",
+            "label": "Midden temperatuur warmtebronnen (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "464",
+            "label": "Warmtenetten strategievariant s2a (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "466",
+            "label": "Warmtenetten strategievariant s2d (BG)",
             "a": false,
             "b": false
           }
