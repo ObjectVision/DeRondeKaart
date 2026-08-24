@@ -115,8 +115,9 @@ function DownloadsSection(): JSX.Element {
                   // is not governed by the parent frame's policy.
                   target="_blank"
                   rel="noreferrer"
-                  // Ignored cross-origin, so the save name comes from the data
-                  // host's Content-Disposition. Kept as the hint it is.
+                  // Ignored cross-origin, so it does not name the saved file.
+                  // Kept as the intent marker; the browser saves rather than
+                  // renders because the response is application/zip.
                   download={item.file}
                   title={`${item.label} (ZIP)`}
                   aria-label={`${item.label} downloaden (ZIP)`}
