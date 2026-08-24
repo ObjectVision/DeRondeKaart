@@ -12,7 +12,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -228,7 +228,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -476,7 +476,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -692,7 +692,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -1089,7 +1089,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -2063,7 +2063,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -3037,7 +3037,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -5071,7 +5071,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -5397,7 +5397,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -6371,7 +6371,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -6534,7 +6534,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -6722,7 +6722,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -7292,7 +7292,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -8266,7 +8266,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -9240,7 +9240,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -10214,7 +10214,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -11188,7 +11188,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -12162,7 +12162,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -13136,7 +13136,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -14110,7 +14110,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -15084,7 +15084,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -15237,7 +15237,7 @@
     {
       "id": "355",
       "name": "Toekenning klimaatneutraal gas (LN, H20)",
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -15325,7 +15325,7 @@
         "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
         "https://data.startanalyse2026.nl/meta/2025/_footer.html"
       ],
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
@@ -71910,7 +71910,7 @@
     {
       "id": "buurt_klik",
       "name": "Buurten",
-      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratNL.pmtiles?v=20260822",
+      "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
       "geometryType": "polygon",
