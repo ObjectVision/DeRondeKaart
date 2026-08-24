@@ -8,9 +8,12 @@ import {
   onCleanup,
   type JSX,
 } from "solid-js";
+import { Icon } from "@/components/ui/nav-icon";
+import { variantId } from "@/config/variant";
 import type { FeatureInfoResult } from "@/hooks/use-feature-pick";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { resolveTemplate, renderTemplate } from "@/layers";
+import { DOWNLOADS, downloadUrl } from "@/lib/downloads";
 import { buurtCodeOf, createPblSummaryStatus, pblSummaryUrl } from "@/lib/pbl-summary";
 
 interface PblSummaryProps {
@@ -74,6 +77,49 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
           >
             Openen in nieuw tabblad
           </a>
+          <DownloadsSection />
+        </div>
+      )}
+    </Show>
+  );
+}
+
+/**
+ * The dataset archives for the active variant, one flag per strategy.
+ *
+ * Whole-country files, so they do not depend on the clicked neighbourhood — the
+ * section is the same for every feature and its height never changes, which is
+ * what keeps InfoPopup from re-placing the window under the cursor.
+ *
+ * Rendered only where a variant is active: the archives are published per year,
+ * and a project without variants (woonzorglimburg) has nowhere to point.
+ */
+function DownloadsSection(): JSX.Element {
+  return (
+    <Show when={variantId()}>
+      {(variant) => (
+        <div class="border-t border-gray-200 px-3 py-2">
+          <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Downloads
+          </h3>
+          <div class="flex flex-wrap items-center gap-2">
+            <For each={DOWNLOADS}>
+              {(item) => (
+                <a
+                  href={downloadUrl(variant(), item.file)}
+                  // Ignored cross-origin (the archives come from the data host),
+                  // so the save name comes from Content-Disposition. Kept as the
+                  // hint it is: .zip downloads rather than navigating either way.
+                  download={item.file}
+                  title={`${item.label} (ZIP)`}
+                  aria-label={`${item.label} downloaden (ZIP)`}
+                  class="rounded transition-opacity hover:opacity-70"
+                >
+                  <Icon name={item.icon} size={28} />
+                </a>
+              )}
+            </For>
+          </div>
         </div>
       )}
     </Show>
