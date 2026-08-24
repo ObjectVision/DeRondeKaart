@@ -175,6 +175,33 @@ def sql_literal(value: object) -> str:
 COMPARISONS = {"==": "=", "!=": "<>", "<": "<", "<=": "<=", ">": ">", ">=": ">="}
 
 
+def column_ref(column: str, value: object) -> str:
+    """A column as one side of a comparison, unquoted when comparing strings.
+
+    Three TEXT columns arrive from the upstream export wrapped in literal
+    apostrophes -- `V01_Strategievariant` holds the five characters ``'s1a'``,
+    not ``s1a`` -- so a plain equality against `'s1a'` matches nothing. That is
+    71% of the rules, which is why almost no class painted.
+
+    Stripping the quotes in the expression keeps the published GeoPackages and
+    CSVs untouched. It is applied to every string comparison rather than to a
+    list of known columns: it is a no-op on unquoted values, so it stays correct
+    if the export changes which columns it quotes.
+
+    `replace` rather than `trim`: QGIS's `trim()` takes one argument and strips
+    whitespace only. The two-argument `trim(x, chars)` is SQLite-only and would
+    be a syntax error in the expression engine that evaluates rule filters.
+
+    Numbers and booleans are never wrapped -- doing so would coerce them to text
+    and break the comparisons that already work.
+    """
+    quoted = '"%s"' % column
+    if isinstance(value, str):
+        # '''' is a single-quoted string holding one escaped apostrophe.
+        return "replace(%s, '''', '')" % quoted
+    return quoted
+
+
 def to_expression(node: object, resolve) -> str:
     """Translate one geostyler filter into a QGIS expression.
 
@@ -201,7 +228,11 @@ def to_expression(node: object, resolve) -> str:
         return '"%s" IS NOT NULL' % resolve(node[1])
 
     if op in COMPARISONS:
-        return '("%s" %s %s)' % (resolve(node[1]), COMPARISONS[op], sql_literal(node[2]))
+        return "(%s %s %s)" % (
+            column_ref(resolve(node[1]), node[2]),
+            COMPARISONS[op],
+            sql_literal(node[2]),
+        )
 
     raise MissingField(f"unsupported filter operator: {op!r}")
 
