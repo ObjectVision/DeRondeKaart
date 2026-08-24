@@ -107,9 +107,16 @@ function DownloadsSection(): JSX.Element {
               {(item) => (
                 <a
                   href={downloadUrl(variant(), item.file)}
-                  // Ignored cross-origin (the archives come from the data host),
-                  // so the save name comes from Content-Disposition. Kept as the
-                  // hint it is: .zip downloads rather than navigating either way.
+                  // `_blank` is load-bearing, not a preference. The app is
+                  // embedded in an iframe on startanalyse2026.nl, whose CSP is
+                  // `default-src 'self'` with a frame-src naming only the map
+                  // host — so navigating the frame itself to the data host is
+                  // blocked ("This content is blocked"). A top-level navigation
+                  // is not governed by the parent frame's policy.
+                  target="_blank"
+                  rel="noreferrer"
+                  // Ignored cross-origin, so the save name comes from the data
+                  // host's Content-Disposition. Kept as the hint it is.
                   download={item.file}
                   title={`${item.label} (ZIP)`}
                   aria-label={`${item.label} downloaden (ZIP)`}
