@@ -132,13 +132,82 @@ RD_NEW = {
     "description": "Amersfoort / RD New",
     "projectionacronym": "sterea",
     "ellipsoidacronym": "EPSG:7004",
+    "geographicflag": "false",
+}
+
+# The canvas's opening view, in RD New metres. Copied from a project QGIS itself
+# saved; it covers the Netherlands with room to spare, so every archive opens on
+# its data whatever subset of the country that archive holds.
+RD_NEW_EXTENT = {
+    "xmin": "-419318.47270000001881272",
+    "ymin": "299036.56420000002486631",
+    "xmax": "710909.96130000008270144",
+    "ymax": "627041.28230000005103648",
+}
+
+# The RD New -> WGS 84 transformation, as a PROJ pipeline. This is the one
+# QGIS's "Select Transformation" dialog was asking the user to choose: naming it
+# here answers the question in advance, so the project opens without prompting.
+# RDNAPTRANS via the Helmert parameters PROJ publishes for 28992 -- decimetre
+# accurate, unlike the legacy 3-parameter +towgs84 shift.
+RD_NEW_TO_WGS84_OP = (
+    "+proj=pipeline +step +inv +proj=sterea +lat_0=52.1561605555556 "
+    "+lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 "
+    "+ellps=bessel +step +proj=push +v_3 +step +proj=cart +ellps=bessel "
+    "+step +proj=helmert +x=565.4171 +y=50.3319 +z=465.5524 "
+    "+rx=0.398957388243134 +ry=-0.343987817378283 +rz=1.87740163998045 "
+    "+s=4.0725 +convention=coordinate_frame +step +inv +proj=cart "
+    "+ellps=WGS84 +step +proj=pop +v_3 +step +proj=unitconvert +xy_in=rad "
+    "+xy_out=deg"
+)
+
+# Only ever the far side of the transformation above; no layer uses it.
+WGS84 = {
+    "wkt": (
+        'GEOGCRS["WGS 84",ENSEMBLE["World Geodetic System 1984 ensemble",'
+        'MEMBER["World Geodetic System 1984 (Transit)"],'
+        'MEMBER["World Geodetic System 1984 (G730)"],'
+        'MEMBER["World Geodetic System 1984 (G873)"],'
+        'MEMBER["World Geodetic System 1984 (G1150)"],'
+        'MEMBER["World Geodetic System 1984 (G1674)"],'
+        'MEMBER["World Geodetic System 1984 (G1762)"],'
+        'MEMBER["World Geodetic System 1984 (G2139)"],'
+        'MEMBER["World Geodetic System 1984 (G2296)"],'
+        'ELLIPSOID["WGS 84",6378137,298.257223563,LENGTHUNIT["metre",1]],'
+        'ENSEMBLEACCURACY[2.0]],'
+        'PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],'
+        'CS[ellipsoidal,2],'
+        'AXIS["geodetic latitude (Lat)",north,ORDER[1],'
+        'ANGLEUNIT["degree",0.0174532925199433]],'
+        'AXIS["geodetic longitude (Lon)",east,ORDER[2],'
+        'ANGLEUNIT["degree",0.0174532925199433]],'
+        'USAGE[SCOPE["Horizontal component of 3D system."],AREA["World."],'
+        'BBOX[-90,-180,90,180]],ID["EPSG",4326]]'
+    ),
+    "proj4": "+proj=longlat +datum=WGS84 +no_defs",
+    "srsid": "3452",
+    "srid": "4326",
+    "authid": "EPSG:4326",
+    "description": "WGS 84",
+    "projectionacronym": "longlat",
+    "ellipsoidacronym": "EPSG:7030",
+    "geographicflag": "true",
 }
 
 QGIS_VERSION = "3.28.0-Firenze"
 
+# Shortest layer id QGIS 3.42 accepts. Anything shorter is silently replaced by
+# a generated UUID, which orphans the layer-tree entry pointing at it. Measured
+# against 3.42.1-Münster: an 11-character id binds, a 10-character one does not.
+MIN_LAYER_ID_LENGTH = 11
+
 # Navigation group skipped entirely: it re-lists layers that already appear
 # under their own group, so including it would duplicate them in the tree.
 EXCLUDED_GROUP = "kernkaarten"
+
+# Where a dataset's GeoPackage stem differs from its pmtiles stem. The download
+# archives are named independently of the tile sources.
+GPKG_STEM = {"ref19": "ref23"}
 
 # Hatch geometry, mirroring src/layers/hatch-pattern.ts. `hatch: true` resolves
 # to HATCH_DEFAULTS there -- red on white, NOT the symbolizer's own colour,
@@ -496,12 +565,12 @@ def build_symbol(parent: ET.Element, name: str, symbolizer: dict, uid: str) -> N
 # ---------------------------------------------------------------------------
 
 
-def _spatialrefsys(parent: ET.Element) -> None:
+def _spatialrefsys(parent: ET.Element, crs: dict | None = None) -> None:
+    crs = crs or RD_NEW
     srs = ET.SubElement(parent, "spatialrefsys", {"nativeFormat": "Wkt"})
     for key in ("wkt", "proj4", "srsid", "srid", "authid", "description",
-                "projectionacronym", "ellipsoidacronym"):
-        ET.SubElement(srs, key).text = RD_NEW[key]
-    ET.SubElement(srs, "geographicflag").text = "false"
+                "projectionacronym", "ellipsoidacronym", "geographicflag"):
+        ET.SubElement(srs, key).text = crs[key]
 
 
 def build_renderer(parent: ET.Element, layer: dict, gpkg: GeoPackage, layer_id: str) -> int:
@@ -673,6 +742,17 @@ def source_basename(source: str) -> str:
     return urlparse(source).path.rsplit("/", 1)[-1]
 
 
+def gpkg_name_for(pmtiles_basename: str) -> str:
+    """The GeoPackage a pmtiles source's data ships as.
+
+    Usually the same stem, but the download archives are named independently of
+    the tile sources: the 2023 reference is published as `ref23` while its map
+    layer is still served from `ref19.pmtiles`.
+    """
+    stem = pmtiles_basename.removesuffix(".pmtiles")
+    return GPKG_STEM.get(stem, stem) + ".gpkg"
+
+
 def build_project(
     archive: str, year: str, layers: list[dict], gpkgs: dict[str, GeoPackage],
     navigation: list, verbose: bool,
@@ -687,6 +767,18 @@ def build_project(
     project_crs = ET.SubElement(root, "projectCrs")
     _spatialrefsys(project_crs)
 
+    # Answer the "Select Transformation" question before it is asked. QGIS
+    # prompts when it must reproject and the project names no operation for the
+    # pair; recording the RD New -> WGS 84 pipeline here settles it.
+    transform_context = ET.SubElement(root, "transformContext")
+    src_dest = ET.SubElement(
+        transform_context,
+        "srcDest",
+        {"coordinateOp": RD_NEW_TO_WGS84_OP, "allowFallback": "1"},
+    )
+    _spatialrefsys(ET.SubElement(src_dest, "src"))
+    _spatialrefsys(ET.SubElement(src_dest, "dest"), WGS84)
+
     tree_root = ET.SubElement(root, "layer-tree-group")
     tree_custom = ET.SubElement(tree_root, "customproperties")
     ET.SubElement(tree_custom, "Option", {"type": "Map"})
@@ -699,13 +791,18 @@ def build_project(
 
     for layer in layers:
         basename = source_basename(layer.get("source", ""))
-        gpkg = gpkgs.get(basename.replace(".pmtiles", ".gpkg"))
+        gpkg = gpkgs.get(gpkg_name_for(basename))
         if gpkg is None:
             continue
         if not (layer.get("geostyler") or {}).get("rules"):
             skipped.append(f"{layer['id']} ({layer.get('name', '').strip()}): no style")
             continue
-        layer_id = f"{archive}_{layer['id']}"
+        # QGIS 3.42 discards a layer id shorter than 11 characters and mints a
+        # UUID in its place, orphaning every layer-tree-layer that references
+        # it: the layers then show greyed out with an inert checkbox and draw
+        # nothing. The prefix clears that bar however short the archive name is
+        # -- `LNGA_394` (8) was the shortest and worst affected.
+        layer_id = f"qgis_{archive}_{layer['id']}"
         # A layer missing one class draws a misleading map, so a single
         # unresolvable field drops the whole layer rather than the rule.
         try:
@@ -720,7 +817,9 @@ def build_project(
     for layer_id, layer, gpkg in pending:
         build_maplayer(projectlayers, layer, gpkg, layer_id)
 
-    by_config_id = {lid.split("_", 1)[1]: lid for lid in kept}
+    # Carried from `pending` rather than parsed back out of the layer id: the
+    # id's internal structure is QGIS's business, not a lookup key of ours.
+    by_config_id = {str(layer["id"]): lid for lid, layer, _ in pending}
     pruned = prune_tree(navigation, by_config_id) or []
     # Rewrite leaf ids from config id to project layer id.
     def relabel(nodes):
@@ -777,6 +876,20 @@ def build_project(
 
     ET.SubElement(tree_root, "custom-order", {"enabled": "0"})
 
+    # The map canvas, and the reason the CRS prompt appeared without it: QGIS
+    # takes the canvas CRS from <destinationsrs>, not from <projectCrs>. With no
+    # <mapcanvas> at all the canvas falls back to EPSG:4326, every 28992 layer
+    # needs reprojecting, and opening the project raises "Select Transformation".
+    canvas = ET.SubElement(root, "mapcanvas", {"name": "theMapCanvas",
+                                               "annotationsVisible": "1"})
+    ET.SubElement(canvas, "units").text = "meters"
+    extent = ET.SubElement(canvas, "extent")
+    for key, value in RD_NEW_EXTENT.items():
+        ET.SubElement(extent, key).text = value
+    ET.SubElement(canvas, "rotation").text = "0"
+    _spatialrefsys(ET.SubElement(canvas, "destinationsrs"))
+    ET.SubElement(canvas, "rendermaptile").text = "0"
+
     properties = ET.SubElement(root, "properties")
 
     # Relative paths. Without this QGIS resolves ./x.gpkg against the working
@@ -784,15 +897,24 @@ def build_project(
     paths = ET.SubElement(properties, "Paths")
     ET.SubElement(paths, "Absolute", {"type": "bool"}).text = "false"
 
-    # The project CRS. `<projectCrs>` alone does NOT set it -- QGIS reads the
-    # project's own CRS from here, and without this block the project opens in
-    # the default EPSG:4326 and every 28992 layer has to be reprojected, which
-    # is what raises the "Select Transformation" dialog on load.
-    srs = ET.SubElement(properties, "SpatialRefSys")
-    ET.SubElement(srs, "ProjectCRSProj4String").text = RD_NEW["proj4"]
-    ET.SubElement(srs, "ProjectCRSID", {"type": "int"}).text = RD_NEW["srsid"]
-    ET.SubElement(srs, "ProjectCrs").text = RD_NEW["authid"]
+    # Distances and areas in metres rather than degrees, matching the CRS.
+    measure = ET.SubElement(properties, "Measure")
+    ET.SubElement(measure, "Ellipsoid", {"type": "QString"}).text = \
+        RD_NEW["ellipsoidacronym"]
+    measurement = ET.SubElement(properties, "Measurement")
+    ET.SubElement(measurement, "AreaUnits", {"type": "QString"}).text = "m2"
+    ET.SubElement(measurement, "DistanceUnits", {"type": "QString"}).text = "meters"
+
+    # Reprojection on. QGIS writes ProjectCRSID here and leaves the two text
+    # elements EMPTY -- the CRS itself travels in <projectCrs> and the canvas's
+    # <destinationsrs> above, so filling these in would not help and would differ
+    # from what QGIS produces.
     ET.SubElement(properties, "ProjectionsEnabled", {"type": "int"}).text = "1"
+    srs = ET.SubElement(properties, "SpatialRefSys")
+    ET.SubElement(srs, "ProjectCRSID", {"type": "int"}).text = RD_NEW["srsid"]
+    ET.SubElement(ET.SubElement(srs, "ProjectCRSProj4String"), "text")
+    ET.SubElement(ET.SubElement(srs, "ProjectCrs"), "text")
+    ET.SubElement(srs, "ProjectionsEnabled", {"type": "int"}).text = "1"
 
     if verbose and skipped:
         for line in skipped:
@@ -805,6 +927,23 @@ def validate(tree: ET.ElementTree) -> None:
     """Catch the mistakes that yield a project which opens but draws nothing."""
     root = tree.getroot()
     layer_ids = {e.text for e in root.iterfind("./projectlayers/maplayer/id")}
+
+    # An empty project opens fine and shows nothing -- the shape a stem rename
+    # produces when the GeoPackage no longer matches what the config names.
+    if not layer_ids:
+        raise AssertionError("project has no layers")
+
+    # Below 11 characters QGIS 3.42 replaces the id with a UUID on load, and the
+    # tree node referencing it then binds to nothing: the project opens without
+    # an error and draws nothing at all. Internally-consistent ids are not
+    # enough, which is why every other check here passed while seven of eight
+    # archives were unusable.
+    short = {i for i in layer_ids if len(i) < MIN_LAYER_ID_LENGTH}
+    if short:
+        raise AssertionError(
+            f"layer ids shorter than {MIN_LAYER_ID_LENGTH} chars, which QGIS "
+            f"discards on load: {sorted(short)}"
+        )
 
     # A layer defined but absent from the tree cannot be switched on -- it is
     # invisible in the layer panel, so it may as well not ship.
@@ -843,17 +982,36 @@ def validate(tree: ET.ElementTree) -> None:
     if absolute != "false":
         raise AssertionError("Paths/Absolute must be false for relative datasources")
 
-    # The project's own CRS, which is separate from the per-layer one. Missing,
-    # the project opens in EPSG:4326 and QGIS prompts for a transformation.
-    if root.findtext("./properties/SpatialRefSys/ProjectCrs") != RD_NEW["authid"]:
-        raise AssertionError("properties/SpatialRefSys does not set the project CRS")
+    # The canvas CRS. This, not <projectCrs>, is what QGIS opens the canvas in;
+    # without it the canvas is EPSG:4326, every layer needs reprojecting, and
+    # QGIS raises the "Select Transformation" dialog on load.
+    canvas_crs = root.findtext("./mapcanvas/destinationsrs/spatialrefsys/authid")
+    if canvas_crs != RD_NEW["authid"]:
+        raise AssertionError(f"mapcanvas destination CRS is {canvas_crs!r}")
+
+    # The transformation the dialog would otherwise ask the user to pick.
+    src_dest = root.find("./transformContext/srcDest")
+    if src_dest is None:
+        raise AssertionError("no transformContext: QGIS will prompt for a transformation")
+    if not (src_dest.get("coordinateOp") or "").startswith("+proj=pipeline"):
+        raise AssertionError("transformContext names no coordinate operation")
+    pair = (src_dest.findtext("./src/spatialrefsys/authid"),
+            src_dest.findtext("./dest/spatialrefsys/authid"))
+    if pair != (RD_NEW["authid"], WGS84["authid"]):
+        raise AssertionError(f"transformContext is for {pair}, not RD New -> WGS 84")
+
     if root.findtext("./properties/ProjectionsEnabled") != "1":
         raise AssertionError("ProjectionsEnabled must be 1")
+    # QGIS writes the id here and leaves ProjectCrs itself empty; the CRS travels
+    # in <projectCrs> and the canvas's <destinationsrs>.
+    if root.findtext("./properties/SpatialRefSys/ProjectCRSID") != RD_NEW["srsid"]:
+        raise AssertionError("properties/SpatialRefSys does not set the project CRS id")
 
     # Every CRS block must carry the WKT as well as the authid. Without the WKT
     # QGIS falls back to <srsid>, a row id in the reader's own srs.db, and the
     # project can open in a different CRS than the one it names.
     blocks = list(root.iterfind("./projectCrs/spatialrefsys"))
+    blocks += list(root.iterfind("./mapcanvas/destinationsrs/spatialrefsys"))
     blocks += list(root.iterfind("./projectlayers/maplayer/srs/spatialrefsys"))
     if not blocks:
         raise AssertionError("no CRS declared")
