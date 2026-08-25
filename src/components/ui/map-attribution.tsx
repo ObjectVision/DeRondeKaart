@@ -151,8 +151,12 @@ export function MapAttribution(): JSX.Element {
   const [open, setOpen] = createSignal(false);
   const [tab, setTab] = createSignal<TabId>("handleiding");
 
+  // A fragment, not a positioning wrapper: this sits in the chrome toolbar row
+  // beside the share button, so laying itself out is the caller's job. The
+  // dialog is portalled and contributes nothing here; only the trigger pill
+  // below takes space.
   return (
-    <div class="flex flex-col items-end gap-2">
+    <>
       <DialogRoot open={open()} onOpenChange={setOpen}>
         {/* Wider than the other chrome dialogs: the Handleiding lays its three
             sections out two-up, which needs the room. 64rem is the dialog
@@ -456,9 +460,9 @@ export function MapAttribution(): JSX.Element {
           aria-label="Kaartinformatie"
           aria-expanded={open()}
         >
-          <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
+          <Icon name="help" size={chromeIconSize()} color={chromeIconColor()} />
         </Button>
       </div>
-    </div>
+    </>
   );
 }
