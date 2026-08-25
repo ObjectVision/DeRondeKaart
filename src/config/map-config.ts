@@ -127,6 +127,18 @@ export interface MapConfig {
    */
   pickLayer?: string;
   /**
+   * Pick layer for the RIGHT map, when it must differ from the left one.
+   *
+   * Needed only where the two maps show different datasets and the pick layer
+   * is one of them — the `2025_2026` variant, whose left map is 2025 and right
+   * map 2026. Without this both maps would answer clicks from the same layer,
+   * so the right map would display one year and report the other's attributes:
+   * wrong, and silent about it.
+   *
+   * Omitted everywhere else, and then `pickLayer` serves both maps as before.
+   */
+  pickLayerRight?: string;
+  /**
    * Whether a Google Street View panel opens on map click. Defaults to `false`
    * when omitted; set to `true` in map.json to enable it.
    */
@@ -542,6 +554,15 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     console.warn(`map.json: invalid "pickLayer" ${JSON.stringify(data.pickLayer)}; ignoring`);
   }
 
+  let pickLayerRight: string | undefined;
+  if (typeof data.pickLayerRight === "string" && data.pickLayerRight.length > 0) {
+    pickLayerRight = data.pickLayerRight;
+  } else if (data.pickLayerRight !== undefined) {
+    console.warn(
+      `map.json: invalid "pickLayerRight" ${JSON.stringify(data.pickLayerRight)}; ignoring`,
+    );
+  }
+
   const validateBool = (raw: unknown, key: string, fallback: boolean): boolean => {
     if (typeof raw === "boolean") return raw;
     if (raw !== undefined) {
@@ -642,6 +663,7 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     variants: variants ?? undefined,
     studyarea,
     pickLayer,
+    pickLayerRight,
     streetview,
     searchbar,
     navigation,

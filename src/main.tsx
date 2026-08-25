@@ -47,6 +47,7 @@ async function bootstrap() {
         initialViewState={toInitialViewState(mapConfig)}
         studyAreaId={mapConfig.studyarea}
         pickLayerId={mapConfig.pickLayer}
+        pickLayerRightId={mapConfig.pickLayerRight}
         streetviewEnabled={mapConfig.streetview ?? false}
         searchbarEnabled={mapConfig.searchbar}
         navigationEnabled={mapConfig.navigation}

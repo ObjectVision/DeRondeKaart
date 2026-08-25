@@ -1,0 +1,2140 @@
+[
+  {
+    "label": "Kernkaarten",
+    "icon": "LN.svg",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Laagste nationale kosten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "357",
+            "label": "Laagste nationale kosten <20% kostenverschil (LN)",
+            "a": false,
+            "b": false,
+            "left": "357",
+            "right": "357_2026"
+          },
+          {
+            "id": "207",
+            "label": "Laagste nationale kosten zonder kostenverschil(LN)",
+            "a": false,
+            "b": false,
+            "left": "207",
+            "right": "207_2026"
+          },
+          {
+            "id": "394",
+            "label": "Laagste nationale kosten zonder KN gas (LNGA08)",
+            "a": false,
+            "b": false,
+            "left": "394",
+            "right": "394_2026"
+          }
+        ]
+      },
+      {
+        "label": "Energieverbruik LN",
+        "expanded": false,
+        "children": [
+          {
+            "id": "226",
+            "label": "Energieverbruik (LN H01)",
+            "a": false,
+            "b": false,
+            "left": "226",
+            "right": "226_2026"
+          },
+          {
+            "id": "227",
+            "label": "Energieverbruik ruimteverwarming (LN H02)",
+            "a": false,
+            "b": false,
+            "left": "227",
+            "right": "227_2026"
+          },
+          {
+            "id": "252",
+            "label": "Energieverbruik warm tapwater (LN H03)",
+            "a": false,
+            "b": false,
+            "left": "252",
+            "right": "252_2026"
+          }
+        ]
+      },
+      {
+        "label": "Pand",
+        "expanded": false,
+        "children": [
+          {
+            "id": "314",
+            "label": "Pand energielabel totaal (BG)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Referentie 2030",
+        "expanded": false,
+        "children": [
+          {
+            "id": "251",
+            "label": "CO₂-uitstoot (R30 H15)",
+            "a": false,
+            "b": false,
+            "left": "251",
+            "right": "251_2026"
+          },
+          {
+            "id": "261",
+            "label": "Energielevering aardgas (R30 H09)",
+            "a": false,
+            "b": false,
+            "left": "261",
+            "right": "261_2026"
+          },
+          {
+            "id": "248",
+            "label": "Energielevering elektriciteit (R30 H11)",
+            "a": false,
+            "b": false,
+            "left": "248",
+            "right": "248_2026"
+          }
+        ]
+      },
+      {
+        "label": "Overig",
+        "expanded": false,
+        "children": [
+          {
+            "id": "230",
+            "label": "Aantal woningequivalenten (BG)",
+            "a": false,
+            "b": false,
+            "left": "230",
+            "right": "230_2026"
+          },
+          {
+            "id": "210",
+            "label": "Midden temperatuur warmtebronnen (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "464",
+            "label": "Warmtenetten strategievariant s2a (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "466",
+            "label": "Warmtenetten strategievariant s2d (BG)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Gevoeligheidsanalyses",
+        "expanded": false,
+        "children": [
+          {
+            "id": "387",
+            "label": "Laagste nationale kosten (LNGA01)",
+            "a": false,
+            "b": false,
+            "left": "387",
+            "right": "387_2026"
+          },
+          {
+            "id": "388",
+            "label": "Laagste nationale kosten (LNGA02)",
+            "a": false,
+            "b": false,
+            "left": "388",
+            "right": "388_2026"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Laagste nationale kosten",
+    "icon": "LN.svg",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Nationale kosten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "357",
+            "label": "Laagste nationale kosten start (LN)",
+            "a": false,
+            "b": false,
+            "left": "357",
+            "right": "357_2026"
+          },
+          {
+            "id": "207",
+            "label": "Strategie met laagste nationale kosten (LN)",
+            "a": false,
+            "b": false,
+            "left": "207",
+            "right": "207_2026"
+          },
+          {
+            "id": "356",
+            "label": "Strategie varianten (LN)",
+            "a": false,
+            "b": false,
+            "left": "356",
+            "right": "356_2026"
+          },
+          {
+            "id": "212",
+            "label": "Nationale kosten per ton CO2 reductie (LN H17)",
+            "a": false,
+            "b": false,
+            "left": "212",
+            "right": "212_2026"
+          },
+          {
+            "id": "305",
+            "label": "Nationale kosten per woningequivalent (LN H18)",
+            "a": false,
+            "b": false,
+            "left": "305",
+            "right": "305_2026"
+          },
+          {
+            "id": "300",
+            "label": "Nationale meerkosten (LN H16)",
+            "a": false,
+            "b": false,
+            "left": "300",
+            "right": "300_2026"
+          }
+        ]
+      },
+      {
+        "label": "Verbruik totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "226",
+            "label": "Energieverbruik (LN H01)",
+            "a": false,
+            "b": false,
+            "left": "226",
+            "right": "226_2026"
+          }
+        ]
+      },
+      {
+        "label": "Verbruikscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "227",
+            "label": "Ruimteverwarming (LN H02)",
+            "a": false,
+            "b": false,
+            "left": "227",
+            "right": "227_2026"
+          },
+          {
+            "id": "252",
+            "label": "Warm tapwater (LN H03)",
+            "a": false,
+            "b": false,
+            "left": "252",
+            "right": "252_2026"
+          },
+          {
+            "id": "253",
+            "label": "Ventilatie (LN H04)",
+            "a": false,
+            "b": false,
+            "left": "253",
+            "right": "253_2026"
+          },
+          {
+            "id": "254",
+            "label": "Koude (LN H05)",
+            "a": false,
+            "b": false,
+            "left": "254",
+            "right": "254_2026"
+          },
+          {
+            "id": "255",
+            "label": "Apparaten en licht (LN H06)",
+            "a": false,
+            "b": false,
+            "left": "255",
+            "right": "255_2026"
+          },
+          {
+            "id": "256",
+            "label": "Warmteverbruik (LN H07)",
+            "a": false,
+            "b": false,
+            "left": "256",
+            "right": "256_2026"
+          }
+        ]
+      },
+      {
+        "label": "Levering totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "275",
+            "label": "Energielevering (LN H08)",
+            "a": false,
+            "b": false,
+            "left": "275",
+            "right": "275_2026"
+          }
+        ]
+      },
+      {
+        "label": "Leveringscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "257",
+            "label": "Duurzaam gas (LN H10)",
+            "a": false,
+            "b": false,
+            "left": "257",
+            "right": "257_2026"
+          },
+          {
+            "id": "258",
+            "label": "Electriciteit (LN H11)",
+            "a": false,
+            "b": false,
+            "left": "258",
+            "right": "258_2026"
+          },
+          {
+            "id": "259",
+            "label": "MT-warmtebron (LN H12)",
+            "a": false,
+            "b": false,
+            "left": "259",
+            "right": "259_2026"
+          },
+          {
+            "id": "260",
+            "label": "LT-warmtebron (LN H13)",
+            "a": false,
+            "b": false,
+            "left": "260",
+            "right": "260_2026"
+          },
+          {
+            "id": "290",
+            "label": "Overig (LN H14)",
+            "a": false,
+            "b": false,
+            "left": "290",
+            "right": "290_2026"
+          }
+        ]
+      },
+      {
+        "label": "Overig",
+        "expanded": false,
+        "children": [
+          {
+            "id": "355",
+            "label": "Toekenning klimaat neutraal gas (LN H20)",
+            "a": false,
+            "b": false,
+            "left": "355",
+            "right": "355_2026"
+          },
+          {
+            "id": "295",
+            "label": "CO2-uitstoot (LN H15)",
+            "a": false,
+            "b": false,
+            "left": "295",
+            "right": "295_2026"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Gevoeligheidsanalyses",
+    "icon": "GLN.svg",
+    "expanded": false,
+    "children": [
+      {
+        "label": "GA01",
+        "expanded": false,
+        "children": [
+          {
+            "id": "420",
+            "label": "Energielevering elektriciteit (LNGA01 H11)",
+            "a": false,
+            "b": false,
+            "left": "420",
+            "right": "420_2026"
+          },
+          {
+            "id": "409",
+            "label": "Energielevering klimaatneutraal gas (LNGA01 H10)",
+            "a": false,
+            "b": false,
+            "left": "409",
+            "right": "409_2026"
+          },
+          {
+            "id": "442",
+            "label": "Energielevering LT-warmtebron (LNGA01 H13)",
+            "a": false,
+            "b": false,
+            "left": "442",
+            "right": "442_2026"
+          },
+          {
+            "id": "431",
+            "label": "Energielevering MT-warmtebron (LNGA01 H12)",
+            "a": false,
+            "b": false,
+            "left": "431",
+            "right": "431_2026"
+          },
+          {
+            "id": "453",
+            "label": "Energielevering overig (LNGA01 H14)",
+            "a": false,
+            "b": false,
+            "left": "453",
+            "right": "453_2026"
+          },
+          {
+            "id": "398",
+            "label": "Energieverbruik (LNGA01 H01)",
+            "a": false,
+            "b": false,
+            "left": "398",
+            "right": "398_2026"
+          },
+          {
+            "id": "376",
+            "label": "Laagste nationale kosten <20% verschil (LNGA01)",
+            "a": false,
+            "b": false,
+            "left": "376",
+            "right": "376_2026"
+          },
+          {
+            "id": "387",
+            "label": "Laagste nationale kosten (LNGA01)",
+            "a": false,
+            "b": false,
+            "left": "387",
+            "right": "387_2026"
+          },
+          {
+            "id": "362",
+            "label": "Strategie varianten (LNGA01)",
+            "a": false,
+            "b": false,
+            "left": "362",
+            "right": "362_2026"
+          }
+        ]
+      },
+      {
+        "label": "GA02",
+        "expanded": false,
+        "children": [
+          {
+            "id": "421",
+            "label": "Energielevering elektriciteit (LNGA02 H11)",
+            "a": false,
+            "b": false,
+            "left": "421",
+            "right": "421_2026"
+          },
+          {
+            "id": "410",
+            "label": "Energielevering klimaatneutraal gas (LNGA02 H10)",
+            "a": false,
+            "b": false,
+            "left": "410",
+            "right": "410_2026"
+          },
+          {
+            "id": "443",
+            "label": "Energielevering LT-warmtebron (LNGA02 H13)",
+            "a": false,
+            "b": false,
+            "left": "443",
+            "right": "443_2026"
+          },
+          {
+            "id": "432",
+            "label": "Energielevering MT-warmtebron (LNGA02 H12)",
+            "a": false,
+            "b": false,
+            "left": "432",
+            "right": "432_2026"
+          },
+          {
+            "id": "454",
+            "label": "Energielevering overig (LNGA02 H14)",
+            "a": false,
+            "b": false,
+            "left": "454",
+            "right": "454_2026"
+          },
+          {
+            "id": "399",
+            "label": "Energieverbruik (LNGA02 H01)",
+            "a": false,
+            "b": false,
+            "left": "399",
+            "right": "399_2026"
+          },
+          {
+            "id": "377",
+            "label": "Laagste nationale kosten <20% verschil (LNGA02)",
+            "a": false,
+            "b": false,
+            "left": "377",
+            "right": "377_2026"
+          },
+          {
+            "id": "388",
+            "label": "Laagste nationale kosten (LNGA02)",
+            "a": false,
+            "b": false,
+            "left": "388",
+            "right": "388_2026"
+          },
+          {
+            "id": "363",
+            "label": "Strategie varianten (LNGA02)",
+            "a": false,
+            "b": false,
+            "left": "363",
+            "right": "363_2026"
+          }
+        ]
+      },
+      {
+        "label": "GA03",
+        "expanded": false,
+        "children": [
+          {
+            "id": "422",
+            "label": "Energielevering elektriciteit (LNGA03 H11)",
+            "a": false,
+            "b": false,
+            "left": "422",
+            "right": "422_2026"
+          },
+          {
+            "id": "411",
+            "label": "Energielevering klimaatneutraal gas (LNGA03 H10)",
+            "a": false,
+            "b": false,
+            "left": "411",
+            "right": "411_2026"
+          },
+          {
+            "id": "445",
+            "label": "Energielevering LT-warmtebron (LNGA03 H13)",
+            "a": false,
+            "b": false,
+            "left": "445",
+            "right": "445_2026"
+          },
+          {
+            "id": "433",
+            "label": "Energielevering MT-warmtebron (LNGA03 H12)",
+            "a": false,
+            "b": false,
+            "left": "433",
+            "right": "433_2026"
+          },
+          {
+            "id": "455",
+            "label": "Energielevering overig (LNGA03 H14)",
+            "a": false,
+            "b": false,
+            "left": "455",
+            "right": "455_2026"
+          },
+          {
+            "id": "400",
+            "label": "Energieverbruik (LNGA03 H01)",
+            "a": false,
+            "b": false,
+            "left": "400",
+            "right": "400_2026"
+          },
+          {
+            "id": "378",
+            "label": "Laagste nationale kosten <20% verschil (LNGA03)",
+            "a": false,
+            "b": false,
+            "left": "378",
+            "right": "378_2026"
+          },
+          {
+            "id": "389",
+            "label": "Laagste nationale kosten (LNGA03)",
+            "a": false,
+            "b": false,
+            "left": "389",
+            "right": "389_2026"
+          },
+          {
+            "id": "364",
+            "label": "Strategie varianten (LNGA03)",
+            "a": false,
+            "b": false,
+            "left": "364",
+            "right": "364_2026"
+          }
+        ]
+      },
+      {
+        "label": "GA04",
+        "expanded": false,
+        "children": [
+          {
+            "id": "423",
+            "label": "Energielevering elektriciteit (LNGA04 H11)",
+            "a": false,
+            "b": false,
+            "left": "423",
+            "right": "423_2026"
+          },
+          {
+            "id": "412",
+            "label": "Energielevering klimaatneutraal gas (LNGA04 H10)",
+            "a": false,
+            "b": false,
+            "left": "412",
+            "right": "412_2026"
+          },
+          {
+            "id": "446",
+            "label": "Energielevering LT-warmtebron (LNGA04 H13)",
+            "a": false,
+            "b": false,
+            "left": "446",
+            "right": "446_2026"
+          },
+          {
+            "id": "434",
+            "label": "Energielevering MT-warmtebron (LNGA04 H12)",
+            "a": false,
+            "b": false,
+            "left": "434",
+            "right": "434_2026"
+          },
+          {
+            "id": "456",
+            "label": "Energielevering overig (LNGA04 H14)",
+            "a": false,
+            "b": false,
+            "left": "456",
+            "right": "456_2026"
+          },
+          {
+            "id": "401",
+            "label": "Energieverbruik (LNGA04 H01)",
+            "a": false,
+            "b": false,
+            "left": "401",
+            "right": "401_2026"
+          },
+          {
+            "id": "379",
+            "label": "Laagste nationale kosten <20% verschil (LNGA04)",
+            "a": false,
+            "b": false,
+            "left": "379",
+            "right": "379_2026"
+          },
+          {
+            "id": "390",
+            "label": "Laagste nationale kosten (LNGA04)",
+            "a": false,
+            "b": false,
+            "left": "390",
+            "right": "390_2026"
+          },
+          {
+            "id": "365",
+            "label": "Strategie varianten (LNGA04)",
+            "a": false,
+            "b": false,
+            "left": "365",
+            "right": "365_2026"
+          }
+        ]
+      },
+      {
+        "label": "GA05",
+        "expanded": false,
+        "children": [
+          {
+            "id": "424",
+            "label": "Energielevering elektriciteit (LNGA05 H11)",
+            "a": false,
+            "b": false,
+            "left": "424",
+            "right": "424_2026"
+          },
+          {
+            "id": "413",
+            "label": "Energielevering klimaatneutraal gas (LNGA05 H10)",
+            "a": false,
+            "b": false,
+            "left": "413",
+            "right": "413_2026"
+          },
+          {
+            "id": "444",
+            "label": "Energielevering LT-warmtebron (LNGA05 H13)",
+            "a": false,
+            "b": false,
+            "left": "444",
+            "right": "444_2026"
+          },
+          {
+            "id": "435",
+            "label": "Energielevering MT-warmtebron (LNGA05 H12)",
+            "a": false,
+            "b": false,
+            "left": "435",
+            "right": "435_2026"
+          },
+          {
+            "id": "457",
+            "label": "Energielevering overig (LNGA05 H14)",
+            "a": false,
+            "b": false,
+            "left": "457",
+            "right": "457_2026"
+          },
+          {
+            "id": "402",
+            "label": "Energieverbruik (LNGA05 H01)",
+            "a": false,
+            "b": false,
+            "left": "402",
+            "right": "402_2026"
+          },
+          {
+            "id": "380",
+            "label": "Laagste nationale kosten <20% verschil (LNGA05)",
+            "a": false,
+            "b": false,
+            "left": "380",
+            "right": "380_2026"
+          },
+          {
+            "id": "391",
+            "label": "Laagste nationale kosten (LNGA05)",
+            "a": false,
+            "b": false,
+            "left": "391",
+            "right": "391_2026"
+          },
+          {
+            "id": "366",
+            "label": "Strategie varianten (LNGA05)",
+            "a": false,
+            "b": false,
+            "left": "366",
+            "right": "366_2026"
+          }
+        ]
+      },
+      {
+        "label": "GA06",
+        "expanded": false,
+        "children": [
+          {
+            "id": "425",
+            "label": "Energielevering elektriciteit (LNGA06 H11)",
+            "a": false,
+            "b": false,
+            "left": "425",
+            "right": "425_2026"
+          },
+          {
+            "id": "414",
+            "label": "Energielevering klimaatneutraal gas (LNGA06 H10)",
+            "a": false,
+            "b": false,
+            "left": "414",
+            "right": "414_2026"
+          },
+          {
+            "id": "447",
+            "label": "Energielevering LT-warmtebron (LNGA06 H13)",
+            "a": false,
+            "b": false,
+            "left": "447",
+            "right": "447_2026"
+          },
+          {
+            "id": "436",
+            "label": "Energielevering MT-warmtebron (LNGA06 H12)",
+            "a": false,
+            "b": false,
+            "left": "436",
+            "right": "436_2026"
+          },
+          {
+            "id": "458",
+            "label": "Energielevering overig (LNGA06 H14)",
+            "a": false,
+            "b": false,
+            "left": "458",
+            "right": "458_2026"
+          },
+          {
+            "id": "403",
+            "label": "Energieverbruik (LNGA06 H01)",
+            "a": false,
+            "b": false,
+            "left": "403",
+            "right": "403_2026"
+          },
+          {
+            "id": "381",
+            "label": "Laagste nationale kosten <20% verschil (LNGA06)",
+            "a": false,
+            "b": false,
+            "left": "381",
+            "right": "381_2026"
+          },
+          {
+            "id": "392",
+            "label": "Laagste nationale kosten (LNGA06)",
+            "a": false,
+            "b": false,
+            "left": "392",
+            "right": "392_2026"
+          },
+          {
+            "id": "367",
+            "label": "Strategie varianten (LNGA06)",
+            "a": false,
+            "b": false,
+            "left": "367",
+            "right": "367_2026"
+          }
+        ]
+      },
+      {
+        "label": "GA07",
+        "expanded": false,
+        "children": [
+          {
+            "id": "426",
+            "label": "Energielevering elektriciteit (LNGA07 H11)",
+            "a": false,
+            "b": false,
+            "left": "426",
+            "right": "426_2026"
+          },
+          {
+            "id": "415",
+            "label": "Energielevering klimaatneutraal gas (LNGA07 H10)",
+            "a": false,
+            "b": false,
+            "left": "415",
+            "right": "415_2026"
+          },
+          {
+            "id": "448",
+            "label": "Energielevering LT-warmtebron (LNGA07 H13)",
+            "a": false,
+            "b": false,
+            "left": "448",
+            "right": "448_2026"
+          },
+          {
+            "id": "437",
+            "label": "Energielevering MT-warmtebron (LNGA07 H12)",
+            "a": false,
+            "b": false,
+            "left": "437",
+            "right": "437_2026"
+          },
+          {
+            "id": "459",
+            "label": "Energielevering overig (LNGA07 H14)",
+            "a": false,
+            "b": false,
+            "left": "459",
+            "right": "459_2026"
+          },
+          {
+            "id": "404",
+            "label": "Energieverbruik (LNGA07 H01)",
+            "a": false,
+            "b": false,
+            "left": "404",
+            "right": "404_2026"
+          },
+          {
+            "id": "382",
+            "label": "Laagste nationale kosten <20% verschil (LNGA07)",
+            "a": false,
+            "b": false,
+            "left": "382",
+            "right": "382_2026"
+          },
+          {
+            "id": "393",
+            "label": "Laagste nationale kosten (LNGA07)",
+            "a": false,
+            "b": false,
+            "left": "393",
+            "right": "393_2026"
+          },
+          {
+            "id": "368",
+            "label": "Strategie varianten (LNGA07)",
+            "a": false,
+            "b": false,
+            "left": "368",
+            "right": "368_2026"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Strategie 1: eWP",
+    "icon": "S1.svg",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Nationale kosten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "350",
+            "label": "Strategie varianten (S1)",
+            "a": false,
+            "b": false,
+            "left": "350",
+            "right": "350_2026"
+          },
+          {
+            "id": "279",
+            "label": "Nationale meerkosten (S1 H16)",
+            "a": false,
+            "b": false,
+            "left": "279",
+            "right": "279_2026"
+          },
+          {
+            "id": "143",
+            "label": "Nationale kosten per ton CO2 reductie (S1 H17)",
+            "a": false,
+            "b": false,
+            "left": "143",
+            "right": "143_2026"
+          },
+          {
+            "id": "280",
+            "label": "Nationale kosten per woningequivalent (S1 H18)",
+            "a": false,
+            "b": false,
+            "left": "280",
+            "right": "280_2026"
+          }
+        ]
+      },
+      {
+        "label": "Verbruik totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "148",
+            "label": "Energieverbruik (S1 H01)",
+            "a": false,
+            "b": false,
+            "left": "148",
+            "right": "148_2026"
+          }
+        ]
+      },
+      {
+        "label": "Verbruikscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "157",
+            "label": "Ruimteverwarming (S1 H02)",
+            "a": false,
+            "b": false,
+            "left": "157",
+            "right": "157_2026"
+          },
+          {
+            "id": "268",
+            "label": "Warm tapwater (S1 H03)",
+            "a": false,
+            "b": false,
+            "left": "268",
+            "right": "268_2026"
+          },
+          {
+            "id": "159",
+            "label": "Ventilatie (S1 H04)",
+            "a": false,
+            "b": false,
+            "left": "159",
+            "right": "159_2026"
+          },
+          {
+            "id": "160",
+            "label": "Koude (S1 H05)",
+            "a": false,
+            "b": false,
+            "left": "160",
+            "right": "160_2026"
+          },
+          {
+            "id": "269",
+            "label": "Apparaten en licht (S1 H06)",
+            "a": false,
+            "b": false,
+            "left": "269",
+            "right": "269_2026"
+          },
+          {
+            "id": "162",
+            "label": "Warmteverbruik (S1 H07)",
+            "a": false,
+            "b": false,
+            "left": "162",
+            "right": "162_2026"
+          }
+        ]
+      },
+      {
+        "label": "Levering totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "270",
+            "label": "Energielevering (S1 H08)",
+            "a": false,
+            "b": false,
+            "left": "270",
+            "right": "270_2026"
+          }
+        ]
+      },
+      {
+        "label": "Leveringscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "163",
+            "label": "Duurzaam gas (S1 H10)",
+            "a": false,
+            "b": false,
+            "left": "163",
+            "right": "163_2026"
+          },
+          {
+            "id": "277",
+            "label": "Elektriciteit (S1 H11)",
+            "a": false,
+            "b": false,
+            "left": "277",
+            "right": "277_2026"
+          },
+          {
+            "id": "165",
+            "label": "MT-warmtebron (S1 H12)",
+            "a": false,
+            "b": false,
+            "left": "165",
+            "right": "165_2026"
+          },
+          {
+            "id": "166",
+            "label": "LT-warmtebron (S1 H13)",
+            "a": false,
+            "b": false,
+            "left": "166",
+            "right": "166_2026"
+          },
+          {
+            "id": "164",
+            "label": "Overig (S1 H14)",
+            "a": false,
+            "b": false,
+            "left": "164",
+            "right": "164_2026"
+          }
+        ]
+      },
+      {
+        "label": "Overig",
+        "expanded": false,
+        "children": [
+          {
+            "id": "278",
+            "label": "S1 H15: CO2-uitstoot",
+            "a": false,
+            "b": false,
+            "left": "278",
+            "right": "278_2026"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Strategie 2: MT-warmtenet",
+    "icon": "S2.svg",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Nationale kosten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "349",
+            "label": "Strategie varianten (S2)",
+            "a": false,
+            "b": false,
+            "left": "349",
+            "right": "349_2026"
+          },
+          {
+            "id": "296",
+            "label": "Nationale meerkosten (S2 H16)",
+            "a": false,
+            "b": false,
+            "left": "296",
+            "right": "296_2026"
+          },
+          {
+            "id": "144",
+            "label": "Nationale kosten per ton CO2 reductie (S2 H17)",
+            "a": false,
+            "b": false,
+            "left": "144",
+            "right": "144_2026"
+          },
+          {
+            "id": "301",
+            "label": "Nationale kosten per woningequivalent (S2 H18)",
+            "a": false,
+            "b": false,
+            "left": "301",
+            "right": "301_2026"
+          }
+        ]
+      },
+      {
+        "label": "Verbruik totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "153",
+            "label": "Energieverbruik (S2 H01)",
+            "a": false,
+            "b": false,
+            "left": "153",
+            "right": "153_2026"
+          }
+        ]
+      },
+      {
+        "label": "Verbruikscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "167",
+            "label": "Ruimteverwarming (S2 H02)",
+            "a": false,
+            "b": false,
+            "left": "167",
+            "right": "167_2026"
+          },
+          {
+            "id": "168",
+            "label": "Warm tapwater (S2 H03)",
+            "a": false,
+            "b": false,
+            "left": "168",
+            "right": "168_2026"
+          },
+          {
+            "id": "169",
+            "label": "Ventilatie (S2 H04)",
+            "a": false,
+            "b": false,
+            "left": "169",
+            "right": "169_2026"
+          },
+          {
+            "id": "170",
+            "label": "Koude (S2 H05)",
+            "a": false,
+            "b": false,
+            "left": "170",
+            "right": "170_2026"
+          },
+          {
+            "id": "171",
+            "label": "Apparaten en licht (S2 H06)",
+            "a": false,
+            "b": false,
+            "left": "171",
+            "right": "171_2026"
+          },
+          {
+            "id": "172",
+            "label": "Warmteverbruik (S2 H07)",
+            "a": false,
+            "b": false,
+            "left": "172",
+            "right": "172_2026"
+          }
+        ]
+      },
+      {
+        "label": "Levering totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "271",
+            "label": "Energielevering (S2 H08)",
+            "a": false,
+            "b": false,
+            "left": "271",
+            "right": "271_2026"
+          }
+        ]
+      },
+      {
+        "label": "Leveringscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "173",
+            "label": "Duurzaam gas (S2 H10)",
+            "a": false,
+            "b": false,
+            "left": "173",
+            "right": "173_2026"
+          },
+          {
+            "id": "174",
+            "label": "Elektriciteit (S2 H11)",
+            "a": false,
+            "b": false,
+            "left": "174",
+            "right": "174_2026"
+          },
+          {
+            "id": "175",
+            "label": "MT-warmtebron (S2 H12)",
+            "a": false,
+            "b": false,
+            "left": "175",
+            "right": "175_2026"
+          },
+          {
+            "id": "176",
+            "label": "LT-warmtebron (S2 H13)",
+            "a": false,
+            "b": false,
+            "left": "176",
+            "right": "176_2026"
+          },
+          {
+            "id": "286",
+            "label": "Overig (S2 H14)",
+            "a": false,
+            "b": false,
+            "left": "286",
+            "right": "286_2026"
+          }
+        ]
+      },
+      {
+        "label": "Bronnen",
+        "expanded": false,
+        "children": [
+          {
+            "id": "210",
+            "label": "Midden temperatuur warmtebronnen (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "266",
+            "label": "Warmte-koude opslag (BG)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Overig",
+        "expanded": false,
+        "children": [
+          {
+            "id": "291",
+            "label": "S2 H15: CO2-uitstoot",
+            "a": false,
+            "b": false,
+            "left": "291",
+            "right": "291_2026"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Strategie 3: Combi LT-WN & eWP",
+    "icon": "S3.svg",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Nationale kosten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "351",
+            "label": "Strategie varianten (S3)",
+            "a": false,
+            "b": false,
+            "left": "351",
+            "right": "351_2026"
+          },
+          {
+            "id": "297",
+            "label": "Nationale meerkosten (S3 H16)",
+            "a": false,
+            "b": false,
+            "left": "297",
+            "right": "297_2026"
+          },
+          {
+            "id": "145",
+            "label": "Nationale kosten per ton CO2 reductie (S3 H17)",
+            "a": false,
+            "b": false,
+            "left": "145",
+            "right": "145_2026"
+          },
+          {
+            "id": "302",
+            "label": "Nationale kosten per woningequivalent (S3 H18)",
+            "a": false,
+            "b": false,
+            "left": "302",
+            "right": "302_2026"
+          }
+        ]
+      },
+      {
+        "label": "Verbruik totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "154",
+            "label": "Energieverbruik (S3 H01)",
+            "a": false,
+            "b": false,
+            "left": "154",
+            "right": "154_2026"
+          }
+        ]
+      },
+      {
+        "label": "Verbruikscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "177",
+            "label": "Ruimteverwarming (S3 H02)",
+            "a": false,
+            "b": false,
+            "left": "177",
+            "right": "177_2026"
+          },
+          {
+            "id": "178",
+            "label": "Warm tapwater (S3 H03)",
+            "a": false,
+            "b": false,
+            "left": "178",
+            "right": "178_2026"
+          },
+          {
+            "id": "179",
+            "label": "Ventilatie (S3 H04)",
+            "a": false,
+            "b": false,
+            "left": "179",
+            "right": "179_2026"
+          },
+          {
+            "id": "180",
+            "label": "Koude (S2 H05)",
+            "a": false,
+            "b": false,
+            "left": "180",
+            "right": "180_2026"
+          },
+          {
+            "id": "181",
+            "label": "Apparaten en licht (S3 H06)",
+            "a": false,
+            "b": false,
+            "left": "181",
+            "right": "181_2026"
+          },
+          {
+            "id": "182",
+            "label": "Warmteverbruik (S3 H07)",
+            "a": false,
+            "b": false,
+            "left": "182",
+            "right": "182_2026"
+          }
+        ]
+      },
+      {
+        "label": "Levering totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "272",
+            "label": "Energielevering (S3 H08)",
+            "a": false,
+            "b": false,
+            "left": "272",
+            "right": "272_2026"
+          }
+        ]
+      },
+      {
+        "label": "Leveringscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "183",
+            "label": "Duurzaam gas (S3 H10)",
+            "a": false,
+            "b": false,
+            "left": "183",
+            "right": "183_2026"
+          },
+          {
+            "id": "184",
+            "label": "Elektriciteit (S3 H11)",
+            "a": false,
+            "b": false,
+            "left": "184",
+            "right": "184_2026"
+          },
+          {
+            "id": "185",
+            "label": "MT-warmtebron (S3 H12)",
+            "a": false,
+            "b": false,
+            "left": "185",
+            "right": "185_2026"
+          },
+          {
+            "id": "186",
+            "label": "LT-warmtebron (S3 H13)",
+            "a": false,
+            "b": false,
+            "left": "186",
+            "right": "186_2026"
+          },
+          {
+            "id": "287",
+            "label": "Overig (S3 H14)",
+            "a": false,
+            "b": false,
+            "left": "287",
+            "right": "287_2026"
+          }
+        ]
+      },
+      {
+        "label": "Bronnen",
+        "expanded": false,
+        "children": [
+          {
+            "id": "211",
+            "label": "Laagtemperatuur warmtebronnen (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "267",
+            "label": "Aquathermie contour (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "263",
+            "label": "Geothermie contour (BG)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Overig",
+        "expanded": false,
+        "children": [
+          {
+            "id": "292",
+            "label": "S2 H15: CO2-uitstoot",
+            "a": false,
+            "b": false,
+            "left": "292",
+            "right": "292_2026"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Strategie 4: hWP met klimaatneutraal gas",
+    "icon": "S4.svg",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Nationale kosten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "352",
+            "label": "Strategie varianten (S4)",
+            "a": false,
+            "b": false,
+            "left": "352",
+            "right": "352_2026"
+          },
+          {
+            "id": "298",
+            "label": "Nationale meerkosten (S4 H16)",
+            "a": false,
+            "b": false,
+            "left": "298",
+            "right": "298_2026"
+          },
+          {
+            "id": "146",
+            "label": "Nationale kosten per ton CO2 reductie (S4 H17)",
+            "a": false,
+            "b": false,
+            "left": "146",
+            "right": "146_2026"
+          },
+          {
+            "id": "303",
+            "label": "Nationale kosten per woningequivalent (S4 H18)",
+            "a": false,
+            "b": false,
+            "left": "303",
+            "right": "303_2026"
+          }
+        ]
+      },
+      {
+        "label": "Verbruik totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "155",
+            "label": "Energieverbruik (S4 H01)",
+            "a": false,
+            "b": false,
+            "left": "155",
+            "right": "155_2026"
+          }
+        ]
+      },
+      {
+        "label": "Verbruikscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "187",
+            "label": "Ruimteverwarming (S4 H02)",
+            "a": false,
+            "b": false,
+            "left": "187",
+            "right": "187_2026"
+          },
+          {
+            "id": "188",
+            "label": "Warm tapwater (S4 H03)",
+            "a": false,
+            "b": false,
+            "left": "188",
+            "right": "188_2026"
+          },
+          {
+            "id": "189",
+            "label": "Ventilatie (S4 H04)",
+            "a": false,
+            "b": false,
+            "left": "189",
+            "right": "189_2026"
+          },
+          {
+            "id": "190",
+            "label": "Koude (S4 H05)",
+            "a": false,
+            "b": false,
+            "left": "190",
+            "right": "190_2026"
+          },
+          {
+            "id": "191",
+            "label": "Apparaten en licht (S4 H06)",
+            "a": false,
+            "b": false,
+            "left": "191",
+            "right": "191_2026"
+          },
+          {
+            "id": "192",
+            "label": "Warmteverbruik (S4 H07)",
+            "a": false,
+            "b": false,
+            "left": "192",
+            "right": "192_2026"
+          }
+        ]
+      },
+      {
+        "label": "Levering totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "273",
+            "label": "Energielevering (S4 H08)",
+            "a": false,
+            "b": false,
+            "left": "273",
+            "right": "273_2026"
+          }
+        ]
+      },
+      {
+        "label": "Leveringscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "193",
+            "label": "Duurzaam gas (S4 H10)",
+            "a": false,
+            "b": false,
+            "left": "193",
+            "right": "193_2026"
+          },
+          {
+            "id": "194",
+            "label": "Elektriciteit (S4 H11)",
+            "a": false,
+            "b": false,
+            "left": "194",
+            "right": "194_2026"
+          },
+          {
+            "id": "195",
+            "label": "MT-warmtebron (S4 H12)",
+            "a": false,
+            "b": false,
+            "left": "195",
+            "right": "195_2026"
+          },
+          {
+            "id": "196",
+            "label": "LT-warmtebron (S4 H13)",
+            "a": false,
+            "b": false,
+            "left": "196",
+            "right": "196_2026"
+          },
+          {
+            "id": "288",
+            "label": "Overig (S4 H14)",
+            "a": false,
+            "b": false,
+            "left": "288",
+            "right": "288_2026"
+          }
+        ]
+      },
+      {
+        "label": "Overig",
+        "expanded": false,
+        "children": [
+          {
+            "id": "293",
+            "label": "S4 H15: CO2-uitstoot",
+            "a": false,
+            "b": false,
+            "left": "293",
+            "right": "293_2026"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Basisgegevens",
+    "icon": "BG.svg",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Pand",
+        "expanded": false,
+        "children": [
+          {
+            "id": "224",
+            "label": "Pand bouwjaar (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "314",
+            "label": "Pand energielabel totaal (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "316",
+            "label": "Pand energielabel utiliteit (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "317",
+            "label": "Pand energielabel wonen (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "315",
+            "label": "Pand dominant gebruiksdoel (BG)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Bronnen",
+        "expanded": false,
+        "children": [
+          {
+            "id": "267",
+            "label": "Aquathermie contour (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "263",
+            "label": "Geothermie contour (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "211",
+            "label": "Laagtemperatuur warmtebronnen (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "210",
+            "label": "Midden temperatuur warmtebronnen (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "464",
+            "label": "Warmtenetten strategievariant s2a (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "466",
+            "label": "Warmtenetten strategievariant s2d (BG)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Overig",
+        "expanded": false,
+        "children": [
+          {
+            "id": "230",
+            "label": "Aantal woningequivalenten (BG)",
+            "a": false,
+            "b": false,
+            "left": "230",
+            "right": "230_2026"
+          },
+          {
+            "id": "229",
+            "label": "Aantal Utiliteitsgebouwen (BG)",
+            "a": false,
+            "b": false,
+            "left": "229",
+            "right": "229_2026"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Referentie 2023",
+    "icon": "R23.svg",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Verbruik totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "235",
+            "label": "Energieverbruik (R23 H01)",
+            "a": false,
+            "b": false,
+            "left": "235",
+            "right": "235_2026"
+          }
+        ]
+      },
+      {
+        "label": "Verbruikscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "236",
+            "label": "Ruimteverwarming (R23 H02)",
+            "a": false,
+            "b": false,
+            "left": "236",
+            "right": "236_2026"
+          },
+          {
+            "id": "158",
+            "label": "Warm tapwater (R23 H03)",
+            "a": false,
+            "b": false,
+            "left": "158",
+            "right": "158_2026"
+          },
+          {
+            "id": "237",
+            "label": "Ventilatie (R23 H04)",
+            "a": false,
+            "b": false,
+            "left": "237",
+            "right": "237_2026"
+          },
+          {
+            "id": "238",
+            "label": "Koude (R23 H05)",
+            "a": false,
+            "b": false,
+            "left": "238",
+            "right": "238_2026"
+          },
+          {
+            "id": "161",
+            "label": "Apparaten en licht (R23 H06)",
+            "a": false,
+            "b": false,
+            "left": "161",
+            "right": "161_2026"
+          },
+          {
+            "id": "239",
+            "label": "Warmteverbruik (R23 H07)",
+            "a": false,
+            "b": false,
+            "left": "239",
+            "right": "239_2026"
+          }
+        ]
+      },
+      {
+        "label": "Levering totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "306",
+            "label": "Energielevering (R23 H08)",
+            "a": false,
+            "b": false,
+            "left": "306",
+            "right": "306_2026"
+          }
+        ]
+      },
+      {
+        "label": "Leveringscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "228",
+            "label": "Aardgas (R23 H09)",
+            "a": false,
+            "b": false,
+            "left": "228",
+            "right": "228_2026"
+          },
+          {
+            "id": "309",
+            "label": "Duurzaam gas (R23 H10)",
+            "a": false,
+            "b": false,
+            "left": "309",
+            "right": "309_2026"
+          },
+          {
+            "id": "232",
+            "label": "Elektriciteit (R23 H11)",
+            "a": false,
+            "b": false,
+            "left": "232",
+            "right": "232_2026"
+          },
+          {
+            "id": "233",
+            "label": "MT-warmtebron (R23 H12)",
+            "a": false,
+            "b": false,
+            "left": "233",
+            "right": "233_2026"
+          },
+          {
+            "id": "234",
+            "label": "LT-warmtebron (R23 H13)",
+            "a": false,
+            "b": false,
+            "left": "234",
+            "right": "234_2026"
+          },
+          {
+            "id": "308",
+            "label": "Overig (R23 H14)",
+            "a": false,
+            "b": false,
+            "left": "308",
+            "right": "308_2026"
+          }
+        ]
+      },
+      {
+        "label": "Overig",
+        "expanded": false,
+        "children": [
+          {
+            "id": "310",
+            "label": "CO₂-uitstoot (R23 H15)",
+            "a": false,
+            "b": false,
+            "left": "310",
+            "right": "310_2026"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Referentie 2030",
+    "icon": "R30.svg",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Verbruik totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "240",
+            "label": "Energieverbruik (R30 H01)",
+            "a": false,
+            "b": false,
+            "left": "240",
+            "right": "240_2026"
+          }
+        ]
+      },
+      {
+        "label": "Verbruikscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "241",
+            "label": "Ruimteverwarming (R30 H02)",
+            "a": false,
+            "b": false,
+            "left": "241",
+            "right": "241_2026"
+          },
+          {
+            "id": "242",
+            "label": "Warm tapwater (R30 H03)",
+            "a": false,
+            "b": false,
+            "left": "242",
+            "right": "242_2026"
+          },
+          {
+            "id": "243",
+            "label": "Ventilatie (R30 H04)",
+            "a": false,
+            "b": false,
+            "left": "243",
+            "right": "243_2026"
+          },
+          {
+            "id": "244",
+            "label": "Koude (R30 H05)",
+            "a": false,
+            "b": false,
+            "left": "244",
+            "right": "244_2026"
+          },
+          {
+            "id": "245",
+            "label": "Apparaten en licht (R30 H06)",
+            "a": false,
+            "b": false,
+            "left": "245",
+            "right": "245_2026"
+          },
+          {
+            "id": "246",
+            "label": "Warmteverbruik (R30 H07)",
+            "a": false,
+            "b": false,
+            "left": "246",
+            "right": "246_2026"
+          }
+        ]
+      },
+      {
+        "label": "Levering totaal",
+        "expanded": false,
+        "children": [
+          {
+            "id": "307",
+            "label": "Energielevering (R30 H08)",
+            "a": false,
+            "b": false,
+            "left": "307",
+            "right": "307_2026"
+          }
+        ]
+      },
+      {
+        "label": "Leveringscomponenten",
+        "expanded": false,
+        "children": [
+          {
+            "id": "261",
+            "label": "Aardgas (R30 H09)",
+            "a": false,
+            "b": false,
+            "left": "261",
+            "right": "261_2026"
+          },
+          {
+            "id": "312",
+            "label": "Duurzaam gas (R30 H10)",
+            "a": false,
+            "b": false,
+            "left": "312",
+            "right": "312_2026"
+          },
+          {
+            "id": "248",
+            "label": "Elektriciteit (R30 H11)",
+            "a": false,
+            "b": false,
+            "left": "248",
+            "right": "248_2026"
+          },
+          {
+            "id": "249",
+            "label": "MT-warmtebron (R30 H12)",
+            "a": false,
+            "b": false,
+            "left": "249",
+            "right": "249_2026"
+          },
+          {
+            "id": "250",
+            "label": "LT-warmtebron (R30 H13)",
+            "a": false,
+            "b": false,
+            "left": "250",
+            "right": "250_2026"
+          },
+          {
+            "id": "311",
+            "label": "Overig (R30 H14)",
+            "a": false,
+            "b": false,
+            "left": "311",
+            "right": "311_2026"
+          }
+        ]
+      },
+      {
+        "label": "Overig",
+        "expanded": false,
+        "children": [
+          {
+            "id": "251",
+            "label": "CO2-uitstoot (R30 H15)",
+            "a": false,
+            "b": false,
+            "left": "251",
+            "right": "251_2026"
+          }
+        ]
+      }
+    ]
+  }
+]
