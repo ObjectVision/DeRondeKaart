@@ -22,10 +22,11 @@ describe("DOWNLOADS", () => {
     ]);
   });
 
-  // "Referentie 2023" ships as ref19 — the spelling its navigation entry
-  // already uses. Renaming it here would 404.
-  it("pairs the 2023 reference flag with ref19", () => {
-    expect(DOWNLOADS.find((d) => d.icon === "R23.svg")?.file).toBe("ref19.zip");
+  // The archive is ref23 while the map layer is still served from
+  // ref19.pmtiles: the download was renamed, the tile source was not. Pointing
+  // this back at ref19.zip would 404.
+  it("pairs the 2023 reference flag with ref23", () => {
+    expect(DOWNLOADS.find((d) => d.icon === "R23.svg")?.file).toBe("ref23.zip");
   });
 
   // The eleven sensitivity runs are published as one merged archive.
