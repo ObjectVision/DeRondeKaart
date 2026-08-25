@@ -838,34 +838,40 @@ function App(rawProps: AppProps): JSX.Element {
             />
           </Show>
 
-          <div class="flex items-end gap-2">
-            <Show when={comparisonMode() && !legendMinimized()}>
-              <Legend
-                entries={mapRightLayers.layerEntries()}
-                hiddenIds={mapRightLayers.hiddenIds()}
-                hiddenRules={mapRightLayers.hiddenRules()}
-                dimmedIds={mapRightLayers.dimmedIds()}
-                layerSteps={mapRightLayers.layerSteps()}
-                playingIds={mapRightLayers.playingIds()}
-                onToggle={mapRightLayers.toggleLayer}
-                onToggleDim={mapRightLayers.toggleDim}
-                onToggleRule={mapRightLayers.toggleRule}
-                onTogglePlay={mapRightLayers.togglePlay}
-                onSetStep={handlersB.setStep}
-                onRemove={mapRightLayers.removeLayer}
-                onOpenMeta={openLayerMeta}
-                onMove={handleMoveToLeft}
-                moveDirection="left"
-                onReorder={mapRightLayers.reorderLayer}
-              />
-            </Show>
-            <MapAttribution />
-          </div>
+          {/* The right map's legend, in comparison mode. The enclosing column
+              already right-aligns it; it used to share a row with the info
+              button, which now lives in the chrome toolbar beside share. */}
+          <Show when={comparisonMode() && !legendMinimized()}>
+            <Legend
+              entries={mapRightLayers.layerEntries()}
+              hiddenIds={mapRightLayers.hiddenIds()}
+              hiddenRules={mapRightLayers.hiddenRules()}
+              dimmedIds={mapRightLayers.dimmedIds()}
+              layerSteps={mapRightLayers.layerSteps()}
+              playingIds={mapRightLayers.playingIds()}
+              onToggle={mapRightLayers.toggleLayer}
+              onToggleDim={mapRightLayers.toggleDim}
+              onToggleRule={mapRightLayers.toggleRule}
+              onTogglePlay={mapRightLayers.togglePlay}
+              onSetStep={handlersB.setStep}
+              onRemove={mapRightLayers.removeLayer}
+              onOpenMeta={openLayerMeta}
+              onMove={handleMoveToLeft}
+              moveDirection="left"
+              onReorder={mapRightLayers.reorderLayer}
+            />
+          </Show>
         </div>
 
-        <Show when={!sidebarActive() && shareEnabled()}>
-          <div class="absolute left-2 top-2 z-30 sm:left-4 sm:top-4">
-            <ShareButton />
+        {/* Top-navigation mode's chrome row. Not gated on `shareEnabled()`: the
+            info button lives here too, and must survive a project that turns
+            sharing off. */}
+        <Show when={!sidebarActive()}>
+          <div class="absolute left-2 top-2 z-30 flex items-center gap-2 sm:left-4 sm:top-4">
+            <Show when={shareEnabled()}>
+              <ShareButton />
+            </Show>
+            <MapAttribution />
           </div>
         </Show>
 
@@ -1041,6 +1047,9 @@ function App(rawProps: AppProps): JSX.Element {
                   <Show when={shareEnabled()}>
                     <ShareButton />
                   </Show>
+                  {/* Outside the shareEnabled guard: map information must stay
+                      reachable in a project that turns sharing off. */}
+                  <MapAttribution />
                   <MapControls
                     orientation="horizontal"
                     onZoomIn={handleZoomIn}
