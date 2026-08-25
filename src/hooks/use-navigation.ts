@@ -6,6 +6,7 @@ import {
   isFilterLayerId,
 } from "@/layers/filter-layers";
 import { forSide, type MapSide, type MapSideId, type MapSidePair } from "@/lib/map-side";
+import type { LeafPair } from "@/layers/navigation";
 
 type UseNavigationOptions = MapSidePair<MapSide>;
 
@@ -72,7 +73,44 @@ export function useNavigation(options: UseNavigationOptions) {
   // comparison is left-anchored, so an empty left map has nothing to compare against.
   const leftHasLayers = () => options.left.layers.layerEntries().length > 0;
 
-  return { isOnMap, toggleOnMap, leftHasLayers };
+  /**
+   * How much of a prepared comparison is currently applied.
+   *
+   * Three states rather than a boolean because a pair can be half on: the user
+   * may remove one of the two layers from the legend, and the navigation row
+   * has to offer something sensible when they do.
+   */
+  function pairState(pair: LeafPair): "none" | "partial" | "both" {
+    const left = isOnMap(pair.left, "left");
+    const right = isOnMap(pair.right, "right");
+    if (left && right) return "both";
+    return left || right ? "partial" : "none";
+  }
+
+  /**
+   * Apply a prepared comparison, or clear it when any of it is already applied.
+   *
+   * The two adds are sequential and awaited, not concurrent. `toggleOnMap`
+   * resolves a config before adding, and the right map refuses layers while the
+   * left one is empty (see `leftHasLayers`) -- so firing both at once lets the
+   * right add observe the left map as it was BEFORE its layer landed, and half
+   * the pair is silently dropped.
+   */
+  async function togglePair(pair: LeafPair) {
+    if (pairState(pair) === "none") {
+      await toggleOnMap(pair.left, "left");
+      await toggleOnMap(pair.right, "right");
+      return;
+    }
+
+    // Partial or both: clear whichever halves are actually on. Checked
+    // individually so a half-applied pair recovers to empty rather than
+    // toggling its missing half back on.
+    if (isOnMap(pair.left, "left")) await toggleOnMap(pair.left, "left");
+    if (isOnMap(pair.right, "right")) await toggleOnMap(pair.right, "right");
+  }
+
+  return { isOnMap, toggleOnMap, leftHasLayers, pairState, togglePair };
 }
 
 export type NavigationApi = ReturnType<typeof useNavigation>;
