@@ -60,15 +60,13 @@ describe("FeatureInfo downloads section", () => {
     initVariants(undefined);
   });
 
-  it("offers every archive for the active variant", () => {
+  it("offers every archive", () => {
     renderInfo();
 
     const links = downloadLinks();
     expect(links).toHaveLength(DOWNLOADS.length);
     expect(links.map((a) => a.getAttribute("href"))).toEqual(
-      DOWNLOADS.map(
-        (d) => `https://data.startanalyse2026.nl/downloads/2026/${d.file}`,
-      ),
+      DOWNLOADS.map((d) => `https://data.startanalyse2026.nl/downloads/${d.file}`),
     );
   });
 
@@ -98,7 +96,16 @@ describe("FeatureInfo downloads section", () => {
     }
   });
 
-  it("follows the variant", () => {
+  /**
+   * The inverse of what this once asserted. Each archive now holds both model
+   * years, so the links must NOT change with the variant — a link that still
+   * followed it would point at a `downloads/<year>/` path that no longer exists.
+   */
+  it("offers the same links whichever variant is active", () => {
+    renderInfo();
+    const under2026 = downloadLinks().map((a) => a.getAttribute("href"));
+    cleanup();
+
     initVariants({
       default: "2025",
       items: [
@@ -108,8 +115,9 @@ describe("FeatureInfo downloads section", () => {
     });
     renderInfo();
 
+    expect(downloadLinks().map((a) => a.getAttribute("href"))).toEqual(under2026);
     for (const link of downloadLinks()) {
-      expect(link.getAttribute("href")).toContain("/downloads/2025/");
+      expect(link.getAttribute("href")).not.toMatch(/\/20\d\d\//);
     }
   });
 

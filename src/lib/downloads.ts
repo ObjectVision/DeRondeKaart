@@ -1,11 +1,14 @@
-/** Where the per-variant dataset archives are published. */
+/** Where the dataset archives are published. */
 const DOWNLOADS_BASE = "https://data.startanalyse2026.nl/downloads";
 
 export interface DownloadItem {
   /** An asset under public/icons/, resolved by the Icon component. */
   icon: string;
   label: string;
-  /** Archive filename, identical under every variant directory. */
+  /**
+   * Archive filename. One archive serves every variant: each holds both model
+   * years internally, under `2025/` and `2026/` directories.
+   */
   file: string;
 }
 
@@ -34,7 +37,13 @@ export const DOWNLOADS: readonly DownloadItem[] = [
   { icon: "R30.svg", label: "Referentie 2030", file: "ref30.zip" },
 ];
 
-/** URL of one archive under the given variant, e.g. `…/downloads/2026/LNGA.zip`. */
-export function downloadUrl(variant: string, file: string): string {
-  return `${DOWNLOADS_BASE}/${variant}/${file}`;
+/**
+ * URL of one archive, e.g. `…/downloads/LNGA.zip`.
+ *
+ * No variant segment: the archives were republished flat, each holding both
+ * model years, so one URL serves every variant. The former
+ * `…/downloads/<year>/<file>` paths are gone and 404.
+ */
+export function downloadUrl(file: string): string {
+  return `${DOWNLOADS_BASE}/${file}`;
 }

@@ -85,51 +85,51 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
 }
 
 /**
- * The dataset archives for the active variant, one flag per strategy.
+ * The dataset archives, one flag per strategy.
  *
  * Whole-country files, so they do not depend on the clicked neighbourhood — the
  * section is the same for every feature and its height never changes, which is
  * what keeps InfoPopup from re-placing the window under the cursor.
  *
- * Rendered only where a variant is active: the archives are published per year,
- * and a project without variants (woonzorglimburg) has nowhere to point.
+ * Each archive holds BOTH model years, so the links no longer vary by variant.
+ * The `variantId()` gate stays anyway: these are startanalyse2026's archives,
+ * and only that project declares variants — without it they would appear in any
+ * project whose layer sets `featureinfo.pbl`.
  */
 function DownloadsSection(): JSX.Element {
   return (
     <Show when={variantId()}>
-      {(variant) => (
-        <div class="border-t border-gray-200 px-3 py-2">
-          <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-            Downloads
-          </h3>
-          <div class="flex flex-wrap items-center gap-2">
-            <For each={DOWNLOADS}>
-              {(item) => (
-                <a
-                  href={downloadUrl(variant(), item.file)}
-                  // `_blank` is load-bearing, not a preference. The app is
-                  // embedded in an iframe on startanalyse2026.nl, whose CSP is
-                  // `default-src 'self'` with a frame-src naming only the map
-                  // host — so navigating the frame itself to the data host is
-                  // blocked ("This content is blocked"). A top-level navigation
-                  // is not governed by the parent frame's policy.
-                  target="_blank"
-                  rel="noreferrer"
-                  // Ignored cross-origin, so it does not name the saved file.
-                  // Kept as the intent marker; the browser saves rather than
-                  // renders because the response is application/zip.
-                  download={item.file}
-                  title={`${item.label} (ZIP)`}
-                  aria-label={`${item.label} downloaden (ZIP)`}
-                  class="rounded transition-opacity hover:opacity-70"
-                >
-                  <Icon name={item.icon} size={28} />
-                </a>
-              )}
-            </For>
-          </div>
+      <div class="border-t border-gray-200 px-3 py-2">
+        <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Downloads
+        </h3>
+        <div class="flex flex-wrap items-center gap-2">
+          <For each={DOWNLOADS}>
+            {(item) => (
+              <a
+                href={downloadUrl(item.file)}
+                // `_blank` is load-bearing, not a preference. The app is
+                // embedded in an iframe on startanalyse2026.nl, whose CSP is
+                // `default-src 'self'` with a frame-src naming only the map
+                // host — so navigating the frame itself to the data host is
+                // blocked ("This content is blocked"). A top-level navigation
+                // is not governed by the parent frame's policy.
+                target="_blank"
+                rel="noreferrer"
+                // Ignored cross-origin, so it does not name the saved file.
+                // Kept as the intent marker; the browser saves rather than
+                // renders because the response is application/zip.
+                download={item.file}
+                title={`${item.label} (ZIP, 2025 + 2026)`}
+                aria-label={`${item.label} downloaden (ZIP, 2025 en 2026)`}
+                class="rounded transition-opacity hover:opacity-70"
+              >
+                <Icon name={item.icon} size={28} />
+              </a>
+            )}
+          </For>
         </div>
-      )}
+      </div>
     </Show>
   );
 }
