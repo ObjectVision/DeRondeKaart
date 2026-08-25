@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { LayerDescription } from "@/components/ui/navigation/LayerDescription";
 import { FilterSection } from "./FilterSection";
 import { NavigationSection } from "./NavigationSection";
-import { loadNavigation, withCombinations, type NavLeaf, type NavNode } from "@/layers/navigation";
+import {
+  leafPair,
+  loadNavigation,
+  withCombinations,
+  type NavLeaf,
+  type NavNode,
+} from "@/layers/navigation";
 import { loadLayerConfigs } from "@/layers";
 import { useNavExpansion } from "@/hooks/use-nav-expansion";
 import type { NavigationApi } from "@/hooks/use-navigation";
@@ -22,11 +28,29 @@ interface LeafStateToggleProps {
  * `circle` when the layer is on neither map (click adds it to the left map);
  * `check_circle` when it is on the left and/or right map (click removes it from
  * every map it is on). The rest of the row handles add/meta — see handleRowClick.
+ *
+ * A paired leaf toggles its whole comparison instead: both layers on, or both
+ * off. Its sides are decided by the config, so "add to the left map" is not a
+ * choice this row gets to make.
  */
 function LeafStateToggle(props: LeafStateToggleProps): JSX.Element {
+  const pair = () => leafPair(props.leaf);
   const onLeft = () => props.nav.isOnMap(props.leaf.id, "left");
   const onRight = () => props.nav.isOnMap(props.leaf.id, "right");
-  const onMap = () => onLeft() || onRight();
+  // "Partial" counts as on, so the click clears the leftover half.
+  const onMap = () => {
+    const p = pair();
+    return p ? props.nav.pairState(p) !== "none" : onLeft() || onRight();
+  };
+
+  const title = () =>
+    pair()
+      ? onMap()
+        ? "Verwijder vergelijking"
+        : "Toon vergelijking"
+      : onMap()
+        ? "Verwijder van kaart"
+        : "Toon op linker kaart";
 
   return (
     <Button
@@ -36,6 +60,11 @@ function LeafStateToggle(props: LeafStateToggleProps): JSX.Element {
       onClick={(e) => {
         // Keep the row's own click handler from also firing.
         e.stopPropagation();
+        const p = pair();
+        if (p) {
+          void props.nav.togglePair(p);
+          return;
+        }
         if (onMap()) {
           // Remove from every map the layer is on.
           if (onLeft()) props.nav.toggleOnMap(props.leaf.id, "left");
@@ -44,12 +73,8 @@ function LeafStateToggle(props: LeafStateToggleProps): JSX.Element {
           props.nav.toggleOnMap(props.leaf.id, "left"); // always add to the left map
         }
       }}
-      title={onMap() ? "Verwijder van kaart" : "Toon op linker kaart"}
-      aria-label={
-        onMap()
-          ? `Verwijder ${props.leaf.label} van kaart`
-          : `Toon ${props.leaf.label} op linker kaart`
-      }
+      title={title()}
+      aria-label={`${title()}: ${props.leaf.label}`}
       aria-pressed={onMap()}
     >
       <Icon
@@ -153,6 +178,15 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   function handleRowClick(leaf: NavLeaf) {
     // An open meta panel always collapses first — even for an off-map layer.
     if (metaOpenLeafId() === leaf.id) {
+      setMetaOpenLeafId(null);
+      return;
+    }
+
+    // A prepared comparison applies or clears as a unit. No meta panel: the
+    // leaf names two layers, so there is no single description to show.
+    const pair = leafPair(leaf);
+    if (pair) {
+      void props.nav.togglePair(pair);
       setMetaOpenLeafId(null);
       return;
     }

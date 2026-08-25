@@ -17,6 +17,17 @@ export interface NavLeaf {
   /** Default-add to the left map / right map (informational; not auto-applied). */
   a?: boolean;
   b?: boolean;
+  /**
+   * A prepared comparison: the layer for the left map and the layer for the
+   * right map, applied together by a single click. Both must be present to
+   * count as a pair — a leaf with neither is an ordinary single-layer leaf,
+   * which is every leaf in the shipped configs today.
+   *
+   * Not to be confused with the `a`/`b` booleans above: those say nothing about
+   * WHICH layer a side receives, which is why they could never express this.
+   */
+  left?: string;
+  right?: string;
 }
 
 /** A category / sub-category branch in the navigation tree. */
@@ -39,6 +50,22 @@ export type NavItem = NavNode | NavLeaf;
 /** Type guard: a leaf has an `id` and no `children`. */
 export function isLeaf(item: NavItem): item is NavLeaf {
   return (item as NavNode).children === undefined;
+}
+
+/** The two layer ids a paired leaf applies, or null for an ordinary leaf. */
+export interface LeafPair {
+  left: string;
+  right: string;
+}
+
+/**
+ * Read a leaf's prepared comparison, or null when it is an ordinary leaf.
+ *
+ * Both ids are required: half a pair would put one layer on one map and call it
+ * a comparison, which is worse than not offering one.
+ */
+export function leafPair(leaf: NavLeaf): LeafPair | null {
+  return leaf.left && leaf.right ? { left: leaf.left, right: leaf.right } : null;
 }
 
 /**
