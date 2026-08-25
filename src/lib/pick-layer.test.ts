@@ -156,6 +156,52 @@ describe("addPickLayer", () => {
     );
   });
 
+  /**
+   * The right map can name its own pick layer (map.json `pickLayerRight`), used
+   * where the two maps show different datasets — the 2025_2026 variant, whose
+   * right map is 2026 while the left is 2025.
+   */
+  describe("per-side pick layer", () => {
+    const PICK_2026 = { ...PICK_LAYER, id: "buurt_klik_2026" };
+
+    it("prefers the right map's own layer when it exists", async () => {
+      stubLayers([PICK_LAYER, PICK_2026]);
+      const { side, added } = fakeSide();
+
+      await addPickLayer(side, "buurt_klik_2026", "buurt_klik");
+
+      expect(added).toEqual(["buurt_klik_2026"]);
+    });
+
+    /**
+     * The regression this guards: map.json is SHARED across variants, so
+     * `pickLayerRight: "buurt_klik_2026"` also applies to the 2025 and 2026
+     * variants, where that layer does not exist. Without the fallback the right
+     * map would get no pick layer at all and silently stop answering clicks.
+     */
+    it("falls back to the left map's layer where the right one is absent", async () => {
+      stubLayers([PICK_LAYER]);
+      const { side, added } = fakeSide();
+
+      await addPickLayer(side, "buurt_klik_2026", "buurt_klik");
+
+      expect(added).toEqual(["buurt_klik"]);
+      expect(console.warn).not.toHaveBeenCalled();
+    });
+
+    it("warns only when neither id resolves", async () => {
+      stubLayers([]);
+      const { side, addLayer } = fakeSide();
+
+      await addPickLayer(side, "buurt_klik_2026", "buurt_klik");
+
+      expect(addLayer).not.toHaveBeenCalled();
+      expect(console.warn).toHaveBeenCalledWith(
+        expect.stringContaining('pickLayer "buurt_klik_2026" not found'),
+      );
+    });
+  });
+
   // layers.json rethrows on a failed load (it is structural), and losing the
   // pick layer must not take the whole app down with it.
   it("survives a failed config load", async () => {

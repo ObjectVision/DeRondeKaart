@@ -17,10 +17,18 @@ import type { MapSide } from "@/lib/map-side";
 export async function addPickLayer(
   side: MapSide,
   pickLayerId: string | undefined,
+  fallbackId?: string,
 ): Promise<void> {
   if (!pickLayerId) return;
   try {
-    const config = getLayerConfigById(await loadLayerConfigs(), pickLayerId);
+    const configs = await loadLayerConfigs();
+    // `fallbackId` covers a per-variant `pickLayerRight`: map.json is shared
+    // across variants, so a right-map pick layer that exists in one variant
+    // ("buurt_klik_2026", only in 2025_2026) is absent from the others. Falling
+    // back keeps clicks working there instead of silently ignoring them.
+    const config =
+      getLayerConfigById(configs, pickLayerId) ??
+      (fallbackId ? getLayerConfigById(configs, fallbackId) : undefined);
     if (!config) {
       console.warn(`map.json: pickLayer "${pickLayerId}" not found in layers.json`);
       return;

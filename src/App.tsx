@@ -114,6 +114,8 @@ interface AppProps {
   initialViewState: ViewState;
   studyAreaId?: string;
   pickLayerId?: string;
+  /** Pick layer for the right map; falls back to `pickLayerId` when omitted. */
+  pickLayerRightId?: string;
   streetviewEnabled?: boolean;
   searchbarEnabled?: boolean;
   navigationEnabled?: boolean;
@@ -428,6 +430,14 @@ function App(rawProps: AppProps): JSX.Element {
   const nav = useNavigation(mapSides);
 
   /**
+   * The right map's pick layer, which only differs where the two maps show
+   * different datasets — the `2025_2026` variant, whose right map is 2026 while
+   * the left is 2025. Everywhere else this is the same layer as the left map's,
+   * which is what `pickLayer` alone has always meant.
+   */
+  const pickLayerRightId = () => props.pickLayerRightId ?? props.pickLayerId;
+
+  /**
    * Re-add the pick layer to every mounted map, after a variant switch cleared
    * both stacks.
    *
@@ -437,7 +447,9 @@ function App(rawProps: AppProps): JSX.Element {
    */
   function resetPickLayers() {
     void addPickLayer(mapSides.left, props.pickLayerId);
-    if (mapRightView()) void addPickLayer(mapSides.right, props.pickLayerId);
+    if (mapRightView()) {
+      void addPickLayer(mapSides.right, pickLayerRightId(), props.pickLayerId);
+    }
   }
 
   // Only the first ready map triggers this; re-adds after a variant switch come
@@ -605,7 +617,7 @@ function App(rawProps: AppProps): JSX.Element {
     mapRightLayers.syncImperativeLayers();
     // The right map is mounted only while it has a layer, so this is where it
     // first exists. Idempotent, so a later re-mount adds nothing.
-    void addPickLayer(mapSides.right, props.pickLayerId);
+    void addPickLayer(mapSides.right, pickLayerRightId(), props.pickLayerId);
   }
 
   function handleMove(evt: ViewStateChangeEvent) {
