@@ -65,13 +65,14 @@ ARCHIVE_OF_SOURCE = {
     "strat2.pmtiles": "strat2",
     "strat3.pmtiles": "strat3",
     "strat4.pmtiles": "strat4",
-    "ref19.pmtiles": "ref19",
+    # The 2023 reference. Its pmtiles source keeps the older `ref19` spelling
+    # (the live app fetches it by that name); the download archive is ref23.
+    "ref19.pmtiles": "ref23",
     "ref30.pmtiles": "ref30",
     **{f"LNGA{i:02d}.pmtiles": "LNGA" for i in range(1, 12)},
 }
 
-# Group label per archive, matching the navigation tree the app shows. "ref19"
-# really is labelled 2023: the dataset ships under the older name.
+# Group label per archive, matching the navigation tree the app shows.
 ARCHIVE_LABEL = {
     "stratLN": "Laagste nationale kosten (LN)",
     "LNGA": "Gevoeligheidsanalyses (LNGA)",
@@ -79,18 +80,52 @@ ARCHIVE_LABEL = {
     "strat2": "Strategie 2: MT-warmtenet",
     "strat3": "Strategie 3: Combi LT-WN & eWP",
     "strat4": "Strategie 4: hWP met klimaatneutraal gas",
-    "ref19": "Referentie 2023",
+    "ref23": "Referentie 2023",
     "ref30": "Referentie 2030",
 }
 
 # Amersfoort / RD New -- the CRS every GeoPackage declares.
+#
+# The WKT is what makes this portable, and it is not optional. QGIS 3.28+
+# resolves a CRS from <wkt> first; with that element empty it falls back to
+# <srsid>, which is a row id in the *local* srs.db and differs between installs
+# and QGIS versions -- so the project would silently adopt whatever CRS that row
+# happens to name on the reader's machine.
+#
+# WKT2:2019 for EPSG:28992, exactly as PROJ emits it
+# (`pyproj.CRS.from_epsg(28992).to_wkt("WKT2_2019")`).
+RD_NEW_WKT = (
+    'PROJCRS["Amersfoort / RD New",BASEGEOGCRS["Amersfoort",DATUM["Amersfoort",'
+    'ELLIPSOID["Bessel 1841",6377397.155,299.1528128,LENGTHUNIT["metre",1]]],'
+    'PRIMEM["Greenwich",0,ANGLEUNIT["degree",0.0174532925199433]],ID["EPSG",'
+    '4289]],CONVERSION["RD New",METHOD["Oblique Stereographic",ID["EPSG",9809]],'
+    'PARAMETER["Latitude of natural origin",52.1561605555556,ANGLEUNIT["degree",'
+    '0.0174532925199433],ID["EPSG",8801]],'
+    'PARAMETER["Longitude of natural origin",5.38763888888889,ANGLEUNIT["degree",'
+    '0.0174532925199433],ID["EPSG",8802]],'
+    'PARAMETER["Scale factor at natural origin",0.9999079,SCALEUNIT["unity",1],'
+    'ID["EPSG",8805]],PARAMETER["False easting",155000,LENGTHUNIT["metre",1],'
+    'ID["EPSG",8806]],PARAMETER["False northing",463000,LENGTHUNIT["metre",1],'
+    'ID["EPSG",8807]]],CS[Cartesian,2],AXIS["easting (X)",east,ORDER[1],'
+    'LENGTHUNIT["metre",1]],AXIS["northing (Y)",north,ORDER[2],'
+    'LENGTHUNIT["metre",1]],USAGE[SCOPE["Engineering survey,'
+    ' topographic mapping."],AREA["Netherlands - onshore, including Waddenzee,'
+    ' Dutch Wadden Islands and 12-mile offshore coastal zone."],BBOX[50.75,3.2,'
+    '53.7,7.22]],ID["EPSG",28992]]'
+)
+
 RD_NEW = {
+    "wkt": RD_NEW_WKT,
+    # No +towgs84: PROJ's own definition of 28992 carries none, and adding the
+    # legacy 3-parameter shift would override the RDNAPTRANS transformation
+    # QGIS picks by default, moving coordinates by a few decimetres.
     "proj4": (
         "+proj=sterea +lat_0=52.1561605555556 +lon_0=5.38763888888889 "
         "+k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel "
-        "+towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 "
         "+units=m +no_defs"
     ),
+    # A local srs.db row id, kept only because QGIS writes one. `wkt` and
+    # `authid` above are what actually resolve the CRS.
     "srsid": "2517",
     "srid": "28992",
     "authid": "EPSG:28992",
@@ -100,6 +135,10 @@ RD_NEW = {
 }
 
 QGIS_VERSION = "3.28.0-Firenze"
+
+# Navigation group skipped entirely: it re-lists layers that already appear
+# under their own group, so including it would duplicate them in the tree.
+EXCLUDED_GROUP = "kernkaarten"
 
 # Hatch geometry, mirroring src/layers/hatch-pattern.ts. `hatch: true` resolves
 # to HATCH_DEFAULTS there -- red on white, NOT the symbolizer's own colour,
@@ -458,9 +497,8 @@ def build_symbol(parent: ET.Element, name: str, symbolizer: dict, uid: str) -> N
 
 
 def _spatialrefsys(parent: ET.Element) -> None:
-    srs = ET.SubElement(parent, "spatialrefsys")
-    ET.SubElement(srs, "wkt").text = ""
-    for key in ("proj4", "srsid", "srid", "authid", "description",
+    srs = ET.SubElement(parent, "spatialrefsys", {"nativeFormat": "Wkt"})
+    for key in ("wkt", "proj4", "srsid", "srid", "authid", "description",
                 "projectionacronym", "ellipsoidacronym"):
         ET.SubElement(srs, key).text = RD_NEW[key]
     ET.SubElement(srs, "geographicflag").text = "false"
@@ -561,10 +599,15 @@ def prune_tree(node: object, keep: dict[str, str]) -> object | None:
         return None
 
     if "children" in node:
+        # "Kernkaarten" is the app's cross-cutting overview group: every layer
+        # in it also appears under the group it belongs to, so including it
+        # would list the same layers twice in the QGIS tree.
+        if (node.get("label") or "").strip().casefold() == EXCLUDED_GROUP:
+            return None
         kept = [c for c in (prune_tree(n, keep) for n in node["children"]) if c]
         if not kept:
             return None
-        return {"label": node.get("label", ""), "expanded": node.get("expanded"), "children": kept}
+        return {"label": node.get("label", ""), "children": kept}
 
     layer_id = str(node.get("id", ""))
     if layer_id in keep:
@@ -572,7 +615,13 @@ def prune_tree(node: object, keep: dict[str, str]) -> object | None:
     return None
 
 
-def build_tree(parent: ET.Element, nodes: list, ids: dict[str, str], first: list[bool]) -> None:
+def build_tree(parent: ET.Element, nodes: list, ids: dict[str, str]) -> None:
+    """Emit the tree: groups checked and open, every layer present but off.
+
+    A group's checkbox only gates the layers inside it, so a checked group with
+    all layers unchecked still draws nothing -- it just means ticking any single
+    layer is enough to see it, with no second box to find first.
+    """
     for node in nodes:
         if "children" in node:
             group = ET.SubElement(
@@ -581,22 +630,17 @@ def build_tree(parent: ET.Element, nodes: list, ids: dict[str, str], first: list
                 {
                     "name": node["label"],
                     # The string form: checked="1" parses as UNCHECKED, giving a
-                    # project that opens with everything invisible.
-                    "checked": "Qt::Unchecked",
-                    "expanded": "1" if node.get("expanded") else "0",
+                    # project where nothing can be switched on.
+                    "checked": "Qt::Checked",
+                    "expanded": "1",
                     "groupLayer": "",
                 },
             )
             custom = ET.SubElement(group, "customproperties")
             ET.SubElement(custom, "Option", {"type": "Map"})
-            build_tree(group, node["children"], ids, first)
+            build_tree(group, node["children"], ids)
         else:
             layer_id = node["layer"]
-            # Only the first layer starts visible: 20+ full-coverage polygon
-            # layers drawn at once is unreadable and slow.
-            checked = "Qt::Checked" if not first[0] else "Qt::Unchecked"
-            if not first[0]:
-                first[0] = True
             entry = ET.SubElement(
                 parent,
                 "layer-tree-layer",
@@ -605,7 +649,9 @@ def build_tree(parent: ET.Element, nodes: list, ids: dict[str, str], first: list
                     "id": layer_id,
                     "source": ids[layer_id],
                     "providerKey": "ogr",
-                    "checked": checked,
+                    # Off by default: these are full-coverage national polygon
+                    # layers, and drawing 20+ at once is unreadable and slow.
+                    "checked": "Qt::Unchecked",
                     "expanded": "0",
                     "legend_exp": "",
                     "legend_split_behavior": "0",
@@ -685,29 +731,68 @@ def build_project(
                 n["layer"] = by_config_id[n["layer"]]
     relabel(pruned)
 
+    # Pruning "Kernkaarten" can orphan a layer that the navigation tree lists
+    # only there -- LNGA08 is one. The data is in the archive, so dropping it
+    # from the tree would hide a layer rather than de-duplicate one. Anything
+    # left unreachable is appended so every layer stays selectable.
+    def reachable(nodes, seen):
+        for n in nodes:
+            if "children" in n:
+                reachable(n["children"], seen)
+            else:
+                seen.add(n["layer"])
+        return seen
+
+    orphans = [lid for lid in kept if lid not in reachable(pruned, set())]
+    if orphans:
+        by_id = {lid: lyr for lid, lyr, _ in pending}
+        extra = [
+            {"label": (by_id[lid].get("name") or lid).strip(), "layer": lid}
+            for lid in orphans
+        ]
+        if len(pruned) == 1 and "children" in pruned[0]:
+            pruned[0]["children"].extend(extra)
+        else:
+            pruned.extend(extra)
+        if verbose:
+            for lid in orphans:
+                print(f"    kept {lid} ({by_id[lid].get('name', '').strip()}) "
+                      f"-- listed only under an excluded group")
+
     # A single top-level group whose only child is the archive's own navigation
     # group would just repeat the same label twice, so in that case the
     # navigation group is used directly.
     if len(pruned) == 1 and "children" in pruned[0]:
-        build_tree(tree_root, pruned, kept, [False])
+        build_tree(tree_root, pruned, kept)
     else:
         archive_group = ET.SubElement(
             tree_root,
             "layer-tree-group",
-            {"name": ARCHIVE_LABEL[archive], "checked": "Qt::Unchecked",
+            {"name": ARCHIVE_LABEL[archive], "checked": "Qt::Checked",
              "expanded": "1", "groupLayer": ""},
         )
         group_custom = ET.SubElement(archive_group, "customproperties")
         ET.SubElement(group_custom, "Option", {"type": "Map"})
-        build_tree(archive_group, pruned, kept, [False])
+        build_tree(archive_group, pruned, kept)
 
     ET.SubElement(tree_root, "custom-order", {"enabled": "0"})
 
+    properties = ET.SubElement(root, "properties")
+
     # Relative paths. Without this QGIS resolves ./x.gpkg against the working
     # directory, and every layer arrives broken.
-    properties = ET.SubElement(root, "properties")
     paths = ET.SubElement(properties, "Paths")
     ET.SubElement(paths, "Absolute", {"type": "bool"}).text = "false"
+
+    # The project CRS. `<projectCrs>` alone does NOT set it -- QGIS reads the
+    # project's own CRS from here, and without this block the project opens in
+    # the default EPSG:4326 and every 28992 layer has to be reprojected, which
+    # is what raises the "Select Transformation" dialog on load.
+    srs = ET.SubElement(properties, "SpatialRefSys")
+    ET.SubElement(srs, "ProjectCRSProj4String").text = RD_NEW["proj4"]
+    ET.SubElement(srs, "ProjectCRSID", {"type": "int"}).text = RD_NEW["srsid"]
+    ET.SubElement(srs, "ProjectCrs").text = RD_NEW["authid"]
+    ET.SubElement(properties, "ProjectionsEnabled", {"type": "int"}).text = "1"
 
     if verbose and skipped:
         for line in skipped:
@@ -720,11 +805,33 @@ def validate(tree: ET.ElementTree) -> None:
     """Catch the mistakes that yield a project which opens but draws nothing."""
     root = tree.getroot()
     layer_ids = {e.text for e in root.iterfind("./projectlayers/maplayer/id")}
+
+    # A layer defined but absent from the tree cannot be switched on -- it is
+    # invisible in the layer panel, so it may as well not ship.
+    in_tree = {t.get("id") for t in root.iter("layer-tree-layer")}
+    missing = layer_ids - in_tree
+    if missing:
+        raise AssertionError(f"layers defined but not in the tree: {sorted(missing)}")
+
     for entry in root.iter("layer-tree-layer"):
         if entry.get("id") not in layer_ids:
             raise AssertionError(f"tree references unknown layer {entry.get('id')}")
-        if entry.get("checked") not in ("Qt::Checked", "Qt::Unchecked"):
-            raise AssertionError(f"bad checked value {entry.get('checked')!r}")
+        # No layer starts on; the user picks. Qt::Checked here would draw a
+        # full-coverage national polygon layer on open.
+        if entry.get("checked") != "Qt::Unchecked":
+            raise AssertionError(f"layer {entry.get('id')} is checked by default")
+
+    for group in root.iter("layer-tree-group"):
+        # The root group carries no name and no state; only named groups do.
+        if group.get("name") is None:
+            continue
+        if group.get("checked") != "Qt::Checked":
+            raise AssertionError(f"group {group.get('name')!r} is not checked")
+        if group.get("expanded") != "1":
+            raise AssertionError(f"group {group.get('name')!r} is not expanded")
+        if (group.get("name") or "").strip().casefold() == EXCLUDED_GROUP:
+            raise AssertionError(f"{group.get('name')!r} must not be in the tree")
+
     for maplayer in root.iterfind("./projectlayers/maplayer"):
         names = {s.get("name") for s in maplayer.iterfind("./renderer-v2/symbols/symbol")}
         for rule in maplayer.iterfind("./renderer-v2/rules/rule"):
@@ -735,6 +842,31 @@ def validate(tree: ET.ElementTree) -> None:
     absolute = root.findtext("./properties/Paths/Absolute")
     if absolute != "false":
         raise AssertionError("Paths/Absolute must be false for relative datasources")
+
+    # The project's own CRS, which is separate from the per-layer one. Missing,
+    # the project opens in EPSG:4326 and QGIS prompts for a transformation.
+    if root.findtext("./properties/SpatialRefSys/ProjectCrs") != RD_NEW["authid"]:
+        raise AssertionError("properties/SpatialRefSys does not set the project CRS")
+    if root.findtext("./properties/ProjectionsEnabled") != "1":
+        raise AssertionError("ProjectionsEnabled must be 1")
+
+    # Every CRS block must carry the WKT as well as the authid. Without the WKT
+    # QGIS falls back to <srsid>, a row id in the reader's own srs.db, and the
+    # project can open in a different CRS than the one it names.
+    blocks = list(root.iterfind("./projectCrs/spatialrefsys"))
+    blocks += list(root.iterfind("./projectlayers/maplayer/srs/spatialrefsys"))
+    if not blocks:
+        raise AssertionError("no CRS declared")
+    for srs in blocks:
+        if srs.findtext("authid") != RD_NEW["authid"]:
+            raise AssertionError(f"CRS authid is {srs.findtext('authid')!r}")
+        if srs.findtext("srid") != RD_NEW["srid"]:
+            raise AssertionError(f"CRS srid is {srs.findtext('srid')!r}")
+        wkt = srs.findtext("wkt") or ""
+        if 'ID["EPSG",28992]' not in wkt:
+            raise AssertionError("CRS block has no EPSG:28992 WKT")
+        if "towgs84" in (srs.findtext("proj4") or ""):
+            raise AssertionError("proj4 must not pin a legacy towgs84 shift")
 
 
 def main() -> int:
@@ -784,6 +916,11 @@ def main() -> int:
             )
             validate(tree)
             out = out_year / f"{archive}.qgs"
+            # Indented so the project is readable and diffable; ElementTree
+            # otherwise writes the whole thing as one line. Safe here because
+            # no element in a .qgs carries significant text -- every value is
+            # an attribute or a leaf whose whitespace QGIS strips.
+            ET.indent(tree, space="  ")
             # UTF-8 is required: layer names carry the subscript 2, degree and
             # euro signs.
             tree.write(out, encoding="utf-8", xml_declaration=True)
