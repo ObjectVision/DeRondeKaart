@@ -49,20 +49,23 @@ describe("DOWNLOADS", () => {
 });
 
 describe("downloadUrl", () => {
-  it("points at the archive for the variant it is given", () => {
-    expect(downloadUrl("2026", "LNGA.zip")).toBe(
-      "https://data.startanalyse2026.nl/downloads/2026/LNGA.zip",
+  it("points at the archive directly under downloads/", () => {
+    expect(downloadUrl("LNGA.zip")).toBe(
+      "https://data.startanalyse2026.nl/downloads/LNGA.zip",
     );
   });
 
-  // The same filename under either year — switching variants must re-point
-  // every link, not just some.
-  it("keeps the filename and swaps only the variant", () => {
+  /**
+   * The archives were republished flat, each holding both model years, and the
+   * old `downloads/<year>/` directories now 404. A year segment reinstated here
+   * would break every download link in every variant — and would do it silently,
+   * since the failure only appears in the tab the click opens.
+   */
+  it("puts no year segment in any archive URL", () => {
     for (const item of DOWNLOADS) {
-      const a = downloadUrl("2025", item.file);
-      const b = downloadUrl("2026", item.file);
-      expect(a).toBe(b.replace("/2026/", "/2025/"));
-      expect(a.endsWith(`/${item.file}`)).toBe(true);
+      const url = downloadUrl(item.file);
+      expect(url).not.toMatch(/\/20\d\d\//);
+      expect(url.endsWith(`/${item.file}`)).toBe(true);
     }
   });
 });
