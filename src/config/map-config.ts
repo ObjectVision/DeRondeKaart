@@ -56,6 +56,16 @@ export interface MapControlsConfig {
   search: boolean;
   /** Show the zoom-in / zoom-out buttons. Defaults to `true`. */
   zoom: boolean;
+  /**
+   * ISO 3166-1 alpha-2 codes the location search is limited to, e.g. `["nl"]`.
+   * Empty (the default) searches the whole world.
+   *
+   * Worth setting wherever a project covers one country: the search takes the
+   * FIRST result, so an ambiguous name has no list to correct from. "Bergen"
+   * answers with Bergen in Norway, though it is also a town in Noord-Holland
+   * and another in Limburg.
+   */
+  searchCountries: string[];
 }
 
 /**
@@ -283,6 +293,21 @@ export function chromeIconColor(): string {
 }
 
 /**
+ * Module-level cache of `mapControls.searchCountries`, set by
+ * {@link loadMapConfig}. Read through {@link searchCountries}.
+ *
+ * A module read rather than a prop, matching the icon accessors above: the
+ * location search uses this internally, so threading it through both
+ * `<MapControls>` call sites in App.tsx would add plumbing no caller cares about.
+ */
+let searchCountriesValue: string[] = [];
+
+/** Countries the location search is limited to; empty means the whole world. */
+export function searchCountries(): readonly string[] {
+  return searchCountriesValue;
+}
+
+/**
  * Module-level cache of the configured main-level nav icon size, set by
  * {@link loadMapConfig}. Stays `undefined` when `map.json` omits the key.
  */
@@ -305,6 +330,9 @@ export function navIconSize(fallback: number): number {
 export const DEFAULT_MAP_CONTROLS: MapControlsConfig = {
   search: true,
   zoom: true,
+  // Unrestricted by default, so a project that says nothing keeps searching the
+  // whole world exactly as before.
+  searchCountries: [],
 };
 
 /** Default on-click marker: a purple pin at 40px, no offset. */
@@ -509,7 +537,42 @@ function validateMapControls(value: unknown): MapControlsConfig {
   return {
     search: validateFlag(obj.search, "search", DEFAULT_MAP_CONTROLS.search),
     zoom: validateFlag(obj.zoom, "zoom", DEFAULT_MAP_CONTROLS.zoom),
+    searchCountries: validateSearchCountries(obj.searchCountries),
   };
+}
+
+/** A well-formed ISO 3166-1 alpha-2 code, once lowercased and trimmed. */
+const COUNTRY_CODE_RE = /^[a-z]{2}$/;
+
+/**
+ * `mapControls.searchCountries` — the countries the location search is limited
+ * to. Anything invalid is dropped with a warning rather than passed through:
+ * Nominatim answers an unknown code with an empty result set, so a typo like
+ * "NLD" or "Netherlands" would silently return nothing on every search and read
+ * as a broken search box.
+ */
+function validateSearchCountries(value: unknown): string[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) {
+    console.warn(
+      `map.json: invalid mapControls.searchCountries ${JSON.stringify(value)}; ignoring`,
+    );
+    return [];
+  }
+
+  const codes: string[] = [];
+  for (const raw of value) {
+    const code = typeof raw === "string" ? raw.trim().toLowerCase() : "";
+    if (COUNTRY_CODE_RE.test(code)) {
+      if (!codes.includes(code)) codes.push(code);
+    } else {
+      console.warn(
+        `map.json: invalid country code ${JSON.stringify(raw)} in ` +
+          `mapControls.searchCountries; expected an ISO 3166-1 alpha-2 code`,
+      );
+    }
+  }
+  return codes;
 }
 
 /**
@@ -619,6 +682,7 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
   }
 
   const mapControls = validateMapControls(data.mapControls);
+  searchCountriesValue = mapControls.searchCountries;
   const clickMarker = validateClickMarker(data.clickMarker);
 
   let chromeIcon = DEFAULT_CHROME_ICON_SIZE;
