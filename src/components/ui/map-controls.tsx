@@ -96,7 +96,11 @@ export function MapControls(props: MapControlsProps): JSX.Element {
               onInput={(e) => setSearchQuery(e.currentTarget.value)}
               placeholder="Zoek een locatie..."
               class="w-48 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-blue-400"
-              autofocus
+              // Focused explicitly, not with the `autofocus` attribute: browsers
+              // honour that only for an element present in the initial HTML, and
+              // this input is created when the popover opens. Deferred a frame
+              // so the element is in the document when focus is called.
+              ref={(el) => requestAnimationFrame(() => el.focus())}
             />
             <Button variant="ghost" size="icon-sm" type="submit" title="Zoeken">
               <Icon name="send" size={chromeIconSize()} class="text-gray-400" />
