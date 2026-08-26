@@ -138,3 +138,54 @@ describe('map.json variants', () => {
     },
   );
 });
+
+/**
+ * `mapControls.searchCountries` limits the location search to given countries.
+ *
+ * Validated rather than passed through because Nominatim answers an unknown
+ * code with an empty result set: a typo like "NLD" would return nothing on
+ * every search and read as a broken search box, with nothing to explain it.
+ */
+describe("map.json mapControls.searchCountries", () => {
+  it("is empty when the key is absent, searching the whole world", async () => {
+    stubMapJson({ mapControls: { search: true, zoom: false } });
+    const config = await loadMapConfig();
+    expect(config.mapControls.searchCountries).toEqual([]);
+  });
+
+  it("keeps the configured codes", async () => {
+    stubMapJson({ mapControls: { searchCountries: ["nl"] } });
+    const config = await loadMapConfig();
+    expect(config.mapControls.searchCountries).toEqual(["nl"]);
+  });
+
+  it("normalises case and surrounding space", async () => {
+    stubMapJson({ mapControls: { searchCountries: ["NL", " De "] } });
+    const config = await loadMapConfig();
+    expect(config.mapControls.searchCountries).toEqual(["nl", "de"]);
+  });
+
+  it("drops duplicates", async () => {
+    stubMapJson({ mapControls: { searchCountries: ["nl", "NL"] } });
+    const config = await loadMapConfig();
+    expect(config.mapControls.searchCountries).toEqual(["nl"]);
+  });
+
+  it("drops malformed codes and keeps the good ones", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson({ mapControls: { searchCountries: ["nl", "NLD", "Netherlands", 42] } });
+    const config = await loadMapConfig();
+    expect(config.mapControls.searchCountries).toEqual(["nl"]);
+    expect(warn).toHaveBeenCalled();
+  });
+
+  it.each([null, 42, "nl", { nl: true }])(
+    "ignores the non-array value %j",
+    async (searchCountries) => {
+      vi.spyOn(console, "warn").mockImplementation(() => {});
+      stubMapJson({ mapControls: { searchCountries } });
+      const config = await loadMapConfig();
+      expect(config.mapControls.searchCountries).toEqual([]);
+    },
+  );
+});

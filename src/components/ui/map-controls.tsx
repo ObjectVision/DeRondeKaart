@@ -1,7 +1,7 @@
 import { Show, createSignal, type JSX } from "solid-js";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
-import { chromeIconSize, chromeIconColor } from "@/config/map-config";
+import { chromeIconSize, chromeIconColor, searchCountries } from "@/config/map-config";
 
 interface MapControlsProps {
   onZoomIn: () => void;
@@ -33,9 +33,19 @@ export function MapControls(props: MapControlsProps): JSX.Element {
     if (!searchQuery().trim()) return;
 
     try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchQuery())}&format=json&limit=1`,
-      );
+      const params = new URLSearchParams({
+        q: searchQuery(),
+        format: "json",
+        limit: "1",
+      });
+      // Restrict to the configured countries, when a project names any. Only
+      // the FIRST result is used, so an unrestricted search has no list for the
+      // user to correct from: "Bergen" answers with Bergen in Norway, though it
+      // is also a town in Noord-Holland and another in Limburg.
+      const countries = searchCountries();
+      if (countries.length > 0) params.set("countrycodes", countries.join(","));
+
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
       const results = await res.json();
       if (results.length > 0) {
         const { lat, lon } = results[0];

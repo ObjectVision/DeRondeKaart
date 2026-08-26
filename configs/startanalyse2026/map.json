@@ -33,7 +33,10 @@
   "navigationSection": true,
   "mapControls": {
     "search": true,
-    "zoom": false
+    "zoom": false,
+    "searchCountries": [
+      "nl"
+    ]
   },
   "chromeIconSize": 22,
   "chromeIconColor": "#3E74A7",
