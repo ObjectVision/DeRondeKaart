@@ -47,6 +47,46 @@ describe("MapControls search", () => {
     expect(screen.queryByPlaceholderText("Zoek een locatie...")).toBeNull();
   });
 
+  /**
+   * The submit icon states whether the button will do anything: grey while
+   * `handleSearch` would refuse the query, the project accent once it would act.
+   */
+  describe("submit icon", () => {
+    const sendIcon = () =>
+      document.querySelector<HTMLElement>('form span.material-symbols-outlined');
+
+    function type(text: string) {
+      const input = screen.getByPlaceholderText<HTMLInputElement>("Zoek een locatie...");
+      input.value = text;
+      input.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+
+    it("is greyed out while the box is empty", () => {
+      openSearch();
+
+      expect(sendIcon()?.className).toContain("text-gray-400");
+      expect(sendIcon()?.style.color).toBe("");
+    });
+
+    it("takes the chrome accent once there is a query", () => {
+      openSearch();
+      type("Maastricht");
+
+      expect(sendIcon()?.className).not.toContain("text-gray-400");
+      // chromeIconColor()'s default, as no map.json is loaded here.
+      expect(sendIcon()?.style.color).toBeTruthy();
+    });
+
+    // Whitespace is not a query: handleSearch trims before deciding, so the
+    // colour must agree or the button looks live while refusing to act.
+    it("stays greyed out for whitespace only", () => {
+      openSearch();
+      type("   ");
+
+      expect(sendIcon()?.className).toContain("text-gray-400");
+    });
+  });
+
   // Submitting an empty box must not reach the geocoder.
   it("does not search on an empty query", () => {
     const fetchSpy = vi.fn();

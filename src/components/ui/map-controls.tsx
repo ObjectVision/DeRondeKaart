@@ -25,6 +25,8 @@ export function MapControls(props: MapControlsProps): JSX.Element {
   const showSearch = () => props.showSearch ?? true;
   const showZoom = () => props.showZoom ?? true;
   const horizontal = () => (props.orientation ?? "vertical") === "horizontal";
+  /** Whether there is a query worth submitting; trimmed, as handleSearch tests. */
+  const hasQuery = () => searchQuery().trim().length > 0;
 
   async function handleSearch(e: Event) {
     e.preventDefault();
@@ -103,7 +105,17 @@ export function MapControls(props: MapControlsProps): JSX.Element {
               ref={(el) => requestAnimationFrame(() => el.focus())}
             />
             <Button variant="ghost" size="icon-sm" type="submit" title="Zoeken">
-              <Icon name="send" size={chromeIconSize()} class="text-gray-400" />
+              {/* Grey until there is something to search for, then the project
+                  accent. `hasQuery` is the same trimmed test `handleSearch`
+                  refuses on, so the colour states what the button will actually
+                  do rather than tracking a second notion of "empty". Passing
+                  `color: undefined` leaves the Tailwind class to tint it. */}
+              <Icon
+                name="send"
+                size={chromeIconSize()}
+                color={hasQuery() ? chromeIconColor() : undefined}
+                class={hasQuery() ? undefined : "text-gray-400"}
+              />
             </Button>
           </form>
         </Show>
