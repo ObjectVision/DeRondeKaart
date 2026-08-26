@@ -1,4 +1,6 @@
 import { createEffect, createSignal, onCleanup, type JSX } from "solid-js";
+import { Icon } from "@/components/ui/nav-icon";
+import { chromeIconColor, chromeIconSize } from "@/config/map-config";
 
 interface ComparisonSliderProps {
   position: number; // 0-100 percentage
@@ -64,18 +66,11 @@ export function ComparisonSlider(props: ComparisonSliderProps): JSX.Element {
         onMouseDown={() => setDragging(true)}
         onTouchStart={() => setDragging(true)}
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 20 20"
-          fill="currentColor"
-          class="size-4 text-gray-600"
-        >
-          <path
-            fill-rule="evenodd"
-            d="M6.28 5.22a.75.75 0 0 1 0 1.06L3.56 9.25H8a.75.75 0 0 1 0 1.5H3.56l2.72 2.97a.75.75 0 1 1-1.06 1.06l-4-4.25a.75.75 0 0 1 0-1.06l4-4.25a.75.75 0 0 1 1.06 0Zm7.44 0a.75.75 0 0 1 1.06 0l4 4.25a.75.75 0 0 1 0 1.06l-4 4.25a.75.75 0 1 1-1.06-1.06l2.72-2.97H12a.75.75 0 0 1 0-1.5h4.44l-2.72-2.97a.75.75 0 0 1 0-1.06Z"
-            clip-rule="evenodd"
-          />
-        </svg>
+        {/* The shared chrome icon, so the handle takes the project's accent and
+            size like every other chrome control — it was the last hardcoded
+            inline SVG in the app. `arrows_outward` is a 2:1 horizontal arrow,
+            which reads as the left/right drag this control offers. */}
+        <Icon name="arrows_outward" size={chromeIconSize()} color={chromeIconColor()} />
       </div>
     </div>
   );
