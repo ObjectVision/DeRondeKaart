@@ -456,8 +456,8 @@ export function MapAttribution(): JSX.Element {
           variant="ghost"
           size="icon-sm"
           onClick={() => setOpen((v) => !v)}
-          title="Kaartinformatie"
-          aria-label="Kaartinformatie"
+          title="Over de applicatie"
+          aria-label="Over de applicatie"
           aria-expanded={open()}
         >
           <Icon name="help" size={chromeIconSize()} color={chromeIconColor()} />
