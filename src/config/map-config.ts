@@ -214,6 +214,22 @@ export interface MapConfig {
    */
   showGuideOnFirstVisit: boolean;
   /**
+   * Whether the guide opens on its **Verschilkaart** tab the first time
+   * comparison mode turns on. Defaults to `false`.
+   *
+   * Remembered permanently per browser, and separately from
+   * {@link showGuideOnFirstVisit}: the two answer different questions ("has
+   * this person seen the app" vs "has this person used the comparison
+   * slider"), and sharing one flag would mean a project that greets visitors on
+   * load could never also explain the slider.
+   *
+   * The point is timing. The Verschilkaart tab explains a draggable divider
+   * that does not exist until a layer reaches the right map, so on first load
+   * it describes something the user cannot see; on first use it is the answer
+   * to what just appeared.
+   */
+  showVerschilkaartOnFirstUse: boolean;
+  /**
    * Whether changing the area filter (Gemeente/Wijk/Buurt) flies the maps to
    * the selected areas (centroid + fitting zoom). Defaults to `true`.
    */
@@ -373,6 +389,7 @@ const DEFAULT_MAP_CONFIG: MapConfig = {
   chartsPanel: true,
   share: true,
   showGuideOnFirstVisit: false,
+  showVerschilkaartOnFirstUse: false,
   filterFlyTo: true,
   combinations: false,
   dashboard: "off",
@@ -664,6 +681,11 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     "showGuideOnFirstVisit",
     DEFAULT_MAP_CONFIG.showGuideOnFirstVisit,
   );
+  const showVerschilkaartOnFirstUse = validateBool(
+    data.showVerschilkaartOnFirstUse,
+    "showVerschilkaartOnFirstUse",
+    DEFAULT_MAP_CONFIG.showVerschilkaartOnFirstUse,
+  );
   const filterFlyTo = validateBool(data.filterFlyTo, "filterFlyTo", DEFAULT_MAP_CONFIG.filterFlyTo);
   const combinations = validateBool(data.combinations, "combinations", DEFAULT_MAP_CONFIG.combinations);
   const annotations = validateBool(data.annotations, "annotations", DEFAULT_MAP_CONFIG.annotations);
@@ -757,6 +779,7 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     chartsPanel,
     share,
     showGuideOnFirstVisit,
+    showVerschilkaartOnFirstUse,
     filterFlyTo,
     combinations,
     dashboard,

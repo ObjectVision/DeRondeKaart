@@ -43,6 +43,7 @@
   "navIconSize": 32,
   "share": true,
   "showGuideOnFirstVisit": true,
+  "showVerschilkaartOnFirstUse": true,
   "annotations": false,
   "clickMarker": {
     "icon": "location_on",

@@ -32,6 +32,11 @@ once the right map holds a layer that counts as comparison content; a layer with
 `excludeFromComparison` does not count. See `showMapRight` in `src/App.tsx` and
 `docs/functional-design.md` §9.
 
+> **Verschilkaart** is what the UI calls this to users — the name of the guide
+> tab that explains it (`src/components/ui/map-attribution.tsx`). It is the same
+> comparison mode, not a separate feature or a distinct kind of layer. Prefer
+> *comparison mode* in code and *Verschilkaart* in Dutch user-facing text.
+
 **Basemap** — the background style, a whole MapLibre style rather than a layer.
 Switching one wipes every source and layer on the map, which is why several
 modules expose a `resync()` that re-adds their own.
