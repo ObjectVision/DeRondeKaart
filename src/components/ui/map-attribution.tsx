@@ -1,12 +1,45 @@
-import { For, Match, Show, Switch, createSignal, type JSX } from "solid-js";
+import {
+  For,
+  Match,
+  Show,
+  Switch,
+  createSignal,
+  onCleanup,
+  untrack,
+  type JSX,
+} from "solid-js";
 import { DialogContent, DialogRoot, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
+import { useLocalFlag } from "@/hooks/use-local-flag";
 import { cn } from "@/lib/utils";
 
 /** Where this application's own source lives. */
 const SOURCE_REPO = "https://github.com/ObjectVision/DeRondeKaart";
+
+/**
+ * Marks that this browser has been shown the guide. Permanent (localStorage):
+ * the first-visit window must not return on the next visit.
+ */
+const GUIDE_SEEN_KEY = "guide-seen";
+
+/**
+ * Whether the first-visit guide has already been claimed by an instance in this
+ * page load.
+ *
+ * App renders two `<MapAttribution>`s — one for the top-nav chrome row, one for
+ * the sidebar toolbar — and only one is ever *displayed*. But the sidebar's is
+ * passed as a `toolbar` JSX prop, which Solid constructs eagerly, so BOTH
+ * components run their setup even though one is never shown. Without this latch
+ * both auto-open, and the app shows two stacked windows: the top one dimming
+ * the page behind it, the one underneath appearing as undimmed content spilling
+ * out below the dialog.
+ *
+ * Module scope is deliberate: the two instances share no ancestor state, and
+ * this is a once-per-page-load decision, exactly the lifetime of the module.
+ */
+let guideClaimed = false;
 
 /** Map data / imagery credits — attribution required by the providers. */
 const DATA_CREDITS = [
@@ -147,9 +180,60 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]["id"];
 
-export function MapAttribution(): JSX.Element {
-  const [open, setOpen] = createSignal(false);
+interface MapAttributionProps {
+  /**
+   * Open the window by itself on this browser's first visit — `map.json`'s
+   * `showGuideOnFirstVisit`. Ignored once the guide has been seen.
+   */
+  autoOpen?: boolean;
+}
+
+export function MapAttribution(props: MapAttributionProps): JSX.Element {
+  const [seen, setSeen] = useLocalFlag(GUIDE_SEEN_KEY, false);
+  // Deliberately a one-shot read of both inputs, hence `untrack`: this decides
+  // the window's state at mount and nothing more. Tracking them would reopen
+  // the window the moment `seen` flips — which happens as the user closes it.
+  const [open, setOpen] = createSignal(
+    untrack(() => {
+      if (!props.autoOpen || seen() || guideClaimed) return false;
+      // First instance in this page load wins; the twin stays shut.
+      guideClaimed = true;
+      onCleanup(() => (guideClaimed = false));
+      return true;
+    }),
+  );
   const [tab, setTab] = createSignal<TabId>("handleiding");
+  /**
+   * Switch tabs and return to the top of the new panel.
+   *
+   * Without this the window keeps the outgoing panel's scroll offset: leave the
+   * tall Handleiding scrolled down, and the short Attributie opens already
+   * scrolled past its own heading.
+   *
+   * The scroller is found from the clicked tab rather than held in a ref:
+   * DialogContent owns `overflow-y-auto` on its own element and exposes no ref
+   * (its inner one is spoken for by the focus trap), and widening that shared
+   * component's API for this one caller would be the larger change.
+   */
+  function selectTab(next: TabId, from: HTMLElement) {
+    setTab(next);
+    // `scrollTop` rather than `scrollTo`: it is a plain property, so it works
+    // in jsdom too, where `Element.scrollTo` is not implemented and throws.
+    const win = from.closest('[role="dialog"]');
+    if (win) win.scrollTop = 0;
+  }
+
+  /**
+   * Every close routes through here, so none can skip recording the visit:
+   * DialogRoot funnels the backdrop click and Escape into `onOpenChange` too.
+   *
+   * Any close counts, not just an auto-opened one — someone who opened the
+   * guide from the toolbutton has read it just the same.
+   */
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (!next) setSeen(true);
+  }
 
   // A fragment, not a positioning wrapper: this sits in the chrome toolbar row
   // beside the share button, so laying itself out is the caller's job. The
@@ -157,13 +241,17 @@ export function MapAttribution(): JSX.Element {
   // below takes space.
   return (
     <>
-      <DialogRoot open={open()} onOpenChange={setOpen}>
+      <DialogRoot open={open()} onOpenChange={handleOpenChange}>
         {/* Wider than the other chrome dialogs: the Handleiding lays its three
             sections out two-up, which needs the room. 64rem is the dialog
             shell's own default width, not a new number. DialogContent owns the
             `overflow-y-auto`, so `app-scrollbar` lands here to match the
             navigation and legend cards' scrollbar. */}
-        <DialogContent class="app-scrollbar w-[min(64rem,calc(100vw-2rem))] text-sm text-gray-600">
+        {/* Pinned to a fixed top rather than vertically centred, as
+            LayerMetaDialog is: the tabs differ a lot in height, and a centred
+            window jumps as they switch. Height still follows the content, so
+            the short Attributie tab stays a short window. */}
+        <DialogContent class="app-scrollbar top-[6vh] max-h-[calc(94vh-1rem)] w-[min(64rem,calc(100vw-2rem))] translate-y-0 text-sm text-gray-600">
           <div class="mb-5 flex items-center justify-between gap-2">
             {/* Mark and title travel together on the left, so `justify-between`
                 keeps only the close button pushed to the right. */}
@@ -187,7 +275,7 @@ export function MapAttribution(): JSX.Element {
             <Button
               variant="ghost"
               size="icon-sm"
-              onClick={() => setOpen(false)}
+              onClick={() => handleOpenChange(false)}
               title="Sluiten"
               aria-label="Sluiten"
             >
@@ -210,7 +298,7 @@ export function MapAttribution(): JSX.Element {
                     type="button"
                     role="tab"
                     aria-selected={isActive()}
-                    onClick={() => setTab(t.id)}
+                    onClick={(e) => selectTab(t.id, e.currentTarget)}
                     // The underline is always laid out, transparent when the tab
                     // is inactive, so switching tabs recolors it instead of
                     // adding a border that nudges the labels up by 2px.
@@ -455,7 +543,7 @@ export function MapAttribution(): JSX.Element {
         <Button
           variant="ghost"
           size="icon-sm"
-          onClick={() => setOpen((v) => !v)}
+          onClick={() => handleOpenChange(!open())}
           title="Over de applicatie"
           aria-label="Over de applicatie"
           aria-expanded={open()}
