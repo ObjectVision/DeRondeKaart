@@ -46,7 +46,8 @@ import { useHoverCursor } from "@/hooks/use-hover-cursor";
 import { useFeatureHighlight } from "@/hooks/use-feature-highlight";
 import { useUrlCommands, type ViewUpdate } from "@/hooks/use-url-commands";
 import { useVariantSwitch } from "@/hooks/use-variant-switch";
-import type { MapSide, MapSidePair } from "@/lib/map-side";
+import { forSide, type MapSide, type MapSideId, type MapSidePair } from "@/lib/map-side";
+import { useLayerPairs } from "@/hooks/use-layer-pairs";
 import { useEmbedData, type EmbedConfig } from "@/hooks/use-embed-data";
 import { useMapSnapshot } from "@/hooks/use-map-snapshot";
 import { useNavigation } from "@/hooks/use-navigation";
@@ -433,7 +434,13 @@ function App(rawProps: AppProps): JSX.Element {
     handleMapClick,
   });
 
-  const nav = useNavigation(mapSides);
+  // Which layers were applied together as a comparison. Reads the live stacks,
+  // so a pair whose half left by any other route stops counting as one.
+  const layerPairs = useLayerPairs((id, side) =>
+    forSide(mapSides, side).layers.layerEntries().some((e) => e.config.id === id),
+  );
+
+  const nav = useNavigation({ ...mapSides, pairs: layerPairs });
 
   /**
    * The right map's pick layer, which only differs where the two maps show
@@ -575,6 +582,7 @@ function App(rawProps: AppProps): JSX.Element {
   const { switchVariant } = useVariantSwitch({
     ...mapSides,
     onResetPickLayer: resetPickLayers,
+    onClearPairs: layerPairs.clear,
   });
 
   useUrlCommands({
@@ -639,7 +647,34 @@ function App(rawProps: AppProps): JSX.Element {
   const handlersB = useLayerHandlers(mapRightLayers);
 
   const leftLegendLayers = () => (leftLegendUsesMapB() ? mapRightLayers : mapLeftLayers);
+  // Which map the main legend is actually acting on: it shows the right map's
+  // stack when the left map is empty, so pair lookups must follow it there.
+  const leftLegendSide = (): MapSideId => (leftLegendUsesMapB() ? "right" : "left");
   const leftLegendHandlers = () => (leftLegendUsesMapB() ? handlersB : handlersA);
+  /**
+   * Remove a layer from one map, taking its partner with it when it is half of
+   * a pair — a comparison is one thing, so closing either side closes both.
+   *
+   * Wrapped here rather than inside `removeLayer`, which belongs to a single
+   * map and cannot see the other one. Every legend's close button routes
+   * through this.
+   */
+  function removeFromSide(layerId: string, side: MapSideId) {
+    const pair = layerPairs.pairFor(layerId, side);
+    if (!pair) {
+      forSide(mapSides, side).layers.removeLayer(layerId);
+      return;
+    }
+
+    // Forget BEFORE removing. The two calls below re-enter nothing today, but
+    // the pair must not still be resolvable while its halves are coming off:
+    // any future close path that consults `pairFor` would then try to remove
+    // the partner again.
+    layerPairs.forget(pair);
+    mapLeftLayers.removeLayer(pair.left);
+    mapRightLayers.removeLayer(pair.right);
+  }
+
   function handleMoveToRight(layerId: string) {
     const entry = mapLeftLayers.layerEntries().find((e) => e.config.id === layerId);
     if (!entry) return;
@@ -860,9 +895,10 @@ function App(rawProps: AppProps): JSX.Element {
               onToggleRule={mapRightLayers.toggleRule}
               onTogglePlay={mapRightLayers.togglePlay}
               onSetStep={handlersB.setStep}
-              onRemove={mapRightLayers.removeLayer}
+              onRemove={(id) => removeFromSide(id, "right")}
               onOpenMeta={openLayerMeta}
               onMove={handleMoveToLeft}
+              canMove={(id) => !layerPairs.isPaired(id, "right")}
               moveDirection="left"
               onReorder={mapRightLayers.reorderLayer}
             />
@@ -1122,10 +1158,11 @@ function App(rawProps: AppProps): JSX.Element {
                 onToggleRule={leftLegendLayers().toggleRule}
                 onTogglePlay={leftLegendLayers().togglePlay}
                 onSetStep={leftLegendHandlers().setStep}
-                onRemove={leftLegendLayers().removeLayer}
+                onRemove={(id) => removeFromSide(id, leftLegendSide())}
                 onOpenMeta={openLayerMeta}
                 onReorder={leftLegendLayers().reorderLayer}
                 onMove={leftLegendUsesMapB() ? handleMoveToLeft : handleMoveToRight}
+                canMove={(id) => !layerPairs.isPaired(id, leftLegendSide())}
                 moveDirection={leftLegendUsesMapB() ? "left" : "right"}
                 moveDisabled={
                   !leftLegendUsesMapB() && mapLeftLayers.layerEntries().length <= 1

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { clearLayerConfigCache } from "@/layers/config";
 import { leafPair, type NavLeaf } from "@/layers/navigation";
 import { useNavigation } from "./use-navigation";
+import { useLayerPairs } from "./use-layer-pairs";
 
 /**
  * Two layers, both resolvable from layers.json, so a pair can put one on each
@@ -151,5 +152,73 @@ describe("useNavigation pairs", () => {
 
     expect(left.ids()).toEqual(["235"]);
     expect(right.ids()).toEqual([]);
+  });
+});
+
+/**
+ * Recording the pair is what lets the legend keep the two halves together
+ * afterwards. Without it the layers land on the maps as two strangers.
+ */
+describe("useNavigation pair bookkeeping", () => {
+  beforeEach(() => {
+    clearLayerConfigCache();
+    stubFetch();
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  function setupWithPairs() {
+    const left = fakeSide();
+    const right = fakeSide();
+    const pairs = useLayerPairs((id, side) =>
+      (side === "left" ? left : right).ids().includes(id),
+    );
+    return { left, right, pairs, nav: useNavigation({ left, right, pairs }) };
+  }
+
+  it("records the pair once both halves are on the maps", async () => {
+    const { pairs, nav } = setupWithPairs();
+
+    await nav.togglePair(PAIR);
+
+    expect(pairs.pairFor("235", "left")).toEqual(PAIR);
+    expect(pairs.isPaired("240", "right")).toBe(true);
+  });
+
+  it("forgets the pair when the leaf is toggled off", async () => {
+    const { pairs, nav } = setupWithPairs();
+    await nav.togglePair(PAIR);
+
+    await nav.togglePair(PAIR);
+
+    expect(pairs.pairs()).toHaveLength(0);
+  });
+
+  /**
+   * A pair that only half-applied is not a comparison. Recording it would tie
+   * the surviving layer to a partner that never made it onto the map.
+   */
+  it("records nothing when half the pair cannot be resolved", async () => {
+    const left = fakeSide();
+    const right = fakeSide();
+    const pairs = useLayerPairs((id, side) =>
+      (side === "left" ? left : right).ids().includes(id),
+    );
+    const nav = useNavigation({ left, right, pairs });
+
+    // "999" is not in the stubbed layers.json, so the right half never lands.
+    await nav.togglePair({ left: "235", right: "999" });
+
+    expect(left.ids()).toEqual(["235"]);
+    expect(right.ids()).toEqual([]);
+    expect(pairs.pairs()).toHaveLength(0);
+  });
+
+  it("does not pair layers added individually", async () => {
+    const { pairs, nav } = setupWithPairs();
+
+    await nav.toggleOnMap("235", "left");
+    await nav.toggleOnMap("240", "right");
+
+    expect(pairs.isPaired("235", "left")).toBe(false);
   });
 });
