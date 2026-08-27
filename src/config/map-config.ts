@@ -201,6 +201,19 @@ export interface MapConfig {
    */
   share: boolean;
   /**
+   * Whether the "Over de applicatie" window (Handleiding + Attributie) opens by
+   * itself the first time someone loads the app. Defaults to `false`.
+   *
+   * "First time" is remembered permanently per browser, in localStorage — not
+   * per session — so a returning visitor is not greeted again. Any close counts
+   * as seen, including opening the window from its own toolbutton: someone who
+   * found the guide unaided has still read it.
+   *
+   * Worth enabling for projects whose audience arrives once from a link and has
+   * no reason to hunt for the help button.
+   */
+  showGuideOnFirstVisit: boolean;
+  /**
    * Whether changing the area filter (Gemeente/Wijk/Buurt) flies the maps to
    * the selected areas (centroid + fitting zoom). Defaults to `true`.
    */
@@ -359,6 +372,7 @@ const DEFAULT_MAP_CONFIG: MapConfig = {
   navigationSection: true,
   chartsPanel: true,
   share: true,
+  showGuideOnFirstVisit: false,
   filterFlyTo: true,
   combinations: false,
   dashboard: "off",
@@ -645,6 +659,11 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
   );
   const chartsPanel = validateBool(data.chartsPanel, "chartsPanel", DEFAULT_MAP_CONFIG.chartsPanel);
   const share = validateBool(data.share, "share", DEFAULT_MAP_CONFIG.share);
+  const showGuideOnFirstVisit = validateBool(
+    data.showGuideOnFirstVisit,
+    "showGuideOnFirstVisit",
+    DEFAULT_MAP_CONFIG.showGuideOnFirstVisit,
+  );
   const filterFlyTo = validateBool(data.filterFlyTo, "filterFlyTo", DEFAULT_MAP_CONFIG.filterFlyTo);
   const combinations = validateBool(data.combinations, "combinations", DEFAULT_MAP_CONFIG.combinations);
   const annotations = validateBool(data.annotations, "annotations", DEFAULT_MAP_CONFIG.annotations);
@@ -737,6 +756,7 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     navigationSection,
     chartsPanel,
     share,
+    showGuideOnFirstVisit,
     filterFlyTo,
     combinations,
     dashboard,

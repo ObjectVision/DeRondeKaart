@@ -124,6 +124,8 @@ interface AppProps {
   navigationSectionEnabled?: boolean;
   chartsPanelEnabled?: boolean;
   shareEnabled?: boolean;
+  /** Open the "Over de applicatie" guide on this browser's first visit. */
+  showGuideOnFirstVisit?: boolean;
   filterFlyToEnabled?: boolean;
   combinationsEnabled?: boolean;
   complementaryDashboardEnabled?: boolean;
@@ -145,6 +147,7 @@ function App(rawProps: AppProps): JSX.Element {
       navigationSectionEnabled: true,
       chartsPanelEnabled: true,
       shareEnabled: true,
+      showGuideOnFirstVisit: false,
       filterFlyToEnabled: true,
       combinationsEnabled: false,
       complementaryDashboardEnabled: false,
@@ -871,7 +874,7 @@ function App(rawProps: AppProps): JSX.Element {
             <Show when={shareEnabled()}>
               <ShareButton />
             </Show>
-            <MapAttribution />
+            <MapAttribution autoOpen={props.showGuideOnFirstVisit} />
           </div>
         </Show>
 
@@ -1049,7 +1052,7 @@ function App(rawProps: AppProps): JSX.Element {
                   </Show>
                   {/* Outside the shareEnabled guard: map information must stay
                       reachable in a project that turns sharing off. */}
-                  <MapAttribution />
+                  <MapAttribution autoOpen={props.showGuideOnFirstVisit} />
                   <MapControls
                     orientation="horizontal"
                     onZoomIn={handleZoomIn}

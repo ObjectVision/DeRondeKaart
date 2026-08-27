@@ -42,6 +42,7 @@
   "chromeIconColor": "#3E74A7",
   "navIconSize": 32,
   "share": true,
+  "showGuideOnFirstVisit": true,
   "annotations": false,
   "clickMarker": {
     "icon": "location_on",
