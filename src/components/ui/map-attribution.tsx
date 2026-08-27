@@ -3,6 +3,7 @@ import {
   Match,
   Show,
   Switch,
+  createEffect,
   createSignal,
   onCleanup,
   untrack,
@@ -19,10 +20,28 @@ import { cn } from "@/lib/utils";
 const SOURCE_REPO = "https://github.com/ObjectVision/DeRondeKaart";
 
 /**
+ * The comparison-slider animation on the Verschilkaart tab.
+ *
+ * The file itself is set to play once (its GIF loop count is 1, not the usual
+ * 0 = forever): a 1.5s loop running under the text is a distraction, and a
+ * browser obeys the file's own loop count — CSS and JS cannot stop an `<img>`
+ * mid-loop. Clicking replays it; see `replay` below.
+ */
+const SLIDER_GIF = "/handleiding_links_rechts.gif";
+
+/**
  * Marks that this browser has been shown the guide. Permanent (localStorage):
  * the first-visit window must not return on the next visit.
  */
 const GUIDE_SEEN_KEY = "guide-seen";
+
+/**
+ * Marks that this browser has been shown the Verschilkaart tab on entering
+ * comparison mode. Kept apart from {@link GUIDE_SEEN_KEY} on purpose: the two
+ * record different events, and a project that greets visitors on load would
+ * otherwise never get to explain the slider.
+ */
+const VERSCHILKAART_SEEN_KEY = "verschilkaart-seen";
 
 /**
  * Whether the first-visit guide has already been claimed by an instance in this
@@ -40,6 +59,21 @@ const GUIDE_SEEN_KEY = "guide-seen";
  * this is a once-per-page-load decision, exactly the lifetime of the module.
  */
 let guideClaimed = false;
+
+/**
+ * The same claim, for the Verschilkaart trigger.
+ *
+ * The `verschilkaart-seen` flag alone cannot do this job. `useLocalFlag` seeds
+ * a per-instance signal from storage once, at setup, so when one instance
+ * writes the flag the twin's signal stays `false` — it never re-reads storage.
+ * Both instances then open a window on the same comparison event, and closing
+ * the top one reveals the second still sitting underneath.
+ *
+ * Module scope for the same reason as {@link guideClaimed}: the two instances
+ * share no ancestor state, and "has this page load already shown it" is exactly
+ * the module's lifetime.
+ */
+let verschilkaartClaimed = false;
 
 /** Map data / imagery credits — attribution required by the providers. */
 const DATA_CREDITS = [
@@ -175,6 +209,7 @@ function GuideSection(props: {
 /** The dialog's tabs, left to right. "Handleiding" is the one it opens on. */
 const TABS = [
   { id: "handleiding", label: "Handleiding" },
+  { id: "verschilkaart", label: "Verschilkaart" },
   { id: "attributie", label: "Attributie" },
 ] as const;
 
@@ -186,10 +221,18 @@ interface MapAttributionProps {
    * `showGuideOnFirstVisit`. Ignored once the guide has been seen.
    */
   autoOpen?: boolean;
+  /**
+   * Open the window on its Verschilkaart tab the first time comparison mode
+   * turns on — `map.json`'s `showVerschilkaartOnFirstUse`.
+   */
+  showVerschilkaartOnFirstUse?: boolean;
+  /** Whether comparison mode is currently on (both maps under a divider). */
+  comparisonActive?: boolean;
 }
 
 export function MapAttribution(props: MapAttributionProps): JSX.Element {
   const [seen, setSeen] = useLocalFlag(GUIDE_SEEN_KEY, false);
+  const [vkSeen, setVkSeen] = useLocalFlag(VERSCHILKAART_SEEN_KEY, false);
   // Deliberately a one-shot read of both inputs, hence `untrack`: this decides
   // the window's state at mount and nothing more. Tracking them would reopen
   // the window the moment `seen` flips — which happens as the user closes it.
@@ -203,6 +246,13 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
     }),
   );
   const [tab, setTab] = createSignal<TabId>("handleiding");
+  // Bumped on click to replay the (play-once) animation. The counter becomes a
+  // cache-busting query param: re-assigning the SAME url does not restart a
+  // finished GIF, since the browser reuses the decoded image in its final
+  // state. Starts at 0 so the first render requests the plain, cacheable url.
+  const [replay, setReplay] = createSignal(0);
+  const sliderGifSrc = () =>
+    replay() === 0 ? SLIDER_GIF : `${SLIDER_GIF}?replay=${replay()}`;
   /**
    * Switch tabs and return to the top of the new panel.
    *
@@ -222,6 +272,64 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
     const win = from.closest('[role="dialog"]');
     if (win) win.scrollTop = 0;
   }
+
+  // Whether THIS instance took the Verschilkaart claim. Released on unmount
+  // only (below), so a remount can show the window again — and guarded on this
+  // flag, so unmounting the twin cannot free a claim it never held.
+  let claimedHere = false;
+  onCleanup(() => {
+    if (claimedHere) verschilkaartClaimed = false;
+  });
+
+  /**
+   * Explain the comparison slider the first time the user actually enters
+   * comparison mode, opening the window on the Verschilkaart tab.
+   *
+   * Every reactive input is read BEFORE any early return. An effect subscribes
+   * only to what its last run actually read, and `comparisonActive` is false on
+   * the run that happens at mount — bail out before reading it and the effect
+   * unsubscribes from the one signal it exists to watch, then never fires
+   * again. That failure is silent: no error, nothing in the tests unless one
+   * flips comparison on after mount.
+   *
+   * This also runs in BOTH instances App renders (the sidebar's arrives as an
+   * eagerly-constructed JSX prop), so it needs a guard against opening twice.
+   * That guard is {@link verschilkaartClaimed}, NOT the stored `vkSeen` flag:
+   * `useLocalFlag` seeds a per-instance signal from storage once at setup, so
+   * one instance writing the flag leaves the twin's signal untouched and both
+   * open. The two work together — the latch prevents a double window within a
+   * page load, the stored flag remembers across them.
+   */
+  createEffect(() => {
+    const active = props.comparisonActive;
+    const enabled = props.showVerschilkaartOnFirstUse;
+    const already = vkSeen();
+    if (!active || !enabled || already || verschilkaartClaimed) return;
+
+    // Claim before opening, so the twin instance reacting to the same signal
+    // change finds it taken. The stored flag is the memory across page loads;
+    // this latch is what keeps the two instances from both opening within one.
+    //
+    // The claim is released on unmount only (see the component-scope onCleanup
+    // below), NOT here: an onCleanup registered inside an effect runs before
+    // every re-run of that effect, so releasing it here would hand the claim
+    // back the next time comparison state changed — the twin would then open a
+    // second window behind the first, and the X would need two clicks.
+    verschilkaartClaimed = true;
+    claimedHere = true;
+    setVkSeen(true);
+    setTab("verschilkaart");
+    // A no-op when the window is already up (the first-visit guide, say), which
+    // is what keeps this from ever stacking a second dialog: that window simply
+    // moves to the tab describing what just appeared on the map.
+    setOpen(true);
+    // The tab is set programmatically here, bypassing `selectTab`, so reset the
+    // scroll by hand — an already-open window may be scrolled down.
+    queueMicrotask(() => {
+      const win = document.querySelector('[role="dialog"]');
+      if (win) win.scrollTop = 0;
+    });
+  });
 
   /**
    * Every close routes through here, so none can skip recording the visit:
@@ -474,6 +582,52 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
                     </ul>
                   </li>
                 </GuideSection>
+              </div>
+            </Match>
+
+            <Match when={tab() === "verschilkaart"}>
+              {/* One sentence and the animation, centred on the same column
+                  width as the image below it: the tab has a single idea to
+                  explain, and the guide's numbered-section cards would be
+                  scaffolding around one paragraph. */}
+              <div class="mx-auto flex max-w-[500px] flex-col gap-3">
+                <p class="leading-relaxed">
+                  Met de verticale schuif of het handvat{" "}
+                  {/* The handle's own glyph, inline in the sentence and in the
+                      project's chrome size/color, so the text points at exactly
+                      what the user sees on the map. Spelled as a literal
+                      name="…" — the build-time font subsetter scans for that
+                      form, and a missed name ships as raw text. */}
+                  <span class="inline-flex translate-y-[0.15em] align-middle">
+                    <Icon
+                      name="arrows_outward"
+                      size={chromeIconSize()}
+                      color={chromeIconColor()}
+                    />
+                  </span>{" "}
+                  in het midden kunnen verschillen tussen kaartlagen eenvoudig in
+                  beeld worden gebracht.
+                </p>
+                {/* Plays once, then holds its last frame; click (or Enter/Space)
+                    to play it again. Interactive, so it carries a button role
+                    and a key handler rather than a bare onClick. */}
+                <img
+                  src={sliderGifSrc()}
+                  alt="Animatie: de verticale schuif wordt naar links en rechts gesleept om twee kaartlagen te vergelijken."
+                  title="Klik om opnieuw af te spelen"
+                  role="button"
+                  tabIndex={0}
+                  draggable={false}
+                  onClick={() => setReplay((n) => n + 1)}
+                  onKeyDown={(e) => {
+                    if (e.key !== "Enter" && e.key !== " ") return;
+                    e.preventDefault();
+                    setReplay((n) => n + 1);
+                  }}
+                  // Capped at the file's own 500px so it is never upscaled into
+                  // a soft image; w-full lets it shrink on a narrow window.
+                  class="h-auto w-full max-w-[500px] cursor-pointer rounded-xl ring-1 ring-gray-200"
+                />
               </div>
             </Match>
 
