@@ -115,6 +115,17 @@ interface LegendProps {
    */
   moveDisabled?: boolean;
   /**
+   * Per-layer veto on the move button, hiding it for that row only.
+   *
+   * Distinct from {@link moveDisabled}, which is a property of the whole legend
+   * ("add a layer to the left map first") and so cannot say "this row only".
+   * Used for paired layers: a pair is one comparison, and moving half of it
+   * across would stack both halves on one map and empty the other.
+   *
+   * Defaults to allowing the move, so a legend that says nothing is unchanged.
+   */
+  canMove?: (layerId: string) => boolean;
+  /**
    * Header chrome (basemap toggle + collapse button) is shown only when these
    * are provided — the left-map legend hosts them; the right-map legend renders
    * a title-only header. Its position (bottom-left vs bottom-right) identifies
@@ -171,6 +182,8 @@ interface LayerListProps {
   onMove?: (layerId: string) => void;
   moveDirection?: "right" | "left";
   moveDisabled?: boolean;
+  /** Per-layer veto on the move button; see the Legend prop of the same name. */
+  canMove?: (layerId: string) => boolean;
   onReorder?: (layerId: string, toDisplayIndex: number) => void;
   scrollEl?: () => HTMLElement | null | undefined;
 }
@@ -380,7 +393,10 @@ function LayerList(props: LayerListProps): JSX.Element {
                       >
                         <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
                       </Button>
-                      <Show when={props.onMove}>
+                      {/* Hidden outright for a paired layer, rather than
+                          greyed out: there is no state the user could reach in
+                          which moving half a pair becomes valid. */}
+                      <Show when={props.onMove && (props.canMove?.(config.id) ?? true)}>
                         <Button
                           variant="ghost"
                           size="icon-sm"
@@ -640,6 +656,7 @@ export function Legend(props: LegendProps): JSX.Element {
           onMove={props.onMove}
           moveDirection={props.moveDirection}
           moveDisabled={props.moveDisabled}
+          canMove={props.canMove}
           onReorder={props.onReorder ? handleReorder : undefined}
           scrollEl={() => card}
         />

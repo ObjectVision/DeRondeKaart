@@ -7,8 +7,16 @@ import {
 } from "@/layers/filter-layers";
 import { forSide, type MapSide, type MapSideId, type MapSidePair } from "@/lib/map-side";
 import type { LeafPair } from "@/layers/navigation";
+import type { LayerPairsApi } from "@/hooks/use-layer-pairs";
 
-type UseNavigationOptions = MapSidePair<MapSide>;
+interface UseNavigationOptions extends MapSidePair<MapSide> {
+  /**
+   * Where applied pairs are recorded, so the legend can keep them together.
+   * Optional: without it a pair still applies, it just is not tracked
+   * afterwards — which is what the hook's own tests exercise.
+   */
+  pairs?: LayerPairsApi;
+}
 
 /**
  * Resolve a navigation leaf id to its LayerConfig.
@@ -100,12 +108,17 @@ export function useNavigation(options: UseNavigationOptions) {
     if (pairState(pair) === "none") {
       await toggleOnMap(pair.left, "left");
       await toggleOnMap(pair.right, "right");
+      // Recorded only once both halves actually landed. A pair that half-failed
+      // (a missing layers.json entry, say) is not a comparison, and recording
+      // it would tie the surviving layer to a partner that never existed.
+      if (pairState(pair) === "both") options.pairs?.add(pair);
       return;
     }
 
     // Partial or both: clear whichever halves are actually on. Checked
     // individually so a half-applied pair recovers to empty rather than
     // toggling its missing half back on.
+    options.pairs?.forget(pair);
     if (isOnMap(pair.left, "left")) await toggleOnMap(pair.left, "left");
     if (isOnMap(pair.right, "right")) await toggleOnMap(pair.right, "right");
   }

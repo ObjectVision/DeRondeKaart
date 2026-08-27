@@ -10,6 +10,13 @@ export interface UseVariantSwitchOptions extends MapSidePair<MapSide> {
    * entry, so the teardown below removes it along with everything else.
    */
   onResetPickLayer?: () => void;
+  /**
+   * Forget every recorded layer pair. The teardown below calls `removeLayer`
+   * straight on each stack, bypassing the wrapper that would normally retire a
+   * pair, so nothing else clears them — and layer ids are reused between
+   * variants, so a surviving pair would couple two unrelated layers.
+   */
+  onClearPairs?: () => void;
 }
 
 /**
@@ -61,6 +68,7 @@ export function useVariantSwitch(options: UseVariantSwitchOptions) {
     // active, because removeLayer resolves each entry's config to find the
     // native sources/layers it owns.
     for (const side of MAP_SIDES) clearSide(forSide(options, side));
+    options.onClearPairs?.();
 
     // Whatever registered itself as variant-scoped. Each cache declares that
     // where it is defined, so a new one cannot be forgotten here.
