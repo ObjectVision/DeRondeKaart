@@ -202,6 +202,15 @@ export interface CircularExportOptions {
    * bottom point, the output canvas grows downward to hold them.
    */
   callouts?: CalloutLabel[];
+  /**
+   * Export the full square frame instead of the signature round crop.
+   *
+   * Only the map's clip changes: the title and legend cards are anchored to the
+   * canvas corners either way, so in square mode they overlay the map rather
+   * than the round version's corner whitespace. Their 95%-opaque backing keeps
+   * them readable, the same way they sit over the live map on screen.
+   */
+  square?: boolean;
 }
 
 /**
@@ -349,10 +358,30 @@ function drawSwatch(
   }
 }
 
+/**
+ * Whether a point lands inside the exported image, for the given shape.
+ *
+ * The shapes disagree at the corners, and only there: a round export crops them
+ * away, a square one keeps them. Getting this wrong is silent — an annotation
+ * visible in the PNG would simply lose its label, or a cropped-away one would
+ * gain a leader line pointing off the map.
+ *
+ * `x`/`y` are in output-canvas pixels, `size` the frame's width and height.
+ */
+export function isInsideExportFrame(
+  x: number,
+  y: number,
+  size: number,
+  square?: boolean,
+): boolean {
+  if (square) return x >= 0 && x <= size && y >= 0 && y <= size;
+  return Math.hypot(x - size / 2, y - size / 2) < size / 2;
+}
+
 export async function composeCircularExport(
   options: CircularExportOptions,
 ): Promise<HTMLCanvasElement> {
-  const { mapCanvas, size, title, subtitle, legend, callouts } = options;
+  const { mapCanvas, size, title, subtitle, legend, callouts, square } = options;
   await document.fonts.ready;
   const swatchIcons = await preloadSwatchIcons(legend);
 
@@ -370,16 +399,20 @@ export async function composeCircularExport(
 
   // Callout band layout — must run BEFORE drawing: the canvas grows downward
   // to hold the labels, and resizing a canvas clears it.
-  const placedCallouts = layoutCallouts(ctx, callouts ?? [], size, u);
+  const placedCallouts = layoutCallouts(ctx, callouts ?? [], size, u, square);
   if (placedCallouts.bandH > 0) {
     out.height = size + placedCallouts.bandH; // resets ctx state; nothing drawn yet
   }
 
-  // Map, clipped to the inscribed circle.
+  // Map, clipped to the inscribed circle — or the full frame when the caller
+  // asked for a square export. The clip is the ONLY difference between the two
+  // shapes: everything below is anchored to canvas corners, not to the circle.
   ctx.save();
-  ctx.beginPath();
-  ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
-  ctx.clip();
+  if (!square) {
+    ctx.beginPath();
+    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+    ctx.clip();
+  }
   ctx.drawImage(mapCanvas, 0, 0, size, size);
   ctx.restore();
 
@@ -556,6 +589,7 @@ function layoutCallouts(
   callouts: CalloutLabel[],
   size: number,
   u: number,
+  square?: boolean,
 ): CalloutLayout {
   const items = callouts.filter((c) => c.title.trim().length > 0);
   if (items.length === 0) return { placed: [], bandH: 0 };
@@ -569,8 +603,12 @@ function layoutCallouts(
   // Minimum clearance between any label text and the circle's outer radius:
   // labels are laid out against this virtual expanded circle, measured at the
   // text edge closest to the rim.
+  //
+  // A square export has no rim to clear — the map reaches the canvas edge — so
+  // the virtual circle collapses to nothing and the labels stack straight down
+  // the band below the map instead of fanning around a curve.
   const rimClearance = CALLOUT_RIM_CLEARANCE * u;
-  const R = r + rimClearance;
+  const R = square ? 0 : r + rimClearance;
   const rowH = 96 * u; // vertical slot pitch
   const maxLabelW = size * 0.45;
 

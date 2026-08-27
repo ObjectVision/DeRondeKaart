@@ -16,9 +16,46 @@ import {
   captureMapAtResolution,
   composeCircularExport,
   downloadCanvasPng,
+  isInsideExportFrame,
 } from "@/lib/map-capture";
+import { useSessionFlag } from "@/hooks/use-session-flag";
 
 const EXPORT_SIZE = 2048;
+
+interface ShapeOptionProps {
+  label: string;
+  checked: boolean;
+  onSelect: () => void;
+}
+
+/**
+ * One shape choice for the PNG export. Deliberately shaped like `OptionRow` in
+ * single-select.tsx — same role, same icon pair, same checked/unchecked tint —
+ * so the app has one radio-button appearance rather than two.
+ */
+function ShapeOption(props: ShapeOptionProps): JSX.Element {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={props.checked}
+      onClick={() => props.onSelect()}
+      class="flex flex-1 cursor-pointer items-center gap-1.5 rounded px-1.5 py-1 text-left text-sm transition-colors hover:bg-gray-100"
+    >
+      {/* Chrome size and accent, like every other icon in this dialog. The
+          unchecked state stays grey rather than taking the accent too: both in
+          the project color would leave only the glyph's inner dot to tell the
+          states apart. */}
+      <Icon
+        name={props.checked ? "radio_button_checked" : "radio_button_unchecked"}
+        size={chromeIconSize()}
+        color={props.checked ? chromeIconColor() : undefined}
+        class={props.checked ? "flex-shrink-0" : "flex-shrink-0 text-gray-400"}
+      />
+      <span class={props.checked ? "text-gray-900" : "text-gray-700"}>{props.label}</span>
+    </button>
+  );
+}
 
 function filenameSlug(title: string, fallback: string): string {
   const slug = title
@@ -64,6 +101,10 @@ export function ShareDialog(props: ShareDialogProps): JSX.Element {
   let preview: ExportPreviewHandle | null = null;
   const [copied, setCopied] = createSignal<string | null>(null);
   const [exporting, setExporting] = createSignal(false);
+  // Remembered for the session (and across a reload), so a user exporting a
+  // series of maps picks the shape once. `false` = round, which is both the
+  // default and the product's signature shape.
+  const [squareExport, setSquareExport] = useSessionFlag("export-square", false);
   let copiedTimer: ReturnType<typeof setTimeout> | null = null;
 
   onCleanup(() => {
@@ -109,7 +150,9 @@ export function ShareDialog(props: ShareDialogProps): JSX.Element {
     try {
       // Project annotation anchors BEFORE the capture (map.project uses CSS
       // coordinates; project outside the transient pixel-ratio window). Only
-      // titled shapes whose center lands inside the circle get a callout.
+      // titled shapes landing inside the exported frame get a callout — which
+      // frame depends on the shape, since a square export keeps the corners a
+      // round one crops away.
       const scale = EXPORT_SIZE / Math.max(1, map.getContainer().clientWidth);
       const callouts = (props.annotations ?? [])
         .filter((a) => a.title.trim())
@@ -117,10 +160,7 @@ export function ShareDialog(props: ShareDialogProps): JSX.Element {
           const p = map.project([a.center.lng, a.center.lat]);
           return { title: a.title, color: a.color, x: p.x * scale, y: p.y * scale };
         })
-        .filter(
-          (c) =>
-            Math.hypot(c.x - EXPORT_SIZE / 2, c.y - EXPORT_SIZE / 2) < EXPORT_SIZE / 2,
-        );
+        .filter((c) => isInsideExportFrame(c.x, c.y, EXPORT_SIZE, squareExport()));
 
       const mapCanvas = await captureMapAtResolution(map, EXPORT_SIZE);
       const composed = await composeCircularExport({
@@ -130,6 +170,7 @@ export function ShareDialog(props: ShareDialogProps): JSX.Element {
         subtitle: props.subtitle,
         legend: legendItems(),
         callouts,
+        square: squareExport(),
       });
       downloadCanvasPng(composed, `${filenameSlug(props.title, "kaart")}.png`);
     } catch (err) {
@@ -182,6 +223,7 @@ export function ShareDialog(props: ShareDialogProps): JSX.Element {
                 subtitle={props.subtitle}
                 mode="edit"
                 size="preview"
+                square={squareExport()}
                 onTitleChange={props.onTitleChange}
                 onSubtitleChange={props.onSubtitleChange}
                 exporting={exporting()}
@@ -240,6 +282,24 @@ export function ShareDialog(props: ShareDialogProps): JSX.Element {
               <p class="mb-3 mt-1 text-xs text-gray-500">
                 Download de Ronde kaart als PNG-afbeelding
               </p>
+              {/* Shape choice. Mirrors the radio rows in single-select.tsx so
+                  the two controls read alike. */}
+              <div
+                role="radiogroup"
+                aria-label="Vorm van de afbeelding"
+                class="mb-3 flex items-center gap-1"
+              >
+                <ShapeOption
+                  label="Rond"
+                  checked={!squareExport()}
+                  onSelect={() => setSquareExport(false)}
+                />
+                <ShapeOption
+                  label="Vierkant"
+                  checked={squareExport()}
+                  onSelect={() => setSquareExport(true)}
+                />
+              </div>
               <Button
                 variant="outline"
                 size="sm"

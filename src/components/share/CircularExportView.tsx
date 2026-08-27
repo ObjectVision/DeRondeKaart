@@ -45,6 +45,13 @@ interface CircularExportViewProps {
    * Only safe when this view owns the whole `#root` viewport (never the dialog).
    */
   size?: "preview" | "fill";
+  /**
+   * Preview the square export instead of the round one. The preview has to
+   * match what the PNG will be, or the shape control looks like it does
+   * nothing. Only the dialog sets this; the standalone circular embed is round
+   * by definition.
+   */
+  square?: boolean;
   ref?: (handle: ExportPreviewHandle) => void;
 }
 
@@ -72,8 +79,13 @@ export function CircularExportView(props: CircularExportViewProps): JSX.Element 
       // Fill: largest square fitting the viewport, ~0.5rem margin per side.
       style={fill() ? { width: "min(calc(100vw - 1rem), calc(100vh - 1rem))" } : undefined}
     >
-      {/* The map itself, clipped to a circle. */}
-      <div class="absolute inset-0 overflow-hidden rounded-full ring-1 ring-gray-200">
+      {/* The map itself, clipped to the exported shape. */}
+      <div
+        class={
+          "absolute inset-0 overflow-hidden ring-1 ring-gray-200 " +
+          (props.square ? "rounded-xl" : "rounded-full")
+        }
+      >
         <ExportPreviewMap
           ref={props.ref}
           entries={props.entries}
@@ -86,7 +98,12 @@ export function CircularExportView(props: CircularExportViewProps): JSX.Element 
           initialViewState={props.initialViewState}
         />
         <Show when={props.exporting}>
-          <div class="absolute inset-0 z-20 flex items-center justify-center rounded-full bg-white/70">
+          <div
+            class={
+              "absolute inset-0 z-20 flex items-center justify-center bg-white/70 " +
+              (props.square ? "rounded-xl" : "rounded-full")
+            }
+          >
             <span class="text-sm font-medium text-gray-700">Bezig met exporteren…</span>
           </div>
         </Show>
