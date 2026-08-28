@@ -14,6 +14,8 @@ import type { FeatureInfoResult } from "@/hooks/use-feature-pick";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { resolveTemplate, renderTemplate } from "@/layers";
 import { DOWNLOADS, downloadUrl } from "@/lib/downloads";
+import { gemeenteCodeOf, gemeenteDownloadUrl } from "@/lib/gemeente-downloads";
+import { chromeIconColor } from "@/config/map-config";
 import { buurtCodeOf, createPblSummaryStatus, pblSummaryUrl } from "@/lib/pbl-summary";
 
 interface PblSummaryProps {
@@ -77,7 +79,7 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
           >
             Openen in nieuw tabblad
           </a>
-          <DownloadsSection />
+          <DownloadsSection buurtCode={code()} />
         </div>
       )}
     </Show>
@@ -96,38 +98,96 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
  * and only that project declares variants — without it they would appear in any
  * project whose layer sets `featureinfo.pbl`.
  */
-function DownloadsSection(): JSX.Element {
+interface DownloadsSectionProps {
+  /** The clicked feature's CBS buurt code, or null when it has none. */
+  buurtCode: string | null;
+}
+
+function DownloadsSection(props: DownloadsSectionProps): JSX.Element {
+  /** The clicked feature's gemeente package, or null when there is none. */
+  const gemeenteUrl = () => {
+    const code = props.buurtCode;
+    return code ? gemeenteDownloadUrl(gemeenteCodeOf(code)) : null;
+  };
+
   return (
     <Show when={variantId()}>
-      <div class="border-t border-gray-200 px-3 py-2">
-        <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Downloads
-        </h3>
-        <div class="flex flex-wrap items-center gap-2">
-          <For each={DOWNLOADS}>
-            {(item) => (
-              <a
-                href={downloadUrl(item.file)}
-                // `_blank` is load-bearing, not a preference. The app is
-                // embedded in an iframe on startanalyse2026.nl, whose CSP is
-                // `default-src 'self'` with a frame-src naming only the map
-                // host — so navigating the frame itself to the data host is
-                // blocked ("This content is blocked"). A top-level navigation
-                // is not governed by the parent frame's policy.
-                target="_blank"
-                rel="noreferrer"
-                // Ignored cross-origin, so it does not name the saved file.
-                // Kept as the intent marker; the browser saves rather than
-                // renders because the response is application/zip.
-                download={item.file}
-                title={`${item.label} (ZIP, 2025 + 2026)`}
-                aria-label={`${item.label} downloaden (ZIP, 2025 en 2026)`}
-                class="rounded transition-opacity hover:opacity-70"
-              >
-                <Icon name={item.icon} size={28} />
-              </a>
-            )}
-          </For>
+      {/* The two groups sit side by side, the gemeente package outlined off to
+          the right by its own left border. `items-start` so the shorter group
+          does not stretch its rule down past its content. */}
+      <div class="flex items-start gap-3 border-t border-gray-200 px-3 py-2">
+        <div>
+          <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Downloads
+          </h3>
+          <div class="flex flex-wrap items-center gap-2">
+            <For each={DOWNLOADS}>
+              {(item) => (
+                <a
+                  href={downloadUrl(item.file)}
+                  // `_blank` is load-bearing, not a preference. The app is
+                  // embedded in an iframe on startanalyse2026.nl, whose CSP is
+                  // `default-src 'self'` with a frame-src naming only the map
+                  // host — so navigating the frame itself to the data host is
+                  // blocked ("This content is blocked"). A top-level navigation
+                  // is not governed by the parent frame's policy.
+                  target="_blank"
+                  rel="noreferrer"
+                  // Ignored cross-origin, so it does not name the saved file.
+                  // Kept as the intent marker; the browser saves rather than
+                  // renders because the response is application/zip.
+                  download={item.file}
+                  title={`${item.label} (ZIP, 2025 + 2026)`}
+                  aria-label={`${item.label} downloaden (ZIP, 2025 en 2026)`}
+                  class="rounded transition-opacity hover:opacity-70"
+                >
+                  <Icon name={item.icon} size={28} />
+                </a>
+              )}
+            </For>
+          </div>
+        </div>
+
+        {/* The clicked feature's own gemeente package. Always present, even
+            when there is nothing to link to: InfoPopup re-places the window on
+            every resize, so a group that came and went per feature would make
+            the popup jump under the cursor. */}
+        <div class="border-l border-gray-200 pl-3">
+          <h3 class="mb-1 whitespace-nowrap text-xs font-semibold uppercase tracking-wide text-gray-500">
+            Datapakket gemeente
+          </h3>
+          <div class="flex flex-wrap items-center gap-2">
+            <Show
+              when={gemeenteUrl()}
+              fallback={
+                // No package for this gemeente (PBL publishes none for Ameland),
+                // or the feature carries no usable buurt code. Shown greyed
+                // rather than hidden, so the row keeps its height.
+                <span
+                  title="Geen datapakket beschikbaar voor deze gemeente"
+                  aria-label="Geen datapakket beschikbaar voor deze gemeente"
+                  class="inline-flex cursor-not-allowed items-center text-gray-300"
+                >
+                  <Icon name="download" size={28} />
+                </span>
+              }
+            >
+              {(url) => (
+                <a
+                  href={url()}
+                  // Same reason as the archive links above: the parent frame's
+                  // CSP blocks navigating the frame itself to the data host.
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Datapakket van deze gemeente downloaden (ZIP)"
+                  aria-label="Datapakket van deze gemeente downloaden (ZIP)"
+                  class="inline-flex items-center rounded transition-opacity hover:opacity-70"
+                >
+                  <Icon name="download" size={28} color={chromeIconColor()} />
+                </a>
+              )}
+            </Show>
+          </div>
         </div>
       </div>
     </Show>
