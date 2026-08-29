@@ -1,6 +1,19 @@
 import type { ViewState } from "@/components/map/MapView";
 import { isBasemapId } from "@/components/map/map-view-config";
 import { loadConfig, clearConfigCache } from "@/config/load-config";
+import { TOOL_NAMES, isToolName, type ToolName } from "@/tools/tool-names";
+
+/** Absolute URLs of the on-device models, from `map.json`'s `modelUrls`. */
+export interface ModelUrls {
+  /** Needle 2 weights (`.cact`). */
+  needleWeights?: string;
+  /** Needle 2 WebAssembly binary. */
+  needleWasm?: string;
+  /** Needle 2 Emscripten glue (`.js`). */
+  needleGlue?: string;
+  /** Vosk Dutch model, as the `.tar.gz` vosk-browser's createModel() expects. */
+  voskModel?: string;
+}
 
 /** Appearance of the marker dropped where the user clicks the map. */
 export interface ClickMarkerConfig {
@@ -230,6 +243,44 @@ export interface MapConfig {
    */
   showVerschilkaartOnFirstUse: boolean;
   /**
+   * Whether typed text in the search bar is resolved to a map tool call by the
+   * on-device Needle model, instead of always being treated as a place name.
+   * Defaults to `false`.
+   *
+   * The model is NOT downloaded on load: it is fetched lazily the first time
+   * the user opens the search popover. Until it is ready — and whenever it
+   * fails — typed text falls back to `zoom_to_location`, which is exactly the
+   * behaviour this bar has always had.
+   */
+  textToTool: boolean;
+  /**
+   * Whether the search bar offers a microphone that transcribes Dutch speech
+   * into the command box. Defaults to `false`. Requires {@link textToTool}:
+   * transcription only produces text, which still needs a parser.
+   *
+   * Its model is downloaded only AFTER the Needle one has finished, so the two
+   * never compete with each other or with the map.
+   */
+  speechToText: boolean;
+  /**
+   * Which tools the command bar may call. Omitted (or empty) means all of them.
+   * Unknown names are dropped with a warning.
+   */
+  tools: ToolName[];
+  /**
+   * Where the on-device models are hosted, as absolute URLs.
+   *
+   * Configured rather than bundled: they are tens of megabytes, so they live on
+   * the project's data host beside the tiles — the same place layer sources
+   * come from — instead of in the repo. The host must answer byte-range
+   * requests with CORS, which is what the chunked, idle-gated download needs;
+   * `data.woonzorglimburg.nl` already does for its pmtiles.
+   *
+   * Absent means the feature stays off however the flags are set: without a URL
+   * there is nothing to fetch.
+   */
+  modelUrls: ModelUrls;
+  /**
    * Whether changing the area filter (Gemeente/Wijk/Buurt) flies the maps to
    * the selected areas (centroid + fitting zoom). Defaults to `true`.
    */
@@ -390,6 +441,10 @@ const DEFAULT_MAP_CONFIG: MapConfig = {
   share: true,
   showGuideOnFirstVisit: false,
   showVerschilkaartOnFirstUse: false,
+  textToTool: false,
+  speechToText: false,
+  tools: [...TOOL_NAMES],
+  modelUrls: {},
   filterFlyTo: true,
   combinations: false,
   dashboard: "off",
@@ -572,6 +627,94 @@ function validateMapControls(value: unknown): MapControlsConfig {
   };
 }
 
+/**
+ * Validate `tools` — which map tools the command bar may call.
+ *
+ * Absent means all of them, so a project that says nothing gets the full set
+ * rather than a bar that can do nothing. An unknown name is dropped with a
+ * warning rather than failing the boot: it is almost always a typo, and losing
+ * one tool is better than losing the map.
+ */
+function validateTools(value: unknown): ToolName[] {
+  if (value === undefined) return [...TOOL_NAMES];
+  if (!Array.isArray(value)) {
+    console.warn(`map.json: invalid "tools" ${JSON.stringify(value)}; using all tools`);
+    return [...TOOL_NAMES];
+  }
+
+  const out: ToolName[] = [];
+  for (const raw of value) {
+    if (typeof raw === "string" && isToolName(raw)) {
+      if (!out.includes(raw)) out.push(raw);
+    } else {
+      console.warn(`map.json: unknown tool ${JSON.stringify(raw)} in "tools"; ignoring`);
+    }
+  }
+  return out;
+}
+
+/**
+ * Module-level caches for the command-bar settings, set by {@link loadMapConfig}
+ * and read through the accessors below — the same treatment
+ * {@link chromeIconSize} gets, and for the same reason: the command bar is deep
+ * in the control tree and threading these through every caller would add
+ * plumbing nothing else wants.
+ */
+let textToToolValue = false;
+let speechToTextValue = false;
+let toolsValue: ToolName[] = [...TOOL_NAMES];
+let modelUrlsValue: ModelUrls = {};
+
+/** Where the on-device models are hosted. */
+export function modelUrls(): Readonly<ModelUrls> {
+  return modelUrlsValue;
+}
+
+/**
+ * Validate `modelUrls`. Each entry must be an absolute http(s) URL: these are
+ * fetched cross-origin from the data host, and a relative path would silently
+ * resolve against the app's own origin and 404.
+ */
+function validateModelUrls(value: unknown): ModelUrls {
+  if (value === undefined) return {};
+  if (typeof value !== "object" || value === null) {
+    console.warn(`map.json: invalid "modelUrls" ${JSON.stringify(value)}; ignoring`);
+    return {};
+  }
+
+  const obj = value as Record<string, unknown>;
+  const out: ModelUrls = {};
+  const keys = ["needleWeights", "needleWasm", "needleGlue", "voskModel"] as const;
+
+  for (const key of keys) {
+    const raw = obj[key];
+    if (raw === undefined) continue;
+    if (typeof raw !== "string" || !/^https?:\/\//i.test(raw)) {
+      console.warn(
+        `map.json: modelUrls.${key} must be an absolute http(s) URL; ignoring ${JSON.stringify(raw)}`,
+      );
+      continue;
+    }
+    out[key] = raw;
+  }
+  return out;
+}
+
+/** Whether typed text is parsed into a tool call. */
+export function textToToolEnabled(): boolean {
+  return textToToolValue;
+}
+
+/** Whether the command bar offers speech input. Implies {@link textToToolEnabled}. */
+export function speechToTextEnabled(): boolean {
+  return speechToTextValue;
+}
+
+/** The tools the command bar may call. */
+export function enabledTools(): readonly ToolName[] {
+  return toolsValue;
+}
+
 /** A well-formed ISO 3166-1 alpha-2 code, once lowercased and trimmed. */
 const COUNTRY_CODE_RE = /^[a-z]{2}$/;
 
@@ -686,6 +829,37 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     "showVerschilkaartOnFirstUse",
     DEFAULT_MAP_CONFIG.showVerschilkaartOnFirstUse,
   );
+  const textToTool = validateBool(data.text_to_tool, "text_to_tool", DEFAULT_MAP_CONFIG.textToTool);
+  // Speech only produces text, which still needs the parser — so it cannot be
+  // on by itself. A config asking for it without `text_to_tool` gets a warning
+  // rather than a mic button that silently does nothing.
+  const speechRequested = validateBool(
+    data.speech_to_text,
+    "speech_to_text",
+    DEFAULT_MAP_CONFIG.speechToText,
+  );
+  if (speechRequested && !textToTool) {
+    console.warn('map.json: "speech_to_text" needs "text_to_tool"; ignoring it');
+  }
+  const speechToText = speechRequested && textToTool;
+  const tools = validateTools(data.tools);
+  const urls = validateModelUrls(data.modelUrls);
+  // Without weights there is nothing to load, so the flag cannot be honoured
+  // however it is set — better to be off than to render a bar whose model
+  // never arrives.
+  if (textToTool && !urls.needleWeights) {
+    console.warn('map.json: "text_to_tool" needs modelUrls.needleWeights; disabling it');
+  }
+  const textToToolUsable = textToTool && Boolean(urls.needleWeights);
+  if (speechToText && textToToolUsable && !urls.voskModel) {
+    console.warn('map.json: "speech_to_text" needs modelUrls.voskModel; disabling it');
+  }
+  const speechUsable = speechToText && textToToolUsable && Boolean(urls.voskModel);
+
+  textToToolValue = textToToolUsable;
+  speechToTextValue = speechUsable;
+  toolsValue = tools;
+  modelUrlsValue = urls;
   const filterFlyTo = validateBool(data.filterFlyTo, "filterFlyTo", DEFAULT_MAP_CONFIG.filterFlyTo);
   const combinations = validateBool(data.combinations, "combinations", DEFAULT_MAP_CONFIG.combinations);
   const annotations = validateBool(data.annotations, "annotations", DEFAULT_MAP_CONFIG.annotations);
@@ -780,6 +954,10 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     share,
     showGuideOnFirstVisit,
     showVerschilkaartOnFirstUse,
+    textToTool: textToToolUsable,
+    speechToText: speechUsable,
+    tools,
+    modelUrls: urls,
     filterFlyTo,
     combinations,
     dashboard,
