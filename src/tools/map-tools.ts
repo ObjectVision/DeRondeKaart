@@ -1,6 +1,6 @@
 import { loadLayerConfigs } from "@/layers";
 import type { LayerConfig } from "@/layers";
-import type { MapSide } from "@/lib/map-side";
+import type { MapSide, MapSideId } from "@/lib/map-side";
 import { zoomToLocation } from "@/tools/zoom-to-location";
 import type { ToolName } from "@/tools/tool-names";
 
@@ -50,6 +50,10 @@ export const TOOL_SCHEMAS: Readonly<Record<ToolName, ToolSchema>> = {
       type: "object",
       properties: {
         layer: { type: "string", description: "naam van de kaartlaag" },
+        // Optional on purpose: an extra REQUIRED argument would have the model
+        // invent a side for every command. Omitted means the left map, which is
+        // what every command meant before this existed.
+        kaart: { type: "string", description: "links of rechts; standaard links" },
       },
       required: ["layer"],
     },
@@ -62,6 +66,7 @@ export const TOOL_SCHEMAS: Readonly<Record<ToolName, ToolSchema>> = {
       type: "object",
       properties: {
         layer: { type: "string", description: "naam van de kaartlaag" },
+        kaart: { type: "string", description: "links of rechts; standaard links" },
       },
       required: ["layer"],
     },
@@ -103,6 +108,18 @@ export function resolveLayer(
   return configs.find((c) => (c.name ?? "").toLowerCase().includes(needle));
 }
 
+/**
+ * Which map a command names.
+ *
+ * Forgiving by design: the model echoes whatever the user said, so this sees
+ * "rechts", "rechterkaart", "de rechter kaart" and "op rechts" for one meaning.
+ * Anything unrecognised — including a missing value — is the left map, so a
+ * garbled side can never send a layer somewhere the user did not ask for.
+ */
+export function resolveSide(spoken: unknown): MapSideId {
+  return typeof spoken === "string" && /recht/i.test(spoken) ? "right" : "left";
+}
+
 /** Layers whose name matches a keyword, for `search_layers`. */
 export function searchLayerConfigs(
   configs: LayerConfig[],
@@ -123,8 +140,38 @@ export interface ToolResult {
 }
 
 export interface ToolContext {
-  /** The map the command acts on — the left map, which is always present. */
+  /** The map a command acts on unless it names another — always the left map. */
   side: MapSide;
+  /**
+   * The right map. Optional so the tool layer stays usable on its own; when it
+   * is absent a command naming the right map is refused rather than silently
+   * acting on the left.
+   */
+  right?: MapSide;
+  /**
+   * Pair-aware close.
+   *
+   * Injected rather than called directly because a paired layer spans both maps
+   * and closing one half must close the other — the rule `removeFromSide` in
+   * App.tsx implements and every legend close button already routes through.
+   * Without it `close_layer` strands the partner on the other map.
+   */
+  removeLayer?: (layerId: string, side: MapSideId) => void;
+  /**
+   * Whether the left map holds any layer. Comparison is left-anchored, so the
+   * right map may not receive a layer while the left is empty. `toggleOnMap`
+   * does not enforce this itself — the guard lives in the navigation UI — so a
+   * command targeting the right map has to check it here.
+   */
+  leftHasLayers?: () => boolean;
+}
+
+/**
+ * The map a resolved side refers to, or undefined when this project has no
+ * right map. The left map always exists.
+ */
+function sideFor(ctx: ToolContext, side: MapSideId): MapSide | undefined {
+  return side === "right" ? ctx.right : ctx.side;
 }
 
 /**
@@ -151,6 +198,21 @@ export async function runTool(
 
     case "open_layer": {
       const spoken = typeof args.layer === "string" ? args.layer : "";
+      const side = resolveSide(args.kaart);
+
+      const target = sideFor(ctx, side);
+      if (!target) {
+        return { ok: false, message: "Er is geen rechterkaart om lagen op te tonen." };
+      }
+      // Comparison is left-anchored: a layer on the right with an empty left map
+      // would leave the app in a state its own UI never allows.
+      if (side === "right" && ctx.leftHasLayers && !ctx.leftHasLayers()) {
+        return {
+          ok: false,
+          message: "Zet eerst een kaartlaag op de linkerkaart om te kunnen vergelijken.",
+        };
+      }
+
       const configs = await loadLayerConfigs();
       const config = resolveLayer(configs, spoken);
       if (!config) {
@@ -162,20 +224,31 @@ export async function runTool(
           matches: searchLayerConfigs(configs, spoken),
         };
       }
-      await ctx.side.layers.addLayer(config);
+      await target.layers.addLayer(config);
       return { ok: true };
     }
 
     case "close_layer": {
       const spoken = typeof args.layer === "string" ? args.layer : "";
+      const side = resolveSide(args.kaart);
+
+      const target = sideFor(ctx, side);
+      if (!target) {
+        return { ok: false, message: "Er is geen rechterkaart." };
+      }
+
       // Only what is actually on the map can be closed; matching against the
       // full catalogue would "close" a layer that was never open.
-      const onMap = ctx.side.layers.layerEntries().map((e) => e.config);
+      const onMap = target.layers.layerEntries().map((e) => e.config);
       const config = resolveLayer(onMap, spoken);
       if (!config) {
         return { ok: false, message: `De kaartlaag "${spoken}" staat niet aan.` };
       }
-      ctx.side.layers.removeLayer(config.id);
+
+      // Through the injected closer when there is one, so a paired layer takes
+      // its partner with it. The direct call is the standalone fallback.
+      if (ctx.removeLayer) ctx.removeLayer(config.id, side);
+      else target.layers.removeLayer(config.id);
       return { ok: true };
     }
 
