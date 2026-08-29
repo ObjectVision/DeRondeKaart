@@ -18,6 +18,20 @@
   "chromeIconSize": 22,
   "chromeIconColor": "#3E74A7",
   "share": true,
+  "text_to_tool": true,
+  "speech_to_text": true,
+  "tools": [
+    "zoom_to_location",
+    "open_layer",
+    "close_layer",
+    "search_layers"
+  ],
+  "modelUrls": {
+    "needleWeights": "https://data.woonzorglimburg.nl/models/needle2/needle2.cact",
+    "needleWasm": "https://data.woonzorglimburg.nl/models/needle2/needle.wasm",
+    "needleGlue": "https://data.woonzorglimburg.nl/models/needle2/needle.js",
+    "voskModel": "https://data.woonzorglimburg.nl/models/vosk-nl/vosk-model-small-nl-0.22.tar.gz"
+  },
   "combinations": true,
   "annotations": true,
   "clickMarker": {

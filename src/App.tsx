@@ -36,9 +36,13 @@ import {
   DEFAULT_MAP_CONTROLS,
   chromeIconSize,
   chromeIconColor,
+  modelUrls,
+  speechToTextEnabled,
+  textToToolEnabled,
   type ClickMarkerConfig,
   type MapControlsConfig,
 } from "@/config/map-config";
+import { createModelLoader } from "@/ai/model-loader";
 import { useFeaturePick } from "@/hooks/use-feature-pick";
 import type { FeatureInfoResult } from "@/hooks/use-feature-pick";
 import { useClickPopup } from "@/hooks/use-click-popup";
@@ -441,6 +445,83 @@ function App(rawProps: AppProps): JSX.Element {
   );
 
   const nav = useNavigation({ ...mapSides, pairs: layerPairs });
+
+  /**
+   * Natural-language commands for the search bar.
+   *
+   * The models are downloaded lazily (see `createModelLoader`), so this is
+   * wired up unconditionally and simply has no parser until one arrives —
+   * `runCommand` falls back to a location search in that case, which is exactly
+   * what this bar did before the feature existed.
+   */
+  const models = createModelLoader({
+    map: () => mapLeftView()?.map() ?? null,
+    textToTool: textToToolEnabled(),
+    speechToText: speechToTextEnabled(),
+    urls: modelUrls(),
+  });
+
+  async function handleCommand(text: string): Promise<string | null> {
+    // Imported lazily so the command glue stays out of the entry bundle, the
+    // same rule dashboard/duckdb-engine.ts states for DuckDB.
+    const { runCommand } = await import("@/ai/command-engine");
+
+    // Null until the weights have arrived, which is the ordinary case on the
+    // first few commands. `runCommand` then treats the text as a place name,
+    // exactly as this bar behaved before the feature existed.
+    let parser = null;
+    const weights = models.needleWeights();
+    if (weights) {
+      try {
+        const { ensureNeedle } = await import("@/ai/needle-engine");
+        parser = await ensureNeedle(weights);
+      } catch (err) {
+        console.warn("Needle unavailable; falling back to location search:", err);
+      }
+    }
+
+    const result = await runCommand(text, { side: mapSides.left }, parser);
+    return result.ok ? null : (result.message ?? null);
+  }
+
+  /**
+   * Start dictation, resolving to the finished utterance.
+   *
+   * Resolves rather than streaming: the caller puts the text in the input and
+   * submits it, so one utterance is one command. Rejecting is meaningful too —
+   * a denied microphone must reach the user, not vanish.
+   */
+  async function handleDictate(onPartial: (text: string) => void): Promise<string> {
+    const weights = models.voskWeights();
+    if (!weights) throw new Error("Het spraakmodel is nog niet geladen.");
+
+    const { startDictation } = await import("@/ai/vosk-engine");
+    return new Promise<string>((resolve, reject) => {
+      void startDictation(weights, {
+        onPartial,
+        onResult: (text) => {
+          dictation?.stop();
+          dictation = null;
+          resolve(text);
+        },
+        onError: (message) => {
+          dictation?.stop();
+          dictation = null;
+          reject(new Error(message));
+        },
+      })
+        .then((session) => (dictation = session))
+        .catch(reject);
+    });
+  }
+
+  /** The running dictation, so a second click can stop it. */
+  let dictation: { stop: () => void } | null = null;
+
+  function handleStopDictation() {
+    dictation?.stop();
+    dictation = null;
+  }
 
   /**
    * The right map's pick layer, which only differs where the two maps show
@@ -876,6 +957,10 @@ function App(rawProps: AppProps): JSX.Element {
               onZoomOut={handleZoomOut}
               showSearch={props.mapControls.search}
               showZoom={props.mapControls.zoom}
+              onCommand={handleCommand}
+              models={models}
+              onDictate={handleDictate}
+              onStopDictation={handleStopDictation}
             />
           </Show>
 
@@ -1102,6 +1187,10 @@ function App(rawProps: AppProps): JSX.Element {
                   />
                   <MapControls
                     orientation="horizontal"
+                    onCommand={handleCommand}
+                    models={models}
+                    onDictate={handleDictate}
+                    onStopDictation={handleStopDictation}
                     onZoomIn={handleZoomIn}
                     onZoomOut={handleZoomOut}
                     showSearch={props.mapControls.search}

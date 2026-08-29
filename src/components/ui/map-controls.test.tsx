@@ -2,15 +2,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render, screen } from "@solidjs/testing-library";
 
 import { MapControls } from "@/components/ui/map-controls";
-import { loadMapConfig } from "@/config/map-config";
-
-/** Serve one map.json body, so a test can set the search restriction. */
-function stubMapJson(body: unknown) {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async () => ({ ok: true, statusText: "OK", json: async () => body })),
-  );
-}
 
 /**
  * The search box is created when the popover opens, not with the page.
@@ -96,71 +87,9 @@ describe("MapControls search", () => {
     });
   });
 
-  /**
-   * The geocoder request. Only the FIRST result is used, so an unrestricted
-   * search has no list for the user to correct from — "Bergen" answers with
-   * Bergen in Norway, though it is also a town in Noord-Holland and another in
-   * Limburg. `mapControls.searchCountries` is what prevents that.
-   */
-  describe("geocoder request", () => {
-    /** Submit `query` and hand back the URL the geocoder was called with. */
-    function submitWith(query: string): string {
-      // Typed via the generic rather than a named parameter: the URL is read
-      // from `mock.calls`, so an unused binding here would only be lint noise.
-      const fetchSpy = vi.fn<(url: string) => Promise<{ json: () => Promise<unknown[]> }>>(
-        async () => ({ json: async () => [] }),
-      );
-      vi.stubGlobal("fetch", fetchSpy);
-      openSearch();
-      const input = screen.getByPlaceholderText<HTMLInputElement>("Zoek een locatie...");
-      input.value = query;
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-      input
-        .closest("form")
-        ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
-      return String(fetchSpy.mock.calls[0]?.[0] ?? "");
-    }
-
-    afterEach(() => {
-      vi.unstubAllGlobals();
-    });
-
-    it("restricts to the configured countries", async () => {
-      stubMapJson({ mapControls: { search: true, searchCountries: ["nl"] } });
-      await loadMapConfig();
-      vi.unstubAllGlobals();
-
-      const url = submitWith("Bergen");
-
-      expect(url).toContain("countrycodes=nl");
-      expect(url).toContain("q=Bergen");
-    });
-
-    /**
-     * The case that protects woonzorglimburg, which names no countries: the
-     * parameter must be absent entirely, not sent empty. `countrycodes=` would
-     * be a filter matching nothing.
-     */
-    it("sends no countrycodes when none are configured", async () => {
-      stubMapJson({ mapControls: { search: true } });
-      await loadMapConfig();
-      vi.unstubAllGlobals();
-
-      const url = submitWith("Bergen");
-
-      expect(url).not.toContain("countrycodes");
-    });
-
-    it("joins several countries for a project spanning a border", async () => {
-      stubMapJson({ mapControls: { search: true, searchCountries: ["nl", "de", "be"] } });
-      await loadMapConfig();
-      vi.unstubAllGlobals();
-
-      const url = submitWith("Aachen");
-
-      expect(url).toContain("countrycodes=nl%2Cde%2Cbe");
-    });
-  });
+  // The geocoder request — countrycodes and the "Bergen answers with Norway"
+  // case — moved to src/tools/zoom-to-location.test.ts along with the logic
+  // itself, now that the search box and the command bar share one tool.
 
   // Submitting an empty box must not reach the geocoder.
   it("does not search on an empty query", () => {

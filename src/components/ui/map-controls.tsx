@@ -1,11 +1,32 @@
 import { Show, createSignal, type JSX } from "solid-js";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
-import { chromeIconSize, chromeIconColor, searchCountries } from "@/config/map-config";
+import {
+  chromeIconSize,
+  chromeIconColor,
+  speechToTextEnabled,
+  textToToolEnabled,
+} from "@/config/map-config";
+import type { ModelLoader } from "@/ai/model-loader";
 
 interface MapControlsProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
+  /**
+   * Run one command line. Resolves to a Dutch message when it could not be
+   * carried out, so the bar can say why. Falls back to a location search
+   * internally, so this is safe to call before any model has loaded.
+   */
+  onCommand?: (text: string) => Promise<string | null>;
+  /** Model download state; absent when this project enables neither feature. */
+  models?: ModelLoader;
+  /**
+   * Start dictation, resolving to the finished utterance. `onPartial` reports
+   * words as they are recognised, for live feedback in the input.
+   */
+  onDictate?: (onPartial: (text: string) => void) => Promise<string>;
+  /** Stop a dictation the user started. */
+  onStopDictation?: () => void;
   /**
    * "vertical" (default) stacks the buttons (top-mode / right-edge usage);
    * "horizontal" lays them out as a row for the sidebar toolbar. Search is
@@ -28,37 +49,85 @@ export function MapControls(props: MapControlsProps): JSX.Element {
   /** Whether there is a query worth submitting; trimmed, as handleSearch tests. */
   const hasQuery = () => searchQuery().trim().length > 0;
 
+  /** Dutch explanation of the last failed command, cleared on the next edit. */
+  const [message, setMessage] = createSignal<string | null>(null);
+  const [busy, setBusy] = createSignal(false);
+
+  /**
+   * Whether this bar is a command bar at all. The geocoding path is unchanged
+   * either way — `onCommand` falls back to a location search whenever the model
+   * is missing, still downloading, or fails.
+   */
+  const commandMode = () => textToToolEnabled() && Boolean(props.onCommand);
+  const micVisible = () => commandMode() && speechToTextEnabled();
+  const micReady = () => props.models?.voskReady() ?? false;
+
   async function handleSearch(e: Event) {
     e.preventDefault();
-    if (!searchQuery().trim()) return;
+    const text = searchQuery().trim();
+    if (!text || busy()) return;
 
+    setBusy(true);
+    setMessage(null);
     try {
-      const params = new URLSearchParams({
-        q: searchQuery(),
-        format: "json",
-        limit: "1",
-      });
-      // Restrict to the configured countries, when a project names any. Only
-      // the FIRST result is used, so an unrestricted search has no list for the
-      // user to correct from: "Bergen" answers with Bergen in Norway, though it
-      // is also a town in Noord-Holland and another in Limburg.
-      const countries = searchCountries();
-      if (countries.length > 0) params.set("countrycodes", countries.join(","));
+      const failure = await props.onCommand?.(text);
+      setMessage(failure ?? null);
+    } finally {
+      setBusy(false);
+    }
+  }
 
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
-      const results = await res.json();
-      if (results.length > 0) {
-        const { lat, lon } = results[0];
-        // Dispatch a custom event that MapView can listen to
-        window.dispatchEvent(
-          new CustomEvent("map:flyto", {
-            detail: { latitude: parseFloat(lat), longitude: parseFloat(lon) },
-          }),
-        );
+  /** True while the microphone is live. */
+  const [listening, setListening] = createSignal(false);
+
+  /**
+   * Dictate one utterance, then submit it as a command.
+   *
+   * A second click stops without submitting, which is the way out if the
+   * recogniser never hears an end-of-speech pause.
+   */
+  async function handleMic() {
+    if (listening()) {
+      props.onStopDictation?.();
+      setListening(false);
+      return;
+    }
+
+    setListening(true);
+    setMessage(null);
+    try {
+      const spoken = await props.onDictate?.((partial) => setSearchQuery(partial));
+      setListening(false);
+      if (!spoken?.trim()) return;
+
+      setSearchQuery(spoken);
+      setBusy(true);
+      try {
+        setMessage((await props.onCommand?.(spoken)) ?? null);
+      } finally {
+        setBusy(false);
       }
     } catch (err) {
-      console.error("Search failed:", err);
+      setListening(false);
+      // Most often a denied or unavailable microphone. In the embed that means
+      // the parent page's iframe lacks allow="microphone" — silence here would
+      // read as a dead button.
+      setMessage(
+        err instanceof Error && /permission|denied|allow/i.test(err.message)
+          ? "Geen toegang tot de microfoon."
+          : "Spraakherkenning is niet beschikbaar.",
+      );
     }
+  }
+
+  /**
+   * Opening the popover is what starts the model downloads — never page load.
+   * Idempotent, so reopening costs nothing.
+   */
+  function toggleSearch() {
+    const next = !searchOpen();
+    setSearchOpen(next);
+    if (next) props.models?.start();
   }
 
   return (
@@ -84,8 +153,8 @@ export function MapControls(props: MapControlsProps): JSX.Element {
           <Button
             variant="ghost"
             size="icon-sm"
-            onClick={() => setSearchOpen((v) => !v)}
-            title="Zoeken"
+            onClick={toggleSearch}
+            title={commandMode() ? "Zoeken of opdracht geven" : "Zoeken"}
           >
             <Icon name="search" size={chromeIconSize()} color={chromeIconColor()} />
           </Button>
@@ -98,15 +167,19 @@ export function MapControls(props: MapControlsProps): JSX.Element {
         <Show when={showSearch() && searchOpen()}>
           <form
             onSubmit={handleSearch}
-            class={`absolute flex gap-1 rounded-lg bg-white/95 p-1.5 shadow-md backdrop-blur-sm ${
+            class={`absolute flex flex-col gap-1 rounded-lg bg-white/95 p-1.5 shadow-md backdrop-blur-sm ${
               horizontal() ? "left-full top-0 ml-2" : "right-full bottom-0 mr-2"
             }`}
           >
+            <div class="flex items-center gap-1">
             <input
               type="text"
               value={searchQuery()}
-              onInput={(e) => setSearchQuery(e.currentTarget.value)}
-              placeholder="Zoek een locatie..."
+              onInput={(e) => {
+                setSearchQuery(e.currentTarget.value);
+                setMessage(null);
+              }}
+              placeholder={commandMode() ? "Zoek of geef een opdracht..." : "Zoek een locatie..."}
               class="w-48 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-blue-400"
               // Focused explicitly, not with the `autofocus` attribute: browsers
               // honour that only for an element present in the initial HTML, and
@@ -114,6 +187,48 @@ export function MapControls(props: MapControlsProps): JSX.Element {
               // so the element is in the document when focus is called.
               ref={(el) => requestAnimationFrame(() => el.focus())}
             />
+            {/* Speech input. Present as soon as the project enables it, but
+                inert until its model has finished — the greyed state is how the
+                user sees that the download is still running. */}
+            <Show when={micVisible()}>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                type="button"
+                disabled={!micReady()}
+                onClick={() => void handleMic()}
+                title={
+                  !micReady()
+                    ? "Spraakherkenning wordt nog geladen..."
+                    : listening()
+                      ? "Stoppen met luisteren"
+                      : "Inspreken"
+                }
+                aria-label={
+                  !micReady()
+                    ? "Spraakherkenning wordt nog geladen"
+                    : listening()
+                      ? "Stoppen met luisteren"
+                      : "Inspreken"
+                }
+                aria-pressed={listening()}
+              >
+                {/* Red while live, so it is unmistakable that the microphone is
+                    open; grey until the model is ready; accent otherwise. */}
+                <Icon
+                  name="mic"
+                  size={chromeIconSize()}
+                  color={micReady() && !listening() ? chromeIconColor() : undefined}
+                  class={
+                    !micReady()
+                      ? "text-gray-300"
+                      : listening()
+                        ? "animate-pulse text-red-600"
+                        : undefined
+                  }
+                />
+              </Button>
+            </Show>
             <Button variant="ghost" size="icon-sm" type="submit" title="Zoeken">
               {/* Grey until there is something to search for, then the project
                   accent. `hasQuery` is the same trimmed test `handleSearch`
@@ -127,6 +242,16 @@ export function MapControls(props: MapControlsProps): JSX.Element {
                 class={hasQuery() ? undefined : "text-gray-400"}
               />
             </Button>
+            </div>
+
+            {/* Why a command could not be carried out. Only ever rendered when
+                there is something to say, so the popover keeps its height in
+                the ordinary case. */}
+            <Show when={message()}>
+              {(text) => (
+                <p class="max-w-[16rem] px-1 text-xs text-gray-600">{text()}</p>
+              )}
+            </Show>
           </form>
         </Show>
       </div>
