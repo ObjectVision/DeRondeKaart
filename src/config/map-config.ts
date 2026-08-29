@@ -628,14 +628,32 @@ function validateMapControls(value: unknown): MapControlsConfig {
 }
 
 /**
+ * How many tools Needle 2 will accept.
+ *
+ * Measured against the real model: with six tools `needle_init` returns 1 and
+ * the model never answers a command — no throw, no console error, the command
+ * bar simply falls back to a location search forever.
+ *
+ * It is a COUNT limit, not a token budget, so terser descriptions do not buy a
+ * sixth slot: five tools whose descriptions cost 1098 prompt tokens initialise
+ * fine, while six tools costing 123 do not. Raising this is not a config
+ * decision — it needs a model that accepts more.
+ */
+export const MAX_TOOLS = 5;
+
+/**
  * Validate `tools` — which map tools the command bar may call.
  *
  * Absent means all of them, so a project that says nothing gets the full set
  * rather than a bar that can do nothing. An unknown name is dropped with a
  * warning rather than failing the boot: it is almost always a typo, and losing
  * one tool is better than losing the map.
+ *
+ * Exported for its own tests: only four tool names exist today, so no `map.json`
+ * can reach the {@link MAX_TOOLS} cap through `loadMapConfig`, and testing the
+ * clamp through that path silently proves nothing.
  */
-function validateTools(value: unknown): ToolName[] {
+export function validateTools(value: unknown): ToolName[] {
   if (value === undefined) return [...TOOL_NAMES];
   if (!Array.isArray(value)) {
     console.warn(`map.json: invalid "tools" ${JSON.stringify(value)}; using all tools`);
@@ -649,6 +667,18 @@ function validateTools(value: unknown): ToolName[] {
     } else {
       console.warn(`map.json: unknown tool ${JSON.stringify(raw)} in "tools"; ignoring`);
     }
+  }
+
+  // Dropping the surplus beats shipping a config that answers nothing: past the
+  // cap the model is inert, so keeping the first MAX_TOOLS degrades the feature
+  // rather than removing it, the same trade `validateSearchCountries` makes.
+  if (out.length > MAX_TOOLS) {
+    const dropped = out.slice(MAX_TOOLS);
+    console.warn(
+      `map.json: "tools" lists ${out.length} tools but the model accepts at most ` +
+        `${MAX_TOOLS}; ignoring ${dropped.map((t) => JSON.stringify(t)).join(", ")}`,
+    );
+    return out.slice(0, MAX_TOOLS);
   }
   return out;
 }

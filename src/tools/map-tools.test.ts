@@ -4,6 +4,7 @@ import {
   TOOL_SCHEMAS,
   isToolName,
   resolveLayer,
+  resolveSide,
   runTool,
   searchLayerConfigs,
 } from "@/tools/map-tools";
@@ -56,14 +57,27 @@ describe("tool schemas", () => {
     }
   });
 
-  it("marks every declared parameter required and described", () => {
+  it("describes every declared parameter", () => {
     for (const schema of Object.values(TOOL_SCHEMAS)) {
       const names = Object.keys(schema.parameters.properties);
       expect(names.length).toBeGreaterThan(0);
-      expect(schema.parameters.required).toEqual(names);
+      // Everything required must actually be declared.
+      expect(names).toEqual(expect.arrayContaining(schema.parameters.required));
       for (const p of Object.values(schema.parameters.properties)) {
         expect(p.description.length).toBeGreaterThan(0);
       }
+    }
+  });
+
+  /**
+   * `kaart` must stay OPTIONAL. Required, the model invents a side for every
+   * command; optional, it supplies one only when the user names it and every
+   * other command keeps meaning the left map.
+   */
+  it("keeps the map side optional on the layer tools", () => {
+    for (const name of ["open_layer", "close_layer"] as const) {
+      expect(TOOL_SCHEMAS[name].parameters.properties.kaart).toBeTruthy();
+      expect(TOOL_SCHEMAS[name].parameters.required).not.toContain("kaart");
     }
   });
 
@@ -182,5 +196,146 @@ describe("runTool", () => {
     const r = await runTool("zoom_to_location", { location: 42 }, { side });
 
     expect(r.ok).toBe(false);
+  });
+
+  /**
+   * Comparison mode is derived — it turns on when the right map holds a layer —
+   * so addressing the right map is the only way a command can reach it.
+   */
+  describe("map side", () => {
+    /** Left with a layer on it, so the left-anchored guard is satisfied. */
+    const both = () => {
+      const left = fakeSide([CONFIGS[1]]);
+      const right = fakeSide();
+      return {
+        left,
+        right,
+        ctx: { side: left.side, right: right.side, leftHasLayers: () => true },
+      };
+    };
+
+    it("opens on the right map when the command says so", async () => {
+      const { left, right, ctx } = both();
+
+      const r = await runTool("open_layer", { layer: "woonzorg", kaart: "rechterkaart" }, ctx);
+
+      expect(r.ok).toBe(true);
+      expect(right.ids()).toEqual(["wz_1"]);
+      expect(left.ids()).toEqual(["en_1"]);
+    });
+
+    it("opens on the left map when no side is named", async () => {
+      const { left, right, ctx } = both();
+
+      await runTool("open_layer", { layer: "woonzorg" }, ctx);
+
+      expect(left.ids()).toEqual(["en_1", "wz_1"]);
+      expect(right.ids()).toEqual([]);
+    });
+
+    // The model echoes the user's own words, so one meaning arrives spelled
+    // several ways.
+    it("understands the ways a user says 'right'", () => {
+      for (const spoken of ["rechts", "rechterkaart", "de rechter kaart", "op rechts"]) {
+        expect(resolveSide(spoken)).toBe("right");
+      }
+    });
+
+    // A garbled side must never send a layer somewhere unasked.
+    it("falls back to the left map for anything unrecognised", () => {
+      for (const spoken of ["links", "midden", "", 42, undefined, null]) {
+        expect(resolveSide(spoken)).toBe("left");
+      }
+    });
+
+    it("refuses the right map while the left one is empty", async () => {
+      const left = fakeSide();
+      const right = fakeSide();
+
+      const r = await runTool(
+        "open_layer",
+        { layer: "woonzorg", kaart: "rechts" },
+        { side: left.side, right: right.side, leftHasLayers: () => false },
+      );
+
+      expect(r.ok).toBe(false);
+      expect(r.message).toContain("linkerkaart");
+      expect(right.ids()).toEqual([]);
+    });
+
+    it("refuses the right map when the project has none", async () => {
+      const left = fakeSide([CONFIGS[1]]);
+
+      const r = await runTool(
+        "open_layer",
+        { layer: "woonzorg", kaart: "rechts" },
+        { side: left.side },
+      );
+
+      expect(r.ok).toBe(false);
+      expect(left.ids()).toEqual(["en_1"]);
+    });
+
+    it("closes on the right map when the command says so", async () => {
+      const left = fakeSide([CONFIGS[1]]);
+      const right = fakeSide([CONFIGS[0]]);
+
+      const r = await runTool(
+        "close_layer",
+        { layer: "woonzorg", kaart: "rechts" },
+        { side: left.side, right: right.side },
+      );
+
+      expect(r.ok).toBe(true);
+      expect(right.ids()).toEqual([]);
+    });
+  });
+
+  /**
+   * A paired layer spans both maps and its halves must come off together. The
+   * legend's close button routes through `removeFromSide` for exactly this
+   * reason; closing by voice has to reach the same path, or it strands the
+   * partner on the other map.
+   */
+  describe("pair-aware close", () => {
+    it("routes through the injected closer instead of removing directly", async () => {
+      const s = fakeSide([CONFIGS[0]]);
+      const removeLayer = vi.fn();
+
+      const r = await runTool(
+        "close_layer",
+        { layer: "woonzorg" },
+        { side: s.side, removeLayer },
+      );
+
+      expect(r.ok).toBe(true);
+      expect(removeLayer).toHaveBeenCalledWith("wz_1", "left");
+      // The side's own remove must NOT be called: it is the pair-blind path.
+      expect(s.removeLayer).not.toHaveBeenCalled();
+    });
+
+    it("tells the closer which map the layer was on", async () => {
+      const left = fakeSide([CONFIGS[1]]);
+      const right = fakeSide([CONFIGS[0]]);
+      const removeLayer = vi.fn();
+
+      await runTool(
+        "close_layer",
+        { layer: "woonzorg", kaart: "rechts" },
+        { side: left.side, right: right.side, removeLayer },
+      );
+
+      expect(removeLayer).toHaveBeenCalledWith("wz_1", "right");
+    });
+
+    // The tool layer stays usable on its own, which is what keeps these tests
+    // free of App wiring.
+    it("removes directly when no closer is injected", async () => {
+      const s = fakeSide([CONFIGS[0]]);
+
+      await runTool("close_layer", { layer: "woonzorg" }, { side: s.side });
+
+      expect(s.removeLayer).toHaveBeenCalledWith("wz_1");
+    });
   });
 });

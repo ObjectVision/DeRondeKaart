@@ -1,10 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  MAX_TOOLS,
   complementaryDashboardEnabled,
   loadMapConfig,
   standaloneDashboardEnabled,
 } from "@/config/map-config";
+import { TOOL_NAMES } from "@/tools/tool-names";
 
 /**
  * `loadMapConfig` fetches `/map.json` and writes module-level caches for the
@@ -188,4 +190,100 @@ describe("map.json mapControls.searchCountries", () => {
       expect(config.mapControls.searchCountries).toEqual([]);
     },
   );
+});
+
+/**
+ * The five-tool ceiling.
+ *
+ * Measured against the real model: with six tools `needle_init` returns 1 and
+ * the command bar silently answers nothing ever again, falling back to a
+ * location search with no error anywhere. A config is the one place that number
+ * can be exceeded, so it is the place to clamp it.
+ */
+describe("map.json tools", () => {
+  it("defaults to every tool", async () => {
+    stubMapJson({});
+    const config = await loadMapConfig();
+    expect(config.tools).toEqual([...TOOL_NAMES]);
+  });
+
+  it("keeps a configured subset", async () => {
+    stubMapJson({ tools: ["open_layer", "close_layer"] });
+    const config = await loadMapConfig();
+    expect(config.tools).toEqual(["open_layer", "close_layer"]);
+  });
+
+  it("drops unknown names with a warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson({ tools: ["open_layer", "delete_everything"] });
+    const config = await loadMapConfig();
+    expect(config.tools).toEqual(["open_layer"]);
+    expect(warn).toHaveBeenCalled();
+  });
+
+  it("drops duplicates", async () => {
+    stubMapJson({ tools: ["open_layer", "open_layer"] });
+    const config = await loadMapConfig();
+    expect(config.tools).toEqual(["open_layer"]);
+  });
+
+  /**
+   * The whole catalogue must stay shippable: the day a fifth and sixth tool are
+   * added, `tools: undefined` would hand the model more than it accepts.
+   */
+  it("never lets the default exceed what the model accepts", () => {
+    expect(TOOL_NAMES.length).toBeLessThanOrEqual(MAX_TOOLS);
+  });
+
+  it("leaves a full, legitimate set alone", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson({ tools: [...TOOL_NAMES] });
+    const config = await loadMapConfig();
+
+    expect(config.tools).toEqual([...TOOL_NAMES]);
+    expect(warn).not.toHaveBeenCalled();
+  });
+});
+
+/**
+ * The clamp itself, against `validateTools` rather than `loadMapConfig`.
+ *
+ * Four tool names exist, so no `map.json` can carry six valid ones and the cap
+ * is unreachable through the config path — a test written there passes whether
+ * the clamp is present or deleted. Driving the validator directly, with the
+ * name list stubbed to a longer one, is what actually exercises it.
+ */
+describe("the tool ceiling", () => {
+  it("keeps the default catalogue within the model's limit", () => {
+    expect(TOOL_NAMES.length).toBeLessThanOrEqual(MAX_TOOLS);
+  });
+
+  it("clamps an over-long list and says what it dropped", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    // Six distinct names, as a future catalogue would have.
+    const many = [
+      "zoom_to_location",
+      "open_layer",
+      "close_layer",
+      "search_layers",
+      "set_basemap",
+      "download_data",
+    ];
+    vi.doMock("@/tools/tool-names", () => ({
+      TOOL_NAMES: many,
+      isToolName: (v: string) => many.includes(v),
+    }));
+    vi.resetModules();
+    const { validateTools, MAX_TOOLS: cap } = await import("@/config/map-config");
+
+    const kept = validateTools(many);
+
+    expect(kept).toHaveLength(cap);
+    expect(kept).toEqual(many.slice(0, cap));
+    // The surplus must be named, or a config author has no way to know which
+    // tools stopped working.
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("download_data"));
+    vi.doUnmock("@/tools/tool-names");
+    vi.resetModules();
+  });
 });

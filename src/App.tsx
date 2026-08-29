@@ -480,7 +480,18 @@ function App(rawProps: AppProps): JSX.Element {
       }
     }
 
-    const result = await runCommand(text, { side: mapSides.left }, parser);
+    const result = await runCommand(
+      text,
+      {
+        side: mapSides.left,
+        right: mapSides.right,
+        // The pair-aware close, so "zet apotheek uit" takes a paired layer's
+        // partner off the other map exactly as the legend's close button does.
+        removeLayer: removeFromSide,
+        leftHasLayers: nav.leftHasLayers,
+      },
+      parser,
+    );
     return result.ok ? null : (result.message ?? null);
   }
 
