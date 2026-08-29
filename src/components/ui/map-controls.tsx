@@ -80,11 +80,20 @@ export function MapControls(props: MapControlsProps): JSX.Element {
   /** True while the microphone is live. */
   const [listening, setListening] = createSignal(false);
 
+  /** The text input, so dictation can hand focus back to the user. */
+  let inputRef: HTMLInputElement | undefined;
+
   /**
-   * Dictate one utterance, then submit it as a command.
+   * Dictate one utterance into the input, and stop there.
    *
-   * A second click stops without submitting, which is the way out if the
-   * recogniser never hears an end-of-speech pause.
+   * Deliberately does NOT submit. Recognition is imperfect — a misheard place or
+   * layer name should be a visible word the user can correct before anything
+   * happens on the map, not a command that has already run. So the microphone
+   * only fills the text box; sending stays the send button's job, exactly as it
+   * is for typed input.
+   *
+   * A second click stops early, which is the way out if the recogniser never
+   * hears an end-of-speech pause.
    */
   async function handleMic() {
     if (listening()) {
@@ -96,16 +105,19 @@ export function MapControls(props: MapControlsProps): JSX.Element {
     setListening(true);
     setMessage(null);
     try {
+      // Partials stream in as they are recognised, so the words appear while the
+      // user is still speaking; the final result replaces them.
       const spoken = await props.onDictate?.((partial) => setSearchQuery(partial));
       setListening(false);
       if (!spoken?.trim()) return;
 
       setSearchQuery(spoken);
-      setBusy(true);
-      try {
-        setMessage((await props.onCommand?.(spoken)) ?? null);
-      } finally {
-        setBusy(false);
+      // Focus the input with the caret at the end, so the text is immediately
+      // editable and Enter sends it — the mic hands over to the keyboard.
+      const input = inputRef;
+      if (input) {
+        input.focus();
+        input.setSelectionRange(spoken.length, spoken.length);
       }
     } catch (err) {
       setListening(false);
@@ -185,7 +197,10 @@ export function MapControls(props: MapControlsProps): JSX.Element {
               // honour that only for an element present in the initial HTML, and
               // this input is created when the popover opens. Deferred a frame
               // so the element is in the document when focus is called.
-              ref={(el) => requestAnimationFrame(() => el.focus())}
+              ref={(el) => {
+                inputRef = el;
+                requestAnimationFrame(() => el.focus());
+              }}
             />
             {/* Speech input. Present as soon as the project enables it, but
                 inert until its model has finished — the greyed state is how the
