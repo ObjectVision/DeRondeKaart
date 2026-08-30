@@ -377,6 +377,21 @@
             "b": false
           }
         ]
+      },
+      {
+        "label": "woningbouw",
+        "icon": "foundation",
+        "color": "#C80000",
+        "expanded": false,
+        "children": [
+          {
+            "id": "nationale_woningbouwkaart",
+            "color": "#C80000",
+            "label": "nationale woningbouwkaart",
+            "a": false,
+            "b": false
+          }
+        ]
       }
     ]
   },

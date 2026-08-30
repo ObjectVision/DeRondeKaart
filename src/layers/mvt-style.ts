@@ -105,6 +105,10 @@ function resolveColor(color: string | undefined, fallback: string): string {
  * toggling all treat them identically.
  */
 export function isNativeVectorFormat(format: LayerConfig["format"]): boolean {
+  // "geojson" is deliberately absent despite also being a vector source: this
+  // gates highlight, study-area clipping, marker snapping and picking, which
+  // need a promoted feature id the geojson source does not set. Its own loader
+  // (geojson-layer.ts) builds layer defs directly.
   return format === "mvt" || format === "pmtiles" || format === "flatgeobuf";
 }
 

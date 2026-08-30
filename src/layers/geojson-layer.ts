@@ -7,10 +7,18 @@ import { styleReady } from "./geojson-overlay";
 import type { LayerConfig } from "./types";
 
 /**
- * The in-memory `geojson` format: features pushed in by the host rather than
- * fetched (the Power BI bridge — see `use-embed-data.ts`). Rendered as a plain
- * MapLibre GeoJSON source, so it picks up native styling, picking and hover for
- * free; under deck.gl this was a single `GeoJsonLayer` outside all of that.
+ * The `geojson` format, in two flavours that differ only in where the features
+ * come from:
+ *
+ *  - **In-memory**: pushed in by the host on `config.data` (the Power BI bridge
+ *    — see `use-embed-data.ts`), which has no URL to give.
+ *  - **Remote**: `config.source` is a URL. MapLibre fetches it itself, so this
+ *    needs no loader of its own — unlike flatgeobuf, which reads byte ranges
+ *    per viewport and therefore does have one.
+ *
+ * Either way it becomes a plain MapLibre GeoJSON source, so it picks up native
+ * styling, picking and hover for free; under deck.gl this was a single
+ * `GeoJsonLayer` outside all of that.
  *
  * The area filter deliberately does NOT apply to embed data: the host controls
  * its own dataset and would be surprised to see the app filter it. That is why
@@ -57,16 +65,20 @@ export function addGeoJsonLayer(
   getMap: MapAccessor,
 ): void {
   const map = getMap();
+  // In-memory features win; otherwise the source is a URL for MapLibre to fetch.
+  // `data` is checked first so a config carrying both keeps the host's features,
+  // which are the more specific answer.
+  const data = config.data ?? config.source;
   // See addMvtLayer: the map exists before its style does, and addSource throws
   // until the style JSON has landed. syncImperativeLayers replays this.
-  if (!styleReady(map) || !config.data) return;
+  if (!styleReady(map) || !data) return;
 
   const sourceId = geojsonSourceId(config);
   const source = map.getSource(sourceId);
   if (source && "setData" in source) {
-    (source as { setData: (d: unknown) => void }).setData(config.data);
+    (source as { setData: (d: unknown) => void }).setData(data);
   } else if (!source) {
-    map.addSource(sourceId, { type: "geojson", data: config.data });
+    map.addSource(sourceId, { type: "geojson", data });
   }
 
   // Any hatched rule needs its pattern image in the sprite before addLayer.

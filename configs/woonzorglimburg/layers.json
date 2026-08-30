@@ -7817,6 +7817,129 @@
           }
         ]
       }
+    },
+    {
+      "id": "nationale_woningbouwkaart",
+      "name": "nationale woningbouwkaart",
+      "description": "Woningbouwplannen in Limburg uit de Nationale Woningbouwkaart (voorjaar 2026).",
+      "meta": "/data/meta/woningbouwkaart.html",
+      "source": "",
+      "format": "composite",
+      "style": {},
+      "beforeid": "foreground-layers",
+      "featureinfo": {
+        "template": "<div><b>[[ Plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ Planstatus ]]<br/>Netto plancapaciteit: [[ Netto Plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
+      },
+      "layers": [
+        {
+          "source": "https://data.woonzorglimburg.nl/geojson/woningbouw-vlakken.geojson",
+          "format": "geojson",
+          "geometryType": "polygon",
+          "style": {},
+          "minzoom": 11,
+          "geostyler": {
+            "name": "vlakken",
+            "rules": [
+              {
+                "name": "Plangebied",
+                "type": "fill",
+                "paint": {
+                  "fill-color": "rgb(200, 0, 0)",
+                  "fill-opacity": 0.2
+                }
+              },
+              {
+                "name": "Plangebied omtrek",
+                "type": "line",
+                "paint": {
+                  "line-color": "rgba(255,0,0,1)",
+                  "line-dasharray": [
+                    2,
+                    2
+                  ],
+                  "line-opacity": 1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "source": "https://data.woonzorglimburg.nl/geojson/woningbouw-punten.geojson",
+          "format": "geojson",
+          "geometryType": "point",
+          "style": {},
+          "geostyler": {
+            "name": "punten",
+            "rules": [
+              {
+                "name": "Woningbouwplan (hard)",
+                "type": "circle",
+                "rawFilter": [
+                  "==",
+                  [
+                    "get",
+                    "Planstatus"
+                  ],
+                  "Hard"
+                ],
+                "paint": {
+                  "circle-radius": [
+                    "interpolate",
+                    [
+                      "exponential",
+                      1.1
+                    ],
+                    [
+                      "zoom"
+                    ],
+                    6,
+                    1,
+                    16,
+                    6
+                  ],
+                  "circle-color": "red",
+                  "circle-opacity": 1,
+                  "circle-stroke-width": 1,
+                  "circle-stroke-color": "#fff"
+                }
+              },
+              {
+                "name": "Woningbouwplan (zacht)",
+                "type": "circle",
+                "rawFilter": [
+                  "==",
+                  [
+                    "get",
+                    "Planstatus"
+                  ],
+                  "Zacht"
+                ],
+                "paint": {
+                  "circle-radius": [
+                    "interpolate",
+                    [
+                      "exponential",
+                      1.1
+                    ],
+                    [
+                      "zoom"
+                    ],
+                    6,
+                    1,
+                    16,
+                    6
+                  ],
+                  "circle-color": "red",
+                  "circle-opacity": 0.55,
+                  "circle-stroke-width": 1,
+                  "circle-stroke-color": "#fff",
+                  "circle-stroke-opacity": 0.8
+                }
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }

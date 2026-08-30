@@ -2,9 +2,9 @@
 #
 # setup_fileserver.sh — provision one geospatial file-server instance.
 #
-# Serves .parquet / .arrow / .geoarrow / .pbf(.gz) / .tif(f) over HTTPS with
-# open CORS, byte-range support and correct MIME types, for consumption by
-# MapLibre, DuckDB-WASM and COG readers in the browser.
+# Serves .parquet / .arrow / .geoarrow / .pbf(.gz) / .tif(f) / .geojson(.gz)
+# over HTTPS with open CORS, byte-range support and correct MIME types, for
+# consumption by MapLibre, DuckDB-WASM and COG readers in the browser.
 #
 # Run ON the target server. Any number of file servers can coexist: each is
 # namespaced by its own --slug and served on its own --host. Content is put in
@@ -34,7 +34,7 @@ $(print_kv "--slug NAME"       "instance id, namespaces all paths (e.g. woonzorg
 $(print_kv "--host HOST"       "hostname (e.g. data.woonzorglimburg.nl)")
 $(print_kv "--data-dir PATH"   "directory served (default: /var/www/<slug>)")
 $(print_kv "--cors-origin V"   "Access-Control-Allow-Origin value (default: *)")
-$(print_kv "--subdirs LIST"    "space-separated data subdirs to create (default: 'parquet arrow tiles cog pmtiles')")
+$(print_kv "--subdirs LIST"    "space-separated data subdirs to create (default: 'parquet arrow tiles cog pmtiles geojson')")
 $(print_kv "--autoindex on|off" "directory browsing (default: on)")
 $(print_kv "--email ADDR"      "email for Let's Encrypt registration")
 $(print_kv "--no-tls"          "skip certbot; serve plain HTTP only")
@@ -78,7 +78,7 @@ ask HOST "Hostname" ""
 validate_host "$HOST"
 ask DATA_DIR    "Data directory"                 "/var/www/$SLUG"
 ask CORS_ORIGIN "Access-Control-Allow-Origin"     "*"
-ask SUBDIRS     "Data subdirectories to create"   "parquet arrow tiles cog pmtiles"
+ask SUBDIRS     "Data subdirectories to create"   "parquet arrow tiles cog pmtiles geojson"
 ask AUTOINDEX   "Directory browsing (on/off)"      "on"
 if [ "$NO_TLS" != "1" ]; then
   ask EMAIL "Email for Let's Encrypt" ""
@@ -109,6 +109,7 @@ types {
     application/vnd.apache.arrow.file        arrow geoarrow;
     application/vnd.mapbox-vector-tile        pbf;
     application/vnd.pmtiles                   pmtiles;
+    application/geo+json                      geojson;
     image/tiff                                tif tiff;
 }
 EOF
@@ -186,6 +187,18 @@ $CORS_HEADERS
     # double-decompress.
     location ~* \\.(parquet|arrow|geoarrow|tif|tiff|pmtiles)\$ {
         expires 30d;
+        add_header Cache-Control "public" always;
+$CORS_HEADERS
+    }
+
+    # GeoJSON: unlike the binaries above this is text and compresses ~4x, but
+    # runtime gzip stays off server-wide (it disables Range). So serve a
+    # co-located .geojson.gz — the same trick as .pbf. Upload both files;
+    # \`always\` because gzip is off at server level.
+    location ~* \\.geojson\$ {
+        gzip_static always;
+        types { application/geo+json geojson; }
+        expires 7d;
         add_header Cache-Control "public" always;
 $CORS_HEADERS
     }
