@@ -16,7 +16,7 @@ shared multi-instance model.
 | Path | Purpose |
 |---|---|
 | `/var/www/<slug>` (or `--data-dir`) | data root, served directly |
-| `/var/www/<slug>/{parquet,arrow,tiles,cog}` | default subdirectories |
+| `/var/www/<slug>/{parquet,arrow,tiles,cog,pmtiles,geojson}` | default subdirectories |
 | `/etc/nginx/sites-available/<slug>` | nginx server block (symlinked into `sites-enabled/`) |
 | `/etc/nginx/conf.d/geo-mime.conf` | **shared** geospatial MIME types (created once) |
 
@@ -38,9 +38,13 @@ The geo formats have subtle serving requirements:
 - **Pre-compressed vector tiles** — `.pbf` is served with `gzip_static`, using a
   co-located `.pbf.gz` when the client accepts gzip; a direct `.pbf.gz` request is
   labelled `Content-Encoding: gzip` with the MVT content type.
+- **Pre-compressed GeoJSON** — `.geojson` is text and compresses ~4x, but runtime
+  gzip stays off (it disables `Range`). Same answer as `.pbf`: `gzip_static` picks
+  up a co-located `.geojson.gz`, so **upload both files**. Without the `.gz` the
+  full uncompressed body goes over the wire.
 - **Long immutable caching** on the large binary blobs.
 - **Correct MIME types** via the shared `geo-mime.conf`
-  (`parquet`, `arrow`/`geoarrow`, `pbf`, `tif`/`tiff`).
+  (`parquet`, `arrow`/`geoarrow`, `pbf`, `pmtiles`, `geojson`, `tif`/`tiff`).
 
 ---
 
@@ -52,7 +56,7 @@ The geo formats have subtle serving requirements:
 | `--host HOST` | Hostname | *(required)* |
 | `--data-dir PATH` | Directory served | `/var/www/<slug>` |
 | `--cors-origin V` | `Access-Control-Allow-Origin` | `*` |
-| `--subdirs LIST` | Data subdirs to create | `parquet arrow tiles cog` |
+| `--subdirs LIST` | Data subdirs to create | `parquet arrow tiles cog pmtiles geojson` |
 | `--autoindex on\|off` | Directory browsing | `on` |
 | `--email ADDR` | Let's Encrypt email | *(required unless `--no-tls`)* |
 | `--no-tls` | Serve plain HTTP, skip certbot | off |

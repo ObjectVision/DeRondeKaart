@@ -2,13 +2,20 @@ import type { LayerConfig, LayersFile, LayerFormat, StatisticConfig, TimeseriesC
 import { canHighlight, prefetchIdProperty, HIGHLIGHT_WIDTH } from "./feature-id";
 import { loadConfig, clearConfigCache } from "@/config/load-config";
 
-// "geojson" is deliberately absent: it is an in-memory format (LayerConfig.data)
-// constructed programmatically (e.g. by the Power BI bridge), never via layers.json.
-const VALID_FORMATS: LayerFormat[] = ["mvt", "cog", "flatgeobuf", "pmtiles", "composite"];
+// "geojson" arrives two ways: `source` as a URL MapLibre fetches itself, or
+// in-memory features on `data` (the Power BI bridge, which has no URL to give).
+// `validateGeoJsonSource` below requires one or the other.
+const VALID_FORMATS: LayerFormat[] = [
+  "mvt",
+  "cog",
+  "flatgeobuf",
+  "pmtiles",
+  "geojson",
+  "composite",
+];
 
-// Formats a "composite" entry may nest. "geojson" (in-memory) and "composite"
-// itself (no nesting) are deliberately absent.
-const CHILD_FORMATS: LayerFormat[] = ["mvt", "cog", "flatgeobuf", "pmtiles"];
+// Formats a "composite" entry may nest. "composite" itself is absent: no nesting.
+const CHILD_FORMATS: LayerFormat[] = ["mvt", "cog", "flatgeobuf", "pmtiles", "geojson"];
 
 /** Sidecar table URL for the analytics panel (see LayerConfig.attributeSource). */
 function validateAttributeSource(raw: unknown, id: string): string | undefined {
@@ -365,7 +372,11 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     return null;
   }
   const isComposite = layer.format === "composite";
-  // A composite has no source of its own — its children do.
+  // A composite has no source of its own — its children do. Every other format,
+  // "geojson" included, needs one: a geojson entry authored here is a URL, and
+  // the in-memory variant (LayerConfig.data) is built programmatically by the
+  // host bridge and never passes through this validator. Without this a bad URL
+  // would surface as a layer that loads and draws nothing.
   if (!isComposite && (!layer.source || typeof layer.source !== "string")) {
     console.warn(`layers.json: layer "${layer.id}" missing "source", skipping`);
     return null;
