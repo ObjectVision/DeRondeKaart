@@ -7859,8 +7859,8 @@
       "beforeid": "foreground-layers"
     },
     {
-      "id": "woningbouw_hard_sociale_huur",
-      "name": "sociale huur (hard)",
+      "id": "woningbouw_hard",
+      "name": "harde plannen",
       "meta": "/data/meta/woningbouwkaart.html",
       "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
       "format": "pmtiles",
@@ -7868,10 +7868,10 @@
       "sourceLayer": "woningbouw_punten",
       "style": {},
       "geostyler": {
-        "name": "sociale huur (hard)",
+        "name": "harde plannen",
         "rules": [
           {
-            "name": "sociale huur (hard)",
+            "name": "sociale huur",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -7903,43 +7903,24 @@
                   "sociale_huur"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#08519C",
+              "circle-color": "#e41a1c",
               "circle-opacity": 1,
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff"
             }
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Sociale huur: [[ sociale_huur ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
-      },
-      "beforeid": "foreground-layers"
-    },
-    {
-      "id": "woningbouw_hard_middenhuur",
-      "name": "middenhuur (hard)",
-      "meta": "/data/meta/woningbouwkaart.html",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
-      "format": "pmtiles",
-      "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
-      "style": {},
-      "geostyler": {
-        "name": "middenhuur (hard)",
-        "rules": [
+          },
           {
-            "name": "middenhuur (hard)",
+            "name": "middenhuur",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -7971,43 +7952,24 @@
                   "middenhuur"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#3182BD",
+              "circle-color": "#377eb8",
               "circle-opacity": 1,
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff"
             }
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Middenhuur: [[ middenhuur ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
-      },
-      "beforeid": "foreground-layers"
-    },
-    {
-      "id": "woningbouw_hard_dure_huur",
-      "name": "dure huur (hard)",
-      "meta": "/data/meta/woningbouwkaart.html",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
-      "format": "pmtiles",
-      "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
-      "style": {},
-      "geostyler": {
-        "name": "dure huur (hard)",
-        "rules": [
+          },
           {
-            "name": "dure huur (hard)",
+            "name": "dure huur",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -8039,43 +8001,24 @@
                   "dure_huur"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#6BAED6",
+              "circle-color": "#4daf4a",
               "circle-opacity": 1,
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff"
             }
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Dure huur: [[ dure_huur ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
-      },
-      "beforeid": "foreground-layers"
-    },
-    {
-      "id": "woningbouw_hard_huur_onbekend",
-      "name": "huur onbekend (hard)",
-      "meta": "/data/meta/woningbouwkaart.html",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
-      "format": "pmtiles",
-      "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
-      "style": {},
-      "geostyler": {
-        "name": "huur onbekend (hard)",
-        "rules": [
+          },
           {
-            "name": "huur onbekend (hard)",
+            "name": "huur onbekend",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -8107,43 +8050,24 @@
                   "huur_onbekend"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#9ECAE1",
+              "circle-color": "#984ea3",
               "circle-opacity": 1,
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff"
             }
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Huur onbekend: [[ huur_onbekend ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
-      },
-      "beforeid": "foreground-layers"
-    },
-    {
-      "id": "woningbouw_hard_betaalbare_koop",
-      "name": "betaalbare koop (hard)",
-      "meta": "/data/meta/woningbouwkaart.html",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
-      "format": "pmtiles",
-      "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
-      "style": {},
-      "geostyler": {
-        "name": "betaalbare koop (hard)",
-        "rules": [
+          },
           {
-            "name": "betaalbare koop (hard)",
+            "name": "betaalbare koop",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -8175,43 +8099,24 @@
                   "betaalbare_koop"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#E6550D",
+              "circle-color": "#ff7f00",
               "circle-opacity": 1,
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff"
             }
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Betaalbare koop: [[ betaalbare_koop ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
-      },
-      "beforeid": "foreground-layers"
-    },
-    {
-      "id": "woningbouw_hard_dure_koop",
-      "name": "dure koop (hard)",
-      "meta": "/data/meta/woningbouwkaart.html",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
-      "format": "pmtiles",
-      "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
-      "style": {},
-      "geostyler": {
-        "name": "dure koop (hard)",
-        "rules": [
+          },
           {
-            "name": "dure koop (hard)",
+            "name": "dure koop",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -8243,43 +8148,24 @@
                   "dure_koop"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#A63603",
+              "circle-color": "#ffff33",
               "circle-opacity": 1,
               "circle-stroke-width": 1,
-              "circle-stroke-color": "#fff"
+              "circle-stroke-color": "#7a7a1f"
             }
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Dure koop: [[ dure_koop ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
-      },
-      "beforeid": "foreground-layers"
-    },
-    {
-      "id": "woningbouw_hard_koop_onbekend",
-      "name": "koop onbekend (hard)",
-      "meta": "/data/meta/woningbouwkaart.html",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
-      "format": "pmtiles",
-      "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
-      "style": {},
-      "geostyler": {
-        "name": "koop onbekend (hard)",
-        "rules": [
+          },
           {
-            "name": "koop onbekend (hard)",
+            "name": "koop onbekend",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -8311,17 +8197,17 @@
                   "koop_onbekend"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#FDBE85",
+              "circle-color": "#a65628",
               "circle-opacity": 1,
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff"
@@ -8330,13 +8216,13 @@
         ]
       },
       "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Koop onbekend: [[ koop_onbekend ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
+        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Sociale huur: [[ sociale_huur ]]<br/>Middenhuur: [[ middenhuur ]]<br/>Dure huur: [[ dure_huur ]]<br/>Huur onbekend: [[ huur_onbekend ]]<br/>Betaalbare koop: [[ betaalbare_koop ]]<br/>Dure koop: [[ dure_koop ]]<br/>Koop onbekend: [[ koop_onbekend ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
       },
       "beforeid": "foreground-layers"
     },
     {
-      "id": "woningbouw_zacht_sociale_huur",
-      "name": "sociale huur (zacht)",
+      "id": "woningbouw_zacht",
+      "name": "zachte plannen",
       "meta": "/data/meta/woningbouwkaart.html",
       "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
       "format": "pmtiles",
@@ -8344,10 +8230,10 @@
       "sourceLayer": "woningbouw_punten",
       "style": {},
       "geostyler": {
-        "name": "sociale huur (zacht)",
+        "name": "zachte plannen",
         "rules": [
           {
-            "name": "sociale huur (zacht)",
+            "name": "sociale huur",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -8379,44 +8265,25 @@
                   "sociale_huur"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#08519C",
+              "circle-color": "#e41a1c",
               "circle-opacity": 0.55,
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff",
               "circle-stroke-opacity": 0.8
             }
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Sociale huur: [[ sociale_huur ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
-      },
-      "beforeid": "foreground-layers"
-    },
-    {
-      "id": "woningbouw_zacht_middenhuur",
-      "name": "middenhuur (zacht)",
-      "meta": "/data/meta/woningbouwkaart.html",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
-      "format": "pmtiles",
-      "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
-      "style": {},
-      "geostyler": {
-        "name": "middenhuur (zacht)",
-        "rules": [
+          },
           {
-            "name": "middenhuur (zacht)",
+            "name": "middenhuur",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -8448,44 +8315,25 @@
                   "middenhuur"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#3182BD",
+              "circle-color": "#377eb8",
               "circle-opacity": 0.55,
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff",
               "circle-stroke-opacity": 0.8
             }
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Middenhuur: [[ middenhuur ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
-      },
-      "beforeid": "foreground-layers"
-    },
-    {
-      "id": "woningbouw_zacht_dure_huur",
-      "name": "dure huur (zacht)",
-      "meta": "/data/meta/woningbouwkaart.html",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
-      "format": "pmtiles",
-      "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
-      "style": {},
-      "geostyler": {
-        "name": "dure huur (zacht)",
-        "rules": [
+          },
           {
-            "name": "dure huur (zacht)",
+            "name": "dure huur",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -8517,44 +8365,25 @@
                   "dure_huur"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#6BAED6",
+              "circle-color": "#4daf4a",
               "circle-opacity": 0.55,
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff",
               "circle-stroke-opacity": 0.8
             }
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Dure huur: [[ dure_huur ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
-      },
-      "beforeid": "foreground-layers"
-    },
-    {
-      "id": "woningbouw_zacht_huur_onbekend",
-      "name": "huur onbekend (zacht)",
-      "meta": "/data/meta/woningbouwkaart.html",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
-      "format": "pmtiles",
-      "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
-      "style": {},
-      "geostyler": {
-        "name": "huur onbekend (zacht)",
-        "rules": [
+          },
           {
-            "name": "huur onbekend (zacht)",
+            "name": "huur onbekend",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -8586,44 +8415,25 @@
                   "huur_onbekend"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#9ECAE1",
+              "circle-color": "#984ea3",
               "circle-opacity": 0.55,
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff",
               "circle-stroke-opacity": 0.8
             }
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Huur onbekend: [[ huur_onbekend ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
-      },
-      "beforeid": "foreground-layers"
-    },
-    {
-      "id": "woningbouw_zacht_betaalbare_koop",
-      "name": "betaalbare koop (zacht)",
-      "meta": "/data/meta/woningbouwkaart.html",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
-      "format": "pmtiles",
-      "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
-      "style": {},
-      "geostyler": {
-        "name": "betaalbare koop (zacht)",
-        "rules": [
+          },
           {
-            "name": "betaalbare koop (zacht)",
+            "name": "betaalbare koop",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -8655,44 +8465,25 @@
                   "betaalbare_koop"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#E6550D",
+              "circle-color": "#ff7f00",
               "circle-opacity": 0.55,
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff",
               "circle-stroke-opacity": 0.8
             }
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Betaalbare koop: [[ betaalbare_koop ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
-      },
-      "beforeid": "foreground-layers"
-    },
-    {
-      "id": "woningbouw_zacht_dure_koop",
-      "name": "dure koop (zacht)",
-      "meta": "/data/meta/woningbouwkaart.html",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
-      "format": "pmtiles",
-      "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
-      "style": {},
-      "geostyler": {
-        "name": "dure koop (zacht)",
-        "rules": [
+          },
           {
-            "name": "dure koop (zacht)",
+            "name": "dure koop",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -8724,44 +8515,25 @@
                   "dure_koop"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#A63603",
+              "circle-color": "#ffff33",
               "circle-opacity": 0.55,
               "circle-stroke-width": 1,
-              "circle-stroke-color": "#fff",
+              "circle-stroke-color": "#7a7a1f",
               "circle-stroke-opacity": 0.8
             }
-          }
-        ]
-      },
-      "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Dure koop: [[ dure_koop ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
-      },
-      "beforeid": "foreground-layers"
-    },
-    {
-      "id": "woningbouw_zacht_koop_onbekend",
-      "name": "koop onbekend (zacht)",
-      "meta": "/data/meta/woningbouwkaart.html",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
-      "format": "pmtiles",
-      "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
-      "style": {},
-      "geostyler": {
-        "name": "koop onbekend (zacht)",
-        "rules": [
+          },
           {
-            "name": "koop onbekend (zacht)",
+            "name": "koop onbekend",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -8793,17 +8565,17 @@
                   "koop_onbekend"
                 ],
                 1,
-                3,
-                25,
                 6,
+                25,
+                9,
                 100,
-                10,
+                13,
                 500,
-                16,
+                19,
                 2000,
-                24
+                27
               ],
-              "circle-color": "#FDBE85",
+              "circle-color": "#a65628",
               "circle-opacity": 0.55,
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff",
@@ -8813,7 +8585,7 @@
         ]
       },
       "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Koop onbekend: [[ koop_onbekend ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
+        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Sociale huur: [[ sociale_huur ]]<br/>Middenhuur: [[ middenhuur ]]<br/>Dure huur: [[ dure_huur ]]<br/>Huur onbekend: [[ huur_onbekend ]]<br/>Betaalbare koop: [[ betaalbare_koop ]]<br/>Dure koop: [[ dure_koop ]]<br/>Koop onbekend: [[ koop_onbekend ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
       },
       "beforeid": "foreground-layers"
     }
