@@ -385,11 +385,125 @@
         "expanded": false,
         "children": [
           {
-            "id": "nationale_woningbouwkaart",
+            "id": "woningbouw_projectvlakken",
             "color": "#C80000",
-            "label": "nationale woningbouwkaart",
+            "label": "projectvlakken",
             "a": false,
             "b": false
+          },
+          {
+            "label": "hard",
+            "icon": "foundation",
+            "color": "#C80000",
+            "expanded": false,
+            "children": [
+              {
+                "id": "woningbouw_hard_sociale_huur",
+                "color": "#08519C",
+                "label": "sociale huur",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "woningbouw_hard_middenhuur",
+                "color": "#3182BD",
+                "label": "middenhuur",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "woningbouw_hard_dure_huur",
+                "color": "#6BAED6",
+                "label": "dure huur",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "woningbouw_hard_huur_onbekend",
+                "color": "#9ECAE1",
+                "label": "huur onbekend",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "woningbouw_hard_betaalbare_koop",
+                "color": "#E6550D",
+                "label": "betaalbare koop",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "woningbouw_hard_dure_koop",
+                "color": "#A63603",
+                "label": "dure koop",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "woningbouw_hard_koop_onbekend",
+                "color": "#FDBE85",
+                "label": "koop onbekend",
+                "a": false,
+                "b": false
+              }
+            ]
+          },
+          {
+            "label": "zacht",
+            "icon": "foundation",
+            "color": "#C80000",
+            "expanded": false,
+            "children": [
+              {
+                "id": "woningbouw_zacht_sociale_huur",
+                "color": "#08519C",
+                "label": "sociale huur",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "woningbouw_zacht_middenhuur",
+                "color": "#3182BD",
+                "label": "middenhuur",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "woningbouw_zacht_dure_huur",
+                "color": "#6BAED6",
+                "label": "dure huur",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "woningbouw_zacht_huur_onbekend",
+                "color": "#9ECAE1",
+                "label": "huur onbekend",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "woningbouw_zacht_betaalbare_koop",
+                "color": "#E6550D",
+                "label": "betaalbare koop",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "woningbouw_zacht_dure_koop",
+                "color": "#A63603",
+                "label": "dure koop",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "woningbouw_zacht_koop_onbekend",
+                "color": "#FDBE85",
+                "label": "koop onbekend",
+                "a": false,
+                "b": false
+              }
+            ]
           }
         ]
       }
