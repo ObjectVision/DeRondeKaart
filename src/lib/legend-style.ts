@@ -47,21 +47,63 @@ function resolveColor(color: string | undefined, fallback: string): string {
   return color;
 }
 
+/** MapLibre paint keys carrying the primary colour, per layer type. */
+const PAINT_COLOR_KEYS = ["circle-color", "fill-color", "line-color", "icon-color"] as const;
+
 /**
- * Swatch spec for a GeoStyler rule, from its first symbolizer.
+ * The colour a raw `paint` override paints, when that is a single literal.
  *
- * Shows the symbolizer's DECLARED colour, which is not always the colour the
- * map paints: a rule's raw `paint` override (RawStyleOverrides) wins on the map
- * but is deliberately ignored here. An override is typically an expression —
- * `["interpolate", …]` over a data value has no single colour to draw — so
- * reducing one to a swatch is not well defined. A rule using overrides should
- * keep its symbolizer's colour roughly representative, or carry no symbolizer
- * at all and accept the neutral default below.
+ * Only a plain string counts. An expression — `["interpolate", …]` over a data
+ * value — has no one colour, so it is left to the caller's fallback rather than
+ * being reduced to something misleading.
+ */
+function literalPaintColor(paint: Record<string, unknown> | undefined): string | undefined {
+  if (!paint) return undefined;
+  for (const key of PAINT_COLOR_KEYS) {
+    const value = paint[key];
+    if (typeof value === "string") return resolveColor(value, DEFAULT_COLOR);
+  }
+  return undefined;
+}
+
+/** The MapLibre layer types a raw `type` override maps to a swatch kind. */
+function swatchKindFor(type: string | undefined): "fill" | "line" | "circle" | undefined {
+  if (type === "circle") return "circle";
+  if (type === "line") return "line";
+  if (type === "fill") return "fill";
+  return undefined;
+}
+
+/**
+ * Swatch spec for a GeoStyler rule.
+ *
+ * Prefers the first symbolizer. A rule may instead carry raw `type`/`paint`
+ * overrides and no symbolizer at all — the supported way to hand-write MapLibre
+ * paint (see RawStyleOverrides) — and those are read here too: without it every
+ * such rule drew the same neutral square, so a seven-class layer had seven
+ * identical swatches while the map showed seven colours.
+ *
+ * Where a symbolizer IS present its declared colour still wins, even against a
+ * paint override. Overrides on a symbolizer are usually expressions, which have
+ * no single colour to draw.
  */
 export function ruleSwatchSpec(rule: GeoStylerRule): SwatchSpec {
   // Optional: a rule may carry raw `type`/`paint` overrides and no symbolizer.
   const sym = rule.symbolizers?.[0];
-  if (!sym) return { kind: "fill", color: DEFAULT_COLOR };
+  if (!sym) {
+    const color = literalPaintColor(rule.paint) ?? DEFAULT_COLOR;
+    const kind = swatchKindFor(rule.type);
+    if (kind === "circle") {
+      // Radius is deliberately fixed: these are data-driven ramps on the map,
+      // so there is no one size, and the legend is a colour key.
+      const rawStroke = rule.paint?.["circle-stroke-color"];
+      const strokeColor =
+        typeof rawStroke === "string" ? resolveColor(rawStroke, "#000000") : undefined;
+      return { kind: "circle", color, radius: 5, strokeColor, strokeWidth: 1 };
+    }
+    if (kind === "line") return { kind: "line", color, width: 2 };
+    return { kind: "fill", color };
+  }
 
   switch (sym.kind) {
     case "Fill": {
