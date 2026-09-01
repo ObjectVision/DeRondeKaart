@@ -73,7 +73,7 @@ import { useChartsPanel } from "@/hooks/use-charts-panel";
 import { Legend } from "@/components/ui/legend";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
-import { NavigationPanel } from "@/components/ui/navigation/NavigationPanel";
+import { SearchBar } from "@/components/ui/SearchBar";
 import { Sidebar } from "@/components/ui/sidebar/Sidebar";
 import { SectionToggleBar, type SectionToggle } from "@/components/ui/sidebar/SectionToggleBar";
 import { usePanelMinimize } from "@/hooks/use-panel-minimize";
@@ -124,7 +124,6 @@ interface AppProps {
   streetviewEnabled?: boolean;
   searchbarEnabled?: boolean;
   navigationEnabled?: boolean;
-  navigationMode?: "top" | "sidebar";
   filterSectionEnabled?: boolean;
   navigationSectionEnabled?: boolean;
   chartsPanelEnabled?: boolean;
@@ -149,7 +148,6 @@ function App(rawProps: AppProps): JSX.Element {
       streetviewEnabled: false,
       searchbarEnabled: false,
       navigationEnabled: false,
-      navigationMode: "top" as const,
       filterSectionEnabled: true,
       navigationSectionEnabled: true,
       chartsPanelEnabled: true,
@@ -178,7 +176,6 @@ function App(rawProps: AppProps): JSX.Element {
   const shareEnabled = () => shareOverride() ?? props.shareEnabled;
   const annotationsEnabled = () => annotationsOverride() ?? props.annotationsEnabled;
   const [combineOpen, setCombineOpen] = createSignal(false);
-  const sidebarMode = () => props.navigationMode === "sidebar";
 
   // Ahead of the layer stacks, which bind to these at construction.
   const [mapLeftView, setMapLeftView] = createSignal<MapViewHandle | null>(null);
@@ -612,11 +609,11 @@ function App(rawProps: AppProps): JSX.Element {
     startSession,
   });
 
-  const sidebarActive = () => sidebarMode() && navigation();
+  // The sidebar IS the navigation UI, so `navigation` gates it directly; the
+  // Filter and Navigatie sections then have their own keys on top of that.
   const filterAvailable = () =>
-    sidebarActive() && props.filterSectionEnabled && areaFilter.entries().length > 0;
-  const navAvailable = () => sidebarActive() && props.navigationSectionEnabled;
-  const navShowsControls = () => sidebarActive() || (navigation() && !sidebarMode());
+    navigation() && props.filterSectionEnabled && areaFilter.entries().length > 0;
+  const navAvailable = () => navigation() && props.navigationSectionEnabled;
   const sectionToggles = (): SectionToggle[] => {
     if (!(filterAvailable() || navAvailable()) || !navMinimized()) return [];
     return [
@@ -944,24 +941,13 @@ function App(rawProps: AppProps): JSX.Element {
           />
         </Show>
 
-        <NavigationPanel
-          nav={nav}
-          onZoomIn={handleZoomIn}
-          onZoomOut={handleZoomOut}
-          showSearch={searchbar()}
-          showNavigation={navigation() && !sidebarMode()}
-          showControlsSearch={props.mapControls.search}
-          showControlsZoom={props.mapControls.zoom}
-          showCombinations={showCombinationsTheme()}
-          combinationLeaves={filterLayers.leaves()}
-          onOpenMeta={openLayerMeta}
-        />
+        <SearchBar showSearch={searchbar()} />
 
         <div class="absolute bottom-2 right-2 z-30 flex flex-col items-end gap-2 sm:bottom-4 sm:right-4">
+          {/* Fallback for a nav-less map: with no sidebar there is no toolbar to
+              carry the zoom/search card, so it sits in the corner instead. */}
           <Show
-            when={
-              !navShowsControls() && (props.mapControls.search || props.mapControls.zoom)
-            }
+            when={!navigation() && (props.mapControls.search || props.mapControls.zoom)}
           >
             <MapControls
               onZoomIn={handleZoomIn}
@@ -1001,10 +987,11 @@ function App(rawProps: AppProps): JSX.Element {
           </Show>
         </div>
 
-        {/* Top-navigation mode's chrome row. Not gated on `shareEnabled()`: the
-            info button lives here too, and must survive a project that turns
+        {/* Chrome row for a map with navigation disabled — with the sidebar gone,
+            its toolbar copy of these goes too. Not gated on `shareEnabled()`: the
+            info button lives here as well, and must survive a project that turns
             sharing off. */}
-        <Show when={!sidebarActive()}>
+        <Show when={!navigation()}>
           <div class="absolute left-2 top-2 z-30 flex items-center gap-2 sm:left-4 sm:top-4">
             <Show when={shareEnabled()}>
               <ShareButton />
@@ -1176,7 +1163,7 @@ function App(rawProps: AppProps): JSX.Element {
         </Show>
 
         <div class="pointer-events-none absolute bottom-2 left-2 top-2 z-30 flex flex-col items-start gap-2 sm:bottom-4 sm:left-4 sm:top-4">
-          <Show when={sidebarActive()}>
+          <Show when={navigation()}>
             <Sidebar
               nav={nav}
               areaFilter={areaFilter}

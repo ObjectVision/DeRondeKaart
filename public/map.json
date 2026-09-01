@@ -7,7 +7,6 @@
   "streetview": false,
   "searchbar": false,
   "navigation": true,
-  "navigationMode": "sidebar",
   "filterSection": true,
   "navigationSection": true,
   "mapControls": {

@@ -110,7 +110,7 @@ interface SidebarProps {
 }
 
 /**
- * Left sidebar (map.json `navigationMode: "sidebar"`): the Filter section on
+ * Left sidebar (map.json `navigation`): the Filter section on
  * top of the Navigatie treeview. The top level is the category rows; clicking
  * one expands its branches and leaves in place beneath it, leaving the sibling
  * categories visible so the user keeps their bearings. Each layer row carries a
