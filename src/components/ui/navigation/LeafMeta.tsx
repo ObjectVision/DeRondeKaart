@@ -47,7 +47,7 @@ interface LeafMetaProps {
 /**
  * The meta/description block for a layer: resolves the layer's `meta` path(s)
  * from layers.json, fetches that HTML (cached per URL) and renders it. Used by
- * the sidebar's inline info panel and the top-mode LeafDetail window.
+ * the layer metainfo dialog (LayerMetaDialog).
  *
  * `meta` may name one fragment or several (see LayerConfig.meta). Several are
  * concatenated **verbatim** in array order — nothing is stripped or rewritten, so

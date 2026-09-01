@@ -177,13 +177,6 @@ export interface MapConfig {
    */
   navigation: boolean;
   /**
-   * Layout of the navigation UI: `"top"` shows the top-center category row,
-   * `"sidebar"` shows the left sidebar with Filter + Navigatie sections and
-   * hides the top-center row. Only meaningful when `navigation` is true.
-   * Defaults to `"top"` when omitted.
-   */
-  navigationMode: "top" | "sidebar";
-  /**
    * Id of the basemap a fresh session starts on (see BASEMAPS). Omitted or
    * unknown falls back to DEFAULT_BASEMAP_ID. A stored session choice wins over
    * this; a basemap in a share URL wins over both.
@@ -434,7 +427,6 @@ const DEFAULT_MAP_CONFIG: MapConfig = {
   streetview: false,
   searchbar: false,
   navigation: false,
-  navigationMode: "top",
   filterSection: true,
   navigationSection: true,
   chartsPanel: true,
@@ -894,15 +886,6 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
   const combinations = validateBool(data.combinations, "combinations", DEFAULT_MAP_CONFIG.combinations);
   const annotations = validateBool(data.annotations, "annotations", DEFAULT_MAP_CONFIG.annotations);
 
-  let navigationMode = DEFAULT_MAP_CONFIG.navigationMode;
-  if (data.navigationMode === "top" || data.navigationMode === "sidebar") {
-    navigationMode = data.navigationMode;
-  } else if (data.navigationMode !== undefined) {
-    console.warn(
-      `map.json: invalid "navigationMode" ${JSON.stringify(data.navigationMode)}; using "top"`,
-    );
-  }
-
   let dashboard = DEFAULT_MAP_CONFIG.dashboard;
   if (
     data.dashboard === "off" ||
@@ -976,7 +959,6 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     streetview,
     searchbar,
     navigation,
-    navigationMode,
     basemap,
     filterSection,
     navigationSection,

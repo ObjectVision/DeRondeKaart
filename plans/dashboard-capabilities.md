@@ -12,7 +12,7 @@
 | Data engine | **DuckDB-Wasm** (`@duckdb/duckdb-wasm`) | Reads parquet over HTTP range requests; SQL joins are the natural fit for a semantic model with relationships. Perspective's viewer can't host our D3 charts and is single-table; hand-rolled Arrow joins are the most code to maintain. |
 | DuckDB delivery | **npm dependency, imported only inside `src/dashboard/duckdb-engine.ts`, reached only through `await import()`** | Map-only users must download none of it. Rules in §4. |
 | PDF export | **Print stylesheet** | `dashboard_export.json` drives a dedicated print layout (DOM + SVG charts stay vector), exported via `window.print()` with `@page` rules. Zero new deps. |
-| Capability flag | **`map.json` → `"dashboard": "off" \| "standalone" \| "complementary" \| "both"`**, default `"off"` | Follows the `navigationMode` precedent exactly: one key, four literals, warn-and-fallback. |
+| Capability flag | **`map.json` → `"dashboard": "off" \| "standalone" \| "complementary" \| "both"`**, default `"off"` | Follows the house pattern for a literal-valued key: one key, four literals, warn-and-fallback. (Written against the since-removed `navigationMode`, which set that precedent.) |
 | Standalone trigger | **Query param** `?mode=dashboard`, gated by the capability | Follows the existing `?embed=circular` precedent (`src/main.tsx:9-15`). No router, no second entry point. |
 | Data source | **The semantic model names its own parquet URLs** | Standalone must work in a project with zero map layers configured. |
 
@@ -28,7 +28,7 @@ export type DashboardMode = "off" | "standalone" | "complementary" | "both";
 ```
 
 - `MapConfig.dashboard: DashboardMode`; `DEFAULT_MAP_CONFIG.dashboard = "off"` (`map-config.ts:252-270`).
-- Validate with the literal-comparison chain used for `navigationMode` (`map-config.ts:452-459`) — **not** `Array.includes`, which does not narrow `unknown`. An unrecognised value gets a `console.warn` and falls back to `"off"`; `loadMapConfig` never throws.
+- Validate with a literal-comparison chain (as `dashboard` itself now does in `loadMapConfig`) — **not** `Array.includes`, which does not narrow `unknown`. An unrecognised value gets a `console.warn` and falls back to `"off"`; `loadMapConfig` never throws.
 - Export two derived predicates beside the type, so no caller re-implements the union:
 
 ```ts

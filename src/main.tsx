@@ -51,7 +51,6 @@ async function bootstrap() {
         streetviewEnabled={mapConfig.streetview ?? false}
         searchbarEnabled={mapConfig.searchbar}
         navigationEnabled={mapConfig.navigation}
-        navigationMode={mapConfig.navigationMode}
         filterSectionEnabled={mapConfig.filterSection}
         navigationSectionEnabled={mapConfig.navigationSection}
         chartsPanelEnabled={mapConfig.chartsPanel}

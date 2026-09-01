@@ -19,16 +19,15 @@ interface NavTreeProps {
    * Controlled expansion. Supply BOTH to lift branch open/closed state out of
    * the rows (the sidebar does, so state survives a branch unmounting and
    * persists for the session — see use-nav-expansion.ts). Omit both and each
-   * branch keeps its own local state seeded from `node.expanded`, which is what
-   * the top-mode popover wants: a transient view that resets when reopened.
+   * branch keeps its own local state seeded from `node.expanded` — a transient
+   * view that resets when the branch unmounts.
    */
   isOpen?: (path: string[]) => boolean;
   onToggle?: (path: string[]) => void;
   /**
    * Actions rendered to the RIGHT of a leaf row (the sidebar's three-button
    * menu) — always visible on the selected row, shown on hover for the rest.
-   * When omitted, selecting a leaf is the caller's business entirely (top
-   * mode opens LeafDetail instead).
+   * When omitted, selecting a leaf is the caller's business entirely.
    */
   leafActions?: (leaf: NavLeaf) => JSX.Element;
   /** Panel rendered below the SELECTED leaf row (the sidebar's info panel). */

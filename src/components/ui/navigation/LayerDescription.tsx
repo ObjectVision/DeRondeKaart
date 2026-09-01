@@ -40,8 +40,7 @@ interface LayerDescriptionProps {
  * A layer's short description, with an info button beneath it that opens the
  * full metainfo dialog.
  *
- * Shared by both navigation modes — the sidebar's inline panel and the top-mode
- * LeafDetail window — so the two cannot drift apart.
+ * Rendered in the sidebar's inline info panel.
  *
  * Callers decide *whether* to render this at all: a layer with neither a
  * description nor meta shows no panel (see Sidebar.handleRowClick). What this
