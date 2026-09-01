@@ -3396,7 +3396,7 @@
           255
         ],
         "lineWidth": 0.8,
-        "opacity": 0.7
+        "opacity": 1.0
       },
       "featureinfo": {
         "template": "<div><b>[[ statnaam]]</b></div>"
@@ -3411,15 +3411,6 @@
       "format": "pmtiles",
       "geometryType": "line",
       "beforeid": "foreground-layers",
-      "statistics": [
-        {
-          "field": "bu_code",
-          "stat": "count",
-          "label": "Buurten",
-          "icon": "grid_view",
-          "color": "#1c5cab"
-        }
-      ],
       "style": {
         "color": [
           0,
