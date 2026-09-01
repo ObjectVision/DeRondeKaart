@@ -6,12 +6,6 @@ interface SearchBarProps {
   showSearch?: boolean;
 }
 
-/**
- * Top-center "Zoek een kaartlaag…" input (map.json `searchbar`, also togglable
- * by the Power BI host's `map-config` message). The query is not wired to a
- * surface yet: the layer tree lives in the sidebar's Navigatie section, which
- * does its own filtering.
- */
 export function SearchBar(props: SearchBarProps): JSX.Element {
   const [query, setQuery] = createSignal("");
 
