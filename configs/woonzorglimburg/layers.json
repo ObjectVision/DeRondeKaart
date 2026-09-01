@@ -3390,12 +3390,12 @@
           0
         ],
         "lineColor": [
-          128,
-          0,
-          128,
-          255
+          218,
+          120,
+          120,
+          200
         ],
-        "lineWidth": 2,
+        "lineWidth": 1,
         "opacity": 1
       },
       "featureinfo": {
@@ -3428,12 +3428,12 @@
           0
         ],
         "lineColor": [
-          128,
-          0,
-          128,
-          255
+          70,
+          121,
+          170,
+          200
         ],
-        "lineWidth": 2,
+        "lineWidth": 0.8,
         "opacity": 1
       },
       "featureinfo": {
@@ -3456,12 +3456,12 @@
           0
         ],
         "lineColor": [
-          128,
-          0,
-          128,
-          255
+          70,
+          121,
+          170,
+          200
         ],
-        "lineWidth": 2,
+        "lineWidth": 0.8,
         "opacity": 1
       },
       "featureinfo": {
