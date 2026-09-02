@@ -7805,6 +7805,99 @@
                 "BU"
               ]
             ]
+          },
+          {
+            "name": "Buurtgrens",
+            "type": "line",
+            "paint": {
+              "line-color": "#3E74A7",
+              "line-width": 1,
+              "line-opacity": 0.6
+            },
+            "rawFilter": [
+              "all",
+              [
+                ">=",
+                [
+                  "zoom"
+                ],
+                13
+              ],
+              [
+                "==",
+                [
+                  "slice",
+                  [
+                    "get",
+                    "statcode"
+                  ],
+                  0,
+                  2
+                ],
+                "BU"
+              ]
+            ]
+          },
+          {
+            "name": "Wijkgrens",
+            "type": "line",
+            "paint": {
+              "line-color": "#3E74A7",
+              "line-width": 1,
+              "line-opacity": 0.6
+            },
+            "rawFilter": [
+              "all",
+              [
+                ">=",
+                [
+                  "zoom"
+                ],
+                11
+              ],
+              [
+                "<",
+                [
+                  "zoom"
+                ],
+                13
+              ],
+              [
+                "==",
+                [
+                  "slice",
+                  [
+                    "get",
+                    "statcode"
+                  ],
+                  0,
+                  2
+                ],
+                "WK"
+              ]
+            ]
+          },
+          {
+            "name": "Gemeentegrens",
+            "type": "line",
+            "paint": {
+              "line-color": "#ce2525",
+              "line-width": 0.5,
+              "line-opacity": 1
+            },
+            "rawFilter": [
+              "==",
+              [
+                "slice",
+                [
+                  "get",
+                  "statcode"
+                ],
+                0,
+                2
+              ],
+              "GM"
+            ]
           }
         ]
       }
