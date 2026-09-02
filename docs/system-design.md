@@ -491,7 +491,7 @@ from Parquet to PMTiles, and the silence is why it went unnoticed.
 | **PNG export** | [map-capture.ts](../src/lib/map-capture.ts) | 2048² circular export with legend and callouts |
 | **Circular embed** | [CircularExportView.tsx](../src/components/share/CircularExportView.tsx) | `?embed=circular` or `open-circular` message |
 | **Dashboard (standalone)** | [dashboard/](../src/dashboard/), [components/dashboard/](../src/components/dashboard/) | `?mode=dashboard` map-less view over parquet via DuckDB-Wasm, gated by `map.json`'s `dashboard`; the engine is loaded only on that route |
-| **Area comparison** | [use-complementary-dashboard.ts](../src/hooks/use-complementary-dashboard.ts), [compare-slots.ts](../src/layers/compare-slots.ts) | Up to 4 areas clicked into coloured slots (dashed outlines via a numeric `compareSlot` feature state), compared in the "meer informatie" panel |
+| **Area comparison** | [use-complementary-dashboard.ts](../src/hooks/use-complementary-dashboard.ts), [compare-slots.ts](../src/layers/compare-slots.ts) | Up to 4 areas clicked into coloured slots (outlines via a numeric `compareSlot` feature state), compared in the "meer informatie" panel |
 
 ## 9. Configuration system
 

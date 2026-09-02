@@ -6,7 +6,6 @@ import {
   HIGHLIGHT_COLOR,
   HIGHLIGHT_WIDTH,
   HIGHLIGHT_CASING_COLOR,
-  HIGHLIGHT_CASING_PAD,
   HIGHLIGHT_CASING_WIDTH,
   canHighlight,
 } from "./feature-id";
@@ -15,13 +14,6 @@ import {
   NO_COMPARE_SLOT,
   isCompareSelectable,
 } from "./compare-slots";
-
-/** Stroke width of a comparison outline — wider than the hover highlight,
- * because it is meant to stay readable while the user reads the panel. */
-const COMPARE_WIDTH = 3;
-
-/** Dash pattern, in multiples of the line width. */
-const COMPARE_DASHARRAY = [2, 1.5];
 
 /**
  * Rule-name suffix of the highlight outline layer. Exported so the dim tool can
@@ -214,8 +206,12 @@ export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
   return [
     ...styleDefs,
     ...buildSelectableOutlineDefs(config, styleDefs),
-    ...buildHighlightLayerDefs(config),
+    // Order is draw order (see addRuleLayers), and these two are deliberately
+    // this way round: one feature can be both selected and hovered, and both
+    // outlines now share the same geometry, so whichever comes last is the one
+    // that shows. Hover is the transient state and wins.
     ...buildCompareLayerDefs(config),
+    ...buildHighlightLayerDefs(config),
   ];
 }
 
@@ -260,15 +256,21 @@ function buildSelectableOutlineDefs(
 }
 
 /**
- * The comparison outlines: a dashed stroke over a white casing, drawn for the
+ * The comparison outlines: a solid stroke over a white casing, drawn for the
  * features holding one of the four comparison slots and coloured per slot.
  *
- * Dashed rather than solid to keep it apart from the hover/click highlight,
- * which the same layer still shows — one feature can be both.
+ * Same geometry as the pick/hover highlight — `HIGHLIGHT_WIDTH` over
+ * `HIGHLIGHT_CASING_WIDTH` — so a selected area reads as the same kind of thing
+ * a clicked one does, and retuning either width keeps them together. The slot
+ * colour is what tells them apart, matching the panel's columns.
+ *
+ * One feature can be both selected and hovered, and with the geometry shared
+ * the two would otherwise be indistinguishable; `buildNativeLayerDefs` emits
+ * these BEFORE the highlight defs so hover draws over the slot colour and wins.
  *
  * Built here rather than through `RawStyleOverrides` because that escape hatch
  * only applies to symbolizer-driven layers; `buildHighlightLayerDefs` and this
- * one hand-write their paint, so `line-dasharray` is set directly.
+ * one hand-write their paint.
  *
  * `compareSlot` is a NUMBER in feature state, not a boolean per slot: one
  * `match` expression then paints all four, and clearing is writing -1 rather
@@ -294,7 +296,7 @@ function buildCompareLayerDefs(config: LayerConfig): NativeLayerDef[] {
       type: "line",
       paint: {
         "line-color": HIGHLIGHT_CASING_COLOR,
-        "line-width": onOff(COMPARE_WIDTH + 2 * HIGHLIGHT_CASING_PAD, 0),
+        "line-width": onOff(HIGHLIGHT_CASING_WIDTH, 0),
         "line-opacity": onOff(1, 0),
       },
       layout: {},
@@ -305,9 +307,8 @@ function buildCompareLayerDefs(config: LayerConfig): NativeLayerDef[] {
       type: "line",
       paint: {
         "line-color": colorBySlot,
-        "line-width": onOff(COMPARE_WIDTH, 0),
+        "line-width": onOff(HIGHLIGHT_WIDTH, 0),
         "line-opacity": onOff(1, 0),
-        "line-dasharray": COMPARE_DASHARRAY,
       },
       layout: {},
     },

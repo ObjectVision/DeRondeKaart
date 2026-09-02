@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import { chromeIconColor } from "@/config/map-config";
-import { SELECTABLE_RULE, buildNativeLayerDefs, isHighlightLayerId } from "@/layers/mvt-style";
+import {
+  COMPARE_CASING_RULE,
+  COMPARE_RULE,
+  HIGHLIGHT_CASING_RULE,
+  HIGHLIGHT_RULE,
+  SELECTABLE_RULE,
+  buildNativeLayerDefs,
+  isHighlightLayerId,
+} from "@/layers/mvt-style";
 import type { LayerConfig } from "@/layers/types";
 
 /**
@@ -94,5 +102,50 @@ describe("selectable outline", () => {
     const config = { ...selectionConfig(), compareSelectable: false } as LayerConfig;
     const defs = buildNativeLayerDefs(config);
     expect(defs.some((def) => def.id.endsWith(`-${SELECTABLE_RULE}`))).toBe(false);
+  });
+});
+
+describe("comparison outline", () => {
+  const defs = () => buildNativeLayerDefs(selectionConfig());
+  const bySuffix = (suffix: string) =>
+    defs().find((def) => def.id.endsWith(`-${suffix}`));
+
+  /**
+   * `onOff` builds ["case", …conditions, on, off]; the "on" value sits at index
+   * 2 in both the compare and the highlight variants, so the widths can be
+   * compared without restating the numbers here.
+   */
+  const onWidth = (suffix: string) =>
+    (bySuffix(suffix)?.paint["line-width"] as unknown[])[2];
+
+  it("draws solid, not dashed", () => {
+    expect(bySuffix(COMPARE_RULE)?.paint).not.toHaveProperty("line-dasharray");
+  });
+
+  /**
+   * Asserted against the highlight defs rather than literals: the point is that
+   * a selected area and a clicked one are the same shape, so retuning
+   * HIGHLIGHT_WIDTH must move both or fail here.
+   */
+  it("takes the pick highlight's width and casing", () => {
+    expect(onWidth(COMPARE_RULE)).toBe(onWidth(HIGHLIGHT_RULE));
+    expect(onWidth(COMPARE_CASING_RULE)).toBe(onWidth(HIGHLIGHT_CASING_RULE));
+  });
+
+  /**
+   * Sharing that geometry is what makes the order load-bearing: hovering an
+   * already-selected area has to show the hover, so the highlight draws last.
+   */
+  it("draws under the hover highlight", () => {
+    const ids = defs().map((def) => def.id);
+    const index = (suffix: string) => ids.findIndex((id) => id.endsWith(`-${suffix}`));
+    expect(index(COMPARE_CASING_RULE)).toBeLessThan(index(HIGHLIGHT_CASING_RULE));
+    expect(index(COMPARE_RULE)).toBeLessThan(index(HIGHLIGHT_RULE));
+  });
+
+  it("colours each slot from feature state", () => {
+    const color = bySuffix(COMPARE_RULE)?.paint["line-color"] as unknown[];
+    expect(color[0]).toBe("match");
+    expect(color).toContain("#e41a1c");
   });
 });
