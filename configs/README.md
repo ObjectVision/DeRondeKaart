@@ -137,6 +137,14 @@ excluded from legend and comparison). It has to be declared there rather than in
 accepts when the source is created. `dashboard_complementary.json` then names which layer
 serves gemeente, which serves buurt, and the zoom at which clicking switches between them.
 
+By default the selectable areas are outlined in the `chromeIconColor` accent, following the
+data layer's own filter so only the level a click means right now is drawn. A selection layer
+whose style produces **line** rules takes that rendering over completely and the generated
+outline steps aside — that is how `selectie` in `woonzorglimburg` draws red gemeentegrenzen at
+every zoom with the wijk and buurt levels beneath them. Rule order is draw order, so the level
+that should sit on top goes last. Those lines are decoration only: a click resolves against the
+invisible fill, whose filter stays the one thing deciding which level was clicked.
+
 Enabling it means the four `dashboard_*.json` files have to say something — the neutral
 defaults in `public/` describe an empty dashboard. `dashboard_semantic_model.json` names its
 own parquet URLs, so the standalone dashboard works in a project with no map layers at all;

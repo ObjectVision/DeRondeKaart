@@ -98,6 +98,31 @@ describe("selectable outline", () => {
     expect(selectable).toBeLessThan(firstOutline);
   });
 
+  /**
+   * A layer that styles its own boundaries has said how it wants to be drawn,
+   * and the generated grid would only fight it — `selectie` draws red
+   * gemeentegrenzen at every zoom over the wijk/buurt levels, which no single
+   * generated outline expresses.
+   */
+  it("is left off a layer whose own style draws lines", () => {
+    // Same escape hatch the fixture itself uses: a hand-written rule carries
+    // `type` + `paint` instead of a symbolizer, which the config types describe
+    // through RawStyleOverrides rather than the rule shape.
+    const config = selectionConfig();
+    const rules = (config as unknown as { geostyler: { rules: unknown[] } }).geostyler.rules;
+    rules.push({
+      name: "Gemeentegrens",
+      type: "line",
+      paint: { "line-color": "#FF0000", "line-width": 1 },
+      rawFilter: ["==", ["slice", ["get", "statcode"], 0, 2], "GM"],
+    });
+
+    const defs = buildNativeLayerDefs(config);
+    expect(defs.some((def) => def.id.endsWith(`-${SELECTABLE_RULE}`))).toBe(false);
+    // The layer's own rule is what replaces it, so it has to survive.
+    expect(defs.find((def) => def.ruleName === "Gemeentegrens")?.type).toBe("line");
+  });
+
   it("is left off a layer that cannot be compared", () => {
     const config = { ...selectionConfig(), compareSelectable: false } as LayerConfig;
     const defs = buildNativeLayerDefs(config);

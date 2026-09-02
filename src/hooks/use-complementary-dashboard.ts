@@ -139,14 +139,18 @@ export function useComplementaryDashboard(
     if (!layerConfig) return null;
 
     // Same id source the pick path uses, so the query matches exactly the
-    // layers this config actually put on the map — minus the outlines.
+    // layers this config actually put on the map — minus every line.
     //
-    // The outlines are excluded deliberately: they carry no zoom filter, so a
-    // selected gemeente keeps a 3px comparison line at buurt zoom, and clicking
-    // that line would toggle the gemeente instead of selecting the buurt under
-    // the cursor. Only the data layer answers a click, and its filter is what
-    // decides which level a click at this zoom means.
+    // Lines are excluded deliberately, and both kinds would misdirect a click.
+    // The comparison outlines carry no zoom filter, so a selected gemeente keeps
+    // its line at buurt zoom. A layer's own boundary lines can outrank the zoom
+    // too — `selectie` draws gemeentegrenzen at every zoom — and
+    // `queryRenderedFeatures` answers top-most first, so at buurt zoom a click
+    // on that line would toggle the gemeente rather than the buurt under the
+    // cursor. Boundary lines are decoration; only the fill answers a click, and
+    // its filter is what decides which level a click at this zoom means.
     const layerIds = buildNativeLayerDefs(layerConfig)
+      .filter((def) => def.type !== "line")
       .map((def) => def.id)
       .filter((id) => !isHighlightLayerId(id) && map.getLayer(id));
     if (layerIds.length === 0) return null;

@@ -216,18 +216,27 @@ export function buildNativeLayerDefs(config: LayerConfig): NativeLayerDef[] {
 }
 
 /**
- * A thin outline around the areas a click can put into a comparison slot.
+ * A thin outline around the areas a click can put into a comparison slot —
+ * a FALLBACK, for a selection layer that draws nothing of its own.
  *
- * The selection layer paints nothing of its own (`fill-opacity: 0`), so without
- * this there is no sign that the map is divided into clickable areas at all —
- * hovering finds an outline, but only once the pointer is already on one.
+ * Such a layer is typically `fill-opacity: 0` (the polygons exist to be clicked,
+ * not seen), and without this there would be no sign that the map is divided
+ * into clickable areas at all — hovering finds an outline, but only once the
+ * pointer is already on one.
  *
- * It takes the data layer's own filter rather than a copy of it: that filter is
- * what decides which level a click at this zoom means (gemeente / wijk / buurt
- * in `layers.json`), so borrowing it is what keeps the drawn grid and the
- * clickable grid the same thing. Only borrowed from a single-rule layer — with
- * several rules there is no one filter to speak of, and the outline then covers
- * the whole layer.
+ * A layer whose own style produces a line layer has said how it wants its
+ * boundaries drawn, and takes that over completely: `selectie` in
+ * woonzorglimburg draws red gemeentegrenzen at every zoom with the wijk and
+ * buurt levels beneath them, which no single generated outline can express.
+ * Those lines are decoration only — `selectableAt` keeps the fill as the one
+ * thing that answers a click.
+ *
+ * The fallback takes the data layer's own filter rather than a copy of it: that
+ * filter is what decides which level a click at this zoom means (gemeente /
+ * wijk / buurt in `layers.json`), so borrowing it is what keeps the drawn grid
+ * and the clickable grid the same thing. Only borrowed from a single-rule layer
+ * — with several rules there is no one filter to speak of, and the outline then
+ * covers the whole layer.
  *
  * Static paint, no feature state: this is the resting state of the layer, and
  * the hover and comparison outlines draw over it.
@@ -237,6 +246,9 @@ function buildSelectableOutlineDefs(
   styleDefs: NativeLayerDef[],
 ): NativeLayerDef[] {
   if (!isCompareSelectable(config) || config.geometryType !== "polygon") return [];
+  // Covers both routes into a line layer: a geostyler line rule, and the flat
+  // style's `lineColor` stroke def.
+  if (styleDefs.some((def) => def.type === "line")) return [];
 
   return [
     {
