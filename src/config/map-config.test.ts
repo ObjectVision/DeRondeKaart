@@ -287,3 +287,30 @@ describe("the tool ceiling", () => {
     vi.resetModules();
   });
 });
+
+/**
+ * `filterSection: false` hides the gebiedsfilter controls in the sidebar.
+ *
+ * Purely visual: `useAreaFilter` and `useHostFilter` are created
+ * unconditionally in App, so the postMessage/URL route still sets the filter
+ * with the UI hidden. That is the whole point of the flag for woonzorglimburg,
+ * and a default flipping to `false` would silently hide a working control for
+ * every other project.
+ */
+describe("map.json filterSection", () => {
+  it("defaults to true", async () => {
+    stubMapJson({});
+    expect((await loadMapConfig()).filterSection).toBe(true);
+  });
+
+  it("can be turned off", async () => {
+    stubMapJson({ filterSection: false });
+    expect((await loadMapConfig()).filterSection).toBe(false);
+  });
+
+  it("falls back to the default for a non-boolean", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson({ filterSection: "nee" });
+    expect((await loadMapConfig()).filterSection).toBe(true);
+  });
+});

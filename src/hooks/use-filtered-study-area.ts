@@ -1,39 +1,26 @@
 import { createEffect, createMemo, createSignal, onCleanup, type Accessor } from "solid-js";
 import type { AddLayerObject } from "maplibre-gl";
-import type { Feature, MultiPolygon, Polygon, Position } from "geojson";
+import type { Feature, MultiPolygon, Polygon } from "geojson";
 import { loadParquetBatches } from "@/layers";
 import { extendRowBbox, rowGeometryToGeoJson, type BBox } from "@/layers/box-filter";
 import type { AreaFilterState } from "@/hooks/use-area-filter";
-import { geodesicRing } from "@/lib/geo";
+import { SELECTION_DASHARRAY } from "@/layers/mvt-style";
 import type { MapViewHandle } from "@/components/map/map-view-config";
 import { styleReady, syncGeoJsonOverlay } from "@/layers/geojson-overlay";
 
 /**
- * The gebiedsfilter-driven replacement for the fixed study area: while a
- * gebied is selected, the map shows a 200 km "outside" mask disc around it
- * plus the gebied's own outline, instead of the configured studyarea layer.
+ * The gebiedsfilter's outline, drawn ON TOP of the configured study area.
+ *
+ * Additive, not a replacement: the study area keeps its own mask and border,
+ * and a selected gebied is marked by a dashed line over it. It used to swap the
+ * two — removing the studyarea layers and drawing a 200 km grey mask disc in
+ * their place — but that disc painted the same `#EBECF0` the studyarea's own
+ * `outer` rule does, so showing both would have doubled the grey everywhere
+ * outside the study area.
  */
 export interface FilteredStudyArea {
-  /** 200 km disc around the gebied centroid, with the gebied punched out. */
-  buffer: Feature<Polygon>;
   /** The selected gebied geometry (one feature per matching table row). */
   area: Feature<Polygon | MultiPolygon>[];
-}
-
-const BUFFER_RADIUS_M = 200_000;
-/** Coarser than the annotation default: this disc is 200 km across. */
-const CIRCLE_SEGMENTS = 64;
-
-/** Closed ring approximating a circle of `radiusM` around a center. */
-function circleRing(centerLng: number, centerLat: number, radiusM: number): Position[] {
-  return geodesicRing({ lng: centerLng, lat: centerLat }, radiusM, CIRCLE_SEGMENTS);
-}
-
-/** The outer ring of every polygon part, used to punch the gebied out of the disc. */
-function outerRings(geometry: Polygon | MultiPolygon): Position[][] {
-  return geometry.type === "Polygon"
-    ? [geometry.coordinates[0]]
-    : geometry.coordinates.map((part) => part[0]);
 }
 
 /**
@@ -88,21 +75,12 @@ export function useFilteredStudyArea(
           const geometry = rowGeometryToGeoJson(table, row);
           if (geometry) area.push({ type: "Feature", geometry, properties: {} });
         }
+        // The bbox is still read per row: a selection whose rows carry no usable
+        // geometry leaves it infinite, and drawing an empty outline would read
+        // as "the filter did nothing".
         if (area.length === 0 || !Number.isFinite(bbox[0])) return;
 
-        // 200 km disc around the bbox center, gebied punched out as holes.
-        const centerLng = (bbox[0] + bbox[2]) / 2;
-        const centerLat = (bbox[1] + bbox[3]) / 2;
-        const holes = area.flatMap((f) => outerRings(f.geometry));
-        const buffer: Feature<Polygon> = {
-          type: "Feature",
-          geometry: {
-            type: "Polygon",
-            coordinates: [circleRing(centerLng, centerLat, BUFFER_RADIUS_M), ...holes],
-          },
-          properties: {},
-        };
-        if (!cancelled) setResult({ token, data: { buffer, area } });
+        if (!cancelled) setResult({ token, data: { area } });
       } catch (err) {
         console.warn(`Filtered study area failed for "${entry.name}":`, err);
       }
@@ -123,38 +101,45 @@ export function useFilteredStudyArea(
   return data;
 }
 
-const BUFFER_SOURCE_ID = "filtered-study-buffer";
-const BUFFER_LAYER_ID = "filtered-study-buffer-fill";
 const AREA_SOURCE_ID = "filtered-study-area";
 const AREA_LAYER_ID = "filtered-study-area-line";
 
-/** Outside mask: #EBECF0 @ 0.5, no outline. */
-const BUFFER_LAYERS: AddLayerObject[] = [
-  {
-    id: BUFFER_LAYER_ID,
-    type: "fill",
-    source: BUFFER_SOURCE_ID,
-    paint: { "fill-color": "#EBECF0", "fill-opacity": 128 / 255 },
-  },
-];
+/**
+ * The study area's own border colour, mirrored from the studyarea layer's
+ * geostyler rules (`studiegebied_limburg` in
+ * `configs/woonzorglimburg/layers.json`, `outlineColor` on every gebied rule).
+ *
+ * Duplicated as a literal rather than resolved from the config: this overlay
+ * is only reachable where a gebiedsfilter exists, and woonzorglimburg is the
+ * only project whose `filter.json` is non-empty. Threading the studyarea id in
+ * to read the colour back would be plumbing for a case that cannot arise.
+ */
+const STUDY_AREA_BORDER = "#00498D";
 
-/** Gebied outline: no fill, #00498D @ 1.0, 2px. */
+/** Gebied outline: no fill, the study-area border colour, 2px, dashed. */
 const AREA_LAYERS: AddLayerObject[] = [
   {
     id: AREA_LAYER_ID,
     type: "line",
     source: AREA_SOURCE_ID,
-    paint: { "line-color": "#00498D", "line-width": 2 },
+    paint: {
+      "line-color": STUDY_AREA_BORDER,
+      "line-width": 2,
+      // Dashed so it stays legible where a gebied's edge runs along the
+      // study-area border it shares a colour with — a solid line there would
+      // be indistinguishable from the border underneath.
+      "line-dasharray": SELECTION_DASHARRAY,
+    },
   },
 ];
 
 /**
- * Draw the filtered study area as MapLibre GeoJSON overlays, styled like the
- * configured studyarea's mask + outline rules. `data` of `null` clears them.
+ * Draw the selected gebied's outline as a MapLibre GeoJSON overlay, over the
+ * configured study area. `data` of `null` clears it.
  *
- * Two sources rather than one: the mask and the outline need different
- * geometry (the disc-with-hole vs. the gebied itself) and are drawn by
- * different layer types, so they never share a feature set.
+ * Added with no `beforeId`, so it sits above every anchor — including the
+ * `studyarea-layers` band. That is deliberate: the dash exists to stay readable
+ * exactly where the two lines coincide, which anchoring it below would defeat.
  *
  * Returns a `resync` to re-add the layers after a basemap swap (`setStyle()`
  * wipes them); call it from the map's `onLabelsReady`.
@@ -167,10 +152,6 @@ export function useFilteredStudyAreaLayers(
     const map = mapView()?.map();
     if (!styleReady(map)) return;
 
-    syncGeoJsonOverlay(map, BUFFER_SOURCE_ID, BUFFER_LAYERS, {
-      type: "FeatureCollection",
-      features: current ? [current.buffer] : [],
-    });
     syncGeoJsonOverlay(map, AREA_SOURCE_ID, AREA_LAYERS, {
       type: "FeatureCollection",
       features: current ? current.area : [],
