@@ -20,8 +20,16 @@ import {
  * because it is meant to stay readable while the user reads the panel. */
 const COMPARE_WIDTH = 3;
 
-/** Dash pattern, in multiples of the line width. */
-const COMPARE_DASHARRAY = [2, 1.5];
+/**
+ * Dash pattern, in multiples of the line width.
+ *
+ * Exported because it is the app's one answer to "a selection drawn over
+ * something else": the comparison outline here, and the gebiedsfilter's outline
+ * over the study area it shares a colour with
+ * (`hooks/use-filtered-study-area.ts`). One definition keeps the two reading as
+ * the same idea rather than two coincidentally similar dashes.
+ */
+export const SELECTION_DASHARRAY = [2, 1.5];
 
 /**
  * Rule-name suffix of the highlight outline layer. Exported so the dim tool can
@@ -307,7 +315,7 @@ function buildCompareLayerDefs(config: LayerConfig): NativeLayerDef[] {
         "line-color": colorBySlot,
         "line-width": onOff(COMPARE_WIDTH, 0),
         "line-opacity": onOff(1, 0),
-        "line-dasharray": COMPARE_DASHARRAY,
+        "line-dasharray": SELECTION_DASHARRAY,
       },
       layout: {},
     },

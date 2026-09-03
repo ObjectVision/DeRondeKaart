@@ -8,7 +8,7 @@
   "streetview": true,
   "searchbar": false,
   "navigation": true,
-  "filterSection": true,
+  "filterSection": false,
   "navigationSection": true,
   "mapControls": {
     "search": true,

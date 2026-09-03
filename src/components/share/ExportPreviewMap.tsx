@@ -46,14 +46,10 @@ export function ExportPreviewMap(props: ExportPreviewMapProps): JSX.Element {
   const getMap: MapAccessor = () => mapView()?.map() ?? null;
   const layers = useMapLayers(getMap);
 
-  // Same swap as the main maps: a gebiedsfilter selection replaces the
-  // configured studyarea (skip loading it entirely — the dialog is a per-open
-  // snapshot, so the choice never flips while mounted). Native MapLibre layers
-  // on this map's own style, re-added by handleLabelsReady.
-  const studyArea = useStudyAreaLayer(
-    () => (props.filteredStudy ? undefined : props.studyAreaId),
-    mapView,
-  );
+  // Same as the main maps: the configured studyarea is always drawn, and a
+  // gebiedsfilter selection adds a dashed outline over it. Native MapLibre
+  // layers on this map's own style, re-added by handleLabelsReady.
+  const studyArea = useStudyAreaLayer(() => props.studyAreaId, mapView);
   const filteredStudyOverlay = useFilteredStudyAreaLayers(
     () => props.filteredStudy ?? null,
     mapView,

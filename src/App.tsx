@@ -208,12 +208,13 @@ function App(rawProps: AppProps): JSX.Element {
   });
 
   const filteredStudy = useFilteredStudyArea(areaFilter);
-  const studyAreaA = useStudyAreaLayer(
-    () => (filteredStudy() ? undefined : props.studyAreaId),
-    mapLeftView,
-  );
+  // The configured study area stays up while a gebiedsfilter is active: the
+  // filter draws its selection as a dashed outline OVER it rather than
+  // replacing it. (This used to pass `undefined` — i.e. remove — and hand the
+  // band to the filtered study area instead.)
+  const studyAreaA = useStudyAreaLayer(() => props.studyAreaId, mapLeftView);
   const studyAreaB = useStudyAreaLayer(
-    () => (showMapRight() && !filteredStudy() ? props.studyAreaId : undefined),
+    () => (showMapRight() ? props.studyAreaId : undefined),
     mapRightView,
   );
   const filteredStudyA = useFilteredStudyAreaLayers(filteredStudy, mapLeftView);
