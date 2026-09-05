@@ -1,39 +1,49 @@
-import { searchCountries } from "@/config/map-config";
-import { flyToView } from "@/lib/fly-to";
+import { flyToBbox, flyToView } from "@/lib/fly-to";
+import { geocode, geocodeExtent, type GeocodeResult } from "@/tools/geocode";
 
 /**
- * Geocode a place name and fly every mounted map to it.
+ * Flying the map to a place.
  *
- * Moved here verbatim from the search popover in `map-controls.tsx`: it is now
- * one of the map tools a natural-language command can resolve to, and the
- * search bar calls it through the same path rather than owning the logic.
+ * The geocoding itself lives in `@/tools/geocode`, behind a configurable
+ * provider. What is left here is the part both callers share: how a candidate
+ * becomes a camera move.
+ *
+ * Two callers, one path. The search box lists candidates and calls
+ * {@link flyToResult} with the one the user picked; the `zoom_to_location` tool
+ * is headless and calls {@link zoomToLocation}, which takes the best hit and
+ * hands it to the very same function. Keeping the tool defined in terms of the
+ * UI's own primitives is what stops the two from drifting apart — framing
+ * changed in one place is framing changed in both.
+ */
+
+/**
+ * Fly to one candidate: frame its extent when it has one, else centre on it.
+ *
+ * The extent is fetched here rather than during the search because under PDOK
+ * it costs a second request, and only the picked candidate is worth it.
+ */
+export async function flyToResult(result: GeocodeResult): Promise<void> {
+  const bbox = await geocodeExtent(result);
+  if (bbox) flyToBbox(bbox);
+  else flyToView(result.center);
+}
+
+/**
+ * Geocode a place name and fly every mounted map to the best match.
+ *
+ * The headless path, used by the `zoom_to_location` tool and by the command bar
+ * whenever the language model is unavailable — so this is what plain typed text
+ * still does, exactly as it did before the search grew a candidate list.
+ *
+ * Asks for a single row: the AI has no list to show, so fetching five would be
+ * four candidates nobody sees. This assumes neither provider's ranking depends
+ * on how many rows are requested — true of both today, but it is an assumption
+ * about a remote API rather than something this code can enforce.
  */
 export async function zoomToLocation(location: string): Promise<boolean> {
-  const query = location.trim();
-  if (!query) return false;
+  const [best] = await geocode(location, 1);
+  if (!best) return false;
 
-  try {
-    const params = new URLSearchParams({ q: query, format: "json", limit: "1" });
-    // Restrict to the configured countries, when a project names any. Only the
-    // FIRST result is used, so an unrestricted search has no list for the user
-    // to correct from: "Bergen" answers with Bergen in Norway, though it is
-    // also a town in Noord-Holland and another in Limburg.
-    const countries = searchCountries();
-    if (countries.length > 0) params.set("countrycodes", countries.join(","));
-
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`);
-    const results = await res.json();
-    if (!Array.isArray(results) || results.length === 0) return false;
-
-    const { lat, lon } = results[0];
-    const latitude = parseFloat(lat);
-    const longitude = parseFloat(lon);
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return false;
-
-    flyToView([longitude, latitude]);
-    return true;
-  } catch (err) {
-    console.error("Search failed:", err);
-    return false;
-  }
+  await flyToResult(best);
+  return true;
 }

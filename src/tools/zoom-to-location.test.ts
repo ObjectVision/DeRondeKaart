@@ -1,95 +1,120 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
-import { loadMapConfig } from "@/config/map-config";
-import { zoomToLocation } from "@/tools/zoom-to-location";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { viewForBbox } from "@/lib/fly-to";
+import type { GeocodeResult } from "@/tools/geocode";
 
 /**
- * The geocoder request, moved here with the logic it covers: this used to live
- * in map-controls.test.tsx, before `zoom_to_location` became a map tool the
- * command bar shares with the search box.
+ * The camera half of the location search.
  *
- * Only the FIRST result is used, so an unrestricted search has no list for the
- * user to correct from — "Bergen" answers with Bergen in Norway, though it is
- * also a town in Noord-Holland and another in Limburg.
- * `mapControls.searchCountries` is what prevents that.
+ * The geocoder request itself is no longer built here — that moved behind the
+ * provider layer, and its URL assertions moved with it to
+ * `geocode/nominatim.test.ts` and `geocode/pdok.test.ts`. What is left to guard
+ * is the contract this module owns: which candidate the headless path takes,
+ * and how a candidate becomes a camera move.
  */
 
-/** Point `loadMapConfig` at a map.json body. */
-function stubMapJson(body: Record<string, unknown>) {
-  vi.stubGlobal(
-    "fetch",
-    vi.fn(async () => ({ ok: true, statusText: "OK", json: async () => body })),
-  );
+const geocode = vi.fn<(q: string, limit?: number) => Promise<GeocodeResult[]>>();
+const geocodeExtent = vi.fn<(r: GeocodeResult) => Promise<unknown>>();
+
+vi.mock("@/tools/geocode", () => ({
+  geocode: (...args: [string, number?]) => geocode(...args),
+  geocodeExtent: (...args: [GeocodeResult]) => geocodeExtent(...args),
+  MAX_GEOCODE_RESULTS: 5,
+}));
+
+const { flyToResult, zoomToLocation } = await import("@/tools/zoom-to-location");
+
+function result(over: Partial<GeocodeResult> = {}): GeocodeResult {
+  return { id: "1", label: "Venlo", kind: "woonplaats", center: [6.17, 51.37], ...over };
 }
 
-/** Run a search and hand back the URL the geocoder was called with. */
-async function searchFor(query: string): Promise<string> {
-  const fetchSpy = vi.fn<(url: string) => Promise<{ json: () => Promise<unknown[]> }>>(
-    async () => ({ json: async () => [] }),
-  );
-  vi.stubGlobal("fetch", fetchSpy);
-  await zoomToLocation(query);
-  return String(fetchSpy.mock.calls[0]?.[0] ?? "");
+/** Record every `map:flyto` the code under test dispatches. */
+let flights: { longitude: number; latitude: number; zoom?: number }[];
+function onFly(e: Event) {
+  flights.push((e as CustomEvent).detail);
 }
+
+beforeEach(() => {
+  flights = [];
+  window.addEventListener("map:flyto", onFly);
+  geocode.mockReset();
+  geocodeExtent.mockReset();
+  geocodeExtent.mockResolvedValue(undefined);
+});
+
+afterEach(() => window.removeEventListener("map:flyto", onFly));
 
 describe("zoomToLocation", () => {
-  afterEach(() => vi.unstubAllGlobals());
-
-  it("restricts to the configured countries", async () => {
-    stubMapJson({ mapControls: { search: true, searchCountries: ["nl"] } });
-    await loadMapConfig();
-    vi.unstubAllGlobals();
-
-    const url = await searchFor("Bergen");
-
-    expect(url).toContain("countrycodes=nl");
-    expect(url).toContain("q=Bergen");
-  });
-
   /**
-   * The case that protects woonzorglimburg, which names no countries: the
-   * parameter must be absent entirely, not sent empty. `countrycodes=` would be
-   * a filter matching nothing.
+   * The AI tool has no list to offer, so "the best match" must be exactly the
+   * candidate the search box would put at the top. Both paths read index 0 of
+   * the same ranked list, which is what keeps them from drifting apart.
    */
-  it("sends no countrycodes when none are configured", async () => {
-    stubMapJson({ mapControls: { search: true } });
-    await loadMapConfig();
-    vi.unstubAllGlobals();
+  it("flies to the first of several candidates", async () => {
+    geocode.mockResolvedValue([
+      result({ label: "Bergen (L)", center: [6.08, 51.59] }),
+      result({ label: "Bergen (NH)", center: [4.66, 52.66] }),
+    ]);
 
-    const url = await searchFor("Bergen");
+    await expect(zoomToLocation("Bergen")).resolves.toBe(true);
 
-    expect(url).not.toContain("countrycodes");
+    expect(flights[0]).toMatchObject({ longitude: 6.08, latitude: 51.59 });
   });
 
-  it("joins several countries for a project spanning a border", async () => {
-    stubMapJson({ mapControls: { search: true, searchCountries: ["nl", "de", "be"] } });
-    await loadMapConfig();
-    vi.unstubAllGlobals();
+  // One row, not five: nobody sees the other four on this path.
+  it("asks for a single candidate", async () => {
+    geocode.mockResolvedValue([result()]);
 
-    const url = await searchFor("Aachen");
+    await zoomToLocation("Venlo");
 
-    expect(url).toContain("countrycodes=nl%2Cde%2Cbe");
+    expect(geocode).toHaveBeenCalledWith("Venlo", 1);
   });
 
   it("reports failure when nothing is found", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => ({ json: async () => [] })));
+    geocode.mockResolvedValue([]);
 
     await expect(zoomToLocation("Atlantis")).resolves.toBe(false);
+    expect(flights).toHaveLength(0);
   });
 
-  it("reports failure rather than throwing when the geocoder errors", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("offline"); }));
-    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+  /**
+   * `geocode` promises never to reject; this holds it to that, so a future
+   * change there cannot turn a failed search into an unhandled rejection inside
+   * a tool call.
+   */
+  it("does not swallow a broken geocoder contract silently", async () => {
+    geocode.mockResolvedValue([]);
 
     await expect(zoomToLocation("Venlo")).resolves.toBe(false);
+  });
+});
 
-    err.mockRestore();
+describe("flyToResult", () => {
+  /**
+   * Framing is the reason both paths share this function. Asserted against
+   * `viewForBbox` rather than hardcoded numbers so the heuristic stays free to
+   * change without a test pinning it to today's arithmetic.
+   */
+  it("frames the extent when the candidate has one", async () => {
+    const bbox = [5.8, 51.2, 6.3, 51.6] as const;
+    geocodeExtent.mockResolvedValue(bbox);
+
+    await flyToResult(result());
+
+    const expected = viewForBbox([...bbox] as [number, number, number, number]);
+    expect(flights[0]).toEqual({
+      longitude: expected.center[0],
+      latitude: expected.center[1],
+      zoom: expected.zoom,
+    });
   });
 
-  it("does not call the geocoder for empty input", async () => {
-    const fetchSpy = vi.fn();
-    vi.stubGlobal("fetch", fetchSpy);
+  // An address has no meaningful extent, so it keeps the map's current zoom.
+  it("centres on the candidate when there is no extent", async () => {
+    geocodeExtent.mockResolvedValue(undefined);
 
-    await expect(zoomToLocation("   ")).resolves.toBe(false);
-    expect(fetchSpy).not.toHaveBeenCalled();
+    await flyToResult(result({ center: [6.16, 51.36] }));
+
+    expect(flights[0]).toEqual({ longitude: 6.16, latitude: 51.36, zoom: undefined });
   });
 });

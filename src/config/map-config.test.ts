@@ -4,6 +4,7 @@ import {
   MAX_TOOLS,
   complementaryDashboardEnabled,
   loadMapConfig,
+  searchProvider,
   standaloneDashboardEnabled,
 } from "@/config/map-config";
 import { TOOL_NAMES } from "@/tools/tool-names";
@@ -285,6 +286,52 @@ describe("the tool ceiling", () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("download_data"));
     vi.doUnmock("@/tools/tool-names");
     vi.resetModules();
+  });
+});
+
+/**
+ * `mapControls.searchProvider` picks the geocoding backend.
+ *
+ * The default is load-bearing: it must stay `"nominatim"`, because a project
+ * that says nothing about a provider is entitled to the search it already had.
+ * A default flipping to `"pdok"` would silently make every non-Dutch project's
+ * search Netherlands-only.
+ */
+describe("map.json mapControls.searchProvider", () => {
+  it("defaults to nominatim, preserving the search a silent config already had", async () => {
+    stubMapJson({ mapControls: { search: true } });
+    const config = await loadMapConfig();
+    expect(config.mapControls.searchProvider).toBe("nominatim");
+    expect(searchProvider()).toBe("nominatim");
+  });
+
+  it("accepts pdok and publishes it through the accessor", async () => {
+    stubMapJson({ mapControls: { searchProvider: "pdok" } });
+    const config = await loadMapConfig();
+    expect(config.mapControls.searchProvider).toBe("pdok");
+    expect(searchProvider()).toBe("pdok");
+  });
+
+  it.each(["google", "", 42, null, true])(
+    "warns and falls back for the invalid value %j",
+    async (value) => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      stubMapJson({ mapControls: { searchProvider: value } });
+      const config = await loadMapConfig();
+      expect(config.mapControls.searchProvider).toBe("nominatim");
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("searchProvider"));
+    },
+  );
+
+  /**
+   * The two keys are independent. `searchCountries` means nothing to PDOK, but
+   * it must survive so a project can switch back without re-entering it.
+   */
+  it("keeps searchCountries intact alongside pdok", async () => {
+    stubMapJson({ mapControls: { searchProvider: "pdok", searchCountries: ["nl"] } });
+    const config = await loadMapConfig();
+    expect(config.mapControls.searchProvider).toBe("pdok");
+    expect(config.mapControls.searchCountries).toEqual(["nl"]);
   });
 });
 

@@ -78,6 +78,7 @@ import { Sidebar } from "@/components/ui/sidebar/Sidebar";
 import { SectionToggleBar, type SectionToggle } from "@/components/ui/sidebar/SectionToggleBar";
 import { usePanelMinimize } from "@/hooks/use-panel-minimize";
 import { MapControls } from "@/components/ui/map-controls";
+import type { GeocodeResult } from "@/tools/geocode/types";
 import { MapAttribution } from "@/components/ui/map-attribution";
 import { FeatureInfo } from "@/components/ui/feature-info";
 import { StreetView } from "@/components/ui/street-view";
@@ -458,6 +459,24 @@ function App(rawProps: AppProps): JSX.Element {
     speechToText: speechToTextEnabled(),
     urls: modelUrls(),
   });
+
+  /**
+   * Place candidates for the search box's dropdown.
+   *
+   * Deliberately NOT routed through `handleCommand`: this is the location
+   * affordance, and it must stay independent of the command engine so that
+   * typing a layer command still reaches the model rather than a geocoder.
+   */
+  async function handleSuggest(query: string, signal: AbortSignal) {
+    const { geocode } = await import("@/tools/geocode");
+    return geocode(query, undefined, signal);
+  }
+
+  /** Fly to the candidate the user picked out of the dropdown. */
+  async function handlePickLocation(result: GeocodeResult) {
+    const { flyToResult } = await import("@/tools/zoom-to-location");
+    await flyToResult(result);
+  }
 
   async function handleCommand(text: string): Promise<string | null> {
     // Imported lazily so the command glue stays out of the entry bundle, the
@@ -956,6 +975,8 @@ function App(rawProps: AppProps): JSX.Element {
               showSearch={props.mapControls.search}
               showZoom={props.mapControls.zoom}
               onCommand={handleCommand}
+              onSuggest={handleSuggest}
+              onPick={handlePickLocation}
               models={models}
               onDictate={handleDictate}
               onStopDictation={handleStopDictation}
@@ -1187,6 +1208,8 @@ function App(rawProps: AppProps): JSX.Element {
                   <MapControls
                     orientation="horizontal"
                     onCommand={handleCommand}
+                    onSuggest={handleSuggest}
+                    onPick={handlePickLocation}
                     models={models}
                     onDictate={handleDictate}
                     onStopDictation={handleStopDictation}

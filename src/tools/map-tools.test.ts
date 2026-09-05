@@ -37,7 +37,13 @@ function fakeSide(initial: LayerConfig[] = []) {
 vi.mock("@/layers", () => ({ loadLayerConfigs: async () => CONFIGS }));
 const flyToView = vi.fn();
 vi.mock("@/lib/fly-to", () => ({ flyToView: (...a: unknown[]) => flyToView(...a) }));
-vi.mock("@/config/map-config", () => ({ searchCountries: () => ["nl"] }));
+// Both accessors the geocoder reads. `searchProvider` decides which backend
+// builds the URL, so it must be stubbed too — without it the provider lookup
+// finds nothing and every geocoding tool call fails for the wrong reason.
+vi.mock("@/config/map-config", () => ({
+  searchCountries: () => ["nl"],
+  searchProvider: () => "nominatim",
+}));
 
 describe("tool schemas", () => {
   /**
@@ -122,7 +128,7 @@ describe("runTool", () => {
   it("zooms to a geocoded location", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => ({ json: async () => [{ lat: "50.85", lon: "5.69" }] })),
+      vi.fn(async () => ({ ok: true, json: async () => [{ lat: "50.85", lon: "5.69" }] })),
     );
     const { side } = fakeSide();
 
@@ -133,7 +139,7 @@ describe("runTool", () => {
   });
 
   it("reports a location it cannot find", async () => {
-    vi.stubGlobal("fetch", vi.fn(async () => ({ json: async () => [] })));
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, json: async () => [] })));
     const { side } = fakeSide();
 
     const r = await runTool("zoom_to_location", { location: "Atlantis" }, { side });

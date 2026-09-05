@@ -1,6 +1,7 @@
 import type { ViewState } from "@/components/map/MapView";
 import { isBasemapId } from "@/components/map/map-view-config";
 import { loadConfig, clearConfigCache } from "@/config/load-config";
+import type { GeocodeProviderId } from "@/tools/geocode/types";
 import { TOOL_NAMES, isToolName, type ToolName } from "@/tools/tool-names";
 
 /** Absolute URLs of the on-device models, from `map.json`'s `modelUrls`. */
@@ -77,8 +78,22 @@ export interface MapControlsConfig {
    * FIRST result, so an ambiguous name has no list to correct from. "Bergen"
    * answers with Bergen in Norway, though it is also a town in Noord-Holland
    * and another in Limburg.
+   *
+   * Applies to the `"nominatim"` provider only — see {@link
+   * MapControlsConfig.searchProvider}.
    */
   searchCountries: string[];
+  /**
+   * Which geocoding backend the location search uses.
+   *
+   * - `"pdok"` — PDOK Locatieserver, the Dutch government's own. Ranks Dutch
+   *   places and addresses authoritatively and can frame a gemeente's extent
+   *   rather than dropping a pin at its centre. Netherlands only, so
+   *   {@link MapControlsConfig.searchCountries} is ignored under it.
+   * - `"nominatim"` — OpenStreetMap. Worldwide, and the default, so a project
+   *   that says nothing keeps searching exactly as it did.
+   */
+  searchProvider: GeocodeProviderId;
 }
 
 /**
@@ -381,6 +396,20 @@ export function searchCountries(): readonly string[] {
 }
 
 /**
+ * Module-level cache of `mapControls.searchProvider`, set by
+ * {@link loadMapConfig}. Read through {@link searchProvider}.
+ *
+ * A module read for the same reason as {@link searchCountries} above: the
+ * geocoder picks its backend internally, and no component needs to know.
+ */
+let searchProviderValue: GeocodeProviderId = "nominatim";
+
+/** The geocoding backend the location search uses. */
+export function searchProvider(): GeocodeProviderId {
+  return searchProviderValue;
+}
+
+/**
  * Module-level cache of the configured main-level nav icon size, set by
  * {@link loadMapConfig}. Stays `undefined` when `map.json` omits the key.
  */
@@ -406,6 +435,9 @@ export const DEFAULT_MAP_CONTROLS: MapControlsConfig = {
   // Unrestricted by default, so a project that says nothing keeps searching the
   // whole world exactly as before.
   searchCountries: [],
+  // Same reasoning: the worldwide geocoder stays the default, and a project
+  // opts in to the Dutch one. Both shipped configs do.
+  searchProvider: "nominatim",
 };
 
 /** Default on-click marker: a purple pin at 40px, no offset. */
@@ -616,6 +648,7 @@ function validateMapControls(value: unknown): MapControlsConfig {
     search: validateFlag(obj.search, "search", DEFAULT_MAP_CONTROLS.search),
     zoom: validateFlag(obj.zoom, "zoom", DEFAULT_MAP_CONTROLS.zoom),
     searchCountries: validateSearchCountries(obj.searchCountries),
+    searchProvider: validateSearchProvider(obj.searchProvider),
   };
 }
 
@@ -735,6 +768,22 @@ export function speechToTextEnabled(): boolean {
 /** The tools the command bar may call. */
 export function enabledTools(): readonly ToolName[] {
   return toolsValue;
+}
+
+/**
+ * The geocoding backend, falling back to the default on anything unknown.
+ *
+ * A bad value must not disable the search — it falls back to a working
+ * provider, so a typo costs the chosen backend, never the feature.
+ */
+function validateSearchProvider(value: unknown): GeocodeProviderId {
+  if (value === undefined) return DEFAULT_MAP_CONTROLS.searchProvider;
+  if (value === "pdok" || value === "nominatim") return value;
+  console.warn(
+    `map.json: invalid mapControls.searchProvider ${JSON.stringify(value)}; ` +
+      `using "${DEFAULT_MAP_CONTROLS.searchProvider}"`,
+  );
+  return DEFAULT_MAP_CONTROLS.searchProvider;
 }
 
 /** A well-formed ISO 3166-1 alpha-2 code, once lowercased and trimmed. */
@@ -911,6 +960,7 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
 
   const mapControls = validateMapControls(data.mapControls);
   searchCountriesValue = mapControls.searchCountries;
+  searchProviderValue = mapControls.searchProvider;
   const clickMarker = validateClickMarker(data.clickMarker);
 
   let chromeIcon = DEFAULT_CHROME_ICON_SIZE;
