@@ -109,12 +109,62 @@ describe("flyToResult", () => {
     });
   });
 
-  // An address has no meaningful extent, so it keeps the map's current zoom.
-  it("centres on the candidate when there is no extent", async () => {
+  /**
+   * A point-like hit gets a fixed close zoom, because there is no extent to
+   * derive one from.
+   *
+   * This used to pass `undefined` and claim the map "keeps its current zoom".
+   * It does not: the flyto listener substitutes 12, so a house number was shown
+   * at roughly 24 km across — the whole town it sits in.
+   */
+  it("flies to an address close enough to see the building", async () => {
     geocodeExtent.mockResolvedValue(undefined);
 
-    await flyToResult(result({ center: [6.16, 51.36] }));
+    await flyToResult(result({ kind: "adres", center: [6.16, 51.36] }));
 
-    expect(flights[0]).toEqual({ longitude: 6.16, latitude: 51.36, zoom: undefined });
+    expect(flights[0]).toEqual({ longitude: 6.16, latitude: 51.36, zoom: 17 });
+  });
+
+  /**
+   * One level wider than a house number: a Dutch six-digit postcode covers a
+   * street segment of ~20-40 addresses, so framing it like one building
+   * overshoots what the user asked for.
+   */
+  it("frames a postcode slightly wider than an address", async () => {
+    geocodeExtent.mockResolvedValue(undefined);
+
+    await flyToResult(result({ kind: "postcode", center: [6.16, 51.36] }));
+
+    expect(flights[0]?.zoom).toBe(16);
+  });
+
+  /**
+   * The safety the `kind` lookup depends on: PDOK adding a type nobody has seen
+   * must degrade to slightly-wrong framing, never to no zoom at all — which is
+   * what put a house number at town scale in the first place.
+   */
+  it("still picks a close zoom for a kind it does not recognise", async () => {
+    geocodeExtent.mockResolvedValue(undefined);
+
+    await flyToResult(result({ kind: "perceel", center: [6.16, 51.36] }));
+
+    expect(flights[0]?.zoom).toBe(16);
+  });
+
+  /**
+   * A street HAS an extent — PDOK sends a MULTILINESTRING — so it must be framed
+   * from that box, not handed a point zoom. Measured from the real geometry for
+   * Prinsessesingel, Venlo, which the old code framed at 12.
+   */
+  it("frames a street from its own extent, not a point zoom", async () => {
+    const street = [6.164, 51.36739, 6.16678, 51.36939] as const;
+    geocodeExtent.mockResolvedValue(street);
+
+    await flyToResult(result({ kind: "weg" }));
+
+    const expected = viewForBbox([...street] as [number, number, number, number]);
+    expect(flights[0]?.zoom).toBe(expected.zoom);
+    // The specific complaint: a street used to land at 12, a whole town wide.
+    expect(flights[0]?.zoom).toBeGreaterThanOrEqual(14);
   });
 });

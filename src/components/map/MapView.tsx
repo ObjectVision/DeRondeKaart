@@ -318,6 +318,10 @@ export function MapView(props: MapViewProps): JSX.Element {
   onMount(() => {
     function onFlyTo(e: Event) {
       const { latitude, longitude, zoom } = (e as CustomEvent).detail;
+      // The `?? 12` is a last-resort floor, not framing policy: every dispatcher
+      // supplies its own zoom, because only the caller knows whether it is
+      // flying to a gemeente or a house number. This default once served the
+      // location search, which showed an address at ~24 km across as a result.
       map()?.flyTo({ center: [longitude, latitude], zoom: zoom ?? 12 });
     }
     window.addEventListener("map:flyto", onFlyTo);

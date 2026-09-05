@@ -45,6 +45,21 @@ describe("MapControls search", () => {
     expect(screen.getByPlaceholderText("Zoek een locatie...")).toBeTruthy();
   });
 
+  /**
+   * Search is one of the app's "chrome" dialogs, alongside Referentielagen and
+   * the layer metainfo window. It was a popover pinned to the button; the modal
+   * shell is what makes it a peer of those two, and the backdrop plus
+   * `aria-modal` is the observable part of that.
+   */
+  it("opens as a modal window, not a popover", () => {
+    openSearch();
+
+    const dialog = screen.getByRole("dialog");
+    expect(dialog.getAttribute("aria-modal")).toBe("true");
+    // The dimmed backdrop the family shares; a popover has none.
+    expect(document.querySelector(".fixed.inset-0")).toBeTruthy();
+  });
+
   it("focuses the search box so the user can type straight away", async () => {
     openSearch();
     const input = screen.getByPlaceholderText("Zoek een locatie...");
@@ -55,9 +70,25 @@ describe("MapControls search", () => {
     expect(document.activeElement).toBe(input);
   });
 
-  it("closes again on a second click", () => {
+  /**
+   * A modal is dismissed by its own close button, not by toggling the button
+   * that opened it — the opener is behind the backdrop and cannot be clicked.
+   */
+  it("closes on the window's close button", () => {
     openSearch();
-    screen.getAllByTitle("Zoeken")[0].click();
+
+    screen.getByTitle("Sluiten").click();
+
+    expect(screen.queryByPlaceholderText("Zoek een locatie...")).toBeNull();
+  });
+
+  // The shell's own dismiss path, and the reason the suggestion list stops
+  // Escape from bubbling while it is open.
+  it("closes on Escape when there is no list to fold away first", () => {
+    openSearch();
+    const input = screen.getByPlaceholderText("Zoek een locatie...");
+
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
 
     expect(screen.queryByPlaceholderText("Zoek een locatie...")).toBeNull();
   });
@@ -452,17 +483,23 @@ describe("MapControls suggestions", () => {
     expect(screen.queryByPlaceholderText("Zoek een locatie...")).toBeTruthy();
   });
 
-  it("shows no stale list when the box is reopened", async () => {
+  /**
+   * Reopening starts clean — no stale list, and no query left in the box from
+   * a search the user has since forgotten about.
+   */
+  it("forgets the previous search when reopened", async () => {
     vi.useFakeTimers();
     const { input } = openWithSuggest();
     type(input, "Venlo");
     await settle();
 
-    const toggle = screen.getAllByTitle("Zoeken")[0];
-    toggle.click();
-    toggle.click();
+    screen.getByTitle("Sluiten").click();
+    screen.getAllByTitle("Zoeken")[0].click();
 
     expect(screen.queryByRole("listbox")).toBeNull();
+    expect(
+      screen.getByPlaceholderText<HTMLInputElement>("Zoek een locatie...").value,
+    ).toBe("");
   });
 
   /**
