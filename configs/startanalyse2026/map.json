@@ -33,6 +33,7 @@
   "mapControls": {
     "search": true,
     "zoom": false,
+    "searchProvider": "pdok",
     "searchCountries": [
       "nl"
     ]

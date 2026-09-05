@@ -10,8 +10,11 @@ const flyToView = vi.fn();
 vi.mock("@/lib/fly-to", () => ({ flyToView: (...a: unknown[]) => flyToView(...a) }));
 
 let allowed: string[] = ["zoom_to_location", "open_layer", "close_layer", "search_layers"];
+// `searchProvider` decides which backend the geocoder builds a URL for, so the
+// location-search fallback needs it stubbed alongside `searchCountries`.
 vi.mock("@/config/map-config", () => ({
   searchCountries: () => ["nl"],
+  searchProvider: () => "nominatim",
   enabledTools: () => allowed,
 }));
 
@@ -42,7 +45,7 @@ const parserReturning = (calls: Parameters<Parser["parse"]> extends never ? neve
 function stubGeocoder() {
   vi.stubGlobal(
     "fetch",
-    vi.fn(async () => ({ json: async () => [{ lat: "50.85", lon: "5.69" }] })),
+    vi.fn(async () => ({ ok: true, json: async () => [{ lat: "50.85", lon: "5.69" }] })),
   );
 }
 

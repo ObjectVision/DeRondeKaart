@@ -293,13 +293,20 @@ log "Writing nginx site"
 # Note: the layer metainfo does NOT embed a PBL iframe. All 122 meta/2025 docs on
 # the data host were checked; none contains an <iframe>, and the only
 # infographics.pbl.nl reference is a plain <a> in _footer.html.
+#
+# connect-src carries BOTH geocoders, because mapControls.searchProvider picks
+# between them per project: api.pdok.nl (Locatieserver — suggest + lookup) and
+# nominatim.openstreetmap.org. Note that nominatim was missing here while it was
+# the only backend, so the location search could not have worked in a deployed
+# build at all; adding it fixes that, independently of the PDOK work.
+# service.pdok.nl is a different host and stays — it serves the luchtfoto tiles.
 CSP_MAP="default-src 'self'; \
 script-src 'self' 'unsafe-eval' 'wasm-unsafe-eval' blob: https://maps.googleapis.com https://maps.gstatic.com https://infographics.pbl.nl; \
 worker-src 'self' blob:; \
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://infographics.pbl.nl; \
 font-src 'self' data: https://fonts.gstatic.com https://data.pbl.nl; \
 img-src 'self' data: blob: https: ; \
-connect-src 'self' blob: https://tiles.openfreemap.org https://data.woonzorglimburg.nl https://data.startanalyse2026.nl https://service.pdok.nl https://tiles.mapgallery.io https://startanalyse2025.files.mapgallery.io https://tiles.basemaps.cartocdn.com https://*.basemaps.cartocdn.com https://maps.googleapis.com https://infographics.pbl.nl; \
+connect-src 'self' blob: https://tiles.openfreemap.org https://data.woonzorglimburg.nl https://data.startanalyse2026.nl https://service.pdok.nl https://api.pdok.nl https://nominatim.openstreetmap.org https://tiles.mapgallery.io https://startanalyse2025.files.mapgallery.io https://tiles.basemaps.cartocdn.com https://*.basemaps.cartocdn.com https://maps.googleapis.com https://infographics.pbl.nl; \
 frame-src 'self' https://www.google.com https://maps.googleapis.com https://infographics.pbl.nl; \
 object-src 'none'; base-uri 'self' https://infographics.pbl.nl; form-action 'self'"
 
