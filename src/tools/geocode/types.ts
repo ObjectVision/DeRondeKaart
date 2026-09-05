@@ -16,17 +16,23 @@ export interface GeocodeResult {
   /** Display label, already human-readable ("Gemeente Bergen (L)"). */
   label: string;
   /**
-   * The provider's own kind — "gemeente", "woonplaats", "adres", … Free text:
-   * shown as a secondary label, never branched on, so a provider inventing a
-   * new one cannot break routing.
+   * The provider's own kind — "gemeente", "woonplaats", "adres", … Free text,
+   * and shown as a secondary label.
+   *
+   * Read in one place only: how close to fly for a hit with no extent, since an
+   * address and a postcode are geometrically identical (both bare points) and
+   * nothing else distinguishes them. That lookup always falls back to a default,
+   * so a provider inventing a new kind still gets sensible framing — it can
+   * never break routing.
    */
   kind: string;
   /** `[lon, lat]`. Always present — a candidate we cannot fly to is not one. */
   center: [number, number];
   /**
    * Extent to frame, when the provider supplied one without an extra request.
-   * Absent for point-like hits (an address, a street), which are flown to by
-   * their centre instead.
+   * Absent for genuinely point-like hits (an address, a postcode), which are
+   * flown to by their centre instead. A street is NOT one of those: it has a
+   * real extent, and framing it is what stops a street search showing a town.
    */
   bbox?: BBox;
 }

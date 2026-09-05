@@ -209,9 +209,25 @@ describe("pdokProvider.resolveExtent", () => {
   });
 
   /**
+   * A street arrives as a MULTILINESTRING. It is not an area, but it has an
+   * extent, and framing it is the difference between seeing the street and
+   * seeing the town around it.
+   */
+  it("returns the extent of a street", async () => {
+    stubFetch(
+      body([{ geometrie_ll: "MULTILINESTRING((6.164 51.36739,6.16678 51.36939))" }]),
+    );
+
+    await expect(pdokProvider.resolveExtent?.(result)).resolves.toEqual([
+      6.164, 51.36739, 6.16678, 51.36939,
+    ]);
+  });
+
+  /**
    * An address's `geometrie_ll` is itself a POINT. There is no extent to frame,
-   * so the caller falls back to the centroid — no type test needed in the
-   * provider, because the WKT reader refuses a point outright.
+   * so the caller falls back to the centroid at a fixed close zoom — no type
+   * test needed in the provider, because the WKT reader refuses a point
+   * outright.
    */
   it("returns undefined for a point-like hit", async () => {
     stubFetch(body([{ geometrie_ll: "POINT(6.16 51.36)" }]));

@@ -97,9 +97,13 @@ export const pdokProvider: GeocodeProvider = {
    * The picked candidate's extent, so the map frames a gemeente rather than
    * dropping a pin in the middle of it.
    *
-   * An address's `geometrie_ll` is itself a POINT, which {@link wktBbox}
-   * rejects — so this returns `undefined` for point-like hits and the caller
-   * falls back to the centroid, with no type test needed here.
+   * Covers streets as well as areas: PDOK sends a `weg` as a MULTILINESTRING,
+   * which has an extent worth framing just as a gemeente's polygon does.
+   *
+   * An address or postcode's `geometrie_ll` is itself a POINT, which
+   * {@link wktBbox} rejects — so this returns `undefined` for those, and the
+   * caller falls back to the centroid at a fixed close zoom. No type test is
+   * needed here; the WKT reader's refusal of a point is what routes them.
    */
   async resolveExtent(result: GeocodeResult, signal?: AbortSignal): Promise<BBox | undefined> {
     const params = new URLSearchParams({ id: result.id, fl: "geometrie_ll" });

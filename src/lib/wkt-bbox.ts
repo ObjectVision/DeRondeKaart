@@ -48,22 +48,41 @@ export function parseWktPoint(wkt: unknown): [number, number] | null {
 }
 
 /**
- * The bounding box of a WKT `POLYGON` or `MULTIPOLYGON`, or `null`.
+ * Geometries that enclose an area or a length — anything with an extent worth
+ * framing.
  *
- * Ring structure is deliberately not parsed. An envelope is the min/max over
- * every coordinate, and interior rings lie inside their exterior by definition,
- * so sweeping all pairs gives the same answer as walking the nesting — which is
- * why this is a few lines rather than a WKT library. It also means a
- * MULTIPOLYGON's separate parts are unioned for free, the case a reader that
- * stopped at the first ring would get wrong.
+ * Lines belong here as much as polygons do: PDOK returns a street as a
+ * MULTILINESTRING, and it has a perfectly good extent. Leaving them out meant a
+ * street search threw its own geometry away and fell back to a default zoom
+ * three levels too wide.
+ *
+ * Every name must be listed explicitly. {@link hasGeometryType} anchors its
+ * match at the start of the string, so "POLYGON" does not match
+ * "MULTIPOLYGON(...)" and "LINESTRING" does not match "MULTILINESTRING(...)" —
+ * dropping one silently reintroduces the bug for that type alone.
+ */
+const EXTENT_TYPES = ["POLYGON", "MULTIPOLYGON", "LINESTRING", "MULTILINESTRING"];
+
+/**
+ * The bounding box of any WKT geometry with an extent, or `null`.
+ *
+ * Structure is deliberately not parsed. An envelope is the min/max over every
+ * coordinate, and interior rings lie inside their exterior by definition, so
+ * sweeping all pairs gives the same answer as walking the nesting — which is why
+ * this is a few lines rather than a WKT library. It also means a MULTIPOLYGON's
+ * or MULTILINESTRING's separate parts are unioned for free, the case a reader
+ * that stopped at the first ring would get wrong.
  *
  * Rejects POINT for the same reason {@link parseWktPoint} rejects polygons: a
  * degenerate box built from one vertex would frame nothing.
  */
 export function wktBbox(wkt: unknown): BBox | null {
-  if (!hasGeometryType(wkt, "POLYGON") && !hasGeometryType(wkt, "MULTIPOLYGON")) {
-    return null;
-  }
+  // Narrowed up front rather than relying on the type guard below:
+  // `hasGeometryType` is a type predicate, but TypeScript cannot carry that
+  // narrowing out of a `.some()` callback, so the sweep would still see
+  // `unknown`.
+  if (typeof wkt !== "string") return null;
+  if (!EXTENT_TYPES.some((type) => hasGeometryType(wkt, type))) return null;
 
   let minLng = Infinity;
   let minLat = Infinity;

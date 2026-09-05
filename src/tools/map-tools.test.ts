@@ -135,7 +135,10 @@ describe("runTool", () => {
     const r = await runTool("zoom_to_location", { location: "Maastricht" }, { side });
 
     expect(r.ok).toBe(true);
-    expect(flyToView).toHaveBeenCalledWith([5.69, 50.85]);
+    // A zoom rides along: this hit carries no bounding box, and left to itself
+    // the map would fall back to a town-wide default. The stub names no `type`,
+    // so this is the unrecognised-kind path taking its safe default.
+    expect(flyToView).toHaveBeenCalledWith([5.69, 50.85], 16);
   });
 
   it("reports a location it cannot find", async () => {
