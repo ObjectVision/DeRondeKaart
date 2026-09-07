@@ -1,144 +1,5 @@
 [
   {
-    "label": "Kernkaarten",
-    "icon": "LN.svg",
-    "expanded": false,
-    "children": [
-      {
-        "label": "Laagste nationale kosten",
-        "expanded": false,
-        "children": [
-          {
-            "id": "357",
-            "label": "Laagste nationale kosten <20% kostenverschil (LN)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "207",
-            "label": "Laagste nationale kosten zonder kostenverschil(LN)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "394",
-            "label": "Laagste nationale kosten zonder KN gas (LNGA08)",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Energieverbruik LN",
-        "expanded": false,
-        "children": [
-          {
-            "id": "226",
-            "label": "Energieverbruik (LN H01)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "227",
-            "label": "Energieverbruik ruimteverwarming (LN H02)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "252",
-            "label": "Energieverbruik warm tapwater (LN H03)",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Pand",
-        "expanded": false,
-        "children": [
-          {
-            "id": "314",
-            "label": "Pand energielabel totaal (BG)",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Referentie 2030",
-        "expanded": false,
-        "children": [
-          {
-            "id": "251",
-            "label": "CO₂-uitstoot (R30 H15)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "261",
-            "label": "Energielevering aardgas (R30 H09)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "248",
-            "label": "Energielevering elektriciteit (R30 H11)",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Overig",
-        "expanded": false,
-        "children": [
-          {
-            "id": "230",
-            "label": "Aantal woningequivalenten (BG)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "210",
-            "label": "Midden temperatuur warmtebronnen (BG)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "464",
-            "label": "Warmtenetten strategievariant s2a (BG)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "466",
-            "label": "Warmtenetten strategievariant s2d (BG)",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Gevoeligheidsanalyses",
-        "expanded": false,
-        "children": [
-          {
-            "id": "387",
-            "label": "Laagste nationale kosten (LNGA01)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "388",
-            "label": "Laagste nationale kosten (LNGA02)",
-            "a": false,
-            "b": false
-          }
-        ]
-      }
-    ]
-  },
-  {
     "label": "Laagste nationale kosten",
     "icon": "LN.svg",
     "expanded": false,
@@ -147,12 +8,6 @@
         "label": "Nationale kosten",
         "expanded": false,
         "children": [
-          {
-            "id": "357",
-            "label": "Laagste nationale kosten start (LN)",
-            "a": false,
-            "b": false
-          },
           {
             "id": "207",
             "label": "Strategie met laagste nationale kosten (LN)",
@@ -180,6 +35,18 @@
           {
             "id": "300",
             "label": "Nationale meerkosten (LN H16)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "357",
+            "label": "Laagste nationale kosten <20% kostenverschil (LN)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "394",
+            "label": "Laagste nationale kosten zonder KN gas (LNGA08)",
             "a": false,
             "b": false
           }
@@ -735,7 +602,7 @@
     ]
   },
   {
-    "label": "Strategie 1: eWP",
+    "label": "S1: eWP",
     "icon": "S1.svg",
     "expanded": false,
     "children": [
@@ -886,7 +753,7 @@
     ]
   },
   {
-    "label": "Strategie 2: MT-warmtenet",
+    "label": "S2: MT-warmtenet",
     "icon": "S2.svg",
     "expanded": false,
     "children": [
@@ -1055,7 +922,7 @@
     ]
   },
   {
-    "label": "Strategie 3: Combi LT-WN & eWP",
+    "label": "S3: Combi LT-WN & eWP",
     "icon": "S3.svg",
     "expanded": false,
     "children": [
@@ -1230,7 +1097,7 @@
     ]
   },
   {
-    "label": "Strategie 4: hWP met klimaatneutraal gas",
+    "label": "S4: hWP met klimaatneutraal gas",
     "icon": "S4.svg",
     "expanded": false,
     "children": [
