@@ -1351,254 +1351,261 @@
     ]
   },
   {
-    "label": "Referentie 2023",
-    "icon": "R23.svg",
+    "label": "Referentiebeelden",
+    "icon": "RB.svg",
     "expanded": false,
     "children": [
       {
-        "label": "Verbruik totaal",
+        "label": "Referentie 2023",
+        "icon": "R23.svg",
         "expanded": false,
         "children": [
           {
-            "id": "235",
-            "label": "Energieverbruik (R23 H01)",
-            "a": false,
-            "b": false
+            "label": "Verbruik totaal",
+            "expanded": false,
+            "children": [
+              {
+                "id": "235",
+                "label": "Energieverbruik (R23 H01)",
+                "a": false,
+                "b": false
+              }
+            ]
+          },
+          {
+            "label": "Verbruikscomponenten",
+            "expanded": false,
+            "children": [
+              {
+                "id": "236",
+                "label": "Ruimteverwarming (R23 H02)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "158",
+                "label": "Warm tapwater (R23 H03)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "237",
+                "label": "Ventilatie (R23 H04)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "238",
+                "label": "Koude (R23 H05)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "161",
+                "label": "Apparaten en licht (R23 H06)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "239",
+                "label": "Warmteverbruik (R23 H07)",
+                "a": false,
+                "b": false
+              }
+            ]
+          },
+          {
+            "label": "Levering totaal",
+            "expanded": false,
+            "children": [
+              {
+                "id": "306",
+                "label": "Energielevering (R23 H08)",
+                "a": false,
+                "b": false
+              }
+            ]
+          },
+          {
+            "label": "Leveringscomponenten",
+            "expanded": false,
+            "children": [
+              {
+                "id": "228",
+                "label": "Aardgas (R23 H09)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "309",
+                "label": "Duurzaam gas (R23 H10)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "232",
+                "label": "Elektriciteit (R23 H11)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "233",
+                "label": "MT-warmtebron (R23 H12)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "234",
+                "label": "LT-warmtebron (R23 H13)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "308",
+                "label": "Overig (R23 H14)",
+                "a": false,
+                "b": false
+              }
+            ]
+          },
+          {
+            "label": "Overig",
+            "expanded": false,
+            "children": [
+              {
+                "id": "310",
+                "label": "CO₂-uitstoot (R23 H15)",
+                "a": false,
+                "b": false
+              }
+            ]
           }
         ]
       },
       {
-        "label": "Verbruikscomponenten",
+        "label": "Referentie 2030",
+        "icon": "R30.svg",
         "expanded": false,
         "children": [
           {
-            "id": "236",
-            "label": "Ruimteverwarming (R23 H02)",
-            "a": false,
-            "b": false
+            "label": "Verbruik totaal",
+            "expanded": false,
+            "children": [
+              {
+                "id": "240",
+                "label": "Energieverbruik (R30 H01)",
+                "a": false,
+                "b": false
+              }
+            ]
           },
           {
-            "id": "158",
-            "label": "Warm tapwater (R23 H03)",
-            "a": false,
-            "b": false
+            "label": "Verbruikscomponenten",
+            "expanded": false,
+            "children": [
+              {
+                "id": "241",
+                "label": "Ruimteverwarming (R30 H02)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "242",
+                "label": "Warm tapwater (R30 H03)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "243",
+                "label": "Ventilatie (R30 H04)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "244",
+                "label": "Koude (R30 H05)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "245",
+                "label": "Apparaten en licht (R30 H06)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "246",
+                "label": "Warmteverbruik (R30 H07)",
+                "a": false,
+                "b": false
+              }
+            ]
           },
           {
-            "id": "237",
-            "label": "Ventilatie (R23 H04)",
-            "a": false,
-            "b": false
+            "label": "Levering totaal",
+            "expanded": false,
+            "children": [
+              {
+                "id": "307",
+                "label": "Energielevering (R30 H08)",
+                "a": false,
+                "b": false
+              }
+            ]
           },
           {
-            "id": "238",
-            "label": "Koude (R23 H05)",
-            "a": false,
-            "b": false
+            "label": "Leveringscomponenten",
+            "expanded": false,
+            "children": [
+              {
+                "id": "261",
+                "label": "Aardgas (R30 H09)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "312",
+                "label": "Duurzaam gas (R30 H10)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "248",
+                "label": "Elektriciteit (R30 H11)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "249",
+                "label": "MT-warmtebron (R30 H12)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "250",
+                "label": "LT-warmtebron (R30 H13)",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "311",
+                "label": "Overig (R30 H14)",
+                "a": false,
+                "b": false
+              }
+            ]
           },
           {
-            "id": "161",
-            "label": "Apparaten en licht (R23 H06)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "239",
-            "label": "Warmteverbruik (R23 H07)",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Levering totaal",
-        "expanded": false,
-        "children": [
-          {
-            "id": "306",
-            "label": "Energielevering (R23 H08)",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Leveringscomponenten",
-        "expanded": false,
-        "children": [
-          {
-            "id": "228",
-            "label": "Aardgas (R23 H09)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "309",
-            "label": "Duurzaam gas (R23 H10)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "232",
-            "label": "Elektriciteit (R23 H11)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "233",
-            "label": "MT-warmtebron (R23 H12)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "234",
-            "label": "LT-warmtebron (R23 H13)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "308",
-            "label": "Overig (R23 H14)",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Overig",
-        "expanded": false,
-        "children": [
-          {
-            "id": "310",
-            "label": "CO₂-uitstoot (R23 H15)",
-            "a": false,
-            "b": false
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "label": "Referentie 2030",
-    "icon": "R30.svg",
-    "expanded": false,
-    "children": [
-      {
-        "label": "Verbruik totaal",
-        "expanded": false,
-        "children": [
-          {
-            "id": "240",
-            "label": "Energieverbruik (R30 H01)",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Verbruikscomponenten",
-        "expanded": false,
-        "children": [
-          {
-            "id": "241",
-            "label": "Ruimteverwarming (R30 H02)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "242",
-            "label": "Warm tapwater (R30 H03)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "243",
-            "label": "Ventilatie (R30 H04)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "244",
-            "label": "Koude (R30 H05)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "245",
-            "label": "Apparaten en licht (R30 H06)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "246",
-            "label": "Warmteverbruik (R30 H07)",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Levering totaal",
-        "expanded": false,
-        "children": [
-          {
-            "id": "307",
-            "label": "Energielevering (R30 H08)",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Leveringscomponenten",
-        "expanded": false,
-        "children": [
-          {
-            "id": "261",
-            "label": "Aardgas (R30 H09)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "312",
-            "label": "Duurzaam gas (R30 H10)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "248",
-            "label": "Elektriciteit (R30 H11)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "249",
-            "label": "MT-warmtebron (R30 H12)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "250",
-            "label": "LT-warmtebron (R30 H13)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "311",
-            "label": "Overig (R30 H14)",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Overig",
-        "expanded": false,
-        "children": [
-          {
-            "id": "251",
-            "label": "CO2-uitstoot (R30 H15)",
-            "a": false,
-            "b": false
+            "label": "Overig",
+            "expanded": false,
+            "children": [
+              {
+                "id": "251",
+                "label": "CO2-uitstoot (R30 H15)",
+                "a": false,
+                "b": false
+              }
+            ]
           }
         ]
       }
