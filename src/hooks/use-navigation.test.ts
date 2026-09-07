@@ -1,6 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { clearLayerConfigCache } from "@/layers/config";
-import { leafPair, type NavLeaf } from "@/layers/navigation";
+import {
+  leafPair,
+  leafTarget,
+  pruneItems,
+  type NavLeaf,
+  type NavNode,
+} from "@/layers/navigation";
 import { useNavigation } from "./use-navigation";
 import { useLayerPairs } from "./use-layer-pairs";
 
@@ -77,6 +83,66 @@ describe("leafPair", () => {
   it("is null for an ordinary leaf, including the vestigial a/b booleans", () => {
     expect(leafPair(base)).toBeNull();
     expect(leafPair({ ...base, a: false, b: false })).toBeNull();
+  });
+
+  // A sided leaf names both ids but applies one of them, so it must not read as
+  // a comparison — otherwise the click path would apply both halves anyway.
+  it("is null once the leaf is pinned to a side", () => {
+    expect(leafPair({ ...base, left: "235", right: "240", side: "left" })).toBeNull();
+    expect(leafPair({ ...base, left: "235", right: "240", side: "right" })).toBeNull();
+  });
+});
+
+describe("leafTarget", () => {
+  const base: NavLeaf = { id: "x", label: "X" };
+
+  it("is null when the leaf names no side", () => {
+    expect(leafTarget(base)).toBeNull();
+    expect(leafTarget({ ...base, left: "235", right: "240" })).toBeNull();
+  });
+
+  /** One paired leaf serving two groups: each side applies its own year. */
+  it("picks the half matching the side", () => {
+    const paired = { ...base, left: "235", right: "240" };
+    expect(leafTarget({ ...paired, side: "left" })).toEqual({ id: "235", side: "left" });
+    expect(leafTarget({ ...paired, side: "right" })).toEqual({ id: "240", side: "right" });
+  });
+
+  it("falls back to the leaf's own id when it names no halves", () => {
+    expect(leafTarget({ ...base, side: "right" })).toEqual({ id: "x", side: "right" });
+  });
+});
+
+describe("side inheritance", () => {
+  const leaf = (id: string): NavLeaf => ({ id, label: id, left: id, right: `${id}_2026` });
+
+  it("pushes a node's side onto every descendant leaf", () => {
+    const [node] = pruneItems(
+      [{ label: "ASA2026", side: "right", children: [{ label: "GA01", children: [leaf("420")] }] }],
+      undefined,
+    ) as NavNode[];
+    const [group] = node.children as NavNode[];
+    expect(leafTarget(group.children[0] as NavLeaf)).toEqual({
+      id: "420_2026",
+      side: "right",
+    });
+  });
+
+  it("lets a nested node override what it inherits", () => {
+    const [node] = pruneItems([
+      {
+        label: "ASA2026",
+        side: "right",
+        children: [{ label: "uitzondering", side: "left", children: [leaf("420")] }],
+      },
+    ]) as NavNode[];
+    const [group] = node.children as NavNode[];
+    expect(leafTarget(group.children[0] as NavLeaf)).toEqual({ id: "420", side: "left" });
+  });
+
+  it("leaves an unsided tree alone", () => {
+    const [node] = pruneItems([{ label: "Gewoon", children: [leaf("420")] }]) as NavNode[];
+    expect(leafTarget((node.children as NavLeaf[])[0])).toBeNull();
   });
 });
 

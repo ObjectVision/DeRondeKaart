@@ -1,5 +1,6 @@
 import { chromeIconColor } from "@/config/map-config";
 import { loadConfig, clearConfigCache } from "@/config/load-config";
+import type { MapSideId } from "@/lib/map-side";
 
 /** A selectable layer in the navigation tree. */
 export interface NavLeaf {
@@ -28,6 +29,18 @@ export interface NavLeaf {
    */
   left?: string;
   right?: string;
+  /**
+   * Pin this leaf to one map instead of letting the click decide.
+   *
+   * Usually inherited from an ancestor node rather than written on the leaf —
+   * `loadNavigation` pushes a node's `side` down onto every descendant that does
+   * not set its own, so a whole group can be "this side only" in one place.
+   *
+   * A sided leaf that also names `left`/`right` applies the HALF its side names
+   * (see {@link leafTarget}) rather than the pair: that is what lets one set of
+   * paired leaves serve as two groups, each landing its own year on its own map.
+   */
+  side?: MapSideId;
 }
 
 /** A category / sub-category branch in the navigation tree. */
@@ -42,6 +55,8 @@ export interface NavNode {
   /** CSS color for the category icon, e.g. "#7C5CFC". */
   color?: string;
   expanded?: boolean;
+  /** Pin every leaf beneath this node to one map. See {@link NavLeaf.side}. */
+  side?: MapSideId;
   children: NavItem[];
 }
 
@@ -65,7 +80,30 @@ export interface LeafPair {
  * a comparison, which is worse than not offering one.
  */
 export function leafPair(leaf: NavLeaf): LeafPair | null {
+  // A sided leaf names both ids too, but applies only the half its side names —
+  // checked first so a sided leaf never reads as a comparison.
+  if (leaf.side) return null;
   return leaf.left && leaf.right ? { left: leaf.left, right: leaf.right } : null;
+}
+
+/** The single layer a sided leaf applies, and the map it goes on. */
+export interface LeafTarget {
+  id: string;
+  side: MapSideId;
+}
+
+/**
+ * Read a leaf pinned to one map, or null when the click decides the side.
+ *
+ * The id is the half matching the side when the leaf names one — so the same
+ * paired leaf yields the 2025 layer under a `side: "left"` group and the 2026
+ * layer under a `side: "right"` one — and the leaf's own `id` otherwise, which
+ * is what an ordinary sided leaf (no pair fields) applies.
+ */
+export function leafTarget(leaf: NavLeaf): LeafTarget | null {
+  if (!leaf.side) return null;
+  const half = leaf.side === "left" ? leaf.left : leaf.right;
+  return { id: half ?? leaf.id, side: leaf.side };
 }
 
 /**
@@ -84,14 +122,19 @@ export function hasLeaves(node: NavNode): boolean {
  * Remove empty placeholder leaves (`id === "" && label === ""`) so empty
  * categories render cleanly, and recurse into sub-nodes.
  */
-function pruneItems(items: NavItem[]): NavItem[] {
+export function pruneItems(items: NavItem[], inheritedSide?: MapSideId): NavItem[] {
   const result: NavItem[] = [];
   for (const item of items) {
+    // A node's own `side` wins over the one it inherits, so a group can carve an
+    // exception out of an ancestor that pinned everything beneath it.
+    const side = item.side ?? inheritedSide;
     if (isLeaf(item)) {
       if (item.id === "" && item.label === "") continue;
-      result.push(item);
+      // Resolved here rather than at click time so nothing downstream needs the
+      // leaf's ancestry: every surface reads `leaf.side` and is done.
+      result.push(side ? { ...item, side } : item);
     } else {
-      result.push({ ...item, children: pruneItems(item.children) });
+      result.push({ ...item, side, children: pruneItems(item.children, side) });
     }
   }
   return result;
@@ -109,7 +152,7 @@ export async function loadNavigation(): Promise<NavNode[]> {
       }
       return (data as NavNode[]).map((node) => ({
         ...node,
-        children: pruneItems(node.children ?? []),
+        children: pruneItems(node.children ?? [], node.side),
       }));
     },
   });
