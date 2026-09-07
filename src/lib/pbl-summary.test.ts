@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+import { createRoot, createSignal } from "solid-js";
 
 import {
   buurtCodeOf,
+  createPblSummaryStatus,
   pblStatusFromMessage,
   pblSummaryUrl,
   PBL_SUMMARY_TIMEOUT_MS,
@@ -104,5 +106,151 @@ describe("pblStatusFromMessage", () => {
   it("caps the wait well under the frame's own two-stage 60s deadline", () => {
     expect(PBL_SUMMARY_TIMEOUT_MS).toBeGreaterThan(0);
     expect(PBL_SUMMARY_TIMEOUT_MS).toBeLessThan(60000);
+  });
+});
+
+/**
+ * The splash must not come back down over a summary that is already on screen.
+ *
+ * `PblSummary` binds the iframe's `src` to the buurt code, so a repeat pick of
+ * the same neighbourhood leaves the frame untouched — no reload, no script run,
+ * no verdict. Re-arming here would mean the full backstop of logo over finished
+ * content, which is the bug this guards: clicking a highlighted feature's own
+ * red outline picks the same neighbourhood straight back.
+ */
+describe("createPblSummaryStatus", () => {
+  /**
+   * Set the hook up and hand back its controls.
+   *
+   * Solid flushes effects at the END of `createRoot`, not during its body, so
+   * everything the effect installs — the message listener, the backstop timer —
+   * only exists once this has returned. Acting inside the body would race it.
+   *
+   * The code is derived from a PICK OBJECT rather than held as a string signal,
+   * because that is what drives the real thing: `FeatureInfo` recomputes
+   * `buurtCode()` from `props.result`, so every click re-runs this effect even
+   * when it names the same neighbourhood. A plain string signal would compare
+   * equal and never re-run — hiding the exact case under test.
+   */
+  function setup(initial: string | null) {
+    return createRoot((dispose) => {
+      const [pick, setPick] = createSignal<{ code: string | null }>({ code: initial });
+      const status = createPblSummaryStatus(() => pick().code);
+      return { status, dispose, pickAgain: (code: string | null) => setPick({ code }) };
+    });
+  }
+
+  /** The frame's own verdict, as pbl-buurt-select.js posts it. */
+  function report(type: string) {
+    window.dispatchEvent(
+      new MessageEvent("message", { data: { type }, origin: window.location.origin }),
+    );
+  }
+
+  // Only the timer: faking microtasks too would stall Solid's own scheduling.
+  const useTimers = () => vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+
+  it("falls back to failed when the frame never reports", () => {
+    useTimers();
+    const { status, dispose } = setup("BU05690302");
+    expect(status()).toBe("loading");
+    vi.advanceTimersByTime(PBL_SUMMARY_TIMEOUT_MS);
+    expect(status()).toBe("failed");
+    dispose();
+    vi.useRealTimers();
+  });
+
+  it("leaves the status alone on a repeat pick of the same neighbourhood", () => {
+    useTimers();
+    const { status, pickAgain, dispose } = setup("BU05690302");
+
+    report("pbl-summary-ready");
+    expect(status()).toBe("ready");
+
+    // A fresh pick result naming the same neighbourhood. The iframe src is
+    // unchanged, so nothing reloads and nothing may reset.
+    pickAgain("BU05690302");
+    expect(status()).toBe("ready");
+
+    // And no second backstop is waiting to knock it back to "failed".
+    vi.advanceTimersByTime(PBL_SUMMARY_TIMEOUT_MS * 2);
+    expect(status()).toBe("ready");
+    dispose();
+    vi.useRealTimers();
+  });
+
+  /** The backstop exists for silence; a frame that answered must not be overruled. */
+  it("cancels the backstop once a verdict arrives", () => {
+    useTimers();
+    const { status, dispose } = setup("BU05690302");
+    report("pbl-summary-ready");
+    expect(status()).toBe("ready");
+
+    vi.advanceTimersByTime(PBL_SUMMARY_TIMEOUT_MS * 2);
+
+    expect(status()).toBe("ready");
+    dispose();
+    vi.useRealTimers();
+  });
+
+  it("re-arms for a different neighbourhood", () => {
+    useTimers();
+    const { status, pickAgain, dispose } = setup("BU05690302");
+    report("pbl-summary-ready");
+    expect(status()).toBe("ready");
+
+    pickAgain("BU03630001");
+    expect(status()).toBe("loading");
+    dispose();
+    vi.useRealTimers();
+  });
+
+  /**
+   * A repeat pick lands MID-LOAD, before the frame has reported.
+   *
+   * Solid tears an effect's cleanups down before re-running it, so anything that
+   * re-runs the effect and then declines to re-register leaves the load with no
+   * listener and no backstop — the verdict arrives to nobody and the splash
+   * never lifts. That is strictly worse than the bug the guard was added for,
+   * and clicking a still-loading feature's own outline is an easy way to hit it.
+   */
+  it("still hears the verdict after a repeat pick mid-load", () => {
+    useTimers();
+    const { status, pickAgain, dispose } = setup("BU05690302");
+    expect(status()).toBe("loading");
+
+    pickAgain("BU05690302");
+    report("pbl-summary-ready");
+
+    expect(status()).toBe("ready");
+    dispose();
+    vi.useRealTimers();
+  });
+
+  it("keeps its backstop after a repeat pick mid-load", () => {
+    useTimers();
+    const { status, pickAgain, dispose } = setup("BU05690302");
+
+    pickAgain("BU05690302");
+    vi.advanceTimersByTime(PBL_SUMMARY_TIMEOUT_MS);
+
+    expect(status()).toBe("failed");
+    dispose();
+    vi.useRealTimers();
+  });
+
+  it("re-arms after the selection is cleared and the same code returns", () => {
+    useTimers();
+    const { status, pickAgain, dispose } = setup("BU05690302");
+    report("pbl-summary-ready");
+    expect(status()).toBe("ready");
+
+    // Clearing unmounts the frame, so the same code afterwards is a genuine
+    // reload and must wait for a fresh verdict.
+    pickAgain(null);
+    pickAgain("BU05690302");
+    expect(status()).toBe("loading");
+    dispose();
+    vi.useRealTimers();
   });
 });
