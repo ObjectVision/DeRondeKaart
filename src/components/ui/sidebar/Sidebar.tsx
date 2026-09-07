@@ -6,6 +6,7 @@ import { FilterSection } from "./FilterSection";
 import { NavigationSection } from "./NavigationSection";
 import {
   leafPair,
+  leafTarget,
   loadNavigation,
   withCombinations,
   type NavLeaf,
@@ -32,17 +33,26 @@ interface LeafStateToggleProps {
  * A paired leaf toggles its whole comparison instead: both layers on, or both
  * off. Its sides are decided by the config, so "add to the left map" is not a
  * choice this row gets to make.
+ *
+ * A sided leaf (a `side` on the leaf or any ancestor) is likewise not a choice:
+ * it goes to the map its group named, and the layer it applies may not be the
+ * leaf's own id — so its on-map state is read from the target, not from
+ * `leaf.id`.
  */
 function LeafStateToggle(props: LeafStateToggleProps): JSX.Element {
   const pair = () => leafPair(props.leaf);
-  const onLeft = () => props.nav.isOnMap(props.leaf.id, "left");
-  const onRight = () => props.nav.isOnMap(props.leaf.id, "right");
+  const target = () => leafTarget(props.leaf);
+  const stateId = () => target()?.id ?? props.leaf.id;
+  const onLeft = () => props.nav.isOnMap(stateId(), "left");
+  const onRight = () => props.nav.isOnMap(stateId(), "right");
   // "Partial" counts as on, so the click clears the leftover half.
   const onMap = () => {
     const p = pair();
     return p ? props.nav.pairState(p) !== "none" : onLeft() || onRight();
   };
 
+  const addTitle = () =>
+    target()?.side === "right" ? "Toon op rechter kaart" : "Toon op linker kaart";
   const title = () =>
     pair()
       ? onMap()
@@ -50,7 +60,7 @@ function LeafStateToggle(props: LeafStateToggleProps): JSX.Element {
         : "Toon vergelijking"
       : onMap()
         ? "Verwijder van kaart"
-        : "Toon op linker kaart";
+        : addTitle();
 
   return (
     <Button
@@ -67,10 +77,12 @@ function LeafStateToggle(props: LeafStateToggleProps): JSX.Element {
         }
         if (onMap()) {
           // Remove from every map the layer is on.
-          if (onLeft()) props.nav.toggleOnMap(props.leaf.id, "left");
-          if (onRight()) props.nav.toggleOnMap(props.leaf.id, "right");
+          if (onLeft()) props.nav.toggleOnMap(stateId(), "left");
+          if (onRight()) props.nav.toggleOnMap(stateId(), "right");
         } else {
-          props.nav.toggleOnMap(props.leaf.id, "left"); // always add to the left map
+          // The group's side when it named one, otherwise the left map.
+          const t = target();
+          props.nav.toggleOnMap(t?.id ?? props.leaf.id, t?.side ?? "left");
         }
       }}
       title={title()}
@@ -191,18 +203,25 @@ export function Sidebar(props: SidebarProps): JSX.Element {
       return;
     }
 
-    const onLeft = props.nav.isOnMap(leaf.id, "left");
-    const onRight = props.nav.isOnMap(leaf.id, "right");
+    // A sided leaf lands on the map its group named, and the layer it applies is
+    // the matching half when it names one — so state is read from that id, not
+    // from the leaf's own. Unlike a pair this is a single layer, so the meta
+    // panel still applies.
+    const target = leafTarget(leaf);
+    const layerId = target?.id ?? leaf.id;
+
+    const onLeft = props.nav.isOnMap(layerId, "left");
+    const onRight = props.nav.isOnMap(layerId, "right");
 
     if (!onLeft && !onRight) {
-      props.nav.toggleOnMap(leaf.id, "left");
-      setMetaOpenLeafId(infoLayers().has(leaf.id) ? leaf.id : null);
+      props.nav.toggleOnMap(layerId, target?.side ?? "left");
+      setMetaOpenLeafId(infoLayers().has(layerId) ? leaf.id : null);
       return;
     }
 
     // On a map with the meta collapsed → remove from every map it is on.
-    if (onLeft) props.nav.toggleOnMap(leaf.id, "left");
-    if (onRight) props.nav.toggleOnMap(leaf.id, "right");
+    if (onLeft) props.nav.toggleOnMap(layerId, "left");
+    if (onRight) props.nav.toggleOnMap(layerId, "right");
     setMetaOpenLeafId(null);
   }
 
@@ -253,15 +272,21 @@ export function Sidebar(props: SidebarProps): JSX.Element {
                 onToggle={toggle}
                 selectedLeafId={metaOpenLeafId() ?? undefined}
                 onSelectLeaf={handleRowClick}
-                leafDetail={(leaf) => (
-                  <div class="ml-7 mt-0.5 max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-2 text-sm leading-relaxed text-gray-600">
-                    <LayerDescription
-                      layerId={leaf.id}
-                      layerName={infoLayers().get(leaf.id) ?? leaf.label}
-                      onOpenMeta={props.onOpenMeta}
-                    />
-                  </div>
-                )}
+                leafDetail={(leaf) => {
+                  // The layer this row actually applies: a sided leaf under a
+                  // `side: "right"` group describes its right-hand half, not the
+                  // id it happens to be keyed by.
+                  const layerId = leafTarget(leaf)?.id ?? leaf.id;
+                  return (
+                    <div class="ml-7 mt-0.5 max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-2 text-sm leading-relaxed text-gray-600">
+                      <LayerDescription
+                        layerId={layerId}
+                        layerName={infoLayers().get(layerId) ?? leaf.label}
+                        onOpenMeta={props.onOpenMeta}
+                      />
+                    </div>
+                  );
+                }}
                 leafStatus={(leaf) => <LeafStateToggle leaf={leaf} nav={props.nav} />}
               />
             </Show>
