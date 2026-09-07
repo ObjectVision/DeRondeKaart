@@ -1,4 +1,4 @@
-import { createEffect, createSignal, onCleanup, type Accessor } from "solid-js";
+import { createEffect, createMemo, createSignal, onCleanup, type Accessor } from "solid-js";
 import type { FeatureInfoResult } from "@/hooks/use-feature-pick";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 
@@ -106,21 +106,44 @@ export function createPblSummaryStatus(
 ): Accessor<PblSummaryStatus> {
   const [status, setStatus] = createSignal<PblSummaryStatus>("loading");
 
+  /**
+   * The neighbourhood the frame is showing, deduplicated.
+   *
+   * `PblSummary` binds the iframe's `src` to this code, so an unchanged code
+   * leaves the frame untouched — its script does not run again and it never
+   * sends another verdict. But `FeatureInfo` derives the code from the pick
+   * result, so every click is a fresh dependency even when it names the same
+   * neighbourhood: clicking a highlighted feature's own outline picks it
+   * straight back. A memo's `===` equality absorbs that, and the effect below
+   * re-runs only on a real change.
+   *
+   * It has to be absorbed HERE rather than by an early return inside the effect.
+   * Solid runs a computation's cleanups BEFORE re-running it, so an effect that
+   * re-runs and then declines to re-register has already dropped the listener
+   * and the backstop belonging to a load still in flight — its verdict would
+   * then arrive to nobody and the splash would never lift at all.
+   */
+  const code = createMemo(() => buurtCode());
+
   createEffect(() => {
     // Read first, before anything can return early — see the note above.
-    const code = buurtCode();
+    const current = code();
     // A new frame is loading, so drop any verdict about the previous one.
     setStatus("loading");
-    if (!code) return;
+    if (!current) return;
+
+    // Backstop for a frame that never reports at all (see the constant).
+    // Declared before the listener that cancels it: it exists for silence only,
+    // so a frame that did answer must not be overruled by it twenty seconds on.
+    const timer = setTimeout(() => setStatus("failed"), PBL_SUMMARY_TIMEOUT_MS);
 
     function onMessage(event: MessageEvent) {
       const next = pblStatusFromMessage(event);
-      if (next) setStatus(next);
+      if (!next) return;
+      clearTimeout(timer);
+      setStatus(next);
     }
     window.addEventListener("message", onMessage);
-
-    // Backstop for a frame that never reports at all (see the constant).
-    const timer = setTimeout(() => setStatus("failed"), PBL_SUMMARY_TIMEOUT_MS);
 
     onCleanup(() => {
       window.removeEventListener("message", onMessage);
