@@ -34,3 +34,12 @@ data/**
 .env
 .env.*
 /.vs
+
+# Metainfo generator output. The spreadsheet, generator and templates are
+# versioned; these two directories are rebuilt from them by `npm run metainfo`,
+# and the copy the app actually serves is committed under public/data/meta.
+# Tracking them too would put the same document in three places on every edit.
+scripts/metainfo/resultaten/
+scripts/metainfo/fragmenten/
+# LibreOffice's lock file, recreated every time the spreadsheet is opened.
+.~lock.*#

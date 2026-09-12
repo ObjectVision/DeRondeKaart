@@ -50,15 +50,19 @@ const RUNTIME_ICON_NAMES = [
   "chevron_right", // collapsed tree node
   "circle", // on-map state (sidebar), layer on neither map
   "content_copy",
+  "database", // metainfo fragment, "Databronnen" heading
   "edit", // annotation description
   "edit_off",
+  "help", // metainfo fragment, "Aannames en Onzekerheden" heading
   "expand_more", // expanded tree node
   "format_color_reset", // legend, layer dimmed
   "layers", // App.tsx section toggle, "Navigatie tonen"
+  "map", // metainfo fragment, "Wat ziet u?" heading
   "opacity", // legend, layer at full opacity
   "radio_button_checked", // single-select control
   "radio_button_unchecked",
   "remove", // meta layer link to a layer this viewer lacks
+  "settings", // metainfo fragment, "Berekenwijze" heading
 ];
 
 /** Literal Icon name props in source: name="x" or name={"x"}. */

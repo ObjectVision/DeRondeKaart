@@ -237,19 +237,30 @@ export function LeafMeta(props: LeafMetaProps): JSX.Element {
             // bullet markers and generous item spacing pushed the six entries off
             // screen. Headings and paragraphs keep prose's styling.
             //
+            // They are keyed on `li.list-group-item` rather than applied to every
+            // list, and that matters: the generated woonzorglimburg fragments
+            // (scripts/metainfo) use ordinary <ul> bullets for running text — the
+            // three woning-geschiktheid definitions, the aannames lists. Stripped
+            // of their markers those run together as flush-left paragraphs. The
+            // `:has()` selector carries the treatment from the item to its list, so
+            // it works whether or not the publisher marks the <ul> itself.
+            //
             // `prose` styles h1-h4 but leaves h5 at body size and weight, so the
             // "Uitgangspunten" / "Temperatuurniveaus" labels in the PBL strategy
             // fragments would not read as headings — styled explicitly here.
             class={
               "prose prose-sm max-w-none [&_a]:text-blue-600 [&_a]:underline " +
-              "[&_ul]:my-0 [&_ul]:list-none [&_ul]:pl-0 [&_li]:my-0 [&_li]:pl-0 " +
-              "[&_li]:before:hidden " +
+              "[&_ul:has(>li.list-group-item)]:my-0 " +
+              "[&_ul:has(>li.list-group-item)]:list-none " +
+              "[&_ul:has(>li.list-group-item)]:pl-0 " +
+              "[&_li.list-group-item]:before:hidden " +
               "[&_h5]:mt-4 [&_h5]:mb-1 [&_h5]:font-semibold [&_h5]:text-gray-900 " +
               // The "Gerelateerde kaartlagen" rows are marked up for Bootstrap
               // (`d-flex justify-content-between`), which the app doesn't load, so
               // the add button wrapped onto its own line below the label. Restore
               // the row the publisher intended: label left, button right, and drop
               // the inherited block margins that spread six rows down the dialog.
+              "[&_li.list-group-item]:my-0 [&_li.list-group-item]:pl-0 " +
               "[&_li.list-group-item]:flex [&_li.list-group-item]:items-center " +
               "[&_li.list-group-item]:justify-between [&_li.list-group-item]:gap-3 " +
               "[&_li.list-group-item]:py-0.5 [&_li.list-group-item_div]:my-0 " +

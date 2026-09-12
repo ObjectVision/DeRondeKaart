@@ -4,13 +4,13 @@
 
   <div class="mb-5 rounded-2xl border border-gray-200 p-4 bg-white">
     <!-- h2, not h1: the dialog's own header already titles the window. -->
-    <h2 class="text-base font-semibold text-gray-900 mb-2">Locaties van huisartsen</h2>
+    <h2 class="text-base font-semibold text-gray-900 mb-2">Aandeel 0 - 17 jarigen op de totale populatie</h2>
     <div class="flex items-center gap-2 text-xs">
       <span class="font-semibold text-gray-500 uppercase tracking-wide">
         Thema / Subthema:
       </span>
       <span class="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 font-medium text-gray-700 border border-gray-200">
-        Voorzieningen › locaties
+        Bewoners › Verdeling
       </span>
     </div>
   </div>
@@ -27,7 +27,7 @@
         </span>
       </h3>
       <div class="leading-relaxed text-gray-600">
-        De symbolen tonen de geregistreerde vestigingsadressen. Gebruik deze laag om de spreiding van eerstelijnszorg ten opzichte van woon- en zorglocaties te beoordelen.
+        De laag toont het aandeel 0- tot 17-jarigen als ruimtelijk patroon. Via de legenda kiest u het prognosejaar of bekijkt u de ontwikkeling in de tijd als animatie.
       </div>
     </section>
     
@@ -46,50 +46,41 @@
 
 	<!-- Linkerkolom: Afbeelding vast ingesteld op 40% breedte -->
 	<div style="width: 40%; flex-shrink: 0;">
-		<img src="/data/meta/afbeeldingen/kaartlaagtypen/locatie_voorziening.webp" alt="Visualisatie van de locaties van voorzieningen" class="w-full h-auto rounded-xl border border-gray-200 object-cover block m-0 p-0">
+		<img src="/data/meta/afbeeldingen/kaartlaagtypen/demografie_prognose_2025_2045.webp" alt="Visualisatie van demografie prognosemodel InFact" class="w-full h-auto rounded-xl border border-gray-200 object-cover block m-0 p-0">
 	</div>
 
 	<!-- Rechterkolom: Tekst vast ingesteld op 60% breedte -->
 	<div style="width: 60%; flex-grow: 1;" class="text-gray-600 leading-relaxed">
-		<p style="margin-top: 0; padding-top: 0;">
-		Voorzieningen zijn op verschillende manieren verzameld, bijvoorbeeld via websites of project specifieke uitvragen. 
-		Voorzieninglocaties worden meestal aangeleverd op adresniveau. Met behulp van de BAG worden deze van coördinaten voorzien. </p>
+		<p> Het <a class="underline hover:text-blue-800" href = "https://infact.eu/images/PDF/WZ-Wijzer/Micro-prognosemodel_In_Fact.pdf" target="_blank" style="color: var(--primary-color);">Micro-prognosemodel van In.Fact.Research</a> berekent per jaar het aantal personen per leeftijdsgroep op 6-positiepostcodeniveau. 
+		Het aandeel wordt berekend als het aantal personen in de betreffende leeftijdsgroep gedeeld door het totaal aantal inwoners.<br>
+		Voor de prognose op gebiedsniveau worden de gemeentelijke aantallen uit de provinciale prognose verdeeld over de gebieden volgens de ruimtelijke verdeling van dit model. Zie ook de gebruikte bronnen.
 		</p>
-	<br>
-
-	<!-- Subkopje: Weergave in de kaart -->
-	<div>
-		<h4 class="text-sm font-semibold text-gray-800 mb-1">Weergave in de kaart</h4>
-		<p>Voorzieningen worden op de kaart weergegeven met herkenbare symbolen.</p>
+		<br>
+	
+		<!-- Subkopje: Weergave in de kaart -->
+		<div>
+			<h4 class="text-sm font-semibold text-gray-800 mb-1">Weergave in de kaart</h4>
+			<p>De gegevens op 6-positiepostcodeniveau worden met behulp van de BAG vertaald naar ruimtelijke patronen. Ze worden niet als afzonderlijke postcodevlakken weergegeven, omdat:</p>
+			<ul>
+				<li>Een patroonkaart een vloeiender beeld geeft bij animaties door de tijd.</li>
+				<li>Een 6-positiepostcode is een verzameling adressen, geen ruimtelijke eenheid zoals een wijk of buurt.</li>
+				<li>Een patroonkaart tekent sneller.</li>
+			</ul>
+		</div>
+		<br>
+		
+		<!-- GeoDMS tekst -->
+		<div>
+			<p>
+			De berekeningen zijn uitgevoerd met de <a href="https://www.geodms.nl" target="_blank" rel="noopener" class="underline hover:text-blue-800 underline hover:text-blue-800" style="color: var(--primary-color);">GeoDMS software</a>.
+			</p>
+		</div>
 	</div>
-	<br>
-
-	<!-- GeoDMS tekst -->
-	<div>
-		<p>
-		De bewerkingen zijn uitgevoerd met de <a href="https://www.geodms.nl" target="_blank" rel="noopener" class="underline hover:text-blue-800 underline hover:text-blue-800" style="color: var(--primary-color);">GeoDMS software</a>.
-		</p>
-	</div>
-
 </div>
       </div>
     </section>
     
 
-    
-    <section class="rounded-2xl border border-gray-200 p-4">
-      <h3 class="mb-2 flex items-center gap-2">
-        <span aria-hidden="true" class="material-symbols-outlined leading-none select-none"
-              style="font-size: 20px; color: var(--primary-color);">help</span>
-        <span class="text-base font-semibold" style="color: var(--primary-color);">
-          Aannames en Onzekerheden
-        </span>
-      </h3>
-      <div class="leading-relaxed text-gray-600">
-        De locaties van de huisartsen zijn een momentopname,
- deze kunnen inmiddels gewijzigd zijn.
-      </div>
-    </section>
     
 
     <!-- The preview hides this behind a tab; here it is simply the last
@@ -110,8 +101,8 @@
 			<tr class="border-b border-gray-200">
 			  <td class="align-top pr-4 py-3">
 				
-                    <img src="/data/meta/afbeeldingen/iconen/WoonZorgLimburg.png"
-                         alt="Logo Locaties van huisartsen"
+                    <img src="/data/meta/afbeeldingen/iconen/limburg.png"
+                         alt="Logo Bevolkingsprognose Limburg"
                          class="max-h-full max-w-full object-contain"
                          onerror="this.style.display='none';">
             
@@ -119,17 +110,47 @@
 
 			  <td class="align-top p-3">
 				
-                  <h4 class="font-semibold text-gray-900 text-sm mb-0.5">Locaties van huisartsen</h4>
+                  <h4 class="font-semibold text-gray-900 text-sm mb-0.5">Bevolkingsprognose Limburg</h4>
             
 
 				<div class="text-xs text-gray-500 mb-1">
-				  <span class="font-medium text-gray-700">Bronhouder:</span> Meerdere huisartsen
+				  <span class="font-medium text-gray-700">Bronhouder:</span> ??
 				  <span aria-hidden="true"> | </span>
-				  <span class="font-medium text-gray-700">Datum:</span> 2026
+				  <span class="font-medium text-gray-700">Datum:</span> ??
 				</div>
 
 				<p class="text-xs leading-relaxed text-gray-600">
-				  Het bronbestand is verzameld in het kader van het project woonzorglimburg
+				  Nog in te vullen
+				</p>
+			  </td>
+			</tr>        
+
+			<tr class="border-b border-gray-200">
+			  <td class="align-top pr-4 py-3">
+				
+                    <img src="/data/meta/afbeeldingen/iconen/infact.png"
+                         alt="Logo Micro Prognose InFact en bevolkingsprognose 2023-2050"
+                         class="max-h-full max-w-full object-contain"
+                         onerror="this.style.display='none';">
+            
+			  </td>
+
+			  <td class="align-top p-3">
+				
+                  <h4 class="font-semibold text-gray-900 text-sm mb-0.5">Micro Prognose InFact en bevolkingsprognose 2023-2050</h4>
+            
+
+				<div class="text-xs text-gray-500 mb-1">
+				  <span class="font-medium text-gray-700">Bronhouder:</span> Stichting Infact
+				  <span aria-hidden="true"> | </span>
+				  <span class="font-medium text-gray-700">Datum:</span> ??
+				</div>
+
+				<p class="text-xs leading-relaxed text-gray-600">
+				  Het micro-prognosemodel van Stichting In Fact geeft inzicht in de verwachte bevolkingsontwikkeling op (zes-positioneel) postcodeniveau. Dit model staat nader toegelicht in de het volgende rapport: 
+<a class="underline hover:text-blue-800" href = "https://infact.eu/images/PDF/WZ-Wijzer/Micro-prognosemodel_In_Fact.pdf" target="_blank" rel="noopener" style="color: var(--primary-color);">Micro-prognose model In Fact</a>
+<br><br>
+De toekomstige bevolking is volledig verdeeld over de bestaande woongebieden, er is dus geen rekening gehouden met de ligging van de uitbreidingsnieuwbouw.
 				</p>
 			  </td>
 			</tr>        
@@ -159,7 +180,7 @@
 				<div class="text-xs text-gray-500 mb-1">
 				  <span class="font-medium text-gray-700">Bronhouder:</span> Kadaster
 				  <span aria-hidden="true"> | </span>
-				  <span class="font-medium text-gray-700">Datum:</span> 2026
+				  <span class="font-medium text-gray-700">Datum:</span> ??
 				</div>
 
 				<p class="text-xs leading-relaxed text-gray-600">
