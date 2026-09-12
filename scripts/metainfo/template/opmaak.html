@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Kaartlaag Informatie - {{ TITEL }}</title>
+
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+  <link rel="stylesheet" crossorigin="" href="https://map.woonzorglimburg.nl/assets/vendor-maplibre-CKRTiAqP.css">
+  <link rel="stylesheet" crossorigin="" href="https://map.woonzorglimburg.nl/assets/index-CrFjfh1Z.css">
+
+  <style>
+    :root {
+      --primary-color: rgb(62, 116, 167);
+    }
+  </style>
+  <style>
+     ul {
+        list-style-type: disc;
+        padding-left: 1.25rem;
+       }
+
+     ol {
+        list-style-type: decimal;
+        padding-left: 1.25rem;
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 p-4 sm:p-8 font-sans antialiased text-gray-600 text-sm">
+
+  <div class="fixed inset-0 z-40 bg-black/40"></div>
+
+  <div role="dialog" aria-modal="true" tabindex="-1"
+       class="fixed left-1/2 z-50 -translate-x-1/2 overflow-y-auto rounded-2xl bg-white p-6 shadow-lg outline-none app-scrollbar top-[6vh] max-h-[calc(94vh-1rem)] w-[min(64rem,calc(100vw-2rem))] translate-y-0 text-sm text-gray-600">
+
+    <!-- Header -->
+    <div class="mb-5 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2">
+        <img src="https://map.woonzorglimburg.nl/favicon.svg" alt="" aria-hidden="true"
+             class="h-6 w-6 shrink-0" draggable="false">
+        <h2 class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+          Kaartlaag informatie
+        </h2>
+      </div>
+
+      <button data-slot="button"
+              class="group/button inline-flex shrink-0 items-center justify-center border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 hover:bg-muted hover:text-foreground size-7 rounded-[min(var(--radius-md),12px)]"
+              title="Sluiten" aria-label="Sluiten">
+        <span aria-hidden="true"
+              class="material-symbols-outlined leading-none select-none text-[22px]"
+              style="color: var(--primary-color);">close</span>
+      </button>
+    </div>
+
+    <!-- Titel en thema -->
+    <div class="mb-5 rounded-2xl border border-gray-200 p-4 bg-white">
+      <h1 class="text-base font-semibold text-gray-900 mb-2">{{ TITEL }}</h1>
+      <div class="flex items-center gap-2 text-xs">
+        <span class="font-semibold text-gray-500 uppercase tracking-wide">
+          Thema / Subthema:
+        </span>
+        <span class="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 font-medium text-gray-700 border border-gray-200">
+          {{ THEMA_SUBTHEMA }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="-mx-6 mb-5 flex gap-0 border-b border-gray-200 px-6">
+      <button type="button" role="tab" aria-selected="true"
+              onclick="switchTab('tab-info', this)"
+              class="tab-btn border-b-2 border-transparent px-2 py-1 text-xs font-semibold uppercase tracking-wide transition-colors"
+              style="color: var(--primary-color); border-bottom-color: var(--primary-color);">
+        Toelichting
+      </button>
+
+      <button type="button" role="tab" aria-selected="false"
+              onclick="switchTab('tab-bronnen', this)"
+              class="tab-btn border-b-2 border-transparent px-2 py-1 text-xs font-semibold uppercase tracking-wide transition-colors text-gray-500 hover:text-gray-700">
+        Bronnen
+      </button>
+    </div>
+
+    <div>
+
+      <!-- TAB 1: TOELICHTING -->
+      <div id="tab-info" class="tab-panel grid grid-cols-1 gap-4">
+
+        <section class="rounded-2xl border border-gray-200 p-4">
+          <h3 class="mb-2 flex items-center gap-2">
+            <span aria-hidden="true" class="material-symbols-outlined leading-none select-none"
+                  style="font-size: 20px; color: var(--primary-color);">map</span>
+            <span class="text-base font-semibold" style="color: var(--primary-color);">
+              Wat ziet u?
+            </span>
+          </h3>
+          <div class="leading-relaxed text-gray-600">
+            {{ WAT_ZIET_U }}
+          </div>
+        </section>
+
+        <section class="rounded-2xl border border-gray-200 p-4">
+          <h3 class="mb-3 flex items-center gap-2">
+            <span aria-hidden="true" class="material-symbols-outlined leading-none select-none"
+                  style="font-size: 20px; color: var(--primary-color);">settings</span>
+            <span class="text-base font-semibold" style="color: var(--primary-color);">
+              Berekenwijze
+            </span>
+          </h3>
+
+          <div class="leading-relaxed text-gray-600">
+            {{ KAARTLAAGTYPE_CONTENT }}
+          </div>
+        </section>
+
+        <section class="rounded-2xl border border-gray-200 p-4">
+          <h3 class="mb-2 flex items-center gap-2">
+            <span aria-hidden="true" class="material-symbols-outlined leading-none select-none"
+                  style="font-size: 20px; color: var(--primary-color);">help</span>
+            <span class="text-base font-semibold" style="color: var(--primary-color);">
+              Aannames en Onzekerheden
+            </span>
+          </h3>
+          <div class="leading-relaxed text-gray-600">
+            {{ AANNAMES_EN_ONZEKERHEDEN }}
+          </div>
+        </section>
+
+      </div>
+
+      <!-- TAB 2: BRONNEN -->
+      <div id="tab-bronnen" class="tab-panel hidden grid grid-cols-1 gap-4">
+
+        <section class="rounded-2xl border border-gray-200 p-4">
+			<div class="mb-4 border-b border-gray-200 pb-3">
+			  <h3 class="flex items-center gap-2">
+				<span aria-hidden="true" class="material-symbols-outlined leading-none select-none"
+					  style="font-size: 20px; color: var(--primary-color);">database</span>
+				<span class="text-base font-semibold" style="color: var(--primary-color);">
+				  Databronnen
+				</span>
+			  </h3>
+			</div>
+
+		<style>
+		  #tab-bronnen tbody tr:nth-child(even) td {
+			background-color: #f5f5f5;
+		  }
+		</style>
+		<table class="w-full border-collapse text-left">
+		  <tbody>
+			{{ BRONNEN }}
+		  </tbody>
+		</table>
+
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(tabId, element) {
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.add('hidden');
+      });
+
+      document.querySelectorAll('.tab-btn').forEach(button => {
+        button.setAttribute('aria-selected', 'false');
+        button.classList.add('text-gray-500');
+        button.style.color = '';
+        button.style.borderBottomColor = 'transparent';
+      });
+
+      document.getElementById(tabId).classList.remove('hidden');
+
+      element.setAttribute('aria-selected', 'true');
+      element.classList.remove('text-gray-500');
+      element.style.color = 'var(--primary-color)';
+      element.style.borderBottomColor = 'var(--primary-color)';
+    }
+  </script>
+
+</body>
+</html>

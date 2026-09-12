@@ -10,6 +10,13 @@
    else in the app opts in. */
 @plugin "@tailwindcss/typography";
 
+/* The generated woonzorglimburg metainfo fragments (scripts/metainfo) are
+   fetched at runtime, so Tailwind never sees them by scanning src/ and any
+   utility only they use is purged from the build. Pointed at the published
+   fragments rather than kept as a hand-written safelist, which would go stale
+   the first time the template gains a class. */
+@source "../public/data/meta";
+
 @custom-variant dark (&:is(.dark *));
 
 html, body {
@@ -129,6 +136,13 @@ html, body {
 }
 
 :root {
+  /* The generated metainfo fragments carry inline
+     `style="color: var(--primary-color)"` on their section headings. The
+     standalone preview pages define it in their own <head>, which is discarded
+     when the app injects a fragment — so without this every heading silently
+     falls back to body colour. Kept in step with
+     scripts/metainfo/template/opmaak.html. */
+  --primary-color: rgb(62, 116, 167);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -207,4 +221,14 @@ html, body {
   html {
     @apply font-sans;
   }
+}
+
+/* Row striping for the databronnen table in the generated metainfo fragments
+   (scripts/metainfo). Written as CSS rather than an `even:bg-gray-100` utility
+   on the <tr>: those documents are fetched at runtime, so Tailwind never scans
+   them and a utility used nowhere else in the app is purged from the build —
+   the striping would then vanish with nothing to explain it. Scoped to the
+   fragment's own root class so it cannot reach the rest of the app. */
+.dro-meta tbody tr:nth-child(even) td {
+  background-color: var(--color-gray-100);
 }

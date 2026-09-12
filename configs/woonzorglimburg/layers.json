@@ -51,6 +51,7 @@
     {
       "id": "loopafstand_huisarts",
       "name": "Loopafstand huisarts",
+      "meta": "/data/meta/loopafstand_huisarts.html",
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -338,6 +339,7 @@
     {
       "id": "supermarkt",
       "name": "supermarkt",
+      "meta": "/data/meta/supermarkt.html",
       "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "point",
@@ -2970,6 +2972,7 @@
     {
       "id": "aandeel_geschikt_2024",
       "name": "Aandeel geschikt 2024",
+      "meta": "/data/meta/aandeel_geschikt_2024.html",
       "source": "https://data.woonzorglimburg.nl/pmtiles/geschiktheid_lb_2024.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -3106,6 +3109,7 @@
     {
       "id": "aandeel_ongeschikt_2024",
       "name": "Aandeel ongeschikt 2024",
+      "meta": "/data/meta/aandeel_ongeschikt_2024.html",
       "source": "https://data.woonzorglimburg.nl/pmtiles/geschiktheid_lb_2024.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -3242,6 +3246,7 @@
     {
       "id": "aandeel_aanpasbaar_2024",
       "name": "Aandeel aanpasbaar 2024",
+      "meta": "/data/meta/aandeel_aanpasbaar_2024.html",
       "source": "https://data.woonzorglimburg.nl/pmtiles/geschiktheid_lb_2024.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -6725,6 +6730,7 @@
     {
       "id": "aandeel_j0_17",
       "name": "Aandeel 0-17 jaar",
+      "meta": "/data/meta/aandeel_j0_17.html",
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",

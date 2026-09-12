@@ -1,0 +1,85 @@
+<!-- Fragment rendered into the app's metainfo dialog. See README.md for why it
+     carries no page furniture. Keep this comment short: it ships to the browser. -->
+<div class="dro-meta">
+
+  <div class="mb-5 rounded-2xl border border-gray-200 p-4 bg-white">
+    <!-- h2, not h1: the dialog's own header already titles the window. -->
+    <h2 class="text-base font-semibold text-gray-900 mb-2">{{ TITEL }}</h2>
+    <div class="flex items-center gap-2 text-xs">
+      <span class="font-semibold text-gray-500 uppercase tracking-wide">
+        Thema / Subthema:
+      </span>
+      <span class="inline-flex items-center rounded-md bg-gray-100 px-2 py-0.5 font-medium text-gray-700 border border-gray-200">
+        {{ THEMA_SUBTHEMA }}
+      </span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4">
+
+    {% if WAT_ZIET_U %}
+    <section class="rounded-2xl border border-gray-200 p-4">
+      <h3 class="mb-2 flex items-center gap-2">
+        <span aria-hidden="true" class="material-symbols-outlined leading-none select-none"
+              style="font-size: 20px; color: var(--primary-color);">map</span>
+        <span class="text-base font-semibold" style="color: var(--primary-color);">
+          Wat ziet u?
+        </span>
+      </h3>
+      <div class="leading-relaxed text-gray-600">
+        {{ WAT_ZIET_U }}
+      </div>
+    </section>
+    {% endif %}
+
+    {% if KAARTLAAGTYPE_CONTENT %}
+    <section class="rounded-2xl border border-gray-200 p-4">
+      <h3 class="mb-3 flex items-center gap-2">
+        <span aria-hidden="true" class="material-symbols-outlined leading-none select-none"
+              style="font-size: 20px; color: var(--primary-color);">settings</span>
+        <span class="text-base font-semibold" style="color: var(--primary-color);">
+          Berekenwijze
+        </span>
+      </h3>
+      <div class="leading-relaxed text-gray-600">
+        {{ KAARTLAAGTYPE_CONTENT }}
+      </div>
+    </section>
+    {% endif %}
+
+    {% if AANNAMES_EN_ONZEKERHEDEN %}
+    <section class="rounded-2xl border border-gray-200 p-4">
+      <h3 class="mb-2 flex items-center gap-2">
+        <span aria-hidden="true" class="material-symbols-outlined leading-none select-none"
+              style="font-size: 20px; color: var(--primary-color);">help</span>
+        <span class="text-base font-semibold" style="color: var(--primary-color);">
+          Aannames en Onzekerheden
+        </span>
+      </h3>
+      <div class="leading-relaxed text-gray-600">
+        {{ AANNAMES_EN_ONZEKERHEDEN }}
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- The preview hides this behind a tab; here it is simply the last
+         section, because nothing can click a tab open. -->
+    <section class="rounded-2xl border border-gray-200 p-4">
+      <div class="mb-4 border-b border-gray-200 pb-3">
+        <h3 class="flex items-center gap-2">
+          <span aria-hidden="true" class="material-symbols-outlined leading-none select-none"
+                style="font-size: 20px; color: var(--primary-color);">database</span>
+          <span class="text-base font-semibold" style="color: var(--primary-color);">
+            Databronnen
+          </span>
+        </h3>
+      </div>
+      <table class="w-full border-collapse text-left">
+        <tbody>
+          {{ BRONNEN }}
+        </tbody>
+      </table>
+    </section>
+
+  </div>
+</div>
