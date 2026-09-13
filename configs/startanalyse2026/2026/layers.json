@@ -3809,9 +3809,9 @@
     {
       "id": "314",
       "name": "Pand energielabel totaal (BG) ",
-      "source": "/sa-tiles/tiles/layers/pand/{z}/{x}/{y}.pbf",
-      "format": "mvt",
-      "sourceLayer": "pand",
+      "source": "https://data.startanalyse2026.nl/pmtiles/basis/energielabel.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "energielabel",
       "geometryType": "polygon",
       "style": {
         "opacity": 1
@@ -15404,9 +15404,9 @@
       "id": "224",
       "name": "Pand bouwjaar (BG) ",
       "subname": "1 1.4.2 Bouwjaar",
-      "source": "/sa-tiles/tiles/layers/pand/{z}/{x}/{y}.pbf",
-      "format": "mvt",
-      "sourceLayer": "pand",
+      "source": "https://data.startanalyse2026.nl/pmtiles/basis/bouwjaar.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "bouwjaar",
       "geometryType": "polygon",
       "style": {
         "opacity": 1
@@ -15554,9 +15554,9 @@
     {
       "id": "316",
       "name": "Pand energielabel utiliteit (BG) ",
-      "source": "/sa-tiles/tiles/layers/pand/{z}/{x}/{y}.pbf",
-      "format": "mvt",
-      "sourceLayer": "pand",
+      "source": "https://data.startanalyse2026.nl/pmtiles/basis/energielabel.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "energielabel",
       "geometryType": "polygon",
       "style": {
         "opacity": 1
@@ -15770,9 +15770,9 @@
     {
       "id": "317",
       "name": "Pand energielabel wonen (BG) ",
-      "source": "/sa-tiles/tiles/layers/pand/{z}/{x}/{y}.pbf",
-      "format": "mvt",
-      "sourceLayer": "pand",
+      "source": "https://data.startanalyse2026.nl/pmtiles/basis/energielabel.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "energielabel",
       "geometryType": "polygon",
       "style": {
         "opacity": 1
@@ -15986,9 +15986,9 @@
     {
       "id": "315",
       "name": "Pand dominant gebruiksdoel (BG) ",
-      "source": "/sa-tiles/tiles/layers/pand/{z}/{x}/{y}.pbf",
-      "format": "mvt",
-      "sourceLayer": "pand",
+      "source": "https://data.startanalyse2026.nl/pmtiles/basis/gebruiksdoelen.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "gebruiksdoelen",
       "geometryType": "polygon",
       "style": {
         "opacity": 1
