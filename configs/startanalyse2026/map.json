@@ -42,7 +42,8 @@
   "chromeIconColor": "#3E74A7",
   "navIconSize": 32,
   "share": true,
-  "showGuideOnFirstVisit": true,
+  "showHelpOnFirstVisit": true,
+  "contextPage": "https://data.startanalyse2026.nl/meta/context.html",
   "showVerschilkaartOnFirstUse": true,
   "annotations": false,
   "clickMarker": {

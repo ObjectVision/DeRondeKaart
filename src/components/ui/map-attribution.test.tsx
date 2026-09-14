@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { cleanup, render } from "@solidjs/testing-library";
 import { createSignal } from "solid-js";
 
@@ -385,5 +385,84 @@ describe("MapAttribution first-visit guide", () => {
 
     expect(dialog()).toBeNull();
     expect(localStorage.getItem(GUIDE_SEEN_KEY)).toBe("1");
+  });
+
+  /**
+   * The Context tab is the one piece of this window that is per-project: it
+   * exists only where `map.json` names a page to put in it. Both halves matter
+   * — that configuring it leads with the subject, and that NOT configuring it
+   * leaves every other project's window exactly as it was.
+   */
+  describe("Context tab", () => {
+    const PAGE = "https://data.example.org/meta/context.html";
+    const labels = () =>
+      [...document.querySelectorAll<HTMLButtonElement>('[role="tab"]')].map((b) =>
+        b.textContent?.trim(),
+      );
+
+    /** Resolve the pending fetch and let the effect's `.then` chain settle. */
+    const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    let calls: string[];
+
+    beforeEach(() => {
+      calls = [];
+      // Each test gets its own URL: the component caches fragments module-wide
+      // by URL, which would otherwise leak a resolved page into the next test.
+      vi.stubGlobal("fetch", (url: string) => {
+        calls.push(url);
+        return url.includes("missing")
+          ? Promise.resolve({ ok: false, statusText: "Not Found" })
+          : Promise.resolve({ ok: true, text: () => Promise.resolve("<p>Waarom deze kaart</p>") });
+      });
+    });
+
+    afterEach(() => vi.unstubAllGlobals());
+
+    it("is absent, and Handleiding leads, when no page is configured", () => {
+      render(() => <MapAttribution autoOpen />);
+
+      expect(labels()).toEqual(["Handleiding", "Verschilkaart", "Attributie"]);
+      expect(calls).toEqual([]);
+    });
+
+    it("leads the tab bar and opens first when a page is configured", async () => {
+      render(() => <MapAttribution autoOpen contextPage={`${PAGE}?lead`} />);
+
+      expect(labels()).toEqual(["Context", "Handleiding", "Verschilkaart", "Attributie"]);
+      expect(tab("Context").getAttribute("aria-selected")).toBe("true");
+
+      await settle();
+      expect(dialog()?.innerHTML).toContain("Waarom deze kaart");
+    });
+
+    /**
+     * Injected HTML resolves relative URLs against the document that receives
+     * it, not the URL it came from — so an `<img src="figuur.png">` in a
+     * fragment hosted on the data server is fetched from the *app's* origin and
+     * 404s. It fails silently: the text renders, only the image is missing.
+     */
+    it("leaves the fragment's absolute asset URLs pointing at their own host", async () => {
+      const asset = "https://data.example.org/meta/figuur.png";
+      vi.stubGlobal("fetch", () =>
+        Promise.resolve({ ok: true, text: () => Promise.resolve(`<img src="${asset}">`) }),
+      );
+
+      render(() => <MapAttribution autoOpen contextPage={`${PAGE}?asset`} />);
+      await settle();
+
+      const img = document.querySelector<HTMLImageElement>('[role="dialog"] img');
+      expect(img?.src).toBe(asset);
+    });
+
+    it("says so, rather than breaking, when the page cannot be fetched", async () => {
+      render(() => <MapAttribution autoOpen contextPage={`${PAGE}?missing`} />);
+      await settle();
+
+      expect(dialog()?.textContent).toContain("Geen informatie beschikbaar");
+      // Still usable: the other tabs are unaffected by the failure.
+      tab("Handleiding").click();
+      expect(tab("Handleiding").getAttribute("aria-selected")).toBe("true");
+    });
   });
 });

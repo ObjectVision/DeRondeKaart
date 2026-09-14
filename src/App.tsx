@@ -130,7 +130,9 @@ interface AppProps {
   chartsPanelEnabled?: boolean;
   shareEnabled?: boolean;
   /** Open the "Over de applicatie" guide on this browser's first visit. */
-  showGuideOnFirstVisit?: boolean;
+  showHelpOnFirstVisit?: boolean;
+  /** URL of the Context tab's HTML fragment; no URL, no tab. */
+  contextPage?: string;
   /** Open the guide's Verschilkaart tab the first time comparison mode starts. */
   showVerschilkaartOnFirstUse?: boolean;
   filterFlyToEnabled?: boolean;
@@ -153,7 +155,7 @@ function App(rawProps: AppProps): JSX.Element {
       navigationSectionEnabled: true,
       chartsPanelEnabled: true,
       shareEnabled: true,
-      showGuideOnFirstVisit: false,
+      showHelpOnFirstVisit: false,
       showVerschilkaartOnFirstUse: false,
       filterFlyToEnabled: true,
       combinationsEnabled: false,
@@ -1019,7 +1021,8 @@ function App(rawProps: AppProps): JSX.Element {
               <ShareButton />
             </Show>
             <MapAttribution
-              autoOpen={props.showGuideOnFirstVisit}
+              autoOpen={props.showHelpOnFirstVisit}
+              contextPage={props.contextPage}
               showVerschilkaartOnFirstUse={props.showVerschilkaartOnFirstUse}
               comparisonActive={comparisonMode()}
             />
@@ -1201,7 +1204,8 @@ function App(rawProps: AppProps): JSX.Element {
                   {/* Outside the shareEnabled guard: map information must stay
                       reachable in a project that turns sharing off. */}
                   <MapAttribution
-                    autoOpen={props.showGuideOnFirstVisit}
+                    autoOpen={props.showHelpOnFirstVisit}
+                    contextPage={props.contextPage}
                     showVerschilkaartOnFirstUse={props.showVerschilkaartOnFirstUse}
                     comparisonActive={comparisonMode()}
                   />

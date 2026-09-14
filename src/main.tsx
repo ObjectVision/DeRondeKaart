@@ -55,7 +55,8 @@ async function bootstrap() {
         navigationSectionEnabled={mapConfig.navigationSection}
         chartsPanelEnabled={mapConfig.chartsPanel}
         shareEnabled={mapConfig.share}
-        showGuideOnFirstVisit={mapConfig.showGuideOnFirstVisit}
+        showHelpOnFirstVisit={mapConfig.showHelpOnFirstVisit}
+        contextPage={mapConfig.contextPage}
         showVerschilkaartOnFirstUse={mapConfig.showVerschilkaartOnFirstUse}
         filterFlyToEnabled={mapConfig.filterFlyTo}
         combinationsEnabled={mapConfig.combinations}

@@ -4,6 +4,7 @@ import {
   Show,
   Switch,
   createEffect,
+  createMemo,
   createSignal,
   onCleanup,
   untrack,
@@ -206,19 +207,37 @@ function GuideSection(props: {
   );
 }
 
-/** The dialog's tabs, left to right. "Handleiding" is the one it opens on. */
+/**
+ * The dialog's tabs, left to right.
+ *
+ * "Context" is conditional — it appears only for projects whose `map.json` sets
+ * `contextPage`, and then it leads, because it answers "what is this map about"
+ * before Handleiding answers "how do I drive it". So the rendered list is built
+ * per instance (see `tabs` below) rather than being this constant.
+ */
+const CONTEXT_TAB = { id: "context", label: "Context" } as const;
+
 const TABS = [
   { id: "handleiding", label: "Handleiding" },
   { id: "verschilkaart", label: "Verschilkaart" },
   { id: "attributie", label: "Attributie" },
 ] as const;
 
-type TabId = (typeof TABS)[number]["id"];
+type TabId = (typeof TABS)[number]["id"] | (typeof CONTEXT_TAB)["id"];
+
+/**
+ * Fragments already fetched, keyed by URL. `null` marks a failed fetch, so a
+ * 404 is not retried every time the window reopens.
+ *
+ * Module-level, like `LeafMeta`'s equivalent: App renders two MapAttribution
+ * instances, and the page should not be fetched twice.
+ */
+const contextCache = new Map<string, string | null>();
 
 interface MapAttributionProps {
   /**
    * Open the window by itself on this browser's first visit — `map.json`'s
-   * `showGuideOnFirstVisit`. Ignored once the guide has been seen.
+   * `showHelpOnFirstVisit`. Ignored once the guide has been seen.
    */
   autoOpen?: boolean;
   /**
@@ -228,6 +247,12 @@ interface MapAttributionProps {
   showVerschilkaartOnFirstUse?: boolean;
   /** Whether comparison mode is currently on (both maps under a divider). */
   comparisonActive?: boolean;
+  /**
+   * URL of an HTML fragment introducing the subject — `map.json`'s
+   * `contextPage`. Set, it adds a leading **Context** tab and the window opens
+   * there; unset, there is no such tab and the window opens on Handleiding.
+   */
+  contextPage?: string;
 }
 
 export function MapAttribution(props: MapAttributionProps): JSX.Element {
@@ -245,7 +270,56 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
       return true;
     }),
   );
-  const [tab, setTab] = createSignal<TabId>("handleiding");
+  /** The tabs this instance shows, Context first when one is configured. */
+  const tabs = createMemo(() => (props.contextPage ? [CONTEXT_TAB, ...TABS] : TABS));
+  // Which tab the window starts on. A mount-time decision like `open` above,
+  // hence `untrack`: were it tracked, a later `contextPage` change would yank
+  // the tab out from under someone already reading another one.
+  const [tab, setTab] = createSignal<TabId>(
+    untrack(() => (props.contextPage ? "context" : "handleiding")),
+  );
+
+  // The context fragment, fetched once per URL and cached module-wide.
+  const [contextFetchedAt, setContextFetchedAt] = createSignal(0);
+  createEffect(() => {
+    // Read every reactive input BEFORE any early return: an effect subscribes
+    // only to what its last run actually read, so bailing out first would leave
+    // this one subscribed to nothing and never re-run.
+    const url = props.contextPage;
+    if (!url || contextCache.has(url)) return;
+
+    let alive = true;
+    fetch(url)
+      .then((res) => (res.ok ? res.text() : Promise.reject(new Error(res.statusText))))
+      .then((text) => {
+        contextCache.set(url, text);
+      })
+      .catch((err: unknown) => {
+        console.warn(`Failed to load contextPage "${url}":`, err);
+        contextCache.set(url, null);
+      })
+      .then(() => {
+        if (alive) setContextFetchedAt((n) => n + 1);
+      });
+
+    onCleanup(() => {
+      alive = false;
+    });
+  });
+
+  /** True while the fragment is in flight. */
+  const contextPending = createMemo(() => {
+    contextFetchedAt(); // re-evaluate once the fetch settles
+    const url = props.contextPage;
+    return Boolean(url && !contextCache.has(url));
+  });
+
+  /** The fragment, or null when it failed or is not yet here. */
+  const contextHtml = createMemo(() => {
+    contextFetchedAt();
+    const url = props.contextPage;
+    return url ? (contextCache.get(url) ?? null) : null;
+  });
   // Bumped on click to replay the (play-once) animation. The counter becomes a
   // cache-busting query param: re-assigning the SAME url does not restart a
   // finished GIF, since the browser reuses the decoded image in its final
@@ -398,7 +472,7 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
               rule run the full width of the window instead of stopping at the
               dialog's own padding. */}
           <div class="-mx-6 mb-5 flex gap-0 border-b border-gray-200 px-6">
-            <For each={TABS}>
+            <For each={tabs()}>
               {(t) => {
                 const isActive = () => t.id === tab();
                 return (
@@ -433,6 +507,30 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
           </div>
 
           <Switch>
+            <Match when={tab() === "context"}>
+              {/* Publisher-authored HTML, injected as-is — the same treatment a
+                  layer's meta fragments get, and the same reasoning: this is
+                  editorial copy that changes on its own schedule, hosted with
+                  the data rather than built into the app. `innerHTML` never
+                  executes <script>. */}
+              <Show
+                when={!contextPending()}
+                fallback={<span class="text-gray-400">Laden…</span>}
+              >
+                <Show when={contextHtml()} fallback={<>Geen informatie beschikbaar</>}>
+                  {(html) => (
+                    <div
+                      // `prose` must accompany `prose-sm`, which is only a size
+                      // modifier; `max-w-none` drops prose's 65ch cap so the
+                      // text fills the window.
+                      class="prose prose-sm max-w-none"
+                      // eslint-disable-next-line solid/no-innerhtml
+                      innerHTML={html()}
+                    />
+                  )}
+                </Show>
+              </Show>
+            </Match>
             <Match when={tab() === "handleiding"}>
               {/* Two-up on wide screens, stacked below; section 3 spans both
                   columns since its own items sit two-up inside it. */}

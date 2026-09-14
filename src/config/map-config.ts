@@ -231,15 +231,36 @@ export interface MapConfig {
    * found the guide unaided has still read it.
    *
    * Worth enabling for projects whose audience arrives once from a link and has
-   * no reason to hunt for the help button.
+   * no reason to hunt for the help button. Such an audience usually needs the
+   * subject explained before the controls are: with {@link contextPage} set the
+   * window opens on Context rather than Handleiding.
    */
-  showGuideOnFirstVisit: boolean;
+  showHelpOnFirstVisit: boolean;
+  /**
+   * URL of an HTML page introducing the subject — what this map is about and
+   * why it exists — shown as a **Context** tab in the "Over de applicatie"
+   * window, left of Handleiding. Omit it and no such tab appears.
+   *
+   * The page is fetched at runtime and injected as-is, so it must be a
+   * *fragment* (no `<html>`/`<body>` wrapper), served with CORS open to this
+   * origin.
+   *
+   * Every URL inside it — images above all — must be **absolute**. Injected
+   * HTML resolves relative URLs against the document that receives it, not the
+   * URL it was fetched from, so `src="figuur.png"` in a fragment hosted on a
+   * data server is requested from the *app's* origin and 404s.
+   *
+   * Same treatment as a layer's `meta` fragments, and the same reasoning: the
+   * text is editorial content that changes on its own schedule, so it lives
+   * with the data rather than in a build.
+   */
+  contextPage?: string;
   /**
    * Whether the guide opens on its **Verschilkaart** tab the first time
    * comparison mode turns on. Defaults to `false`.
    *
    * Remembered permanently per browser, and separately from
-   * {@link showGuideOnFirstVisit}: the two answer different questions ("has
+   * {@link showHelpOnFirstVisit}: the two answer different questions ("has
    * this person seen the app" vs "has this person used the comparison
    * slider"), and sharing one flag would mean a project that greets visitors on
    * load could never also explain the slider.
@@ -463,7 +484,7 @@ const DEFAULT_MAP_CONFIG: MapConfig = {
   navigationSection: true,
   chartsPanel: true,
   share: true,
-  showGuideOnFirstVisit: false,
+  showHelpOnFirstVisit: false,
   showVerschilkaartOnFirstUse: false,
   textToTool: false,
   speechToText: false,
@@ -862,6 +883,13 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     console.warn(`map.json: invalid "pickLayer" ${JSON.stringify(data.pickLayer)}; ignoring`);
   }
 
+  let contextPage: string | undefined;
+  if (typeof data.contextPage === "string" && data.contextPage.length > 0) {
+    contextPage = data.contextPage;
+  } else if (data.contextPage !== undefined) {
+    console.warn(`map.json: invalid "contextPage" ${JSON.stringify(data.contextPage)}; ignoring`);
+  }
+
   let pickLayerRight: string | undefined;
   if (typeof data.pickLayerRight === "string" && data.pickLayerRight.length > 0) {
     pickLayerRight = data.pickLayerRight;
@@ -890,10 +918,10 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
   );
   const chartsPanel = validateBool(data.chartsPanel, "chartsPanel", DEFAULT_MAP_CONFIG.chartsPanel);
   const share = validateBool(data.share, "share", DEFAULT_MAP_CONFIG.share);
-  const showGuideOnFirstVisit = validateBool(
-    data.showGuideOnFirstVisit,
-    "showGuideOnFirstVisit",
-    DEFAULT_MAP_CONFIG.showGuideOnFirstVisit,
+  const showHelpOnFirstVisit = validateBool(
+    data.showHelpOnFirstVisit,
+    "showHelpOnFirstVisit",
+    DEFAULT_MAP_CONFIG.showHelpOnFirstVisit,
   );
   const showVerschilkaartOnFirstUse = validateBool(
     data.showVerschilkaartOnFirstUse,
@@ -1014,7 +1042,8 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     navigationSection,
     chartsPanel,
     share,
-    showGuideOnFirstVisit,
+    showHelpOnFirstVisit,
+    contextPage,
     showVerschilkaartOnFirstUse,
     textToTool: textToToolUsable,
     speechToText: speechUsable,
