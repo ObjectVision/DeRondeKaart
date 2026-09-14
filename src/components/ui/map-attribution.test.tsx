@@ -451,7 +451,8 @@ describe("MapAttribution first-visit guide", () => {
       render(() => <MapAttribution autoOpen contextPage={`${PAGE}?asset`} />);
       await settle();
 
-      const img = document.querySelector<HTMLImageElement>('[role="dialog"] img');
+      // Scoped to the injected fragment: the dialog's own chrome has images too.
+      const img = document.querySelector<HTMLImageElement>('[role="dialog"] .prose img');
       expect(img?.src).toBe(asset);
     });
 
