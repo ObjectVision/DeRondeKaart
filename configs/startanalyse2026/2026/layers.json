@@ -66885,7 +66885,7 @@
     },
     {
       "id": "buurt_klik",
-      "name": "Buurten ",
+      "name": "Samenvattende pagina",
       "source": "https://data.startanalyse2026.nl/pmtiles/2026/stratLN.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -67078,6 +67078,10 @@
             ]
           }
         ]
+      },
+      "beforeid": "foreground-layers",
+      "featureinfo": {
+        "template": "<div><b>[[ bron_naam ]]</b><table><tr><td>Bron type</td><td>[[ bron_type ]]</td></tr><tr><td>MWcapaciteit</td><td>[[ mwcapaciteit ]]</td></tr></table></div>"
       }
     },
     {
@@ -67357,6 +67361,10 @@
             ]
           }
         ]
+      },
+      "beforeid": "foreground-layers",
+      "featureinfo": {
+        "template": "<div><b>[[ bron_naam ]]</b><table><tr><td>Bron type</td><td>[[ bron_type ]]</td></tr><tr><td>MWcapaciteit</td><td>[[ mwcapaciteit ]]</td></tr></table></div>"
       }
     },
     {
