@@ -16219,7 +16219,7 @@
     {
       "id": "263",
       "name": "Geothermie contour (BG)",
-      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/geothermie.pmtiles",
+      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/geothermie.pmtiles?v=20260915",
       "format": "pmtiles",
       "sourceLayer": "geothermie",
       "geometryType": "polygon",
@@ -21878,7 +21878,7 @@
       "id": "266",
       "name": "Warmte-koude opslag (BG)",
       "subname": "WKO",
-      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/WKO.pmtiles",
+      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/WKO.pmtiles?v=20260915-2",
       "format": "pmtiles",
       "sourceLayer": "WKO",
       "geometryType": "polygon",
