@@ -143268,6 +143268,105 @@
       "featureinfo": {
         "pbl": true
       }
+    },
+    {
+      "id": "467",
+      "name": "Warmtelinq (BG)",
+      "subname": "Tracé warmtetransportleiding",
+      "source": "https://maptiles.projectatlas.app/client/gas/warmtelinq/custom/warmtelinq-projecten/{z}/{x}/{y}.mvt",
+      "format": "mvt",
+      "sourceLayer": "studieprojecten_deeltraces",
+      "geometryType": "line",
+      "style": {
+        "opacity": 1
+      },
+      "geostyler": {
+        "name": "Warmtelinq",
+        "rules": [
+          {
+            "name": "Uitvoeringsfase",
+            "filter": [
+              "||",
+              [
+                "==",
+                "Name",
+                "Rijswijk - Leiden"
+              ],
+              [
+                "==",
+                "Name",
+                "Vlaardingen - Den Haag"
+              ],
+              [
+                "==",
+                "Name",
+                "Vondelingenplaat - Vlaardingen"
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Line",
+                "color": "#F5C400",
+                "width": 4,
+                "opacity": 1
+              }
+            ]
+          },
+          {
+            "name": "Planfase",
+            "filter": [
+              "==",
+              "Name",
+              "__planfase__"
+            ],
+            "symbolizers": [
+              {
+                "kind": "Line",
+                "color": "#1BA1E2",
+                "width": 4,
+                "opacity": 1
+              }
+            ]
+          },
+          {
+            "name": "Studiefase",
+            "filter": [
+              "||",
+              [
+                "==",
+                "Name",
+                "Westland"
+              ],
+              [
+                "==",
+                "Name",
+                "Oostland"
+              ],
+              [
+                "==",
+                "Name",
+                "Botlek - Vondelingenplaat"
+              ],
+              [
+                "==",
+                "Name",
+                "Pernis - Vondelingenplaat"
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Line",
+                "color": "#7A7A7A",
+                "width": 4,
+                "opacity": 1
+              }
+            ]
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>Warmtelinq</b><br/>[[ Name ]]</div>"
+      }
     }
   ]
 }

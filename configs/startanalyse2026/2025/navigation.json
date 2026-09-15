@@ -916,6 +916,12 @@
             "label": "Warmte-koude opslag (BG)",
             "a": false,
             "b": false
+          },
+          {
+            "id": "467",
+            "label": "Warmtelinq (BG)",
+            "a": false,
+            "b": false
           }
         ]
       },
@@ -1095,6 +1101,12 @@
           {
             "id": "266",
             "label": "Warmte-koude opslag (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "467",
+            "label": "Warmtelinq (BG)",
             "a": false,
             "b": false
           }
@@ -1325,6 +1337,12 @@
           {
             "id": "266",
             "label": "Warmte-koude opslag (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "467",
+            "label": "Warmtelinq (BG)",
             "a": false,
             "b": false
           },

@@ -306,7 +306,7 @@ worker-src 'self' blob:; \
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://infographics.pbl.nl; \
 font-src 'self' data: https://fonts.gstatic.com https://data.pbl.nl; \
 img-src 'self' data: blob: https: ; \
-connect-src 'self' blob: https://tiles.openfreemap.org https://data.woonzorglimburg.nl https://data.startanalyse2026.nl https://service.pdok.nl https://api.pdok.nl https://nominatim.openstreetmap.org https://tiles.mapgallery.io https://startanalyse2025.files.mapgallery.io https://tiles.basemaps.cartocdn.com https://*.basemaps.cartocdn.com https://maps.googleapis.com https://infographics.pbl.nl; \
+connect-src 'self' blob: https://tiles.openfreemap.org https://data.woonzorglimburg.nl https://data.startanalyse2026.nl https://service.pdok.nl https://api.pdok.nl https://nominatim.openstreetmap.org https://tiles.mapgallery.io https://startanalyse2025.files.mapgallery.io https://tiles.basemaps.cartocdn.com https://*.basemaps.cartocdn.com https://maps.googleapis.com https://infographics.pbl.nl https://maptiles.projectatlas.app; \
 frame-src 'self' https://www.google.com https://maps.googleapis.com https://infographics.pbl.nl; \
 object-src 'none'; base-uri 'self' https://infographics.pbl.nl; form-action 'self'"
 
