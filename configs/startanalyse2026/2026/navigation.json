@@ -9,6 +9,12 @@
         "expanded": false,
         "children": [
           {
+            "id": "357",
+            "label": "Laagste nationale kosten <20% kostenverschil (LN)",
+            "a": false,
+            "b": false
+          },
+          {
             "id": "207",
             "label": "Strategie met laagste nationale kosten (LN)",
             "a": false,
@@ -35,12 +41,6 @@
           {
             "id": "300",
             "label": "Nationale meerkosten (LN H16)",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "357",
-            "label": "Laagste nationale kosten <20% kostenverschil (LN)",
             "a": false,
             "b": false
           },
