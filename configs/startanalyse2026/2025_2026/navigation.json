@@ -57,6 +57,22 @@
             "right": "300_2026"
           },
           {
+            "id": "374",
+            "label": "Laagste nationale kosten <10% kostenverschil (LN)",
+            "a": false,
+            "b": false,
+            "left": "374",
+            "right": "374_2026"
+          },
+          {
+            "id": "375",
+            "label": "Laagste nationale kosten <30% kostenverschil (LN)",
+            "a": false,
+            "b": false,
+            "left": "375",
+            "right": "375_2026"
+          },
+          {
             "id": "394",
             "label": "Laagste nationale kosten zonder KN gas (LNGA08)",
             "a": false,
