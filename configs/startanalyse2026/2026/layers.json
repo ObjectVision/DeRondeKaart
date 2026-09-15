@@ -13849,8 +13849,8 @@
       "id": "267",
       "name": "Aquathermie contour (BG) ",
       "subname": "Thermische Energie uit Oppervlaktewater",
-      "source": "/sa-tiles/tiles/layers/TEO/{z}/{x}/{y}.pbf",
-      "format": "mvt",
+      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/TEO.pmtiles",
+      "format": "pmtiles",
       "sourceLayer": "TEO",
       "geometryType": "polygon",
       "style": {
@@ -13878,8 +13878,8 @@
     {
       "id": "263",
       "name": "Geothermie contour (BG) ",
-      "source": "/sa-tiles/tiles/layers/geothermie/{z}/{x}/{y}.pbf",
-      "format": "mvt",
+      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/geothermie.pmtiles",
+      "format": "pmtiles",
       "sourceLayer": "geothermie",
       "geometryType": "polygon",
       "style": {
@@ -19537,8 +19537,8 @@
       "id": "266",
       "name": "Warmte-koude opslag (BG) ",
       "subname": "WKO",
-      "source": "/sa-tiles/tiles/layers/WKO/{z}/{x}/{y}.pbf",
-      "format": "mvt",
+      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/WKO.pmtiles",
+      "format": "pmtiles",
       "sourceLayer": "WKO",
       "geometryType": "polygon",
       "style": {

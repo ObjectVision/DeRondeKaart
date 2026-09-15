@@ -1091,6 +1091,12 @@
             "label": "Geothermie contour (BG)",
             "a": false,
             "b": false
+          },
+          {
+            "id": "266",
+            "label": "Warmte-koude opslag (BG)",
+            "a": false,
+            "b": false
           }
         ]
       },
@@ -1313,6 +1319,12 @@
           {
             "id": "263",
             "label": "Geothermie contour (BG)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "266",
+            "label": "Warmte-koude opslag (BG)",
             "a": false,
             "b": false
           },
