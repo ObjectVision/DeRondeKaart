@@ -37,7 +37,20 @@ own namespace:
 /usr/local/bin/deploy-<slug>.sh     deploy script          (landing + map)
 /var/log/<slug>-deploy.log          deploy log             (landing + map)
 hook id "deploy-<slug>"             entry in /etc/webhook/hooks.json (landing + map)
+/etc/nginx/.htpasswd-<slug>         basic-auth users       (map, --auth-user only)
 ```
+
+The map app runs as **two instances** for this project, differing only in which
+config overlay they build:
+
+| slug | host | overlay | access |
+|---|---|---|---|
+| `woonzorglimburg_map` | `map.woonzorglimburg.nl` | `configs/woonzorglimburg/` | public |
+| `woonzorglimburg_map_dev` | `map.dev.woonzorglimburg.nl` | `configs/woonzorglimburg_dev/` | HTTP basic auth |
+
+Both track `main` and rebuild on the same push, each via its own webhook. The
+deploy-coalescing `flock`s are per-slug, so the two builds run concurrently — the
+first thing to look at if the VM struggles during a deploy.
 
 Shared infrastructure is installed once and reused by every instance:
 
@@ -134,6 +147,7 @@ www.kanskaartthuisgeven.nl.   AAAA  <server IPv6>
 woonzorglimburg.nl.           AAAA  <server IPv6>
 www.woonzorglimburg.nl.       AAAA  <server IPv6>
 map.woonzorglimburg.nl.       AAAA  <server IPv6>
+map.dev.woonzorglimburg.nl.   AAAA  <server IPv6>
 dev.woonzorglimburg.nl.       AAAA  <server IPv6>
 data.woonzorglimburg.nl.      AAAA  <server IPv6>
 ```

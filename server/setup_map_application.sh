@@ -41,6 +41,10 @@ $(print_kv "--frame-ancestors V" "CSP frame-ancestors value; blank = embeddable 
 $(print_kv "--csp-enforce"      "enforce the CSP (default: report-only — validate the console first)")
 $(print_kv "--csp-report-only"  "ship CSP as Report-Only (default)")
 $(print_kv "--collab-port N"    "proxy /collab to a collab server on 127.0.0.1:N; blank = off (default: blank)")
+$(print_kv "--auth-user NAME"   "HTTP basic-auth user; blank = public, no auth (default: blank)")
+$(print_kv "--auth-password PW" "basic-auth password (default: generated)")
+$(print_kv "--auth-realm TEXT"  "basic-auth browser prompt (default: <slug> (restricted))")
+$(print_kv "--noindex"          "send X-Robots-Tag: noindex, nofollow (default: off)")
 $(print_kv "--secret HEX"       "GitHub webhook HMAC secret (default: generated)")
 $(print_kv "--email ADDR"       "email for Let's Encrypt registration")
 $(print_kv "--no-tls"           "skip certbot; serve plain HTTP only")
@@ -54,6 +58,9 @@ SLUG=""; HOST=""; REPO=""; BRANCH=""; NODE_VERSION=""; FRAME_ANCESTORS=""
 CSP_REPORT_ONLY=1
 SECRET=""; EMAIL=""; NO_TLS=0; FRAME_SET=0; COLLAB_PORT=""; COLLAB_SET=0
 CONFIG_PROJECT=""; CONFIG_PROJECT_SET=0
+# Basic auth is off unless --auth-user names a user. A dev/staging instance sets
+# it; the public instance leaves it blank and its vhost is unchanged.
+AUTH_USER=""; AUTH_USER_SET=0; AUTH_PASSWORD=""; AUTH_REALM=""; NOINDEX=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -75,6 +82,13 @@ while [ $# -gt 0 ]; do
     --csp-report-only)  CSP_REPORT_ONLY=1; shift ;;
     --collab-port)      COLLAB_PORT="$2"; COLLAB_SET=1; shift 2 ;;
     --collab-port=*)    COLLAB_PORT="${1#*=}"; COLLAB_SET=1; shift ;;
+    --auth-user)        AUTH_USER="$2"; AUTH_USER_SET=1; shift 2 ;;
+    --auth-user=*)      AUTH_USER="${1#*=}"; AUTH_USER_SET=1; shift ;;
+    --auth-password)    AUTH_PASSWORD="$2"; shift 2 ;;
+    --auth-password=*)  AUTH_PASSWORD="${1#*=}"; shift ;;
+    --auth-realm)       AUTH_REALM="$2"; shift 2 ;;
+    --auth-realm=*)     AUTH_REALM="${1#*=}"; shift ;;
+    --noindex)          NOINDEX=1; shift ;;
     --secret)           SECRET="$2"; shift 2 ;;
     --secret=*)         SECRET="${1#*=}"; shift ;;
     --email)            EMAIL="$2"; shift 2 ;;
@@ -116,6 +130,18 @@ fi
 if [ -n "$COLLAB_PORT" ]; then
   [[ "$COLLAB_PORT" =~ ^[0-9]+$ ]] || die "Invalid --collab-port '$COLLAB_PORT'."
 fi
+# auth-user: blank means a public site with no auth_basic at all. Same blank-default
+# prompt pattern as CONFIG_PROJECT/FRAME_ANCESTORS above (" " then strip the space).
+if [ "$AUTH_USER_SET" != "1" ] && [ "$ASSUME_YES" != "1" ]; then
+  ask AUTH_USER "HTTP basic-auth user (blank = public, no auth)" " "
+  AUTH_USER="${AUTH_USER# }"
+fi
+if [ -n "$AUTH_USER" ]; then
+  # Generated rather than prompted-with-a-default so a password is never echoed
+  # back as a visible default; it is printed once in the summary at the end.
+  [ -n "$AUTH_PASSWORD" ] || AUTH_PASSWORD="$(openssl rand -base64 18)"
+  [ -n "$AUTH_REALM" ] || AUTH_REALM="$SLUG (restricted)"
+fi
 ask_secret SECRET "GitHub webhook secret (HMAC)"
 if [ "$NO_TLS" != "1" ]; then
   ask EMAIL "Email for Let's Encrypt" ""
@@ -139,6 +165,8 @@ info "deploy script   : $DEPLOY_SCRIPT"
 info "webhook hook id : $HOOK_ID  ->  https://$HOST/hooks/$HOOK_ID"
 info "frame-ancestors : ${FRAME_ANCESTORS:-(none — embeddable anywhere)}"
 info "collab proxy    : $([ -n "$COLLAB_PORT" ] && echo "/collab -> 127.0.0.1:$COLLAB_PORT" || echo "(off)")"
+info "basic auth      : $([ -n "$AUTH_USER" ] && echo "user '$AUTH_USER', realm \"$AUTH_REALM\"" || echo "(off — public)")"
+info "noindex         : $([ "$NOINDEX" = 1 ] && echo "X-Robots-Tag: noindex, nofollow" || echo "(off)")"
 info "TLS             : $([ "$NO_TLS" = 1 ] && echo disabled || echo "certbot ($EMAIL)")"
 echo
 confirm "Proceed?" || die "Aborted."
@@ -359,6 +387,41 @@ else
   SA_TILES_BLOCK="    # No startanalyse tile proxy (only emitted for --config-project startanalyse2026)."
 fi
 
+# HTTP basic auth for a dev/staging instance.
+#
+# Emitted at SERVER level, not inside `location /`: a location-scoped rule would
+# leave /assets/ and every config JSON (map.json, layers.json, ...) readable
+# without credentials, which is exactly the content a dev instance exists to keep
+# unpublished. Server level covers the SPA fallback, the assets, the configs and
+# any path added later.
+#
+# /.well-known/security.txt ends up behind the gate too. That is deliberate here:
+# a password-protected staging host is not a public service, so there is nothing
+# for a reporter to discover at it. The public instance still serves its own.
+#
+# /hooks/ is exempted below — see the note in that block.
+if [ -n "$AUTH_USER" ]; then
+  AUTH_BLOCK="    auth_basic \"$AUTH_REALM\";
+    auth_basic_user_file /etc/nginx/.htpasswd-$SLUG;"
+else
+  AUTH_BLOCK="    # Public instance: no basic auth (re-run with --auth-user to gate it)."
+fi
+
+# X-Robots-Tag for a non-public instance. Basic auth already stops a crawler, so
+# this is belt-and-braces for the window before auth is in place, and for any
+# link that leaks.
+#
+# nginx's add_header inheritance: a location block that sets ANY add_header
+# discards every header inherited from the server level. `^~ /assets/` sets two
+# of its own, so it does NOT carry this one. Left that way on purpose — hashed
+# JS/CSS/WASM bundles are not indexable content, and repeating the header there
+# would only add noise.
+if [ "$NOINDEX" = "1" ]; then
+  NOINDEX_HEADER="    add_header X-Robots-Tag \"noindex, nofollow\" always;"
+else
+  NOINDEX_HEADER="    # Indexable (re-run with --noindex to add X-Robots-Tag)."
+fi
+
 nginx_write_site "$SLUG" <<EOF
 server {
     listen 80;
@@ -367,6 +430,8 @@ server {
 
     root $WEBROOT;
     index index.html;
+
+$AUTH_BLOCK
 
     # SPA fallback: unknown URLs serve index.html. The app has no router — this
     # exists so a deep-linked share URL (?cmd=/#basemap=) reaches the bundle
@@ -391,6 +456,12 @@ server {
 
     # Proxy deploy webhooks to the shared listener on 127.0.0.1:$WEBHOOK_PORT
     location /hooks/ {
+        # Exempt from any server-level auth_basic: GitHub cannot send basic-auth
+        # credentials, so a gated /hooks/ would 401 every push and the instance
+        # would never auto-deploy. Authentication here is the HMAC signature over
+        # the payload plus the branch-ref check, both enforced by the webhook
+        # daemon — the same protection the public instance relies on.
+        auth_basic off;
         proxy_pass http://127.0.0.1:$WEBHOOK_PORT/hooks/;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
@@ -409,6 +480,7 @@ $FRAME_HEADER
     # embed authenticates by API key, not by referrer.
     add_header Referrer-Policy "no-referrer" always;
     add_header Access-Control-Allow-Origin "*" always;
+$NOINDEX_HEADER
 
     # --- Compression (gzip + brotli) ---
     # Intentionally ON despite scanners flagging BREACH. BREACH needs a secret
@@ -460,6 +532,12 @@ $FRAME_HEADER
         font/woff2;
 }
 EOF
+# Must exist before the reload: nginx -t fails on a missing auth_basic_user_file,
+# and a failed -t blocks the reload for every site on this host, not just this one.
+if [ -n "$AUTH_USER" ]; then
+  ensure_htpasswd "$SLUG" "$AUTH_USER" "$AUTH_PASSWORD"
+fi
+
 nginx_enable_site "$SLUG"
 nginx_test_reload
 
@@ -482,6 +560,13 @@ ok "Map application '$SLUG' is set up."
 info "URL          : $SCHEME://$HOST/"
 info "Deploy hook  : $SCHEME://$HOST/hooks/$HOOK_ID"
 echo
+if [ -n "$AUTH_USER" ]; then
+  log "This instance is behind HTTP basic auth — share these out of band:"
+  info "Username     : $AUTH_USER"
+  info "Password     : $AUTH_PASSWORD"
+  info "User file    : /etc/nginx/.htpasswd-$SLUG"
+  echo
+fi
 log "Configure the GitHub webhook on the source repo:"
 info "Payload URL  : $SCHEME://$HOST/hooks/$HOOK_ID"
 info "Content type : application/json"

@@ -1,0 +1,730 @@
+[
+  {
+    "label": "Woonzorganalyse",
+    "icon": "diversity_1",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Woningvoorraad",
+        "color": "#EB5BA6",
+        "expanded": false,
+        "children": [
+          {
+            "id": "",
+            "label": "",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Kwetsbare ouderen",
+        "color": "#EB5BA6",
+        "expanded": false,
+        "children": [
+          {
+            "id": "",
+            "label": "",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Aandachtsgroepen",
+        "color": "#EB5BA6",
+        "expanded": false,
+        "children": [
+          {
+            "id": "",
+            "label": "",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Clusters van indicaties",
+        "icon": "location_on",
+        "color": "#E0457B",
+        "expanded": true,
+        "children": [
+          {
+            "id": "verpleging_en_verzorging",
+            "label": "verpleging en verzorging",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "geestelijke_gezondheidszorg_B",
+            "label": "geestelijke gezondheidszorg B",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "geestelijke_gezondheidszorg_W",
+            "label": "geestelijke gezondheidszorg W",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "licht_verstandelijke_beperking",
+            "label": "licht verstandelijke beperking",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "verstandelijke_handicap",
+            "label": "verstandelijke handicap",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "lichamelijke_handicap",
+            "label": "lichamelijke handicap",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "zintuigelijke_handicap",
+            "label": "zintuigelijke handicap",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "BW_MO",
+            "label": "beschermd wonen/MO",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Complexanalyse",
+        "icon": "grid_view",
+        "color": "#5B8DEF",
+        "expanded": false,
+        "children": [
+          {
+            "id": "",
+            "label": "",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Woonzorgwijzer",
+        "icon": "explore",
+        "color": "#6B7280",
+        "expanded": false,
+        "children": [
+          {
+            "id": "",
+            "label": "",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Veerkrachtanalyse",
+        "icon": "monitor_heart",
+        "color": "#3DB6B0",
+        "expanded": true,
+        "children": [
+          {
+            "id": "veerkracht_limburg",
+            "label": "veerkracht tov NL",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "focus_limburg",
+            "label": "focus tov NL",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Bewoners",
+    "icon": "groups",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Sociaal economisch",
+        "icon": "trending_up",
+        "color": "#22A06B",
+        "expanded": true,
+        "children": [
+          {
+            "id": "Sociaal_dominante_klasse",
+            "label": "sociaal dominante klasse",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Verdeling",
+        "icon": "monitoring",
+        "color": "#3E74A7",
+        "expanded": true,
+        "children": [
+          {
+            "id": "aandeel_j0_17",
+            "label": "aandeel 0-17 jaar",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "aandeel_j18_29",
+            "label": "aandeel 18-29 jaar",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "aandeel_j30_44",
+            "label": "aandeel 30-44 jaar",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "aandeel_j45_66",
+            "label": "aandeel 45-66 jaar",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "aandeel_j67_74",
+            "label": "aandeel 67-74 jaar",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "aandeel_j75_plus",
+            "label": "aandeel 75 jaar en ouder",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "oosr_2",
+            "label": "mantelzorg (OOSR)",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Gebouwen",
+    "icon": "home_work",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "label": "pandkenmerken",
+        "icon": "apartment",
+        "color": "#2D6CDF",
+        "expanded": true,
+        "children": [
+          {
+            "id": "bouwjaar_lb_2026",
+            "color": "#2D6CDF",
+            "label": "bouwjaar",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "pandtype_lb_2026",
+            "color": "#2D6CDF",
+            "label": "pandtype",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "geschiktheid",
+        "icon": "apartment",
+        "color": "#2D6CDF",
+        "expanded": true,
+        "children": [
+          {
+            "id": "aandeel_geschikt_2024",
+            "color": "#8C54D6",
+            "label": "Nultrede",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "aandeel_ongeschikt_2024",
+            "color": "#8C54D6",
+            "label": "Ongeschikt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "aandeel_aanpasbaar_2024",
+            "color": "#8C54D6",
+            "label": "Aanpasbaar",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "corporaties",
+        "icon": "apartment",
+        "color": "#2D6CDF",
+        "expanded": true,
+        "children": [
+          {
+            "id": "corp_corporatie_2026",
+            "color": "#2D6CDF",
+            "label": "Corporatie",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "corp_bat_2026",
+            "color": "#2D6CDF",
+            "label": "BAT score",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "corp_mutatiegraad_2026",
+            "color": "#2D6CDF",
+            "label": "Mutatiegraad",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "corp_senioren_2026",
+            "color": "#2D6CDF",
+            "label": "Seniorenbeleid",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "corp_ouderen_met_indicatie_2026",
+            "color": "#2D6CDF",
+            "label": "Ouderen met indicatie",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "corp_aandachtsgroepen_2026",
+            "color": "#2D6CDF",
+            "label": "Aandachtsgroepenbeleid",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "corp_inpandige_gemsch_ruimte_2026",
+            "color": "#2D6CDF",
+            "label": "Gemeenschappelijke ruimte",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "streefhuur_0_2026",
+            "color": "#2D6CDF",
+            "label": "tot kwaliteitsgrens",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "streefhuur_1_2026",
+            "color": "#2D6CDF",
+            "label": "tot lage aftoppingsgrens",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "streefhuur_2_2026",
+            "color": "#2D6CDF",
+            "label": "tot hoge aftoppingsgrens",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "streefhuur_3_2026",
+            "color": "#2D6CDF",
+            "label": "tot liberalisatiegrens",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "streefhuur_4_2026",
+            "color": "#2D6CDF",
+            "label": "boven niet-daeb grens",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "streefhuur_5_2026",
+            "color": "#2D6CDF",
+            "label": "boven liberalisatie grens",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "woningbouw",
+        "icon": "foundation",
+        "color": "#C80000",
+        "expanded": false,
+        "children": [
+          {
+            "id": "woningbouw_projectvlakken",
+            "color": "#C80000",
+            "label": "projectvlakken",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "woningbouw_hard",
+            "color": "#C80000",
+            "label": "hard",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "woningbouw_zacht",
+            "color": "#C80000",
+            "label": "zacht",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Voorzieningen",
+    "icon": "storefront",
+    "color": "#3E74A7",
+    "expanded": true,
+    "children": [
+      {
+        "label": "locaties",
+        "icon": "storefront",
+        "color": "#8C54D6",
+        "expanded": true,
+        "children": [
+          {
+            "id": "apotheek",
+            "color": "#8C54D6",
+            "label": "Apotheek",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "dagbesteding",
+            "color": "#8C54D6",
+            "label": "Dagbesteding",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "fysiotherapeut",
+            "color": "#8C54D6",
+            "label": "Fysiotherapeut",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "huisarts",
+            "color": "#8C54D6",
+            "label": "Huisarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "ontmoeting",
+            "color": "#8C54D6",
+            "label": "Ontmoeting",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "ov",
+            "color": "#8C54D6",
+            "label": "Openbaar vervoer",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "supermarkt",
+            "color": "#8C54D6",
+            "label": "Supermarkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "tandarts",
+            "color": "#8C54D6",
+            "label": "Tandarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "ziekenhuis",
+            "color": "#8C54D6",
+            "label": "Ziekenhuis",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "loopafstanden",
+        "icon": "storefront",
+        "color": "#8C54D6",
+        "expanded": false,
+        "children": [
+          {
+            "id": "loopafstand_apotheek",
+            "color": "#8C54D6",
+            "label": "Apotheek",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_dagbesteding",
+            "color": "#8C54D6",
+            "label": "Dagbesteding",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_fysiotherapeut",
+            "color": "#8C54D6",
+            "label": "Fysiotherapeut",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_huisarts",
+            "color": "#8C54D6",
+            "label": "Huisarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_ontmoeting",
+            "color": "#8C54D6",
+            "label": "Ontmoeting",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_ov",
+            "color": "#8C54D6",
+            "label": "Openbaar vervoer",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_supermarkt",
+            "color": "#8C54D6",
+            "label": "Supermarkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_tandarts",
+            "color": "#8C54D6",
+            "label": "Tandarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "loopafstand_ziekenhuis",
+            "color": "#8C54D6",
+            "label": "Ziekenhuis",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Omgeving",
+    "icon": "nature_people",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "label": "3-30-300 vuistregel",
+        "icon": "nature_people",
+        "color": "#54B6C0",
+        "expanded": true,
+        "children": [
+          {
+            "label": "gemeente",
+            "icon": "forest",
+            "color": "#54B6C0",
+            "expanded": false,
+            "children": [
+              {
+                "id": "bomen_rule_3_gemeente_2026",
+                "color": "#54B6C0",
+                "label": "3 bomen",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_30_gemeente_2026",
+                "color": "#54B6C0",
+                "label": "30% bladerdek",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_300_gemeente_2026",
+                "color": "#54B6C0",
+                "label": "300 meter van groen",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_3_30_300_classified_gemeente_2026",
+                "color": "#54B6C0",
+                "label": "3-30-300 vuistregels",
+                "a": false,
+                "b": false
+              }
+            ]
+          },
+          {
+            "label": "wijk",
+            "icon": "forest",
+            "color": "#54B6C0",
+            "expanded": false,
+            "children": [
+              {
+                "id": "bomen_rule_3_wijk_2026",
+                "color": "#54B6C0",
+                "label": "3 bomen",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_30_wijk_2026",
+                "color": "#54B6C0",
+                "label": "30% bladerdek",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_300_wijk_2026",
+                "color": "#54B6C0",
+                "label": "300 meter van groen",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_3_30_300_classified_wijk_2026",
+                "color": "#54B6C0",
+                "label": "3-30-300 vuistregels",
+                "a": false,
+                "b": false
+              }
+            ]
+          },
+          {
+            "label": "buurt",
+            "icon": "forest",
+            "color": "#54B6C0",
+            "expanded": false,
+            "children": [
+              {
+                "id": "bomen_rule_3_buurt_2026",
+                "color": "#54B6C0",
+                "label": "3 bomen",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_30_buurt_2026",
+                "color": "#54B6C0",
+                "label": "30% bladerdek",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_300_buurt_2026",
+                "color": "#54B6C0",
+                "label": "300 meter van groen",
+                "a": false,
+                "b": false
+              },
+              {
+                "id": "bomen_rule_3_30_300_classified_buurt_2026",
+                "color": "#54B6C0",
+                "label": "3-30-300 vuistregels",
+                "a": false,
+                "b": false
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "label": "reliëf",
+        "icon": "landscape",
+        "color": "#7A5C3E",
+        "expanded": true,
+        "children": [
+          {
+            "id": "stijgingspercentage_lb_2026",
+            "color": "#7A5C3E",
+            "label": "Stijgingspercentage",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Gebiedsindelingen",
+    "icon": "border_all",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "cbsgemeente2026",
+        "color": "#F2994A",
+        "label": "gemeente",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "cbswijk2026",
+        "color": "#F2994A",
+        "label": "wijk",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "cbsbuurt2026",
+        "color": "#F2994A",
+        "label": "buurt",
+        "a": false,
+        "b": false
+      }
+    ]
+  }
+]
