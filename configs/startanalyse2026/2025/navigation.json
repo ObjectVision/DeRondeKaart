@@ -614,7 +614,7 @@
     ]
   },
   {
-    "label": "S1: eWP",
+    "label": "Individuele elektrische warmtepomp",
     "icon": "S1.svg",
     "expanded": false,
     "children": [
@@ -765,7 +765,7 @@
     ]
   },
   {
-    "label": "S2: MT-warmtenet",
+    "label": "Warmtenet met midden- of hogetemperatuurwarmtebron (>60 graden C)",
     "icon": "S2.svg",
     "expanded": false,
     "children": [
@@ -940,7 +940,7 @@
     ]
   },
   {
-    "label": "S3: Combi LT-WN & eWP",
+    "label": "Warmtenet met (zeer-)lagetemperatuurwarmtebron i.c.m. individuele elektrische warmtepomp",
     "icon": "S3.svg",
     "expanded": false,
     "children": [
