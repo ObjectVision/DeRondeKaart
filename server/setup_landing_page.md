@@ -36,12 +36,55 @@ all defaults non-interactively.
 | `--slug NAME` | Instance slug | *(required)* |
 | `--host HOST` | Primary hostname | *(required)* |
 | `--alias HOST` | Alias host that 301s to primary (repeatable) | *(none)* |
+| `--embed-host URL` | Origin this page may `<iframe>` — CSP `frame-src` (repeatable) | *(none)* |
+| `--frame-ancestors URL` | Origin that may `<iframe>` **this** page — CSP `frame-ancestors` (repeatable) | *(none — `'none'`)* |
+| `--embed-port N` | Proxy `/api/embed-config` to a Power BI embed-token service on `127.0.0.1:N` | *(blank — off)* |
 | `--repo URL` | Git remote of the Hugo source | *(required)* |
 | `--branch NAME` | Git branch to deploy | `main` |
 | `--hugo-version VER` | Hugo extended version | `0.161.1` |
 | `--secret HEX` | GitHub webhook HMAC secret | *generated* |
 | `--email ADDR` | Let's Encrypt email | *(required unless `--no-tls`)* |
 | `--no-tls` | Serve plain HTTP, skip certbot | off |
+
+---
+
+## Embedding
+
+Two independent directions, easy to confuse — they are opposite flags:
+
+| Flag | Directive | Means |
+|---|---|---|
+| `--embed-host URL` | `frame-src` | what this page may put **in** an iframe |
+| `--frame-ancestors URL` | `frame-ancestors` | who may put **this page** in an iframe |
+
+A landing page normally needs only the first: it frames the map application and is
+itself the outermost document, so `frame-ancestors` defaults to `'none'`.
+
+`startanalyse2026.nl` is the exception — PBL embeds it on their own site — so it sets
+both, pointing in opposite directions:
+
+```bash
+--embed-host https://map.startanalyse2026.nl --frame-ancestors https://startanalyse.pbl.nl
+```
+
+**`X-Frame-Options` is omitted whenever `--frame-ancestors` is given.** That header
+predates CSP and has no syntax for "allow this one third-party origin" — `ALLOW-FROM`
+was removed from every current browser. Leaving `SAMEORIGIN` in place would keep
+blocking the parent in browsers that honour it, even though the CSP permits the
+framing. `frame-ancestors` is the modern equivalent and is always set, so nothing is
+lost. Without `--frame-ancestors` the header is still sent, so existing instances are
+unaffected.
+
+Both flags are repeatable; each adds an origin to its directive. Values are bare
+origins (scheme + host, no path, no quotes).
+
+Framing failures appear **only in the embedding parent's console**, never in a log on
+this host:
+
+```
+Framing 'https://startanalyse2026.nl/' violates the following Content Security
+Policy directive: "frame-ancestors 'none'".
+```
 
 ---
 
@@ -63,7 +106,8 @@ all defaults non-interactively.
    the HMAC secret** as hook id `deploy-<slug>` (leaving other instances' hooks
    untouched; the daemon is restarted so it re-reads `hooks.json`).
 7. **nginx** — write and enable the server block: serves the webroot, proxies
-   `/hooks/` to `127.0.0.1:9000`, `404 → /404.html`, gzip, security headers.
+   `/hooks/` to `127.0.0.1:9000`, `404 → /404.html`, gzip, security headers
+   (see [Embedding](#embedding) for the framing headers).
    Alias hosts get a 301 to the primary.
 8. **TLS** — `certbot --nginx --redirect` for the primary host and any aliases,
    unless `--no-tls`.
@@ -116,8 +160,28 @@ then pass `--repo git@github.com-<slug>:ORG/REPO.git`.
   --repo git@github.com:ObjectVision/woonzorglimburg_landing.git \
   --email eoudejans@objectvision.nl
 
+# startanalyse2026: frames the map AND is itself framed by PBL
+./setup_landing_page.sh -y \
+  --slug startanalyse2026_landing \
+  --host startanalyse2026.nl --alias www.startanalyse2026.nl \
+  --repo git@github.com:ObjectVision/startanalyse2026_landing.git \
+  --embed-host https://map.startanalyse2026.nl \
+  --frame-ancestors https://startanalyse.pbl.nl \
+  --email eoudejans@objectvision.nl
+
 # A second landing page on the same server
 ./setup_landing_page.sh -y \
   --slug acme_landing --host acme.example.com \
   --repo git@github.com:acme/site.git --email ops@acme.com
 ```
+
+> **Re-running drops any flag you omit.** The script rewrites the vhost from the
+> flags it is given (backing the old one up to `<dest>.bak.<timestamp>` first), so a
+> forgotten `--embed-host` silently removes `frame-src` and breaks the map iframe, and
+> a forgotten `--alias` drops the `www` redirect. Read the live vhost first and carry
+> every setting across:
+>
+> ```bash
+> sudo cat /etc/nginx/sites-available/<slug>
+> sudo nginx -t          # before the reload - a bad vhost blocks every site on the host
+> ```
