@@ -413,7 +413,7 @@
     "label": "Voorzieningen",
     "icon": "storefront",
     "color": "#3E74A7",
-    "expanded": true,
+    "expanded": false,
     "children": [
       {
         "label": "locaties",
