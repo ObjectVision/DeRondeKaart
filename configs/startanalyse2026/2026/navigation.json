@@ -345,7 +345,7 @@
     ]
   },
   {
-    "label": "Warmtenet met midden- of hogetemperatuurwarmtebron (>60 graden C)",
+    "label": "Warmtenet met midden- of hogetemperatuurwarmtebron (> 60°C)",
     "icon": "S2.svg",
     "expanded": false,
     "children": [
