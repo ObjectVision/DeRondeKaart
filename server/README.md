@@ -104,7 +104,9 @@ The scripts emit these automatically (see `common.sh`):
 | TLS signature algorithms | `/etc/nginx/snippets/tls-hardening.conf` | Excludes SHA224/SHA1. Ciphers themselves come from certbot's `options-ssl-nginx.conf`, which certbot overwrites — never edit that file. |
 | `security.txt` (RFC 9116) | `<webroot>/.well-known/` | `Expires` regenerates 1 year out on every run. Unsigned and without `Encryption` by design. |
 | CSP | per site | Enforced on static sites; **report-only** on the map app. |
-| `Referrer-Policy: no-referrer`, `X-Content-Type-Options`, `X-Frame-Options` | per site | |
+| `Referrer-Policy: no-referrer`, `X-Content-Type-Options` | per site | |
+| `X-Frame-Options: SAMEORIGIN` | per site | Landing pages only, and **only when nothing may frame them**. Omitted on a page provisioned with `--frame-ancestors`: the header cannot name a third-party origin (`ALLOW-FROM` is obsolete), so leaving it would block the framing the CSP permits. The map app never sets it — it is embeddable by design. |
+| CSP `frame-ancestors` | per site | `'none'` on landing pages by default. `startanalyse2026.nl` names `https://startanalyse.pbl.nl` because **PBL embeds that page** — do not "tidy" it back to `'none'`. See [setup_landing_page.md](setup_landing_page.md#embedding). |
 
 ### Promoting the map app's CSP to enforcing
 
@@ -117,6 +119,22 @@ origin short breaks map rendering *silently*. To promote it:
 2. Watch DevTools for `[Report Only]` violations and add any missing origin to
    `CSP_MAP` in `setup_map_application.sh`.
 3. Once the console is clean, re-run with `--csp-enforce`.
+
+> **A deployed instance keeps the CSP it was provisioned with.** `CSP_MAP` lives in
+> the script, not in a shared snippet, so origins added to the repo since an instance
+> was set up are *not* on that host until it is re-provisioned. Checked 2026-09-16:
+> `map.startanalyse2026.nl` was missing `api.pdok.nl`,
+> `nominatim.openstreetmap.org` and `maptiles.projectatlas.app` — the two geocoder
+> backends among them, so location search would break the moment that instance is
+> promoted to enforcing. Compare before promoting any instance:
+>
+> ```bash
+> curl -sSI https://<map-host>/ | grep -i content-security-policy
+> ```
+>
+> Re-provision with the instance's original flags — `--config-project` especially
+> (it gates the `/sa-tiles/` proxy block, and omitting it also ships the neutral
+> `public/` configs).
 
 ### HTTP compression and BREACH
 

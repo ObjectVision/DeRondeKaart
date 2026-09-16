@@ -1989,9 +1989,6 @@
       "attributeSource": "https://data.woonzorglimburg.nl/parquet/SDKLimburg2026.parquet",
       "format": "pmtiles",
       "geometryType": "polygon",
-      "charts": [
-        "sdk_verdeling_donut"
-      ],
       "statistics": [
         {
           "field": "data",
@@ -2346,9 +2343,6 @@
       "attributeSource": "https://data.woonzorglimburg.nl/parquet/cluster_indicatiesLimburg2026.parquet",
       "format": "pmtiles",
       "geometryType": "point",
-      "charts": [
-        "vvt_verdeling_bar"
-      ],
       "statistics": [
         {
           "field": "vvt",
