@@ -1,0 +1,6 @@
+{
+  "levels": [
+    { "layer": "selectie", "code": "statcode", "minzoom": 0 }
+  ],
+  "widgets": []
+}

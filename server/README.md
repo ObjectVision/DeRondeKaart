@@ -37,7 +37,20 @@ own namespace:
 /usr/local/bin/deploy-<slug>.sh     deploy script          (landing + map)
 /var/log/<slug>-deploy.log          deploy log             (landing + map)
 hook id "deploy-<slug>"             entry in /etc/webhook/hooks.json (landing + map)
+/etc/nginx/.htpasswd-<slug>         basic-auth users       (map, --auth-user only)
 ```
+
+The map app runs as **two instances** for this project, differing only in which
+config overlay they build:
+
+| slug | host | overlay | access |
+|---|---|---|---|
+| `woonzorglimburg_map` | `map.woonzorglimburg.nl` | `configs/woonzorglimburg/` | public |
+| `woonzorglimburg_map_dev` | `map.dev.woonzorglimburg.nl` | `configs/woonzorglimburg_dev/` | HTTP basic auth |
+
+Both track `main` and rebuild on the same push, each via its own webhook. The
+deploy-coalescing `flock`s are per-slug, so the two builds run concurrently — the
+first thing to look at if the VM struggles during a deploy.
 
 Shared infrastructure is installed once and reused by every instance:
 
@@ -91,7 +104,9 @@ The scripts emit these automatically (see `common.sh`):
 | TLS signature algorithms | `/etc/nginx/snippets/tls-hardening.conf` | Excludes SHA224/SHA1. Ciphers themselves come from certbot's `options-ssl-nginx.conf`, which certbot overwrites — never edit that file. |
 | `security.txt` (RFC 9116) | `<webroot>/.well-known/` | `Expires` regenerates 1 year out on every run. Unsigned and without `Encryption` by design. |
 | CSP | per site | Enforced on static sites; **report-only** on the map app. |
-| `Referrer-Policy: no-referrer`, `X-Content-Type-Options`, `X-Frame-Options` | per site | |
+| `Referrer-Policy: no-referrer`, `X-Content-Type-Options` | per site | |
+| `X-Frame-Options: SAMEORIGIN` | per site | Landing pages only, and **only when nothing may frame them**. Omitted on a page provisioned with `--frame-ancestors`: the header cannot name a third-party origin (`ALLOW-FROM` is obsolete), so leaving it would block the framing the CSP permits. The map app never sets it — it is embeddable by design. |
+| CSP `frame-ancestors` | per site | `'none'` on landing pages by default. `startanalyse2026.nl` names `https://startanalyse.pbl.nl` because **PBL embeds that page** — do not "tidy" it back to `'none'`. See [setup_landing_page.md](setup_landing_page.md#embedding). |
 
 ### Promoting the map app's CSP to enforcing
 
@@ -104,6 +119,22 @@ origin short breaks map rendering *silently*. To promote it:
 2. Watch DevTools for `[Report Only]` violations and add any missing origin to
    `CSP_MAP` in `setup_map_application.sh`.
 3. Once the console is clean, re-run with `--csp-enforce`.
+
+> **A deployed instance keeps the CSP it was provisioned with.** `CSP_MAP` lives in
+> the script, not in a shared snippet, so origins added to the repo since an instance
+> was set up are *not* on that host until it is re-provisioned. Checked 2026-09-16:
+> `map.startanalyse2026.nl` was missing `api.pdok.nl`,
+> `nominatim.openstreetmap.org` and `maptiles.projectatlas.app` — the two geocoder
+> backends among them, so location search would break the moment that instance is
+> promoted to enforcing. Compare before promoting any instance:
+>
+> ```bash
+> curl -sSI https://<map-host>/ | grep -i content-security-policy
+> ```
+>
+> Re-provision with the instance's original flags — `--config-project` especially
+> (it gates the `/sa-tiles/` proxy block, and omitting it also ships the neutral
+> `public/` configs).
 
 ### HTTP compression and BREACH
 
@@ -134,6 +165,7 @@ www.kanskaartthuisgeven.nl.   AAAA  <server IPv6>
 woonzorglimburg.nl.           AAAA  <server IPv6>
 www.woonzorglimburg.nl.       AAAA  <server IPv6>
 map.woonzorglimburg.nl.       AAAA  <server IPv6>
+map.dev.woonzorglimburg.nl.   AAAA  <server IPv6>
 dev.woonzorglimburg.nl.       AAAA  <server IPv6>
 data.woonzorglimburg.nl.      AAAA  <server IPv6>
 ```

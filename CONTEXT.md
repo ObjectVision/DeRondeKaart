@@ -98,10 +98,17 @@ comparison panel. `src/layers/compare-slots.ts`.
 selected at build time with `VITE_CONFIG_PROJECT`. It overlays `public/`, and
 replaces files whole rather than merging.
 
-**Variant** — two datasets shipped in one build and switched at runtime without a
-reload, typically model years (2025 / 2026). Only `layers.json` and
-`navigation.json` differ per variant; the rest stay shared. `src/config/variant.ts`
-and `configs/README.md`.
+A project is also how a **protected staging deployment** is built:
+`woonzorglimburg_dev/` is a second project, built into a second site
+(`map.dev.woonzorglimburg.nl`) that nginx puts behind basic auth. Reach for a
+project, not a variant, whenever the two sets of content must not be equally
+public — a variant cannot be access-controlled, because everything in a build is
+served from one origin under paths anyone can request.
+
+**Variant** — several datasets shipped in one build and switched at runtime without
+a reload, typically model years (2025 / 2026 / a comparison of the two). Only
+`layers.json` and `navigation.json` differ per variant; the rest stay shared.
+`src/config/variant.ts` and `configs/README.md`.
 
 The hazard to know: **layer ids are reused between variants**. Anything keyed by
 id holds a value that is *wrong*, not merely stale, once the variant changes, and

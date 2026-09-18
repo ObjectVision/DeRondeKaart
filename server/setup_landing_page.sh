@@ -32,6 +32,7 @@ $(print_kv "--slug NAME"          "instance id, namespaces all paths (e.g. woonz
 $(print_kv "--host HOST"          "primary hostname (e.g. woonzorglimburg.nl)")
 $(print_kv "--alias HOST"         "extra hostname that 301s to primary; repeatable (e.g. www.woonzorglimburg.nl)")
 $(print_kv "--embed-host URL"     "origin this page may <iframe> (CSP frame-src); repeatable (e.g. https://map.startanalyse2026.nl)")
+$(print_kv "--frame-ancestors URL" "origin that may <iframe> THIS page (CSP frame-ancestors); repeatable; blank = nobody (e.g. https://startanalyse.pbl.nl)")
 $(print_kv "--embed-port N"       "proxy /api/embed-config to a Power BI embed-token service on 127.0.0.1:N; blank = off")
 $(print_kv "--repo URL"           "git remote of the Hugo source repo")
 $(print_kv "--branch NAME"        "git branch to deploy (default: main)")
@@ -47,6 +48,10 @@ EOF
 # --- defaults / parameter holders ---
 SLUG=""; HOST=""; ALIASES=(); REPO=""; BRANCH=""; HUGO_VERSION=""
 SECRET=""; EMAIL=""; NO_TLS=0; EMBED_HOSTS=(); EMBED_PORT=""; EMBED_PORT_SET=0
+# Who may frame THIS page. Empty = nobody ('none'), the right default for a
+# landing page. Note the direction: EMBED_HOSTS is what this page may frame
+# (frame-src), FRAME_ANCESTORS is who may frame it (frame-ancestors).
+FRAME_ANCESTORS=()
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -58,6 +63,8 @@ while [ $# -gt 0 ]; do
     --alias=*)       ALIASES+=("${1#*=}"); shift ;;
     --embed-host)    EMBED_HOSTS+=("$2"); shift 2 ;;
     --embed-host=*)  EMBED_HOSTS+=("${1#*=}"); shift ;;
+    --frame-ancestors)   FRAME_ANCESTORS+=("$2"); shift 2 ;;
+    --frame-ancestors=*) FRAME_ANCESTORS+=("${1#*=}"); shift ;;
     --embed-port)    EMBED_PORT="$2"; EMBED_PORT_SET=1; shift 2 ;;
     --embed-port=*)  EMBED_PORT="${1#*=}"; EMBED_PORT_SET=1; shift ;;
     --repo)          REPO="$2"; shift 2 ;;
@@ -229,7 +236,11 @@ webhook_upsert_hook "$HOOK_ID" "$DEPLOY_SCRIPT" "$REPO_DIR" "$SECRET" "$BRANCH"
 #               page takes no user input and reflects nothing, so the XSS
 #               surface this protects against does not exist.
 #
-# frame-ancestors stays 'none': this page embeds others, it is not embedded.
+# frame-ancestors defaults to 'none' — a landing page is normally the outermost
+# document. startanalyse2026.nl is the exception: PBL embeds it on their own site,
+# and names the permitted origins with --frame-ancestors. Blocked framing shows up
+# only in the parent's console ("violates ... frame-ancestors 'none'"), never in
+# any log on this host, so it is worth knowing this knob exists.
 CSP_LANDING="default-src 'self'; \
 script-src 'self' 'unsafe-inline'; \
 style-src 'self' 'unsafe-inline'; \
@@ -239,6 +250,31 @@ connect-src 'self'; \
 object-src 'none'; base-uri 'self'; form-action 'self'"
 if [ "${#EMBED_HOSTS[@]}" -gt 0 ]; then
   CSP_LANDING="$CSP_LANDING; frame-src ${EMBED_HOSTS[*]}"
+fi
+
+# Space-joined bare origins, matching EMBED_HOSTS[*] above — a CSP source list is
+# space-separated. 'none' keeps its quotes: CSP keywords require them, origins
+# must not have them.
+if [ "${#FRAME_ANCESTORS[@]}" -gt 0 ]; then
+  FRAME_ANCESTORS_VALUE="${FRAME_ANCESTORS[*]}"
+else
+  FRAME_ANCESTORS_VALUE="'none'"
+fi
+
+# X-Frame-Options, only when nothing may frame this page.
+#
+# It predates CSP and cannot name a permitted third-party origin: ALLOW-FROM was
+# removed from every current browser and is ignored where still parsed. So a page
+# that IS framed cannot express that here, and leaving SAMEORIGIN would keep
+# blocking the parent in browsers that honour this header even though
+# frame-ancestors allows it. frame-ancestors is the modern equivalent and is set
+# either way, so dropping the header where it cannot be satisfied loses nothing.
+if [ "${#FRAME_ANCESTORS[@]}" -gt 0 ]; then
+  XFO_HEADER="    # X-Frame-Options omitted: it cannot name a third-party origin
+    # (ALLOW-FROM is obsolete), and SAMEORIGIN would block the framing that
+    # frame-ancestors above permits. See the note next to FRAME_ANCESTORS."
+else
+  XFO_HEADER="    add_header X-Frame-Options \"SAMEORIGIN\" always;"
 fi
 
 # Power BI embed-token proxy. Same pattern as /hooks and the map app's /collab:
@@ -297,12 +333,12 @@ $EMBED_BLOCK
     error_page 404 /404.html;
     location = /404.html { internal; }
 
-    add_header X-Frame-Options "SAMEORIGIN" always;
+$XFO_HEADER
     add_header X-Content-Type-Options "nosniff" always;
     # no-referrer: scanners (NCSC) advise against strict-origin-when-cross-origin,
     # and nothing here needs an outbound Referer.
     add_header Referrer-Policy "no-referrer" always;
-$(render_csp_header "$CSP_LANDING" "" "'none'")
+$(render_csp_header "$CSP_LANDING" "" "$FRAME_ANCESTORS_VALUE")
 
     # HTTP compression is intentionally ON. Scanners flag it as a BREACH risk;
     # BREACH requires a secret (session token, CSRF token) reflected into a

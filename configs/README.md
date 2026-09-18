@@ -163,14 +163,18 @@ configs/startanalyse2026/
   2026/
     layers.json
     navigation.json
+  2025_2026/
+    layers.json
+    navigation.json
 ```
 
 ```json
 "variants": {
-  "default": "2025",
+  "default": "2026",
   "items": [
     { "id": "2025", "label": "Startanalyse 2025" },
-    { "id": "2026", "label": "Startanalyse 2026" }
+    { "id": "2026", "label": "Startanalyse 2026" },
+    { "id": "2025_2026", "label": "Vergelijk 2025 / 2026" }
   ]
 }
 ```
@@ -212,8 +216,20 @@ variants, keeping them would silently repoint each layer at another year.
 
 ## Existing projects
 
-- `woonzorglimburg/` — the Limburg deployment (`map.woonzorglimburg.nl`). Overrides all five
-  config files.
+- `woonzorglimburg/` — the public Limburg deployment (`map.woonzorglimburg.nl`).
+  Overrides `map.json`, `layers.json`, `filter.json`, `charts.json`, `navigation.json`
+  and `dashboard_complementary.json`.
+- `woonzorglimburg_dev/` — the password-protected staging deployment
+  (`map.dev.woonzorglimburg.nl`). A complete copy of all nine config files, so any of
+  them can be changed on dev without falling back to a `public/` default. Config
+  changes are tried here first and copied into `woonzorglimburg/` once they are
+  approved; the two overlays are otherwise independent and drift on purpose.
+
+  Note this is a separate **project**, not a [config variant](#config-variants-multiple-datasets-in-one-build).
+  Variants ship in one public bundle and cannot be access-controlled — nginx
+  authenticates URL paths, so a `/dev/layers.json` would be world-readable whatever
+  the app did. A separate project builds a separate site, which nginx can put behind
+  basic auth. See [`server/setup_map_application.md`](../server/setup_map_application.md).
 - `startanalyse2026/` — the national Startanalyse viewer. Shares `map.json`, `filter.json`
   and `charts.json`, and ships `layers.json` + `navigation.json` per model year under
-  `2025/` and `2026/` (see [Config variants](#config-variants-multiple-datasets-in-one-build)).
+  `2025/`, `2026/` and `2025_2026/` (see [Config variants](#config-variants-multiple-datasets-in-one-build)).
