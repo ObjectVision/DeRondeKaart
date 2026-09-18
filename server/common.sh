@@ -215,6 +215,30 @@ server {
 EOF
 }
 
+# ensure_htpasswd <slug> <user> <password>
+# Write /etc/nginx/.htpasswd-<slug> for a site's `auth_basic_user_file`.
+#
+# Hashes with `openssl passwd -apr1` (Apache MD5) rather than htpasswd: openssl
+# is already required by ask_secret, whereas htpasswd would pull apache2-utils
+# into ensure_base_stack for this one line. nginx accepts apr1 everywhere.
+#
+# Mode 0640 root:www-data — nginx reads it as www-data, nothing else should see
+# the hashes. write_root_file's `install -D -m` sets the mode but not the owner,
+# hence the explicit chown.
+#
+# Rewritten on every run, so re-provisioning with a new --auth-password rotates
+# the credential. Additional users are added afterwards with:
+#   printf '%s:%s\n' u "$(openssl passwd -apr1 pw)" | sudo tee -a <file>
+ensure_htpasswd() {
+  local slug="$1" user="$2" password="$3"
+  local dest="/etc/nginx/.htpasswd-$slug"
+  local hash
+  hash="$(openssl passwd -apr1 "$password")"
+  printf '%s:%s\n' "$user" "$hash" | write_root_file "$dest" 0640
+  sudo chown root:www-data "$dest"
+  ok "Basic-auth file ready ($dest, user '$user')"
+}
+
 # ---------------------------------------------------------------------------
 # HSTS
 # ---------------------------------------------------------------------------

@@ -23,6 +23,7 @@ multi-instance model.
 | `/etc/nginx/sites-available/<slug>` | nginx server block (symlinked into `sites-enabled/`) |
 | `/usr/local/bin/deploy-<slug>.sh` | deploy script (pull → `npm ci` → `vite build` → rsync) |
 | `/var/log/<slug>-deploy.log` | deploy log |
+| `/etc/nginx/.htpasswd-<slug>` | basic-auth users (only with `--auth-user`), `0640 root:www-data` |
 | hook `deploy-<slug>` in `/etc/webhook/hooks.json` | GitHub push trigger |
 
 Shared, installed once: nginx, git, **Node.js**, the webhook daemon on
@@ -40,6 +41,14 @@ Shared, installed once: nginx, git, **Node.js**, the webhook daemon on
 - **Embeddable** — by default no framing header is set, so the app can be iframed
   anywhere; pass `--frame-ancestors "'self' https://foo.nl"` to lock framing with
   a CSP `frame-ancestors` directive. `Access-Control-Allow-Origin *` is set.
+- **Basic auth** (`--auth-user`) — for a dev/staging instance. Applied at **server
+  level**, not inside `location /`, so it also covers `/assets/` and every config
+  JSON; a location-scoped rule would leave exactly the unpublished content readable.
+  `/hooks/` is **exempt** (`auth_basic off`): GitHub cannot send basic-auth
+  credentials, so a gated hook would 401 every push and the instance would never
+  auto-deploy — the HMAC signature and branch-ref check remain its authentication.
+  Note a gated instance returns 401 to an iframe until the viewer has authenticated
+  once in that browser, so embedding works but is not anonymous.
 - **Deploy resilience** — the deploy script backgrounds the work with `setsid -f`
   so the webhook answers within GitHub's 10 s timeout. A **non-blocking** `tsc -b`
   logs type errors without aborting; only a genuine `vite build` failure aborts,
@@ -69,6 +78,11 @@ Shared, installed once: nginx, git, **Node.js**, the webhook daemon on
 | `--node-version N` | Node.js major version to install if missing | `20` |
 | `--frame-ancestors V` | CSP `frame-ancestors` value | *(blank — embeddable anywhere)* |
 | `--collab-port N` | Proxy `/collab` to a collab server on `127.0.0.1:N` (see [setup_collab_server.md](setup_collab_server.md)) | *(blank — collaboration off)* |
+| `--config-project S` | Config overlay to build (`configs/<S>/` over `public/`) | *(blank — `public/` defaults)* |
+| `--auth-user NAME` | HTTP basic-auth user; blank leaves the site public | *(blank — no auth)* |
+| `--auth-password PW` | Basic-auth password | *generated* |
+| `--auth-realm TEXT` | Browser prompt text | `<slug> (restricted)` |
+| `--noindex` | Send `X-Robots-Tag: noindex, nofollow` | off |
 | `--secret HEX` | GitHub webhook HMAC secret | *generated* |
 | `--email ADDR` | Let's Encrypt email | *(required unless `--no-tls`)* |
 | `--no-tls` | Serve plain HTTP, skip certbot | off |
@@ -143,6 +157,9 @@ place ahead of the first rebuild that carries genericized defaults.
   --repo git@github.com:ObjectVision/northwake.git \
   --config-project woonzorglimburg \
   --email eoudejans@objectvision.nl
+
+# The password-protected dev instance (same repo and branch, different overlay)
+./setup_map_application.sh -y   --slug woonzorglimburg_map_dev --host map.dev.woonzorglimburg.nl   --repo git@github.com:ObjectVision/northwake.git   --branch main   --config-project woonzorglimburg_dev   --auth-user wzl --auth-realm "De Ronde kaart — dev" --noindex   --email eoudejans@objectvision.nl
 
 # A second map app, framing locked to one parent site
 ./setup_map_application.sh -y \
