@@ -16219,7 +16219,7 @@
     {
       "id": "263",
       "name": "Geothermie contour (BG)",
-      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/geothermie.pmtiles?v=20260915",
+      "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/geothermie.pmtiles?v=20260918",
       "format": "pmtiles",
       "sourceLayer": "geothermie",
       "geometryType": "polygon",
