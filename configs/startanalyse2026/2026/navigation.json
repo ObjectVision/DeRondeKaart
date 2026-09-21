@@ -191,6 +191,738 @@
     "icon": "GLN.svg",
     "expanded": false,
     "children": [
+      {
+        "id": "374",
+        "label": "Laagste nationale kosten <10% kostenverschil (LN)",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "375",
+        "label": "Laagste nationale kosten <30% kostenverschil (LN)",
+        "a": false,
+        "b": false
+      },
+      {
+        "label": "Beschikbaarheid klimaatneutraal gas: 1 bcm",
+        "expanded": false,
+        "children": [
+          {
+            "id": "422",
+            "label": "Energielevering elektriciteit (LNGA03 H11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "411",
+            "label": "Energielevering klimaatneutraal gas (LNGA03 H10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "445",
+            "label": "Energielevering LT-warmtebron (LNGA03 H13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "433",
+            "label": "Energielevering MT-warmtebron (LNGA03 H12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "455",
+            "label": "Energielevering overig (LNGA03 H14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "400",
+            "label": "Energieverbruik (LNGA03 H01)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "378",
+            "label": "Laagste nationale kosten <20% verschil (LNGA03)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "389",
+            "label": "Laagste nationale kosten (LNGA03)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "364",
+            "label": "Strategie varianten (LNGA03)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Beschikbaarheid klimaatneutraal gas: 1,5 bcm",
+        "expanded": false,
+        "children": [
+          {
+            "id": "423",
+            "label": "Energielevering elektriciteit (LNGA04 H11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "412",
+            "label": "Energielevering klimaatneutraal gas (LNGA04 H10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "446",
+            "label": "Energielevering LT-warmtebron (LNGA04 H13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "434",
+            "label": "Energielevering MT-warmtebron (LNGA04 H12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "456",
+            "label": "Energielevering overig (LNGA04 H14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "401",
+            "label": "Energieverbruik (LNGA04 H01)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "379",
+            "label": "Laagste nationale kosten <20% verschil (LNGA04)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "390",
+            "label": "Laagste nationale kosten (LNGA04)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "365",
+            "label": "Strategie varianten (LNGA04)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Prijs van klimaatneutraal gas: 2 €/m³",
+        "expanded": false,
+        "children": [
+          {
+            "id": "424",
+            "label": "Energielevering elektriciteit (LNGA05 H11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "413",
+            "label": "Energielevering klimaatneutraal gas (LNGA05 H10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "444",
+            "label": "Energielevering LT-warmtebron (LNGA05 H13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "435",
+            "label": "Energielevering MT-warmtebron (LNGA05 H12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "457",
+            "label": "Energielevering overig (LNGA05 H14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "402",
+            "label": "Energieverbruik (LNGA05 H01)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "380",
+            "label": "Laagste nationale kosten <20% verschil (LNGA05)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "391",
+            "label": "Laagste nationale kosten (LNGA05)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "366",
+            "label": "Strategie varianten (LNGA05)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Prijs van klimaatneutraal gas: 2,5 €/m³",
+        "expanded": false,
+        "children": [
+          {
+            "id": "425",
+            "label": "Energielevering elektriciteit (LNGA06 H11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "414",
+            "label": "Energielevering klimaatneutraal gas (LNGA06 H10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "447",
+            "label": "Energielevering LT-warmtebron (LNGA06 H13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "436",
+            "label": "Energielevering MT-warmtebron (LNGA06 H12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "458",
+            "label": "Energielevering overig (LNGA06 H14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "403",
+            "label": "Energieverbruik (LNGA06 H01)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "381",
+            "label": "Laagste nationale kosten <20% verschil (LNGA06)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "392",
+            "label": "Laagste nationale kosten (LNGA06)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "367",
+            "label": "Strategie varianten (LNGA06)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Prijs van klimaatneutraal gas: 3 €/m³",
+        "expanded": false,
+        "children": [
+          {
+            "id": "426",
+            "label": "Energielevering elektriciteit (LNGA07 H11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "415",
+            "label": "Energielevering klimaatneutraal gas (LNGA07 H10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "448",
+            "label": "Energielevering LT-warmtebron (LNGA07 H13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "437",
+            "label": "Energielevering MT-warmtebron (LNGA07 H12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "459",
+            "label": "Energielevering overig (LNGA07 H14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "404",
+            "label": "Energieverbruik (LNGA07 H01)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "382",
+            "label": "Laagste nationale kosten <20% verschil (LNGA07)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "393",
+            "label": "Laagste nationale kosten (LNGA07)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "368",
+            "label": "Strategie varianten (LNGA07)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Prijs van klimaatneutraal gas: 3,5 €/m³",
+        "expanded": false,
+        "children": [
+          {
+            "id": "468",
+            "label": "Energielevering elektriciteit (LNGA08 H11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "469",
+            "label": "Energielevering klimaatneutraal gas (LNGA08 H10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "470",
+            "label": "Energielevering LT-warmtebron (LNGA08 H13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "471",
+            "label": "Energielevering MT-warmtebron (LNGA08 H12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "472",
+            "label": "Energielevering overig (LNGA08 H14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "473",
+            "label": "Energieverbruik (LNGA08 H01)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "474",
+            "label": "Laagste nationale kosten <20% verschil (LNGA08)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "394",
+            "label": "Laagste nationale kosten (LNGA08)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "475",
+            "label": "Strategie varianten (LNGA08)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Isolatiekosten: hoog (zelfstandig moment)",
+        "expanded": false,
+        "children": [
+          {
+            "id": "476",
+            "label": "Energielevering elektriciteit (LNGA09 H11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "477",
+            "label": "Energielevering klimaatneutraal gas (LNGA09 H10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "478",
+            "label": "Energielevering LT-warmtebron (LNGA09 H13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "479",
+            "label": "Energielevering MT-warmtebron (LNGA09 H12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "480",
+            "label": "Energielevering overig (LNGA09 H14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "481",
+            "label": "Energieverbruik (LNGA09 H01)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "482",
+            "label": "Laagste nationale kosten <20% verschil (LNGA09)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "483",
+            "label": "Laagste nationale kosten (LNGA09)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "484",
+            "label": "Strategie varianten (LNGA09)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Isolatiekosten: laag (natuurlijk moment)",
+        "expanded": false,
+        "children": [
+          {
+            "id": "485",
+            "label": "Energielevering elektriciteit (LNGA10 H11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "486",
+            "label": "Energielevering klimaatneutraal gas (LNGA10 H10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "487",
+            "label": "Energielevering LT-warmtebron (LNGA10 H13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "488",
+            "label": "Energielevering MT-warmtebron (LNGA10 H12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "489",
+            "label": "Energielevering overig (LNGA10 H14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "490",
+            "label": "Energieverbruik (LNGA10 H01)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "491",
+            "label": "Laagste nationale kosten <20% verschil (LNGA10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "492",
+            "label": "Laagste nationale kosten (LNGA10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "493",
+            "label": "Strategie varianten (LNGA10)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Elektriciteitsprijzen: 0,06 €/kWh (laag)",
+        "expanded": false,
+        "children": [
+          {
+            "id": "494",
+            "label": "Energielevering elektriciteit (LNGA11 H11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "495",
+            "label": "Energielevering klimaatneutraal gas (LNGA11 H10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "496",
+            "label": "Energielevering LT-warmtebron (LNGA11 H13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "497",
+            "label": "Energielevering MT-warmtebron (LNGA11 H12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "498",
+            "label": "Energielevering overig (LNGA11 H14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "499",
+            "label": "Energieverbruik (LNGA11 H01)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "500",
+            "label": "Laagste nationale kosten <20% verschil (LNGA11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "501",
+            "label": "Laagste nationale kosten (LNGA11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "502",
+            "label": "Strategie varianten (LNGA11)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Elektriciteitsprijzen: 0,11 €/kWh (hoog)",
+        "expanded": false,
+        "children": [
+          {
+            "id": "503",
+            "label": "Energielevering elektriciteit (LNGA12 H11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "504",
+            "label": "Energielevering klimaatneutraal gas (LNGA12 H10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "505",
+            "label": "Energielevering LT-warmtebron (LNGA12 H13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "506",
+            "label": "Energielevering MT-warmtebron (LNGA12 H12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "507",
+            "label": "Energielevering overig (LNGA12 H14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "508",
+            "label": "Energieverbruik (LNGA12 H01)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "509",
+            "label": "Laagste nationale kosten <20% verschil (LNGA12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "510",
+            "label": "Laagste nationale kosten (LNGA12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "511",
+            "label": "Strategie varianten (LNGA12)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Beschikbaarheid warmtebronnen: 50%",
+        "expanded": false,
+        "children": [
+          {
+            "id": "512",
+            "label": "Energielevering elektriciteit (LNGA13 H11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "513",
+            "label": "Energielevering klimaatneutraal gas (LNGA13 H10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "514",
+            "label": "Energielevering LT-warmtebron (LNGA13 H13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "515",
+            "label": "Energielevering MT-warmtebron (LNGA13 H12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "516",
+            "label": "Energielevering overig (LNGA13 H14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "517",
+            "label": "Energieverbruik (LNGA13 H01)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "518",
+            "label": "Laagste nationale kosten <20% verschil (LNGA13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "519",
+            "label": "Laagste nationale kosten (LNGA13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "520",
+            "label": "Strategie varianten (LNGA13)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Beschikbaarheid warmtebronnen: 100%",
+        "expanded": false,
+        "children": [
+          {
+            "id": "521",
+            "label": "Energielevering elektriciteit (LNGA14 H11)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "522",
+            "label": "Energielevering klimaatneutraal gas (LNGA14 H10)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "523",
+            "label": "Energielevering LT-warmtebron (LNGA14 H13)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "524",
+            "label": "Energielevering MT-warmtebron (LNGA14 H12)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "525",
+            "label": "Energielevering overig (LNGA14 H14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "526",
+            "label": "Energieverbruik (LNGA14 H01)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "527",
+            "label": "Laagste nationale kosten <20% verschil (LNGA14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "528",
+            "label": "Laagste nationale kosten (LNGA14)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "529",
+            "label": "Strategie varianten (LNGA14)",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
     ]
   },
   {
