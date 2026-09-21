@@ -32,8 +32,8 @@
     "needleGlue": "https://data.woonzorglimburg.nl/models/needle2/needle.js",
     "voskModel": "https://data.woonzorglimburg.nl/models/vosk-nl/vosk-model-small-nl-0.22.tar.gz"
   },
-  "combinations": false,
-  "annotations": false,
+  "combinations": true,
+  "annotations": true,
   "clickMarker": {
     "icon": "location_on",
     "enabled": false,
