@@ -1,6 +1,8 @@
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { DEFAULT_BASEMAP_ID } from "@/components/map/map-view-config";
 import { VARIANT_PARAM, variantId } from "@/config/variant";
+import { COMBI_PARAM, encodeFilterLayerParam } from "@/layers/filter-layer-url";
+import { getFilterLayers, isFilterLayerId } from "@/layers/filter-layers";
 import {
   MAP_SIDES,
   forSide,
@@ -51,6 +53,10 @@ export function isUrlAddressable(entry: LayerEntry): boolean {
  * commands for the hidden ones, in the exact hash format parseCommands /
  * parseView in use-url-commands.ts understand. Per-rule hides are not
  * URL-representable (there is no rule command) and are dropped.
+ *
+ * Combinations (`filter__*`) have no entry in layers.json, so an `add` command
+ * alone would not resolve on the recipient's side. Their definitions travel in
+ * a `combi` param, which the recipient rebuilds from before the commands run.
  */
 export function buildShareUrl(state: ShareUrlState, base?: string): string {
   const params = new URLSearchParams();
@@ -72,6 +78,25 @@ export function buildShareUrl(state: ShareUrlState, base?: string): string {
   // links byte-identical to before.
   const variant = variantId();
   if (variant) params.set(VARIANT_PARAM, variant);
+
+  // Definitions for the combinations that are actually on a map, read from the
+  // store for the same reason the variant is: it keeps a new prop from being
+  // threaded through App.tsx into ShareDialog for state the module can see
+  // itself.
+  //
+  // Only the ones the `add` loop below is about to write. A combination the
+  // user built and then took off the map still sits in the store and in the
+  // "Combinaties" nav theme; carrying it would pad every link with layers the
+  // recipient never sees. Omitted entirely when there are none, so links from
+  // projects that never combine stay byte-identical to before.
+  const onMap = new Set<string>();
+  for (const side of MAP_SIDES) {
+    for (const entry of forSide(state.sides, side).entries) {
+      if (isFilterLayerId(entry.config.id)) onMap.add(entry.config.id);
+    }
+  }
+  const defs = getFilterLayers().filter((def) => onMap.has(def.id));
+  if (defs.length > 0) params.set(COMBI_PARAM, encodeFilterLayerParam(defs));
 
   // The parser index-aligns getAll("cmd")/getAll("map")/getAll("layer"), so
   // every command must append all three keys.

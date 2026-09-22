@@ -22,6 +22,13 @@ import { useSessionFlag } from "@/hooks/use-session-flag";
 
 const EXPORT_SIZE = 2048;
 
+/**
+ * Link length past which the dialog warns. Well under any browser's limit —
+ * this is about mail clients and chat windows that wrap or clip, which start
+ * to be a real risk once combination definitions ride along.
+ */
+const LONG_URL_CHARS = 1800;
+
 interface ShapeOptionProps {
   label: string;
   checked: boolean;
@@ -272,6 +279,17 @@ export function ShareDialog(props: ShareDialogProps): JSX.Element {
                   />
                 </Button>
               </div>
+              {/* Combination layers carry their whole definition, so a link
+                  with a few of them runs into four figures. Every browser
+                  copes; mail clients and chat windows are the ones that wrap
+                  or clip. Said rather than fixed — a silently shortened link
+                  would be worse than a long one. */}
+              <Show when={shareUrl().length > LONG_URL_CHARS}>
+                <p class="mt-2 text-xs text-gray-500">
+                  Deze link is lang. Sommige e‑mailprogramma's knippen hem af — plak hem
+                  als losse regel of deel hem via een berichtenapp.
+                </p>
+              </Show>
             </div>
 
             {/* PNG download */}

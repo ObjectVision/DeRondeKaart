@@ -4,6 +4,7 @@ import type { ClassRef } from "@/components/ui/CombineLayersDialog";
 import { filterRasterForStep, type GeoStylerFilter, type LayerConfig } from "@/layers";
 import {
   addFilterLayer,
+  addFilterLayerWithId,
   filterLayerConfig,
   getFilterLayers,
   removeFilterLayer,
@@ -34,6 +35,59 @@ export interface UseFilterLayersResult {
   ) => Promise<void>;
   /** Remove a combination from the map and release its grid. */
   remove: (id: string) => void;
+  /**
+   * Rebuild combinations that arrived in a share link's `combi` param.
+   *
+   * Registers each definition and recomputes its score grid, but does NOT put
+   * it on the map — the link's own `cmd=add` commands do that, right after.
+   *
+   * Returns incoming id -> the id actually used, which the caller applies to
+   * those pending commands: an incoming id already taken by a combination the
+   * recipient built gets remapped rather than overwriting theirs. A definition
+   * whose source layers are missing is left out of the map entirely.
+   */
+  restore: (
+    defs: FilterLayerDef[],
+    configs: LayerConfig[],
+  ) => Promise<Map<string, string>>;
+}
+
+/**
+ * One {@link ScoreInput} per LAYER, its chosen classes OR-ed together.
+ *
+ * Within a layer the classes are alternatives (a cell holds exactly one);
+ * between layers they are requirements. Each layer therefore contributes at
+ * most 1 to the score. Rule filters are reused verbatim, so a combination tests
+ * exactly the predicate the vector layer draws with.
+ *
+ * Shared by `create` and `restore` so a combination rebuilt from a share link
+ * scores through identical code — they differ only in where `stepFor` comes
+ * from: the live legend, or the stored definition.
+ */
+function scoreInputsFor(
+  refs: ClassRef[],
+  configs: LayerConfig[],
+  stepFor: (layerId: string) => number | undefined,
+): ScoreInput[] {
+  const inputs: ScoreInput[] = [];
+  for (const layerId of new Set(refs.map((ref) => ref.layerId))) {
+    const config = configs.find((c) => c.id === layerId);
+    // A timeseries layer templates the step into its raster URL, so the grid
+    // matches the year the legend showed when combine was clicked.
+    const rasterUrl = config ? filterRasterForStep(config, stepFor(layerId)) : undefined;
+    if (!config || !rasterUrl) continue;
+
+    const filters = refs
+      .filter((ref) => ref.layerId === layerId)
+      .map((ref) => config.geostyler?.rules.find((r) => r.name === ref.ruleName)?.filter)
+      .filter((filter): filter is GeoStylerFilter => Boolean(filter));
+    if (filters.length === 0) continue;
+
+    // A lone class needs no wrapper; `["||", …]` only for a real choice.
+    const filter = filters.length === 1 ? filters[0] : (["||", ...filters] as GeoStylerFilter);
+    inputs.push({ url: rasterUrl, filter });
+  }
+  return inputs;
 }
 
 /**
@@ -61,37 +115,23 @@ export function useFilterLayers(
     setError(null);
     setBusy(true);
     try {
-      // One input per LAYER, its chosen classes OR-ed together: within a layer
-      // the classes are alternatives (a cell holds exactly one), between
-      // layers they are requirements. Each layer therefore contributes at most
-      // 1 to the score. Rule filters are reused verbatim, so the combination
-      // tests exactly the predicate the vector layer draws with.
-      const inputs: ScoreInput[] = [];
-      for (const layerId of new Set(refs.map((ref) => ref.layerId))) {
-        const config = configs.find((c) => c.id === layerId);
-        // A timeseries layer templates the step into its raster URL, so the
-        // grid matches the year the legend showed when combine was clicked.
-        const rasterUrl = config ? filterRasterForStep(config, stepFor(layerId)) : undefined;
-        if (!config || !rasterUrl) continue;
-
-        const filters = refs
-          .filter((ref) => ref.layerId === layerId)
-          .map((ref) => config.geostyler?.rules.find((r) => r.name === ref.ruleName)?.filter)
-          .filter((filter): filter is GeoStylerFilter => Boolean(filter));
-        if (filters.length === 0) continue;
-
-        // A lone class needs no wrapper; `["||", …]` only for a real choice.
-        const filter =
-          filters.length === 1 ? filters[0] : (["||", ...filters] as GeoStylerFilter);
-        inputs.push({ url: rasterUrl, filter });
-      }
+      const inputs = scoreInputsFor(refs, configs, stepFor);
 
       if (inputs.length === 0) {
         setError("Geen van de gekozen lagen heeft een bijbehorend raster.");
         return;
       }
 
-      const { def } = addFilterLayer(name, refs, classes);
+      // The steps are stored, not just templated into the URL: a share link
+      // rebuilds the grid from the definition, and without them it would score
+      // whichever year the recipient's session sits on.
+      const steps: Record<string, number> = {};
+      for (const layerId of new Set(refs.map((ref) => ref.layerId))) {
+        const step = stepFor(layerId);
+        if (step !== undefined) steps[layerId] = step;
+      }
+
+      const { def } = addFilterLayer(name, refs, classes, steps);
       const grid = await computeScoreGrid(inputs);
       registerScoreGrid(
         def.id,
@@ -118,6 +158,48 @@ export function useFilterLayers(
     setDefs(getFilterLayers());
   }
 
+  async function restore(
+    incoming: FilterLayerDef[],
+    configs: LayerConfig[],
+  ): Promise<Map<string, string>> {
+    const remapped = new Map<string, string>();
+    setError(null);
+    setBusy(true);
+    try {
+      for (const def of incoming) {
+        // Same input builder as `create`, so a rebuilt combination scores
+        // through identical code — steps come from the definition rather than
+        // from this session's legend.
+        const inputs = scoreInputsFor(def.refs, configs, (id) => def.steps?.[id]);
+        if (inputs.length === 0) {
+          // Its source layers are absent here — a different variant, or a
+          // project that never had them. Leaving the id out of the remap lets
+          // the link's own `add` warn, which is the existing failure mode for
+          // an unresolvable layer rather than a new one.
+          console.warn(`Combination "${def.name}" (${def.id}): no source raster, skipped`);
+          continue;
+        }
+
+        const stored = addFilterLayerWithId(def);
+        remapped.set(def.id, stored.id);
+
+        const grid = await computeScoreGrid(inputs);
+        registerScoreGrid(
+          stored.id,
+          grid,
+          stored.classes.map((item) => item.color),
+        );
+      }
+      setDefs(getFilterLayers());
+    } catch (err) {
+      console.error("Kon de gedeelde combinatielagen niet herstellen", err);
+      setError("Kon de gedeelde combinatielagen niet herstellen.");
+    } finally {
+      setBusy(false);
+    }
+    return remapped;
+  }
+
   const leaves = () =>
     defs().map((def) => ({
       id: def.id,
@@ -125,5 +207,5 @@ export function useFilterLayers(
       color: def.classes[def.classes.length - 1].color,
     }));
 
-  return { defs, leaves, busy, error, create, remove };
+  return { defs, leaves, busy, error, create, remove, restore };
 }

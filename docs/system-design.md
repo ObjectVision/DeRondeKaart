@@ -487,7 +487,7 @@ from Parquet to PMTiles, and the silence is why it went unnoticed.
 | **Charts panel** | [charts/](../src/components/charts/), [use-chart-data.ts](../src/hooks/use-chart-data.ts) | Up to 4 charts + Kerncijfers |
 | **Annotations** | [use-annotation-tool.ts](../src/hooks/use-annotation-tool.ts), [use-annotation-source.ts](../src/hooks/use-annotation-source.ts) | Circle / polygon / pin, each carrying a session snapshot |
 | **Timeseries** | [use-map-layers.ts](../src/hooks/use-map-layers.ts), `TimeseriesControl` | Play/scrub over a `%YEAR%` placeholder in `sourceLayer` |
-| **Sharing** | [share-url.ts](../src/lib/share-url.ts), [ShareDialog.tsx](../src/components/share/ShareDialog.tsx) | Hash-encoded state, share link, circular PNG export |
+| **Sharing** | [share-url.ts](../src/lib/share-url.ts), [filter-layer-url.ts](../src/layers/filter-layer-url.ts), [ShareDialog.tsx](../src/components/share/ShareDialog.tsx) | Hash-encoded state, share link (combination layers travel as a base64url `combi` param), circular PNG export |
 | **PNG export** | [map-capture.ts](../src/lib/map-capture.ts) | 2048² circular export with legend and callouts |
 | **Circular embed** | [CircularExportView.tsx](../src/components/share/CircularExportView.tsx) | `?embed=circular` or `open-circular` message |
 | **Dashboard (standalone)** | [dashboard/](../src/dashboard/), [components/dashboard/](../src/components/dashboard/) | `?mode=dashboard` map-less view over parquet via DuckDB-Wasm, gated by `map.json`'s `dashboard`; the engine is loaded only on that route |

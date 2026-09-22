@@ -3,6 +3,13 @@ import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import { isUrlAddressable } from "@/lib/share-url";
 import { isBasemapId } from "@/components/map/map-view-config";
 import { VARIANT_PARAM } from "@/config/variant";
+import { COMBI_PARAM, parseFilterLayerParam } from "@/layers/filter-layer-url";
+import {
+  filterLayerConfig,
+  getFilterLayerById,
+  isFilterLayerId,
+  type FilterLayerDef,
+} from "@/layers/filter-layers";
 import {
   forSide,
   sideFromWire,
@@ -48,6 +55,31 @@ interface UseUrlCommandsOptions extends MapSidePair<MapSide> {
    * the new variant's layers.json rather than the outgoing one.
    */
   onSetVariant?: (id: string) => unknown | Promise<unknown>;
+  /**
+   * A share link carried a `combi` param — rebuild those combinations before
+   * the layer commands run, since `filter__*` ids resolve out of that store and
+   * not out of layers.json.
+   *
+   * Resolves to incoming id -> the id actually used. An id the recipient's own
+   * session already holds is remapped rather than overwritten, so the pending
+   * commands are rewritten through this map before they are processed.
+   */
+  onRestoreCombinations?: (
+    defs: FilterLayerDef[],
+  ) => Promise<Map<string, string>>;
+}
+
+/**
+ * A combination's config, rebuilt from the store.
+ *
+ * The same two calls `resolveConfig` in use-navigation.ts makes, inlined rather
+ * than shared: that one is async and takes a layers.json loader this path has
+ * already awaited, so reusing it would mean threading a thunk through to skip
+ * work that is already done.
+ */
+function resolveFilterLayerConfig(id: string) {
+  const def = getFilterLayerById(id);
+  return def ? filterLayerConfig(def) : undefined;
 }
 
 /** Room ids are UUIDv4 — anything else is rejected (also server-side). */
@@ -145,8 +177,13 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
         }
 
         const side = forSide(options, sideFromWire(command.map));
+        // `filter__*` ids live in the combination store, not layers.json — a
+        // share link restores their definitions just above. Same resolution the
+        // navigation tree uses when re-adding one the user toggled off.
         const config = command.layer
-          ? getLayerConfigById(configs, command.layer)
+          ? isFilterLayerId(command.layer)
+            ? resolveFilterLayerConfig(command.layer)
+            : getLayerConfigById(configs, command.layer)
           : undefined;
 
         if (!config) {
@@ -207,7 +244,7 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
     if (!hash) return;
 
     const params = new URLSearchParams(hash);
-    const commands = parseCommands(params);
+    let commands = parseCommands(params);
     const view = parseView(params);
     const hasView = view.zoom !== undefined || view.center !== undefined;
 
@@ -228,12 +265,35 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
     // id rather than leaving the app pointed at a missing directory.
     const variantRaw = params.get(VARIANT_PARAM);
 
-    if (commands.length > 0 || hasView || annotRoom || basemap || variantRaw) {
+    // Combination definitions. Rejected wholesale rather than half-applied —
+    // see filter-layer-url.ts.
+    const combiRaw = params.get(COMBI_PARAM);
+    const combi = combiRaw ? parseFilterLayerParam(combiRaw) : null;
+    if (combiRaw && !combi) {
+      console.warn("Invalid combi parameter; combination layers were not restored");
+    }
+
+    if (commands.length > 0 || hasView || annotRoom || basemap || variantRaw || combi) {
       if (hasView) options.applyView(view);
       // Awaited BEFORE the commands: layer ids are reused across variants, so
       // an `add` processed against the outgoing variant would resolve to a
       // different layer of the same id and quietly show the wrong year.
       if (variantRaw) await options.onSetVariant?.(variantRaw);
+      // Also before the commands, and after the variant for the same reason: a
+      // definition names source layer ids, and `add` resolves `filter__*` out
+      // of the store this fills.
+      if (combi && combi.length > 0) {
+        const remapped = (await options.onRestoreCombinations?.(combi)) ?? new Map();
+        // An incoming id the recipient already used was stored under a fresh
+        // one; point this link's commands at where the layer actually landed.
+        if (remapped.size > 0) {
+          commands = commands.map((command) =>
+            command.layer && remapped.has(command.layer)
+              ? { ...command, layer: remapped.get(command.layer) }
+              : command,
+          );
+        }
+      }
       if (commands.length > 0) await processCommands(commands);
       // The joined room lives on in state — the hash is still cleared below,
       // like every other processed command.
