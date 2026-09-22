@@ -96,7 +96,7 @@ export function BasemapDialog(props: BasemapDialogProps): JSX.Element {
 
   return (
     <DialogRoot open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogContent class="w-[min(40rem,calc(100vw-2rem))]">
+      <DialogContent>
         <div class="mb-5 flex items-center justify-between gap-2">
           {/* Same treatment as the "Themas" and "Legenda" panel headings. */}
           <DialogTitle class="text-xs font-semibold uppercase tracking-wide text-gray-500">

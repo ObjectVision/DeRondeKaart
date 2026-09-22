@@ -47,9 +47,10 @@ export interface SearchDialogProps {
  * the reason the suggestion list exists at all: candidates need room to be read
  * and compared, which a card wedged against the map edge could not give them.
  *
- * The window is deliberately anchored above centre. Its height changes as
- * suggestions arrive, and a vertically centred dialog would shift the input out
- * from under the user's cursor each time the list grew or shrank.
+ * Its top edge is pinned, which matters more here than for the other chrome
+ * dialogs: the window's height changes as suggestions arrive, and a vertically
+ * centred one would shift the input out from under the user's cursor each time
+ * the list grew or shrank. DialogContent pins every chrome dialog this way now.
  */
 export function SearchDialog(props: SearchDialogProps): JSX.Element {
   const [searchQuery, setSearchQuery] = createSignal("");
@@ -293,11 +294,7 @@ export function SearchDialog(props: SearchDialogProps): JSX.Element {
 
   return (
     <DialogRoot open={props.open} onOpenChange={handleOpenChange}>
-      {/* Same width as the other chrome dialogs. Anchored near the top rather
-          than centred: the window grows and shrinks as suggestions arrive, and
-          a centred one would slide the input out from under the cursor each
-          time the list changed size. */}
-      <DialogContent class="app-scrollbar top-[20vh] max-h-[calc(80vh-1rem)] w-[min(40rem,calc(100vw-2rem))] translate-y-0">
+      <DialogContent>
         <div class="mb-5 flex items-center justify-between gap-2">
           {/* Same treatment as the "Referentielagen" and "Legenda" headings. */}
           <DialogTitle class="text-xs font-semibold uppercase tracking-wide text-gray-500">
