@@ -29,7 +29,7 @@ import { useComplementaryDashboard } from "@/hooks/use-complementary-dashboard";
 import { viewForBbox } from "@/lib/fly-to";
 import { areaFilterLevels } from "@/layers/area-filter";
 import type { BBox } from "@/layers/box-filter";
-import type { LayerConfig, ScoreClass } from "@/layers";
+import { loadLayerConfigs, type LayerConfig, type ScoreClass } from "@/layers";
 import { addPickLayer } from "@/lib/pick-layer";
 import {
   DEFAULT_CLICK_MARKER,
@@ -705,6 +705,10 @@ function App(rawProps: AppProps): JSX.Element {
     onOpenCircular: openCircular,
     onSetFilter: setFilterFromHost,
     onSetVariant: switchVariant,
+    // Runs after the variant switch, so the definitions' source layer ids
+    // resolve against the catalogue the link asked for.
+    onRestoreCombinations: async (defs) =>
+      filterLayers.restore(defs, await loadLayerConfigs()),
   });
 
   function applyConfig(cfg: EmbedConfig) {

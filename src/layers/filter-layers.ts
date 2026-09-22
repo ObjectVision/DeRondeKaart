@@ -23,6 +23,16 @@ export interface FilterLayerDef {
    * and colours the user edited in its preview.
    */
   classes: ScoreClass[];
+  /**
+   * Timeseries step per source layer, for the layers that have one.
+   *
+   * A combination is a snapshot of the years its legend showed, and only the
+   * generated `name` carries a trace of that ("… (2040)", as text). Without
+   * this a rebuild from a share link would score whichever step the recipient's
+   * session happens to sit on — a wrong answer under the right name, with
+   * nothing to error on.
+   */
+  steps?: Record<string, number>;
 }
 
 /** One legend class of a combination — the class for score `index + 1`. */
@@ -49,9 +59,11 @@ export function layerCountOf(refs: ClassRef[]): number {
  * mutators bump and return, so React state can be re-derived without the store
  * knowing about React.
  *
- * Session-scoped by design. Share URLs and annotation snapshots resolve layer
- * ids through `getLayerConfigById` and silently drop unknown ones, so a filter
- * layer simply does not come back — documented rather than half-fixed.
+ * Session-scoped, but not unshareable: a share link carries each combination's
+ * whole definition in its `combi` param and the recipient rebuilds the score
+ * grid from it (`filter-layer-url.ts`, `useFilterLayers.restore`). A plain
+ * reload without that link still loses them, and annotation snapshots still
+ * resolve ids through `getLayerConfigById` and drop combinations.
  */
 const store: { version: number; defs: FilterLayerDef[]; nextId: number } = {
   version: 0,
@@ -191,17 +203,48 @@ export function addFilterLayer(
   name: string,
   refs: ClassRef[],
   classes: ScoreClass[] = defaultScoreClasses(refs),
+  steps?: Record<string, number>,
 ): { def: FilterLayerDef; version: number } {
   const def: FilterLayerDef = {
     id: `filter__${store.nextId}`,
     name,
     refs,
     classes,
+    ...(steps && Object.keys(steps).length > 0 ? { steps } : {}),
   };
   store.nextId += 1;
   store.defs = [...store.defs, def];
   store.version += 1;
   return { def, version: store.version };
+}
+
+/**
+ * Adopt a definition that arrived from outside — a share link's `combi` param.
+ *
+ * Keeps the incoming id when it is free, so the link's `cmd=add&layer=filter__1`
+ * finds it. When that id is already taken by a DIFFERENT combination the
+ * recipient built this session, mints a fresh one instead of overwriting: the
+ * link must not delete work the recipient did. The caller is told which id was
+ * used and rewrites its pending commands accordingly.
+ *
+ * `nextId` is pushed past any adopted `filter__<n>`, or the next `create()` in
+ * this session would mint an id that already exists.
+ */
+export function addFilterLayerWithId(incoming: FilterLayerDef): FilterLayerDef {
+  const taken = store.defs.some((def) => def.id === incoming.id);
+  const def: FilterLayerDef = taken
+    ? { ...incoming, id: `filter__${store.nextId}` }
+    : { ...incoming };
+
+  if (taken) store.nextId += 1;
+  else {
+    const suffix = Number(def.id.slice("filter__".length));
+    if (Number.isSafeInteger(suffix) && suffix >= store.nextId) store.nextId = suffix + 1;
+  }
+
+  store.defs = [...store.defs, def];
+  store.version += 1;
+  return def;
 }
 
 /** Remove a combination by id. Returns the new store version. */

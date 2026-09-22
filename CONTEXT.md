@@ -86,8 +86,11 @@ fixed. Named `areaFilter` in code, but *gebiedsfilter* is the word used in
 comments and in conversation, so both appear. `src/layers/area-filter.ts`.
 
 **Combination** (Dutch: *Combinaties*) — a layer the user builds in-session by
-scoring how many chosen classes each grid cell passes. Session-scoped: never in
-`layers.json`, gone on reload. `src/layers/filter-layers.ts`.
+scoring how many chosen classes each grid cell passes. Never in `layers.json`,
+so it cannot be re-added by id alone: a share link carries the whole definition
+in its `combi` param and the recipient recomputes the score grid. Still gone on
+a plain reload without that link. `src/layers/filter-layers.ts`,
+`src/layers/filter-layer-url.ts`.
 
 **Slot** — one of the (at most four) areas held side by side in the dashboard's
 comparison panel. `src/layers/compare-slots.ts`.
