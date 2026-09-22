@@ -247,6 +247,13 @@
             "label": "pandtype",
             "a": false,
             "b": false
+          },
+          {
+            "id": "energielabel",
+            "color": "#2D6CDF",
+            "label": "energielabel",
+            "a": false,
+            "b": false
           }
         ]
       },
