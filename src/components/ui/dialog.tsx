@@ -119,8 +119,30 @@ function DialogContent(props: DialogContentProps): JSX.Element {
               tabindex={-1}
               onKeyDown={handleKeyDown}
               class={cn(
-                "fixed left-1/2 top-1/2 z-50 max-h-[calc(100vh-2rem)] w-[min(64rem,calc(100vw-2rem))]",
-                "-translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-2xl bg-white p-6 shadow-lg outline-none",
+                // Aligned to the map chrome rather than centred on the viewport:
+                // the top meets the navigation card and the bottom meets the
+                // legend, so an open window reads as part of the same furniture.
+                //
+                // Top = the left column's own offset (App.tsx `top-2`, `sm:top-4`)
+                // + the 36px/2.25rem toolbar row above the card (icon-sm 28px in
+                // a p-1 bar) + the `gap-2` between them:
+                //   0.5 + 2.25 + 0.5 = 3.25rem  ->  top-13
+                //   1   + 2.25 + 0.5 = 3.75rem  ->  sm:top-15
+                // Max height leaves the legend's own bottom offset clear
+                // (`bottom-2`, `sm:bottom-4`): 3.25 + 0.5 and 3.75 + 1.
+                //
+                // Written as scale steps rather than calc(): a bracketed value
+                // containing `+` is not a valid Tailwind candidate, so
+                // `top-[calc(0.5rem+2.25rem+0.5rem)]` silently emits NO rule and
+                // the dialog ends up with no `top` at all. The underscores in
+                // the max-height are Tailwind's escape for the spaces CSS
+                // requires around a calc operator.
+                "fixed left-1/2 z-50 w-[min(64rem,calc(100vw-2rem))] -translate-x-1/2",
+                "top-13 max-h-[calc(100vh_-_3.75rem)]",
+                "sm:top-15 sm:max-h-[calc(100vh_-_4.75rem)]",
+                // `app-scrollbar` lives here rather than in each caller: the
+                // scroll container is this element, which exposes no ref.
+                "app-scrollbar overflow-y-auto rounded-2xl bg-white p-6 shadow-lg outline-none",
                 local.class,
               )}
             >

@@ -433,7 +433,7 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
             LayerMetaDialog is: the tabs differ a lot in height, and a centred
             window jumps as they switch. Height still follows the content, so
             the short Attributie tab stays a short window. */}
-        <DialogContent class="app-scrollbar top-[6vh] max-h-[calc(94vh-1rem)] w-[min(64rem,calc(100vw-2rem))] translate-y-0 text-sm text-gray-600">
+        <DialogContent class="text-sm text-gray-600">
           <div class="mb-5 flex items-center justify-between gap-2">
             {/* Mark and title travel together on the left, so `justify-between`
                 keeps only the close button pushed to the right. */}

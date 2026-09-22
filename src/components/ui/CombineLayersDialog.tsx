@@ -194,7 +194,7 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
 
   return (
     <DialogRoot open={props.open} onOpenChange={props.onOpenChange}>
-      <DialogContent class="w-[min(34rem,calc(100vw-2rem))]">
+      <DialogContent>
         <div class="mb-5 flex items-center justify-between gap-2">
           <div class="flex items-center gap-2">
             <Icon name="masked_transitions_add" size={chromeIconSize()} color={chromeIconColor()} />
