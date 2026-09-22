@@ -93,6 +93,26 @@ export function SearchDialog(props: SearchDialogProps): JSX.Element {
     setActiveIndex(-1);
   }
 
+  /**
+   * Empty the box and everything derived from it.
+   *
+   * The pending debounce and any in-flight geocode are cancelled too: a timer
+   * armed by the last keystroke would otherwise fire 250 ms later and repopulate
+   * the list under a field the user just emptied.
+   *
+   * Focus goes back to the input because the button removes itself the moment
+   * the query is empty — a keyboard user would otherwise be left standing on an
+   * element that no longer exists.
+   */
+  function clearQuery() {
+    clearTimeout(suggestTimer);
+    suggestAbort?.abort();
+    setSearchQuery("");
+    setMessage(null);
+    clearSuggestions();
+    inputRef?.focus();
+  }
+
   async function handleSearch(e: Event) {
     e.preventDefault();
     const text = searchQuery().trim();
@@ -296,37 +316,61 @@ export function SearchDialog(props: SearchDialogProps): JSX.Element {
 
         <form onSubmit={handleSearch} class="flex flex-col gap-2">
           <div class="flex items-center gap-1">
-            <input
-              type="text"
-              value={searchQuery()}
-              onInput={(e) => {
-                setSearchQuery(e.currentTarget.value);
-                setMessage(null);
-                // Debounced here rather than in an effect, deliberately: this
-                // fires only for text the USER typed. Dictation writes the
-                // input through setSearchQuery, which raises no input event, so
-                // partial speech results cannot each trigger a geocode.
-                scheduleSuggestions(e.currentTarget.value);
-              }}
-              onKeyDown={handleKeyDown}
-              role="combobox"
-              aria-expanded={suggestions().length > 0}
-              aria-controls="map-search-suggestions"
-              aria-autocomplete="list"
-              aria-activedescendant={
-                activeIndex() >= 0 ? `map-search-option-${activeIndex()}` : undefined
-              }
-              placeholder={commandMode() ? "Zoek of geef een opdracht..." : "Zoek op gemeente, wijk, buurt, postcode of straat..."}
-              class="min-w-0 flex-1 rounded border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-400"
-              // Focused explicitly, not with the `autofocus` attribute: browsers
-              // honour that only for an element present in the initial HTML, and
-              // this input is created when the window opens. Deferred a frame so
-              // the element is in the document when focus is called.
-              ref={(el) => {
-                inputRef = el;
-                requestAnimationFrame(() => el.focus());
-              }}
-            />
+            {/* `relative` so the clear button can sit inside the input's own
+                border, as opposed to beside it like the mic and send buttons.
+                The input's `min-w-0 flex-1` lives here now; it fills this box. */}
+            <div class="relative flex min-w-0 flex-1 items-center">
+              <input
+                type="text"
+                value={searchQuery()}
+                onInput={(e) => {
+                  setSearchQuery(e.currentTarget.value);
+                  setMessage(null);
+                  // Debounced here rather than in an effect, deliberately: this
+                  // fires only for text the USER typed. Dictation writes the
+                  // input through setSearchQuery, which raises no input event, so
+                  // partial speech results cannot each trigger a geocode.
+                  scheduleSuggestions(e.currentTarget.value);
+                }}
+                onKeyDown={handleKeyDown}
+                role="combobox"
+                aria-expanded={suggestions().length > 0}
+                aria-controls="map-search-suggestions"
+                aria-autocomplete="list"
+                aria-activedescendant={
+                  activeIndex() >= 0 ? `map-search-option-${activeIndex()}` : undefined
+                }
+                placeholder={commandMode() ? "Zoek of geef een opdracht..." : "Zoek op gemeente, wijk, buurt, postcode of straat..."}
+                // `pr-9` reserves the clear button's corner, so text scrolls under
+                // the padding rather than under the cross.
+                class="w-full rounded border border-gray-300 py-2 pl-3 pr-9 text-sm outline-none focus:border-blue-400"
+                // Focused explicitly, not with the `autofocus` attribute: browsers
+                // honour that only for an element present in the initial HTML, and
+                // this input is created when the window opens. Deferred a frame so
+                // the element is in the document when focus is called.
+                ref={(el) => {
+                  inputRef = el;
+                  requestAnimationFrame(() => el.focus());
+                }}
+              />
+              {/* Untrimmed on purpose, unlike `hasQuery()`: a field holding only
+                  spaces still needs a way to empty itself. `type="button"` keeps
+                  the click out of the form's submit handler, which would
+                  otherwise search for the text it is about to erase. */}
+              <Show when={searchQuery().length > 0}>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  type="button"
+                  class="absolute right-1 top-1/2 -translate-y-1/2"
+                  onClick={clearQuery}
+                  title="Zoekopdracht wissen"
+                  aria-label="Zoekopdracht wissen"
+                >
+                  <Icon name="close" size={16} class="text-gray-400" />
+                </Button>
+              </Show>
+            </div>
             {/* Speech input. Present as soon as the project enables it, but
                 inert until its model has finished — the greyed state is how the
                 user sees that the download is still running. */}
