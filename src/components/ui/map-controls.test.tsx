@@ -42,7 +42,7 @@ describe("MapControls search", () => {
   it("opens the search box on the search button", () => {
     openSearch();
 
-    expect(screen.getByPlaceholderText("Zoek een locatie...")).toBeTruthy();
+    expect(screen.getByPlaceholderText("Zoek op gemeente, wijk, buurt, postcode of straat...")).toBeTruthy();
   });
 
   /**
@@ -62,7 +62,7 @@ describe("MapControls search", () => {
 
   it("focuses the search box so the user can type straight away", async () => {
     openSearch();
-    const input = screen.getByPlaceholderText("Zoek een locatie...");
+    const input = screen.getByPlaceholderText("Zoek op gemeente, wijk, buurt, postcode of straat...");
 
     // The focus call is deferred a frame so the element is in the document.
     await new Promise(requestAnimationFrame);
@@ -79,18 +79,18 @@ describe("MapControls search", () => {
 
     screen.getByTitle("Sluiten").click();
 
-    expect(screen.queryByPlaceholderText("Zoek een locatie...")).toBeNull();
+    expect(screen.queryByPlaceholderText("Zoek op gemeente, wijk, buurt, postcode of straat...")).toBeNull();
   });
 
   // The shell's own dismiss path, and the reason the suggestion list stops
   // Escape from bubbling while it is open.
   it("closes on Escape when there is no list to fold away first", () => {
     openSearch();
-    const input = screen.getByPlaceholderText("Zoek een locatie...");
+    const input = screen.getByPlaceholderText("Zoek op gemeente, wijk, buurt, postcode of straat...");
 
     input.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
 
-    expect(screen.queryByPlaceholderText("Zoek een locatie...")).toBeNull();
+    expect(screen.queryByPlaceholderText("Zoek op gemeente, wijk, buurt, postcode of straat...")).toBeNull();
   });
 
   /**
@@ -98,11 +98,15 @@ describe("MapControls search", () => {
    * `handleSearch` would refuse the query, the project accent once it would act.
    */
   describe("submit icon", () => {
+    // Scoped to the submit button rather than the first icon in the form: the
+    // clear button renders an icon ahead of it as soon as there is a query.
     const sendIcon = () =>
-      document.querySelector<HTMLElement>('form span.material-symbols-outlined');
+      document.querySelector<HTMLElement>(
+        'form button[type="submit"] span.material-symbols-outlined',
+      );
 
     function type(text: string) {
-      const input = screen.getByPlaceholderText<HTMLInputElement>("Zoek een locatie...");
+      const input = screen.getByPlaceholderText<HTMLInputElement>("Zoek op gemeente, wijk, buurt, postcode of straat...");
       input.value = text;
       input.dispatchEvent(new Event("input", { bubbles: true }));
     }
@@ -257,7 +261,7 @@ describe("MapControls search", () => {
     vi.stubGlobal("fetch", fetchSpy);
     openSearch();
 
-    const form = screen.getByPlaceholderText("Zoek een locatie...").closest("form");
+    const form = screen.getByPlaceholderText("Zoek op gemeente, wijk, buurt, postcode of straat...").closest("form");
     form?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
 
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -303,7 +307,7 @@ describe("MapControls suggestions", () => {
       />
     ));
     screen.getAllByTitle("Zoeken")[0].click();
-    const input = screen.getByPlaceholderText("Zoek een locatie...") as HTMLInputElement;
+    const input = screen.getByPlaceholderText("Zoek op gemeente, wijk, buurt, postcode of straat...") as HTMLInputElement;
     return { input, onSuggest, onPick, onCommand };
   }
 
@@ -480,7 +484,7 @@ describe("MapControls suggestions", () => {
     press(input, "Escape");
 
     expect(screen.queryByRole("listbox")).toBeNull();
-    expect(screen.queryByPlaceholderText("Zoek een locatie...")).toBeTruthy();
+    expect(screen.queryByPlaceholderText("Zoek op gemeente, wijk, buurt, postcode of straat...")).toBeTruthy();
   });
 
   /**
@@ -498,7 +502,7 @@ describe("MapControls suggestions", () => {
 
     expect(screen.queryByRole("listbox")).toBeNull();
     expect(
-      screen.getByPlaceholderText<HTMLInputElement>("Zoek een locatie...").value,
+      screen.getByPlaceholderText<HTMLInputElement>("Zoek op gemeente, wijk, buurt, postcode of straat...").value,
     ).toBe("");
   });
 
@@ -552,7 +556,7 @@ describe("MapControls suggestions", () => {
     vi.useFakeTimers();
     render(() => <MapControls onZoomIn={() => {}} onZoomOut={() => {}} />);
     screen.getAllByTitle("Zoeken")[0].click();
-    const input = screen.getByPlaceholderText("Zoek een locatie...") as HTMLInputElement;
+    const input = screen.getByPlaceholderText("Zoek op gemeente, wijk, buurt, postcode of straat...") as HTMLInputElement;
 
     type(input, "Venlo");
     vi.advanceTimersByTime(300);
