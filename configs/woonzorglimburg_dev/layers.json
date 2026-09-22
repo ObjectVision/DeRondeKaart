@@ -6728,6 +6728,142 @@
       "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/pandtype_lb_2026.cog.tif"
     },
     {
+      "id": "energielabel",
+      "name": "energielabel",
+      "source": "https://data.startanalyse2026.nl/pmtiles/basis/energielabel.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "energielabel",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "energielabel",
+        "rules": [
+          {
+            "name": "A+",
+            "filter": [
+              "==",
+              "SchilLabel_rel",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1A9641",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "B",
+            "filter": [
+              "==",
+              "SchilLabel_rel",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#76A813",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "C",
+            "filter": [
+              "==",
+              "SchilLabel_rel",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#AEC400",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "D",
+            "filter": [
+              "==",
+              "SchilLabel_rel",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F7E600",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "E",
+            "filter": [
+              "==",
+              "SchilLabel_rel",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FDB400",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "F",
+            "filter": [
+              "==",
+              "SchilLabel_rel",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F75F0C",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "G",
+            "filter": [
+              "==",
+              "SchilLabel_rel",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C50007",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Geen label",
+            "filter": [
+              "==",
+              "SchilLabel_rel",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#969696",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      }
+    },
+    {
       "id": "aandeel_j0_17",
       "name": "Aandeel 0-17 jaar",
       "meta": "/data/meta/aandeel_j0_17.html",
