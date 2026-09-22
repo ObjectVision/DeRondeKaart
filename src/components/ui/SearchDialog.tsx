@@ -316,7 +316,7 @@ export function SearchDialog(props: SearchDialogProps): JSX.Element {
               aria-activedescendant={
                 activeIndex() >= 0 ? `map-search-option-${activeIndex()}` : undefined
               }
-              placeholder={commandMode() ? "Zoek of geef een opdracht..." : "Zoek een locatie..."}
+              placeholder={commandMode() ? "Zoek of geef een opdracht..." : "Zoek op gemeente, wijk, buurt, postcode of straat..."}
               class="min-w-0 flex-1 rounded border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-400"
               // Focused explicitly, not with the `autofocus` attribute: browsers
               // honour that only for an element present in the initial HTML, and
