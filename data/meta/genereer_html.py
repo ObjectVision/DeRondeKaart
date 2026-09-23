@@ -255,7 +255,7 @@ def maak_bronnen_html(kaartlaag_id, df_kaartlagen_bronnen, bronnen_dict):
         if link_html:
             titel_html = f"""
                   <div class="flex items-center justify-between gap-2 mb-0.5">
-                    <h4 class="font-semibold text-gray-900 text-sm">{titel}</h4>
+                    <h4 class="dro-card-title font-semibold text-gray-900 text-sm">{titel}</h4>
                     <a href="{link_html}" target="_blank" rel="noopener"
                        class="text-xs font-semibold hover:underline flex items-center gap-1"
                        style="color: var(--primary-color);">
@@ -265,7 +265,7 @@ def maak_bronnen_html(kaartlaag_id, df_kaartlagen_bronnen, bronnen_dict):
             """
         else:
             titel_html = f"""
-                  <h4 class="font-semibold text-gray-900 text-sm mb-0.5">{titel}</h4>
+                  <h4 class="dro-card-title font-semibold text-gray-900 text-sm mb-0.5">{titel}</h4>
             """
 
         logo_html = ""
