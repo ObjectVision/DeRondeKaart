@@ -127,7 +127,7 @@ export interface FillSymbolizer extends RawStyleOverrides {
    * The legend swatch renders the same geometry from the same constants, so the
    * map and the legend cannot drift.
    */
-  hatch?: boolean | { color?: string; background?: string };
+  hatch?: boolean | { color?: string; background?: string; stripe?: number };
 }
 
 export interface LineSymbolizer extends RawStyleOverrides {
