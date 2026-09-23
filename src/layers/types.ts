@@ -443,27 +443,52 @@ export interface LayerConfig {
    */
   filterRaster?: string;
   /**
-   * Path to an HTML fragment describing the dataset, e.g.
-   * "/data/meta/huisarts.html". Fetched on demand and rendered in the metainfo
+   * HTML describing the dataset, fetched on demand and rendered in the metainfo
    * dialog (see LeafMeta), opened from the legend's info button or from under
    * the navigation description. Describes the data, not the menu position —
    * which is why it lives here and not on a navigation leaf.
    *
-   * An ARRAY composes the dialog from several fragments, concatenated verbatim in
-   * array order. That lets text shared by many layers live in one file instead of
-   * being copy-pasted into each variant:
+   * Three spellings, in order of how much the document is split up:
    *
+   *   "meta": "/data/meta/huisarts_toelichting.html"
    *   "meta": ["LN_H10_specific.html", "LN_default.html"]
+   *   "meta": { "toelichting": …, "bronnen": …, "aannames_en_onzekerheden": … }
+   *
+   * An ARRAY composes one document from several fragments, concatenated verbatim
+   * in array order. That lets text shared by many layers live in one file instead
+   * of being copy-pasted into each variant.
+   *
+   * The OBJECT form gives the dialog its tabs (see LayerMetaRoutes). Each route's
+   * value is itself a path or an array of them, composed exactly as above — so
+   * the two forms nest rather than compete. A string or array is the one-tab
+   * case, shown as "Toelichting".
    *
    * Fragments are fetched in parallel and cached per URL, so a shared base file is
-   * only ever fetched once no matter how many layers reference it. A fragment that
-   * fails to load is skipped with a warning; the rest still render.
+   * only ever fetched once no matter how many layers or routes reference it. A
+   * fragment that fails to load is skipped with a warning; the rest still render.
    *
-   * Note that each published fragment carries its own boilerplate (a `<link>`, a
+   * Note that a published fragment may carry its own boilerplate (a `<link>`, a
    * `<head>` and a trailing `<footer>`), so composing two of them repeats the
    * footer. Nothing is stripped or rewritten — see LeafMeta.
    */
-  meta?: string | string[];
+  meta?: string | string[] | LayerMetaRoutes;
+}
+
+/**
+ * The metainfo dialog's tabs, keyed by route. Order here is the order they are
+ * shown in, not the order the keys happen to appear in the JSON.
+ *
+ * **A route with nothing to show gets no tab.** Omit the key, and the generator
+ * (`data/meta/genereer_html.py`) writes no file for an empty route in the first
+ * place — so "no sources recorded" reads as a missing tab rather than as a tab
+ * leading to an apology.
+ */
+export interface LayerMetaRoutes {
+  /** "Wat ziet u?" and "Berekenwijze". Also where a legacy string/array lands. */
+  toelichting?: string | string[];
+  /** The "Databronnen" table. */
+  bronnen?: string | string[];
+  aannames_en_onzekerheden?: string | string[];
 }
 
 export interface LayersFile {

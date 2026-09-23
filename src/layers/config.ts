@@ -1,5 +1,6 @@
-import type { LayerConfig, LayersFile, LayerFormat, StatisticConfig, TimeseriesConfig } from "./types";
+import type { LayerConfig, LayerMetaRoutes, LayersFile, LayerFormat, StatisticConfig, TimeseriesConfig } from "./types";
 import { canHighlight, prefetchIdProperty, HIGHLIGHT_WIDTH } from "./feature-id";
+import { META_ROUTES } from "./meta-routes";
 import { loadConfig, clearConfigCache } from "@/config/load-config";
 
 // "geojson" arrives two ways: `source` as a URL MapLibre fetches itself, or
@@ -27,29 +28,61 @@ function validateAttributeSource(raw: unknown, id: string): string | undefined {
   return raw;
 }
 
-/** Path to an HTML fragment describing the dataset (see LayerConfig.meta). */
-function validateMeta(raw: unknown, id: string): string | string[] | undefined {
+/**
+ * One route's fragment path(s) — the string/array half of `meta`, which the
+ * object form reuses per tab (see LayerConfig.meta).
+ *
+ * `where` names what is being validated so the warning points at the route
+ * rather than at the layer as a whole.
+ */
+function validateMetaPaths(raw: unknown, id: string, where: string): string | string[] | undefined {
   if (raw === undefined) return undefined;
   if (typeof raw === "string" && raw !== "") return raw;
-  // An array composes the dialog from several fragments (see LayerConfig.meta).
-  // Bad entries are dropped rather than failing the whole layer, so one typo in a
-  // composed list still shows the fragments that are valid.
+  // An array composes one document from several fragments. Bad entries are
+  // dropped rather than failing the whole layer, so one typo in a composed list
+  // still shows the fragments that are valid.
   if (Array.isArray(raw)) {
     const paths = raw.filter((p): p is string => typeof p === "string" && p !== "");
     // Nothing usable left — same result as any other invalid value. Warned about
     // here rather than falling through silently, so an empty or all-bad list is
     // as visible as a malformed one.
     if (paths.length === 0) {
-      console.warn(`layers.json: layer "${id}" has invalid "meta"; ignoring`);
+      console.warn(`layers.json: layer "${id}" has invalid ${where}; ignoring`);
       return undefined;
     }
     if (paths.length !== raw.length) {
-      console.warn(`layers.json: layer "${id}" has invalid entries in "meta"; ignoring those`);
+      console.warn(`layers.json: layer "${id}" has invalid entries in ${where}; ignoring those`);
     }
     return paths;
   }
-  console.warn(`layers.json: layer "${id}" has invalid "meta"; ignoring`);
+  console.warn(`layers.json: layer "${id}" has invalid ${where}; ignoring`);
   return undefined;
+}
+
+/** HTML fragment(s) describing the dataset (see LayerConfig.meta). */
+function validateMeta(raw: unknown, id: string): string | string[] | LayerMetaRoutes | undefined {
+  if (raw === undefined) return undefined;
+
+  // The object form gives the dialog its tabs. Checked before the array branch
+  // below only because an array is also an object — `Array.isArray` separates
+  // them, so the order of these two is not load-bearing.
+  if (raw !== null && typeof raw === "object" && !Array.isArray(raw)) {
+    const source = raw as Record<string, unknown>;
+    const routes: LayerMetaRoutes = {};
+    for (const { id: route } of META_ROUTES) {
+      const paths = validateMetaPaths(source[route], id, `"meta.${route}"`);
+      // An absent or unusable route is simply not a tab — validateMetaPaths has
+      // already warned if there was something there but it was malformed.
+      if (paths !== undefined) routes[route] = paths;
+    }
+    if (Object.keys(routes).length === 0) {
+      console.warn(`layers.json: layer "${id}" has invalid "meta"; ignoring`);
+      return undefined;
+    }
+    return routes;
+  }
+
+  return validateMetaPaths(raw, id, `"meta"`);
 }
 
 /** Brief plain-text summary of the layer (see LayerConfig.description). */

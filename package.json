@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "metainfo": "python scripts/metainfo/genereer_html.py",
+    "metainfo": "python data/meta/genereer_html.py",
     "preview": "vite preview",
     "test": "vitest run"
   },

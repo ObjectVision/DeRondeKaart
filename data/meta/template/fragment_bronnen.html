@@ -1,0 +1,26 @@
+<!-- "Bronnen" tab of the app's metainfo dialog. -->
+<div class="dro-meta">
+
+{{ KOP }}
+
+  <div class="grid grid-cols-1 gap-4">
+
+    <section class="rounded-2xl border border-gray-200 p-4">
+      <div class="mb-4 border-b border-gray-200 pb-3">
+        <h3 class="flex items-center gap-2">
+          <span aria-hidden="true" class="material-symbols-outlined leading-none select-none"
+                style="font-size: 20px; color: var(--primary-color);">database</span>
+          <span class="text-base font-semibold" style="color: var(--primary-color);">
+            Databronnen
+          </span>
+        </h3>
+      </div>
+      <table class="w-full border-collapse text-left">
+        <tbody>
+          {{ BRONNEN }}
+        </tbody>
+      </table>
+    </section>
+
+  </div>
+</div>

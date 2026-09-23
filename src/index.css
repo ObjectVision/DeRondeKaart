@@ -10,12 +10,30 @@
    else in the app opts in. */
 @plugin "@tailwindcss/typography";
 
-/* The generated woonzorglimburg metainfo fragments (scripts/metainfo) are
-   fetched at runtime, so Tailwind never sees them by scanning src/ and any
-   utility only they use is purged from the build. Pointed at the published
-   fragments rather than kept as a hand-written safelist, which would go stale
-   the first time the template gains a class. */
-@source "../public/data/meta";
+/* The woonzorglimburg metainfo fragments are fetched at runtime FROM ANOTHER
+   ORIGIN (data.woonzorglimburg.nl), so Tailwind cannot see them at all: any
+   utility only they use would be purged and the fragment would render unstyled,
+   with nothing failing to explain it.
+
+   Scanning their SOURCES instead of the generated output, because the output no
+   longer lives in this repo. The templates and the hand-written documents are
+   HTML, so Tailwind reads them normally.
+
+   The generator is NOT among them: Tailwind does not extract from .py, so an
+   `@source` pointing at it is accepted and silently scans nothing — the classes
+   it injects into links were purged with no error and no failing test. They are
+   listed explicitly below instead. Keep this list in step with `format_text`
+   and `maak_bronnen_html` in data/meta/genereer_html.py; it is short because
+   almost all of the markup lives in the templates, which are scanned properly.
+
+   The second list is the classes written into the SPREADSHEET's own HTML — the
+   kaartlaagtype diagram markup — which nothing here can see either. Adding a
+   class there means adding it here, or it is purged; `m-0` was, and the
+   diagrams silently kept prose's 2em image margins. */
+@source "../../data/meta/template";
+@source "../../data/meta/handmatig";
+@source inline("underline hover:underline hover:text-blue-800");
+@source inline("w-full h-auto rounded-xl border border-gray-200 object-cover m-0 p-0");
 
 @custom-variant dark (&:is(.dark *));
 
@@ -138,10 +156,9 @@ html, body {
 :root {
   /* The generated metainfo fragments carry inline
      `style="color: var(--primary-color)"` on their section headings. The
-     standalone preview pages define it in their own <head>, which is discarded
-     when the app injects a fragment — so without this every heading silently
-     falls back to body colour. Kept in step with
-     scripts/metainfo/template/opmaak.html. */
+     fragments carry no <head> of their own — they are injected into this app's
+     dialog — so without this every heading silently falls back to body
+     colour. */
   --primary-color: rgb(62, 116, 167);
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -224,7 +241,7 @@ html, body {
 }
 
 /* Row striping for the databronnen table in the generated metainfo fragments
-   (scripts/metainfo). Written as CSS rather than an `even:bg-gray-100` utility
+   (data/meta). Written as CSS rather than an `even:bg-gray-100` utility
    on the <tr>: those documents are fetched at runtime, so Tailwind never scans
    them and a utility used nowhere else in the app is purged from the build —
    the striping would then vanish with nothing to explain it. Scoped to the

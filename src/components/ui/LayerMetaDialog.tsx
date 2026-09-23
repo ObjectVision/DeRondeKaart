@@ -38,10 +38,37 @@ export function LayerMetaDialog(props: LayerMetaDialogProps): JSX.Element {
               window rather than growing past it. */}
           <DialogContent>
             <div class="mb-5 flex items-center justify-between gap-2">
-              {/* Same treatment as the "Referentielagen" and "Legenda" headings. */}
-              <DialogTitle class="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                {layer().name}
-              </DialogTitle>
+              {/* Mark and title travel together on the left, so `justify-between`
+                  keeps only the close button pushed to the right — the same
+                  header as "Over de applicatie". */}
+              <div class="flex items-center gap-2">
+                {/* The app mark, from public/favicon.svg — the same file the
+                    browser tab uses. Decorative: the title beside it names the
+                    window. */}
+                <img
+                  src="/favicon.svg"
+                  alt=""
+                  aria-hidden
+                  draggable={false}
+                  class="h-6 w-6 shrink-0"
+                />
+                {/* Names the WINDOW, not the layer: which layer this is comes
+                    from the title card at the top of every fragment, so it stays
+                    visible on all three tabs rather than only in the chrome.
+                    Same treatment as the "Referentielagen" and "Legenda"
+                    headings.
+
+                    The layer name rides along hidden, because this is the
+                    dialog's accessible name: without it every metainfo window
+                    announces itself identically, and the name in the card is
+                    only reached by reading on into the content. */}
+                <DialogTitle class="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Kaartlaag informatie
+                  <span class="absolute h-px w-px overflow-hidden whitespace-nowrap [clip:rect(0,0,0,0)]">
+                    : {layer().name}
+                  </span>
+                </DialogTitle>
+              </div>
               <Button
                 variant="ghost"
                 size="icon-sm"
