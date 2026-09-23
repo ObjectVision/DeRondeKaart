@@ -100,6 +100,41 @@ export function hatchPatternId(colors: HatchColors): string {
 }
 
 /**
+ * The stripe centrelines to stroke for one tile, as [[x1,y1],[x2,y2]] pairs.
+ *
+ * A "/" line through (c, 0) is x + y = c. Stepping c by the diagonal spacing
+ * (period * √2 in x/y terms) walks from one stripe to the next; the tile needs
+ * c from 0 to 2*px, plus one on each side for the corner segments.
+ *
+ * Each segment OVERHANGS the tile by a full `px` at both ends, and that is
+ * load-bearing rather than slack. The stroke uses a butt cap, which paints
+ * nothing past an endpoint, so a segment stopping on the tile's own diagonal
+ * extent leaves every pixel whose perpendicular foot falls beyond that end
+ * unpainted — a triangle scaling with HALF THE STROKE WIDTH, at every tile.
+ * At the 1px default that is sub-pixel and invisible; at an equal-band stripe
+ * it is a visible bite out of each stripe. The overhang is far larger than any
+ * half-width a stripe can sensibly have (one wider than the period stops being
+ * a hatch), so the caps always land outside the tile.
+ *
+ * Split out of renderHatchTile so it can be tested: the tile itself needs a 2D
+ * context, which jsdom has not got.
+ */
+export function hatchSegments(scale: number): [[number, number], [number, number]][] {
+  const px = HATCH.size * scale;
+  const cStep = HATCH_PERIOD * Math.SQRT2 * scale;
+  const reach = 2 * px;
+
+  const segments: [[number, number], [number, number]][] = [];
+  for (let c = -cStep; c <= 2 * px + cStep; c += cStep) {
+    segments.push([
+      [c + reach, -reach],
+      [c - reach, reach],
+    ]);
+  }
+  return segments;
+}
+
+/**
  * Draw one seamlessly-tiling hatch tile.
  *
  * `scale` supersamples: the canvas is `size * scale` px and the result is
@@ -142,14 +177,10 @@ export function renderHatchTile(colors: HatchColors, scale = HATCH_SCALE): Image
   ctx.lineWidth = colors.stripe * scale;
   ctx.lineCap = "butt";
 
-  // A "/" line through (c, 0) is x + y = c. Stepping c by the diagonal spacing
-  // (period * √2 in x/y terms) walks from one stripe to the next; the tile needs
-  // c from 0 to 2*px, plus one on each side for the corner segments.
-  const cStep = HATCH_PERIOD * Math.SQRT2 * scale;
-  for (let c = -cStep; c <= 2 * px + cStep; c += cStep) {
+  for (const [[ax, ay], [bx, by]] of hatchSegments(scale)) {
     ctx.beginPath();
-    ctx.moveTo(c + px, -px);
-    ctx.lineTo(c - px, px);
+    ctx.moveTo(ax, ay);
+    ctx.lineTo(bx, by);
     ctx.stroke();
   }
 
