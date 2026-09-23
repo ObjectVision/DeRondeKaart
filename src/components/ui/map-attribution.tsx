@@ -13,6 +13,7 @@ import {
 import { DialogContent, DialogRoot, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
+import { TabStrip } from "@/components/ui/tab-strip";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 import { useLocalFlag } from "@/hooks/use-local-flag";
 import { cn } from "@/lib/utils";
@@ -429,10 +430,10 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
             shell's own default width, not a new number. DialogContent owns the
             `overflow-y-auto`, so `app-scrollbar` lands here to match the
             navigation and legend cards' scrollbar. */}
-        {/* Pinned to a fixed top rather than vertically centred, as
-            LayerMetaDialog is: the tabs differ a lot in height, and a centred
-            window jumps as they switch. Height still follows the content, so
-            the short Attributie tab stays a short window. */}
+        {/* DialogContent pins every chrome dialog to a fixed top rather than
+            centring it vertically, and this window depends on that: its tabs
+            differ a lot in height, and a centred window would jump as they
+            switch. */}
         <DialogContent class="text-sm text-gray-600">
           <div class="mb-5 flex items-center justify-between gap-2">
             {/* Mark and title travel together on the left, so `justify-between`
@@ -465,46 +466,9 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
             </Button>
           </div>
 
-          {/* Tab strip. The labels carry the same type spec as the title above
-              them — `text-xs font-semibold uppercase tracking-wide` — so the
-              window's two rows of chrome read as one; only color and the
-              underline mark which tab is active. The negative margin lets the
-              rule run the full width of the window instead of stopping at the
-              dialog's own padding. */}
-          <div class="-mx-6 mb-5 flex gap-0 border-b border-gray-200 px-6">
-            <For each={tabs()}>
-              {(t) => {
-                const isActive = () => t.id === tab();
-                return (
-                  <button
-                    type="button"
-                    role="tab"
-                    aria-selected={isActive()}
-                    onClick={(e) => selectTab(t.id, e.currentTarget)}
-                    // The underline is always laid out, transparent when the tab
-                    // is inactive, so switching tabs recolors it instead of
-                    // adding a border that nudges the labels up by 2px.
-                    class={`border-b-2 border-transparent px-2 py-1 text-xs font-semibold uppercase tracking-wide transition-colors ${
-                      isActive() ? "" : "text-gray-500 hover:text-gray-700"
-                    }`}
-                    // The active tab takes the project's chrome color, like the
-                    // guide's badges and headings. Inline because that color is a
-                    // runtime value no Tailwind class can carry.
-                    style={
-                      isActive()
-                        ? {
-                            color: chromeIconColor(),
-                            "border-bottom-color": chromeIconColor(),
-                          }
-                        : undefined
-                    }
-                  >
-                    {t.label}
-                  </button>
-                );
-              }}
-            </For>
-          </div>
+          {/* Shared with the layer metainfo dialog — see TabStrip for the
+              details that are load-bearing rather than decorative. */}
+          <TabStrip tabs={tabs()} active={tab()} onSelect={selectTab} />
 
           <Switch>
             <Match when={tab() === "context"}>

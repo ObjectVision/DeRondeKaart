@@ -125,3 +125,104 @@ describe("layers.json geojson format", () => {
     expect(parent?.layers?.[0].minzoom).toBe(11);
   });
 });
+
+describe("layers.json meta", () => {
+  // The loader caches per config name, so every case needs a fresh module
+  // registry or the second stub is never read.
+  async function loadFresh(layers: unknown[]) {
+    vi.resetModules();
+    stubLayersJson(layers);
+    const { loadLayerConfigs: load } = await import("@/layers/config");
+    return load();
+  }
+
+  /**
+   * The object form is what gives the metainfo dialog its tabs. It has to reach
+   * LayerConfig intact: a validator that dropped it would leave the dialog
+   * reporting "Geen informatie beschikbaar" for a correctly configured layer,
+   * with nothing but a console warning to say why.
+   */
+  it("keeps the three routes, each as a path or a list of them", async () => {
+    const configs = await loadFresh([
+      {
+        ...BASE,
+        id: "drie_tabs",
+        meta: {
+          toelichting: "/data/meta/x_toelichting.html",
+          bronnen: ["/data/meta/x_bronnen.html", "/data/meta/gedeeld.html"],
+          aannames_en_onzekerheden: "/data/meta/x_aannames_en_onzekerheden.html",
+        },
+      },
+    ]);
+
+    expect(configs[0].meta).toEqual({
+      toelichting: "/data/meta/x_toelichting.html",
+      bronnen: ["/data/meta/x_bronnen.html", "/data/meta/gedeeld.html"],
+      aannames_en_onzekerheden: "/data/meta/x_aannames_en_onzekerheden.html",
+    });
+  });
+
+  // A layer whose spreadsheet cell is empty gets no file for that route, so its
+  // key is simply absent. That is the ordinary case, not an error.
+  it("accepts an object naming only some of the routes", async () => {
+    const configs = await loadFresh([
+      { ...BASE, id: "twee_tabs", meta: { toelichting: "/a.html", bronnen: "/b.html" } },
+    ]);
+
+    expect(configs[0].meta).toEqual({ toelichting: "/a.html", bronnen: "/b.html" });
+  });
+
+  /**
+   * A malformed route must not take the whole layer's metainfo with it: the
+   * other tabs still have documents to show, and dropping them would turn one
+   * bad path into a blank dialog.
+   */
+  it("drops an unusable route but keeps the rest, and warns", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const configs = await loadFresh([
+      { ...BASE, id: "half", meta: { toelichting: "/a.html", bronnen: 42, aannames_en_onzekerheden: [] } },
+    ]);
+
+    expect(configs[0].meta).toEqual({ toelichting: "/a.html" });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('"meta.bronnen"'));
+    expect(warn).toHaveBeenCalledWith(
+      expect.stringContaining('"meta.aannames_en_onzekerheden"'),
+    );
+  });
+
+  // Nothing usable left is the same outcome as any other invalid value —
+  // warned about rather than left as an object the dialog would render empty.
+  it("ignores an object with no usable route", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const configs = await loadFresh([
+      { ...BASE, id: "leeg", meta: { toelichting: "", onbekend: "/x.html" } },
+    ]);
+
+    expect(configs[0].meta).toBeUndefined();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("leeg"));
+  });
+
+  /**
+   * startanalyse2026 spells every one of its ~600 `meta` values as an array, and
+   * woningbouwkaart.html as a plain string. Both must survive the object form
+   * being added, or adding tabs would silently blank the metainfo of another
+   * project entirely.
+   */
+  it("leaves the string and array forms exactly as they were", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const configs = await loadFresh([
+      { ...BASE, id: "een_string", meta: "/data/meta/woningbouwkaart.html" },
+      { ...BASE, id: "een_lijst", meta: ["LN_default.html", "_footer.html"] },
+      { ...BASE, id: "rommel_in_lijst", meta: ["goed.html", 7, ""] },
+      { ...BASE, id: "onzin", meta: 3 },
+    ]);
+    const byId = new Map(configs.map((config) => [config.id, config]));
+
+    expect(byId.get("een_string")?.meta).toBe("/data/meta/woningbouwkaart.html");
+    expect(byId.get("een_lijst")?.meta).toEqual(["LN_default.html", "_footer.html"]);
+    // One bad entry drops, the rest still compose.
+    expect(byId.get("rommel_in_lijst")?.meta).toEqual(["goed.html"]);
+    expect(byId.get("onzin")?.meta).toBeUndefined();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("onzin"));
+  });
+});

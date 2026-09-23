@@ -35,11 +35,24 @@ data/**
 .env.*
 /.vs
 
-# Metainfo generator output. The spreadsheet, generator and templates are
-# versioned; these two directories are rebuilt from them by `npm run metainfo`,
-# and the copy the app actually serves is committed under public/data/meta.
-# Tracking them too would put the same document in three places on every edit.
-scripts/metainfo/resultaten/
-scripts/metainfo/fragmenten/
+# Metainfo generator INPUTS. `data/**` above ignores this whole tree apart
+# from Python, but these are source rather than data — the spreadsheet every
+# document is written in, the fragment templates and the images they point at.
+# They used to live under scripts/ and be versioned; without these four lines
+# moving them here would quietly stop tracking them.
+!data/meta/README.md
+!data/meta/*/metadata.xlsx
+!data/meta/template/**
+!data/meta/handmatig/**
+!data/meta/afbeeldingen/**
+# ...except the dated working copies of somebody's spreadsheet, which the
+# generator skips as well.
+data/meta/metainformatie_concept_*/metadata.xlsx
+
+# Metainfo generator OUTPUT — a mirror of what the fileserver holds, rebuilt by
+# `npm run metainfo` and uploaded from there. The published documents are not
+# versioned at all: they are content rather than code, regenerated whenever the
+# spreadsheet changes. Everything needed to rebuild them IS versioned, above.
+data/meta/*/resultaten/
 # LibreOffice's lock file, recreated every time the spreadsheet is opened.
 .~lock.*#
