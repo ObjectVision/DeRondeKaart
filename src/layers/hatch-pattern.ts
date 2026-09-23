@@ -13,10 +13,20 @@
 import type { Map as MapLibreMap } from "maplibre-gl";
 import type { LayerConfig } from "./types";
 
-/** Stripe/background colours of a hatch, both fully resolved. */
+/** A hatch's colours and stripe width, all fully resolved. */
 export interface HatchColors {
   color: string;
   background: string;
+  /**
+   * Drawn line width in logical px. Defaults to {@link HATCH}.stripe — thin
+   * lines over a broad ground, which is what "no value here" should look like.
+   *
+   * A rule that means two things at once rather than nothing wants equal bands
+   * instead, which is `HATCH_PERIOD / 2` (≈2.83 at the default geometry). Per
+   * symbolizer rather than global: widening the constant would restyle every
+   * "Geen doorrekening" class in the app.
+   */
+  stripe: number;
 }
 
 /**
@@ -55,29 +65,38 @@ const HATCH_SCALE = 2;
 const HATCH_DEFAULTS: HatchColors = {
   color: "#E02B27",
   background: "#ffffff",
+  stripe: HATCH.stripe,
 };
+
+/** Stripe width that splits the period evenly — two equal bands of colour. */
+export const HATCH_EQUAL_BANDS = HATCH_PERIOD / 2;
 
 /**
  * Resolve a symbolizer's `hatch` field (`true` or a partial override) to full
  * colours. `undefined` in, `undefined` out — callers use that to test opt-in.
  */
 export function resolveHatch(
-  hatch: boolean | { color?: string; background?: string } | undefined,
+  hatch: boolean | { color?: string; background?: string; stripe?: number } | undefined,
 ): HatchColors | undefined {
   if (!hatch) return undefined;
   if (hatch === true) return HATCH_DEFAULTS;
   return {
     color: hatch.color ?? HATCH_DEFAULTS.color,
     background: hatch.background ?? HATCH_DEFAULTS.background,
+    stripe: hatch.stripe ?? HATCH_DEFAULTS.stripe,
   };
 }
 
 /**
  * Sprite id for a hatch, keyed on its colours so every layer sharing a colour
  * pair shares one sprite entry (189 layers do). Same idea as `iconSpriteId`.
+ *
+ * The stripe width is part of the key: `addImage` is a no-op once the id is
+ * taken, so two widths of one colour pair sharing an id would leave whichever
+ * registered second silently drawing the first one's geometry.
  */
 export function hatchPatternId(colors: HatchColors): string {
-  return `hatch-${colors.color}-${colors.background}`;
+  return `hatch-${colors.color}-${colors.background}-${colors.stripe}`;
 }
 
 /**
@@ -120,7 +139,7 @@ export function renderHatchTile(colors: HatchColors, scale = HATCH_SCALE): Image
   // are all present — the pattern is then exactly the infinite hatch restricted
   // to the tile, which is what makes it join up on all four edges.
   ctx.strokeStyle = colors.color;
-  ctx.lineWidth = HATCH.stripe * scale;
+  ctx.lineWidth = colors.stripe * scale;
   ctx.lineCap = "butt";
 
   // A "/" line through (c, 0) is x + y = c. Stepping c by the diagonal spacing
@@ -178,7 +197,7 @@ export function hatchCSS(colors: HatchColors): string {
   const cssAngle = 90 - HATCH.angle;
   return (
     `repeating-linear-gradient(${cssAngle}deg, ` +
-    `${colors.color} 0 ${HATCH.stripe}px, ` +
-    `${colors.background} ${HATCH.stripe}px ${HATCH_PERIOD}px)`
+    `${colors.color} 0 ${colors.stripe}px, ` +
+    `${colors.background} ${colors.stripe}px ${HATCH_PERIOD}px)`
   );
 }
