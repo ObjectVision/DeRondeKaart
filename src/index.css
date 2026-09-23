@@ -250,29 +250,29 @@ html, body {
   background-color: var(--color-gray-100);
 }
 
-/* A heading that OPENS a card in the generated metainfo fragments.
+/* The heading that OPENS a card in the generated metainfo fragments.
 
    LeafMeta renders every fragment inside a `prose prose-sm` container, and the
    typography plugin gives each heading a top margin meant to separate it from
-   the paragraph above it — 1.6em on h2, ~1.56em on h3, ~1.43em on h4. A
-   heading that opens a card has no paragraph above it: it is the first thing
-   inside a `p-4` card, so that margin stacks on the padding and pushes the
-   title ~45px below its own border. Prose's own first-child reset does not
-   reach them, as it applies only to DIRECT children of `.prose` while these
-   sit inside `.dro-meta > section`.
+   the paragraph above it — 1.6em on h2, ~1.56em on h3, ~1.43em on h4. A card's
+   own heading has no paragraph above it: it is the first thing inside a `p-4`
+   card, so that margin stacks on the padding and pushes the title ~45px below
+   its own border. Prose's first-child reset does not reach it either, as that
+   applies only to DIRECT children of `.prose` while these sit inside
+   `.dro-meta > section`.
 
-   `:first-child` is the whole point of the selector, not a tightening of it.
-   The spreadsheet's Berekenwijze text contains a mid-paragraph <h4>
-   ("Weergave in de kaart") that DOES want prose's margin — zeroing every
-   heading would collapse it onto the paragraph before it. Comments and text
-   nodes do not count for `:first-child`, so the <h2> below its explanatory
-   comment in template/_kop.html still matches.
+   Marked with a class by the templates and the generator rather than found by
+   position. `:is(h2,h3,h4):first-child` looks equivalent and is not: the
+   spreadsheet's Berekenwijze text contains its own <h4> ("Weergave in de
+   kaart") which in some layers the author wrapped in a plain <div>, making it
+   a first child too. That heading interrupts running text and WANTS prose's
+   margin; zeroing it would collapse it onto the paragraph before. Only the
+   markup we generate can say which headings open a card, so it says so.
 
-   A selector rather than an `mt-0` utility in the templates, because headings
-   reach a fragment from three places and only this catches all of them: the
-   templates, the databronnen <h4> the generator writes, and the spreadsheet's
-   own HTML. Scoped to `.dro-meta` so the startanalyse2026 documents keep
-   prose's rhythm — those genuinely are running text. */
-.dro-meta :is(h2, h3, h4):first-child {
+   Not a Tailwind utility, so it needs no entry in the `@source inline(...)`
+   safelist above — plain CSS reaches the fragments whether Tailwind scanned
+   them or not. Scoped to `.dro-meta` so the startanalyse2026 documents keep
+   prose's rhythm; those genuinely are running text. */
+.dro-meta .dro-card-title {
   margin-top: 0;
 }
