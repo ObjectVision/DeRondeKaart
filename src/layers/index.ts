@@ -35,6 +35,7 @@ export type { ScoreGrid, ScoreInput } from "./filter-raster";
 export {
   registerScoreProtocol,
   registerScoreGrid,
+  getScoreGrid,
   unregisterScoreGrid,
   scoreSourceUrl,
   SCORE_PROTOCOL,
@@ -48,6 +49,9 @@ export {
   getFilterLayerById,
   getFilterLayerVersion,
   isFilterLayerId,
+  combinationSources,
+  dependentsOf,
+  withSources,
   rampFor,
   layerCountOf,
   filterLayerConfig,

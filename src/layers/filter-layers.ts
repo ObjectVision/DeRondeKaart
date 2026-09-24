@@ -306,3 +306,73 @@ export function getFilterLayerVersion(): number {
 export function isFilterLayerId(id: string): boolean {
   return id.startsWith("filter__");
 }
+
+/** The combinations `def` uses as criteria — the `filter__*` ids in its refs. */
+export function combinationSources(def: FilterLayerDef): string[] {
+  return [...new Set(def.refs.map((ref) => ref.layerId).filter(isFilterLayerId))];
+}
+
+/**
+ * Every stored combination built on `id`, directly or through another, in the
+ * order they must be recomputed: a combination always after the ones it uses.
+ *
+ * Also what keeps the combine dialog cycle-free: editing `id`, none of these may
+ * be offered as its criterion, since each already depends on it.
+ */
+export function dependentsOf(id: string): FilterLayerDef[] {
+  const found = new Set<string>();
+  const queue = [id];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const def of store.defs) {
+      if (found.has(def.id) || !combinationSources(def).includes(current)) continue;
+      found.add(def.id);
+      queue.push(def.id);
+    }
+  }
+  return inDependencyOrder(store.defs.filter((def) => found.has(def.id)));
+}
+
+/**
+ * `defs` plus every combination they use, transitively, sources first.
+ *
+ * For share links: a combination on the map cannot be rebuilt by the recipient
+ * without its sources, even when those are no longer on the map themselves.
+ * Sources not in the store are left out; the rebuild then skips the dependent.
+ */
+export function withSources(defs: FilterLayerDef[]): FilterLayerDef[] {
+  const byId = new globalThis.Map<string, FilterLayerDef>();
+  const visit = (def: FilterLayerDef) => {
+    if (byId.has(def.id)) return;
+    byId.set(def.id, def);
+    for (const sourceId of combinationSources(def)) {
+      const source = getFilterLayerById(sourceId);
+      if (source) visit(source);
+    }
+  };
+  defs.forEach(visit);
+  return inDependencyOrder([...byId.values()]);
+}
+
+/**
+ * Order combinations so each comes after the combinations it uses. Stable
+ * otherwise: an unrelated pair keeps its incoming order. The graph is acyclic by
+ * construction (see {@link dependentsOf}), but a cycle smuggled in by a crafted
+ * link must not hang the loop, so leftovers are appended as they are.
+ */
+function inDependencyOrder(defs: FilterLayerDef[]): FilterLayerDef[] {
+  const pending = new Set(defs.map((def) => def.id));
+  const out: FilterLayerDef[] = [];
+  let progressed = true;
+  while (pending.size > 0 && progressed) {
+    progressed = false;
+    for (const def of defs) {
+      if (!pending.has(def.id)) continue;
+      if (combinationSources(def).some((sourceId) => pending.has(sourceId))) continue;
+      pending.delete(def.id);
+      out.push(def);
+      progressed = true;
+    }
+  }
+  return [...out, ...defs.filter((def) => pending.has(def.id))];
+}

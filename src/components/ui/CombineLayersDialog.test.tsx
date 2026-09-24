@@ -227,3 +227,59 @@ describe("CombineLayersDialog edit mode", () => {
     expect(saved[0][2]).toEqual([{ label: "1 van 1 criteria", color: "#3288bd" }]);
   });
 });
+
+/** A combination offered as a criterion: its classes are its score classes. */
+describe("CombineLayersDialog with a combination as criterion", () => {
+  const COMBI = layer("filter__7", "Voorzieningen", ["1 van 2 criteria", "Alles"]);
+
+  function renderWith(
+    props: { initial?: { name: string; refs: ClassRef[]; classes: ScoreClass[] } } = {},
+    onCreate: CreateHandler = () => {},
+    onSave?: CreateHandler,
+  ) {
+    return render(() => (
+      <CombineLayersDialog
+        open
+        onOpenChange={() => {}}
+        layers={[COMBI, LAYERS[1]]}
+        stepFor={() => undefined}
+        initial={props.initial}
+        onCreate={onCreate}
+        onSave={onSave}
+      />
+    ));
+  }
+
+  it("marks it as a combination", () => {
+    renderWith();
+    expect(screen.getByText("Combinatie")).toBeTruthy();
+  });
+
+  it("records the score of a ticked class, not just its label", () => {
+    const created: ClassRef[][] = [];
+    renderWith({}, (_name, refs) => created.push(refs));
+
+    fireEvent.click(screen.getByText("Alles"));
+    fireEvent.click(screen.getByText("hoog"));
+    fireEvent.click(screen.getByText("Laag maken"));
+
+    expect(created[0]).toEqual([
+      { layerId: "filter__7", ruleName: "Alles", score: 2 },
+      { layerId: "b", ruleName: "hoog" },
+    ]);
+  });
+
+  // The source's label was renamed after this combination was built: the ref
+  // still says "2 van 2 criteria", the rule now says "Alles". Score 2 matches.
+  it("pre-checks by score after the source's label was renamed", () => {
+    renderWith({
+      initial: {
+        name: "Afgeleid",
+        refs: [{ layerId: "filter__7", ruleName: "2 van 2 criteria", score: 2 }],
+        classes: [{ label: "1 van 1 criteria", color: "#3288bd" }],
+      },
+    });
+    const alles = screen.getByText("Alles").closest("button");
+    expect(alles?.getAttribute("aria-checked")).toBe("true");
+  });
+});

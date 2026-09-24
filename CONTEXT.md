@@ -91,7 +91,10 @@ so it cannot be re-added by id alone: a share link carries the whole definition
 in its `combi` param and the recipient recomputes the score grid. Still gone on
 a plain reload without that link. Its metainfo is a Toelichting generated from
 the definition, not a published fragment, and from there it is edited **in
-place**: same id, same legend position. `src/layers/filter-layers.ts`,
+place**: same id, same legend position. A combination can itself be a criterion
+of another: its classes are then referenced by **score**, not label, and the
+combinations built on it follow when it is edited (recomputed, sources first).
+`src/layers/filter-layers.ts`,
 `src/layers/filter-layer-url.ts`, `src/layers/combination-meta.ts`.
 
 **Slot** — one of the (at most four) areas held side by side in the dashboard's

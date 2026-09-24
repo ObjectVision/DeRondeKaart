@@ -141,11 +141,19 @@ interface LegendProps {
   onOpenCombine?: () => void;
   /**
    * Whether any layer currently in the legend can take part in a combination —
-   * i.e. has both GeoStyler rules and a `filterRaster`. False greys the button
-   * out rather than hiding it, so the feature stays discoverable when there is
-   * simply nothing to combine yet.
+   * i.e. has both GeoStyler rules and a `filterRaster`, or is a combination
+   * itself. False greys the button out rather than hiding it, so the feature
+   * stays discoverable when there is simply nothing to combine yet.
    */
   canCombine?: boolean;
+  /**
+   * What the last combine or edit reported — a failure, or what it changed in
+   * the combinations built on the edited one. Shown under the header, next to
+   * the button that started it, until dismissed.
+   */
+  combineMessage?: string | null;
+  /** Dismiss {@link combineMessage}. */
+  onDismissCombineMessage?: () => void;
   /** Collapse the Kaartlagen window (restored from the bottom-left bar). */
   onClose?: () => void;
   /**
@@ -657,6 +665,25 @@ export function Legend(props: LegendProps): JSX.Element {
           </div>
         </Show>
       </div>
+      <Show when={props.combineMessage}>
+        {(message) => (
+          <div
+            role="status"
+            class="mb-2 flex items-start justify-between gap-2 rounded-lg bg-gray-50 px-2 py-1.5 text-xs text-gray-600"
+          >
+            <span>{message()}</span>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => props.onDismissCombineMessage?.()}
+              title="Melding sluiten"
+              aria-label="Melding sluiten"
+            >
+              <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+            </Button>
+          </div>
+        )}
+      </Show>
       <Show
         when={visible().length > 0}
         fallback={<p class="text-xs text-gray-400">Nog geen lagen toegevoegd</p>}
