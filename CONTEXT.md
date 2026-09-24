@@ -89,8 +89,10 @@ comments and in conversation, so both appear. `src/layers/area-filter.ts`.
 scoring how many chosen classes each grid cell passes. Never in `layers.json`,
 so it cannot be re-added by id alone: a share link carries the whole definition
 in its `combi` param and the recipient recomputes the score grid. Still gone on
-a plain reload without that link. `src/layers/filter-layers.ts`,
-`src/layers/filter-layer-url.ts`.
+a plain reload without that link. Its metainfo is a Toelichting generated from
+the definition, not a published fragment, and from there it is edited **in
+place**: same id, same legend position. `src/layers/filter-layers.ts`,
+`src/layers/filter-layer-url.ts`, `src/layers/combination-meta.ts`.
 
 **Slot** — one of the (at most four) areas held side by side in the dashboard's
 comparison panel. `src/layers/compare-slots.ts`.

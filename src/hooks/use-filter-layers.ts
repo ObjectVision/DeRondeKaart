@@ -8,6 +8,7 @@ import {
   filterLayerConfig,
   getFilterLayers,
   removeFilterLayer,
+  updateFilterLayer,
   type FilterLayerDef,
   type ScoreClass,
 } from "@/layers/filter-layers";
@@ -33,6 +34,23 @@ export interface UseFilterLayersResult {
     /** Legend classes from the dialog's preview; omit for the default ramp. */
     classes?: ScoreClass[],
   ) => Promise<void>;
+  /**
+   * Replace an existing combination's criteria, legend and name, keeping its id,
+   * and recompute its score grid.
+   *
+   * Does NOT touch the map: the combination may sit on either side, or be
+   * toggled off, so the caller re-adds it where it is. Returns the updated
+   * definition, or undefined when it failed (the error is set) — in which case
+   * the old combination is left exactly as it was.
+   */
+  update: (
+    id: string,
+    name: string,
+    refs: ClassRef[],
+    configs: LayerConfig[],
+    stepFor: (layerId: string) => number | undefined,
+    classes: ScoreClass[],
+  ) => Promise<FilterLayerDef | undefined>;
   /** Remove a combination from the map and release its grid. */
   remove: (id: string) => void;
   /**
@@ -91,6 +109,25 @@ function scoreInputsFor(
 }
 
 /**
+ * The timeseries step of each source layer that has one.
+ *
+ * Stored, not just templated into the URL: a share link rebuilds the grid from
+ * the definition, and without them it would score whichever year the
+ * recipient's session sits on. Shared by `create` and `update`.
+ */
+function stepsFor(
+  refs: ClassRef[],
+  stepFor: (layerId: string) => number | undefined,
+): Record<string, number> {
+  const steps: Record<string, number> = {};
+  for (const layerId of new Set(refs.map((ref) => ref.layerId))) {
+    const step = stepFor(layerId);
+    if (step !== undefined) steps[layerId] = step;
+  }
+  return steps;
+}
+
+/**
  * Session-scoped combination layers: pick classes across layers, score each grid
  * cell by how many of them it passes, and put the result on the map.
  *
@@ -122,16 +159,7 @@ export function useFilterLayers(
         return;
       }
 
-      // The steps are stored, not just templated into the URL: a share link
-      // rebuilds the grid from the definition, and without them it would score
-      // whichever year the recipient's session sits on.
-      const steps: Record<string, number> = {};
-      for (const layerId of new Set(refs.map((ref) => ref.layerId))) {
-        const step = stepFor(layerId);
-        if (step !== undefined) steps[layerId] = step;
-      }
-
-      const { def } = addFilterLayer(name, refs, classes, steps);
+      const { def } = addFilterLayer(name, refs, classes, stepsFor(refs, stepFor));
       const grid = await computeScoreGrid(inputs);
       registerScoreGrid(
         def.id,
@@ -146,6 +174,46 @@ export function useFilterLayers(
       // otherwise looks like a layer that silently never appears.
       console.error("Kon de gecombineerde laag niet maken", err);
       setError("Kon de gecombineerde laag niet maken.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function update(
+    id: string,
+    name: string,
+    refs: ClassRef[],
+    configs: LayerConfig[],
+    stepFor: (layerId: string) => number | undefined,
+    classes: ScoreClass[],
+  ): Promise<FilterLayerDef | undefined> {
+    setError(null);
+    setBusy(true);
+    try {
+      const inputs = scoreInputsFor(refs, configs, stepFor);
+      if (inputs.length === 0) {
+        setError("Geen van de gekozen lagen heeft een bijbehorend raster.");
+        return undefined;
+      }
+
+      // The grid first, the store after: a failed computation then leaves the
+      // old combination — definition and grid both — as it was.
+      const grid = await computeScoreGrid(inputs);
+      const def = updateFilterLayer(id, { name, refs, classes, steps: stepsFor(refs, stepFor) });
+      if (!def) return undefined;
+
+      // Replaces the grid registered under this id.
+      registerScoreGrid(
+        def.id,
+        grid,
+        def.classes.map((item) => item.color),
+      );
+      setDefs(getFilterLayers());
+      return def;
+    } catch (err) {
+      console.error("Kon de gecombineerde laag niet aanpassen", err);
+      setError("Kon de gecombineerde laag niet aanpassen.");
+      return undefined;
     } finally {
       setBusy(false);
     }
@@ -207,5 +275,5 @@ export function useFilterLayers(
       color: def.classes[def.classes.length - 1].color,
     }));
 
-  return { defs, leaves, busy, error, create, remove, restore };
+  return { defs, leaves, busy, error, create, update, remove, restore };
 }
