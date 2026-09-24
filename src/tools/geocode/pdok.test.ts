@@ -3,6 +3,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { pdokProvider } from "@/tools/geocode/pdok";
 
 /**
+ * `searchFilter` is a module-global the provider reads directly, so it is
+ * mocked here rather than driven through `loadMapConfig`. Hoisted, because
+ * `vi.mock`'s factory runs before any `const` in this file would exist.
+ */
+const config = vi.hoisted(() => ({ filter: "" }));
+vi.mock("@/config/map-config", () => ({
+  searchFilter: () => config.filter,
+}));
+
+/**
  * The PDOK Locatieserver provider.
  *
  * Assertions are on the REQUEST as much as the parsed output. Provider
@@ -40,7 +50,10 @@ const VENLO = {
   centroide_ll: "POINT(6.15911182 51.39095482)",
 };
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  vi.unstubAllGlobals();
+  config.filter = "";
+});
 
 describe("pdokProvider.search", () => {
   /**
@@ -239,5 +252,98 @@ describe("pdokProvider.resolveExtent", () => {
     stubFetch(body([]));
 
     await expect(pdokProvider.resolveExtent?.(result)).resolves.toBeUndefined();
+  });
+});
+
+/**
+ * Narrowing the search with a configured filter query.
+ *
+ * Every assertion here is on the REQUEST, because that is where this feature
+ * lives — PDOK does the filtering, and a wrong parameter fails by quietly
+ * returning the wrong rows rather than by erroring.
+ */
+describe("pdokProvider.search filter query", () => {
+  /** The `fq` values of the first request, decoded. */
+  function filterQueries(spy: { mock: { calls: unknown[][] } }): string[] {
+    const url = new URL(String(spy.mock.calls[0]?.[0] ?? ""), "https://example.test");
+    return url.searchParams.getAll("fq");
+  }
+
+  it("sends no filter at all when none is configured", async () => {
+    const spy = stubFetch(body([]));
+
+    await pdokProvider.search("Venlo", 5);
+
+    // Not "sends an empty filter": PDOK applies its own default fq, and the
+    // request has to stay exactly what it was for every unrestricted project.
+    expect(filterQueries(spy)).toEqual([]);
+  });
+
+  /**
+   * The regression test for the trap in this feature: `fq` REPLACES
+   * Locatieserver's default type filter rather than adding to it. Send only the
+   * configured clause and `perceel`, `wijk` and `buurt` documents join the
+   * results — 33 034 percelen match "Maastricht" alone. A later tidy-up to a
+   * single `fq` would look like a simplification and break the result set with
+   * nothing failing, so the pair is asserted rather than just the filter.
+   */
+  it("restates PDOK's default type filter alongside the configured one", async () => {
+    config.filter = 'provincienaam:"Limburg"';
+    const spy = stubFetch(body([]));
+
+    await pdokProvider.search("Bergen", 5);
+
+    expect(filterQueries(spy)).toEqual([
+      "type:(gemeente OR woonplaats OR weg OR postcode OR adres)",
+      'provincienaam:"Limburg"',
+    ]);
+  });
+
+  /**
+   * ...unless the project constrains `type` itself. ANDing the default over the
+   * top would make `type:perceel` an empty intersection — the config would ask
+   * for something and silently receive nothing.
+   */
+  it("omits the default type filter when the configured one names a type", async () => {
+    config.filter = "type:perceel";
+    const spy = stubFetch(body([]));
+
+    await pdokProvider.search("Maastricht", 5);
+
+    expect(filterQueries(spy)).toEqual(["type:perceel"]);
+  });
+
+  it("still restates the default when a field merely ends in 'type'", async () => {
+    config.filter = 'objecttype:"iets"';
+    const spy = stubFetch(body([]));
+
+    await pdokProvider.search("Venlo", 5);
+
+    expect(filterQueries(spy)).toHaveLength(2);
+    expect(filterQueries(spy)[0]).toContain("type:(gemeente");
+  });
+
+  // The string reaches PDOK exactly as the config wrote it: quoting, OR clauses
+  // and field names are the author's, and rewriting any of it here would be a
+  // second syntax to keep in step with Solr's.
+  it("passes a multi-value clause through verbatim", async () => {
+    config.filter = 'gemeentenaam:("Venlo" OR "Roermond")';
+    const spy = stubFetch(body([]));
+
+    await pdokProvider.search("Kerkstraat", 5);
+
+    expect(filterQueries(spy)).toContain('gemeentenaam:("Venlo" OR "Roermond")');
+  });
+
+  it("still asks for the query, the row limit and every parsed field", async () => {
+    config.filter = 'provincienaam:"Limburg"';
+    const spy = stubFetch(body([]));
+
+    await pdokProvider.search("Venlo", 5);
+
+    const url = decodeURIComponent(calledUrl(spy));
+    expect(url).toContain("q=Venlo");
+    expect(url).toContain("rows=5");
+    expect(url).toContain("centroide_ll");
   });
 });

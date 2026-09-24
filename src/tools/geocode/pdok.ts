@@ -1,3 +1,4 @@
+import { searchFilter } from "@/config/map-config";
 import type { BBox } from "@/layers/box-filter";
 import { parseWktPoint, wktBbox } from "@/lib/wkt-bbox";
 import type { GeocodeProvider, GeocodeResult } from "@/tools/geocode/types";
@@ -9,6 +10,11 @@ import type { GeocodeProvider, GeocodeResult } from "@/tools/geocode/types";
  * Bergen (L) first, where a worldwide geocoder answers with Bergen in Norway.
  * For the same reason `mapControls.searchCountries` is IGNORED here — there is
  * no country to choose. Configs may still carry it for the nominatim provider.
+ *
+ * What DOES narrow it is `mapControls.searchFilter`, a Solr `fq` passed
+ * through verbatim: ranking Bergen (L) first still leaves Bergen (NH) and
+ * Bergen op Zoom in the list, which a single-province project does not want.
+ * See {@link DEFAULT_TYPES} for the catch in sending any filter at all.
  *
  * Two endpoints, for two different jobs:
  *
@@ -31,6 +37,31 @@ const BASE = "https://api.pdok.nl/bzk/locatieserver/search/v3_1";
  * response, with no error, so this must name everything {@link toResult} reads.
  */
 const LIST_FIELDS = "id,weergavenaam,type,centroide_ll";
+
+/**
+ * Locatieserver's OWN default `fq`, which we have to restate whenever we send
+ * an `fq` of our own.
+ *
+ * This is the catch, and it is silent: `fq` is not additive on top of the
+ * default, it REPLACES it. Send only `fq=provincienaam:"Limburg"` and the
+ * result set stops being places — `perceel`, `wijk` and `buurt` documents come
+ * through too, and `type:perceel` alone matches 33 034 documents for
+ * "Maastricht". Measured on q=Maastricht: no fq gives 85 670 hits, the province
+ * filter alone 85 001, and both filters together 84 950. Those 51 are the leak.
+ *
+ * Solr ANDs repeated `fq` parameters, so sending this one alongside ours
+ * restores exactly the default behaviour, narrowed by province.
+ */
+const DEFAULT_TYPES = "type:(gemeente OR woonplaats OR weg OR postcode OR adres)";
+
+/**
+ * Whether a filter query constrains `type` itself.
+ *
+ * Anchored to a clause boundary, so a field that merely ENDS in "type" —
+ * `objecttype:` — is not mistaken for one. Reading it as a type clause would
+ * drop the default type filter and quietly widen the search.
+ */
+const MENTIONS_TYPE = /(^|[\s(])type\s*:/;
 
 /** One document as Locatieserver returns it; every field is optional to us. */
 interface PdokDoc {
@@ -80,6 +111,19 @@ export const pdokProvider: GeocodeProvider = {
       rows: String(limit),
       fl: LIST_FIELDS,
     });
+
+    // Only when a project configured one. With no filter the request carries no
+    // `fq` at all, so PDOK applies its own default and the request is exactly
+    // what it always was — which is why DEFAULT_TYPES is sent only here.
+    const filter = searchFilter();
+    if (filter) {
+      // Restore the default the filter displaced, UNLESS the filter constrains
+      // `type` itself. Sending both then ANDs them, and a project asking for a
+      // type outside the default set — `type:perceel`, say — would get an empty
+      // intersection rather than what it asked for.
+      if (!MENTIONS_TYPE.test(filter)) params.append("fq", DEFAULT_TYPES);
+      params.append("fq", filter);
+    }
 
     const res = await fetch(`${BASE}/suggest?${params}`, { signal });
     if (!res.ok) throw new Error(`PDOK suggest: ${res.status} ${res.statusText}`);

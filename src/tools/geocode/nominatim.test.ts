@@ -60,6 +60,28 @@ const PLACE = {
 
 afterEach(() => vi.unstubAllGlobals());
 
+/**
+ * The mirror of pdok's "sends no country parameter": `searchFilter` is a Solr
+ * filter query, which Nominatim has no concept of, so a config carrying one
+ * must not leak it into this provider's URL.
+ */
+describe("nominatimProvider filter query", () => {
+  it("ignores searchFilter, which belongs to the other provider", async () => {
+    const url = (
+      await searchWithConfig({
+        searchFilter: 'provincienaam:"Limburg"',
+        searchCountries: ["nl"],
+      })
+    ).toLowerCase();
+
+    expect(url).not.toContain("fq=");
+    expect(url).not.toContain("provincienaam");
+    expect(url).not.toContain("limburg");
+    // The country restriction it DOES honour is still applied.
+    expect(url).toContain("countrycodes=nl");
+  });
+});
+
 describe("nominatimProvider country restriction", () => {
   it("restricts to the configured countries", async () => {
     const url = await searchWithConfig({ searchCountries: ["nl"] });
