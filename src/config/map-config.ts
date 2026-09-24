@@ -84,12 +84,42 @@ export interface MapControlsConfig {
    */
   searchCountries: string[];
   /**
+   * A Solr filter query narrowing the location search, passed to PDOK verbatim
+   * as `fq`, e.g. `"provincienaam:\"Limburg\""`. Empty (the default) searches
+   * the whole country.
+   *
+   * The counterpart of {@link MapControlsConfig.searchCountries} one level down,
+   * and it applies to the `"pdok"` provider ONLY — Nominatim takes no filter
+   * query. A project covering one province or a few gemeenten wants this: PDOK
+   * ranks "Bergen" as Bergen (L) first, but still offers Bergen (NH) and Bergen
+   * op Zoom below it.
+   *
+   * Any indexed Locatieserver field works — `provincienaam`, `gemeentenaam`,
+   * `woonplaatsnaam`, `gemeentecode`, `type` — with the usual Solr syntax:
+   * `gemeentenaam:("Venlo" OR "Roermond")`.
+   *
+   * **This string is NOT validated, and cannot be.** Three ways it fails
+   * silently, all of them with zero results and no error:
+   *
+   * - A value with a space or hyphen must be QUOTED. `provincienaam` is an
+   *   analysed field, so bare `Noord-Holland` is tokenised and over-matches
+   *   wildly — 46 656 hits against 9 787 for the quoted form.
+   * - PDOK's spellings are its own: the northern province is `Fryslân`, and
+   *   `"Friesland"` matches nothing.
+   * - A field name PDOK does not index is simply never true.
+   *
+   * Verify a new filter against the API before shipping it. See
+   * `configs/README.md`.
+   */
+  searchFilter: string;
+  /**
    * Which geocoding backend the location search uses.
    *
    * - `"pdok"` — PDOK Locatieserver, the Dutch government's own. Ranks Dutch
    *   places and addresses authoritatively and can frame a gemeente's extent
    *   rather than dropping a pin at its centre. Netherlands only, so
-   *   {@link MapControlsConfig.searchCountries} is ignored under it.
+   *   {@link MapControlsConfig.searchCountries} is ignored under it and
+   *   {@link MapControlsConfig.searchFilter} narrows it instead.
    * - `"nominatim"` — OpenStreetMap. Worldwide, and the default, so a project
    *   that says nothing keeps searching exactly as it did.
    */
@@ -417,6 +447,20 @@ export function searchCountries(): readonly string[] {
 }
 
 /**
+ * Module-level cache of `mapControls.searchFilter`, set by
+ * {@link loadMapConfig}. Read through {@link searchFilter}.
+ *
+ * A module read for the same reason as {@link searchCountries} above — the pdok
+ * provider reads it directly, and no component is involved.
+ */
+let searchFilterValue = "";
+
+/** Solr `fq` narrowing the location search; empty means the whole country. */
+export function searchFilter(): string {
+  return searchFilterValue;
+}
+
+/**
  * Module-level cache of `mapControls.searchProvider`, set by
  * {@link loadMapConfig}. Read through {@link searchProvider}.
  *
@@ -456,6 +500,9 @@ export const DEFAULT_MAP_CONTROLS: MapControlsConfig = {
   // Unrestricted by default, so a project that says nothing keeps searching the
   // whole world exactly as before.
   searchCountries: [],
+  // Likewise: no filter unless a project asks for one, so the pdok provider
+  // keeps searching the whole country by default.
+  searchFilter: "",
   // Same reasoning: the worldwide geocoder stays the default, and a project
   // opts in to the Dutch one. Both shipped configs do.
   searchProvider: "nominatim",
@@ -669,6 +716,7 @@ function validateMapControls(value: unknown): MapControlsConfig {
     search: validateFlag(obj.search, "search", DEFAULT_MAP_CONTROLS.search),
     zoom: validateFlag(obj.zoom, "zoom", DEFAULT_MAP_CONTROLS.zoom),
     searchCountries: validateSearchCountries(obj.searchCountries),
+    searchFilter: validateSearchFilter(obj.searchFilter),
     searchProvider: validateSearchProvider(obj.searchProvider),
   };
 }
@@ -842,6 +890,31 @@ function validateSearchCountries(value: unknown): string[] {
 }
 
 /**
+ * `mapControls.searchFilter` — the Solr filter query narrowing the pdok search.
+ *
+ * Only the TYPE is checked. Unlike {@link validateSearchCountries}, there is no
+ * list to check the content against: the string names an arbitrary Locatieserver
+ * field and value, and PDOK answers an unknown field or an unmatched value with
+ * an empty result set rather than an error. A malformed filter therefore reaches
+ * the user as a search box that finds nothing, and no validation here can
+ * prevent that — the trade the config surface makes for filtering on any field.
+ * `configs/README.md` says how to check one against the API.
+ */
+function validateSearchFilter(value: unknown): string {
+  if (value === undefined) return "";
+  if (typeof value !== "string") {
+    console.warn(
+      `map.json: invalid mapControls.searchFilter ${JSON.stringify(value)}; ignoring`,
+    );
+    return "";
+  }
+  // A blank string is the same as saying nothing. Sending it as an `fq` would
+  // not be: it replaces PDOK's default type filter with nothing (see
+  // DEFAULT_TYPES in tools/geocode/pdok.ts), quietly widening the search.
+  return value.trim();
+}
+
+/**
  * Load `public/map.json` and produce a MapConfig. Never throws: on a missing
  * file, network error, or invalid/partial fields, the offending value falls
  * back to {@link DEFAULT_MAP_CONFIG} so an embedded map always loads.
@@ -988,6 +1061,7 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
 
   const mapControls = validateMapControls(data.mapControls);
   searchCountriesValue = mapControls.searchCountries;
+  searchFilterValue = mapControls.searchFilter;
   searchProviderValue = mapControls.searchProvider;
   const clickMarker = validateClickMarker(data.clickMarker);
 

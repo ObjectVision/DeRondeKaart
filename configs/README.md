@@ -111,6 +111,68 @@ outline is refused with a warning, since it would paint nothing.
 `pickLayer` is unrelated to the dashboard's selection layer below, though one layer can serve
 both — that additionally needs `compareSelectable`.
 
+## `map.json`: the location search
+
+The `mapControls` block decides whether the search box appears and which geocoder answers it:
+
+```json
+"mapControls": {
+  "search": true,
+  "zoom": false,
+  "searchProvider": "pdok",
+  "searchFilter": "provincienaam:\"Limburg\""
+}
+```
+
+Two backends, and **each narrowing option applies to exactly one of them**:
+
+| key | provider | effect |
+|---|---|---|
+| `searchProvider` | — | `"nominatim"` (worldwide, the default) or `"pdok"` (PDOK Locatieserver, NL only) |
+| `searchCountries` | `nominatim` | ISO 3166-1 alpha-2 codes, e.g. `["nl"]`. Ignored under `pdok`, which is already NL-only |
+| `searchFilter` | `pdok` | a Solr filter query passed through as `fq`. Ignored under `nominatim`, which takes no filter |
+
+Both narrowing options default to empty, meaning no restriction.
+
+### `searchFilter`
+
+Any indexed Locatieserver field works, with ordinary Solr syntax:
+
+```
+provincienaam:"Limburg"
+gemeentenaam:("Venlo" OR "Roermond")
+woonplaatsnaam:"Maastricht"
+```
+
+It is a **strict** filter: with `provincienaam:"Limburg"`, only Limburg records come back.
+Searching "Groningen" then yields *Groningenstraat, Heerlen* rather than the city — the filter
+never widens to rescue a query. That is the point: PDOK already ranks "Bergen" as Bergen (L)
+first, but without the filter it still offers Bergen (NH) and Bergen op Zoom underneath.
+
+**The string is passed through verbatim and cannot be validated.** Only its type is checked;
+a blank value means "no filter". PDOK answers an unknown field, a misspelled value or a
+malformed clause with an *empty result set* rather than an error, so a mistake reaches users
+as a search box that finds nothing, with no warning anywhere. Three ways to get it wrong:
+
+- **Quote any value with a space or hyphen.** `provincienaam` is an analysed field, so bare
+  `Noord-Holland` is tokenised and over-matches wildly — 46 656 hits against 9 787 for the
+  quoted form.
+- **Use PDOK's own spellings.** The northern province is `Fryslân`; `"Friesland"` matches
+  nothing.
+- **Use a field PDOK indexes.** Anything else is simply never true.
+
+Check a filter against the API before shipping it:
+
+```
+curl -G 'https://api.pdok.nl/bzk/locatieserver/search/v3_1/suggest'   --data-urlencode 'q=Bergen'   --data-urlencode 'fq=provincienaam:"Limburg"' -d 'rows=5&fl=weergavenaam,type'
+```
+
+One thing the app does for you: PDOK's default `fq` is
+`type:(gemeente OR woonplaats OR weg OR postcode OR adres)`, and sending any `fq` **replaces**
+it rather than adding to it — leaving `perceel`, `wijk` and `buurt` records free to appear.
+So the app sends that default alongside your filter. If your filter names `type:` itself, it
+is sent alone, so `type:perceel` does what it says.
+
 ## `map.json`: the dashboard
 
 `map.json` decides which dashboard modes a project offers:

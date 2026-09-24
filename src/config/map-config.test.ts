@@ -194,6 +194,53 @@ describe("map.json mapControls.searchCountries", () => {
 });
 
 /**
+ * `mapControls.searchFilter` — the pdok provider's counterpart to
+ * searchCountries.
+ *
+ * Only the type is validated. The content is a Solr filter query naming an
+ * arbitrary field, and PDOK answers an unknown field or value with an empty
+ * result set rather than an error, so nothing here can tell a good filter from
+ * a broken one. These cases pin the parts that CAN be checked.
+ */
+describe("map.json mapControls.searchFilter", () => {
+  it("is empty when the key is absent, searching the whole country", async () => {
+    stubMapJson({ mapControls: { searchProvider: "pdok" } });
+    const config = await loadMapConfig();
+    expect(config.mapControls.searchFilter).toBe("");
+  });
+
+  // Verbatim: quoting and syntax belong to the author, and rewriting any of it
+  // would be a second Solr dialect to keep in step with PDOK's.
+  it("keeps the configured filter exactly as written", async () => {
+    stubMapJson({ mapControls: { searchFilter: 'gemeentenaam:("Venlo" OR "Roermond")' } });
+    const config = await loadMapConfig();
+    expect(config.mapControls.searchFilter).toBe('gemeentenaam:("Venlo" OR "Roermond")');
+  });
+
+  /**
+   * A blank or whitespace-only value means "no filter", not "filter on
+   * nothing" — sending it as an `fq` would replace PDOK's default type filter
+   * with nothing and quietly widen the search.
+   */
+  it.each(["", "   "])("treats the blank value %j as no filter", async (searchFilter) => {
+    stubMapJson({ mapControls: { searchFilter } });
+    const config = await loadMapConfig();
+    expect(config.mapControls.searchFilter).toBe("");
+  });
+
+  it.each([null, 42, ["Limburg"], { provincienaam: "Limburg" }])(
+    "ignores the non-string value %j",
+    async (searchFilter) => {
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      stubMapJson({ mapControls: { searchFilter } });
+      const config = await loadMapConfig();
+      expect(config.mapControls.searchFilter).toBe("");
+      expect(warn).toHaveBeenCalled();
+    },
+  );
+});
+
+/**
  * The five-tool ceiling.
  *
  * Measured against the real model: with six tools `needle_init` returns 1 and

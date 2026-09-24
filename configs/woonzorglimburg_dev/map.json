@@ -13,7 +13,8 @@
   "mapControls": {
     "search": true,
     "zoom": false,
-    "searchProvider": "pdok"
+    "searchProvider": "pdok",
+    "searchFilter": "provincienaam:\"Limburg\""
   },
   "chromeIconSize": 22,
   "chromeIconColor": "#3E74A7",

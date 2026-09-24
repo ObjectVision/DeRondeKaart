@@ -209,8 +209,11 @@ Four routes, all resolving through one bbox-to-camera heuristic (SD §3.4):
 
 1. **Area filter** — selecting a gemeente/wijk/buurt flies to it (§6). This is
    the primary "my region" flow.
-2. **Location search** — a search box (Nominatim geocoding) flies to a typed
-   place name or address. Enabled per deployment via `map.json`.
+2. **Location search** — a search box flies to a typed place name or address.
+   The geocoder is either Nominatim (worldwide) or PDOK Locatieserver (NL only,
+   and able to frame a gemeente's extent). Enabled, chosen and optionally
+   narrowed to given countries or provinces per deployment via `map.json` —
+   see `configs/README.md`.
 3. **URL** — a link can carry `zoom` and `center` (§8).
 4. **Host commands** — an embedding host (Power BI) sends a raw bbox and the
    app resolves the camera.
