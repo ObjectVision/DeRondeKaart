@@ -41,7 +41,9 @@ export {
 } from "./score-protocol";
 export {
   addFilterLayer,
+  updateFilterLayer,
   removeFilterLayer,
+  COMBINATION_STRATEGY,
   getFilterLayers,
   getFilterLayerById,
   getFilterLayerVersion,

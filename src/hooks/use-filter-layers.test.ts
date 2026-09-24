@@ -203,3 +203,58 @@ describe("useFilterLayers.restore", () => {
     expect(computeScoreGrid).not.toHaveBeenCalled();
   });
 });
+
+/**
+ * Editing a combination in place. The id must survive, since the map, share
+ * links and the nav theme all hold it, and a failed grid computation must
+ * leave the old combination exactly as it was.
+ */
+describe("useFilterLayers.update", () => {
+  const REF = { layerId: "aandeel_j0_17", ruleName: "0-10%" };
+
+  it("keeps the id and scores the step it is given", async () => {
+    await createRoot(async (dispose) => {
+      const hook = useFilterLayers(
+        async () => {},
+        () => {},
+      );
+      await hook.create("Oud", [REF], [aandeelLayer()], () => 2030);
+      const id = getFilterLayers()[0].id;
+      computeScoreGrid.mockClear();
+
+      const def = await hook.update(
+        id,
+        "Nieuw",
+        [REF],
+        [aandeelLayer()],
+        () => 2030,
+        [{ label: "één", color: "#123456" }],
+      );
+
+      expect(def).toMatchObject({ id, name: "Nieuw", steps: { aandeel_j0_17: 2030 } });
+      expect(getFilterLayers()).toHaveLength(1);
+      expect(hook.defs()[0].name).toBe("Nieuw");
+      expect(requestedUrls()).toEqual(["https://example.test/aandeel_j0_17_m5_2030.cog.tif"]);
+      dispose();
+    });
+  });
+
+  it("leaves the old combination untouched when the grid fails", async () => {
+    await createRoot(async (dispose) => {
+      const hook = useFilterLayers(
+        async () => {},
+        () => {},
+      );
+      await hook.create("Oud", [REF], [aandeelLayer()], () => 2030);
+      const before = getFilterLayers()[0];
+      computeScoreGrid.mockRejectedValueOnce(new Error("boom"));
+
+      const def = await hook.update(before.id, "Nieuw", [REF], [aandeelLayer()], () => 2040, []);
+
+      expect(def).toBeUndefined();
+      expect(getFilterLayers()[0]).toEqual(before);
+      expect(hook.error()).toBe("Kon de gecombineerde laag niet aanpassen.");
+      dispose();
+    });
+  });
+});

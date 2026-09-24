@@ -29,7 +29,15 @@ import { useComplementaryDashboard } from "@/hooks/use-complementary-dashboard";
 import { viewForBbox } from "@/lib/fly-to";
 import { areaFilterLevels } from "@/layers/area-filter";
 import type { BBox } from "@/layers/box-filter";
-import { loadLayerConfigs, type LayerConfig, type ScoreClass } from "@/layers";
+import {
+  filterLayerConfig,
+  getFilterLayerById,
+  getLayerConfigById,
+  loadLayerConfigs,
+  type FilterLayerDef,
+  type LayerConfig,
+  type ScoreClass,
+} from "@/layers";
 import { addPickLayer } from "@/lib/pick-layer";
 import {
   DEFAULT_CLICK_MARKER,
@@ -868,6 +876,97 @@ function App(rawProps: AppProps): JSX.Element {
       ),
   );
 
+  /**
+   * The combination "Criteria combineren" is editing, with its source layers'
+   * configs; null while it creates a new one.
+   *
+   * The sources are resolved up front because they need not be on the map any
+   * more — the user may have removed them after combining — and the dialog must
+   * still offer the classes the combination is built from.
+   */
+  const [editingCombination, setEditingCombination] = createSignal<{
+    def: FilterLayerDef;
+    sources: LayerConfig[];
+  } | null>(null);
+
+  /**
+   * Step lookup for a combination being edited: its FROZEN step first, the live
+   * legend only for a layer it didn't use yet. The other way round, saving would
+   * silently rescore against whatever year the legend has moved to since.
+   */
+  function stepForEdit(def: FilterLayerDef, layerId: string): number | undefined {
+    return def.steps?.[layerId] ?? leftLegendLayers().layerSteps().get(layerId);
+  }
+
+  /** The layers the combine dialog offers: when editing, its sources first. */
+  const combineDialogLayers = () => {
+    const editing = editingCombination();
+    if (!editing) return combinableLayers();
+    // Prefer the on-map config for a source that is still on the map, so the
+    // dialog and the legend describe the same object.
+    const onMap = new Map(combinableLayers().map((config) => [config.id, config]));
+    const sources = editing.sources.map((config) => onMap.get(config.id) ?? config);
+    const sourceIds = new Set(sources.map((config) => config.id));
+    return [...sources, ...combinableLayers().filter((config) => !sourceIds.has(config.id))];
+  };
+
+  async function openCombinationEditor(id: string) {
+    const def = getFilterLayerById(id);
+    if (!def) return;
+    closeLayerMeta(false);
+    const configs = await loadLayerConfigs();
+    const sources = [...new Set(def.refs.map((ref) => ref.layerId))]
+      .map((layerId) => getLayerConfigById(configs, layerId))
+      .filter((config): config is LayerConfig => config !== undefined);
+    setEditingCombination({ def, sources });
+    setCombineOpen(true);
+  }
+
+  function handleCombineOpenChange(open: boolean) {
+    setCombineOpen(open);
+    // So the toolbar's "combineren" opens in create mode again.
+    if (!open) setEditingCombination(null);
+  }
+
+  /**
+   * Save an edited combination, then swap it in on every map that shows it.
+   *
+   * Everything the save needs is captured before the first await: the dialog
+   * closes right after calling this, which clears `editingCombination`.
+   */
+  async function handleSaveCombination(name: string, refs: ClassRef[], classes: ScoreClass[]) {
+    const editing = editingCombination();
+    if (!editing) return;
+    const configs = combineDialogLayers();
+    // Same lookup as stepForEdit, over a snapshot of the legend's steps.
+    const liveSteps = leftLegendLayers().layerSteps();
+    const frozen = editing.def.steps;
+    const stepFor = (layerId: string) => frozen?.[layerId] ?? liveSteps.get(layerId);
+    const def = await filterLayers.update(
+      editing.def.id,
+      name,
+      refs,
+      configs,
+      stepFor,
+      classes,
+    );
+    if (!def) return;
+
+    // Remove and re-add rather than patching the source: removing it also drops
+    // MapLibre's tile cache, so the new grid is requested afresh. The position
+    // and hidden state are put back, so the edit reads as the same layer.
+    const config = filterLayerConfig(def);
+    for (const stack of [mapLeftLayers, mapRightLayers]) {
+      const index = stack.layerEntries().findIndex((entry) => entry.config.id === def.id);
+      if (index < 0) continue;
+      const hidden = stack.hiddenIds().has(def.id);
+      stack.removeLayer(def.id);
+      await stack.addLayer(config);
+      stack.reorderLayer(def.id, index);
+      if (hidden) stack.hideLayer(def.id);
+    }
+  }
+
   const shareSide = () => (!comparisonMode() && showMapRight() ? mapRightLayers : mapLeftLayers);
   const circularLegendItems = () =>
     legendItemsForEntries(
@@ -1036,10 +1135,17 @@ function App(rawProps: AppProps): JSX.Element {
         <Show when={props.combinationsEnabled && combineOpen()}>
           <CombineLayersDialog
             open
-            onOpenChange={setCombineOpen}
-            layers={combinableLayers()}
-            stepFor={(layerId) => leftLegendLayers().layerSteps().get(layerId)}
+            onOpenChange={handleCombineOpenChange}
+            layers={combineDialogLayers()}
+            stepFor={(layerId) => {
+              const editing = editingCombination();
+              return editing
+                ? stepForEdit(editing.def, layerId)
+                : leftLegendLayers().layerSteps().get(layerId);
+            }}
+            initial={editingCombination()?.def}
             onCreate={handleCreateCombination}
+            onSave={(name, refs, classes) => void handleSaveCombination(name, refs, classes)}
           />
         </Show>
 
@@ -1334,6 +1440,9 @@ function App(rawProps: AppProps): JSX.Element {
           layer={metaLayer()}
           onAddLayer={addMetaLayerToLeftMap}
           isLayerOnMap={isMetaLayerOnLeftMap}
+          onEditCombination={
+            props.combinationsEnabled ? (id) => void openCombinationEditor(id) : undefined
+          }
         />
       </div>
     </Show>

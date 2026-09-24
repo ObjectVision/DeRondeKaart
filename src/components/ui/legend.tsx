@@ -1,13 +1,14 @@
 import { For, Show, createSignal, type JSX } from "solid-js";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { Icon } from "@/components/ui/nav-icon";
+import { CombinationInfoIcon } from "@/components/ui/combination-info-icon";
 import { Button } from "@/components/ui/button";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 import { useRowDrag } from "@/components/ui/use-row-drag";
 import { foregroundRank } from "@/components/map/map-view-config";
 import { ruleSwatchSpec, styleSwatchSpec } from "@/lib/legend-style";
 import { Swatch } from "@/components/ui/swatch";
-import { compositeLegendRules } from "@/layers";
+import { compositeLegendRules, isFilterLayerId } from "@/layers";
 import type { GeoStylerRule } from "@/layers";
 
 /** One class row in the legend, from either a layer's own rules or a composite's children. */
@@ -369,21 +370,42 @@ function LayerList(props: LayerListProps): JSX.Element {
                         </Show>
                       </Button>
                       {/* Disabled rather than hidden when the layer has no `meta`,
-                          so every row keeps the same set of actions. */}
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        disabled={!config.meta || !props.onOpenMeta}
-                        onClick={() => props.onOpenMeta?.(config.id, config.name)}
-                        aria-label={`Informatie ${config.name}`}
-                        title={
-                          config.meta && props.onOpenMeta
-                            ? "Informatie"
-                            : "Metadata (nog niet beschikbaar)"
+                          so every row keeps the same set of actions.
+
+                          A combination never has `meta` — its metainfo is
+                          generated from its definition — so it is always
+                          enabled, and gets its own icon: the pencil says this
+                          window is also where the combination is edited. */}
+                      <Show
+                        when={isFilterLayerId(config.id)}
+                        fallback={
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            disabled={!config.meta || !props.onOpenMeta}
+                            onClick={() => props.onOpenMeta?.(config.id, config.name)}
+                            aria-label={`Informatie ${config.name}`}
+                            title={
+                              config.meta && props.onOpenMeta
+                                ? "Informatie"
+                                : "Metadata (nog niet beschikbaar)"
+                            }
+                          >
+                            <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
+                          </Button>
                         }
                       >
-                        <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
-                      </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          disabled={!props.onOpenMeta}
+                          onClick={() => props.onOpenMeta?.(config.id, config.name)}
+                          aria-label={`Informatie over combinatie ${config.name}`}
+                          title="Informatie over deze combinatie"
+                        >
+                          <CombinationInfoIcon size={chromeIconSize()} color={chromeIconColor()} />
+                        </Button>
+                      </Show>
                       <Button
                         variant="ghost"
                         size="icon-sm"

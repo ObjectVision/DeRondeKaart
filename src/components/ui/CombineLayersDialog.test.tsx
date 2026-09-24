@@ -129,3 +129,101 @@ describe("CombineLayersDialog legend preview", () => {
     ]);
   });
 });
+
+/**
+ * Edit mode: the dialog reopened from a combination's metainfo, pre-filled with
+ * its choices. Saving goes to `onSave`, never `onCreate`.
+ */
+describe("CombineLayersDialog edit mode", () => {
+  const INITIAL = {
+    name: "Supermarkt goed + Groen hoog",
+    refs: [
+      { layerId: "a", ruleName: "goed" },
+      { layerId: "b", ruleName: "hoog" },
+    ],
+    classes: [
+      { label: "Half", color: "#123456" },
+      { label: "Alles", color: "#abcdef" },
+    ],
+  };
+
+  type SaveHandler = (name: string, refs: ClassRef[], classes: ScoreClass[]) => void;
+
+  function renderEdit(
+    initial = INITIAL,
+    onSave: SaveHandler = () => {},
+    onCreate: CreateHandler = () => {},
+  ) {
+    return render(() => (
+      <CombineLayersDialog
+        open
+        onOpenChange={() => {}}
+        layers={LAYERS}
+        stepFor={() => undefined}
+        initial={initial}
+        onCreate={onCreate}
+        onSave={onSave}
+      />
+    ));
+  }
+
+  function editNameInput(): HTMLInputElement {
+    return screen.getByPlaceholderText("Naam laag") as HTMLInputElement;
+  }
+
+  it("opens with the combination's classes ticked", () => {
+    renderEdit();
+    const checked = screen
+      .getAllByRole("checkbox")
+      .filter((box) => box.getAttribute("aria-checked") === "true")
+      // The label span, not the button's whole text: the checkbox glyph is a
+      // Material ligature, so its textContent reads "check_box".
+      .map((box) => box.querySelector("span.text-xs")?.textContent);
+    expect(checked).toEqual(["goed", "hoog"]);
+  });
+
+  // The legend-reset effect runs on mount; without the skip it would replace the
+  // combination's own legend with defaults before the user touched anything.
+  it("keeps the combination's own legend on opening", () => {
+    renderEdit();
+    expect(labelInput(1).value).toBe("Half");
+    expect(colorInput(2).value).toBe("#abcdef");
+  });
+
+  it("still resets the legend once the criteria change", () => {
+    renderEdit();
+    fireEvent.click(screen.getByText("matig"));
+    expect(labelInput(1).value).toBe("1 van 2 criteria");
+  });
+
+  it("keeps a name the user typed at creation", () => {
+    renderEdit({ ...INITIAL, name: "Mijn buurtscore" });
+    fireEvent.click(screen.getByText("matig"));
+    expect(editNameInput().value).toBe("Mijn buurtscore");
+  });
+
+  it("lets a generated name keep following the criteria", () => {
+    renderEdit();
+    fireEvent.click(screen.getByText("matig"));
+    expect(editNameInput().value).toBe("Supermarkt goed / matig + Groen hoog");
+  });
+
+  it("saves through onSave with the edited selection, never onCreate", () => {
+    const saved: [string, ClassRef[], ScoreClass[]][] = [];
+    const created: string[] = [];
+    renderEdit(
+      INITIAL,
+      (name, refs, classes) => saved.push([name, refs, classes]),
+      (name) => created.push(name),
+    );
+
+    fireEvent.click(screen.getByText("hoog"));
+    fireEvent.click(screen.getByText("Wijzigingen opslaan"));
+
+    expect(created).toEqual([]);
+    expect(saved).toHaveLength(1);
+    expect(saved[0][0]).toBe("Supermarkt goed");
+    expect(saved[0][1]).toEqual([{ layerId: "a", ruleName: "goed" }]);
+    expect(saved[0][2]).toEqual([{ label: "1 van 1 criteria", color: "#3288bd" }]);
+  });
+});

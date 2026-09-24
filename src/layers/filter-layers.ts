@@ -35,6 +35,13 @@ export interface FilterLayerDef {
   steps?: Record<string, number>;
 }
 
+/**
+ * The one scoring method, as the user reads it. Shared by the combine dialog,
+ * which states it, and the generated metainfo, which repeats it — two copies
+ * would drift the moment a second method is added.
+ */
+export const COMBINATION_STRATEGY = "Telling van voldane criteria zonder weging";
+
 /** One legend class of a combination — the class for score `index + 1`. */
 export interface ScoreClass {
   label: string;
@@ -243,6 +250,35 @@ export function addFilterLayerWithId(incoming: FilterLayerDef): FilterLayerDef {
   }
 
   store.defs = [...store.defs, def];
+  store.version += 1;
+  return def;
+}
+
+/**
+ * Replace a combination's criteria, legend and name in place, keeping its id.
+ *
+ * In place rather than remove-and-add, so the id a share link or the map's layer
+ * stack already holds keeps pointing at the edited combination. `steps` is
+ * replaced whole, and an empty one is dropped as in {@link addFilterLayer}: an
+ * edit that removes the last timeseries layer must not keep its stale year.
+ *
+ * Returns undefined when no combination has that id.
+ */
+export function updateFilterLayer(
+  id: string,
+  patch: Pick<FilterLayerDef, "name" | "refs" | "classes" | "steps">,
+): FilterLayerDef | undefined {
+  const current = store.defs.find((def) => def.id === id);
+  if (!current) return undefined;
+
+  const def: FilterLayerDef = {
+    id,
+    name: patch.name,
+    refs: patch.refs,
+    classes: patch.classes,
+    ...(patch.steps && Object.keys(patch.steps).length > 0 ? { steps: patch.steps } : {}),
+  };
+  store.defs = store.defs.map((item) => (item.id === id ? def : item));
   store.version += 1;
   return def;
 }
