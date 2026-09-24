@@ -16,6 +16,7 @@ import { chromeIconColor, chromeIconSize } from "@/config/map-config";
 import {
   COMBINATION_STRATEGY,
   defaultScoreClasses,
+  isFilterLayerId,
   type LayerConfig,
   type ScoreClass,
 } from "@/layers";
@@ -24,6 +25,13 @@ import {
 export interface ClassRef {
   layerId: string;
   ruleName: string;
+  /**
+   * Set only when the layer is itself a combination: the score this class
+   * stands for (1 = its first legend class). That is what identifies it — its
+   * legend label can be renamed and its class count changed by an edit, so
+   * `ruleName` is only the label at the time it was chosen, kept for display.
+   */
+  score?: number;
 }
 
 export interface CombineLayersDialogProps {
@@ -65,9 +73,23 @@ export interface CombinationDraft {
  *
  * The separator is a pipe: neither a layer id nor a rule name contains one, so
  * the key stays unambiguous while staying readable in source and in devtools.
+ *
+ * A combination's class is keyed by score, not label, so a combination being
+ * edited still finds its ticks after a source's label was renamed.
  */
 function refKey(ref: ClassRef): string {
-  return `${ref.layerId}|${ref.ruleName}`;
+  return ref.score !== undefined ? `${ref.layerId}|#${ref.score}` : `${ref.layerId}|${ref.ruleName}`;
+}
+
+/**
+ * The reference a checkbox stands for. A combination's classes carry their score
+ * — the class at `index` is score `index + 1`, the order `filterLayerConfig`
+ * builds its rules in — because a label can be renamed and a score cannot.
+ */
+function classRefFor(layerId: string, ruleName: string, index: number): ClassRef {
+  return isFilterLayerId(layerId)
+    ? { layerId, ruleName, score: index + 1 }
+    : { layerId, ruleName };
 }
 
 /**
@@ -196,13 +218,13 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
 
   const selectedKeys = createMemo(() => new Set(selected().map(refKey)));
 
-  function toggleClass(layerId: string, ruleName: string) {
-    const key = refKey({ layerId, ruleName });
+  function toggleClass(clicked: ClassRef) {
+    const key = refKey(clicked);
     setSelected((prev) => {
       if (prev.some((ref) => refKey(ref) === key)) {
         return prev.filter((ref) => refKey(ref) !== key);
       }
-      return [...prev, { layerId, ruleName }];
+      return [...prev, clicked];
     });
   }
 
@@ -323,6 +345,13 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
                             {layer.subname}
                           </span>
                         </Show>
+                        {/* Tells a combination apart from the catalogue layers
+                            beside it; its classes are its score classes. */}
+                        <Show when={isFilterLayerId(layer.id)}>
+                          <span class="block truncate text-xs text-gray-500">
+                            Combinatie
+                          </span>
+                        </Show>
                         <Show when={stepForLayer(layer, props.stepFor)}>
                           {(step) => (
                             <span class="block truncate text-xs text-gray-500">
@@ -344,17 +373,15 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
                         </div>
                         <div class="flex flex-wrap gap-x-3 gap-y-1">
                           <For each={rules()}>
-                            {(rule) => {
-                              const checked = () =>
-                                selectedKeys().has(
-                                  refKey({ layerId: layer.id, ruleName: rule.name }),
-                                );
+                            {(rule, index) => {
+                              const ref = () => classRefFor(layer.id, rule.name, index());
+                              const checked = () => selectedKeys().has(refKey(ref()));
                               return (
                                 <button
                                   type="button"
                                   role="checkbox"
                                   aria-checked={checked()}
-                                  onClick={() => toggleClass(layer.id, rule.name)}
+                                  onClick={() => toggleClass(ref())}
                                   title={CRITERION_HINT}
                                   class="flex cursor-pointer items-center gap-1.5 rounded p-1 text-left"
                                 >

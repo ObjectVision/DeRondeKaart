@@ -18,16 +18,31 @@ export const NODATA = 255;
  * holds exactly one class of a layer, so scoring per class would cap the
  * attainable score below the number of layers and make "2 van 2" unreachable
  * whenever someone widened a layer's selection.
+ *
+ * The raster comes from one of two places: a catalogue layer's companion COG
+ * (`url`), or another combination's score grid (`grid`) — a combination used as
+ * a criterion. A score grid is computed from those same COGs at the same
+ * overview level, so it lies on the same grid and needs no resampling; its cells
+ * hold the score, which the combination's own rules test as `band0`.
  */
-export interface ScoreInput {
-  /** URL of the layer's companion class COG (`LayerConfig.filterRaster`). */
-  url: string;
+export type ScoreInput = ScoreInputSource & {
   /**
    * The layer's chosen classes as one filter — a single rule's filter, or an
-   * `["||", …]` of them. Reused verbatim from the vector layer's rules.
+   * `["||", …]` of them. Reused verbatim from the layer's rules.
    */
   filter: GeoStylerFilter;
-}
+};
+
+/** Where a {@link ScoreInput}'s cell values come from. */
+type ScoreInputSource =
+  | {
+      /** URL of the layer's companion class COG (`LayerConfig.filterRaster`). */
+      url: string;
+    }
+  | {
+      /** A combination's registered score grid. */
+      grid: ScoreGrid;
+    };
 
 /**
  * Property names a cell value is exposed under while evaluating a filter.
@@ -107,7 +122,9 @@ export async function computeScoreGrid(
   // Callers pass one input per layer, so these are already distinct; the Set
   // guards against a caller that passes the same raster twice, which would
   // otherwise download it twice and let one layer score 2.
-  const urls = [...new Set(inputs.map((input) => input.url))];
+  const urls = [
+    ...new Set(inputs.flatMap((input) => ("url" in input ? [input.url] : []))),
+  ];
   const opened = await Promise.all(
     urls.map(async (url) => {
       const tiff = await fromUrl(url);
@@ -124,9 +141,27 @@ export async function computeScoreGrid(
   );
 
   const images = opened.map((entry) => entry.image);
-  const width = images[0].getWidth();
-  const height = images[0].getHeight();
-  const bbox = opened[0].bbox;
+  const grids = inputs.flatMap((input) => ("grid" in input ? [input.grid] : []));
+  // The reference grid: the first COG, or — when every input is a combination —
+  // the first score grid, so a combination of combinations needs no fetch.
+  const width = images[0]?.getWidth() ?? grids[0].width;
+  const height = images[0]?.getHeight() ?? grids[0].height;
+  const bbox = opened[0]?.bbox ?? grids[0].bbox;
+
+  // Score grids are checked like rasters: one computed at another overview
+  // level, or over another extent, would score cell i against the wrong ground.
+  for (const grid of grids) {
+    if (grid.width !== width || grid.height !== height) {
+      throw new Error(
+        `Combination grid is ${grid.width}x${grid.height}, expected ${width}x${height}.`,
+      );
+    }
+    if (grid.bbox.some((v, axis) => Math.abs(v - bbox[axis]) > 1e-6)) {
+      throw new Error(
+        `Combination grid covers [${grid.bbox.join(", ")}], expected [${bbox.join(", ")}].`,
+      );
+    }
+  }
 
   for (let i = 1; i < images.length; i++) {
     if (images[i].getWidth() !== width || images[i].getHeight() !== height) {
@@ -153,7 +188,9 @@ export async function computeScoreGrid(
   );
 
   // Band per input, resolved once so the per-cell loop does no lookups.
-  const bandByInput = inputs.map((input) => bands[urls.indexOf(input.url)]);
+  const bandByInput = inputs.map((input) =>
+    "grid" in input ? input.grid.data : bands[urls.indexOf(input.url)],
+  );
   const filters = inputs.map((input) => input.filter);
 
   // Names each filter actually reads, so the cell value is bound under the

@@ -6,9 +6,13 @@ const computeScoreGrid = vi.hoisted(() => vi.fn());
 vi.mock("@/layers/filter-raster", () => ({
   computeScoreGrid,
 }));
+// A working registry rather than bare spies: a combination used as a criterion
+// is scored from the grid its source registered.
+const registered = vi.hoisted(() => new Map<string, unknown>());
 vi.mock("@/layers/score-protocol", () => ({
-  registerScoreGrid: vi.fn(),
-  unregisterScoreGrid: vi.fn(),
+  registerScoreGrid: vi.fn((id: string, grid: unknown) => registered.set(id, grid)),
+  getScoreGrid: (id: string) => registered.get(id),
+  unregisterScoreGrid: vi.fn((id: string) => registered.delete(id)),
 }));
 
 import { useFilterLayers } from "@/hooks/use-filter-layers";
@@ -231,7 +235,8 @@ describe("useFilterLayers.update", () => {
         [{ label: "één", color: "#123456" }],
       );
 
-      expect(def).toMatchObject({ id, name: "Nieuw", steps: { aandeel_j0_17: 2030 } });
+      expect(def).toHaveLength(1);
+      expect(def?.[0]).toMatchObject({ id, name: "Nieuw", steps: { aandeel_j0_17: 2030 } });
       expect(getFilterLayers()).toHaveLength(1);
       expect(hook.defs()[0].name).toBe("Nieuw");
       expect(requestedUrls()).toEqual(["https://example.test/aandeel_j0_17_m5_2030.cog.tif"]);
@@ -254,6 +259,174 @@ describe("useFilterLayers.update", () => {
       expect(def).toBeUndefined();
       expect(getFilterLayers()[0]).toEqual(before);
       expect(hook.error()).toBe("Kon de gecombineerde laag niet aanpassen.");
+      dispose();
+    });
+  });
+});
+
+/**
+ * A combination used as a criterion of another. It is scored from its source's
+ * registered grid, follows that source's edits, and travels in share links
+ * with its source.
+ */
+describe("combinations as criteria", () => {
+  const AANDEEL = { layerId: "aandeel_j0_17", ruleName: "0-10%" };
+  const HUISARTS = { layerId: "huisarts", ruleName: "0-10%" };
+
+  function huisartsLayer(): LayerConfig {
+    return {
+      ...aandeelLayer(),
+      id: "huisarts",
+      timeseries: undefined,
+      filterRaster: "https://example.test/huisarts_lb_m5.cog.tif",
+    } as LayerConfig;
+  }
+
+  const CONFIGS = () => [aandeelLayer(), huisartsLayer()];
+
+  /** A distinct grid per call, so a test can tell which one an input carries. */
+  function gridNamed(name: string) {
+    return { width: 1, height: 1, data: new Uint8Array([1]), bbox: [0, 0, 1, 1], filterCount: 1, name };
+  }
+
+  function hook() {
+    return useFilterLayers(
+      async () => {},
+      () => {},
+    );
+  }
+
+  /** Inputs of the n-th computeScoreGrid call. */
+  function inputsOf(call: number) {
+    return computeScoreGrid.mock.calls[call][0] as { url?: string; grid?: unknown; filter: unknown }[];
+  }
+
+  beforeEach(() => registered.clear());
+
+  it("scores a combination criterion from its source's registered grid", async () => {
+    await createRoot(async (dispose) => {
+      const filters = hook();
+      computeScoreGrid.mockResolvedValueOnce(gridNamed("A"));
+      await filters.create("A", [AANDEEL], CONFIGS(), () => 2030);
+      const a = getFilterLayers()[0];
+
+      await filters.create(
+        "B",
+        [{ layerId: a.id, ruleName: "1 van 1 criteria", score: 1 }, HUISARTS],
+        CONFIGS(),
+        () => undefined,
+      );
+
+      const inputs = inputsOf(1);
+      expect(inputs[0]).toEqual({ grid: gridNamed("A"), filter: ["==", "band0", 1] });
+      expect(inputs[1].url).toBe("https://example.test/huisarts_lb_m5.cog.tif");
+      dispose();
+    });
+  });
+
+  it("recomputes the combinations built on an edited one, from its new grid", async () => {
+    await createRoot(async (dispose) => {
+      const filters = hook();
+      await filters.create("A", [AANDEEL], CONFIGS(), () => 2030);
+      const a = getFilterLayers()[0];
+      await filters.create(
+        "B",
+        [{ layerId: a.id, ruleName: "1 van 1 criteria", score: 1 }, HUISARTS],
+        CONFIGS(),
+        () => undefined,
+      );
+      const b = getFilterLayers()[1];
+      computeScoreGrid.mockClear();
+      computeScoreGrid.mockResolvedValueOnce(gridNamed("A2"));
+
+      const changed = await filters.update(a.id, "A", [AANDEEL], CONFIGS(), () => 2040, a.classes);
+
+      expect(changed?.map((def) => def.id)).toEqual([a.id, b.id]);
+      // B was rescored from A's NEW grid.
+      expect(inputsOf(1)[0].grid).toEqual(gridNamed("A2"));
+      expect(filters.notice()).toBeNull();
+      dispose();
+    });
+  });
+
+  it("drops a class whose score vanished, resets the legend, and says so", async () => {
+    await createRoot(async (dispose) => {
+      const filters = hook();
+      await filters.create("A", [AANDEEL, HUISARTS], CONFIGS(), () => 2030);
+      const a = getFilterLayers()[0];
+      // B wants "2 van 2" of A, plus a criterion of its own.
+      await filters.create(
+        "B",
+        [{ layerId: a.id, ruleName: "2 van 2 criteria", score: 2 }, HUISARTS],
+        CONFIGS(),
+        () => undefined,
+      );
+      const b = getFilterLayers()[1];
+      expect(b.classes).toHaveLength(2);
+
+      // A shrinks to one criterion: its score 2 no longer exists.
+      const changed = await filters.update(
+        a.id,
+        "A",
+        [AANDEEL],
+        CONFIGS(),
+        () => 2030,
+        [{ label: "1 van 1 criteria", color: "#3288bd" }],
+      );
+
+      const updatedB = changed?.find((def) => def.id === b.id);
+      expect(updatedB?.refs).toEqual([HUISARTS]);
+      expect(updatedB?.classes).toHaveLength(1);
+      expect(filters.notice()).toMatch(/"B": een criterium is vervallen/);
+      dispose();
+    });
+  });
+
+  it("points a restored dependent at its source's remapped id", async () => {
+    await createRoot(async (dispose) => {
+      const filters = hook();
+      // The recipient already holds a combination under the id the link uses.
+      await filters.create("Eigen", [HUISARTS], CONFIGS(), () => undefined);
+      const taken = getFilterLayers()[0].id;
+
+      const source = {
+        id: taken,
+        name: "Bron",
+        refs: [AANDEEL],
+        classes: [{ label: "1 van 1 criteria", color: "#3288bd" }],
+        steps: { aandeel_j0_17: 2030 },
+      };
+      const dependent = {
+        id: "filter__500",
+        name: "Afgeleid",
+        refs: [{ layerId: taken, ruleName: "1 van 1 criteria", score: 1 }],
+        classes: [{ label: "1 van 1 criteria", color: "#3288bd" }],
+      };
+
+      const remap = await filters.restore([source, dependent], CONFIGS());
+
+      const sourceId = remap.get(taken)!;
+      expect(sourceId).not.toBe(taken);
+      const stored = getFilterLayers().find((def) => def.id === remap.get("filter__500"));
+      expect(stored?.refs[0].layerId).toBe(sourceId);
+      dispose();
+    });
+  });
+
+  it("skips a restored dependent whose source is not in the link", async () => {
+    await createRoot(async (dispose) => {
+      const filters = hook();
+      const orphan = {
+        id: "filter__600",
+        name: "Wees",
+        refs: [{ layerId: "filter__601", ruleName: "1 van 1 criteria", score: 1 }],
+        classes: [{ label: "1 van 1 criteria", color: "#3288bd" }],
+      };
+
+      const remap = await filters.restore([orphan], CONFIGS());
+
+      expect(remap.has("filter__600")).toBe(false);
+      expect(getFilterLayers()).toEqual([]);
       dispose();
     });
   });

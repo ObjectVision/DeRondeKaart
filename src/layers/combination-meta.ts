@@ -1,5 +1,10 @@
 import type { FilterLayerDef, ScoreClass } from "@/layers/filter-layers";
-import { COMBINATION_STRATEGY } from "@/layers/filter-layers";
+import {
+  COMBINATION_STRATEGY,
+  filterLayerConfig,
+  getFilterLayerById,
+  isFilterLayerId,
+} from "@/layers/filter-layers";
 import type { GeoStylerRule, LayerConfig } from "@/layers/types";
 
 /** One chosen class of a criterion, with the source layer's rule for it. */
@@ -21,6 +26,8 @@ export interface Criterion {
   /** The frozen timeseries step, for a timeseries layer. */
   year?: number;
   classes: CriterionClass[];
+  /** The criterion is itself a combination; its classes are its score classes. */
+  combination: boolean;
   /**
    * The layer is not in the loaded config — a share link from another variant,
    * say. The criterion is still listed, from the definition alone, rather than
@@ -46,6 +53,10 @@ export interface CombinationDescription {
  * mirroring how the score counts: classes of one layer are alternatives, and
  * each layer adds at most one to a cell's score (`layerCountOf`,
  * `scoreInputsFor`). Listing per class would suggest the opposite.
+ *
+ * A criterion that is itself a combination is resolved from the store, and its
+ * classes by score: the rule at `score - 1`, under its CURRENT label, since the
+ * label may have been renamed since it was chosen.
  */
 export function describeCombination(
   def: FilterLayerDef,
@@ -53,7 +64,11 @@ export function describeCombination(
 ): CombinationDescription {
   const criteria: Criterion[] = [];
   for (const layerId of new Set(def.refs.map((ref) => ref.layerId))) {
-    const config = configs.find((c) => c.id === layerId);
+    const combination = isFilterLayerId(layerId);
+    const source = combination ? getFilterLayerById(layerId) : undefined;
+    const config = combination
+      ? source && filterLayerConfig(source)
+      : configs.find((c) => c.id === layerId);
     const rules = config?.geostyler?.rules ?? [];
     criteria.push({
       layerId,
@@ -62,10 +77,14 @@ export function describeCombination(
       year: def.steps?.[layerId],
       classes: def.refs
         .filter((ref) => ref.layerId === layerId)
-        .map((ref) => ({
-          name: ref.ruleName,
-          rule: rules.find((rule) => rule.name === ref.ruleName),
-        })),
+        .map((ref) => {
+          const rule =
+            ref.score !== undefined
+              ? rules[ref.score - 1]
+              : rules.find((item) => item.name === ref.ruleName);
+          return { name: rule?.name ?? ref.ruleName, rule };
+        }),
+      combination,
       missing: !config,
     });
   }

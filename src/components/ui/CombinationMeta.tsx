@@ -79,6 +79,12 @@ export function CombinationMeta(props: CombinationMetaProps): JSX.Element {
                       <Show when={criterion.subname}>
                         <div class="text-xs text-gray-500">{criterion.subname}</div>
                       </Show>
+                      <Show when={criterion.combination}>
+                        <div class="text-xs text-gray-500">
+                          Zelf een combinatie; de gekozen klassen zijn scores daarvan.
+                          Wordt die combinatie aangepast, dan past deze laag mee.
+                        </div>
+                      </Show>
                       <Show when={criterion.missing}>
                         <div class="text-xs text-gray-500">
                           Deze kaartlaag is in de huidige kaartversie niet beschikbaar.

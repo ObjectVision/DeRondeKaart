@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import { describeCombination } from "@/layers/combination-meta";
-import { COMBINATION_STRATEGY, type FilterLayerDef } from "@/layers/filter-layers";
+import {
+  COMBINATION_STRATEGY,
+  addFilterLayer,
+  getFilterLayers,
+  removeFilterLayer,
+  type FilterLayerDef,
+} from "@/layers/filter-layers";
 import type { LayerConfig } from "@/layers/types";
 
 function layer(id: string, name: string, ruleNames: string[], subname?: string): LayerConfig {
@@ -74,5 +80,27 @@ describe("describeCombination", () => {
     expect(info.name).toBe(DEF.name);
     expect(info.strategy).toBe(COMBINATION_STRATEGY);
     expect(info.legend.map((c) => c.label)).toEqual(["1 van 2 criteria", "2 van 2 criteria"]);
+  });
+});
+
+describe("describeCombination with a combination as criterion", () => {
+  it("names the source's classes by score, under their current labels", () => {
+    for (const def of getFilterLayers()) removeFilterLayer(def.id);
+    const { def: source } = addFilterLayer("Voorzieningen", [{ layerId: "supermarkt", ruleName: "< 500 m" }], [
+      { label: "Eén", color: "#d53e4f" },
+      { label: "Allebei", color: "#3288bd" },
+    ]);
+    const nested: FilterLayerDef = {
+      id: "filter__99",
+      name: "Afgeleid",
+      // Chosen when score 2 was still labelled "2 van 2 criteria".
+      refs: [{ layerId: source.id, ruleName: "2 van 2 criteria", score: 2 }],
+      classes: [{ label: "1 van 1 criteria", color: "#3288bd" }],
+    };
+
+    const [criterion] = describeCombination(nested, CONFIGS).criteria;
+
+    expect(criterion).toMatchObject({ name: "Voorzieningen", combination: true, missing: false });
+    expect(criterion.classes.map((c) => c.name)).toEqual(["Allebei"]);
   });
 });

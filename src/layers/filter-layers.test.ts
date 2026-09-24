@@ -2,6 +2,9 @@ import { beforeEach, describe, expect, it } from "vitest";
 
 import {
   addFilterLayer,
+  combinationSources,
+  dependentsOf,
+  withSources,
   getFilterLayerById,
   getFilterLayerVersion,
   getFilterLayers,
@@ -55,5 +58,38 @@ describe("updateFilterLayer", () => {
     const before = getFilterLayerVersion();
     expect(updateFilterLayer("filter__999", { name: "x", refs: REFS, classes: [] })).toBeUndefined();
     expect(getFilterLayerVersion()).toBe(before);
+  });
+});
+
+describe("combination dependencies", () => {
+  /** A combination using `sources` as criteria (by score 1). */
+  function built(name: string, ...sources: string[]) {
+    const refs = sources.map((layerId) => ({ layerId, ruleName: "1 van 1 criteria", score: 1 }));
+    return addFilterLayer(name, [...REFS, ...refs]).def;
+  }
+
+  it("lists only the filter__ layers among a combination's refs", () => {
+    const a = built("A");
+    expect(combinationSources(built("B", a.id))).toEqual([a.id]);
+    expect(combinationSources(a)).toEqual([]);
+  });
+
+  it("finds dependents transitively, each after the ones it is built on", () => {
+    const a = built("A");
+    const b = built("B", a.id);
+    const unrelated = built("Los");
+    const c = built("C", b.id);
+    built("D", a.id, c.id);
+
+    expect(dependentsOf(a.id).map((def) => def.name)).toEqual(["B", "C", "D"]);
+    expect(dependentsOf(c.id).map((def) => def.name)).toEqual(["D"]);
+    expect(dependentsOf(unrelated.id)).toEqual([]);
+  });
+
+  it("adds the sources of a set, transitively, before the combinations using them", () => {
+    const a = built("A");
+    const b = built("B", a.id);
+    const c = built("C", b.id);
+    expect(withSources([c]).map((def) => def.name)).toEqual(["A", "B", "C"]);
   });
 });
