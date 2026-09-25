@@ -165,7 +165,7 @@ then pass `--repo git@github.com-<slug>:ORG/REPO.git`.
 
 ./setup_landing_page.sh -y \
   --slug woonzorglimburg_landing_ontwikkel \
-  --host ontwikkel.woonzorglimburg.nl \
+  --host <ontwikkel host> \
   --repo git@github.com:ObjectVision/woonzorglimburg_landing.git --branch ontwikkel \
   --embed-host https://map.woonzorglimburg.nl --embed-host https://app.powerbi.com \
   --embed-port 5176 \
