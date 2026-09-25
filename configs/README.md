@@ -296,8 +296,8 @@ the root value: speech still needs `text_to_tool`, and both still need their
 - `woonzorglimburg/` — the Limburg deployment (`map.woonzorglimburg.nl`), with two
   [variants](#config-variants-multiple-datasets-in-one-build):
   - `publiek` (default) — what the public landing (woonzorglimburg.nl) embeds.
-  - `ontwikkel` — staging, embedded by the ontwikkel landing
-    (ontwikkel.woonzorglimburg.nl). Config changes are tried here first and copied
+  - `ontwikkel` — staging, embedded by the ontwikkel landing (its host name is
+    deliberately not documented). Config changes are tried here first and copied
     into `publiek/` once approved. Also turns on `text_to_tool` / `speech_to_text`.
 
   Shares `map.json`, `filter.json`, `charts.json` and `dashboard_complementary.json`;
