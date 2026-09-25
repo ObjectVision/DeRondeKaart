@@ -153,12 +153,23 @@ then pass `--repo git@github.com-<slug>:ORG/REPO.git`.
 # Interactive
 ./setup_landing_page.sh
 
-# Non-interactive, matching the current production instance
+# woonzorglimburg: one landing per map variant, one branch each.
+# Both embed the map and Power BI, and proxy the Power BI embed-token service.
 ./setup_landing_page.sh -y \
-  --slug woonzorglimburg_landing \
+  --slug woonzorglimburg_landing_publiek \
   --host woonzorglimburg.nl --alias www.woonzorglimburg.nl \
-  --repo git@github.com:ObjectVision/woonzorglimburg_landing.git \
-  --email eoudejans@objectvision.nl
+  --repo git@github.com:ObjectVision/woonzorglimburg_landing.git --branch main \
+  --embed-host https://map.woonzorglimburg.nl --embed-host https://app.powerbi.com \
+  --embed-port 5176 \
+  --email info@objectvision.nl
+
+./setup_landing_page.sh -y \
+  --slug woonzorglimburg_landing_ontwikkel \
+  --host ontwikkel.woonzorglimburg.nl \
+  --repo git@github.com:ObjectVision/woonzorglimburg_landing.git --branch ontwikkel \
+  --embed-host https://map.woonzorglimburg.nl --embed-host https://app.powerbi.com \
+  --embed-port 5176 \
+  --email info@objectvision.nl
 
 # startanalyse2026: frames the map AND is itself framed by PBL
 ./setup_landing_page.sh -y \

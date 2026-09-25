@@ -15,7 +15,7 @@ import type { VariantsConfig } from "@/config/map-config";
  * is the one place that decides, so adding a file to the per-variant set is a
  * one-line change in {@link PER_VARIANT_FILES}.
  *
- * When a project declares no variants — every project but startanalyse2026 —
+ * When a project declares no variants — any but startanalyse2026 and woonzorglimburg —
  * `variantId()` is null and `configPath()` returns the bare `/name.json` these
  * loaders always used, so nothing about their behaviour changes.
  */
@@ -67,11 +67,23 @@ export function initVariants(variants: VariantsConfig | undefined): void {
   if (requested && !isVariantId(requested)) {
     console.warn(`Unknown variant "${requested}"; using the default`);
   }
-  const initial =
-    requested && isVariantId(requested)
-      ? requested
-      : (variants.default ?? variants.items[0].id);
-  setVariantIdSignal(initial);
+  setVariantIdSignal(bootVariantId(variants));
+}
+
+/**
+ * The variant a page load starts in: `?variant=` when it names a declared
+ * variant, otherwise `variants.default`, otherwise the first item.
+ *
+ * Separate from {@link initVariants} because map.json needs the answer while it
+ * is still being parsed — a variant may override boot-time feature flags (see
+ * `VariantItem`), and those are resolved before the variant system exists. One
+ * function for both, so the flags and the data can never come from different
+ * variants on the same load.
+ */
+export function bootVariantId(variants: VariantsConfig): string {
+  const requested = new URLSearchParams(window.location.search).get(VARIANT_PARAM);
+  if (requested && variants.items.some((item) => item.id === requested)) return requested;
+  return variants.default ?? variants.items[0].id;
 }
 
 /**

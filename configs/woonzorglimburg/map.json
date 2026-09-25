@@ -4,6 +4,18 @@
     51.09266041682005
   ],
   "zoom": 8,
+  "variants": {
+    "default": "publiek",
+    "items": [
+      { "id": "publiek", "label": "Publiek" },
+      {
+        "id": "ontwikkel",
+        "label": "Ontwikkel",
+        "text_to_tool": true,
+        "speech_to_text": true
+      }
+    ]
+  },
   "studyarea": "studiegebied_limburg",
   "streetview": true,
   "searchbar": false,

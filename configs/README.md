@@ -269,6 +269,21 @@ Switching removes every layer the user added from both maps. The basemap, the
 added layers go is deliberate rather than a limitation: with ids reused across
 variants, keeping them would silently repoint each layer at another year.
 
+### Per-variant boot flags
+
+A variant item may override `text_to_tool` and `speech_to_text` — the only
+`map.json` keys that can differ per variant:
+
+```json
+{ "id": "ontwikkel", "label": "Ontwikkel", "text_to_tool": true, "speech_to_text": true }
+```
+
+They decide which models load, so they are resolved once, for the variant the
+page **opens** in (`?variant=`, else `default`). A later `set-variant` or a share
+link's hash does not re-evaluate them. An override is held to the same rules as
+the root value: speech still needs `text_to_tool`, and both still need their
+`modelUrls`.
+
 ## Adding a new project
 
 1. Create `configs/<project>/`.
@@ -278,20 +293,21 @@ variants, keeping them would silently repoint each layer at another year.
 
 ## Existing projects
 
-- `woonzorglimburg/` — the public Limburg deployment (`map.woonzorglimburg.nl`).
-  Overrides `map.json`, `layers.json`, `filter.json`, `charts.json`, `navigation.json`
-  and `dashboard_complementary.json`.
-- `woonzorglimburg_dev/` — the password-protected staging deployment
-  (`map.dev.woonzorglimburg.nl`). A complete copy of all nine config files, so any of
-  them can be changed on dev without falling back to a `public/` default. Config
-  changes are tried here first and copied into `woonzorglimburg/` once they are
-  approved; the two overlays are otherwise independent and drift on purpose.
+- `woonzorglimburg/` — the Limburg deployment (`map.woonzorglimburg.nl`), with two
+  [variants](#config-variants-multiple-datasets-in-one-build):
+  - `publiek` (default) — what the public landing (woonzorglimburg.nl) embeds.
+  - `ontwikkel` — staging, embedded by the ontwikkel landing
+    (ontwikkel.woonzorglimburg.nl). Config changes are tried here first and copied
+    into `publiek/` once approved. Also turns on `text_to_tool` / `speech_to_text`.
 
-  Note this is a separate **project**, not a [config variant](#config-variants-multiple-datasets-in-one-build).
-  Variants ship in one public bundle and cannot be access-controlled — nginx
-  authenticates URL paths, so a `/dev/layers.json` would be world-readable whatever
-  the app did. A separate project builds a separate site, which nginx can put behind
-  basic auth. See [`server/setup_map_application.md`](../server/setup_map_application.md).
+  Shares `map.json`, `filter.json`, `charts.json` and `dashboard_complementary.json`;
+  `layers.json` and `navigation.json` live under `publiek/` and `ontwikkel/`.
+
+  **Staging is public.** Until September 2026 staging was a separate project
+  (`woonzorglimburg_dev`, `map.dev.woonzorglimburg.nl`) behind basic auth, because a
+  variant cannot be access-controlled: `map.woonzorglimburg.nl/ontwikkel/layers.json`
+  and `?variant=ontwikkel` are open to anyone. That was traded for one build and one
+  site. Anything that must stay private needs a separate project again, not a variant.
 - `startanalyse2026/` — the national Startanalyse viewer. Shares `map.json`, `filter.json`
   and `charts.json`, and ships `layers.json` + `navigation.json` per model year under
   `2025/`, `2026/` and `2025_2026/` (see [Config variants](#config-variants-multiple-datasets-in-one-build)).

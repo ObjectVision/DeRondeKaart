@@ -40,17 +40,23 @@ hook id "deploy-<slug>"             entry in /etc/webhook/hooks.json (landing + 
 /etc/nginx/.htpasswd-<slug>         basic-auth users       (map, --auth-user only)
 ```
 
-The map app runs as **two instances** for this project, differing only in which
-config overlay they build:
+The map app runs as **one instance** for this project, serving both config
+variants; the two landing pages each embed their own:
 
-| slug | host | overlay | access |
+| slug | host | builds / branch | embeds |
 |---|---|---|---|
-| `woonzorglimburg_map` | `map.woonzorglimburg.nl` | `configs/woonzorglimburg/` | public |
-| `woonzorglimburg_map_dev` | `map.dev.woonzorglimburg.nl` | `configs/woonzorglimburg_dev/` | HTTP basic auth |
+| `woonzorglimburg_map` | `map.woonzorglimburg.nl` | `configs/woonzorglimburg/` (variants `publiek`, `ontwikkel`), `main` | — |
+| `woonzorglimburg_landing_publiek` | `woonzorglimburg.nl` | landing repo `main` | map, `?variant=publiek` |
+| `woonzorglimburg_landing_ontwikkel` | `ontwikkel.woonzorglimburg.nl` | landing repo `ontwikkel` | map, `?variant=ontwikkel` |
 
-Both track `main` and rebuild on the same push, each via its own webhook. The
-deploy-coalescing `flock`s are per-slug, so the two builds run concurrently — the
-first thing to look at if the VM struggles during a deploy.
+All are public: the staging (`ontwikkel`) variant is served by the same site as
+`publiek`, so it cannot be put behind basic auth — see `configs/README.md`.
+Until September 2026 staging was a separate, password-protected map instance
+(`woonzorglimburg_map_dev`, `map.dev.woonzorglimburg.nl`).
+
+`dev.woonzorglimburg.nl` is kept only as a 301 to `ontwikkel.woonzorglimburg.nl`.
+It must stay served while it is a name on the shared `woonzorglimburg.nl`
+certificate — the renewal validates every name on it.
 
 Shared infrastructure is installed once and reused by every instance:
 
@@ -165,8 +171,8 @@ www.kanskaartthuisgeven.nl.   AAAA  <server IPv6>
 woonzorglimburg.nl.           AAAA  <server IPv6>
 www.woonzorglimburg.nl.       AAAA  <server IPv6>
 map.woonzorglimburg.nl.       AAAA  <server IPv6>
-map.dev.woonzorglimburg.nl.   AAAA  <server IPv6>
-dev.woonzorglimburg.nl.       AAAA  <server IPv6>
+ontwikkel.woonzorglimburg.nl. AAAA  <server IPv6>
+dev.woonzorglimburg.nl.       AAAA  <server IPv6>   (301 to ontwikkel)
 data.woonzorglimburg.nl.      AAAA  <server IPv6>
 ```
 
