@@ -15237,6 +15237,15 @@
     {
       "id": "355",
       "name": "Toekenning klimaatneutraal gas (LN, H20)",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
