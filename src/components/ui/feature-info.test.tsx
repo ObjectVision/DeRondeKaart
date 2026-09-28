@@ -130,3 +130,134 @@ describe("FeatureInfo downloads section", () => {
     expect(screen.queryByText("Downloads")).toBeNull();
   });
 });
+
+/**
+ * The gemeente package, unlike the archives, IS year-specific: PBL publishes one
+ * per model year, at two different base URLs. So the active variant decides which
+ * year(s) the popup offers, and each button names its year.
+ */
+describe("FeatureInfo gemeente datapakket", () => {
+  const ALL_VARIANTS = [
+    { id: "2025", label: "Startanalyse 2025" },
+    { id: "2026", label: "Startanalyse 2026" },
+    { id: "2025_2026", label: "Vergelijk 2025 / 2026" },
+  ];
+
+  function useVariant(id: string) {
+    initVariants({ default: id, items: ALL_VARIANTS });
+  }
+
+  /** The gemeente links only — the archive links live on another host. */
+  function gemeenteLinks(): HTMLAnchorElement[] {
+    return Array.from(
+      document.querySelectorAll<HTMLAnchorElement>('a[href*="dataportaal.pbl.nl"]'),
+    );
+  }
+
+  beforeEach(() => {
+    window.history.replaceState({}, "", "/");
+  });
+
+  afterEach(() => {
+    cleanup();
+    initVariants(undefined);
+  });
+
+  it("offers the 2025 package, labelled, under the 2025 variant", () => {
+    useVariant("2025");
+    renderInfo();
+
+    expect(screen.getByText("ASA2025")).toBeTruthy();
+    expect(screen.queryByText("ASA2026")).toBeNull();
+
+    const links = gemeenteLinks();
+    expect(links).toHaveLength(1);
+    // BU0034… -> GM0034 -> Almere.
+    expect(links[0].getAttribute("href")).toBe(
+      "https://dataportaal.pbl.nl/data/Startanalyse_aardgasvrije_buurten/2025/Gemeentes/Almere.zip",
+    );
+  });
+
+  it("offers the 2026 package, labelled, under the 2026 variant", () => {
+    useVariant("2026");
+    renderInfo();
+
+    expect(screen.getByText("ASA2026")).toBeTruthy();
+    expect(screen.queryByText("ASA2025")).toBeNull();
+
+    const links = gemeenteLinks();
+    expect(links).toHaveLength(1);
+    // The 2026 base has no `/data/` segment; see gemeente-downloads.ts.
+    expect(links[0].getAttribute("href")).toBe(
+      "https://dataportaal.pbl.nl/Startanalyse_aardgasvrije_buurten/2026/Gemeentes/Almere.zip",
+    );
+  });
+
+  it("offers both years, each labelled, under the comparison variant", () => {
+    useVariant("2025_2026");
+    renderInfo();
+
+    expect(screen.getByText("ASA2025")).toBeTruthy();
+    expect(screen.getByText("ASA2026")).toBeTruthy();
+
+    const hrefs = gemeenteLinks().map((a) => a.getAttribute("href"));
+    expect(hrefs).toEqual([
+      "https://dataportaal.pbl.nl/data/Startanalyse_aardgasvrije_buurten/2025/Gemeentes/Almere.zip",
+      "https://dataportaal.pbl.nl/Startanalyse_aardgasvrije_buurten/2026/Gemeentes/Almere.zip",
+    ]);
+  });
+
+  /**
+   * Ameland has a 2026 package but no 2025 one, so the comparison variant must
+   * show one live button beside one disabled one. Collapsing that to "no package
+   * for this gemeente" would hide a download that exists.
+   */
+  it("disables only the year a gemeente is missing from", () => {
+    useVariant("2025_2026");
+    render(() => (
+      <FeatureInfo
+        result={
+          {
+            screenX: 0,
+            screenY: 0,
+            // BU0060… -> GM0060 -> Ameland.
+            featuresByLayer: new Map([
+              ["buurt_klik", [{ properties: { bu_code: "BU00600101" } }]],
+            ]),
+          } as unknown as FeatureInfoResult
+        }
+        layerEntries={entries}
+        embedded
+      />
+    ));
+
+    // Only 2026 resolves to a link...
+    const hrefs = gemeenteLinks().map((a) => a.getAttribute("href"));
+    expect(hrefs).toEqual([
+      "https://dataportaal.pbl.nl/Startanalyse_aardgasvrije_buurten/2026/Gemeentes/Ameland.zip",
+    ]);
+    // ...and 2025 is present but rendered as unavailable rather than dropped.
+    expect(screen.getByText("ASA2025")).toBeTruthy();
+    expect(
+      screen.getByLabelText("Geen datapakket ASA2025 beschikbaar voor deze gemeente"),
+    ).toBeTruthy();
+  });
+
+  /**
+   * Two buttons side by side with identical names would be indistinguishable to a
+   * screen reader, so the year has to reach the accessible name, not just the
+   * adjacent text.
+   */
+  it("names each year in the accessible label", () => {
+    useVariant("2025_2026");
+    renderInfo();
+
+    const labels = gemeenteLinks().map((a) => a.getAttribute("aria-label") ?? "");
+    expect(labels.some((l) => l.includes("ASA2025"))).toBe(true);
+    expect(labels.some((l) => l.includes("ASA2026"))).toBe(true);
+    for (const link of gemeenteLinks()) {
+      expect(link.getAttribute("target")).toBe("_blank");
+      expect(link.getAttribute("rel")).toContain("noreferrer");
+    }
+  });
+});
