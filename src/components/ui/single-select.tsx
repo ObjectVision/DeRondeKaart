@@ -116,6 +116,10 @@ export function SingleSelect(props: SingleSelectProps): JSX.Element {
               value={query()}
               onInput={(e) => setQuery(e.currentTarget.value)}
               placeholder="Zoeken…"
+              // Generic: this component is reused for every dropdown, so the
+              // label cannot name a specific field. The dropdown's own trigger
+              // button carries the context.
+              aria-label="Zoeken in de lijst"
               class="w-full rounded border border-gray-200 px-2 py-1 text-sm outline-none focus:border-blue-400"
             />
           </div>

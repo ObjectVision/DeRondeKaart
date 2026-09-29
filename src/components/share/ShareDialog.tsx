@@ -263,7 +263,11 @@ export function ShareDialog(props: ShareDialogProps): JSX.Element {
                   readOnly
                   value={shareUrl()}
                   onFocus={(e) => e.currentTarget.select()}
-                  class="min-w-0 flex-1 rounded-lg border border-gray-200 px-2 py-1.5 text-xs text-gray-700 outline-none"
+                  aria-label="Deelbare link naar deze kaart"
+                  // `outline-none` removed: this is a tab stop (read-only, but
+                  // focusable and selected on focus), so it needs a visible
+                  // indicator. The global :focus-visible rule supplies it.
+                  class="min-w-0 flex-1 rounded-lg border border-gray-200 px-2 py-1.5 text-xs text-gray-700"
                 />
                 <Button
                   variant="ghost"
