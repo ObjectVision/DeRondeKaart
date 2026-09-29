@@ -16,7 +16,14 @@ import { resolveTemplate, renderTemplate } from "@/layers";
 import { DOWNLOADS, downloadUrl } from "@/lib/downloads";
 import { gemeenteCodeOf, gemeenteDownloadUrl } from "@/lib/gemeente-downloads";
 import { chromeIconColor } from "@/config/map-config";
-import { buurtCodeOf, createPblSummaryStatus, pblSummaryUrl } from "@/lib/pbl-summary";
+import {
+  buurtCodeOf,
+  createPblSummaryStatus,
+  defaultPblSummaryTab,
+  pblSummaryTabs,
+  pblSummaryUrl,
+} from "@/lib/pbl-summary";
+import { TabStrip } from "@/components/ui/tab-strip";
 
 interface PblSummaryProps {
   /** Null when the clicked feature carries no usable `bu_code`. */
@@ -28,7 +35,17 @@ interface PblSummaryProps {
  * origin (see public/pbl-samenvatting.html for why it is not framed directly).
  */
 function PblSummary(props: PblSummaryProps): JSX.Element {
-  const status = createPblSummaryStatus(() => props.buurtCode);
+  // The model years this variant offers. A comparison variant offers two; every
+  // other variant offers one and shows no strip, matching the popup's own layer
+  // tabs above, which appear only when there is more than one layer.
+  const tabs = () => pblSummaryTabs(variantId());
+  const [picked, setPicked] = createSignal<string | null>(null);
+  // Resolved rather than seeded once: `tabs()` follows the variant, and a tab
+  // picked under the old variant need not exist under the new one.
+  const active = () => tabs().find((tab) => tab.id === picked()) ?? defaultPblSummaryTab(tabs());
+  const page = () => active().page;
+
+  const status = createPblSummaryStatus(() => props.buurtCode, page);
 
   return (
     <Show
@@ -41,6 +58,17 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
     >
       {(code) => (
         <div class="flex min-h-0 flex-col">
+          <Show when={tabs().length > 1}>
+            {/* The popup's PBL content carries no padding of its own, so the
+                strip supplies its own inset instead of bleeding through a
+                dialog's — see TabStrip's default. */}
+            <TabStrip
+              tabs={tabs().map(({ id, label }) => ({ id, label }))}
+              active={active().id}
+              onSelect={(id) => setPicked(id)}
+              class="flex gap-0 border-b border-gray-200 px-3"
+            />
+          </Show>
           {/* PBL's content is a fixed 750px wide and grows to whatever height it is
               given, so the frame fills the window and the window is sized to match —
               no inner scrollbar, no empty margins.
@@ -51,7 +79,7 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
               grew or shrank would make the window jump when it went away. */}
           <div class="relative h-[78vh] w-full">
             <iframe
-              src={pblSummaryUrl(code())}
+              src={pblSummaryUrl(code(), page())}
               title="Samenvatting Startanalyse"
               class="h-full w-full border-0"
             />
@@ -72,7 +100,7 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
           </div>
           {/* Outside the frame wrapper, so the splash never covers the way out. */}
           <a
-            href={pblSummaryUrl(code())}
+            href={pblSummaryUrl(code(), page())}
             target="_blank"
             rel="noreferrer"
             class="px-3 py-1 text-right text-xs text-blue-600 underline"

@@ -32,7 +32,10 @@ describe("PBL summary splash", () => {
 
   it("starts covered", async () => {
     await createRoot(async (dispose) => {
-      const status = createPblSummaryStatus(() => "BU0363FF03");
+      const status = createPblSummaryStatus(
+        () => "BU0363FF03",
+        () => "/pbl-samenvatting.html",
+      );
       await settle();
       expect(status()).toBe("loading");
       dispose();
@@ -41,7 +44,10 @@ describe("PBL summary splash", () => {
 
   it("lifts when the frame reports ready", async () => {
     await createRoot(async (dispose) => {
-      const status = createPblSummaryStatus(() => "BU0363FF03");
+      const status = createPblSummaryStatus(
+        () => "BU0363FF03",
+        () => "/pbl-samenvatting.html",
+      );
       await settle();
       send("pbl-summary-ready");
       expect(status()).toBe("ready");
@@ -53,7 +59,10 @@ describe("PBL summary splash", () => {
   // must uncover the frame rather than hold the splash.
   it("lifts when the frame reports failure", async () => {
     await createRoot(async (dispose) => {
-      const status = createPblSummaryStatus(() => "BU0363FF03");
+      const status = createPblSummaryStatus(
+        () => "BU0363FF03",
+        () => "/pbl-samenvatting.html",
+      );
       await settle();
       send("pbl-summary-failed");
       expect(status()).toBe("failed");
@@ -63,7 +72,10 @@ describe("PBL summary splash", () => {
 
   it("stays covered for a message from another origin", async () => {
     await createRoot(async (dispose) => {
-      const status = createPblSummaryStatus(() => "BU0363FF03");
+      const status = createPblSummaryStatus(
+        () => "BU0363FF03",
+        () => "/pbl-samenvatting.html",
+      );
       await settle();
       send("pbl-summary-ready", "https://evil.example");
       expect(status()).toBe("loading");
@@ -73,7 +85,10 @@ describe("PBL summary splash", () => {
 
   it("lifts on the timeout when the frame never reports", async () => {
     await createRoot(async (dispose) => {
-      const status = createPblSummaryStatus(() => "BU0363FF03");
+      const status = createPblSummaryStatus(
+        () => "BU0363FF03",
+        () => "/pbl-samenvatting.html",
+      );
       await settle();
       expect(status()).toBe("loading");
       vi.advanceTimersByTime(PBL_SUMMARY_TIMEOUT_MS + 1);
@@ -85,7 +100,7 @@ describe("PBL summary splash", () => {
   it("re-covers for the next neighbourhood and forgets the old verdict", async () => {
     await createRoot(async (dispose) => {
       const [buurtCode, setCode] = createSignal<string | null>("BU0363FF03");
-      const status = createPblSummaryStatus(buurtCode);
+      const status = createPblSummaryStatus(buurtCode, () => "/pbl-samenvatting.html");
       await settle();
 
       send("pbl-summary-ready");
@@ -106,7 +121,7 @@ describe("PBL summary splash", () => {
   it("does not leave the previous frame's timer armed", async () => {
     await createRoot(async (dispose) => {
       const [buurtCode, setCode] = createSignal<string | null>("BU0363FF03");
-      const status = createPblSummaryStatus(buurtCode);
+      const status = createPblSummaryStatus(buurtCode, () => "/pbl-samenvatting.html");
       await settle();
 
       // Most of the way to the first timeout, then switch.
@@ -134,7 +149,7 @@ describe("PBL summary splash", () => {
   it("re-arms after a feature with no buurt code", async () => {
     await createRoot(async (dispose) => {
       const [buurtCode, setCode] = createSignal<string | null>(null);
-      const status = createPblSummaryStatus(buurtCode);
+      const status = createPblSummaryStatus(buurtCode, () => "/pbl-samenvatting.html");
       await settle();
       expect(status()).toBe("loading");
 
@@ -150,7 +165,7 @@ describe("PBL summary splash", () => {
   it("arms the timeout after a feature with no buurt code", async () => {
     await createRoot(async (dispose) => {
       const [buurtCode, setCode] = createSignal<string | null>(null);
-      const status = createPblSummaryStatus(buurtCode);
+      const status = createPblSummaryStatus(buurtCode, () => "/pbl-samenvatting.html");
       await settle();
 
       setCode("BU0363FF03");
@@ -165,7 +180,10 @@ describe("PBL summary splash", () => {
   it("stops listening once disposed", async () => {
     let status!: () => PblSummaryStatus;
     await createRoot(async (dispose) => {
-      status = createPblSummaryStatus(() => "BU0363FF03");
+      status = createPblSummaryStatus(
+        () => "BU0363FF03",
+        () => "/pbl-samenvatting.html",
+      );
       await settle();
       dispose();
     });
@@ -175,7 +193,10 @@ describe("PBL summary splash", () => {
 
   it("shows nothing to lift when the feature has no buurt code", async () => {
     await createRoot(async (dispose) => {
-      const status = createPblSummaryStatus(() => null);
+      const status = createPblSummaryStatus(
+        () => null,
+        () => "/pbl-samenvatting.html",
+      );
       await settle();
       // No frame is mounted in this case (the component renders the "geen
       // buurtcode" message instead), so no timer may be left running.

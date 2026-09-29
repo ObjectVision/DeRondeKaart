@@ -10,6 +10,12 @@ export interface TabStripProps<Id extends string = string> {
   tabs: readonly Tab<Id>[];
   active: Id;
   /**
+   * Wrapper classes, replacing the default. The default bleeds the bottom rule
+   * through a dialog's 24px padding; somewhere with different padding — the
+   * feature-info popup, whose PBL content has none — has to say so.
+   */
+  class?: string;
+  /**
    * `from` is the clicked button. Callers use it to find the scroll container
    * they live in — see the note on `role="dialog"` below.
    */
@@ -28,7 +34,8 @@ export interface TabStripProps<Id extends string = string> {
  *   label up by 2px.
  * - The negative margin with matching padding (`-mx-6 … px-6`) lets the bottom
  *   rule run the full width of the window rather than stopping at the dialog's
- *   own 24px padding.
+ *   own 24px padding. It assumes that padding, so a host with different padding
+ *   passes its own `class`.
  * - The active colour is an INLINE style, because `chromeIconColor()` is a
  *   runtime per-project value that no Tailwind class can carry.
  *
@@ -37,7 +44,7 @@ export interface TabStripProps<Id extends string = string> {
  */
 export function TabStrip<Id extends string>(props: TabStripProps<Id>): JSX.Element {
   return (
-    <div class="-mx-6 mb-5 flex gap-0 border-b border-gray-200 px-6">
+    <div class={props.class ?? "-mx-6 mb-5 flex gap-0 border-b border-gray-200 px-6"}>
       <For each={props.tabs}>
         {(tab) => {
           const isActive = () => tab.id === props.active;

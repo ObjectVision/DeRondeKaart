@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samenvatting Startanalyse 2026</title>
+
+    <!--
+      PBL's "Samenvatting Startanalyse" viewer for model year 2026, served from
+      THIS origin. The 2024 sibling is public/pbl-samenvatting.html, and that
+      file's header explains why a local copy exists at all; only the base URL
+      differs here.
+
+      !! THE MARKUP AND SCRIPT LIST BELOW ARE UNVERIFIED. !!
+
+      PBL has not published the 2026 viewer: at the time of writing
+      https://infographics.pbl.nl/startanalyse/2026/samenvatting/ answers 404,
+      while 2024 is live. Everything below is therefore a COPY of the 2024 page,
+      kept so the app can already point a variant at 2026 — the frame renders
+      PBL's markup unstyled until their assets exist.
+
+      When the 2026 viewer does go live, diff this file against it before
+      trusting it: the <body> markup, the script list and the gemeente CSV year
+      that public/pbl-buurt-select.js derives from <base> are all guesses until
+      then. A page there is no guarantee its structure matches 2024's.
+    -->
+    <!-- Our own two scripts are external rather than inline so the server's
+         `script-src 'self'` covers them without 'unsafe-inline' or a sha256 hash
+         that every edit to this file would invalidate.
+
+         They MUST be loaded before <base> is parsed. <base> applies to every URL
+         in the document, and a root-relative "/pbl-worker-shim.js" only replaces
+         the PATH — the origin still comes from <base>, so it would be fetched
+         from infographics.pbl.nl and blocked (ERR_BLOCKED_BY_ORB). Sitting above
+         <base>, they resolve against this document's own origin.
+
+         The shim also has to patch window.Worker before PBL's scripts load. -->
+    <script src="pbl-worker-shim.js"></script>
+    <script src="pbl-buurt-select.js" defer></script>
+
+    <base href="https://infographics.pbl.nl/startanalyse/2026/samenvatting/">
+
+
+    <script src="js/thirdparty/d3.v5.js"></script>
+    <script src="js/thirdparty/leaflet.js"></script>
+    <script src="js/thirdparty/leaflet_vectorgrid_msie.js"></script>
+    <script src="js/thirdparty/leaflet_snogylop.js"></script>
+    <script src="js/thirdparty/turf.min.js"></script>
+    <script src="js/thirdparty/oms.js"></script>
+    <link rel="stylesheet" href="css/handmatig.css">
+    <link rel="stylesheet" href="css/leaflet.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="lnmapviewer-container" id="lnmapviewer-container">
+        <div class="lnmapviewer-controls" id="lnmapviewer-controls"></div>
+        <div class="lnmap_canvas" id=lnmap_canvas>
+            <div class="grid-maps" id="grid-maps">
+                <div class="grid-item" id="map_1">
+                    <div class="map_overlay" id="map_overlay_1"></div>
+                    <div class="map_leaflet" id="map_leaflet_1"></div>
+                </div>
+                <div class="grid-item" id="map_2">
+                    <div class="map_overlay" id="map_overlay_2"></div>
+                    <div class="map_leaflet" id="map_leaflet_2"></div>
+                </div>
+                <div class="grid-item" id="map_3">
+                    <div class="map_overlay" id="map_overlay_3"></div>
+                    <div class="map_leaflet" id="map_leaflet_3"></div>
+                </div>
+                <div class="grid-item" id="map_4">
+                    <div class="map_overlay" id="map_overlay_4"></div>
+                    <div class="map_leaflet" id="map_leaflet_4"></div>
+                </div>
+            </div>
+            <div class="map_overlay_ln" id="map_overlay_ln"></div>
+            <div class="map_leaflet_ln" id="map_leaflet_ln"></div>
+        </div>
+        <div class="lnmapviewer-footer" id="lnmapviewer-footer"></div>
+    </div>
+
+    <script src="js/textinput.js"></script>
+    <script src="tabcontent/tab_hoofd.js"></script>
+    <script src="tabcontent/toelichting.js"></script>
+    <script src="tabcontent/tab_ltbron.js"></script>
+    <script src="tabcontent/tab_mtbron.js"></script>
+    <script src="tabcontent/tab_gevoeligheidsanalyse.js"></script>
+    <script src="tabcontent/tab_nationalekosten.js"></script>
+    <script src="kaartenbak_main.js"></script>
+    <script src="kaartenbak_responsive.js"></script>
+    <script src="kaartenbak_buurtselectie.js"></script>
+    <script src="kaartenbak_buurtberichten.js"></script>
+    <script src="kaartenbak_maps.js"></script>
+    <script src="popup_strategie.js"></script>
+
+</body>
+</html>

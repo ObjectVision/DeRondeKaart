@@ -19,10 +19,6 @@
  * every PBL script it calls into is already defined.
  */
 (function () {
-  // PBL's own entry point. Called here rather than from an inline <script> for
-  // the same CSP reason; it must run before anything below touches the page.
-  kaartenbak_init();
-
   /*
    * Tell the embedding app how the auto-select ended, so it can lift the splash
    * it holds over this frame while we drive PBL's UI.
@@ -49,6 +45,23 @@
     }
   }
 
+  /*
+   * PBL's own entry point. Called here rather than from an inline <script> for
+   * the same CSP reason; it must run before anything below touches the page.
+   *
+   * Guarded, and deliberately placed BELOW report(): if PBL's bundle did not
+   * load - every asset under <base> 404s while a model year is unpublished -
+   * this global is undefined. Calling it bare threw a ReferenceError out of
+   * this IIFE before any reporting code existed, so the parent heard nothing
+   * and held its splash over the frame for the full timeout. Reporting the
+   * failure uncovers the frame at once instead.
+   */
+  if (typeof kaartenbak_init !== "function") {
+    report(false);
+    return;
+  }
+  kaartenbak_init();
+
   var params = new URLSearchParams(window.location.search);
   var buurt = params.get("bu");
   if (!buurt || /^BU\d{4}[0-9A-Z]{4}$/.test(buurt) === false) {
@@ -58,6 +71,18 @@
     return;
   }
   var gemeenteCode = "GM" + buurt.slice(2, 6);
+
+  /*
+   * The gemeente CSV PBL publishes alongside the viewer, whose filename
+   * carries the model year. Taken from <base> so each mirror page asks for
+   * its own year's file rather than 2024's.
+   *
+   * A guess for any year but 2024, the only one published so far - and it
+   * fails soft: an unreachable CSV rejects the promise, the .catch below
+   * reports, and PBL's own gemeente picker is left usable by hand.
+   */
+  var baseYear = (document.baseURI.match(/\/startanalyse\/(\d{4})\//) || [])[1] || "2024";
+  var GEMEENTE_CSV = "assets/data/csv/gemeenten_" + baseYear + ".csv";
 
   var GIVE_UP_MS = 60000;
   var POLL_MS = 150;
@@ -91,7 +116,7 @@
       // is the gemeente name, so the code has to be turned back into the
       // exact option text. Reading it off the loaded <option>s uses the
       // page's own parse of its CSV — no second fetch, no encoding guess.
-      return d3.csv("assets/data/csv/gemeenten_2024.csv").then(function (rows) {
+      return d3.csv(GEMEENTE_CSV).then(function (rows) {
         var row = rows.filter(function (r) { return r.gm_code === gemeenteCode; })[0];
         if (!row) throw new Error("unknown gemeente " + gemeenteCode);
         return { select: select, naam: row.gm_naam };

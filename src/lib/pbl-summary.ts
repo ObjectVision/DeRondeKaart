@@ -2,8 +2,62 @@ import { createEffect, createMemo, createSignal, onCleanup, type Accessor } from
 import type { FeatureInfoResult } from "@/hooks/use-feature-pick";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 
-/** Our own copy of PBL's viewer; see public/pbl-samenvatting.html. */
-const PBL_SUMMARY_PAGE = "/pbl-samenvatting.html";
+/**
+ * Our own copies of PBL's viewer, one per model year; see
+ * public/pbl-samenvatting.html for why they exist and what they mirror.
+ *
+ * One page per year rather than one page with a `?year=`: each is a mirror of a
+ * different external document, and has to match that document's own `<body>`
+ * markup and script list.
+ */
+const PBL_PAGE_2024 = "/pbl-samenvatting.html";
+const PBL_PAGE_2026 = "/pbl-samenvatting-2026.html";
+
+/** One tab of the summary: a model year the viewer can be shown for. */
+export interface PblSummaryTab {
+  /** Stable id for the tab strip. */
+  id: string;
+  /** What the tab is called, e.g. "ASA2026". */
+  label: string;
+  /** The mirror page for that PBL year. */
+  page: string;
+}
+
+const ASA2025: PblSummaryTab = { id: "asa2025", label: "ASA2025", page: PBL_PAGE_2024 };
+const ASA2026: PblSummaryTab = { id: "asa2026", label: "ASA2026", page: PBL_PAGE_2026 };
+
+/**
+ * The summary tabs for a config variant, in the order they are shown. One entry
+ * means the caller renders no tab strip.
+ *
+ * **The mapping is deliberately skewed: config variant `2025` shows PBL model
+ * year 2024.** That is not an off-by-one — the Startanalyse edition a variant
+ * carries and the year PBL publishes its viewer under are simply numbered
+ * differently, and `2026` does line up. Renaming either side to match would
+ * break the other.
+ *
+ * The comparison variant offers both, and the caller opens on ASA2026: the
+ * newer edition is the one being evaluated, with the older there to compare
+ * against.
+ *
+ * An unknown variant — including `null`, which is every project that declares
+ * no variants at all — falls back to the 2024 page, so nothing changes for a
+ * config that never asked for this.
+ */
+export function pblSummaryTabs(variant: string | null): PblSummaryTab[] {
+  if (variant === "2026") return [ASA2026];
+  if (variant === "2025_2026") return [ASA2025, ASA2026];
+  return [ASA2025];
+}
+
+/**
+ * The tab a variant opens on: the LAST one, which is the newest edition
+ * offered. Derived rather than flagged, so a tab list and its default cannot
+ * disagree.
+ */
+export function defaultPblSummaryTab(tabs: PblSummaryTab[]): PblSummaryTab {
+  return tabs[tabs.length - 1];
+}
 
 /**
  * A CBS neighbourhood code: "BU" followed by a 4-digit gemeente and a 4-character
@@ -39,12 +93,16 @@ export function buurtCodeOf(feature: PickedFeature | undefined): string | null {
 }
 
 /**
- * URL of the local PBL viewer for one neighbourhood. The page is ours and only
- * loads PBL's assets; it reads this parameter to drive their selection flow.
+ * URL of a local PBL viewer page for one neighbourhood. The page is ours and
+ * only loads PBL's assets; it reads this parameter to drive their selection
+ * flow.
+ *
+ * `page` comes from {@link pblSummaryTabs}, so the model year shown follows the
+ * active config variant.
  */
-export function pblSummaryUrl(buurtCode: string): string {
+export function pblSummaryUrl(buurtCode: string, page: string): string {
   const params = new URLSearchParams({ bu: buurtCode });
-  return `${PBL_SUMMARY_PAGE}?${params.toString()}`;
+  return `${page}?${params.toString()}`;
 }
 
 /**
@@ -84,18 +142,22 @@ export function pblStatusFromMessage(event: MessageEvent): PblSummaryStatus | nu
 }
 
 /**
- * Track whether the framed viewer has finished, for one neighbourhood at a time.
+ * Track whether the framed viewer has finished, for one frame at a time.
  *
  * A module rather than an effect inline in the component, because what is worth
  * protecting here fails *silently* and the component itself is not reachable
  * from a test (rendering it needs a MapLibre pick result and a live iframe).
- * Three ways it can break with nothing on screen to say so:
+ * Four ways it can break with nothing on screen to say so:
  *
- * - not reading `buurtCode` before the early return — the effect subscribes only
+ * - not reading its inputs before the early return — the effect subscribes only
  *   to what its last run read, so it would never re-arm for the next
  *   neighbourhood and the splash would stay up for good;
  * - not resetting to "loading" — the second click shows the previous verdict
  *   over a blank frame;
+ * - not watching the PAGE as well as the code — switching model-year tabs
+ *   reloads the frame under an unchanged neighbourhood, and a status keyed on
+ *   the code alone would keep the old tab's verdict while the new frame loads
+ *   uncovered;
  * - no timeout — a frame that never reports leaves the splash covering a page
  *   the user could otherwise operate by hand.
  *
@@ -103,19 +165,21 @@ export function pblStatusFromMessage(event: MessageEvent): PblSummaryStatus | nu
  */
 export function createPblSummaryStatus(
   buurtCode: Accessor<string | null>,
+  page: Accessor<string>,
 ): Accessor<PblSummaryStatus> {
   const [status, setStatus] = createSignal<PblSummaryStatus>("loading");
 
   /**
-   * The neighbourhood the frame is showing, deduplicated.
+   * What the frame is showing, deduplicated: the neighbourhood and the model
+   * year's page, which together are exactly the iframe's `src`.
    *
-   * `PblSummary` binds the iframe's `src` to this code, so an unchanged code
-   * leaves the frame untouched — its script does not run again and it never
-   * sends another verdict. But `FeatureInfo` derives the code from the pick
-   * result, so every click is a fresh dependency even when it names the same
-   * neighbourhood: clicking a highlighted feature's own outline picks it
-   * straight back. A memo's `===` equality absorbs that, and the effect below
-   * re-runs only on a real change.
+   * `PblSummary` binds that `src` to these, so an unchanged pair leaves the
+   * frame untouched — its script does not run again and it never sends another
+   * verdict. But `FeatureInfo` derives the code from the pick result, so every
+   * click is a fresh dependency even when it names the same neighbourhood:
+   * clicking a highlighted feature's own outline picks it straight back. A
+   * memo's `===` equality on the joined string absorbs that, and the effect
+   * below re-runs only on a real change.
    *
    * It has to be absorbed HERE rather than by an early return inside the effect.
    * Solid runs a computation's cleanups BEFORE re-running it, so an effect that
@@ -123,11 +187,18 @@ export function createPblSummaryStatus(
    * and the backstop belonging to a load still in flight — its verdict would
    * then arrive to nobody and the splash would never lift at all.
    */
-  const code = createMemo(() => buurtCode());
+  const frame = createMemo(() => {
+    const code = buurtCode();
+    // Read unconditionally: a null code must still subscribe to the page, or
+    // picking a code-less feature would unsubscribe this memo from tab changes.
+    const target = page();
+    // The iframe's own src, so the key cannot disagree with what is loaded.
+    return code ? pblSummaryUrl(code, target) : null;
+  });
 
   createEffect(() => {
     // Read first, before anything can return early — see the note above.
-    const current = code();
+    const current = frame();
     // A new frame is loading, so drop any verdict about the previous one.
     setStatus("loading");
     if (!current) return;

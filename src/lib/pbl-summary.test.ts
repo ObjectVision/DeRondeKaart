@@ -4,7 +4,9 @@ import { createRoot, createSignal } from "solid-js";
 import {
   buurtCodeOf,
   createPblSummaryStatus,
+  defaultPblSummaryTab,
   pblStatusFromMessage,
+  pblSummaryTabs,
   pblSummaryUrl,
   PBL_SUMMARY_TIMEOUT_MS,
 } from "@/lib/pbl-summary";
@@ -58,7 +60,61 @@ describe("buurtCodeOf", () => {
 
 describe("pblSummaryUrl", () => {
   it("passes the code as the bu parameter", () => {
-    expect(pblSummaryUrl("BU0363FF03")).toBe("/pbl-samenvatting.html?bu=BU0363FF03");
+    expect(pblSummaryUrl("BU0363FF03", "/pbl-samenvatting.html")).toBe(
+      "/pbl-samenvatting.html?bu=BU0363FF03",
+    );
+  });
+
+  it("builds the URL from the page it is given", () => {
+    expect(pblSummaryUrl("BU0363FF03", "/pbl-samenvatting-2026.html")).toBe(
+      "/pbl-samenvatting-2026.html?bu=BU0363FF03",
+    );
+  });
+});
+
+/**
+ * Which model year each config variant shows.
+ *
+ * The mapping is skewed on purpose — config variant `2025` shows PBL's 2024
+ * viewer — so these cases are the record of that, not an oversight to tidy up.
+ */
+describe("pblSummaryTabs", () => {
+  it("shows PBL 2024 for the 2025 variant", () => {
+    const tabs = pblSummaryTabs("2025");
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0].label).toBe("ASA2025");
+    expect(tabs[0].page).toBe("/pbl-samenvatting.html");
+  });
+
+  it("shows PBL 2026 for the 2026 variant", () => {
+    const tabs = pblSummaryTabs("2026");
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0].label).toBe("ASA2026");
+    expect(tabs[0].page).toBe("/pbl-samenvatting-2026.html");
+  });
+
+  it("offers both years for the comparison variant, oldest first", () => {
+    expect(pblSummaryTabs("2025_2026").map((tab) => tab.label)).toEqual(["ASA2025", "ASA2026"]);
+  });
+
+  // The newer edition is the one being evaluated; the older is there to
+  // compare against.
+  it("opens the comparison variant on ASA2026", () => {
+    expect(defaultPblSummaryTab(pblSummaryTabs("2025_2026")).label).toBe("ASA2026");
+  });
+
+  it("uses the only tab as the default when there is one", () => {
+    expect(defaultPblSummaryTab(pblSummaryTabs("2026")).label).toBe("ASA2026");
+  });
+
+  /**
+   * Every project that declares no variants at all lands here, so this is what
+   * keeps the feature from changing anything for them.
+   */
+  it.each([null, "onzin", "2027"])("falls back to PBL 2024 for %j", (variant) => {
+    const tabs = pblSummaryTabs(variant);
+    expect(tabs).toHaveLength(1);
+    expect(tabs[0].page).toBe("/pbl-samenvatting.html");
   });
 });
 
@@ -132,11 +188,17 @@ describe("createPblSummaryStatus", () => {
    * when it names the same neighbourhood. A plain string signal would compare
    * equal and never re-run — hiding the exact case under test.
    */
-  function setup(initial: string | null) {
+  function setup(initial: string | null, initialPage = "/pbl-samenvatting.html") {
     return createRoot((dispose) => {
       const [pick, setPick] = createSignal<{ code: string | null }>({ code: initial });
-      const status = createPblSummaryStatus(() => pick().code);
-      return { status, dispose, pickAgain: (code: string | null) => setPick({ code }) };
+      const [page, setPage] = createSignal(initialPage);
+      const status = createPblSummaryStatus(() => pick().code, page);
+      return {
+        status,
+        dispose,
+        pickAgain: (code: string | null) => setPick({ code }),
+        switchTab: setPage,
+      };
     });
   }
 
@@ -201,6 +263,42 @@ describe("createPblSummaryStatus", () => {
 
     pickAgain("BU03630001");
     expect(status()).toBe("loading");
+    dispose();
+    vi.useRealTimers();
+  });
+
+  /**
+   * Switching model-year tabs reloads the frame while the neighbourhood stays
+   * the same. A status keyed on the buurt code alone would hold the previous
+   * tab's "ready" and leave the new frame loading uncovered — nothing errors,
+   * the user just watches an empty viewer that the app believes has arrived.
+   */
+  it("re-arms when the tab changes under an unchanged neighbourhood", () => {
+    useTimers();
+    const { status, switchTab, dispose } = setup("BU05690302");
+    report("pbl-summary-ready");
+    expect(status()).toBe("ready");
+
+    switchTab("/pbl-samenvatting-2026.html");
+    expect(status()).toBe("loading");
+
+    // ...and the new frame's own verdict is still heard, so the splash lifts
+    // again rather than sticking on the second tab.
+    report("pbl-summary-ready");
+    expect(status()).toBe("ready");
+    dispose();
+    vi.useRealTimers();
+  });
+
+  // Re-selecting the tab already on screen leaves the frame untouched, so there
+  // is no new load to cover and the verdict must stand.
+  it("keeps its verdict when the tab is set to the one already showing", () => {
+    useTimers();
+    const { status, switchTab, dispose } = setup("BU05690302");
+    report("pbl-summary-ready");
+
+    switchTab("/pbl-samenvatting.html");
+    expect(status()).toBe("ready");
     dispose();
     vi.useRealTimers();
   });
