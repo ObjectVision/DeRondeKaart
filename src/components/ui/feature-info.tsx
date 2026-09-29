@@ -5,6 +5,7 @@ import {
   Switch,
   createEffect,
   createSignal,
+  createUniqueId,
   onCleanup,
   type JSX,
 } from "solid-js";
@@ -44,6 +45,8 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
   // tabs above, which appear only when there is more than one layer.
   const tabs = () => pblSummaryTabs(variantId());
   const [picked, setPicked] = createSignal<string | null>(null);
+  /** Ties the tab buttons to the panel holding the active tab's content. */
+  const panelId = createUniqueId();
   // Resolved rather than seeded once: `tabs()` follows the variant, and a tab
   // picked under the old variant need not exist under the new one.
   const active = () => tabs().find((tab) => tab.id === picked()) ?? defaultPblSummaryTab(tabs());
@@ -57,7 +60,7 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
       fallback={
         // The layer is configured for the summary but this feature has no code —
         // say so rather than showing an empty frame.
-        <p class="text-xs text-gray-400">Geen buurtcode beschikbaar voor deze locatie.</p>
+        <p class="text-xs text-gray-500">Geen buurtcode beschikbaar voor deze locatie.</p>
       }
     >
       {(code) => (
@@ -70,6 +73,7 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
               tabs={tabs().map(({ id, label }) => ({ id, label }))}
               active={active().id}
               onSelect={(id) => setPicked(id)}
+              panelId={panelId}
               class="flex gap-0 border-b border-gray-200 px-3"
             />
           </Show>
@@ -81,7 +85,7 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
               frame keeps loading underneath and the popup never changes height:
               InfoPopup re-places itself on every resize, so a placeholder that
               grew or shrank would make the window jump when it went away. */}
-          <div class="relative h-[78vh] w-full">
+          <div id={panelId} role="tabpanel" class="relative h-[78vh] w-full">
             <iframe
               src={pblSummaryUrl(code(), page())}
               title="Samenvatting Startanalyse"
@@ -337,7 +341,7 @@ export function FeatureInfo(props: FeatureInfoProps): JSX.Element {
           <h3 class="text-xs font-semibold uppercase tracking-wide text-gray-500">Details</h3>
           <button
             onClick={() => props.onClose?.()}
-            class="text-gray-400 hover:text-gray-600 transition-colors text-sm leading-none px-1"
+            class="text-gray-500 hover:text-gray-700 transition-colors text-sm leading-none px-1"
             aria-label="Close"
           >
             &times;
@@ -386,10 +390,10 @@ export function FeatureInfo(props: FeatureInfoProps): JSX.Element {
             <PblSummary buurtCode={buurtCode()} />
           </Match>
           <Match when={!template()}>
-            <p class="text-xs text-gray-400">Loading template...</p>
+            <p class="text-xs text-gray-500">Loading template...</p>
           </Match>
           <Match when={features().length === 0}>
-            <p class="text-xs text-gray-400">No features</p>
+            <p class="text-xs text-gray-500">No features</p>
           </Match>
           <Match when={template()}>
             {(tmpl) => (

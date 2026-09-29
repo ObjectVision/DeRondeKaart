@@ -275,7 +275,7 @@ function LayerList(props: LayerListProps): JSX.Element {
                         role="separator"
                         aria-label={`Versleep ${config.name} om de tekenorde te wijzigen`}
                         title="Versleep om de tekenorde te wijzigen"
-                        class="flex-shrink-0 cursor-grab touch-none pl-0.5 pr-0.5 text-gray-300 hover:text-gray-500 active:cursor-grabbing"
+                        class="flex-shrink-0 cursor-grab touch-none pl-0.5 pr-0.5 text-gray-500 hover:text-gray-700 active:cursor-grabbing"
                         onMouseDown={(e) => {
                           e.preventDefault();
                           drag.start(config.id, e.clientY);
@@ -325,7 +325,7 @@ function LayerList(props: LayerListProps): JSX.Element {
                         // truncate: with the actions expanded the row has less room,
                         // so a long name must ellipsize rather than push them out.
                         class={`max-w-full truncate ${
-                          isVisible() ? "text-gray-800 font-medium" : "text-gray-400 line-through"
+                          isVisible() ? "text-gray-800 font-medium" : "text-gray-500 line-through"
                         }`}
                       >
                         {config.name}
@@ -337,7 +337,7 @@ function LayerList(props: LayerListProps): JSX.Element {
                       <Show when={config.subname}>
                         <span
                           class={`max-w-full truncate text-xs ${
-                            isVisible() ? "text-gray-500" : "text-gray-400 line-through"
+                            isVisible() ? "text-gray-500" : "text-gray-500 line-through"
                           }`}
                         >
                           {config.subname}
@@ -530,7 +530,7 @@ function LayerList(props: LayerListProps): JSX.Element {
                                   <span
                                     class={
                                       isRuleHidden()
-                                        ? "text-gray-400 line-through"
+                                        ? "text-gray-500 line-through"
                                         : "text-gray-600"
                                     }
                                   >
@@ -686,7 +686,7 @@ export function Legend(props: LegendProps): JSX.Element {
       </Show>
       <Show
         when={visible().length > 0}
-        fallback={<p class="text-xs text-gray-400">Nog geen lagen toegevoegd</p>}
+        fallback={<p class="text-xs text-gray-500">Nog geen lagen toegevoegd</p>}
       >
         <LayerList
           entries={visible()}

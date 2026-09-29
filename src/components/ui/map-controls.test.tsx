@@ -114,7 +114,7 @@ describe("MapControls search", () => {
     it("is greyed out while the box is empty", () => {
       openSearch();
 
-      expect(sendIcon()?.className).toContain("text-gray-400");
+      expect(sendIcon()?.className).toContain("text-gray-500");
       expect(sendIcon()?.style.color).toBe("");
     });
 
@@ -122,7 +122,7 @@ describe("MapControls search", () => {
       openSearch();
       type("Maastricht");
 
-      expect(sendIcon()?.className).not.toContain("text-gray-400");
+      expect(sendIcon()?.className).not.toContain("text-gray-500");
       // chromeIconColor()'s default, as no map.json is loaded here.
       expect(sendIcon()?.style.color).toBeTruthy();
     });
@@ -133,7 +133,7 @@ describe("MapControls search", () => {
       openSearch();
       type("   ");
 
-      expect(sendIcon()?.className).toContain("text-gray-400");
+      expect(sendIcon()?.className).toContain("text-gray-500");
     });
   });
 

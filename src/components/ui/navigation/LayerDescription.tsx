@@ -94,7 +94,7 @@ export function LayerDescription(props: LayerDescriptionProps): JSX.Element {
   const canOpenMeta = () => Boolean(info()?.hasMeta) && props.onOpenMeta !== undefined;
 
   return (
-    <Show when={info()} fallback={<span class="text-gray-400">Laden…</span>}>
+    <Show when={info()} fallback={<span class="text-gray-500">Laden…</span>}>
       {(resolved) => (
         <div class="flex items-center gap-2">
           {/* `min-w-0` lets the paragraph wrap instead of forcing the row wider than

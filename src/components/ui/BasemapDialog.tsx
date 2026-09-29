@@ -168,7 +168,7 @@ export function BasemapDialog(props: BasemapDialogProps): JSX.Element {
                             name={options()[key] ? "check_box" : "check_box_outline_blank"}
                             size={chromeIconSize()}
                             color={options()[key] ? chromeIconColor() : undefined}
-                            class={options()[key] ? "flex-shrink-0" : "flex-shrink-0 text-gray-400"}
+                            class={options()[key] ? "flex-shrink-0" : "flex-shrink-0 text-gray-500"}
                           />
                           <span class="text-xs text-gray-600">{OPTION_LABELS[key]}</span>
                         </button>

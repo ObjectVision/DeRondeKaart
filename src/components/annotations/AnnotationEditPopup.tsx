@@ -158,7 +158,7 @@ export function AnnotationEditPopup(props: AnnotationEditPopupProps): JSX.Elemen
                 />
                 {props.annotation.author}
               </p>
-              <p class="text-gray-400">
+              <p class="text-gray-500">
                 {new Date(props.annotation.createdAt).toLocaleString("nl-NL", {
                   dateStyle: "medium",
                   timeStyle: "short",
@@ -186,7 +186,7 @@ export function AnnotationEditPopup(props: AnnotationEditPopupProps): JSX.Elemen
               <Show
                 when={editingDescription()}
                 fallback={
-                  <Icon name="edit" size={chromeIconSize()} class="text-gray-400" />
+                  <Icon name="edit" size={chromeIconSize()} class="text-gray-500" />
                 }
               >
                 <Icon name="edit_off" size={chromeIconSize()} color={chromeIconColor()} />
@@ -198,7 +198,7 @@ export function AnnotationEditPopup(props: AnnotationEditPopupProps): JSX.Elemen
             fallback={
               <Show
                 when={description()}
-                fallback={<p class="mt-2 italic text-gray-400">Geen beschrijving</p>}
+                fallback={<p class="mt-2 italic text-gray-500">Geen beschrijving</p>}
               >
                 <p class="mt-2 whitespace-pre-wrap">{description()}</p>
               </Show>
@@ -214,7 +214,7 @@ export function AnnotationEditPopup(props: AnnotationEditPopupProps): JSX.Elemen
               onBlur={commit}
               placeholder="Beschrijving of analyse"
               rows={3}
-              class="mt-2 w-full resize-none rounded-lg bg-white/95 px-3 py-1.5 text-xs text-gray-700 shadow-sm outline-none ring-1 ring-gray-200 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
+              class="mt-2 w-full resize-none rounded-lg bg-white/95 px-3 py-1.5 text-xs text-gray-700 shadow-sm outline-none ring-1 ring-gray-200 placeholder:text-gray-500 focus:ring-2 focus:ring-blue-300"
             />
           </Show>
         </div>
@@ -236,7 +236,7 @@ export function AnnotationEditPopup(props: AnnotationEditPopupProps): JSX.Elemen
           }}
           placeholder="Zonder titel"
           aria-label="Titel van de annotatie"
-          class="w-56 rounded-xl bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-md outline-none backdrop-blur-sm placeholder:font-normal placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
+          class="w-56 rounded-xl bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-md outline-none backdrop-blur-sm placeholder:font-normal placeholder:text-gray-500 focus:ring-2 focus:ring-blue-300"
         />
         <div class="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">
           <Button
@@ -246,7 +246,7 @@ export function AnnotationEditPopup(props: AnnotationEditPopupProps): JSX.Elemen
             title="Kaartstatus opnieuw vastleggen"
             aria-label="Kaartstatus opnieuw vastleggen"
           >
-            <Icon name="screenshot_frame_2" size={chromeIconSize()} class="text-gray-400" />
+            <Icon name="screenshot_frame_2" size={chromeIconSize()} class="text-gray-500" />
           </Button>
           <Button
             variant="ghost"
@@ -261,7 +261,7 @@ export function AnnotationEditPopup(props: AnnotationEditPopupProps): JSX.Elemen
               name="info"
               size={chromeIconSize()}
               color={infoOpen() ? chromeIconColor() : undefined}
-              class={infoOpen() ? undefined : "text-gray-400"}
+              class={infoOpen() ? undefined : "text-gray-500"}
             />
           </Button>
           <Button
@@ -274,7 +274,7 @@ export function AnnotationEditPopup(props: AnnotationEditPopupProps): JSX.Elemen
             <Icon
               name="delete"
               size={chromeIconSize()}
-              class="text-gray-400 hover:text-red-500"
+              class="text-gray-500 hover:text-red-600"
             />
           </Button>
         </div>

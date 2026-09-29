@@ -70,19 +70,12 @@ describe("accessibility — WCAG 2.1 AA", () => {
   });
 
   /**
-   * F5, NOT YET FIXED — pinned as a known failure, not asserted as passing.
-   *
-   * `role="tab"` outside a `role="tablist"` is invalid ARIA, and axe reports it
-   * as `aria-required-parent` (critical, WCAG 1.3.1, EN 301 549 9.1.3.1). The
-   * fix is Stage 3 of the remediation plan: add the tablist/tabpanel wrapper and
-   * arrow-key navigation, across all four TabStrip consumers.
-   *
-   * Written as an explicit expectation of the CURRENT broken state so the suite
-   * stays green while the debt is visible. When Stage 3 lands this test FAILS,
-   * which is the signal to flip it to `toEqual([])` — a skipped test would just
-   * rot instead.
+   * F5, FIXED in Stage 3. `role="tab"` outside a `role="tablist"` is invalid
+   * ARIA — axe reported it as `aria-required-parent` (critical, WCAG 1.3.1,
+   * EN 301 549 9.1.3.1). This test was pinned to that failure while the debt
+   * stood; it now asserts the structure is valid.
    */
-  it("still has the known orphan-tab violation (fix: Stage 3 / F5)", async () => {
+  it("raises no violations for the tab strip", async () => {
     const { container } = render(() => (
       <TabStrip
         tabs={[
@@ -95,7 +88,42 @@ describe("accessibility — WCAG 2.1 AA", () => {
     ));
 
     const found = await violations(container);
-    expect(found.map((v) => v.id)).toEqual(["aria-required-parent"]);
+    expect(found, format(found)).toEqual([]);
+  });
+
+  /**
+   * A roving tabindex leaves only the ACTIVE tab in the Tab order, so without
+   * arrow keys the other tabs are unreachable by keyboard (WCAG 2.1.1). The two
+   * halves are inseparable: the roving index is what makes the arrow keys
+   * necessary.
+   */
+  it("moves between tabs with the arrow keys, with a roving tabindex", async () => {
+    const selected: string[] = [];
+    const { container } = render(() => (
+      <TabStrip
+        tabs={[
+          { id: "een", label: "Een" },
+          { id: "twee", label: "Twee" },
+        ]}
+        active="een"
+        onSelect={(id) => selected.push(id)}
+      />
+    ));
+
+    const tabs = Array.from(container.querySelectorAll('[role="tab"]'));
+    expect(tabs.map((t) => t.getAttribute("tabindex"))).toEqual(["0", "-1"]);
+
+    const list = container.querySelector('[role="tablist"]');
+    expect(list).toBeTruthy();
+
+    list!.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+    );
+    expect(selected).toEqual(["twee"]);
+
+    // Wraps back to the first, as the ARIA pattern specifies.
+    list!.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true }));
+    expect(selected).toEqual(["twee", "twee"]);
   });
 });
 
@@ -167,24 +195,26 @@ describe("accessibility — document", () => {
   });
 
   /**
-   * F7 + F8: the map application had no landmark and no h1 — both h1s lived in
-   * the dashboard/print paths — so a screen-reader user had nothing to navigate
-   * by, and the skip link had no destination.
+   * F7: the map application had no landmark and no h1 — both h1s lived in the
+   * dashboard/print paths — so a screen-reader user had nothing to navigate by.
+   *
+   * F8 (Bypass Blocks) is satisfied by the `nav` landmark rather than a skip
+   * link: only a three-button toolbar precedes the navigation, so there is no
+   * repeated block to bypass, and landmark navigation is both faster and
+   * available from anywhere in the page.
    *
    * Asserted against App.tsx source rather than a render: mounting App needs a
    * WebGL context jsdom does not provide.
    */
-  it("gives the map app a main landmark, an h1 and a skip link", async () => {
+  it("gives the map app a main landmark, an h1 and a named nav", async () => {
     const fs = await import("node:fs/promises");
     const app = await fs.readFile("src/App.tsx", "utf-8");
 
     expect(app).toContain('<main id="kaart"');
     expect(app).toContain('<h1 class="sr-only">');
-    // The skip link must target the nav landmark, which must be focusable for
-    // the jump to move focus and not just scroll.
-    expect(app).toContain('href="#hoofdnavigatie"');
+    // The navigation landmark must be named: an unnamed one is announced only
+    // as "navigation", which does not distinguish it from any other.
     expect(app).toContain('id="hoofdnavigatie"');
-    expect(app).toMatch(/<nav[\s\S]{0,200}tabindex=\{-1\}/);
     expect(app).toMatch(/<nav[\s\S]{0,200}aria-label=/);
   });
 
@@ -194,6 +224,28 @@ describe("accessibility — document", () => {
    * region, and each omits the attribute while collapsed — pointing at an id
    * that is not in the DOM is itself a violation.
    */
+  /**
+   * F9: the app changes large amounts of content without moving focus — a
+   * variant switch replaces the whole catalogue — and said nothing about it
+   * (WCAG 4.1.3). One polite region, mounted once, written into from anywhere.
+   */
+  it("announces status messages through a polite live region", async () => {
+    const { LiveAnnouncer, announce } = await import("@/components/ui/live-announcer");
+    const { container } = render(() => <LiveAnnouncer />);
+
+    const region = container.querySelector("[aria-live]");
+    expect(region?.getAttribute("aria-live")).toBe("polite");
+    // Whole sentence, not just the changed words.
+    expect(region?.getAttribute("aria-atomic")).toBe("true");
+    // Hidden visually, but NOT display:none — that would silence it.
+    expect(region?.className).toContain("sr-only");
+
+    announce("Weergave gewijzigd naar Startanalyse 2026");
+    expect(region?.textContent).toContain("Startanalyse 2026");
+
+    expect(await violations(container)).toEqual([]);
+  });
+
   it("pairs aria-expanded with aria-controls on the disclosure controls", async () => {
     const fs = await import("node:fs/promises");
     const files = [

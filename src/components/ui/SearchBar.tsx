@@ -24,9 +24,9 @@ export function SearchBar(props: SearchBarProps): JSX.Element {
             // suppressed outline here left the input with no indicator of its own
             // (WCAG 2.4.7). The global :focus-visible rule in index.css now
             // applies.
-            class="min-w-0 flex-1 bg-transparent text-[22px] text-gray-700 placeholder:text-gray-400"
+            class="min-w-0 flex-1 bg-transparent text-[22px] text-gray-700 placeholder:text-gray-500"
           />
-          <Icon name="send" size={28} class="flex-shrink-0 text-gray-300" />
+          <Icon name="send" size={28} class="flex-shrink-0 text-gray-500" />
         </div>
       </div>
     </Show>

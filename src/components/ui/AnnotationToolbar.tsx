@@ -61,7 +61,7 @@ export function AnnotationToolbar(props: AnnotationToolbarProps): JSX.Element {
                   name={entry.icon}
                   size={chromeIconSize()}
                   color={armed() ? chromeIconColor() : undefined}
-                  class={armed() ? undefined : "text-gray-400"}
+                  class={armed() ? undefined : "text-gray-500"}
                 />
               </Button>
             );
@@ -81,7 +81,7 @@ export function AnnotationToolbar(props: AnnotationToolbarProps): JSX.Element {
             subsetter scans for `name="…"` and would miss the second string. */}
         <Show
           when={props.active}
-          fallback={<Icon name="edit" size={chromeIconSize()} class="text-gray-400" />}
+          fallback={<Icon name="edit" size={chromeIconSize()} class="text-gray-500" />}
         >
           <Icon name="edit_off" size={chromeIconSize()} color={chromeIconColor()} />
         </Show>

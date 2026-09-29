@@ -113,6 +113,6 @@ describe("ShareDialog export shape", () => {
     expect(checked?.style.color).toBe(probe.style.color);
 
     expect(unchecked?.style.color).toBe("");
-    expect(unchecked?.className).toContain("text-gray-400");
+    expect(unchecked?.className).toContain("text-gray-500");
   });
 });

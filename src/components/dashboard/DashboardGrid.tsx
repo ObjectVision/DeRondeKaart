@@ -58,7 +58,7 @@ export function DashboardGrid(props: DashboardGridProps): JSX.Element {
                 )}
               </Match>
               <Match when={asKind(widget, "unavailable")}>
-                <div class="flex h-24 items-center justify-center rounded-xl border border-dashed border-gray-200 px-2 text-center text-xs text-gray-400">
+                <div class="flex h-24 items-center justify-center rounded-xl border border-dashed border-gray-200 px-2 text-center text-xs text-gray-500">
                   Deze weergave is niet beschikbaar
                 </div>
               </Match>

@@ -60,7 +60,7 @@ export function ChartsPanel(props: ChartsPanelProps): JSX.Element {
                 name="select"
                 size={chromeIconSize()}
                 color={props.areaSelectActive ? chromeIconColor() : undefined}
-                class={props.areaSelectActive ? undefined : "text-gray-400"}
+                class={props.areaSelectActive ? undefined : "text-gray-500"}
               />
             </Button>
             <Button
@@ -77,7 +77,7 @@ export function ChartsPanel(props: ChartsPanelProps): JSX.Element {
 
         <Switch>
           <Match when={loading()}>
-            <div class="flex items-center justify-center py-10 text-sm text-gray-400">
+            <div class="flex items-center justify-center py-10 text-sm text-gray-500">
               Laden…
             </div>
           </Match>
@@ -85,7 +85,7 @@ export function ChartsPanel(props: ChartsPanelProps): JSX.Element {
               an unexplained empty panel is what let this go unnoticed after the
               layers moved to pmtiles. */}
           <Match when={unavailable()}>
-            <div class="flex items-center justify-center py-10 text-center text-sm text-gray-400">
+            <div class="flex items-center justify-center py-10 text-center text-sm text-gray-500">
               Geen gegevens beschikbaar voor dit thema
             </div>
           </Match>

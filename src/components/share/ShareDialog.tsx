@@ -57,7 +57,7 @@ function ShapeOption(props: ShapeOptionProps): JSX.Element {
         name={props.checked ? "radio_button_checked" : "radio_button_unchecked"}
         size={chromeIconSize()}
         color={props.checked ? chromeIconColor() : undefined}
-        class={props.checked ? "flex-shrink-0" : "flex-shrink-0 text-gray-400"}
+        class={props.checked ? "flex-shrink-0" : "flex-shrink-0 text-gray-500"}
       />
       <span class={props.checked ? "text-gray-900" : "text-gray-700"}>{props.label}</span>
     </button>

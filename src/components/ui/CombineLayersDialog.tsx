@@ -375,7 +375,7 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
                       <Icon
                         name={isOpen() ? "expand_more" : "chevron_right"}
                         size={chromeIconSize()}
-                        class="flex-shrink-0 text-gray-400"
+                        class="flex-shrink-0 text-gray-500"
                       />
                     </button>
                     <Show when={isOpen()}>
@@ -402,7 +402,7 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
                                     size={chromeIconSize()}
                                     color={checked() ? chromeIconColor() : undefined}
                                     class={
-                                      checked() ? "flex-shrink-0" : "flex-shrink-0 text-gray-400"
+                                      checked() ? "flex-shrink-0" : "flex-shrink-0 text-gray-500"
                                     }
                                   />
                                   <span class="text-xs text-gray-600">{rule.name}</span>

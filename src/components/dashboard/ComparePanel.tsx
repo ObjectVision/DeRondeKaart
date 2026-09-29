@@ -139,7 +139,7 @@ export function ComparePanel(props: ComparePanelProps): JSX.Element {
                         title="Uit vergelijking halen"
                         aria-label={`${column.label} uit vergelijking halen`}
                       >
-                        <Icon name="close" size={16} class="text-gray-400" />
+                        <Icon name="close" size={16} class="text-gray-500" />
                       </Button>
                     </div>
                     <DashboardGrid columns={1} widgets={column.widgets} />
