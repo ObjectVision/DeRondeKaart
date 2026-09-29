@@ -56,6 +56,29 @@ describe("TabStrip", () => {
     expect(onSelect).toHaveBeenCalledWith("twee", twee);
   });
 
+  /**
+   * The default bleed assumes a dialog's 24px padding. Both chrome dialogs rely
+   * on it, so it must survive a host that needs different insets.
+   */
+  it("bleeds through the dialog padding by default", () => {
+    render(() => <TabStrip tabs={TABS} active="een" onSelect={() => {}} />);
+
+    const wrapper = buttons()[0].parentElement!;
+    expect(wrapper.className).toContain("-mx-6");
+    expect(wrapper.className).toContain("px-6");
+  });
+
+  // The feature-info popup's PBL content has no padding to bleed through.
+  it("takes a replacement wrapper class", () => {
+    render(() => (
+      <TabStrip tabs={TABS} active="een" onSelect={() => {}} class="flex border-b px-3" />
+    ));
+
+    const wrapper = buttons()[0].parentElement!;
+    expect(wrapper.className).toBe("flex border-b px-3");
+    expect(wrapper.className).not.toContain("-mx-6");
+  });
+
   // type="button" keeps a strip inside a form from submitting it.
   it("renders tabs in order, as plain buttons", () => {
     render(() => <TabStrip tabs={TABS} active="een" onSelect={() => {}} />);
