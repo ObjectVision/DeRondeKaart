@@ -1,49 +1,10 @@
 [
   {
-    "label": "Woonzorganalyse",
+    "label": "Kwetsbare ouderen",
     "icon": "diversity_1",
     "color": "#3E74A7",
     "expanded": false,
     "children": [
-      {
-        "label": "Woningvoorraad",
-        "color": "#EB5BA6",
-        "expanded": false,
-        "children": [
-          {
-            "id": "",
-            "label": "",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Kwetsbare ouderen",
-        "color": "#EB5BA6",
-        "expanded": false,
-        "children": [
-          {
-            "id": "",
-            "label": "",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Aandachtsgroepen",
-        "color": "#EB5BA6",
-        "expanded": false,
-        "children": [
-          {
-            "id": "",
-            "label": "",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
       {
         "label": "Clusters van indicaties",
         "icon": "location_on",
@@ -55,7 +16,37 @@
             "label": "verpleging en verzorging",
             "a": false,
             "b": false
-          },
+          }
+        ]
+      },
+      {
+        "label": "Complexanalyse",
+        "icon": "grid_view",
+        "color": "#5B8DEF",
+        "expanded": false,
+        "children": [
+          {
+            "id": "",
+            "label": "",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Aandachtsgroepen",
+    "icon": "diversity_1",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Clusters van indicaties",
+        "icon": "location_on",
+        "color": "#E0457B",
+        "expanded": true,
+        "children": [
           {
             "id": "geestelijke_gezondheidszorg_B",
             "label": "geestelijke gezondheidszorg B",
