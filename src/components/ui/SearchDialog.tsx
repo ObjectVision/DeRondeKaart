@@ -338,6 +338,9 @@ export function SearchDialog(props: SearchDialogProps): JSX.Element {
                   activeIndex() >= 0 ? `map-search-option-${activeIndex()}` : undefined
                 }
                 placeholder={commandMode() ? "Zoek of geef een opdracht..." : "Zoek op gemeente, wijk, buurt, postcode of straat en zoom er meteen naar toe."}
+                // Stable accessible name, unlike the placeholder above, which
+                // swaps with command mode and would rename the field mid-session.
+                aria-label={commandMode() ? "Zoek een locatie of geef een opdracht" : "Zoek een locatie"}
                 // `pr-9` reserves the clear button's corner, so text scrolls under
                 // the padding rather than under the cross.
                 class="w-full rounded border border-gray-300 py-2 pl-3 pr-9 text-sm outline-none focus:border-blue-400"

@@ -18,7 +18,13 @@ export function SearchBar(props: SearchBarProps): JSX.Element {
             value={query()}
             onInput={(e) => setQuery(e.currentTarget.value)}
             placeholder="Zoek een kaartlaag…"
-            class="min-w-0 flex-1 bg-transparent text-[22px] text-gray-700 outline-none placeholder:text-gray-400"
+            aria-label="Zoek een kaartlaag"
+            // No `outline-none`: the wrapper already shows focus via
+            // `focus-within:`, but that styles the BOX, not the control, and a
+            // suppressed outline here left the input with no indicator of its own
+            // (WCAG 2.4.7). The global :focus-visible rule in index.css now
+            // applies.
+            class="min-w-0 flex-1 bg-transparent text-[22px] text-gray-700 placeholder:text-gray-400"
           />
           <Icon name="send" size={28} class="flex-shrink-0 text-gray-300" />
         </div>

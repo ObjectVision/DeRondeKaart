@@ -238,6 +238,26 @@ html, body {
   html {
     @apply font-sans;
   }
+
+  /* Baseline keyboard focus indicator (WCAG 2.1 SC 2.4.7 Focus Visible).
+
+     A safety net, not a style: individual components carry `outline-none`, and
+     without a global rule any one that forgets a `focus:ring-*` replacement
+     leaves a keyboard user with no indication of where they are. Declared here
+     so the default is "visible" and a component has to opt out deliberately.
+
+     `:focus-visible` rather than `:focus`, so a mouse click on a button does not
+     paint a ring the pointer user has no use for.
+
+     Colour is the brand blue (#3E74A7, 4.93:1 on white), which already clears
+     the 3:1 non-text contrast minimum. Hardcoded rather than read from
+     map.json's `chromeIconColor`: this is a static stylesheet and the per-project
+     value is only known at runtime. The offset keeps the ring clear of the
+     element's own border so both stay legible. */
+  :focus-visible {
+    outline: 2px solid #3e74a7;
+    outline-offset: 2px;
+  }
 }
 
 /* Row striping for the databronnen table in the generated metainfo fragments

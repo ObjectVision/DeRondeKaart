@@ -290,10 +290,17 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
           <div class="text-sm text-gray-900">{COMBINATION_STRATEGY}</div>
         </div>
 
-        <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
+        {/* `for`/`id` pair, not proximity: a <label> that does not name its
+            control is invisible to assistive tech, which reads only the
+            association (WCAG 1.3.1 / 4.1.2). */}
+        <label
+          for="combine-layer-name"
+          class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500"
+        >
           {editing ? "Naam laag" : "Naam nieuwe laag"}
         </label>
         <input
+          id="combine-layer-name"
           type="text"
           value={effectiveName()}
           onInput={(e) => {
