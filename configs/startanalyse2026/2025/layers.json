@@ -3808,6 +3808,10 @@
     },
     {
       "id": "314",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_314_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_314_bronnen.html"
+      },
       "name": "Pand energielabel totaal (BG)",
       "source": "https://data.startanalyse2026.nl/pmtiles/basis/energielabel.pmtiles",
       "format": "pmtiles",
@@ -4437,6 +4441,10 @@
     },
     {
       "id": "230",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_230_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_230_bronnen.html"
+      },
       "name": "Aantal woningequivalenten (BG)",
       "subname": "WEQ",
       "source": "https://data.startanalyse2026.nl/pmtiles/2025/strat1.pmtiles?v=20260822",
@@ -15237,6 +15245,15 @@
     {
       "id": "355",
       "name": "Toekenning klimaatneutraal gas (LN, H20)",
+      "meta": [
+        "https://data.startanalyse2026.nl/meta/2025/LN_default.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie1.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie2.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie3.html",
+        "https://data.startanalyse2026.nl/meta/2025/_strategie4.html",
+        "https://data.startanalyse2026.nl/meta/2025/_referentiebeelden.html",
+        "https://data.startanalyse2026.nl/meta/2025/_footer.html"
+      ],
       "source": "https://data.startanalyse2026.nl/pmtiles/2025/stratLN.pmtiles?v=20260822",
       "format": "pmtiles",
       "sourceLayer": "stratNL",
@@ -15402,6 +15419,10 @@
     },
     {
       "id": "224",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_224_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_224_bronnen.html"
+      },
       "name": "Pand bouwjaar (BG)",
       "subname": "1 1.4.2 Bouwjaar",
       "source": "https://data.startanalyse2026.nl/pmtiles/basis/bouwjaar.pmtiles",
@@ -15553,6 +15574,10 @@
     },
     {
       "id": "316",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_316_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_316_bronnen.html"
+      },
       "name": "Pand energielabel utiliteit (BG)",
       "source": "https://data.startanalyse2026.nl/pmtiles/basis/energielabel.pmtiles",
       "format": "pmtiles",
@@ -15769,6 +15794,10 @@
     },
     {
       "id": "317",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_317_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_317_bronnen.html"
+      },
       "name": "Pand energielabel wonen (BG)",
       "source": "https://data.startanalyse2026.nl/pmtiles/basis/energielabel.pmtiles",
       "format": "pmtiles",
@@ -15985,6 +16014,10 @@
     },
     {
       "id": "315",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_315_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_315_bronnen.html"
+      },
       "name": "Pand dominant gebruiksdoel (BG)",
       "source": "https://data.startanalyse2026.nl/pmtiles/basis/gebruiksdoelen.pmtiles",
       "format": "pmtiles",
@@ -16188,6 +16221,10 @@
     },
     {
       "id": "267",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_267_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_267_bronnen.html"
+      },
       "name": "Aquathermie contour (BG)",
       "subname": "Thermische Energie uit Oppervlaktewater",
       "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/TEO.pmtiles",
@@ -16218,6 +16255,10 @@
     },
     {
       "id": "263",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_263_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_263_bronnen.html"
+      },
       "name": "Geothermie contour (BG)",
       "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/geothermie.pmtiles?v=20260918",
       "format": "pmtiles",
@@ -16342,6 +16383,10 @@
     },
     {
       "id": "229",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_229_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_229_bronnen.html"
+      },
       "name": "Aantal Utiliteitsgebouwen (BG)",
       "subname": "Aantal utiliteitsgebouwen",
       "source": "https://data.startanalyse2026.nl/pmtiles/2025/strat1.pmtiles?v=20260822",
@@ -21876,6 +21921,10 @@
     },
     {
       "id": "266",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_266_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_266_bronnen.html"
+      },
       "name": "Warmte-koude opslag (BG)",
       "subname": "WKO",
       "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/WKO.pmtiles?v=20260915-2",
@@ -71935,6 +71984,10 @@
     },
     {
       "id": "211",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_211_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_211_bronnen.html"
+      },
       "name": "Laagtemperatuur warmtebronnen (BG)",
       "subname": "MW",
       "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/lt.pmtiles",
@@ -72110,6 +72163,10 @@
     },
     {
       "id": "210",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_210_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_210_bronnen.html"
+      },
       "name": "Midden temperatuur warmtebronnen (BG)",
       "subname": "MW",
       "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/mt.pmtiles",
@@ -72393,6 +72450,10 @@
     },
     {
       "id": "464",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_464_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_464_bronnen.html"
+      },
       "name": "Warmtenetten strategievariant s2a (BG)",
       "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/S2A_bronnen_connecties.pmtiles",
       "format": "pmtiles",
@@ -72450,6 +72511,10 @@
     },
     {
       "id": "466",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_466_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_466_bronnen.html"
+      },
       "name": "Warmtenetten strategievariant s2d (BG)",
       "source": "https://data.startanalyse2026.nl/pmtiles/aanbod/S2D_bronnen_connecties.pmtiles",
       "format": "pmtiles",
@@ -72507,6 +72572,10 @@
     },
     {
       "id": "467",
+      "meta": {
+        "toelichting": "https://data.startanalyse2026.nl/meta/2025/BG_467_toelichting.html",
+        "bronnen": "https://data.startanalyse2026.nl/meta/2025/BG_467_bronnen.html"
+      },
       "name": "Warmtelinq (BG)",
       "subname": "Tracé warmtetransportleiding",
       "source": "https://maptiles.projectatlas.app/client/gas/warmtelinq/custom/warmtelinq-projecten/{z}/{x}/{y}.mvt",

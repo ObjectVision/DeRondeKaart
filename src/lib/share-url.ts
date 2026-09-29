@@ -2,7 +2,7 @@ import type { LayerEntry } from "@/hooks/use-map-layers";
 import { DEFAULT_BASEMAP_ID } from "@/components/map/map-view-config";
 import { VARIANT_PARAM, variantId } from "@/config/variant";
 import { COMBI_PARAM, encodeFilterLayerParam } from "@/layers/filter-layer-url";
-import { getFilterLayers, isFilterLayerId } from "@/layers/filter-layers";
+import { getFilterLayers, isFilterLayerId, withSources } from "@/layers/filter-layers";
 import {
   MAP_SIDES,
   forSide,
@@ -95,7 +95,11 @@ export function buildShareUrl(state: ShareUrlState, base?: string): string {
       if (isFilterLayerId(entry.config.id)) onMap.add(entry.config.id);
     }
   }
-  const defs = getFilterLayers().filter((def) => onMap.has(def.id));
+  // Plus the combinations those are built on, sources first: a combination used
+  // as a criterion must travel even when it is off the map itself, or the
+  // recipient cannot rebuild the one that is on it. The recipient restores it
+  // into the store only; no `add` command is written for it.
+  const defs = withSources(getFilterLayers().filter((def) => onMap.has(def.id)));
   if (defs.length > 0) params.set(COMBI_PARAM, encodeFilterLayerParam(defs));
 
   // The parser index-aligns getAll("cmd")/getAll("map")/getAll("layer"), so

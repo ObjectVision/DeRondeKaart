@@ -158,8 +158,10 @@ place ahead of the first rebuild that carries genericized defaults.
   --config-project woonzorglimburg \
   --email eoudejans@objectvision.nl
 
-# The password-protected dev instance (same repo and branch, different overlay)
-./setup_map_application.sh -y   --slug woonzorglimburg_map_dev --host map.dev.woonzorglimburg.nl   --repo git@github.com:ObjectVision/northwake.git   --branch main   --config-project woonzorglimburg_dev   --auth-user ontwikkelaar --auth-realm "De Ronde kaart — dev" --noindex   --email eoudejans@objectvision.nl
+# A password-protected instance (same repo and branch, different overlay) — for
+# content that must not be public, which a variant cannot provide. Not in use for
+# woonzorglimburg since its staging became the `ontwikkel` variant.
+./setup_map_application.sh -y   --slug <project>_map_dev --host map.dev.<domain>   --repo git@github.com:ObjectVision/northwake.git   --branch main   --config-project <project>_dev   --auth-user ontwikkelaar --auth-realm "De Ronde kaart — dev" --noindex   --email eoudejans@objectvision.nl
 
 # A second map app, framing locked to one parent site
 ./setup_map_application.sh -y \

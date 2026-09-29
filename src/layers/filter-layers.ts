@@ -35,6 +35,13 @@ export interface FilterLayerDef {
   steps?: Record<string, number>;
 }
 
+/**
+ * The one scoring method, as the user reads it. Shared by the combine dialog,
+ * which states it, and the generated metainfo, which repeats it — two copies
+ * would drift the moment a second method is added.
+ */
+export const COMBINATION_STRATEGY = "Telling van voldane criteria zonder weging";
+
 /** One legend class of a combination — the class for score `index + 1`. */
 export interface ScoreClass {
   label: string;
@@ -247,6 +254,35 @@ export function addFilterLayerWithId(incoming: FilterLayerDef): FilterLayerDef {
   return def;
 }
 
+/**
+ * Replace a combination's criteria, legend and name in place, keeping its id.
+ *
+ * In place rather than remove-and-add, so the id a share link or the map's layer
+ * stack already holds keeps pointing at the edited combination. `steps` is
+ * replaced whole, and an empty one is dropped as in {@link addFilterLayer}: an
+ * edit that removes the last timeseries layer must not keep its stale year.
+ *
+ * Returns undefined when no combination has that id.
+ */
+export function updateFilterLayer(
+  id: string,
+  patch: Pick<FilterLayerDef, "name" | "refs" | "classes" | "steps">,
+): FilterLayerDef | undefined {
+  const current = store.defs.find((def) => def.id === id);
+  if (!current) return undefined;
+
+  const def: FilterLayerDef = {
+    id,
+    name: patch.name,
+    refs: patch.refs,
+    classes: patch.classes,
+    ...(patch.steps && Object.keys(patch.steps).length > 0 ? { steps: patch.steps } : {}),
+  };
+  store.defs = store.defs.map((item) => (item.id === id ? def : item));
+  store.version += 1;
+  return def;
+}
+
 /** Remove a combination by id. Returns the new store version. */
 export function removeFilterLayer(id: string): number {
   store.defs = store.defs.filter((def) => def.id !== id);
@@ -269,4 +305,74 @@ export function getFilterLayerVersion(): number {
 /** True for ids this store owns, so callers can branch without a lookup. */
 export function isFilterLayerId(id: string): boolean {
   return id.startsWith("filter__");
+}
+
+/** The combinations `def` uses as criteria — the `filter__*` ids in its refs. */
+export function combinationSources(def: FilterLayerDef): string[] {
+  return [...new Set(def.refs.map((ref) => ref.layerId).filter(isFilterLayerId))];
+}
+
+/**
+ * Every stored combination built on `id`, directly or through another, in the
+ * order they must be recomputed: a combination always after the ones it uses.
+ *
+ * Also what keeps the combine dialog cycle-free: editing `id`, none of these may
+ * be offered as its criterion, since each already depends on it.
+ */
+export function dependentsOf(id: string): FilterLayerDef[] {
+  const found = new Set<string>();
+  const queue = [id];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const def of store.defs) {
+      if (found.has(def.id) || !combinationSources(def).includes(current)) continue;
+      found.add(def.id);
+      queue.push(def.id);
+    }
+  }
+  return inDependencyOrder(store.defs.filter((def) => found.has(def.id)));
+}
+
+/**
+ * `defs` plus every combination they use, transitively, sources first.
+ *
+ * For share links: a combination on the map cannot be rebuilt by the recipient
+ * without its sources, even when those are no longer on the map themselves.
+ * Sources not in the store are left out; the rebuild then skips the dependent.
+ */
+export function withSources(defs: FilterLayerDef[]): FilterLayerDef[] {
+  const byId = new globalThis.Map<string, FilterLayerDef>();
+  const visit = (def: FilterLayerDef) => {
+    if (byId.has(def.id)) return;
+    byId.set(def.id, def);
+    for (const sourceId of combinationSources(def)) {
+      const source = getFilterLayerById(sourceId);
+      if (source) visit(source);
+    }
+  };
+  defs.forEach(visit);
+  return inDependencyOrder([...byId.values()]);
+}
+
+/**
+ * Order combinations so each comes after the combinations it uses. Stable
+ * otherwise: an unrelated pair keeps its incoming order. The graph is acyclic by
+ * construction (see {@link dependentsOf}), but a cycle smuggled in by a crafted
+ * link must not hang the loop, so leftovers are appended as they are.
+ */
+function inDependencyOrder(defs: FilterLayerDef[]): FilterLayerDef[] {
+  const pending = new Set(defs.map((def) => def.id));
+  const out: FilterLayerDef[] = [];
+  let progressed = true;
+  while (pending.size > 0 && progressed) {
+    progressed = false;
+    for (const def of defs) {
+      if (!pending.has(def.id)) continue;
+      if (combinationSources(def).some((sourceId) => pending.has(sourceId))) continue;
+      pending.delete(def.id);
+      out.push(def);
+      progressed = true;
+    }
+  }
+  return [...out, ...defs.filter((def) => pending.has(def.id))];
 }

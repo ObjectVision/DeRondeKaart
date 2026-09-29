@@ -143,6 +143,89 @@ describe('map.json variants', () => {
 });
 
 /**
+ * A variant may override the boot flags `text_to_tool` / `speech_to_text` —
+ * woonzorglimburg's `ontwikkel` turns on the text and speech tooling that
+ * `publiek` keeps off. The override follows the variant the page OPENS in.
+ */
+describe("map.json per-variant boot flags", () => {
+  const MODELS = {
+    needleWeights: "https://example.test/needle.cact",
+    voskModel: "https://example.test/vosk.tar.gz",
+  };
+
+  function projectWith(ontwikkel: Record<string, unknown>) {
+    return {
+      text_to_tool: false,
+      speech_to_text: false,
+      modelUrls: MODELS,
+      variants: {
+        default: "publiek",
+        items: [{ id: "publiek" }, { id: "ontwikkel", ...ontwikkel }],
+      },
+    };
+  }
+
+  /** Open the page as if at `?variant=<id>`; restored after each test. */
+  function openAs(id: string) {
+    window.history.replaceState({}, "", `/?variant=${id}`);
+  }
+
+  afterEach(() => window.history.replaceState({}, "", "/"));
+
+  it("applies the opened variant's overrides", async () => {
+    stubMapJson(projectWith({ text_to_tool: true, speech_to_text: true }));
+    openAs("ontwikkel");
+    const config = await loadMapConfig();
+    expect(config.textToTool).toBe(true);
+    expect(config.speechToText).toBe(true);
+    expect(config.variants?.items[1]).toMatchObject({ textToTool: true, speechToText: true });
+  });
+
+  it("keeps the root values for a variant without overrides", async () => {
+    stubMapJson(projectWith({ text_to_tool: true, speech_to_text: true }));
+    openAs("publiek");
+    const config = await loadMapConfig();
+    expect(config.textToTool).toBe(false);
+    expect(config.speechToText).toBe(false);
+  });
+
+  it("uses the default variant's overrides when the URL names none", async () => {
+    stubMapJson({
+      ...projectWith({}),
+      variants: { default: "ontwikkel", items: [{ id: "publiek" }, { id: "ontwikkel", text_to_tool: true }] },
+    });
+    const config = await loadMapConfig();
+    expect(config.textToTool).toBe(true);
+  });
+
+  it("still holds an override to the speech-needs-text rule", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson(projectWith({ speech_to_text: true }));
+    openAs("ontwikkel");
+    const config = await loadMapConfig();
+    expect(config.speechToText).toBe(false);
+  });
+
+  it("still disables an override that has no model to load", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson({ ...projectWith({ text_to_tool: true }), modelUrls: {} });
+    openAs("ontwikkel");
+    const config = await loadMapConfig();
+    expect(config.textToTool).toBe(false);
+  });
+
+  it("warns about and ignores a non-boolean override", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson(projectWith({ text_to_tool: "yes" }));
+    openAs("ontwikkel");
+    const config = await loadMapConfig();
+    expect(config.textToTool).toBe(false);
+    expect(config.variants?.items[1]).not.toHaveProperty("textToTool");
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('invalid "text_to_tool"'));
+  });
+});
+
+/**
  * `mapControls.searchCountries` limits the location search to given countries.
  *
  * Validated rather than passed through because Nominatim answers an unknown

@@ -182,4 +182,19 @@ describe("combination layers in the link", () => {
     expect(combiParam(url)).toBeNull();
     expect(url).not.toContain("combi");
   });
+
+  it("carries an off-map combination that an on-map one is built on, source first", () => {
+    const { def: source } = addFilterLayer("Bron", [{ layerId: "357", ruleName: "hoog" }]);
+    const { def: dependent } = addFilterLayer("Afgeleid", [
+      { layerId: source.id, ruleName: "1 van 1 criteria", score: 1 },
+    ]);
+
+    const url = buildShareUrl(stateWith(dependent.id), "https://example.org/");
+
+    const carried = parseFilterLayerParam(combiParam(url) ?? "");
+    expect(carried?.map((item) => item.id)).toEqual([source.id, dependent.id]);
+    // Carried for the rebuild only: no add command puts the source on the map.
+    expect(url).not.toContain(`layer=${source.id}&`);
+    expect(url.endsWith(`layer=${source.id}`)).toBe(false);
+  });
 });

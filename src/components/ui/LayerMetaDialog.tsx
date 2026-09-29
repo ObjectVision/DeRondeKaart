@@ -3,6 +3,8 @@ import { DialogContent, DialogRoot, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { LeafMeta } from "@/components/ui/navigation/LeafMeta";
+import { CombinationMeta } from "@/components/ui/CombinationMeta";
+import { isFilterLayerId } from "@/layers/filter-layers";
 import { chromeIconColor, chromeIconSize } from "@/config/map-config";
 
 export interface LayerMetaDialogProps {
@@ -14,6 +16,11 @@ export interface LayerMetaDialogProps {
   onAddLayer?: (id: string) => void;
   /** Whether `id` is on the left map, for those links' state icons. */
   isLayerOnMap?: (id: string) => boolean;
+  /**
+   * Reopen "Criteria combineren" for combination `id`, pre-filled with its
+   * choices. Omitted, a combination's window has no edit button.
+   */
+  onEditCombination?: (id: string) => void;
 }
 
 /**
@@ -25,6 +32,10 @@ export interface LayerMetaDialogProps {
  *
  * The body is LeafMeta, which already owns the fetch, the per-URL cache and the
  * loading/empty states. This component adds only the window around it.
+ *
+ * A combination (`filter__*`) has no published fragments: its body is
+ * CombinationMeta, generated from the definition, and its header gains an edit
+ * button beside the close button.
  */
 export function LayerMetaDialog(props: LayerMetaDialogProps): JSX.Element {
   return (
@@ -69,22 +80,42 @@ export function LayerMetaDialog(props: LayerMetaDialogProps): JSX.Element {
                   </span>
                 </DialogTitle>
               </div>
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                onClick={() => props.onOpenChange(false)}
-                title="Sluiten"
-                aria-label="Sluiten"
-              >
-                <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
-              </Button>
+              <div class="flex items-center gap-1">
+                <Show when={isFilterLayerId(layer().id) && props.onEditCombination}>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => props.onEditCombination?.(layer().id)}
+                    title="Combinatie aanpassen"
+                    aria-label="Combinatie aanpassen"
+                  >
+                    <Icon name="edit" size={chromeIconSize()} color={chromeIconColor()} />
+                  </Button>
+                </Show>
+                <Button
+                  variant="ghost"
+                  size="icon-sm"
+                  onClick={() => props.onOpenChange(false)}
+                  title="Sluiten"
+                  aria-label="Sluiten"
+                >
+                  <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+                </Button>
+              </div>
             </div>
             <div class="text-sm leading-relaxed text-gray-600">
-              <LeafMeta
-                layerId={layer().id}
-                onAddLayer={props.onAddLayer}
-                isLayerOnMap={props.isLayerOnMap}
-              />
+              <Show
+                when={isFilterLayerId(layer().id)}
+                fallback={
+                  <LeafMeta
+                    layerId={layer().id}
+                    onAddLayer={props.onAddLayer}
+                    isLayerOnMap={props.isLayerOnMap}
+                  />
+                }
+              >
+                <CombinationMeta layerId={layer().id} />
+              </Show>
             </div>
           </DialogContent>
         </DialogRoot>

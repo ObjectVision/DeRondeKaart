@@ -84,3 +84,30 @@ describe("parseFilterLayerParam", () => {
     expect(parseFilterLayerParam(raw)).toBeNull();
   });
 });
+
+/** A class of a combination used as a criterion carries its score. */
+describe("combi param: score references", () => {
+  const NESTED: FilterLayerDef = {
+    id: "filter__3",
+    name: "Afgeleid",
+    refs: [{ layerId: "filter__1", ruleName: "2 van 2 criteria", score: 2 }],
+    classes: [{ label: "1 van 1 criteria", color: "#3288bd" }],
+  };
+
+  function withRef(ref: Record<string, unknown>): string {
+    return encodeFilterLayerParam([{ ...NESTED, refs: [ref] } as unknown as FilterLayerDef]);
+  }
+
+  it("round-trips the score", () => {
+    expect(parseFilterLayerParam(encodeFilterLayerParam([NESTED]))).toEqual([NESTED]);
+  });
+
+  it.each([0, -1, 1.5, "2"])("rejects a malformed score (%s)", (score) => {
+    expect(parseFilterLayerParam(withRef({ layerId: "filter__1", ruleName: "x", score }))).toBeNull();
+  });
+
+  it("still parses a reference without a score, as older links have", () => {
+    const parsed = parseFilterLayerParam(withRef({ layerId: "groen", ruleName: "hoog" }));
+    expect(parsed?.[0].refs).toEqual([{ layerId: "groen", ruleName: "hoog" }]);
+  });
+});
