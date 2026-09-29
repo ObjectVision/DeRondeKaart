@@ -42,7 +42,7 @@ export function CombinationMeta(props: CombinationMetaProps): JSX.Element {
   );
 
   return (
-    <Show when={!description.loading} fallback={<span class="text-gray-400">Laden…</span>}>
+    <Show when={!description.loading} fallback={<span class="text-gray-500">Laden…</span>}>
       <Show when={description()} fallback={<>Geen informatie beschikbaar</>}>
         {(info) => (
           <>

@@ -137,7 +137,7 @@ export function CircularExportView(props: CircularExportViewProps): JSX.Element 
             onInput={(e) => props.onTitleChange?.(e.currentTarget.value)}
             placeholder="Titel"
             aria-label="Titel van de export"
-            class="rounded-lg bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-md outline-none backdrop-blur-sm placeholder:font-normal placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
+            class="rounded-lg bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-900 shadow-md outline-none backdrop-blur-sm placeholder:font-normal placeholder:text-gray-500 focus:ring-2 focus:ring-blue-300"
           />
           <input
             type="text"
@@ -145,7 +145,7 @@ export function CircularExportView(props: CircularExportViewProps): JSX.Element 
             onInput={(e) => props.onSubtitleChange?.(e.currentTarget.value)}
             placeholder="Ondertitel (optioneel)"
             aria-label="Ondertitel van de export (optioneel)"
-            class="rounded-lg bg-white/95 px-3 py-1 text-xs italic text-gray-600 shadow-md outline-none backdrop-blur-sm placeholder:text-gray-400 focus:ring-2 focus:ring-blue-300"
+            class="rounded-lg bg-white/95 px-3 py-1 text-xs italic text-gray-600 shadow-md outline-none backdrop-blur-sm placeholder:text-gray-500 focus:ring-2 focus:ring-blue-300"
           />
         </div>
       </Show>

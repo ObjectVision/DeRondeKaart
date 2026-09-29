@@ -156,7 +156,7 @@ function BranchRow(props: BranchRowProps): JSX.Element {
           size={18}
           class="mt-px flex-shrink-0 text-gray-500"
         />
-        <span class={"break-words font-medium " + (empty() ? "text-gray-400" : "text-gray-800")}>
+        <span class={"break-words font-medium " + (empty() ? "text-gray-500" : "text-gray-800")}>
           {props.node.label}
         </span>
       </button>

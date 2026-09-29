@@ -75,7 +75,7 @@ export function SingleSelect(props: SingleSelectProps): JSX.Element {
       >
         <Show
           when={selectedLabel()}
-          fallback={<span class="truncate text-gray-400">{props.placeholder}</span>}
+          fallback={<span class="truncate text-gray-500">{props.placeholder}</span>}
         >
           {(label) => (
             <span class="truncate text-gray-800" title={label()}>
@@ -88,7 +88,7 @@ export function SingleSelect(props: SingleSelectProps): JSX.Element {
             <span
               role="button"
               title="Selectie wissen"
-              class="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              class="rounded p-0.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
               onClick={(e) => {
                 e.stopPropagation();
                 props.onSelect(null);
@@ -97,7 +97,7 @@ export function SingleSelect(props: SingleSelectProps): JSX.Element {
               <Icon name="close" size={16} />
             </span>
           </Show>
-          <Icon name="expand_more" size={18} class="text-gray-400" />
+          <Icon name="expand_more" size={18} class="text-gray-500" />
         </span>
       </button>
 
@@ -133,7 +133,7 @@ export function SingleSelect(props: SingleSelectProps): JSX.Element {
             />
           </Show>
           <Show when={filtered().length === 0}>
-            <div class="px-2 py-1.5 text-sm text-gray-400">Geen resultaten</div>
+            <div class="px-2 py-1.5 text-sm text-gray-500">Geen resultaten</div>
           </Show>
           <For each={filtered()}>
             {(option) => (
@@ -169,9 +169,9 @@ function OptionRow(props: OptionRowProps): JSX.Element {
       <Icon
         name={props.checked ? "radio_button_checked" : "radio_button_unchecked"}
         size={18}
-        class={props.checked ? "flex-shrink-0 text-blue-600" : "flex-shrink-0 text-gray-400"}
+        class={props.checked ? "flex-shrink-0 text-blue-600" : "flex-shrink-0 text-gray-500"}
       />
-      <span class={`truncate ${props.muted && !props.checked ? "text-gray-400" : "text-gray-700"}`}>
+      <span class={`truncate ${props.muted && !props.checked ? "text-gray-500" : "text-gray-700"}`}>
         {props.label}
       </span>
     </button>

@@ -1,6 +1,7 @@
 import { loadLayerConfigs } from "@/layers";
 import { loadNavigation } from "@/layers/navigation";
-import { isVariantId, setVariant, variantId } from "@/config/variant";
+import { isVariantId, setVariant, variantId, variantsConfig } from "@/config/variant";
+import { announce } from "@/components/ui/live-announcer";
 import { clearVariantScopedCaches } from "@/config/variant-scope";
 import { MAP_SIDES, forSide, type MapSide, type MapSidePair } from "@/lib/map-side";
 
@@ -82,6 +83,14 @@ export function useVariantSwitch(options: UseVariantSwitchOptions) {
     await Promise.all([loadLayerConfigs(), loadNavigation()]);
 
     options.onResetPickLayer?.();
+
+    // The largest content change the app makes — the whole layer catalogue and
+    // navigation tree are replaced — and it moves no focus, so without this a
+    // screen-reader user is told nothing (WCAG 4.1.3). Announced after the
+    // configs are warm, so the new tree is what a reader would find on looking.
+    const label = variantsConfig()?.items.find((item) => item.id === id)?.label ?? id;
+    announce(`Weergave gewijzigd naar ${label}`);
+
     return true;
   }
 

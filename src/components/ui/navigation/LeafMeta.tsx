@@ -1,4 +1,12 @@
-import { Show, createEffect, createMemo, createSignal, onCleanup, type JSX } from "solid-js";
+import {
+  Show,
+  createEffect,
+  createMemo,
+  createSignal,
+  createUniqueId,
+  onCleanup,
+  type JSX,
+} from "solid-js";
 import { loadLayerConfigs, getLayerConfigById } from "@/layers";
 import { normalizeMetaRoutes, type MetaRoute, type MetaRouteId } from "@/layers/meta-routes";
 import { TabStrip } from "@/components/ui/tab-strip";
@@ -91,6 +99,8 @@ export function LeafMeta(props: LeafMetaProps): JSX.Element {
   // Which tab the reader picked. Null = "whichever is first"; see `active`.
   const [picked, setPicked] = createSignal<MetaRouteId | null>(null);
   let container!: HTMLDivElement;
+  /** Ties the tab buttons to this panel (aria-controls / role="tabpanel"). */
+  const panelId = createUniqueId();
   // Shared with the click handler so a click resolves rows the same way the
   // decoration pass did. Null until the configs have loaded.
   let layerIndex: MetaLayerIndex | null = null;
@@ -264,7 +274,7 @@ export function LeafMeta(props: LeafMetaProps): JSX.Element {
     // composed document arrives, and so the tab strip is right first time.
     <Show
       when={routes() !== undefined && !pending()}
-      fallback={<span class="text-gray-400">Laden…</span>}
+      fallback={<span class="text-gray-500">Laden…</span>}
     >
       <Show when={active()} fallback={<>Geen informatie beschikbaar</>}>
         {(route) => (
@@ -275,9 +285,15 @@ export function LeafMeta(props: LeafMetaProps): JSX.Element {
               tabs={loaded().map(({ id, label }) => ({ id, label }))}
               active={route().id}
               onSelect={selectTab}
+              panelId={panelId}
             />
             <div
               ref={container}
+              id={panelId}
+              role="tabpanel"
+              // In the Tab order: the panel scrolls, and a scrollable region
+              // must be reachable by keyboard or its content cannot be read.
+              tabindex={0}
               onClick={handleMetaClick}
               // `prose` must accompany `prose-sm`: the latter is only a size modifier
               // and styles nothing on its own. `max-w-none` drops prose's 65ch cap so

@@ -6,6 +6,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  createUniqueId,
   onCleanup,
   untrack,
   type JSX,
@@ -276,6 +277,8 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
   // Which tab the window starts on. A mount-time decision like `open` above,
   // hence `untrack`: were it tracked, a later `contextPage` change would yank
   // the tab out from under someone already reading another one.
+  /** Ties the tab buttons to the panel below them. */
+  const panelId = createUniqueId();
   const [tab, setTab] = createSignal<TabId>(
     untrack(() => (props.contextPage ? "context" : "handleiding")),
   );
@@ -468,9 +471,12 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
 
           {/* Shared with the layer metainfo dialog — see TabStrip for the
               details that are load-bearing rather than decorative. */}
-          <TabStrip tabs={tabs()} active={tab()} onSelect={selectTab} />
+          <TabStrip tabs={tabs()} active={tab()} onSelect={selectTab} panelId={panelId} />
 
-          <Switch>
+          {/* One panel for all three tabs: the Switch swaps its contents,
+              so a panel per Match would mean three ids for one region. */}
+          <div id={panelId} role="tabpanel" tabindex={0}>
+            <Switch>
             <Match when={tab() === "context"}>
               {/* Publisher-authored HTML, injected as-is — the same treatment a
                   layer's meta fragments get, and the same reasoning: this is
@@ -479,7 +485,7 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
                   executes <script>. */}
               <Show
                 when={!contextPending()}
-                fallback={<span class="text-gray-400">Laden…</span>}
+                fallback={<span class="text-gray-500">Laden…</span>}
               >
                 <Show when={contextHtml()} fallback={<>Geen informatie beschikbaar</>}>
                   {(html) => (
@@ -731,7 +737,7 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
                       >
                         {c.label}
                       </a>{" "}
-                      <span class="text-gray-400">({c.license})</span>
+                      <span class="text-gray-500">({c.license})</span>
                     </li>
                   )}
                 </For>
@@ -752,7 +758,8 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
                 </a>
               </p>
             </Match>
-          </Switch>
+            </Switch>
+          </div>
         </DialogContent>
       </DialogRoot>
       <div class="flex flex-shrink-0 gap-1 rounded-xl bg-white/95 p-1 shadow-md backdrop-blur-sm">

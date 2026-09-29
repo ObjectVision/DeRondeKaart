@@ -83,6 +83,7 @@ import { useChartsPanel } from "@/hooks/use-charts-panel";
 import { Legend } from "@/components/ui/legend";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
+import { LiveAnnouncer } from "@/components/ui/live-announcer";
 import { SearchBar } from "@/components/ui/SearchBar";
 import { Sidebar } from "@/components/ui/sidebar/Sidebar";
 import { SectionToggleBar, type SectionToggle } from "@/components/ui/sidebar/SectionToggleBar";
@@ -1046,28 +1047,27 @@ function App(rawProps: AppProps): JSX.Element {
       }
     >
       <main id="kaart" class="relative w-full h-full">
-        {/* Skip link (WCAG 2.4.1 Bypass Blocks). First focusable element in the
-            document, and hidden until it takes focus — `sr-only` lifts to a real
-            position on `focus:`, which is the standard pattern.
+        {/* No skip link (WCAG 2.4.1 Bypass Blocks). Deliberate: the criterion
+            exists to bypass a REPEATED BLOCK of content, and there is none here
+            — only a three-button toolbar stands between the start of the
+            document and the navigation, so a skip link would save at most a few
+            Tab presses while adding a visible control to every first Tab.
 
-            It targets the navigation rather than the map: the map chrome is what
-            a keyboard user has to traverse, and the map canvas itself is not yet
-            a useful focus destination (see the assessment's F2 — that is Stage 4).
-            Rendered only when the navigation exists, so it never points at
-            nothing. */}
-        <Show when={navigation()}>
-          <a
-            href="#hoofdnavigatie"
-            class="sr-only z-50 rounded-lg bg-white px-4 py-2 text-sm font-medium shadow-md focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
-          >
-            Ga direct naar de kaartlagen
-          </a>
-        </Show>
+            The `nav` landmark below is what carries the bypass affordance
+            instead: screen-reader users jump by landmark, which is both faster
+            and available from anywhere in the page. Revisit if the chrome ahead
+            of the navigation ever grows. */}
 
         {/* The document's only h1. Visually hidden because the design carries the
             name as the logo's image alt, which is not a heading — but a page with
             no h1 gives screen-reader users nothing to orient by (WCAG 1.3.1). */}
         <h1 class="sr-only">de Ronde kaart</h1>
+
+        {/* Mounted once, here, and written into from anywhere via `announce()`.
+            A live region only speaks when its content changes while it is
+            ALREADY in the document, so it cannot be rendered alongside the
+            message it carries. */}
+        <LiveAnnouncer />
 
         <div
           class="absolute inset-0 touch-none"
@@ -1355,14 +1355,17 @@ function App(rawProps: AppProps): JSX.Element {
           )}
         </Show>
 
-        {/* `nav` landmark and the skip link's destination. Named because a page
-            may hold several navigations and an unnamed one is announced only as
-            "navigation" (WCAG 1.3.1). `tabindex={-1}` so the skip link can move
-            focus here — without it the browser scrolls but leaves focus behind,
-            and the next Tab returns to the top of the document. */}
+        {/* The `nav` landmark, and how a screen-reader user reaches the layers
+            without tabbing there. Named because a page may hold several
+            navigations and an unnamed one is announced only as "navigation"
+            (WCAG 1.3.1).
+
+            The id stays: it is a stable anchor for a `#hoofdnavigatie` deep link
+            and costs nothing. `tabindex` is gone with the skip link — it existed
+            only so that link could move focus here, and a focusable landmark
+            with no incoming link is just an extra Tab stop. */}
         <nav
           id="hoofdnavigatie"
-          tabindex={-1}
           aria-label="Kaartlagen en filters"
           class="pointer-events-none absolute bottom-2 left-2 top-2 z-30 flex flex-col items-start gap-2 sm:bottom-4 sm:left-4 sm:top-4"
         >

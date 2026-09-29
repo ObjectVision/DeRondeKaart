@@ -165,7 +165,7 @@ export function StreetView(props: StreetViewProps): JSX.Element {
           </h3>
           <button
             onClick={() => props.onClose?.()}
-            class="text-gray-400 hover:text-gray-600 transition-colors text-sm leading-none px-1"
+            class="text-gray-500 hover:text-gray-700 transition-colors text-sm leading-none px-1"
             aria-label="Close"
           >
             &times;
@@ -180,7 +180,7 @@ export function StreetView(props: StreetViewProps): JSX.Element {
       >
         <div ref={container} class="absolute inset-0" />
         <Show when={status() !== "ok"}>
-          <div class="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-gray-400">
+          <div class="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-gray-500">
             {status() === "loading"
               ? "Street View laden…"
               : "Geen Street View beschikbaar op deze locatie"}

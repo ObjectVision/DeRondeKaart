@@ -367,7 +367,7 @@ export function SearchDialog(props: SearchDialogProps): JSX.Element {
                   title="Zoekopdracht wissen"
                   aria-label="Zoekopdracht wissen"
                 >
-                  <Icon name="close" size={16} class="text-gray-400" />
+                  <Icon name="close" size={16} class="text-gray-500" />
                 </Button>
               </Show>
             </div>
@@ -423,7 +423,7 @@ export function SearchDialog(props: SearchDialogProps): JSX.Element {
                 name="send"
                 size={chromeIconSize()}
                 color={hasQuery() ? chromeIconColor() : undefined}
-                class={hasQuery() ? undefined : "text-gray-400"}
+                class={hasQuery() ? undefined : "text-gray-500"}
               />
             </Button>
           </div>

@@ -36,7 +36,7 @@ export function ChartCard(props: ChartCardProps): JSX.Element {
         }
       >
         <Match when={empty()}>
-          <div class="flex h-24 items-center justify-center text-xs text-gray-400">
+          <div class="flex h-24 items-center justify-center text-xs text-gray-500">
             Geen data binnen filter
           </div>
         </Match>
