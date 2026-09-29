@@ -298,41 +298,6 @@
             "b": false
           },
           {
-            "id": "corp_mutatiegraad_2026",
-            "color": "#2D6CDF",
-            "label": "Mutatiegraad",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "corp_senioren_2026",
-            "color": "#2D6CDF",
-            "label": "Seniorenbeleid",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "corp_ouderen_met_indicatie_2026",
-            "color": "#2D6CDF",
-            "label": "Ouderen met indicatie",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "corp_aandachtsgroepen_2026",
-            "color": "#2D6CDF",
-            "label": "Aandachtsgroepenbeleid",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "corp_inpandige_gemsch_ruimte_2026",
-            "color": "#2D6CDF",
-            "label": "Gemeenschappelijke ruimte",
-            "a": false,
-            "b": false
-          },
-          {
             "id": "streefhuur_0_2026",
             "color": "#2D6CDF",
             "label": "tot kwaliteitsgrens",
