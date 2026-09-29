@@ -1,13 +1,14 @@
 import { For, Show, createSignal, type JSX } from "solid-js";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { Icon } from "@/components/ui/nav-icon";
+import { CombinationInfoIcon } from "@/components/ui/combination-info-icon";
 import { Button } from "@/components/ui/button";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
 import { useRowDrag } from "@/components/ui/use-row-drag";
 import { foregroundRank } from "@/components/map/map-view-config";
 import { ruleSwatchSpec, styleSwatchSpec } from "@/lib/legend-style";
 import { Swatch } from "@/components/ui/swatch";
-import { compositeLegendRules } from "@/layers";
+import { compositeLegendRules, isFilterLayerId } from "@/layers";
 import type { GeoStylerRule } from "@/layers";
 
 /** One class row in the legend, from either a layer's own rules or a composite's children. */
@@ -140,11 +141,19 @@ interface LegendProps {
   onOpenCombine?: () => void;
   /**
    * Whether any layer currently in the legend can take part in a combination —
-   * i.e. has both GeoStyler rules and a `filterRaster`. False greys the button
-   * out rather than hiding it, so the feature stays discoverable when there is
-   * simply nothing to combine yet.
+   * i.e. has both GeoStyler rules and a `filterRaster`, or is a combination
+   * itself. False greys the button out rather than hiding it, so the feature
+   * stays discoverable when there is simply nothing to combine yet.
    */
   canCombine?: boolean;
+  /**
+   * What the last combine or edit reported — a failure, or what it changed in
+   * the combinations built on the edited one. Shown under the header, next to
+   * the button that started it, until dismissed.
+   */
+  combineMessage?: string | null;
+  /** Dismiss {@link combineMessage}. */
+  onDismissCombineMessage?: () => void;
   /** Collapse the Kaartlagen window (restored from the bottom-left bar). */
   onClose?: () => void;
   /**
@@ -369,21 +378,42 @@ function LayerList(props: LayerListProps): JSX.Element {
                         </Show>
                       </Button>
                       {/* Disabled rather than hidden when the layer has no `meta`,
-                          so every row keeps the same set of actions. */}
-                      <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        disabled={!config.meta || !props.onOpenMeta}
-                        onClick={() => props.onOpenMeta?.(config.id, config.name)}
-                        aria-label={`Informatie ${config.name}`}
-                        title={
-                          config.meta && props.onOpenMeta
-                            ? "Informatie"
-                            : "Metadata (nog niet beschikbaar)"
+                          so every row keeps the same set of actions.
+
+                          A combination never has `meta` — its metainfo is
+                          generated from its definition — so it is always
+                          enabled, and gets its own icon: the pencil says this
+                          window is also where the combination is edited. */}
+                      <Show
+                        when={isFilterLayerId(config.id)}
+                        fallback={
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            disabled={!config.meta || !props.onOpenMeta}
+                            onClick={() => props.onOpenMeta?.(config.id, config.name)}
+                            aria-label={`Informatie ${config.name}`}
+                            title={
+                              config.meta && props.onOpenMeta
+                                ? "Informatie"
+                                : "Metadata (nog niet beschikbaar)"
+                            }
+                          >
+                            <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
+                          </Button>
                         }
                       >
-                        <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
-                      </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          disabled={!props.onOpenMeta}
+                          onClick={() => props.onOpenMeta?.(config.id, config.name)}
+                          aria-label={`Informatie over combinatie ${config.name}`}
+                          title="Informatie over deze combinatie"
+                        >
+                          <CombinationInfoIcon size={chromeIconSize()} color={chromeIconColor()} />
+                        </Button>
+                      </Show>
                       <Button
                         variant="ghost"
                         size="icon-sm"
@@ -635,6 +665,25 @@ export function Legend(props: LegendProps): JSX.Element {
           </div>
         </Show>
       </div>
+      <Show when={props.combineMessage}>
+        {(message) => (
+          <div
+            role="status"
+            class="mb-2 flex items-start justify-between gap-2 rounded-lg bg-gray-50 px-2 py-1.5 text-xs text-gray-600"
+          >
+            <span>{message()}</span>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={() => props.onDismissCombineMessage?.()}
+              title="Melding sluiten"
+              aria-label="Melding sluiten"
+            >
+              <Icon name="close" size={chromeIconSize()} color={chromeIconColor()} />
+            </Button>
+          </div>
+        )}
+      </Show>
       <Show
         when={visible().length > 0}
         fallback={<p class="text-xs text-gray-400">Nog geen lagen toegevoegd</p>}

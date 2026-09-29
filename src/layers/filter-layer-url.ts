@@ -2,8 +2,9 @@ import type { ClassRef } from "@/components/ui/CombineLayersDialog";
 import type { FilterLayerDef, ScoreClass } from "@/layers/filter-layers";
 
 /**
- * The `combi` share-link parameter: every combination on the map, as one
- * base64url-encoded JSON array.
+ * The `combi` share-link parameter: every combination on the map, plus the
+ * combinations those are built on (sources first), as one base64url-encoded
+ * JSON array.
  *
  * Combinations are built in-session and have no entry in `layers.json`, so a
  * link can only carry them by carrying their whole definition — name, the
@@ -108,7 +109,16 @@ function toRefs(value: unknown): ClassRef[] | null {
   for (const item of value) {
     if (!isRecord(item)) return null;
     if (!nonEmptyString(item.layerId) || !nonEmptyString(item.ruleName)) return null;
-    refs.push({ layerId: item.layerId, ruleName: item.ruleName });
+    // Present only on a class of a combination used as a criterion. Links from
+    // before that existed carry none, and still parse.
+    if (item.score === undefined) {
+      refs.push({ layerId: item.layerId, ruleName: item.ruleName });
+      continue;
+    }
+    if (typeof item.score !== "number" || !Number.isInteger(item.score) || item.score < 1) {
+      return null;
+    }
+    refs.push({ layerId: item.layerId, ruleName: item.ruleName, score: item.score });
   }
   return refs;
 }

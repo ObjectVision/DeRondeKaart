@@ -1,6 +1,7 @@
 import type { ViewState } from "@/components/map/MapView";
 import { isBasemapId } from "@/components/map/map-view-config";
 import { loadConfig, clearConfigCache } from "@/config/load-config";
+import { bootVariantId } from "@/config/variant";
 import type { GeocodeProviderId } from "@/tools/geocode/types";
 import { TOOL_NAMES, isToolName, type ToolName } from "@/tools/tool-names";
 
@@ -152,6 +153,17 @@ export interface VariantItem {
   id: string;
   /** Dutch label for the host page to show. */
   label: string;
+  /**
+   * Overrides of map.json's `text_to_tool` / `speech_to_text` for this variant
+   * (map.json keys; camelCase here). Undefined = the root value applies.
+   *
+   * Boot-time only: they decide which models load, so they follow the variant
+   * the page OPENS in (`bootVariantId`). A runtime switch via `set-variant` or
+   * a share link's hash does not re-evaluate them — a host that needs both
+   * behaviours embeds each variant by its own URL, as the landing pages do.
+   */
+  textToTool?: boolean;
+  speechToText?: boolean;
 }
 
 /**
@@ -599,7 +611,13 @@ function validateVariants(value: unknown): VariantsConfig | null {
       console.warn(`map.json: duplicate variant id "${id}"; skipping`);
       continue;
     }
-    items.push({ id, label: typeof label === "string" && label ? label : id });
+    const item: VariantItem = { id, label: typeof label === "string" && label ? label : id };
+    const overrides = entry as Record<string, unknown>;
+    const textToTool = variantFlag(overrides.text_to_tool, id, "text_to_tool");
+    const speechToText = variantFlag(overrides.speech_to_text, id, "speech_to_text");
+    if (textToTool !== undefined) item.textToTool = textToTool;
+    if (speechToText !== undefined) item.speechToText = speechToText;
+    items.push(item);
   }
 
   if (items.length === 0) {
@@ -619,6 +637,18 @@ function validateVariants(value: unknown): VariantsConfig | null {
   }
 
   return { default: def, items };
+}
+
+/**
+ * One variant's override of a boot flag: the boolean, or undefined when absent.
+ * A non-boolean is warned about and ignored — the root value then applies,
+ * which is the same degrade-don't-break rule as the rest of map.json.
+ */
+function variantFlag(value: unknown, id: string, key: string): boolean | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value === "boolean") return value;
+  console.warn(`map.json: variant "${id}" has invalid "${key}" ${JSON.stringify(value)}; ignoring`);
+  return undefined;
 }
 
 /** Coerce an [r,g,b] or [r,g,b,a] array of 0–255 ints into a color tuple. */
@@ -1001,15 +1031,22 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     "showVerschilkaartOnFirstUse",
     DEFAULT_MAP_CONFIG.showVerschilkaartOnFirstUse,
   );
-  const textToTool = validateBool(data.text_to_tool, "text_to_tool", DEFAULT_MAP_CONFIG.textToTool);
+  // A variant may override the two boot flags — the one the page opens in, via
+  // the same resolution initVariants uses. Applied here, BEFORE the dependency
+  // checks below, so an override is held to the same rules as the root value.
+  const variants = validateVariants(data.variants);
+  const bootVariant = variants
+    ? variants.items.find((item) => item.id === bootVariantId(variants))
+    : undefined;
+  const textToTool =
+    bootVariant?.textToTool ??
+    validateBool(data.text_to_tool, "text_to_tool", DEFAULT_MAP_CONFIG.textToTool);
   // Speech only produces text, which still needs the parser — so it cannot be
   // on by itself. A config asking for it without `text_to_tool` gets a warning
   // rather than a mic button that silently does nothing.
-  const speechRequested = validateBool(
-    data.speech_to_text,
-    "speech_to_text",
-    DEFAULT_MAP_CONFIG.speechToText,
-  );
+  const speechRequested =
+    bootVariant?.speechToText ??
+    validateBool(data.speech_to_text, "speech_to_text", DEFAULT_MAP_CONFIG.speechToText);
   if (speechRequested && !textToTool) {
     console.warn('map.json: "speech_to_text" needs "text_to_tool"; ignoring it');
   }
@@ -1098,8 +1135,6 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     );
   }
   navIconSizeValue = navIcon;
-
-  const variants = validateVariants(data.variants);
 
   return {
     center: center ?? DEFAULT_MAP_CONFIG.center,

@@ -57,6 +57,14 @@ export function registerScoreGrid(id: string, grid: ScoreGrid, colors: string[])
   grids.set(id, { grid, colors: table });
 }
 
+/**
+ * The score grid registered under `id`, for a combination used as a criterion
+ * of another — the grid is the only copy of its data.
+ */
+export function getScoreGrid(id: string): ScoreGrid | undefined {
+  return grids.get(id)?.grid;
+}
+
 /** Drop a grid once its layer is removed, so the data can be collected. */
 export function unregisterScoreGrid(id: string): void {
   grids.delete(id);

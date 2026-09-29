@@ -13,12 +13,25 @@ import { DialogContent, DialogRoot, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconColor, chromeIconSize } from "@/config/map-config";
-import { defaultScoreClasses, type LayerConfig, type ScoreClass } from "@/layers";
+import {
+  COMBINATION_STRATEGY,
+  defaultScoreClasses,
+  isFilterLayerId,
+  type LayerConfig,
+  type ScoreClass,
+} from "@/layers";
 
 /** One chosen class: a layer plus the name of one of its GeoStyler rules. */
 export interface ClassRef {
   layerId: string;
   ruleName: string;
+  /**
+   * Set only when the layer is itself a combination: the score this class
+   * stands for (1 = its first legend class). That is what identifies it — its
+   * legend label can be renamed and its class count changed by an edit, so
+   * `ruleName` is only the label at the time it was chosen, kept for display.
+   */
+  score?: number;
 }
 
 export interface CombineLayersDialogProps {
@@ -38,6 +51,21 @@ export interface CombineLayersDialogProps {
   stepFor: (layerId: string) => number | undefined;
   /** Create the combined layer from the chosen classes and its legend. */
   onCreate: (name: string, refs: ClassRef[], classes: ScoreClass[]) => void;
+  /**
+   * An existing combination to edit. Given, the dialog opens pre-filled with its
+   * name, classes and legend, and submitting calls `onSave` instead of
+   * `onCreate`. Read once, at mount — like the rest of this dialog's state.
+   */
+  initial?: CombinationDraft;
+  /** Save the edited combination. Called instead of `onCreate` when `initial` is set. */
+  onSave?: (name: string, refs: ClassRef[], classes: ScoreClass[]) => void;
+}
+
+/** What the dialog edits: the parts of a combination the user chose. */
+export interface CombinationDraft {
+  name: string;
+  refs: ClassRef[];
+  classes: ScoreClass[];
 }
 
 /**
@@ -45,9 +73,23 @@ export interface CombineLayersDialogProps {
  *
  * The separator is a pipe: neither a layer id nor a rule name contains one, so
  * the key stays unambiguous while staying readable in source and in devtools.
+ *
+ * A combination's class is keyed by score, not label, so a combination being
+ * edited still finds its ticks after a source's label was renamed.
  */
 function refKey(ref: ClassRef): string {
-  return `${ref.layerId}|${ref.ruleName}`;
+  return ref.score !== undefined ? `${ref.layerId}|#${ref.score}` : `${ref.layerId}|${ref.ruleName}`;
+}
+
+/**
+ * The reference a checkbox stands for. A combination's classes carry their score
+ * — the class at `index` is score `index + 1`, the order `filterLayerConfig`
+ * builds its rules in — because a label can be renamed and a score cannot.
+ */
+function classRefFor(layerId: string, ruleName: string, index: number): ClassRef {
+  return isFilterLayerId(layerId)
+    ? { layerId, ruleName, score: index + 1 }
+    : { layerId, ruleName };
 }
 
 /**
@@ -126,9 +168,16 @@ const CRITERION_HINT =
  * starts empty rather than inheriting a selection whose layers may since have
  * left the map. That is why there is no reset effect here. (React achieved the
  * same by remounting via a changing `key`.)
+ *
+ * With `initial` the same dialog edits an existing combination: the selection,
+ * legend and name start from it, and the button saves rather than creates.
  */
 export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Element {
-  const [selected, setSelected] = createSignal<ClassRef[]>([]);
+  // One-time seeds from `initial`: the dialog is mounted per opening, so these
+  // ARE the state for this opening.
+  const initial = props.initial;
+  const editing = initial !== undefined;
+  const [selected, setSelected] = createSignal<ClassRef[]>(initial?.refs ?? []);
   // Every layer starts expanded, so the classes are visible without a click.
   const [expanded, setExpanded] = createSignal<Set<string>>(
     // one-time seed: the dialog is
@@ -136,16 +185,32 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
     // eslint-disable-next-line solid/reactivity
     new Set(props.layers.map((layer) => layer.id)),
   );
-  const [name, setName] = createSignal("");
-  const [nameEdited, setNameEdited] = createSignal(false);
-  const [classes, setClasses] = createSignal<ScoreClass[]>([]);
+  const [name, setName] = createSignal(initial?.name ?? "");
+  // An edited combination whose name is still the generated one keeps following
+  // the criteria; a name the user typed at creation stays theirs.
+  const [nameEdited, setNameEdited] = createSignal(
+    // eslint-disable-next-line solid/reactivity -- one-time seed, see `initial`
+    initial ? initial.name !== autoName(props.layers, initial.refs, props.stepFor) : false,
+  );
+  const [classes, setClasses] = createSignal<ScoreClass[]>(initial?.classes ?? []);
 
   // The legend follows the criteria: a change to the selection changes how many
   // score classes exist and what they mean, so edited labels and colours would
   // no longer describe them. Unlike the name — which the user keeps once typed
   // — the preview is reset, and the panel says so.
+  //
+  // When editing, the FIRST run is skipped: it fires on mount with the seeded
+  // selection, and would overwrite the combination's own legend with defaults
+  // before the user touched anything. `selected()` is read before that return,
+  // so the effect stays subscribed to it.
+  let seedPending = editing;
   createEffect(() => {
-    setClasses(defaultScoreClasses(selected()));
+    const refs = selected();
+    if (seedPending) {
+      seedPending = false;
+      return;
+    }
+    setClasses(defaultScoreClasses(refs));
   });
 
   const generated = createMemo(() => autoName(props.layers, selected(), props.stepFor));
@@ -153,13 +218,13 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
 
   const selectedKeys = createMemo(() => new Set(selected().map(refKey)));
 
-  function toggleClass(layerId: string, ruleName: string) {
-    const key = refKey({ layerId, ruleName });
+  function toggleClass(clicked: ClassRef) {
+    const key = refKey(clicked);
     setSelected((prev) => {
       if (prev.some((ref) => refKey(ref) === key)) {
         return prev.filter((ref) => refKey(ref) !== key);
       }
-      return [...prev, { layerId, ruleName }];
+      return [...prev, clicked];
     });
   }
 
@@ -179,7 +244,7 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
     setClasses((prev) => prev.map((item, i) => (i === index ? { ...item, ...patch } : item)));
   }
 
-  function handleCreate() {
+  function handleSubmit() {
     if (selected().length === 0) return;
     // A label cleared to nothing falls back to its default rather than putting a
     // blank row in the legend.
@@ -188,7 +253,9 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
       color: item.color,
       label: item.label.trim() || defaults[index].label,
     }));
-    props.onCreate(effectiveName().trim() || generated(), selected(), legend);
+    const finalName = effectiveName().trim() || generated();
+    if (editing && props.onSave) props.onSave(finalName, selected(), legend);
+    else props.onCreate(finalName, selected(), legend);
     props.onOpenChange(false);
   }
 
@@ -200,7 +267,7 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
             <Icon name="masked_transitions_add" size={chromeIconSize()} color={chromeIconColor()} />
             {/* Same treatment as the "Themas" and "Legenda" panel headings. */}
             <DialogTitle class="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              Criteria combineren
+              {editing ? "Combinatie aanpassen" : "Criteria combineren"}
             </DialogTitle>
           </div>
           <Button
@@ -220,11 +287,11 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
           <div class="text-xs font-semibold uppercase tracking-wide text-gray-500">
             Combinatiestrategie
           </div>
-          <div class="text-sm text-gray-900">Telling van voldane criteria zonder weging</div>
+          <div class="text-sm text-gray-900">{COMBINATION_STRATEGY}</div>
         </div>
 
         <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-gray-500">
-          Naam nieuwe laag
+          {editing ? "Naam laag" : "Naam nieuwe laag"}
         </label>
         <input
           type="text"
@@ -241,7 +308,7 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
               setName(value);
             });
           }}
-          placeholder="Naam nieuwe laag"
+          placeholder={editing ? "Naam laag" : "Naam nieuwe laag"}
           class="mb-5 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-gray-400"
         />
 
@@ -278,6 +345,13 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
                             {layer.subname}
                           </span>
                         </Show>
+                        {/* Tells a combination apart from the catalogue layers
+                            beside it; its classes are its score classes. */}
+                        <Show when={isFilterLayerId(layer.id)}>
+                          <span class="block truncate text-xs text-gray-500">
+                            Combinatie
+                          </span>
+                        </Show>
                         <Show when={stepForLayer(layer, props.stepFor)}>
                           {(step) => (
                             <span class="block truncate text-xs text-gray-500">
@@ -299,17 +373,15 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
                         </div>
                         <div class="flex flex-wrap gap-x-3 gap-y-1">
                           <For each={rules()}>
-                            {(rule) => {
-                              const checked = () =>
-                                selectedKeys().has(
-                                  refKey({ layerId: layer.id, ruleName: rule.name }),
-                                );
+                            {(rule, index) => {
+                              const ref = () => classRefFor(layer.id, rule.name, index());
+                              const checked = () => selectedKeys().has(refKey(ref()));
                               return (
                                 <button
                                   type="button"
                                   role="checkbox"
                                   aria-checked={checked()}
-                                  onClick={() => toggleClass(layer.id, rule.name)}
+                                  onClick={() => toggleClass(ref())}
                                   title={CRITERION_HINT}
                                   class="flex cursor-pointer items-center gap-1.5 rounded p-1 text-left"
                                 >
@@ -378,8 +450,8 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
         </Show>
 
         <div class="flex justify-end gap-2">
-          <Button onClick={handleCreate} disabled={selected().length === 0}>
-            Laag maken
+          <Button onClick={handleSubmit} disabled={selected().length === 0}>
+            {editing ? "Wijzigingen opslaan" : "Laag maken"}
           </Button>
         </div>
       </DialogContent>

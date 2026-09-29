@@ -40,17 +40,45 @@ hook id "deploy-<slug>"             entry in /etc/webhook/hooks.json (landing + 
 /etc/nginx/.htpasswd-<slug>         basic-auth users       (map, --auth-user only)
 ```
 
-The map app runs as **two instances** for this project, differing only in which
-config overlay they build:
+The map app runs as **one instance** for this project, serving both config
+variants; the two landing pages each embed their own:
 
-| slug | host | overlay | access |
+| slug | host | builds / branch | embeds |
 |---|---|---|---|
-| `woonzorglimburg_map` | `map.woonzorglimburg.nl` | `configs/woonzorglimburg/` | public |
-| `woonzorglimburg_map_dev` | `map.dev.woonzorglimburg.nl` | `configs/woonzorglimburg_dev/` | HTTP basic auth |
+| `woonzorglimburg_map` | `map.woonzorglimburg.nl` | `configs/woonzorglimburg/` (variants `publiek`, `ontwikkel`), `main` | — |
+| `woonzorglimburg_landing_publiek` | `woonzorglimburg.nl` | landing repo `main` | map, `?variant=publiek` |
+| `woonzorglimburg_landing_ontwikkel` | *(not documented; see the nginx site on the server)* | landing repo `ontwikkel` | map, `?variant=ontwikkel` |
 
-Both track `main` and rebuild on the same push, each via its own webhook. The
-deploy-coalescing `flock`s are per-slug, so the two builds run concurrently — the
-first thing to look at if the VM struggles during a deploy.
+All are public: the staging (`ontwikkel`) variant is served by the same site as
+`publiek`, so it cannot be put behind basic auth — see `configs/README.md`.
+Until September 2026 staging was a separate, password-protected map instance
+(`woonzorglimburg_map_dev`, `map.dev.woonzorglimburg.nl`).
+
+The ontwikkel landing's host name is deliberately kept out of this repository.
+
+`dev.woonzorglimburg.nl` is retired and deliberately **not** redirected to its
+successor; no site serves it. Names no site serves are refused at the TLS
+handshake by the `000_catch_all` default server, rather than answered with
+another site's certificate.
+
+**woonzorglimburg.nl is in maintenance** (`woonzorglimburg_maintenance`, a 503 page
+that also proxies `/hooks/`, so pushes to `main` still deploy the landing).
+`woonzorglimburg_landing_publiek` is provisioned but its site is **not enabled and
+has no 443 block**: certbot installed its certificate (`woonzorglimburg.nl-0001`)
+into the maintenance site, the one holding the domain at the time. To go live,
+do not just symlink it — re-run the setup instead, which installs TLS into it:
+
+```bash
+sudo rm /etc/nginx/sites-enabled/woonzorglimburg_maintenance && sudo systemctl reload nginx
+./setup_landing_page.sh -y --slug woonzorglimburg_landing_publiek \
+  --host woonzorglimburg.nl --alias www.woonzorglimburg.nl \
+  --repo git@github.com:ObjectVision/woonzorglimburg_landing.git --branch main \
+  --embed-host https://map.woonzorglimburg.nl --embed-host https://app.powerbi.com \
+  --embed-port 5176 --secret <its current hook secret> --email info@objectvision.nl
+```
+
+Pass the current secret (from `/etc/webhook/hooks.json`), or the GitHub webhook
+stops validating.
 
 Shared infrastructure is installed once and reused by every instance:
 
@@ -165,8 +193,6 @@ www.kanskaartthuisgeven.nl.   AAAA  <server IPv6>
 woonzorglimburg.nl.           AAAA  <server IPv6>
 www.woonzorglimburg.nl.       AAAA  <server IPv6>
 map.woonzorglimburg.nl.       AAAA  <server IPv6>
-map.dev.woonzorglimburg.nl.   AAAA  <server IPv6>
-dev.woonzorglimburg.nl.       AAAA  <server IPv6>
 data.woonzorglimburg.nl.      AAAA  <server IPv6>
 ```
 

@@ -11,10 +11,12 @@
 #
 # Example (fully non-interactive):
 #   ./setup_landing_page.sh -y \
-#       --slug woonzorglimburg_landing \
+#       --slug woonzorglimburg_landing_publiek \
 #       --host woonzorglimburg.nl --alias www.woonzorglimburg.nl \
-#       --repo git@github.com:ObjectVision/woonzorglimburg_landing.git \
-#       --email eoudejans@objectvision.nl
+#       --repo git@github.com:ObjectVision/woonzorglimburg_landing.git --branch main \
+#       --embed-host https://map.woonzorglimburg.nl --embed-host https://app.powerbi.com \
+#       --embed-port 5176 \
+#       --email info@objectvision.nl
 
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -28,7 +30,7 @@ ${_C_BOLD}setup_landing_page.sh${_C_RESET} — provision a Hugo landing page ins
 Usage: $0 [options]
 
 Options:
-$(print_kv "--slug NAME"          "instance id, namespaces all paths (e.g. woonzorglimburg_landing)")
+$(print_kv "--slug NAME"          "instance id, namespaces all paths (e.g. woonzorglimburg_landing_publiek)")
 $(print_kv "--host HOST"          "primary hostname (e.g. woonzorglimburg.nl)")
 $(print_kv "--alias HOST"         "extra hostname that 301s to primary; repeatable (e.g. www.woonzorglimburg.nl)")
 $(print_kv "--embed-host URL"     "origin this page may <iframe> (CSP frame-src); repeatable (e.g. https://map.startanalyse2026.nl)")
