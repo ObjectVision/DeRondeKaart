@@ -1449,8 +1449,12 @@ function App(rawProps: AppProps): JSX.Element {
             y={popupPoint()!.y}
             title={pickResult() ? "Details" : "Street View"}
             onClose={closePopup}
-            wide={
-              pickResult() ? resultUsesPblSummary(pickResult()!, pickEntries()) : false
+            size={
+              pickResult()
+                ? resultUsesPblSummary(pickResult()!, pickEntries())
+                  ? "wide"
+                  : "default"
+                : "compact"
             }
           >
             <Show when={pickResult()}>

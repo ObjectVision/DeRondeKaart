@@ -154,6 +154,17 @@ describe("FeatureInfo gemeente datapakket", () => {
     );
   }
 
+  /**
+   * A year label in the Downloads row, or null.
+   *
+   * Scoped past the PBL summary's own tab strip, which under the comparison
+   * variant carries tabs with these exact two labels — so a bare
+   * `getByText("ASA2025")` matches twice and throws.
+   */
+  function yearLabel(year: string): HTMLElement | null {
+    return screen.queryAllByText(year).find((el) => !el.closest('[role="tab"]')) ?? null;
+  }
+
   beforeEach(() => {
     window.history.replaceState({}, "", "/");
   });
@@ -167,8 +178,8 @@ describe("FeatureInfo gemeente datapakket", () => {
     useVariant("2025");
     renderInfo();
 
-    expect(screen.getByText("ASA2025")).toBeTruthy();
-    expect(screen.queryByText("ASA2026")).toBeNull();
+    expect(yearLabel("ASA2025")).toBeTruthy();
+    expect(yearLabel("ASA2026")).toBeNull();
 
     const links = gemeenteLinks();
     expect(links).toHaveLength(1);
@@ -182,8 +193,8 @@ describe("FeatureInfo gemeente datapakket", () => {
     useVariant("2026");
     renderInfo();
 
-    expect(screen.getByText("ASA2026")).toBeTruthy();
-    expect(screen.queryByText("ASA2025")).toBeNull();
+    expect(yearLabel("ASA2026")).toBeTruthy();
+    expect(yearLabel("ASA2025")).toBeNull();
 
     const links = gemeenteLinks();
     expect(links).toHaveLength(1);
@@ -197,8 +208,8 @@ describe("FeatureInfo gemeente datapakket", () => {
     useVariant("2025_2026");
     renderInfo();
 
-    expect(screen.getByText("ASA2025")).toBeTruthy();
-    expect(screen.getByText("ASA2026")).toBeTruthy();
+    expect(yearLabel("ASA2025")).toBeTruthy();
+    expect(yearLabel("ASA2026")).toBeTruthy();
 
     const hrefs = gemeenteLinks().map((a) => a.getAttribute("href"));
     expect(hrefs).toEqual([
@@ -237,7 +248,7 @@ describe("FeatureInfo gemeente datapakket", () => {
       "https://dataportaal.pbl.nl/Startanalyse_aardgasvrije_buurten/2026/Gemeentes/Ameland.zip",
     ]);
     // ...and 2025 is present but rendered as unavailable rather than dropped.
-    expect(screen.getByText("ASA2025")).toBeTruthy();
+    expect(yearLabel("ASA2025")).toBeTruthy();
     expect(
       screen.getByLabelText("Geen datapakket ASA2025 beschikbaar voor deze gemeente"),
     ).toBeTruthy();
