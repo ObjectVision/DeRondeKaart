@@ -173,8 +173,11 @@ export function StreetView(props: StreetViewProps): JSX.Element {
         </div>
       </Show>
 
-      {/* Body */}
-      <div class={`relative h-40 overflow-hidden rounded-b-lg ${props.embedded ? "w-full" : "w-72"}`}>
+      {/* Body — 4:3, driven by the width. A fixed height made this a letterbox
+          strip inside the popup window. */}
+      <div
+        class={`relative aspect-[4/3] overflow-hidden rounded-b-lg ${props.embedded ? "w-full" : "w-72"}`}
+      >
         <div ref={container} class="absolute inset-0" />
         <Show when={status() !== "ok"}>
           <div class="absolute inset-0 flex items-center justify-center px-3 text-center text-xs text-gray-400">

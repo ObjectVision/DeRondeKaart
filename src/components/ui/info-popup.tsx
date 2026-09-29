@@ -10,13 +10,34 @@ interface InfoPopupProps {
   title: string;
   onClose: () => void;
   children: JSX.Element;
-  /**
-   * Size the window around an embedded viewer rather than an attribute table.
-   * PBL's summary lays out at a fixed 750px wide whatever room it is given, so
-   * this fits that exactly instead of framing it in empty space.
-   */
-  wide?: boolean;
+  /** How wide the window opens; see SIZE_CLASS. Defaults to `"default"`. */
+  size?: InfoPopupSize;
 }
+
+/** The window sizes, named for the content each one is cut to. */
+export type InfoPopupSize = "default" | "wide" | "compact";
+
+/**
+ * Width and height cap per size. One table rather than a boolean per shape, so
+ * the sizes stay mutually exclusive as more of them appear.
+ *
+ * The viewport clamp on the two explicit widths keeps a phone-width screen from
+ * pushing the window off its own edge; `w-150` is already under that.
+ */
+const SIZE_CLASS: Record<InfoPopupSize, string> = {
+  /** An attribute table. */
+  default: "w-150 max-h-[35vh]",
+  /**
+   * PBL's summary, which lays out at a fixed 750px wide whatever room it is
+   * given, so this fits it exactly instead of framing it in empty space.
+   */
+  wide: "w-[min(750px,calc(100vw-2rem))] max-h-[90vh]",
+  /**
+   * An embedded viewer that sizes itself by aspect ratio — Street View. Sized
+   * to the panorama rather than to a table, which left it a 600x160 letterbox.
+   */
+  compact: "w-[min(400px,calc(100vw-2rem))] max-h-[80vh]",
+};
 
 /** Gap between the pointer and the popup, and between popup and viewport edge. */
 const POINTER_OFFSET = 12;
@@ -220,7 +241,7 @@ export function InfoPopup(props: InfoPopupProps): JSX.Element {
       ref={el}
       class={
         "absolute z-40 flex flex-col rounded-2xl bg-white/95 shadow-md backdrop-blur-sm " +
-        (props.wide ? "w-[min(750px,calc(100vw-2rem))] max-h-[90vh]" : "w-150 max-h-[35vh]")
+        SIZE_CLASS[props.size ?? "default"]
       }
       style={{ left: `${props.x}px`, top: `${props.y + POINTER_OFFSET}px` }}
     >
