@@ -177,7 +177,13 @@ html, body {
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  /* Focus ring colour for the Button primitive, which carries `outline-none`
+     plus `focus-visible:ring-ring/50` for all 43 of its call sites
+     (button-variants.ts). Follows the project's chrome accent, so the ring
+     matches the theme instead of shadcn's neutral grey — the same
+     `--chrome-icon-color` the global :focus-visible outline uses, with the same
+     fallback for before map.json has loaded. */
+  --ring: var(--chrome-icon-color, #3e74a7);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -212,7 +218,8 @@ html, body {
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  /* As in the light theme: the accent, not shadcn's grey. */
+  --ring: var(--chrome-icon-color, #3e74a7);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
@@ -249,13 +256,19 @@ html, body {
      `:focus-visible` rather than `:focus`, so a mouse click on a button does not
      paint a ring the pointer user has no use for.
 
-     Colour is the brand blue (#3E74A7, 4.93:1 on white), which already clears
-     the 3:1 non-text contrast minimum. Hardcoded rather than read from
-     map.json's `chromeIconColor`: this is a static stylesheet and the per-project
-     value is only known at runtime. The offset keeps the ring clear of the
-     element's own border so both stay legible. */
+     The colour follows the project's own chrome accent (map.json
+     `chromeIconColor`), published as `--chrome-icon-color` by loadMapConfig —
+     so the ring matches the theme it sits in rather than being a blue that
+     belongs to one project. The fallback is the same default map-config uses,
+     covering the moment before map.json has loaded.
+
+     NOTE: a pale `chromeIconColor` would weaken this indicator. WCAG 1.4.11
+     wants 3:1 against the adjacent background, and the default #3E74A7 gives
+     4.93:1 on white — check any new accent against that before shipping it.
+     The offset keeps the ring clear of the element's own border so both stay
+     legible. */
   :focus-visible {
-    outline: 2px solid #3e74a7;
+    outline: 2px solid var(--chrome-icon-color, #3e74a7);
     outline-offset: 2px;
   }
 }

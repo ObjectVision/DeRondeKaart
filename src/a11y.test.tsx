@@ -113,4 +113,56 @@ describe("accessibility — document", () => {
     // English pronunciation to all of it (WCAG 3.1.1).
     expect(html).toContain('<html lang="nl">');
   });
+
+  /**
+   * F6: the focus ring takes the project's chrome accent, which only a CSS
+   * custom property can carry from runtime config into a static stylesheet.
+   *
+   * Both halves are pinned because either failing alone is silent: drop the
+   * `setProperty` and every project falls back to the default blue; drop the
+   * `var()` and the accent is published but unread.
+   */
+  it("bridges the chrome accent into CSS for the focus ring", async () => {
+    const fs = await import("node:fs/promises");
+    const [css, config] = await Promise.all([
+      fs.readFile("src/index.css", "utf-8"),
+      fs.readFile("src/config/map-config.ts", "utf-8"),
+    ]);
+
+    expect(config).toContain('setProperty("--chrome-icon-color"');
+    expect(css).toContain("var(--chrome-icon-color, #3e74a7)");
+  });
+
+  /**
+   * The Button primitive does NOT use the global outline: it sets `outline-none`
+   * and draws its own `focus-visible:ring-ring/50` (button-variants.ts), which
+   * covers 43 call sites. That ring reads `--ring`, which shadcn ships as a
+   * neutral grey — so the accent has to reach this variable too, or every button
+   * in the app focuses grey while everything else focuses in-theme.
+   */
+  it("points the Button ring variable at the chrome accent, not shadcn grey", async () => {
+    const fs = await import("node:fs/promises");
+    const css = await fs.readFile("src/index.css", "utf-8");
+
+    const ringDecls = css.match(/^\s*--ring:.*$/gm) ?? [];
+    // Both themes, light and dark.
+    expect(ringDecls).toHaveLength(2);
+    for (const decl of ringDecls) {
+      expect(decl).toContain("var(--chrome-icon-color");
+    }
+  });
+
+  /**
+   * The ring must be drawn at FULL strength. Stock shadcn ships `ring-ring/50`,
+   * but at 50% opacity the accent composites to 2.02:1 on white against the 3:1
+   * floor of WCAG 1.4.11 — and since the same class sets `outline-none`, this
+   * ring is the only focus indicator the button has.
+   */
+  it("draws the Button focus ring at full opacity", async () => {
+    const fs = await import("node:fs/promises");
+    const variants = await fs.readFile("src/components/ui/button-variants.ts", "utf-8");
+
+    expect(variants).toContain("focus-visible:ring-ring");
+    expect(variants).not.toContain("focus-visible:ring-ring/");
+  });
 });

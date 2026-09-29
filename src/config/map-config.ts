@@ -1123,6 +1123,21 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
   }
   chromeIconColorValue = chromeColor;
 
+  // Publish the chrome colour to CSS as well as to JS callers.
+  //
+  // Static stylesheets cannot call `chromeIconColor()`, but they can read a
+  // custom property, so this is the one bridge between the per-project runtime
+  // value and rules that have to live in index.css. The keyboard focus ring
+  // (`:focus-visible`) is the current consumer: it must match the project's
+  // accent rather than a hardcoded blue, and there is no Tailwind utility that
+  // can carry a runtime value.
+  //
+  // Guarded for the non-DOM contexts this module is also parsed in (tests,
+  // the dashboard's node-side render).
+  if (typeof document !== "undefined") {
+    document.documentElement.style.setProperty("--chrome-icon-color", chromeColor);
+  }
+
   // Absent stays undefined (each call site keeps its own default); a bad value
   // warns and does the same, rather than substituting a number nobody asked for.
   let navIcon: number | undefined;
