@@ -1045,7 +1045,30 @@ function App(rawProps: AppProps): JSX.Element {
         </div>
       }
     >
-      <div class="relative w-full h-full">
+      <main id="kaart" class="relative w-full h-full">
+        {/* Skip link (WCAG 2.4.1 Bypass Blocks). First focusable element in the
+            document, and hidden until it takes focus — `sr-only` lifts to a real
+            position on `focus:`, which is the standard pattern.
+
+            It targets the navigation rather than the map: the map chrome is what
+            a keyboard user has to traverse, and the map canvas itself is not yet
+            a useful focus destination (see the assessment's F2 — that is Stage 4).
+            Rendered only when the navigation exists, so it never points at
+            nothing. */}
+        <Show when={navigation()}>
+          <a
+            href="#hoofdnavigatie"
+            class="sr-only z-50 rounded-lg bg-white px-4 py-2 text-sm font-medium shadow-md focus:not-sr-only focus:absolute focus:left-4 focus:top-4"
+          >
+            Ga direct naar de kaartlagen
+          </a>
+        </Show>
+
+        {/* The document's only h1. Visually hidden because the design carries the
+            name as the logo's image alt, which is not a heading — but a page with
+            no h1 gives screen-reader users nothing to orient by (WCAG 1.3.1). */}
+        <h1 class="sr-only">de Ronde kaart</h1>
+
         <div
           class="absolute inset-0 touch-none"
           style={
@@ -1332,7 +1355,17 @@ function App(rawProps: AppProps): JSX.Element {
           )}
         </Show>
 
-        <div class="pointer-events-none absolute bottom-2 left-2 top-2 z-30 flex flex-col items-start gap-2 sm:bottom-4 sm:left-4 sm:top-4">
+        {/* `nav` landmark and the skip link's destination. Named because a page
+            may hold several navigations and an unnamed one is announced only as
+            "navigation" (WCAG 1.3.1). `tabindex={-1}` so the skip link can move
+            focus here — without it the browser scrolls but leaves focus behind,
+            and the next Tab returns to the top of the document. */}
+        <nav
+          id="hoofdnavigatie"
+          tabindex={-1}
+          aria-label="Kaartlagen en filters"
+          class="pointer-events-none absolute bottom-2 left-2 top-2 z-30 flex flex-col items-start gap-2 sm:bottom-4 sm:left-4 sm:top-4"
+        >
           <Show when={navigation()}>
             <Sidebar
               nav={nav}
@@ -1439,8 +1472,8 @@ function App(rawProps: AppProps): JSX.Element {
               />
             </Show>
           </div>
-        </div>
-        
+        </nav>
+
         <Show
           when={popupPoint() && (pickResult() || (streetview() && streetView()))}
         >
@@ -1485,7 +1518,7 @@ function App(rawProps: AppProps): JSX.Element {
             props.combinationsEnabled ? (id) => void openCombinationEditor(id) : undefined
           }
         />
-      </div>
+      </main>
     </Show>
   );
 }

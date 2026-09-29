@@ -1,4 +1,4 @@
-import { For, Show, type JSX } from "solid-js";
+import { For, Show, createUniqueId, type JSX } from "solid-js";
 import { Button } from "@/components/ui/button";
 import { NavIcon, Icon } from "@/components/ui/nav-icon";
 import { chromeIconColor, navIconSize } from "@/config/map-config";
@@ -65,6 +65,9 @@ export function NavigationSection(props: NavigationSectionProps): JSX.Element {
             // so a theme without a color in navigation.json should match the rest
             // of the interface instead of introducing a second accent.
             const accent = node.color ?? chromeIconColor();
+            // Ties the theme row to the subtree it reveals, so a screen reader
+            // can say what expanded rather than only that something did.
+            const childrenId = createUniqueId();
             return (
               <li>
                 {/* Sticky so the theme name stays visible while scrolling a long
@@ -95,6 +98,9 @@ export function NavigationSection(props: NavigationSectionProps): JSX.Element {
                     variant="ghost"
                     disabled={empty}
                     aria-expanded={empty ? undefined : expanded()}
+                    // Only while open: the region is not in the DOM otherwise,
+                    // and referencing a missing id is itself a violation.
+                    aria-controls={empty || !expanded() ? undefined : childrenId}
                     class="h-auto w-full cursor-pointer flex-row items-center justify-start gap-3 rounded-xl border border-gray-100 bg-white px-3 py-2.5 hover:bg-gray-50"
                     style={expanded() ? { "background-color": withAlpha(accent, 0.08) } : undefined}
                     onClick={() => handleToggle(node.label)}
@@ -127,7 +133,7 @@ export function NavigationSection(props: NavigationSectionProps): JSX.Element {
                 <Show when={expanded()}>
                   {/* Same indent guide BranchRow uses one level down, so nesting
                       reads identically at every depth. */}
-                  <div class="ml-3 mt-1 border-l border-gray-100 pl-1">
+                  <div id={childrenId} class="ml-3 mt-1 border-l border-gray-100 pl-1">
                     <NavTree
                       items={node.children}
                       query=""

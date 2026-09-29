@@ -6,6 +6,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  createUniqueId,
   type JSX,
 } from "solid-js";
 
@@ -337,12 +338,16 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
               {(layer) => {
                 const isOpen = () => expanded().has(layer.id);
                 const rules = () => layer.geostyler?.rules ?? [];
+                // Names the class list this row reveals, for `aria-controls`.
+                const classesId = createUniqueId();
                 return (
                   <div class="rounded-lg border border-gray-200">
                     <button
                       type="button"
                       onClick={() => toggleExpanded(layer.id)}
                       aria-expanded={isOpen()}
+                      // Only while open — the region is not rendered otherwise.
+                      aria-controls={isOpen() ? classesId : undefined}
                       class="flex w-full cursor-pointer items-center justify-between gap-2 px-3 py-2 text-left"
                     >
                       <span class="min-w-0">
@@ -374,7 +379,7 @@ export function CombineLayersDialog(props: CombineLayersDialogProps): JSX.Elemen
                       />
                     </button>
                     <Show when={isOpen()}>
-                      <div class="border-t border-gray-100 px-3 py-2">
+                      <div id={classesId} class="border-t border-gray-100 px-3 py-2">
                         <div class="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500">
                           Klassen
                         </div>
