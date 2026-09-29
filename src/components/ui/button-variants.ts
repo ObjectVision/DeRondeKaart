@@ -4,9 +4,20 @@ import { cva } from "class-variance-authority"
  * Split out of button.tsx (stock shadcn puts it there) so that file exports only
  * components: `cn()` composes these class strings at 43 call sites, and importing
  * them from the component module would drag the component in with them.
+ *
+ * The focus ring is `ring-ring`, NOT stock shadcn's `ring-ring/50`. Two changes
+ * from stock, both for WCAG 2.1 SC 1.4.11 (non-text contrast, 3:1 minimum), and
+ * both easy to "tidy" back into a failure:
+ *
+ * - `--ring` follows the project's chrome accent (see src/index.css); shadcn's
+ *   default is a neutral grey that reads as disabled rather than focused.
+ * - The `/50` is gone. At 50% opacity the accent composites to 2.02:1 on white
+ *   — below the 3:1 floor — while full strength gives 4.93:1. The ring is the
+ *   only thing marking focus here, since this class also sets `outline-none`,
+ *   so it has to carry the contrast on its own.
  */
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
