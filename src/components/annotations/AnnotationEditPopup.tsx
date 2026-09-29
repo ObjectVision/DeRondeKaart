@@ -1,4 +1,11 @@
-import { Show, createEffect, createSignal, onCleanup, type JSX } from "solid-js";
+import {
+  Show,
+  createEffect,
+  createSignal,
+  createUniqueId,
+  onCleanup,
+  type JSX,
+} from "solid-js";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/nav-icon";
 import { chromeIconSize, chromeIconColor } from "@/config/map-config";
@@ -44,6 +51,10 @@ export function AnnotationEditPopup(props: AnnotationEditPopupProps): JSX.Elemen
   let titleInput!: HTMLInputElement;
   let descriptionInput: HTMLTextAreaElement | undefined;
   const [infoOpen, setInfoOpen] = createSignal(false);
+  // The info panel renders ABOVE this popup's toolbar, so the button that opens
+  // it comes after it in the DOM. `aria-controls` is what ties the two together
+  // when proximity cannot.
+  const infoPanelId = createUniqueId();
   const [editingDescription, setEditingDescription] = createSignal(false);
   // Local drafts, seeded once — App mounts this per annotation id, and the
   // effects below adopt remote edits while the field is not focused.
@@ -133,7 +144,10 @@ export function AnnotationEditPopup(props: AnnotationEditPopupProps): JSX.Elemen
       style={{ left: `${props.x}px`, top: `${props.y - POINTER_OFFSET}px` }}
     >
       <Show when={infoOpen()}>
-        <div class="w-72 rounded-xl bg-white/95 p-3 text-xs text-gray-600 shadow-md backdrop-blur-sm">
+        <div
+          id={infoPanelId}
+          class="w-72 rounded-xl bg-white/95 p-3 text-xs text-gray-600 shadow-md backdrop-blur-sm"
+        >
           <div class="flex items-start justify-between gap-2">
             <div class="min-w-0">
               <p class="flex items-center gap-1.5 font-semibold text-gray-700">
@@ -241,6 +255,7 @@ export function AnnotationEditPopup(props: AnnotationEditPopupProps): JSX.Elemen
             title="Annotatie-informatie"
             aria-label="Annotatie-informatie"
             aria-expanded={infoOpen()}
+            aria-controls={infoOpen() ? infoPanelId : undefined}
           >
             <Icon
               name="info"

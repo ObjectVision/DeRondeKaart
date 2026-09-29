@@ -1,4 +1,4 @@
-import { For, Show, createSignal, type JSX } from "solid-js";
+import { For, Show, createSignal, createUniqueId, type JSX } from "solid-js";
 import { NavIcon, Icon } from "@/components/ui/nav-icon";
 import { hasLeaves, isLeaf, type NavItem, type NavLeaf, type NavNode } from "@/layers/navigation";
 import { chromeIconColor } from "@/config/map-config";
@@ -124,6 +124,11 @@ function BranchRow(props: BranchRowProps): JSX.Element {
   // write through to the controlled state: clearing the search must return the
   // tree to what the user actually left open, not to all-expanded.
   const expanded = () => !empty() && (props.query ? true : open());
+  // Ties the row to the subtree it reveals (`aria-controls`), so a screen reader
+  // can say WHAT expanded rather than only that something did. Generated rather
+  // than derived from `props.path`: the same tree renders in several places
+  // (sidebar, dialogs) and a path-based id would collide across them.
+  const childrenId = createUniqueId();
 
   return (
     <li>
@@ -131,6 +136,9 @@ function BranchRow(props: BranchRowProps): JSX.Element {
         onClick={() => (controlled() ? props.onToggle!(props.path) : setLocalOpen((v) => !v))}
         disabled={empty()}
         aria-expanded={empty() ? undefined : expanded()}
+        // Omitted while collapsed: the element does not exist then, and pointing
+        // at a missing id is itself a violation.
+        aria-controls={empty() || !expanded() ? undefined : childrenId}
         class={
           "flex w-full items-start gap-2 rounded px-1.5 py-1 text-left text-sm transition-colors " +
           (empty() ? "cursor-default opacity-50" : "hover:bg-gray-100")
@@ -153,7 +161,7 @@ function BranchRow(props: BranchRowProps): JSX.Element {
         </span>
       </button>
       <Show when={expanded()}>
-        <div class="ml-3 border-l border-gray-100 pl-1">
+        <div id={childrenId} class="ml-3 border-l border-gray-100 pl-1">
           <NavTree
             items={props.node.children}
             query={props.query}

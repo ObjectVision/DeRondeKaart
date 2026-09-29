@@ -165,4 +165,50 @@ describe("accessibility — document", () => {
     expect(variants).toContain("focus-visible:ring-ring");
     expect(variants).not.toContain("focus-visible:ring-ring/");
   });
+
+  /**
+   * F7 + F8: the map application had no landmark and no h1 — both h1s lived in
+   * the dashboard/print paths — so a screen-reader user had nothing to navigate
+   * by, and the skip link had no destination.
+   *
+   * Asserted against App.tsx source rather than a render: mounting App needs a
+   * WebGL context jsdom does not provide.
+   */
+  it("gives the map app a main landmark, an h1 and a skip link", async () => {
+    const fs = await import("node:fs/promises");
+    const app = await fs.readFile("src/App.tsx", "utf-8");
+
+    expect(app).toContain('<main id="kaart"');
+    expect(app).toContain('<h1 class="sr-only">');
+    // The skip link must target the nav landmark, which must be focusable for
+    // the jump to move focus and not just scroll.
+    expect(app).toContain('href="#hoofdnavigatie"');
+    expect(app).toContain('id="hoofdnavigatie"');
+    expect(app).toMatch(/<nav[\s\S]{0,200}tabindex=\{-1\}/);
+    expect(app).toMatch(/<nav[\s\S]{0,200}aria-label=/);
+  });
+
+  /**
+   * F10: `aria-expanded` tells a screen reader that something opened;
+   * `aria-controls` is what says WHAT. Each of these pairs the state with the
+   * region, and each omits the attribute while collapsed — pointing at an id
+   * that is not in the DOM is itself a violation.
+   */
+  it("pairs aria-expanded with aria-controls on the disclosure controls", async () => {
+    const fs = await import("node:fs/promises");
+    const files = [
+      "src/components/ui/navigation/NavTree.tsx",
+      "src/components/ui/sidebar/NavigationSection.tsx",
+      "src/components/ui/CombineLayersDialog.tsx",
+      "src/components/annotations/AnnotationEditPopup.tsx",
+    ];
+
+    for (const path of files) {
+      const source = await fs.readFile(path, "utf-8");
+      expect(source, `${path} should declare aria-controls`).toContain("aria-controls=");
+      // Ids come from createUniqueId, not from data: the same tree renders in
+      // several places and a label- or path-derived id would collide.
+      expect(source, `${path} should use createUniqueId`).toContain("createUniqueId");
+    }
+  });
 });
