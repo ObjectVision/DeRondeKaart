@@ -12633,7 +12633,7 @@
             ]
           },
           {
-            "name": "Niet toegekend",
+            "name": "Onbekend",
             "filter": [
               "==",
               "h20_toekenning_klimaatneutraal_gas",
