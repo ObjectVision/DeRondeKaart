@@ -77,9 +77,13 @@
    * carries the model year. Taken from <base> so each mirror page asks for
    * its own year's file rather than 2024's.
    *
-   * A guess for any year but 2024, the only one published so far - and it
-   * fails soft: an unreachable CSV rejects the promise, the .catch below
-   * reports, and PBL's own gemeente picker is left usable by hand.
+   * Confirmed against PBL's own bundles, not guessed: their 2026
+   * kaartenbak_main.js asks for gemeenten_2026.csv exactly as their 2024 one
+   * asks for gemeenten_2024.csv.
+   *
+   * It fails soft either way: an unreachable CSV rejects the promise, the
+   * .catch below reports, and PBL's own gemeente picker is left usable by
+   * hand - though with no CSV there is nothing in it to pick.
    */
   var baseYear = (document.baseURI.match(/\/startanalyse\/(\d{4})\//) || [])[1] || "2024";
   var GEMEENTE_CSV = "assets/data/csv/gemeenten_" + baseYear + ".csv";

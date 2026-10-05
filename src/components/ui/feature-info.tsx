@@ -24,6 +24,7 @@ import { chromeIconColor } from "@/config/map-config";
 import {
   buurtCodeOf,
   createPblSummaryStatus,
+  createPblYearAvailability,
   defaultPblSummaryTab,
   pblSummaryTabs,
   pblSummaryUrl,
@@ -53,6 +54,14 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
   const page = () => active().page;
 
   const status = createPblSummaryStatus(() => props.buurtCode, page);
+  /**
+   * Whether PBL has published this model year's data at all. Null while the
+   * probe runs, during which the frame loads as usual under the splash — so the
+   * working years pay no delay, and an unpublished one is swapped out before
+   * the splash lifts rather than flashing an empty viewer.
+   */
+  const available = createPblYearAvailability(() => active().dataUrl);
+  const unpublished = () => available() === false;
 
   return (
     <Show
@@ -86,35 +95,65 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
               InfoPopup re-places itself on every resize, so a placeholder that
               grew or shrank would make the window jump when it went away. */}
           <div id={panelId} role="tabpanel" class="relative h-[78vh] w-full">
-            <iframe
-              src={pblSummaryUrl(code(), page())}
-              title="Samenvatting Startanalyse"
-              class="h-full w-full border-0"
-            />
-            <Show when={status() === "loading"}>
-              {/* The app's own mark, matching the boot splash. /logo.svg is
-                  preloaded in index.html, so it is warm in cache and paints at
-                  once — a splash that itself flickered would defeat the point.
-                  `pointer-events-none` keeps it purely visual; it covers the
-                  frame only while there is nothing there to click. */}
+            <Show
+              when={unpublished()}
+              fallback={
+                <>
+                  <iframe
+                    src={pblSummaryUrl(code(), page())}
+                    title="Samenvatting Startanalyse"
+                    class="h-full w-full border-0"
+                  />
+                  <Show when={status() === "loading"}>
+                    {/* The app's own mark, matching the boot splash. /logo.svg is
+                        preloaded in index.html, so it is warm in cache and paints at
+                        once — a splash that itself flickered would defeat the point.
+                        `pointer-events-none` keeps it purely visual; it covers the
+                        frame only while there is nothing there to click. */}
+                    <div
+                      class="pointer-events-none absolute inset-0 flex items-center justify-center bg-white"
+                      role="status"
+                      aria-label="Samenvatting wordt geladen"
+                    >
+                      <img src="/logo.svg" alt="" class="w-[min(60%,320px)]" draggable={false} />
+                    </div>
+                  </Show>
+                </>
+              }
+            >
+              {/* PBL has put this year's viewer online without its data, so the
+                  frame would show an empty shell with nothing selectable. Say
+                  so instead. Fills the same height as the frame, so swapping it
+                  in does not resize the popup and move it under the cursor. */}
               <div
-                class="pointer-events-none absolute inset-0 flex items-center justify-center bg-white"
+                class="flex h-full w-full flex-col items-center justify-center gap-2 px-6 text-center"
                 role="status"
-                aria-label="Samenvatting wordt geladen"
               >
-                <img src="/logo.svg" alt="" class="w-[min(60%,320px)]" draggable={false} />
+                <p class="text-sm text-gray-700">
+                  Het PBL heeft de samenvatting van de {active().label} nog niet gepubliceerd.
+                </p>
+                <Show when={tabs().length > 1}>
+                  <p class="text-xs text-gray-500">
+                    Bekijk de samenvatting van een eerdere Startanalyse via de tabbladen
+                    hierboven.
+                  </p>
+                </Show>
               </div>
             </Show>
           </div>
-          {/* Outside the frame wrapper, so the splash never covers the way out. */}
-          <a
-            href={pblSummaryUrl(code(), page())}
-            target="_blank"
-            rel="noreferrer"
-            class="px-3 py-1 text-right text-xs text-blue-600 underline"
-          >
-            Openen in nieuw tabblad
-          </a>
+          {/* Outside the frame wrapper, so the splash never covers the way out.
+              Hidden when the year is unpublished: it would open the same empty
+              viewer in a tab of its own. */}
+          <Show when={!unpublished()}>
+            <a
+              href={pblSummaryUrl(code(), page())}
+              target="_blank"
+              rel="noreferrer"
+              class="px-3 py-1 text-right text-xs text-blue-600 underline"
+            >
+              Openen in nieuw tabblad
+            </a>
+          </Show>
           <DownloadsSection buurtCode={code()} />
         </div>
       )}

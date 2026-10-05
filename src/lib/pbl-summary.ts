@@ -13,6 +13,23 @@ import type { LayerEntry } from "@/hooks/use-map-layers";
 const PBL_PAGE_2024 = "/pbl-samenvatting.html";
 const PBL_PAGE_2026 = "/pbl-samenvatting-2026.html";
 
+/**
+ * The file whose presence proves PBL has published a model year's DATA, not
+ * just its code.
+ *
+ * The gemeente table specifically, because it is the first thing their bundle
+ * loads and the one whose absence is visible: the viewer fills its gemeente
+ * dropdown from it, and without it the page offers nothing to select — by us or
+ * by hand.
+ *
+ * This is not hypothetical. PBL published the 2026 viewer's scripts and
+ * stylesheets while its entire `assets/data/` tree 404s, so their own page is
+ * as empty as our mirror of it. See {@link pblYearPublished}.
+ */
+const PBL_DATA_BASE = "https://infographics.pbl.nl/startanalyse";
+const PBL_DATA_2024 = `${PBL_DATA_BASE}/2024/samenvatting/assets/data/csv/gemeenten_2024.csv`;
+const PBL_DATA_2026 = `${PBL_DATA_BASE}/2026/samenvatting/assets/data/csv/gemeenten_2026.csv`;
+
 /** One tab of the summary: a model year the viewer can be shown for. */
 export interface PblSummaryTab {
   /** Stable id for the tab strip. */
@@ -21,10 +38,22 @@ export interface PblSummaryTab {
   label: string;
   /** The mirror page for that PBL year. */
   page: string;
+  /** PBL file that exists only once this year's data is published. */
+  dataUrl: string;
 }
 
-const ASA2025: PblSummaryTab = { id: "asa2025", label: "ASA2025", page: PBL_PAGE_2024 };
-const ASA2026: PblSummaryTab = { id: "asa2026", label: "ASA2026", page: PBL_PAGE_2026 };
+const ASA2025: PblSummaryTab = {
+  id: "asa2025",
+  label: "ASA2025",
+  page: PBL_PAGE_2024,
+  dataUrl: PBL_DATA_2024,
+};
+const ASA2026: PblSummaryTab = {
+  id: "asa2026",
+  label: "ASA2026",
+  page: PBL_PAGE_2026,
+  dataUrl: PBL_DATA_2026,
+};
 
 /**
  * The summary tabs for a config variant, in the order they are shown. One entry
@@ -57,6 +86,76 @@ export function pblSummaryTabs(variant: string | null): PblSummaryTab[] {
  */
 export function defaultPblSummaryTab(tabs: PblSummaryTab[]): PblSummaryTab {
   return tabs[tabs.length - 1];
+}
+
+/**
+ * Resolved probes, keyed by URL. Keyed by URL and NOT by layer id, so it is
+ * deliberately not registered with `registerVariantScopedCache`: the answer is
+ * a property of PBL's server, not of the active config variant, and clearing it
+ * on every variant switch would re-ask for nothing.
+ */
+const publishedCache = new Map<string, Promise<boolean>>();
+
+/** Test seam: drop the memoised probes. */
+export function clearPblPublishedCache(): void {
+  publishedCache.clear();
+}
+
+/**
+ * Whether PBL has published the DATA for a model year, by asking for the one
+ * file named in {@link PblSummaryTab.dataUrl}.
+ *
+ * **Fails open.** Only 404 and 410 — the server positively saying the file is
+ * not there — count as unpublished. A thrown fetch (offline, DNS, CORS) or any
+ * other status (403, 405, 5xx) resolves true, because "we could not ask" must
+ * never hide a viewer that works. Getting this backwards would blank the 2024
+ * summary on a flaky connection, which is far worse than briefly showing an
+ * empty 2026 one.
+ *
+ * HEAD rather than GET: the gemeente table is a real download and nothing here
+ * reads its body. PBL answers HEAD with `access-control-allow-origin: *`.
+ */
+export function pblYearPublished(dataUrl: string): Promise<boolean> {
+  const cached = publishedCache.get(dataUrl);
+  if (cached) return cached;
+
+  const probe = fetch(dataUrl, { method: "HEAD" })
+    .then((response) => !(response.status === 404 || response.status === 410))
+    .catch(() => true);
+  publishedCache.set(dataUrl, probe);
+  return probe;
+}
+
+/**
+ * The probe's answer for the active tab: null while it is in flight, then true
+ * or false.
+ *
+ * Call inside a reactive owner. Switching tabs re-probes, and a resolution that
+ * arrives after the tab moved on is dropped — otherwise the old year's verdict
+ * would land on the new year's frame, which is exactly the kind of failure that
+ * shows up as a correct-looking page with the wrong content behind it.
+ */
+export function createPblYearAvailability(
+  dataUrl: Accessor<string>,
+): Accessor<boolean | null> {
+  const [available, setAvailable] = createSignal<boolean | null>(null);
+
+  createEffect(() => {
+    // Read before anything can return early, so the effect stays subscribed.
+    const url = dataUrl();
+    setAvailable(null);
+
+    let current = true;
+    onCleanup(() => {
+      current = false;
+    });
+
+    void pblYearPublished(url).then((published) => {
+      if (current) setAvailable(published);
+    });
+  });
+
+  return available;
 }
 
 /**
