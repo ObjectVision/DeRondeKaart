@@ -11,18 +11,25 @@
       file's header explains why a local copy exists at all; only the base URL
       differs here.
 
-      !! THE MARKUP AND SCRIPT LIST BELOW ARE UNVERIFIED. !!
+      The markup and script list below are VERIFIED against PBL's published
+      2026 page: they match it exactly, bar our own two scripts above and
+      iframeResizer.contentWindow.min.js, which is PBL's embedding helper and
+      rightly omitted. (This file began as an unverified copy of the 2024 page,
+      written while /startanalyse/2026/ still answered 404. It turned out to be
+      correct — their 2026 bundle is byte-identical to 2024's apart from the
+      gemeente CSV filename.)
 
-      PBL has not published the 2026 viewer: at the time of writing
-      https://infographics.pbl.nl/startanalyse/2026/samenvatting/ answers 404,
-      while 2024 is live. Everything below is therefore a COPY of the 2024 page,
-      kept so the app can already point a variant at 2026 — the frame renders
-      PBL's markup unstyled until their assets exist.
+      WHAT IS MISSING IS PBL'S DATA, NOT THEIR CODE. Every path under
+      /startanalyse/2026/samenvatting/assets/data/ answers 404 — the gemeente
+      table, the gemeente and buurt polygons, the point sources — while the
+      2024 equivalents are served. Their own 2026 page is therefore as empty as
+      this mirror of it: the gemeente dropdown never fills and nothing can be
+      selected, by us or by hand.
 
-      When the 2026 viewer does go live, diff this file against it before
-      trusting it: the <body> markup, the script list and the gemeente CSV year
-      that public/pbl-buurt-select.js derives from <base> are all guesses until
-      then. A page there is no guarantee its structure matches 2024's.
+      The app does not frame this page while that is true. pblYearPublished()
+      in src/lib/pbl-summary.ts asks for the gemeente table and shows a "not yet
+      published" message instead, so the day PBL uploads the data this starts
+      working on its own, with no code change.
     -->
     <!-- Our own two scripts are external rather than inline so the server's
          `script-src 'self'` covers them without 'unsafe-inline' or a sha256 hash

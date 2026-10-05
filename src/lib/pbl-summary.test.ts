@@ -1,13 +1,16 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createRoot, createSignal } from "solid-js";
 
 import {
   buurtCodeOf,
+  clearPblPublishedCache,
   createPblSummaryStatus,
+  createPblYearAvailability,
   defaultPblSummaryTab,
   pblStatusFromMessage,
   pblSummaryTabs,
   pblSummaryUrl,
+  pblYearPublished,
   PBL_SUMMARY_TIMEOUT_MS,
 } from "@/lib/pbl-summary";
 
@@ -84,6 +87,7 @@ describe("pblSummaryTabs", () => {
     expect(tabs).toHaveLength(1);
     expect(tabs[0].label).toBe("ASA2025");
     expect(tabs[0].page).toBe("/pbl-samenvatting.html");
+    expect(tabs[0].dataUrl).toContain("/startanalyse/2024/");
   });
 
   it("shows PBL 2026 for the 2026 variant", () => {
@@ -91,6 +95,18 @@ describe("pblSummaryTabs", () => {
     expect(tabs).toHaveLength(1);
     expect(tabs[0].label).toBe("ASA2026");
     expect(tabs[0].page).toBe("/pbl-samenvatting-2026.html");
+    expect(tabs[0].dataUrl).toContain("/startanalyse/2026/");
+  });
+
+  /**
+   * The probe is only meaningful if each tab asks about its OWN year. Two tabs
+   * sharing one dataUrl would make an unpublished year look published — the
+   * failure this whole mechanism exists to catch.
+   */
+  it("gives each year its own data probe, naming that year's gemeente table", () => {
+    const [asa2025, asa2026] = pblSummaryTabs("2025_2026");
+    expect(asa2025.dataUrl).toMatch(/\/2024\/samenvatting\/.*gemeenten_2024\.csv$/);
+    expect(asa2026.dataUrl).toMatch(/\/2026\/samenvatting\/.*gemeenten_2026\.csv$/);
   });
 
   it("offers both years for the comparison variant, oldest first", () => {
@@ -115,6 +131,190 @@ describe("pblSummaryTabs", () => {
     const tabs = pblSummaryTabs(variant);
     expect(tabs).toHaveLength(1);
     expect(tabs[0].page).toBe("/pbl-samenvatting.html");
+  });
+});
+
+/**
+ * The probe exists because PBL published the 2026 viewer's CODE with none of
+ * its DATA: every assets/data/** path 404s while 2024's are served, so framing
+ * it shows an empty shell with nothing selectable.
+ *
+ * The direction that matters is the fail-open one. Reading "we could not ask"
+ * as "not published" would blank the WORKING 2024 summary whenever the network
+ * hiccups — a far worse failure than briefly framing an empty 2026 one, and an
+ * invisible one, since an offline user has no way to tell the two apart.
+ */
+describe("pblYearPublished", () => {
+  const URL_A = "https://infographics.pbl.nl/a/gemeenten_2026.csv";
+
+  beforeEach(() => {
+    clearPblPublishedCache();
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    clearPblPublishedCache();
+    vi.restoreAllMocks();
+  });
+
+  function answer(init: { status: number } | Error) {
+    const mock = vi.fn(() =>
+      init instanceof Error ? Promise.reject(init) : Promise.resolve({ status: init.status }),
+    );
+    vi.stubGlobal("fetch", mock);
+    return mock;
+  }
+
+  it("reads a 200 as published", async () => {
+    answer({ status: 200 });
+    await expect(pblYearPublished(URL_A)).resolves.toBe(true);
+  });
+
+  it.each([404, 410])("reads a %i as not published", async (status) => {
+    answer({ status });
+    await expect(pblYearPublished(URL_A)).resolves.toBe(false);
+  });
+
+  // Fail open: the server answered, but not with "it is not there".
+  it.each([403, 405, 500, 503])("treats %i as published", async (status) => {
+    answer({ status });
+    await expect(pblYearPublished(URL_A)).resolves.toBe(true);
+  });
+
+  // Offline, DNS failure, CORS — fetch rejects rather than answering.
+  it("treats an unreachable server as published", async () => {
+    answer(new TypeError("Failed to fetch"));
+    await expect(pblYearPublished(URL_A)).resolves.toBe(true);
+  });
+
+  it("asks with HEAD, not GET — nothing here reads the body", async () => {
+    const mock = answer({ status: 200 });
+    await pblYearPublished(URL_A);
+    expect(mock).toHaveBeenCalledWith(URL_A, { method: "HEAD" });
+  });
+
+  /**
+   * Switching tabs back and forth must not re-ask: the answer is a property of
+   * PBL's server, not of anything the user just did.
+   */
+  it("asks once per URL", async () => {
+    const mock = answer({ status: 404 });
+    await Promise.all([pblYearPublished(URL_A), pblYearPublished(URL_A)]);
+    await pblYearPublished(URL_A);
+    expect(mock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("createPblYearAvailability", () => {
+  const URL_2024 = "https://infographics.pbl.nl/2024.csv";
+  const URL_2026 = "https://infographics.pbl.nl/2026.csv";
+
+  beforeEach(() => {
+    clearPblPublishedCache();
+    vi.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    clearPblPublishedCache();
+    vi.restoreAllMocks();
+  });
+
+  /** Let queued Solid effects run and any settled promise continue. */
+  const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  /**
+   * Resolve each URL with its own status, but only when the test says so, so a
+   * probe can be left in flight while the active tab moves on.
+   */
+  function router(byUrl: Record<string, number>) {
+    const pending: Array<{ url: string; answer: () => void }> = [];
+    const fetchMock = vi.fn(
+      (url: string) =>
+        new Promise<{ status: number }>((resolve) => {
+          pending.push({ url, answer: () => resolve({ status: byUrl[url] ?? 200 }) });
+        }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    return {
+      /** Answer every request issued so far. */
+      release: async () => {
+        pending.splice(0).forEach((entry) => entry.answer());
+        await tick();
+      },
+      /** Answer only the request for `url`, so answers can arrive out of order. */
+      releaseUrl: async (url: string) => {
+        for (let i = pending.length - 1; i >= 0; i -= 1) {
+          if (pending[i].url === url) pending.splice(i, 1)[0].answer();
+        }
+        await tick();
+      },
+      fetchMock,
+    };
+  }
+
+  it("is null until the probe answers, then reports it", async () => {
+    const net = router({ [URL_2026]: 404 });
+    await createRoot(async (dispose) => {
+      const available = createPblYearAvailability(() => URL_2026);
+      expect(available()).toBeNull();
+      await tick();
+      // The request is out but unanswered: still nothing to report.
+      expect(available()).toBeNull();
+
+      await net.release();
+      expect(available()).toBe(false);
+      dispose();
+    });
+  });
+
+  it("re-probes when the tab changes", async () => {
+    const net = router({ [URL_2024]: 200, [URL_2026]: 404 });
+    await createRoot(async (dispose) => {
+      const [url, setUrl] = createSignal(URL_2026);
+      const available = createPblYearAvailability(url);
+      await tick();
+      await net.release();
+      expect(available()).toBe(false);
+
+      setUrl(URL_2024);
+      await tick();
+      expect(available()).toBeNull();
+      await net.release();
+      expect(available()).toBe(true);
+      dispose();
+    });
+  });
+
+  /**
+   * The silent one. A slow probe for the year the user just left must not land
+   * on the year they are now looking at — that is how an unpublished year ends
+   * up rendering a frame, with nothing on screen to say the answer was stale.
+   *
+   * The 2024 probe is issued first and answers LAST, so a version that just
+   * assigns whatever arrives would end on `true` and frame the empty viewer.
+   */
+  it("ignores an answer for a tab that is no longer active", async () => {
+    const net = router({ [URL_2024]: 200, [URL_2026]: 404 });
+    await createRoot(async (dispose) => {
+      const [url, setUrl] = createSignal(URL_2024);
+      const available = createPblYearAvailability(url);
+      await tick();
+
+      setUrl(URL_2026);
+      await tick();
+      expect(net.fetchMock).toHaveBeenCalledTimes(2);
+
+      // The active tab answers first...
+      await net.releaseUrl(URL_2026);
+      expect(available()).toBe(false);
+
+      // ...and the abandoned one answers after, with the opposite verdict. It
+      // must be dropped: without the guard this flips to true and the empty
+      // 2026 viewer gets framed.
+      await net.releaseUrl(URL_2024);
+      expect(available()).toBe(false);
+      dispose();
+    });
   });
 });
 
