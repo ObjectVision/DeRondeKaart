@@ -101945,12 +101945,7 @@
             "symbolizers": [
               {
                 "kind": "Fill",
-                "hatch": {
-                  "background": "#2688AE",
-                  "color": "#9D0064",
-                  "stripe": 2.83
-                },
-                "color": "#2688AE",
+                "color": "#c6b8cf",
                 "opacity": 1,
                 "outlineColor": "black",
                 "outlineWidth": 0.3,
@@ -103817,12 +103812,7 @@
             "symbolizers": [
               {
                 "kind": "Fill",
-                "hatch": {
-                  "background": "#2688AE",
-                  "color": "#9D0064",
-                  "stripe": 2.83
-                },
-                "color": "#2688AE",
+                "color": "#c6b8cf",
                 "opacity": 1,
                 "outlineColor": "black",
                 "outlineWidth": 0.3,
@@ -104064,12 +104054,7 @@
             "symbolizers": [
               {
                 "kind": "Fill",
-                "hatch": {
-                  "background": "#2688AE",
-                  "color": "#9D0064",
-                  "stripe": 2.83
-                },
-                "color": "#2688AE",
+                "color": "#c6b8cf",
                 "opacity": 1,
                 "outlineColor": "black",
                 "outlineWidth": 0.3,
