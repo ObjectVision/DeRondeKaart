@@ -202,7 +202,11 @@ log "First build (npm ci && vite build)"
   cd "$REPO_DIR"
   npm ci
   VITE_CONFIG_PROJECT="$CONFIG_PROJECT" npx --no-install vite build
-  rsync -a --delete dist/ "$WEBROOT/"
+  # --exclude: security.txt is written into the webroot as root by
+  # ensure_security_txt and is NOT part of dist/, so --delete tries to
+  # remove it, fails on permissions, and rsync exits 23 — aborting this
+  # script before nginx is written, and failing every webhook deploy.
+  rsync -a --delete --exclude /.well-known/ dist/ "$WEBROOT/"
 )
 ok "Built SPA into $WEBROOT"
 
@@ -242,7 +246,8 @@ fi
 echo "--- Build (vite build) ---"
 npx --no-install vite build
 
-rsync -a --delete dist/ $WEBROOT/
+# See the note on the first build: /.well-known/ is root-owned and not in dist/.
+rsync -a --delete --exclude /.well-known/ dist/ $WEBROOT/
 
 echo "--- Deploy finished: \$(date --iso-8601=seconds) ---"
 ' < /dev/null > /dev/null 2>&1

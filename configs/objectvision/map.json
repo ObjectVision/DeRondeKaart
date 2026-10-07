@@ -1,0 +1,44 @@
+{
+  "center": [
+    5.788017187520154,
+    51.09266041682005
+  ],
+  "zoom": 8,
+  "streetview": true,
+  "searchbar": false,
+  "navigation": true,
+  "filterSection": false,
+  "navigationSection": true,
+  "mapControls": {
+    "search": true,
+    "zoom": false,
+    "searchProvider": "pdok"
+  },
+  "chromeIconSize": 22,
+  "chromeIconColor": "#3E74A7",
+  "share": true,
+  "text_to_tool": false,
+  "speech_to_text": false,
+  "tools": [
+    "zoom_to_location",
+    "open_layer",
+    "close_layer",
+    "search_layers"
+  ],
+  "combinations": true,
+  "annotations": true,
+  "clickMarker": {
+    "icon": "location_on",
+    "enabled": false,
+    "size": 30,
+    "color": [
+      62,
+      116,
+      167,
+      255
+    ],
+    "offsetX": 0,
+    "offsetY": 0
+  },
+  "dashboard": "off"
+}
