@@ -190,6 +190,15 @@ export interface MapConfig {
    */
   variants?: VariantsConfig;
   /**
+   * URL prefixes a `?config=` base must sit under for this deployment to honour
+   * it. Empty (the default) refuses every `?config=`, which is what keeps a
+   * deployment that has not opted in from loading a stranger's config.
+   *
+   * It is read from THIS origin's built map.json, never from a remote one — see
+   * config-source.ts for why that distinction is the whole security model.
+   */
+  configSources: string[];
+  /**
    * Optional id (from layers.json) of a layer that is always loaded and pinned
    * on top of every other layer — including the basemap labels — on both maps.
    */
@@ -536,6 +545,7 @@ const MAP_CONFIG_FILE = "map.json";
 const DEFAULT_MAP_CONFIG: MapConfig = {
   center: [5.0, 52.0],
   zoom: 7,
+  configSources: [],
   streetview: false,
   searchbar: false,
   navigation: false,
@@ -575,6 +585,36 @@ function validateZoom(value: unknown): number | null {
   const z = Number(value);
   if (!Number.isFinite(z)) return null;
   return Math.max(0, Math.min(22, z));
+}
+
+/**
+ * Validate `configSources`: the URL prefixes a `?config=` base may sit under.
+ *
+ * Entries are kept as written and canonicalised at match time
+ * (config-source.ts), so an unusable one is reported where it is used rather
+ * than silently dropped here — an operator who mistyped a prefix needs to see
+ * that their allowlist did not take effect.
+ *
+ * Defaults to empty, which refuses every `?config=`. That default is the point:
+ * remote configs are opt-in per deployment, because one can execute script on
+ * this origin.
+ */
+export function validateConfigSources(value: unknown): string[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) {
+    console.warn(`map.json: invalid "configSources" ${JSON.stringify(value)}; ignoring`);
+    return [];
+  }
+  const out: string[] = [];
+  for (const raw of value) {
+    if (typeof raw === "string" && raw.trim().length > 0) {
+      const entry = raw.trim();
+      if (!out.includes(entry)) out.push(entry);
+    } else {
+      console.warn(`map.json: invalid "configSources" entry ${JSON.stringify(raw)}; ignoring`);
+    }
+  }
+  return out;
 }
 
 /**
@@ -1034,6 +1074,7 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
   // A variant may override the two boot flags — the one the page opens in, via
   // the same resolution initVariants uses. Applied here, BEFORE the dependency
   // checks below, so an override is held to the same rules as the root value.
+  const configSources = validateConfigSources(data.configSources);
   const variants = validateVariants(data.variants);
   const bootVariant = variants
     ? variants.items.find((item) => item.id === bootVariantId(variants))
@@ -1155,6 +1196,7 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     center: center ?? DEFAULT_MAP_CONFIG.center,
     zoom: zoom ?? DEFAULT_MAP_CONFIG.zoom,
     variants: variants ?? undefined,
+    configSources,
     studyarea,
     pickLayer,
     pickLayerRight,

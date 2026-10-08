@@ -29,6 +29,31 @@ const PER_VARIANT_FILES = new Set(["layers.json", "navigation.json"]);
 /** URL parameter that selects a variant at boot, e.g. `?variant=2026`. */
 export const VARIANT_PARAM = "variant";
 
+/**
+ * Base URL the config files are fetched from. Empty means this origin, which
+ * is every deployment that does not use `?config=` and is the only behaviour
+ * before that parameter existed.
+ *
+ * A plain variable, not a signal: it is resolved once in main.tsx before the
+ * first fetch and never changes afterwards. Switching config sources mid-session
+ * would mean tearing down every layer, cache and map source, which is what a
+ * page load already does.
+ */
+let configBaseValue = "";
+
+/** The active config base; `""` for this origin. See {@link setConfigBase}. */
+export function configBase(): string {
+  return configBaseValue;
+}
+
+/**
+ * Point the config loaders at `base` (already canonical and allowlisted — see
+ * config-source.ts). Must be called before anything fetches a config file.
+ */
+export function setConfigBase(base: string): void {
+  configBaseValue = base.replace(/\/+$/, "");
+}
+
 let config: VariantsConfig | null = null;
 
 // A signal, not a plain variable: the navigation tree and any other consumer
@@ -116,8 +141,10 @@ export function setVariant(id: string): boolean {
  */
 export function configPath(name: string): string {
   const id = variantId();
-  if (!id || !PER_VARIANT_FILES.has(name)) return `/${name}`;
-  return `/${id}/${name}`;
+  const suffix = !id || !PER_VARIANT_FILES.has(name) ? `/${name}` : `/${id}/${name}`;
+  // Prefixed rather than built with `new URL`, so a remote folder keeps the
+  // exact same `/<variant>/<name>.json` shape as `configs/<slug>/` on disk.
+  return configBaseValue ? `${configBaseValue}${suffix}` : suffix;
 }
 
 /**

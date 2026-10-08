@@ -1,4 +1,4 @@
-import { configPath, variantCacheKey } from "@/config/variant";
+import { configBase, configPath, variantCacheKey } from "@/config/variant";
 
 /**
  * Fetch, parse and memoize one runtime config file.
@@ -49,7 +49,10 @@ const cached = new Map<string, unknown>();
 const inFlight = new Map<string, Promise<unknown>>();
 
 function cacheKeyFor(name: string): string {
-  return `${variantCacheKey(name)}\0${name}`;
+  // The base is part of the key, not just the variant: two config sources in
+  // one session would otherwise collide on "\0layers.json", and the second
+  // would silently be served the first one's catalogue.
+  return `${configBase()}\0${variantCacheKey(name)}\0${name}`;
 }
 
 export async function loadConfig<T>(options: ConfigLoadOptions<T>): Promise<T> {
