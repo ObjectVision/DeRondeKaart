@@ -7,11 +7,24 @@ import {
   standaloneDashboardEnabled,
   toInitialViewState,
 } from '@/config/map-config'
-import { initVariants } from '@/config/variant'
+import { initVariants, setConfigBase } from '@/config/variant'
+import { requestedConfigBase, resolveConfigBase } from '@/config/config-source'
 import { dismissSplash } from '@/lib/splash'
 
 async function bootstrap() {
-  const mapConfig = await loadMapConfig()
+  // Two phases, and the order is the security model. The FIRST map.json always
+  // comes from this origin, because it carries `configSources` — the allowlist
+  // deciding whether a `?config=` may be honoured at all. Reading that list
+  // from the remote config instead would let the config authorise itself.
+  let mapConfig = await loadMapConfig()
+  const base = resolveConfigBase(requestedConfigBase(), mapConfig.configSources)
+  if (base) {
+    setConfigBase(base)
+    // Re-read from the remote folder: map.json declares the variants, so the
+    // remote one has to be in hand before initVariants below. No cache clearing
+    // needed — the base is part of the cache key, so this is a different entry.
+    mapConfig = await loadMapConfig()
+  }
   // Before anything fetches layers.json or navigation.json: those two resolve
   // through the active variant, so the variant has to be chosen first.
   initVariants(mapConfig.variants)
