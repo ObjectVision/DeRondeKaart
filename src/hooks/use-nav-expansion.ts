@@ -1,5 +1,6 @@
 import { createMemo, createSignal, type Accessor } from "solid-js";
 import { isLeaf, type NavItem, type NavNode } from "@/layers/navigation";
+import { branchToken } from "@/lib/nav-expansion-url";
 import { readStorage, writeStorage } from "@/lib/storage";
 
 const STORAGE_KEY = "nav-expansion";
@@ -12,7 +13,7 @@ const STORAGE_KEY = "nav-expansion";
  * duplicates). Path rather than array index so the state survives a
  * navigation.json edit and stays readable in devtools.
  */
-function pathKey(path: string[]): string {
+export function pathKey(path: string[]): string {
   return path.join(" / ");
 }
 
@@ -73,6 +74,8 @@ function readStored(): Record<string, boolean> {
 export function useNavExpansion(tree: Accessor<NavNode[]>): {
   isOpen: (path: string[]) => boolean;
   toggle: (path: string[]) => void;
+  diffFromDefault: () => Record<string, boolean>;
+  applyShared: (open: Set<string>, closed: Set<string>) => void;
 } {
   // Overrides only — what the user has actually toggled this session. Kept
   // separate from the seed so a config change is picked up for untouched
@@ -100,5 +103,57 @@ export function useNavExpansion(tree: Accessor<NavNode[]>): {
     });
   }
 
-  return { isOpen, toggle };
+  /**
+   * What the user changed, relative to navigation.json — the payload of the
+   * `nav` share parameter.
+   *
+   * Compared against the seed rather than returned raw, because `overrides`
+   * keeps an entry for every branch ever toggled, including ones toggled back to
+   * their configured state. Those are not changes and must not travel: a link
+   * made after opening and re-closing a branch should carry no `nav` at all.
+   */
+  function diffFromDefault(): Record<string, boolean> {
+    const current = overrides();
+    const base = seed();
+    const diff: Record<string, boolean> = {};
+    for (const [key, value] of Object.entries(current)) {
+      if (value !== (base[key] ?? false)) diff[key] = value;
+    }
+    return diff;
+  }
+
+  /**
+   * Apply a shared tree state, as token sets from the `nav` parameter.
+   *
+   * Tokens rather than paths because the sender's label paths are not in the
+   * link — only their hashes — so resolution has to happen against the
+   * recipient's own tree. A token matching no branch is SKIPPED, not an error:
+   * that is what a renamed or deleted label looks like, and the branch simply
+   * keeps its configured default. Rejecting the whole param over one rename
+   * would throw away every other branch the link carried.
+   *
+   * Writes through to sessionStorage so the shared shape behaves exactly as if
+   * the recipient had clicked those branches themselves.
+   */
+  function applyShared(open: Set<string>, closed: Set<string>) {
+    if (open.size === 0 && closed.size === 0) return;
+
+    const incoming: Record<string, boolean> = {};
+    // Walks the CURRENT tree, so only branches that actually exist here can be
+    // set — no need to validate the tokens separately.
+    for (const key of Object.keys(seed())) {
+      const token = branchToken(key);
+      if (open.has(token)) incoming[key] = true;
+      else if (closed.has(token)) incoming[key] = false;
+    }
+    if (Object.keys(incoming).length === 0) return;
+
+    setOverrides((current) => {
+      const next = { ...current, ...incoming };
+      writeStorage(sessionStorage, STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }
+
+  return { isOpen, toggle, diffFromDefault, applyShared };
 }
