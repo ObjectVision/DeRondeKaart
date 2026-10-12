@@ -285,8 +285,11 @@ EOF
 # Setting SignatureAlgorithms explicitly drops SHA224 (and SHA1) while keeping
 # everything a modern client offers. TLS 1.3 is unaffected (it has its own list).
 #
-# ECDSA first: the Let's Encrypt certs on this host are ECDSA (P-256), so
-# ecdsa_secp256r1_sha256 must remain available or handshakes break outright.
+# Both ECDSA and RSA entries must stay present. The startanalyse2026 hosts now
+# serve RSA-only certs (the ECDSA chain chains through Let's Encrypt's 2025
+# YE2/Root YE/Root X2 hierarchy, which some locked-down corporate trust stores
+# cannot build), while other deployments still use ECDSA — dropping either
+# family here breaks handshakes outright on the hosts that use it.
 # Requires OpenSSL >= 1.1.1 for ssl_conf_command (host has 3.5.5, nginx 1.28.3).
 TLS_SNIPPET="/etc/nginx/snippets/tls-hardening.conf"
 TLS_SIGALGS="${TLS_SIGALGS:-ECDSA+SHA256:ECDSA+SHA384:ECDSA+SHA512:rsa_pss_pss_sha256:rsa_pss_rsae_sha256:rsa_pss_rsae_sha384:rsa_pss_rsae_sha512:RSA+SHA256:RSA+SHA384:RSA+SHA512}"
@@ -452,6 +455,25 @@ for kind, text in blocks:
                           text, count=1)
             label = snippet.rsplit("/", 1)[-1].replace(".conf", "")
             changed.append(f"{label} -> {' '.join(names) or '(unnamed)'}")
+
+        # 3. HTTP/2, once per TLS block (idempotent).
+        #
+        # Certbot writes plain `listen 443 ssl` and never enables h2, so without
+        # this every site ends up HTTP/1.1 — which costs real time on the viewer,
+        # whose map tiles are dozens of parallel requests that h2 multiplexes
+        # over one connection.
+        #
+        # A server-level directive, NOT the `listen ... http2` parameter, which
+        # nginx deprecated in 1.25.1 and warns about. It cannot live in a shared
+        # snippet alongside the two above: those are `add_header`/`ssl_conf_command`
+        # and are legal wherever they are included, while a second `http2` in the
+        # same block is a duplicate-directive error — so it is matched and
+        # inserted per block here instead.
+        if not re.search(r"^\s*http2\s+on;", text, re.M):
+            text = re.sub(r"\n(\s*)(listen\s+(\[::\]:)?443\b)",
+                          lambda mm: f"\n{mm.group(1)}http2 on;\n{mm.group(1)}{mm.group(2)}",
+                          text, count=1)
+            changed.append(f"http2 -> {' '.join(names) or '(unnamed)'}")
 
     out.append(text)
 
