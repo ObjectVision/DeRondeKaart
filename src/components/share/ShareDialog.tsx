@@ -92,6 +92,12 @@ interface ShareDialogProps {
   viewState: ViewState;
   /** Collaborative annotation room — carried in the link as `annot`. */
   annotRoomId?: string | null;
+  /**
+   * The navigation tree's expand/collapse state, keyed by label path, holding
+   * only what differs from navigation.json. Travels with the link so a
+   * recipient sees the tree the sender shaped.
+   */
+  navExpansion?: Record<string, boolean>;
   /** Controlled title/subtitle — lifted to App so a host `open-circular` can prefill them. */
   title: string;
   subtitle: string;
@@ -126,6 +132,7 @@ export function ShareDialog(props: ShareDialogProps): JSX.Element {
       viewState: props.viewState,
       sides: props.sides,
       annotRoomId: props.annotRoomId,
+      navExpansion: props.navExpansion,
       basemapId: props.basemapId,
     }),
   );

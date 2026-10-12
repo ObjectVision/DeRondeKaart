@@ -642,6 +642,20 @@ function App(rawProps: AppProps): JSX.Element {
     startSession,
   });
 
+  /**
+   * The navigation tree's expansion state, published by the Sidebar once it has
+   * built its tree (see `onNavExpansionReady`).
+   *
+   * Held here because two unrelated places need the one instance: the share link
+   * reads the diff out of it, and an incoming link writes into it. Null until
+   * the sidebar mounts, and stays null in the embed modes that render no
+   * sidebar — both callers handle that.
+   */
+  const [navExpansion, setNavExpansion] = createSignal<{
+    diffFromDefault: () => Record<string, boolean>;
+    applyShared: (open: Set<string>, closed: Set<string>) => void;
+  } | null>(null);
+
   // The sidebar IS the navigation UI, so `navigation` gates it directly; the
   // Filter and Navigatie sections then have their own keys on top of that.
   const filterAvailable = () =>
@@ -720,6 +734,11 @@ function App(rawProps: AppProps): JSX.Element {
     // resolve against the catalogue the link asked for.
     onRestoreCombinations: async (defs) =>
       filterLayers.restore(defs, await loadLayerConfigs()),
+    // Likewise after the variant switch: the tokens are hashes of label paths
+    // and only resolve against the tree the link asked for. A no-op when the
+    // sidebar is not mounted (embed modes), which is correct — there is no tree
+    // to shape.
+    onRestoreNavExpansion: (open, closed) => navExpansion()?.applyShared(open, closed),
   });
 
   function applyConfig(cfg: EmbedConfig) {
@@ -1230,6 +1249,7 @@ function App(rawProps: AppProps): JSX.Element {
             annotations={annotationsForExport()}
             viewState={viewState()}
             annotRoomId={annotationActive() ? collab.roomId() : null}
+            navExpansion={navExpansion()?.diffFromDefault() ?? {}}
             title={shareTitle()}
             subtitle={shareSubtitle()}
             onTitleChange={setShareTitle}
@@ -1376,6 +1396,7 @@ function App(rawProps: AppProps): JSX.Element {
               showFilter={filterAvailable() && !navMinimized()}
               showNavigation={navAvailable() && !navMinimized()}
               onClose={toggleNavMinimized}
+              onNavExpansionReady={setNavExpansion}
               toolbar={
                 <>
                   <SectionToggleBar orientation="horizontal" toggles={sectionToggles()} />

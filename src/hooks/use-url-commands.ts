@@ -4,6 +4,7 @@ import { isUrlAddressable } from "@/lib/share-url";
 import { isBasemapId } from "@/components/map/map-view-config";
 import { VARIANT_PARAM } from "@/config/variant";
 import { COMBI_PARAM, parseFilterLayerParam } from "@/layers/filter-layer-url";
+import { NAV_PARAM, parseNavExpansionParam } from "@/lib/nav-expansion-url";
 import {
   filterLayerConfig,
   getFilterLayerById,
@@ -67,6 +68,16 @@ interface UseUrlCommandsOptions extends MapSidePair<MapSide> {
   onRestoreCombinations?: (
     defs: FilterLayerDef[],
   ) => Promise<Map<string, string>>;
+  /**
+   * Apply a shared navigation-tree shape, as the token sets from the `nav`
+   * param. Runs after the variant switch so the tokens resolve against the tree
+   * the link asked for.
+   *
+   * Takes tokens rather than paths because the sender's label paths are not in
+   * the link — only their hashes — so only the recipient's own tree can resolve
+   * them. Unresolvable tokens are the applier's business, not this hook's.
+   */
+  onRestoreNavExpansion?: (open: Set<string>, closed: Set<string>) => void;
 }
 
 /**
@@ -273,7 +284,16 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
       console.warn("Invalid combi parameter; combination layers were not restored");
     }
 
-    if (commands.length > 0 || hasView || annotRoom || basemap || variantRaw || combi) {
+    // The navigation tree's shape. Only MALFORMED input is rejected here; a
+    // well-formed token that matches no branch is handled by the applier, which
+    // skips it and leaves that branch at its configured default.
+    const navRaw = params.get(NAV_PARAM);
+    const nav = navRaw ? parseNavExpansionParam(navRaw) : null;
+    if (navRaw && !nav) {
+      console.warn("Invalid nav parameter; navigation tree state was not restored");
+    }
+
+    if (commands.length > 0 || hasView || annotRoom || basemap || variantRaw || combi || nav) {
       if (hasView) options.applyView(view);
       // Awaited BEFORE the commands: layer ids are reused across variants, so
       // an `add` processed against the outgoing variant would resolve to a
@@ -295,6 +315,10 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
         }
       }
       if (commands.length > 0) await processCommands(commands);
+      // After the variant switch, for the same reason as the two above: the
+      // tokens are hashes of label paths and must resolve against the tree the
+      // link asked for, not the one that happened to be loaded.
+      if (nav) options.onRestoreNavExpansion?.(nav.open, nav.closed);
       // The joined room lives on in state — the hash is still cleared below,
       // like every other processed command.
       if (annotRoom) options.onAnnotationRoom?.(annotRoom);
