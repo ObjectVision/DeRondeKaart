@@ -1,0 +1,6680 @@
+{
+  "layers": [
+    {
+      "id": "ber_BASISOND",
+      "name": "Basisonderwijs",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot basisonderwijs o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_BASISOND.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_BASISOND.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Basisonderwijs</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_VMBO",
+      "name": "VMBO",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot VMBO o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_VMBO.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_VMBO.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>VMBO</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_HAVOVWO",
+      "name": "HAVO/VWO",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot HAVO/VWO o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_HAVOVWO.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_HAVOVWO.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>HAVO/VWO</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_VO",
+      "name": "Voortgezet onderwijs (totaal)",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot voortgezet onderwijs (totaal) o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_VO.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_VO.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Voortgezet onderwijs (totaal)</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_KDV",
+      "name": "Kinderdagverblijf",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot kinderdagverblijf o.b.v. CBS data data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_KDV.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_KDV.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Kinderdagverblijf</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_BSO",
+      "name": "Buitenschoolse opvang",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot buitenschoolse opvang o.b.v. CBS data data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_BSO.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_BSO.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Buitenschoolse opvang</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_HUISARTS",
+      "name": "Huisarts",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot huisarts o.b.v. huisartsen-overzicht.nl, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_HUISARTS.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_HUISARTS.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Huisarts</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_HARTSPOST",
+      "name": "Huisartsenpost",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot huisartsenpost o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_HARTSPOST.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_HARTSPOST.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Huisartsenpost</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_APOTHEEK",
+      "name": "Apotheek",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot apotheek (incl. apotheekhoudende huisartsen) o.b.v. register-van-gevestigde-apothekers (Ministerie VWS), visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_APOTHEEK.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_APOTHEEK.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Apotheek</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_ZIEKENHUIS",
+      "name": "Ziekenhuis",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot ziekenhuis o.b.v. ziekenhuizen.nl, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_ZIEKENHUIS.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_ZIEKENHUIS.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Ziekenhuis</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_BIBLIO",
+      "name": "Bibliotheek",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot bibliotheek o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_BIBLIO.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_BIBLIO.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Bibliotheek</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_ONTMOETING",
+      "name": "Wijk/buurtcentrum",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot wijk/buurtcentrum o.b.v. met name de goudengids.nl, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_ONTMOETING.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_ONTMOETING.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Wijk/buurtcentrum</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_ZWEMBAD",
+      "name": "Zwembad",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot zwembad o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_ZWEMBAD.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_ZWEMBAD.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Zwembad</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_MUSEUM",
+      "name": "Museum",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot museum o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_MUSEUM.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_MUSEUM.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Museum</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_PODIUM",
+      "name": "Instelling voor podiumkunsten",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot instelling voor podiumkunsten o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_PODIUM.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_PODIUM.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Instelling voor podiumkunsten</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_BIOSCOOP",
+      "name": "Bioscoop",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot bioscoop o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_BIOSCOOP.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_BIOSCOOP.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Bioscoop</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_GRSUPERM",
+      "name": "Supermarkt",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot supermarkt o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_GRSUPERM.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_GRSUPERM.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Supermarkt</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_OVDAGLEV",
+      "name": "Overige dagelijkse winkels",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot overige dagelijkse winkels o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_OVDAGLEV.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_OVDAGLEV.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Overige dagelijkse winkels</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_WINKELCENTRUM",
+      "name": "Winkelgebied",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot winkelgebied o.b.v. BAG-data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_WINKELCENTRUM.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_WINKELCENTRUM.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Winkelgebied</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_WARENH",
+      "name": "Warenhuis",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot warenhuis o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_WARENH.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_WARENH.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Warenhuis</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_TREINST",
+      "name": "Treinstation",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot treinstation o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_TREINST.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_TREINST.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Treinstation</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_OVERSTAPST",
+      "name": "Overstapstation",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot overstapstation o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_OVERSTAPST.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_OVERSTAPST.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Overstapstation</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_OVHALTE",
+      "name": "OV-halte",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot ov-halte o.b.v. OV9292, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_OVHALTE.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_OVHALTE.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>OV-halte</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_OPRITH",
+      "name": "Op/afrit snelweg",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot op/afrit snelweg o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_OPRITH.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_OPRITH.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Op/afrit snelweg</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_CAFE",
+      "name": "Café",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot café o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_CAFE.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_CAFE.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Café</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_CAFETARIA",
+      "name": "Cafetaria",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot cafetaria o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_CAFETARIA.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_CAFETARIA.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Cafetaria</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_RESTAURANT",
+      "name": "Restaurant",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot restaurant o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_RESTAURANT.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_RESTAURANT.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Restaurant</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_HOTEL",
+      "name": "Hotel",
+      "subname": "afstand tot dichtstbijzijnde",
+      "description": "Afstand tot hotel o.b.v. CBS data, visualisatie op grid en top10nl vectorniveau",
+      "meta": "https://wzwkaart.nl/files/bereikbaarheid/meta/ber_HOTEL.html",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_HOTEL.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "afstand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "excludeFromComparison": false,
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div><b>Hotel</b><table><tr><td>Afstand dichtstbijzijnde</td><td>[[ label ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Afstand",
+        "rules": [
+          {
+            "name": "0 m - 200 m",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B84BF",
+                "outlineColor": "#2B84BF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#2B84BF",
+                    14,
+                    "#0E2C40"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "200 m - 400 m",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#77B4AF",
+                "outlineColor": "#77B4AF",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#77B4AF",
+                    14,
+                    "#283C3A"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "400 m - 1 km",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B7E3A9",
+                "outlineColor": "#B7E3A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#B7E3A9",
+                    14,
+                    "#3D4C38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "1 km - 2.5 km",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E8F5B7",
+                "outlineColor": "#E8F5B7",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#E8F5B7",
+                    14,
+                    "#4D523D"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "2.5 km - 5 km",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE7A9",
+                "outlineColor": "#FEE7A9",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#FEE7A9",
+                    14,
+                    "#554D38"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "5 km - 10 km",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8BB72",
+                "outlineColor": "#F8BB72",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#F8BB72",
+                    14,
+                    "#533E26"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "10 km - 20 km",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED6C4A",
+                "outlineColor": "#ED6C4A",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#ED6C4A",
+                    14,
+                    "#4F2419"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "20 km - 100 km",
+            "filter": [
+              "==",
+              "score",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D61621",
+                "outlineColor": "#D61621",
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "#D61621",
+                    14,
+                    "#47070B"
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_gemeente_2022",
+      "name": "gemeente 2022",
+      "description": "Gemeenteindeling op basis van het CBS",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_gebieden_2022.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "gemeente",
+      "geometryType": "polygon",
+      "beforeid": "overlay-layers",
+      "excludeFromComparison": true,
+      "style": {
+        "opacity": 1
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td>Gemeente</td><td>[[ gemeente ]]</td></tr><tr><td>Gemeente code</td><td>[[ gm_code ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "gemeente 2022",
+        "rules": [
+          {
+            "name": "gemeentegrens",
+            "symbolizers": [
+              {
+                "kind": "Line",
+                "color": "#000000",
+                "width": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_woonplaats_2022",
+      "name": "woonplaats 2022",
+      "description": "Woonplaatsindeling op basis van de BAG",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_gebieden_2022.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "woonplaats",
+      "geometryType": "polygon",
+      "beforeid": "overlay-layers",
+      "excludeFromComparison": true,
+      "style": {
+        "opacity": 1
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td>Woonplaats</td><td>[[ woonplaats ]]</td></tr><tr><td>Gemeente</td><td>[[ gemeente ]]</td></tr><tr><td>Gemeente code</td><td>[[ gm_code ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "woonplaats 2022",
+        "rules": [
+          {
+            "name": "woonplaatsgrens",
+            "symbolizers": [
+              {
+                "kind": "Line",
+                "color": "#C80000",
+                "width": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_wijk_2022",
+      "name": "wijk 2022",
+      "description": "Wijkindeling op basis van het CBS",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_gebieden_2022.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "wijk",
+      "geometryType": "polygon",
+      "beforeid": "overlay-layers",
+      "excludeFromComparison": true,
+      "style": {
+        "opacity": 1
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td>Wijk</td><td>[[ wijk ]]</td></tr><tr><td>Wijk code</td><td>[[ wk_code ]]</td></tr><tr><td>Gemeente</td><td>[[ gemeente ]]</td></tr><tr><td>Gemeente code</td><td>[[ gm_code ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "wijk 2022",
+        "rules": [
+          {
+            "name": "wijkgrens",
+            "symbolizers": [
+              {
+                "kind": "Line",
+                "color": "#0000C8",
+                "width": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_buurt_2022",
+      "name": "buurt 2022",
+      "description": "Buurtindeling op basis van het CBS",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_gebieden_2022.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "buurt",
+      "geometryType": "polygon",
+      "beforeid": "overlay-layers",
+      "excludeFromComparison": true,
+      "style": {
+        "opacity": 1
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td>Buurt</td><td>[[ buurt ]]</td></tr><tr><td>Buurt code</td><td>[[ bu_code ]]</td></tr><tr><td>Wijk</td><td>[[ wijk ]]</td></tr><tr><td>Gemeente</td><td>[[ gemeente ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "buurt 2022",
+        "rules": [
+          {
+            "name": "buurtgrens",
+            "symbolizers": [
+              {
+                "kind": "Line",
+                "color": "#006400",
+                "width": 1
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "ber_studiegebied",
+      "name": "Studiegebied Elke Regio Telt",
+      "source": "https://data.derondekaart.nl/pmtiles/bereikbaarheid_bzk/ber_studiegebied.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "studyarea",
+      "geometryType": "polygon",
+      "beforeid": "studyarea-layers",
+      "excludeFromComparison": true,
+      "excludeFromLegend": true,
+      "excludeFromPicking": true,
+      "style": {},
+      "geostyler": {
+        "name": "Studiegebied",
+        "rules": [
+          {
+            "name": "outer",
+            "filter": [
+              "==",
+              "id",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EBECF0",
+                "opacity": 0.5,
+                "outlineColor": "#183A59",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "regio's",
+            "filter": [
+              "==",
+              "id",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#00000000",
+                "outlineColor": "#00498D",
+                "outlineOpacity": 1,
+                "outlineWidth": 2
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
