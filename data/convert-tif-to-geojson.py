@@ -74,6 +74,9 @@ Usage:
     # Keep the source CRS instead of reprojecting to WGS84:
     python3 convert-tif-to-geojson.py tif/classes.tif --no-reproject
 
+    # The raster has only a .tfw world file and no CRS of its own:
+    python3 convert-tif-to-geojson.py grid/APO_m10.tif --assign-crs EPSG:28992
+
 If you have ``uv`` installed you can run this without managing dependencies:
     uv run convert-tif-to-geojson.py tif/classes.tif
 
@@ -208,6 +211,7 @@ def polygonize(
     nodata: int | None,
     classes: list[int] | None,
     connectivity: int,
+    assign_crs: str | None = None,
 ) -> tuple[gpd.GeoDataFrame, object]:
     """Vectorise one band of a classified raster into per-region polygons.
 
@@ -225,10 +229,17 @@ def polygonize(
         crs = src.crs
         file_nodata = src.nodata
 
+    if crs is None and assign_crs is not None:
+        # Rasters georeferenced by a .tfw world file alone carry no CRS; the
+        # caller knows it by convention (RD New for the MapServer grids).
+        crs = rasterio.crs.CRS.from_user_input(assign_crs)
+        print(f"No CRS in {input_path.name}; assuming {assign_crs} (--assign-crs)")
+
     if crs is None:
         raise SystemExit(
             f"error: {input_path.name} has no CRS, so the output cannot be "
-            "georeferenced. Assign one with gdal_edit.py -a_srs EPSG:XXXX first."
+            "georeferenced. Pass --assign-crs EPSG:XXXX, or assign one with "
+            "gdal_edit.py -a_srs EPSG:XXXX first."
         )
 
     # An explicit --nodata wins; otherwise use the file's tag, and fall back to
@@ -386,6 +397,7 @@ def convert(
     simplify: float,
     reproject: bool,
     keep_intermediate: bool,
+    assign_crs: str | None = None,
 ) -> None:
     """Polygonize ``input_path`` and write simplified GeoJSON to ``output_path``."""
     gdf, crs = polygonize(
@@ -394,6 +406,7 @@ def convert(
         nodata=nodata,
         classes=classes,
         connectivity=connectivity,
+        assign_crs=assign_crs,
     )
 
     source_crs = crs.to_string()
@@ -496,6 +509,15 @@ def main(argv: list[str]) -> int:
         help="Keep the source CRS instead of reprojecting to WGS84",
     )
     parser.add_argument(
+        "--assign-crs",
+        default=None,
+        metavar="EPSG:XXXX",
+        help=(
+            "CRS to assume when the raster has none (e.g. a .tif georeferenced "
+            "only by a .tfw world file). Ignored when the raster has its own CRS."
+        ),
+    )
+    parser.add_argument(
         "--keep-intermediate",
         action="store_true",
         help="Also write the unsimplified polygons as <output>.raw.geojson",
@@ -533,6 +555,7 @@ def main(argv: list[str]) -> int:
         simplify=args.simplify,
         reproject=args.reproject,
         keep_intermediate=args.keep_intermediate,
+        assign_crs=args.assign_crs,
     )
     return 0
 

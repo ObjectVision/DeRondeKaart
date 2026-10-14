@@ -1,0 +1,250 @@
+[
+  {
+    "label": "Afstand Onderwijs en opvang",
+    "icon": "school",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "ber_BASISOND",
+        "label": "Basisonderwijs",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_VMBO",
+        "label": "VMBO",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_HAVOVWO",
+        "label": "HAVO/VWO",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_VO",
+        "label": "Voortgezet onderwijs (totaal)",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_KDV",
+        "label": "Kinderdagverblijf",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_BSO",
+        "label": "Buitenschoolse opvang",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
+    "label": "Afstand Gezondheid",
+    "icon": "local_hospital",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "ber_HUISARTS",
+        "label": "Huisarts",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_HARTSPOST",
+        "label": "Huisartsenpost",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_APOTHEEK",
+        "label": "Apotheek",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_ZIEKENHUIS",
+        "label": "Ziekenhuis",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
+    "label": "Afstand Cultuur, ontspanning en ontmoeting",
+    "icon": "theater_comedy",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "ber_BIBLIO",
+        "label": "Bibliotheek",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_ONTMOETING",
+        "label": "Wijk/buurtcentrum",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_ZWEMBAD",
+        "label": "Zwembad",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_MUSEUM",
+        "label": "Museum",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_PODIUM",
+        "label": "Instelling voor podiumkunsten",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_BIOSCOOP",
+        "label": "Bioscoop",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
+    "label": "Afstand Winkels",
+    "icon": "shopping_cart",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "ber_GRSUPERM",
+        "label": "Supermarkt",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_OVDAGLEV",
+        "label": "Overige dagelijkse winkels",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_WINKELCENTRUM",
+        "label": "Winkelgebied",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_WARENH",
+        "label": "Warenhuis",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
+    "label": "Afstand Bereikbaarheid",
+    "icon": "directions_bus",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "ber_TREINST",
+        "label": "Treinstation",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_OVERSTAPST",
+        "label": "Overstapstation",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_OVHALTE",
+        "label": "OV-halte",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_OPRITH",
+        "label": "Op/afrit snelweg",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
+    "label": "Afstand Horeca",
+    "icon": "restaurant",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "ber_CAFE",
+        "label": "Café",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_CAFETARIA",
+        "label": "Cafetaria",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_RESTAURANT",
+        "label": "Restaurant",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_HOTEL",
+        "label": "Hotel",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
+    "label": "Gebiedsindelingen",
+    "icon": "map",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "ber_gemeente_2022",
+        "label": "gemeente 2022",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_woonplaats_2022",
+        "label": "woonplaats 2022",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_wijk_2022",
+        "label": "wijk 2022",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "ber_buurt_2022",
+        "label": "buurt 2022",
+        "a": false,
+        "b": false
+      }
+    ]
+  }
+]
