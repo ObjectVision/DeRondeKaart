@@ -3,6 +3,7 @@ import { DEFAULT_BASEMAP_ID } from "@/components/map/map-view-config";
 import { VARIANT_PARAM, variantId } from "@/config/variant";
 import { COMBI_PARAM, encodeFilterLayerParam } from "@/layers/filter-layer-url";
 import { getFilterLayers, isFilterLayerId, withSources } from "@/layers/filter-layers";
+import { NAV_PARAM, encodeNavExpansionParam } from "@/lib/nav-expansion-url";
 import {
   MAP_SIDES,
   forSide,
@@ -35,6 +36,12 @@ export interface ShareUrlState {
    * links stay short.
    */
   basemapId?: string;
+  /**
+   * The navigation tree's expand/collapse state, keyed by label path, holding
+   * only what differs from `navigation.json` (see `diffFromDefault` in
+   * use-nav-expansion.ts). Emitted only when non-empty.
+   */
+  navExpansion?: Record<string, boolean>;
 }
 
 /**
@@ -101,6 +108,14 @@ export function buildShareUrl(state: ShareUrlState, base?: string): string {
   // into the store only; no `add` command is written for it.
   const defs = withSources(getFilterLayers().filter((def) => onMap.has(def.id)));
   if (defs.length > 0) params.set(COMBI_PARAM, encodeFilterLayerParam(defs));
+
+  // The navigation tree's shape, as a diff against navigation.json. Encoded to
+  // "" when the user has changed nothing, so an ordinary link carries no `nav`
+  // at all — the same rule `basemap` follows.
+  if (state.navExpansion) {
+    const nav = encodeNavExpansionParam(state.navExpansion);
+    if (nav) params.set(NAV_PARAM, nav);
+  }
 
   // The parser index-aligns getAll("cmd")/getAll("map")/getAll("layer"), so
   // every command must append all three keys.

@@ -6,6 +6,7 @@ import type { VariantsConfig } from "@/config/map-config";
 import type { LayerEntry } from "@/hooks/use-map-layers";
 import { addFilterLayer, getFilterLayers, removeFilterLayer } from "@/layers/filter-layers";
 import { parseFilterLayerParam } from "@/layers/filter-layer-url";
+import { NAV_PARAM, branchToken, parseNavExpansionParam } from "@/lib/nav-expansion-url";
 
 const VARIANTS: VariantsConfig = {
   default: "2025",
@@ -196,5 +197,48 @@ describe("combination layers in the link", () => {
     // Carried for the rebuild only: no add command puts the source on the map.
     expect(url).not.toContain(`layer=${source.id}&`);
     expect(url.endsWith(`layer=${source.id}`)).toBe(false);
+  });
+});
+
+/**
+ * The `nav` param carries the navigation tree's shape as a diff against
+ * navigation.json, so a recipient opens the tree the sender shaped.
+ */
+describe("navigation expansion", () => {
+  it("omits nav when the tree is in its configured shape", () => {
+    // An untouched tree produces an empty diff, and an empty diff must not
+    // become `nav=*` — ordinary links stay as short as they were.
+    expect(buildShareUrl({ ...BASE_STATE, navExpansion: {} }, "https://x/")).not.toContain("nav=");
+    expect(buildShareUrl(BASE_STATE, "https://x/")).not.toContain("nav=");
+  });
+
+  it("round-trips an open/closed diff through the param", () => {
+    const navExpansion = {
+      "Basisgegevens": true,
+      "Basisgegevens / Woningen": true,
+      "Gevoeligheidsanalyses": false,
+    };
+    const url = buildShareUrl({ ...BASE_STATE, navExpansion }, "https://x/");
+    const raw = new URLSearchParams(url.split("#")[1]).get(NAV_PARAM);
+
+    expect(raw).toBeTruthy();
+    const parsed = parseNavExpansionParam(raw!);
+    expect(parsed).not.toBeNull();
+    expect(parsed!.open).toEqual(
+      new Set([branchToken("Basisgegevens"), branchToken("Basisgegevens / Woningen")]),
+    );
+    expect(parsed!.closed).toEqual(new Set([branchToken("Gevoeligheidsanalyses")]));
+  });
+
+  it("leaves the param unescaped in the built URL", () => {
+    // `*` and `.` survive URLSearchParams; `~` would have become %7E and made
+    // every shared link longer and uglier for no reason.
+    const url = buildShareUrl(
+      { ...BASE_STATE, navExpansion: { a: true, b: false } },
+      "https://x/",
+    );
+    expect(url).toMatch(/nav=[A-Za-z0-9_.-]*\*[A-Za-z0-9_.-]*/);
+    expect(url).not.toContain("%7E");
+    expect(url).not.toContain("%2A");
   });
 });

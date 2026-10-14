@@ -129,7 +129,8 @@ The scripts emit these automatically (see `common.sh`):
 | Control | Where | Notes |
 |---|---|---|
 | HSTS `max-age=1y; includeSubDomains` | `/etc/nginx/snippets/hsts.conf` | Included in every TLS block. No `preload` — that is a one-way, browser-baked commitment. |
-| TLS signature algorithms | `/etc/nginx/snippets/tls-hardening.conf` | Excludes SHA224/SHA1. Ciphers themselves come from certbot's `options-ssl-nginx.conf`, which certbot overwrites — never edit that file. |
+| TLS signature algorithms | `/etc/nginx/snippets/tls-hardening.conf` | Excludes SHA224/SHA1. Keeps both ECDSA and RSA entries — hosts differ in key type. Ciphers themselves come from certbot's `options-ssl-nginx.conf`, which certbot overwrites — never edit that file. |
+| HTTP/2 | `http2 on;` per TLS block | Added by `nginx_post_tls`; certbot never enables it. The `http2 on;` directive form, not the `listen … http2` parameter deprecated in nginx 1.25.1. Not a shared snippet: a duplicate `http2` in one block is a config error, so it is inserted once per block. |
 | `security.txt` (RFC 9116) | `<webroot>/.well-known/` | `Expires` regenerates 1 year out on every run. Unsigned and without `Encryption` by design. |
 | CSP | per site | Enforced on static sites; **report-only** on the map app. |
 | `Referrer-Policy: no-referrer`, `X-Content-Type-Options` | per site | |
