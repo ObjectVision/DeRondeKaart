@@ -1,9 +1,20 @@
 {
   "center": [
-    5.788017187520154,
-    51.09266041682005
+    5.6,
+    52.35
   ],
-  "zoom": 8,
+  "zoom": 7,
+  "variants": {
+    "default": "bereikbaarheid_bzk",
+    "items": [
+      {
+        "id": "bereikbaarheid_bzk",
+        "label": "Elke Regio Telt"
+      }
+    ]
+  },
+  "basemap": "grijs",
+  "studyarea": "ber_studiegebied",
   "streetview": true,
   "searchbar": false,
   "navigation": true,
