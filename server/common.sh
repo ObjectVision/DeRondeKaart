@@ -698,7 +698,10 @@ deploy_lock_preamble() {
 # Any failure below is otherwise invisible: the webhook daemon reports success
 # to GitHub as soon as it spawns this script, so a die under set -e leaves no
 # trace but a missing "Deploy finished" line. Make it explicit in the log.
-trap 'echo "--- DEPLOY FAILED (exit \$?) at line \$LINENO: \$(date --iso-8601=seconds) ---"' ERR
+# No single quotes anywhere in this preamble, comments included: it lands
+# inside the single-quoted bash -c body of the map and collab deploy scripts,
+# where one would end that string and abort every deploy under set -e.
+trap "echo \"--- DEPLOY FAILED (exit \\\$?) at line \\\$LINENO: \\\$(date --iso-8601=seconds) ---\"" ERR
 
 # Serialise builds: run one, queue at most one, drop the rest.
 # See deploy_lock_preamble in server/common.sh for why.
