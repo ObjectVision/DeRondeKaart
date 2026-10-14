@@ -169,9 +169,17 @@
           {
             "name": "S1 en S3 beide binnen 10% kostenverschil",
             "filter": [
-              "==",
-              "h17_perc_diff_indeling_10",
-              "S1-S3"
+              "||",
+              [
+                "==",
+                "h17_perc_diff_indeling_10",
+                "S1-S3"
+              ],
+              [
+                "==",
+                "h17_perc_diff_indeling_10",
+                "S4"
+              ]
             ],
             "symbolizers": [
               {
@@ -197,6 +205,11 @@
                 "!=",
                 "h17_perc_diff_indeling_10",
                 "S1-S3"
+              ],
+              [
+                "!=",
+                "h17_perc_diff_indeling_10",
+                "S4"
               ]
             ],
             "symbolizers": [
@@ -409,9 +422,17 @@
           {
             "name": "S1 en S3 beide binnen 20% kostenverschil",
             "filter": [
-              "==",
-              "h17_perc_diff_indeling_20",
-              "S1-S3"
+              "||",
+              [
+                "==",
+                "h17_perc_diff_indeling_20",
+                "S1-S3"
+              ],
+              [
+                "==",
+                "h17_perc_diff_indeling_20",
+                "S4"
+              ]
             ],
             "symbolizers": [
               {
@@ -437,6 +458,11 @@
                 "!=",
                 "h17_perc_diff_indeling_20",
                 "S1-S3"
+              ],
+              [
+                "!=",
+                "h17_perc_diff_indeling_20",
+                "S4"
               ]
             ],
             "symbolizers": [
@@ -651,9 +677,17 @@
           {
             "name": "S1 en S3 beide binnen 30% kostenverschil",
             "filter": [
-              "==",
-              "h17_perc_diff_indeling_30",
-              "S1-S3"
+              "||",
+              [
+                "==",
+                "h17_perc_diff_indeling_30",
+                "S1-S3"
+              ],
+              [
+                "==",
+                "h17_perc_diff_indeling_30",
+                "S4"
+              ]
             ],
             "symbolizers": [
               {
@@ -679,6 +713,11 @@
                 "!=",
                 "h17_perc_diff_indeling_30",
                 "S1-S3"
+              ],
+              [
+                "!=",
+                "h17_perc_diff_indeling_30",
+                "S4"
               ]
             ],
             "symbolizers": [

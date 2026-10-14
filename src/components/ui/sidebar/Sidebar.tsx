@@ -1,4 +1,4 @@
-import { Show, createEffect, createMemo, createSignal, type JSX } from "solid-js";
+import { Show, createEffect, createMemo, createSignal, onMount, type JSX } from "solid-js";
 import { Icon } from "@/components/ui/nav-icon";
 import { Button } from "@/components/ui/button";
 import { LayerDescription } from "@/components/ui/navigation/LayerDescription";
@@ -112,6 +112,20 @@ interface SidebarProps {
   /** Close the whole navigation window (Filter + Navigatie together). */
   onClose?: () => void;
   /**
+   * Hands the tree's expansion state up once it exists.
+   *
+   * The state has to live here, because it is seeded from `visibleTree` — which
+   * is assembled in this component out of the loaded navigation plus the
+   * session's combination leaves. But the share link is built elsewhere, and a
+   * second `useNavExpansion` there would be a second signal: the sidebar and the
+   * link would then disagree about what is open. So one instance, published
+   * upward, rather than two instances kept in sync.
+   */
+  onNavExpansionReady?: (api: {
+    diffFromDefault: () => Record<string, boolean>;
+    applyShared: (open: Set<string>, closed: Set<string>) => void;
+  }) => void;
+  /**
    * Toolbar row (search/zoom + section toggles) rendered above the sections.
    * Stays visible when both sections are minimized — it is how they are
    * restored.
@@ -175,7 +189,11 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   // the hook takes the accessor
   // itself and reads it inside its own tracked scope
   // eslint-disable-next-line solid/reactivity
-  const { isOpen, toggle } = useNavExpansion(visibleTree);
+  const { isOpen, toggle, diffFromDefault, applyShared } = useNavExpansion(visibleTree);
+
+  // Published once, not per render: these two close over the signal rather than
+  // reading it, so the holder always sees current state.
+  onMount(() => props.onNavExpansionReady?.({ diffFromDefault, applyShared }));
 
   const showFilter = () => props.showFilter ?? true;
   const showNavigation = () => props.showNavigation ?? true;
