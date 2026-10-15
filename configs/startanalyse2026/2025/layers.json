@@ -5394,7 +5394,7 @@
     },
     {
       "id": "212",
-      "name": "Nationale kosten per ton CO₂ reductie (LN H17)",
+      "name": "Nationale meerkosten per ton CO₂ reductie (LN H17)",
       "subname": "€/ton CO₂",
       "meta": [
         "https://data.startanalyse2026.nl/meta/2025/LN_H17.html",
@@ -5413,7 +5413,7 @@
         "opacity": 1
       },
       "geostyler": {
-        "name": "Nationale kosten per ton CO₂ reductie (LN H17)",
+        "name": "Nationale meerkosten per ton CO₂ reductie (LN H17)",
         "rules": [
           {
             "name": "S1: Minder dan 320",
@@ -6368,7 +6368,7 @@
     },
     {
       "id": "305",
-      "name": "Nationale kosten per woningequivalent (LN H18)",
+      "name": "Nationale meerkosten per woningequivalent (LN H18)",
       "subname": "€/jaar/weq",
       "meta": [
         "https://data.startanalyse2026.nl/meta/2025/LN_H18.html",
@@ -6387,7 +6387,7 @@
         "opacity": 1
       },
       "geostyler": {
-        "name": "Nationale kosten per woningequivalent (LN H18)",
+        "name": "Nationale meerkosten per woningequivalent (LN H18)",
         "rules": [
           {
             "name": "610 of meer",
@@ -16882,7 +16882,7 @@
     },
     {
       "id": "143",
-      "name": "Nationale kosten per ton CO₂ reductie (S1 H17)",
+      "name": "Nationale meerkosten per ton CO₂ reductie (S1 H17)",
       "subname": "€/ton CO₂",
       "meta": [
         "https://data.startanalyse2026.nl/meta/2025/S1_H17.html",
@@ -16897,7 +16897,7 @@
         "opacity": 1
       },
       "geostyler": {
-        "name": "Nationale kosten per ton CO₂ reductie (S1 H17)",
+        "name": "Nationale meerkosten per ton CO₂ reductie (S1 H17)",
         "rules": [
           {
             "name": "610 of meer",
@@ -17041,7 +17041,7 @@
     },
     {
       "id": "280",
-      "name": "Nationale kosten per woningequivalent (S1 H18)",
+      "name": "Nationale meerkosten per woningequivalent (S1 H18)",
       "subname": "€/jaar/weq",
       "meta": [
         "https://data.startanalyse2026.nl/meta/2025/S1_H18.html",
@@ -17056,7 +17056,7 @@
         "opacity": 1
       },
       "geostyler": {
-        "name": "Nationale kosten per woningequivalent (S1 H18)",
+        "name": "Nationale meerkosten per woningequivalent (S1 H18)",
         "rules": [
           {
             "name": "610 of meer",
@@ -19594,7 +19594,7 @@
     },
     {
       "id": "144",
-      "name": "Nationale kosten per ton CO₂ reductie (S2 H17)",
+      "name": "Nationale meerkosten per ton CO₂ reductie (S2 H17)",
       "subname": "€/ton CO₂",
       "meta": [
         "https://data.startanalyse2026.nl/meta/2025/S2_H17.html",
@@ -19609,7 +19609,7 @@
         "opacity": 1
       },
       "geostyler": {
-        "name": "Nationale kosten per ton CO₂ reductie (S2 H17)",
+        "name": "Nationale meerkosten per ton CO₂ reductie (S2 H17)",
         "rules": [
           {
             "name": "10000 of meer",
@@ -19753,7 +19753,7 @@
     },
     {
       "id": "301",
-      "name": "Nationale kosten per woningequivalent (S2 H18)",
+      "name": "Nationale meerkosten per woningequivalent (S2 H18)",
       "subname": "€/jaar/weq",
       "meta": [
         "https://data.startanalyse2026.nl/meta/2025/S2_H18.html",
@@ -19768,7 +19768,7 @@
         "opacity": 1
       },
       "geostyler": {
-        "name": "Nationale kosten per woningequivalent (S2 H18)",
+        "name": "Nationale meerkosten per woningequivalent (S2 H18)",
         "rules": [
           {
             "name": "610 of meer",
@@ -22408,7 +22408,7 @@
     },
     {
       "id": "145",
-      "name": "Nationale kosten per ton CO₂ reductie (S3 H17)",
+      "name": "Nationale meerkosten per ton CO₂ reductie (S3 H17)",
       "subname": "€/ton CO₂",
       "meta": [
         "https://data.startanalyse2026.nl/meta/2025/S3_H17.html",
@@ -22423,7 +22423,7 @@
         "opacity": 1
       },
       "geostyler": {
-        "name": "Nationale kosten per ton CO₂ reductie (S3 H17)",
+        "name": "Nationale meerkosten per ton CO₂ reductie (S3 H17)",
         "rules": [
           {
             "name": "610 of meer",
@@ -22567,7 +22567,7 @@
     },
     {
       "id": "302",
-      "name": "Nationale kosten per woningequivalent (S3 H18)",
+      "name": "Nationale meerkosten per woningequivalent (S3 H18)",
       "subname": "€/jaar/weq",
       "meta": [
         "https://data.startanalyse2026.nl/meta/2025/S3_H18.html",
@@ -22582,7 +22582,7 @@
         "opacity": 1
       },
       "geostyler": {
-        "name": "Nationale kosten per woningequivalent (S3 H18)",
+        "name": "Nationale meerkosten per woningequivalent (S3 H18)",
         "rules": [
           {
             "name": "610 of meer",
@@ -25088,7 +25088,7 @@
     },
     {
       "id": "146",
-      "name": "Nationale kosten per ton CO₂ reductie (S4 H17)",
+      "name": "Nationale meerkosten per ton CO₂ reductie (S4 H17)",
       "subname": "€/ton CO₂",
       "meta": [
         "https://data.startanalyse2026.nl/meta/2025/S4_H17.html",
@@ -25104,7 +25104,7 @@
         "opacity": 1
       },
       "geostyler": {
-        "name": "Nationale kosten per ton CO₂ reductie (S4 H17)",
+        "name": "Nationale meerkosten per ton CO₂ reductie (S4 H17)",
         "rules": [
           {
             "name": "610 of meer",
@@ -25248,7 +25248,7 @@
     },
     {
       "id": "303",
-      "name": "Nationale kosten per woningequivalent (S4 H18)",
+      "name": "Nationale meerkosten per woningequivalent (S4 H18)",
       "subname": "€/jaar/weq",
       "meta": [
         "https://data.startanalyse2026.nl/meta/2025/S4_H18.html",
@@ -25264,7 +25264,7 @@
         "opacity": 1
       },
       "geostyler": {
-        "name": "Nationale kosten per woningequivalent (S4 H18)",
+        "name": "Nationale meerkosten per woningequivalent (S4 H18)",
         "rules": [
           {
             "name": "610 of meer",
