@@ -16,7 +16,12 @@ import { loadLayerConfigs } from "@/layers";
 import { useNavExpansion } from "@/hooks/use-nav-expansion";
 import type { NavigationApi } from "@/hooks/use-navigation";
 import type { AreaFilterState } from "@/hooks/use-area-filter";
-import { chromeIconSize, chromeIconColor } from "@/config/map-config";
+import {
+  chromeIconSize,
+  chromeIconColor,
+  layerInfoButton,
+  type LayerInfoButtonMode,
+} from "@/config/map-config";
 import { variantId } from "@/config/variant";
 
 interface LeafStateToggleProps {
@@ -98,6 +103,59 @@ function LeafStateToggle(props: LeafStateToggleProps): JSX.Element {
   );
 }
 
+interface LeafInfoButtonProps {
+  leaf: NavLeaf;
+  nav: NavigationApi;
+  /** map.json `layerInfoButton`; see MapConfig.layerInfoButton. */
+  mode: LayerInfoButtonMode;
+  /** Layer ids that have `meta`, with the layer's name for the dialog title. */
+  metaLayers: Map<string, string>;
+  onOpenMeta?: (layerId: string, layerName: string) => void;
+}
+
+/**
+ * Optional metainfo button shown directly left of the row's LeafStateToggle
+ * (map.json `layerInfoButton`). `"checked"` shows it only while the layer is
+ * on a map; `"always"` on every row, so the metainfo can be read before adding
+ * the layer.
+ *
+ * Hidden, not disabled, for a layer without `meta`, and for a paired leaf: a
+ * pair names two layers, so there is no single metainfo to open. A sided leaf
+ * opens the layer it applies, the same id LeafStateToggle reads its state from.
+ */
+export function LeafInfoButton(props: LeafInfoButtonProps): JSX.Element {
+  const layerId = () => leafTarget(props.leaf)?.id ?? props.leaf.id;
+  const visible = () => {
+    // Read every input up front, so the memo tracks them all whatever the mode.
+    const mode = props.mode;
+    const id = layerId();
+    const onMap = props.nav.isOnMap(id, "left") || props.nav.isOnMap(id, "right");
+    if (mode === "off" || !props.onOpenMeta || leafPair(props.leaf)) return false;
+    if (!props.metaLayers.has(id)) return false;
+    return mode === "always" || onMap;
+  };
+
+  return (
+    <Show when={visible()}>
+      <Button
+        variant="ghost"
+        size="icon-sm"
+        class="flex-shrink-0"
+        onClick={(e) => {
+          // Opening the metainfo must not also add or remove the layer.
+          e.stopPropagation();
+          const id = layerId();
+          props.onOpenMeta?.(id, props.metaLayers.get(id) ?? props.leaf.label);
+        }}
+        title="Informatie"
+        aria-label={`Informatie: ${props.leaf.label}`}
+      >
+        <Icon name="info" size={chromeIconSize()} color={chromeIconColor()} />
+      </Button>
+    </Show>
+  );
+}
+
 interface SidebarProps {
   nav: NavigationApi;
   areaFilter: AreaFilterState;
@@ -131,7 +189,10 @@ interface SidebarProps {
    * restored.
    */
   toolbar?: JSX.Element;
-  /** Opens a layer's metainfo dialog from the info button under its description. */
+  /**
+   * Opens a layer's metainfo dialog — from the info button under its
+   * description, and from the row's own info button (LeafInfoButton).
+   */
   onOpenMeta?: (layerId: string, layerName: string) => void;
 }
 
@@ -140,7 +201,8 @@ interface SidebarProps {
  * top of the Navigatie treeview. The top level is the category rows; clicking
  * one expands its branches and leaves in place beneath it, leaving the sibling
  * categories visible so the user keeps their bearings. Each layer row carries a
- * permanent on-map state toggle (LeafStateToggle); clicking the rest of the row
+ * permanent on-map state toggle (LeafStateToggle), optionally with a metainfo
+ * button beside it (LeafInfoButton, map.json `layerInfoButton`); clicking the rest of the row
  * adds the layer and/or toggles its meta info panel below the row (see
  * handleRowClick).
  */
@@ -157,6 +219,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   // omschrijving beschikbaar" is noise. Its metainfo is still one click away
   // from the legend's info tool.
   const [infoLayers, setInfoLayers] = createSignal<Map<string, string>>(new Map());
+  // Layer ids that have metainfo, with the layer's name — for the row's optional
+  // info button (map.json `layerInfoButton`), which exists for exactly the layers
+  // `infoLayers` leaves out.
+  const [metaLayers, setMetaLayers] = createSignal<Map<string, string>>(new Map());
 
   // An effect rather than onMount: a config-variant switch replaces both files,
   // and onMount fires once. Reading `variantId()` first — before any await or
@@ -169,11 +235,10 @@ export function Sidebar(props: SidebarProps): JSX.Element {
     // loadLayerConfigs memoizes per variant, so this shares the parse with
     // useNavigation.
     loadLayerConfigs()
-      .then((configs) =>
-        setInfoLayers(
-          new Map(configs.filter((c) => c.description).map((c) => [c.id, c.name])),
-        ),
-      )
+      .then((configs) => {
+        setInfoLayers(new Map(configs.filter((c) => c.description).map((c) => [c.id, c.name])));
+        setMetaLayers(new Map(configs.filter((c) => c.meta).map((c) => [c.id, c.name])));
+      })
       .catch((err) => console.error("Failed to load layers.json:", err));
   });
 
@@ -305,7 +370,18 @@ export function Sidebar(props: SidebarProps): JSX.Element {
                     </div>
                   );
                 }}
-                leafStatus={(leaf) => <LeafStateToggle leaf={leaf} nav={props.nav} />}
+                leafStatus={(leaf) => (
+                  <div class="flex flex-shrink-0 items-center">
+                    <LeafInfoButton
+                      leaf={leaf}
+                      nav={props.nav}
+                      mode={layerInfoButton()}
+                      metaLayers={metaLayers()}
+                      onOpenMeta={props.onOpenMeta}
+                    />
+                    <LeafStateToggle leaf={leaf} nav={props.nav} />
+                  </div>
+                )}
               />
             </Show>
           </div>
