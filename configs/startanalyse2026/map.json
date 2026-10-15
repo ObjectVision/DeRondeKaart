@@ -46,6 +46,7 @@
   "contextPage": "https://data.startanalyse2026.nl/meta/context.html",
   "showVerschilkaartOnFirstUse": true,
   "annotations": false,
+  "layerInfoButton": "checked",
   "clickMarker": {
     "icon": "location_on",
     "enabled": false,

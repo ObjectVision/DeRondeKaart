@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   MAX_TOOLS,
   complementaryDashboardEnabled,
+  layerInfoButton,
   loadMapConfig,
   searchProvider,
   standaloneDashboardEnabled,
@@ -462,6 +463,39 @@ describe("map.json mapControls.searchProvider", () => {
     const config = await loadMapConfig();
     expect(config.mapControls.searchProvider).toBe("pdok");
     expect(config.mapControls.searchCountries).toEqual(["nl"]);
+  });
+});
+
+/**
+ * `layerInfoButton` decides when the Navigatie layer rows show a metainfo
+ * button. The default must stay `"off"`: a project that says nothing keeps the
+ * rows it already had.
+ */
+describe("map.json layerInfoButton", () => {
+  it("defaults to off", async () => {
+    stubMapJson({});
+    const config = await loadMapConfig();
+    expect(config.layerInfoButton).toBe("off");
+    expect(layerInfoButton()).toBe("off");
+  });
+
+  it.each(["off", "checked", "always"] as const)(
+    "accepts %j and publishes it through the accessor",
+    async (value) => {
+      stubMapJson({ layerInfoButton: value });
+      const config = await loadMapConfig();
+      expect(config.layerInfoButton).toBe(value);
+      expect(layerInfoButton()).toBe(value);
+    },
+  );
+
+  it.each(["yes", "", true, 1, null])("warns and falls back to off for %j", async (value) => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson({ layerInfoButton: value });
+    const config = await loadMapConfig();
+    expect(config.layerInfoButton).toBe("off");
+    expect(layerInfoButton()).toBe("off");
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining("layerInfoButton"));
   });
 });
 

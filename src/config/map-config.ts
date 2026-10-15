@@ -421,7 +421,23 @@ export interface MapConfig {
    * height, so a 3:2 asset renders 1.5x as wide as it is tall.
    */
   navIconSize?: number;
+  /**
+   * When the Navigatie layer rows show an info button, directly left of the
+   * on-map toggle, that opens the layer's metainfo dialog. Defaults to `"off"`.
+   *
+   * - `"off"` — no button.
+   * - `"checked"` — only on rows whose layer is on the left or right map.
+   * - `"always"` — on every row, so a layer's metainfo can be read before
+   *   adding it.
+   *
+   * Rows whose layer has no `meta` in layers.json, and paired comparison rows,
+   * never get one. Read at runtime via {@link layerInfoButton}.
+   */
+  layerInfoButton: LayerInfoButtonMode;
 }
+
+/** The `map.json` `layerInfoButton` states; see {@link MapConfig.layerInfoButton}. */
+export type LayerInfoButtonMode = "off" | "checked" | "always";
 
 /** Default pixel size of the UI-chrome toggle/header icons. */
 const DEFAULT_CHROME_ICON_SIZE = 20;
@@ -514,6 +530,21 @@ export function navIconSize(fallback: number): number {
   return navIconSizeValue ?? fallback;
 }
 
+/**
+ * Module-level cache of `layerInfoButton`, set by {@link loadMapConfig}. Read
+ * through {@link layerInfoButton}.
+ *
+ * A module read rather than a prop, like the icon accessors above: only the
+ * sidebar's layer rows use it, and threading it through App.tsx would add
+ * plumbing no caller in between cares about.
+ */
+let layerInfoButtonValue: LayerInfoButtonMode = "off";
+
+/** When the Navigatie layer rows show their metainfo button. */
+export function layerInfoButton(): LayerInfoButtonMode {
+  return layerInfoButtonValue;
+}
+
 /** Default map controls: both search and zoom visible. */
 export const DEFAULT_MAP_CONTROLS: MapControlsConfig = {
   search: true,
@@ -567,6 +598,7 @@ const DEFAULT_MAP_CONFIG: MapConfig = {
   clickMarker: DEFAULT_CLICK_MARKER,
   chromeIconSize: DEFAULT_CHROME_ICON_SIZE,
   chromeIconColor: DEFAULT_CHROME_ICON_COLOR,
+  layerInfoButton: "off",
 };
 
 const MIN_LAT = -85.05112878;
@@ -925,6 +957,17 @@ function validateSearchProvider(value: unknown): GeocodeProviderId {
   return DEFAULT_MAP_CONTROLS.searchProvider;
 }
 
+/** `layerInfoButton`, falling back to `"off"` on anything unknown. */
+function validateLayerInfoButton(value: unknown): LayerInfoButtonMode {
+  if (value === undefined) return DEFAULT_MAP_CONFIG.layerInfoButton;
+  if (value === "off" || value === "checked" || value === "always") return value;
+  console.warn(
+    `map.json: invalid "layerInfoButton" ${JSON.stringify(value)}; ` +
+      `using "${DEFAULT_MAP_CONFIG.layerInfoButton}"`,
+  );
+  return DEFAULT_MAP_CONFIG.layerInfoButton;
+}
+
 /** A well-formed ISO 3166-1 alpha-2 code, once lowercased and trimmed. */
 const COUNTRY_CODE_RE = /^[a-z]{2}$/;
 
@@ -1192,6 +1235,9 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
   }
   navIconSizeValue = navIcon;
 
+  const infoButton = validateLayerInfoButton(data.layerInfoButton);
+  layerInfoButtonValue = infoButton;
+
   return {
     center: center ?? DEFAULT_MAP_CONFIG.center,
     zoom: zoom ?? DEFAULT_MAP_CONFIG.zoom,
@@ -1224,6 +1270,7 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
     chromeIconSize: chromeIcon,
     chromeIconColor: chromeColor,
     navIconSize: navIcon,
+    layerInfoButton: infoButton,
   };
 }
 
