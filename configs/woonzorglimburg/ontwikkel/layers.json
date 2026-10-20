@@ -5160,7 +5160,7 @@
     {
       "id": "corp_bat_2026",
       "name": "BAT score",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -5277,12 +5277,12 @@
         "template": "<div><b>BAT score: [[ bat_score ]]</b></div>"
       },
       "sourceLayer": "corporaties_lb_2026",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_bat_2026.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/corp_bat_2026.cog.tif"
     },
     {
       "id": "corp_mutatiegraad_2026",
       "name": "Mutatiegraad",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -5414,12 +5414,12 @@
         "template": "<div><b>Mutatiegraad: [[ mutatiegraad ]]%</b></div>"
       },
       "sourceLayer": "corporaties_lb_2026",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_mutatiegraad_2026.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/corp_mutatiegraad_2026.cog.tif"
     },
     {
       "id": "corp_senioren_2026",
       "name": "Seniorenbeleid",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -5468,12 +5468,12 @@
         "template": "<div><b>Seniorenbeleid: [[ senioren ]]</b></div>"
       },
       "sourceLayer": "corporaties_lb_2026",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_senioren_2026.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/corp_senioren_2026.cog.tif"
     },
     {
       "id": "corp_ouderen_met_indicatie_2026",
       "name": "Ouderen met indicatie",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -5522,12 +5522,12 @@
         "template": "<div><b>Ouderen met indicatie: [[ ouderen_met_indicatie ]]</b></div>"
       },
       "sourceLayer": "corporaties_lb_2026",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_ouderen_met_indicatie_2026.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/corp_ouderen_met_indicatie_2026.cog.tif"
     },
     {
       "id": "corp_aandachtsgroepen_2026",
       "name": "Aandachtsgroepenbeleid",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -5576,12 +5576,12 @@
         "template": "<div><b>Aandachtsgroepenbeleid: [[ aandachtsgroepen ]]</b></div>"
       },
       "sourceLayer": "corporaties_lb_2026",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_aandachtsgroepen_2026.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/corp_aandachtsgroepen_2026.cog.tif"
     },
     {
       "id": "corp_inpandige_gemsch_ruimte_2026",
       "name": "Gemeenschappelijke ruimte",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -5630,12 +5630,12 @@
         "template": "<div><b>Gemeenschappelijke ruimte: [[ inpandige_gemsch_ruimte ]]</b></div>"
       },
       "sourceLayer": "corporaties_lb_2026",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_inpandige_gemsch_ruimte_2026.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/corp_inpandige_gemsch_ruimte_2026.cog.tif"
     },
     {
       "id": "corp_corporatie_2026",
       "name": "Corporatie",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/corporaties_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -5854,12 +5854,12 @@
         "template": "<div><b>Corporatie: [[ corporatie ]]</b></div>"
       },
       "sourceLayer": "corporaties_lb_2026",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/corp_corporatie_2026.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/corp_corporatie_2026.cog.tif"
     },
     {
       "id": "streefhuur_0_2026",
       "name": "tot kwaliteitsgrens",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -5959,12 +5959,12 @@
         "template": "<div><b>tot kwaliteitsgrens: [[ class ]]</b></div>"
       },
       "sourceLayer": "streefhuur_0",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/streefhuur_0.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/streefhuur_0.cog.tif"
     },
     {
       "id": "streefhuur_1_2026",
       "name": "tot lage aftoppingsgrens",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -6064,12 +6064,12 @@
         "template": "<div><b>tot lage aftoppingsgrens: [[ class ]]</b></div>"
       },
       "sourceLayer": "streefhuur_1",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/streefhuur_1.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/streefhuur_1.cog.tif"
     },
     {
       "id": "streefhuur_2_2026",
       "name": "tot hoge aftoppingsgrens",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -6169,12 +6169,12 @@
         "template": "<div><b>tot hoge aftoppingsgrens: [[ class ]]</b></div>"
       },
       "sourceLayer": "streefhuur_2",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/streefhuur_2.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/streefhuur_2.cog.tif"
     },
     {
       "id": "streefhuur_3_2026",
       "name": "tot liberalisatiegrens",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -6274,12 +6274,12 @@
         "template": "<div><b>tot liberalisatiegrens: [[ class ]]</b></div>"
       },
       "sourceLayer": "streefhuur_3",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/streefhuur_3.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/streefhuur_3.cog.tif"
     },
     {
       "id": "streefhuur_4_2026",
       "name": "boven niet-daeb grens",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -6379,12 +6379,12 @@
         "template": "<div><b>boven niet-daeb grens: [[ class ]]</b></div>"
       },
       "sourceLayer": "streefhuur_4",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/streefhuur_4.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/streefhuur_4.cog.tif"
     },
     {
       "id": "streefhuur_5_2026",
       "name": "boven liberalisatie grens",
-      "source": "https://data.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
+      "source": "https://dataontwikkel.woonzorglimburg.nl/pmtiles/streefhuur_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
       "geostyler": {
@@ -6484,7 +6484,7 @@
         "template": "<div><b>boven liberalisatie grens: [[ class ]]</b></div>"
       },
       "sourceLayer": "streefhuur_5",
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/streefhuur_5.cog.tif"
+      "filterRaster": "https://dataontwikkel.woonzorglimburg.nl/cog/comparison/streefhuur_5.cog.tif"
     },
     {
       "id": "bouwjaar_lb_2026",
