@@ -2,8 +2,21 @@ import { describe, expect, it } from "vitest";
 import {
   GEMEENTE_FILE_COUNT,
   gemeenteCodeOf,
-  gemeenteDownloadUrl,
+  gemeentePackages,
+  type GemeentePackageKind,
+  type GemeenteYear,
 } from "@/lib/gemeente-downloads";
+
+/** The URL of one package kind, or null / undefined when absent. */
+function urlOf(code: string, year: GemeenteYear, kind: GemeentePackageKind = "buurt") {
+  return gemeentePackages(code, year).find((p) => p.kind === kind)?.url;
+}
+
+const BASE_2025 = "https://dataportaal.pbl.nl/data/Startanalyse_aardgasvrije_buurten/2025/Gemeentes";
+const BUURT_2026 =
+  "https://dataportaal.pbl.nl/data/Startanalyse_aardgasvrije_buurten/2026/Gemeentedata_op_buurtniveau";
+const GEBOUW_2026 =
+  "https://dataportaal.pbl.nl/data/Startanalyse_aardgasvrije_buurten/2026/Gemeentedata_op_gebouwniveau";
 
 describe("gemeenteCodeOf", () => {
   it("reads the gemeente out of a buurt code", () => {
@@ -21,16 +34,34 @@ describe("gemeenteCodeOf", () => {
   });
 });
 
-describe("gemeenteDownloadUrl", () => {
-  it("builds the URL for an ordinary gemeente", () => {
-    expect(gemeenteDownloadUrl("GM0014", "2025")).toBe(
-      "https://dataportaal.pbl.nl/data/Startanalyse_aardgasvrije_buurten/2025/Gemeentes/Groningen.zip",
-    );
+describe("gemeentePackages", () => {
+  it("offers one buurt package for 2025 and buurt + gebouw for 2026, in that order", () => {
+    expect(gemeentePackages("GM0014", "2025").map((p) => p.kind)).toEqual(["buurt"]);
+    expect(gemeentePackages("GM0014", "2026").map((p) => p.kind)).toEqual(["buurt", "gebouw"]);
+  });
+
+  it("builds the 2025 URL for an ordinary gemeente", () => {
+    expect(urlOf("GM0014", "2025")).toBe(`${BASE_2025}/Groningen.zip`);
+  });
+
+  /**
+   * PBL moved the 2026 packages. The old folder (`/2026/Gemeentes/`, no `/data/`)
+   * still answers 200 — with an HTML "niet gevonden" page — so a stale base would
+   * hand users an HTML file named .zip without any error to notice.
+   */
+  it("builds the 2026 buurt URL in Gemeentedata_op_buurtniveau, by name", () => {
+    expect(urlOf("GM0014", "2026")).toBe(`${BUURT_2026}/Groningen.zip`);
+    expect(urlOf("GM0014", "2026")).not.toContain("/2026/Gemeentes/");
+  });
+
+  it("builds the 2026 gebouw URL in Gemeentedata_op_gebouwniveau, by gemeente code", () => {
+    expect(urlOf("GM0014", "2026", "gebouw")).toBe(`${GEBOUW_2026}/GM0014.zip`);
   });
 
   // Many names contain a space; an unencoded URL is not a valid one.
   it("encodes a name containing a space", () => {
-    expect(gemeenteDownloadUrl("GM1904", "2025")).toContain("Stichtse%20Vecht.zip");
+    expect(urlOf("GM1904", "2025")).toContain("Stichtse%20Vecht.zip");
+    expect(urlOf("GM1904", "2026")).toContain("Stichtse%20Vecht.zip");
   });
 
   /**
@@ -38,66 +69,44 @@ describe("gemeenteDownloadUrl", () => {
    * against the live host; getting one wrong is a silent 404 for that gemeente.
    */
   it("uses the published spelling for the irregular names", () => {
-    expect(gemeenteDownloadUrl("GM0893", "2025")).toContain("Bergen%20(L.).zip");
-    expect(gemeenteDownloadUrl("GM0373", "2025")).toContain("Bergen%20(NH.).zip");
+    expect(urlOf("GM0893", "2025")).toContain("Bergen%20(L.).zip");
+    expect(urlOf("GM0373", "2025")).toContain("Bergen%20(NH.).zip");
     // CBS calls this "Hengelo (O)"; PBL drops the suffix entirely.
-    expect(gemeenteDownloadUrl("GM0164", "2025")).toContain("Hengelo.zip");
+    expect(urlOf("GM0164", "2025")).toContain("Hengelo.zip");
     // CBS spells this with commas.
-    expect(gemeenteDownloadUrl("GM0820", "2025")).toContain(
-      "Nuenen%20Gerwen%20en%20Nederwetten.zip",
-    );
+    expect(urlOf("GM0820", "2025")).toContain("Nuenen%20Gerwen%20en%20Nederwetten.zip");
+    // The 2026 buurt folder uses the same names.
+    expect(urlOf("GM0373", "2026")).toContain("Bergen%20(NH.).zip");
   });
 
   it("strips diacritics and a leading apostrophe, as PBL does", () => {
     // Sudwest-Fryslan, not Súdwest-Fryslân.
-    expect(gemeenteDownloadUrl("GM1900", "2025")).toContain("Sudwest-Fryslan.zip");
+    expect(urlOf("GM1900", "2025")).toContain("Sudwest-Fryslan.zip");
     // s-Gravenhage, not 's-Gravenhage.
-    expect(gemeenteDownloadUrl("GM0518", "2025")).toContain("/s-Gravenhage.zip");
+    expect(urlOf("GM0518", "2025")).toContain("/s-Gravenhage.zip");
   });
 
   /**
-   * Ameland has no 2025 package, while every other Wadden island does. The caller
-   * must be able to tell, so this returns null rather than a URL that would 404.
+   * Ameland has no buurt package in either year, but does have a 2026 gebouw
+   * package. Availability is per package, not a property of the gemeente:
+   * getting it wrong either links a 404 or hides a download that exists.
    */
-  it("returns null for a gemeente PBL does not publish that year", () => {
-    expect(gemeenteDownloadUrl("GM0060", "2025")).toBeNull();
+  it("handles Ameland per package", () => {
+    expect(urlOf("GM0060", "2025")).toBeNull();
+    expect(urlOf("GM0060", "2026")).toBeNull();
+    expect(urlOf("GM0060", "2026", "gebouw")).toBe(`${GEBOUW_2026}/GM0060.zip`);
   });
 
-  /**
-   * ...but PBL DOES publish Ameland for 2026, so availability is per-year and not
-   * a property of the gemeente. Getting this wrong hides a download that exists.
-   */
-  it("resolves a gemeente that only a later year publishes", () => {
-    expect(gemeenteDownloadUrl("GM0060", "2026")).toBe(
-      "https://dataportaal.pbl.nl/Startanalyse_aardgasvrije_buurten/2026/Gemeentes/Ameland.zip",
-    );
+  // Still one entry per package, so the caller can grey it out in place.
+  it("keeps an entry for an unpublished package", () => {
+    expect(gemeentePackages("GM0060", "2026")).toHaveLength(2);
   });
 
-  /**
-   * The 2026 packages sit at a path with NO `/data/` segment, unlike 2025.
-   * Confirmed against the live host in both directions. A "tidy-up" that unified
-   * the two bases would 404 every link for one of the years, silently.
-   */
-  it("uses the 2026 base, which omits the /data/ segment", () => {
-    expect(gemeenteDownloadUrl("GM0014", "2026")).toBe(
-      "https://dataportaal.pbl.nl/Startanalyse_aardgasvrije_buurten/2026/Gemeentes/Groningen.zip",
-    );
-  });
-
-  it("keeps the /data/ segment for 2025", () => {
-    expect(gemeenteDownloadUrl("GM0014", "2025")).toContain("/data/");
-    expect(gemeenteDownloadUrl("GM0014", "2026")).not.toContain("/data/");
-  });
-
-  // The filename table is shared across years, so encoding must hold for both.
-  it("encodes irregular names for 2026 too", () => {
-    expect(gemeenteDownloadUrl("GM0373", "2026")).toContain("Bergen%20(NH.).zip");
-    expect(gemeenteDownloadUrl("GM1904", "2026")).toContain("Stichtse%20Vecht.zip");
-  });
-
-  it("returns null for an unknown code", () => {
-    expect(gemeenteDownloadUrl("GM9999", "2025")).toBeNull();
-    expect(gemeenteDownloadUrl("", "2025")).toBeNull();
+  it("returns no URL for an unknown code", () => {
+    for (const code of ["GM9999", ""]) {
+      expect(gemeentePackages(code, "2025").every((p) => p.url === null)).toBe(true);
+      expect(gemeentePackages(code, "2026").every((p) => p.url === null)).toBe(true);
+    }
   });
 });
 

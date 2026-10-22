@@ -132,9 +132,10 @@ describe("FeatureInfo downloads section", () => {
 });
 
 /**
- * The gemeente package, unlike the archives, IS year-specific: PBL publishes one
- * per model year, at two different base URLs. So the active variant decides which
- * year(s) the popup offers, and each button names its year.
+ * The gemeente packages, unlike the archives, ARE year-specific: PBL publishes
+ * them per model year at different URLs (one for 2025, buurt + gebouw for 2026).
+ * So the active variant decides which year(s) the popup offers, and each button
+ * names its year.
  */
 describe("FeatureInfo gemeente datapakket", () => {
   const ALL_VARIANTS = [
@@ -189,19 +190,24 @@ describe("FeatureInfo gemeente datapakket", () => {
     );
   });
 
-  it("offers the 2026 package, labelled, under the 2026 variant", () => {
+  /**
+   * 2026 publishes two packages per gemeente: CSV tables per buurt (by name) and
+   * a GIS package per gebouw (by gemeente code). Each gets its own labelled
+   * button.
+   */
+  it("offers the 2026 buurt and gebouw packages, labelled, under the 2026 variant", () => {
     useVariant("2026");
     renderInfo();
 
     expect(yearLabel("ASA2026")).toBeTruthy();
     expect(yearLabel("ASA2025")).toBeNull();
+    expect(screen.getByText("Buurt")).toBeTruthy();
+    expect(screen.getByText("Gebouw")).toBeTruthy();
 
-    const links = gemeenteLinks();
-    expect(links).toHaveLength(1);
-    // The 2026 base has no `/data/` segment; see gemeente-downloads.ts.
-    expect(links[0].getAttribute("href")).toBe(
-      "https://dataportaal.pbl.nl/Startanalyse_aardgasvrije_buurten/2026/Gemeentes/Almere.zip",
-    );
+    expect(gemeenteLinks().map((a) => a.getAttribute("href"))).toEqual([
+      "https://dataportaal.pbl.nl/data/Startanalyse_aardgasvrije_buurten/2026/Gemeentedata_op_buurtniveau/Almere.zip",
+      "https://dataportaal.pbl.nl/data/Startanalyse_aardgasvrije_buurten/2026/Gemeentedata_op_gebouwniveau/GM0034.zip",
+    ]);
   });
 
   it("offers both years, each labelled, under the comparison variant", () => {
@@ -214,16 +220,27 @@ describe("FeatureInfo gemeente datapakket", () => {
     const hrefs = gemeenteLinks().map((a) => a.getAttribute("href"));
     expect(hrefs).toEqual([
       "https://dataportaal.pbl.nl/data/Startanalyse_aardgasvrije_buurten/2025/Gemeentes/Almere.zip",
-      "https://dataportaal.pbl.nl/Startanalyse_aardgasvrije_buurten/2026/Gemeentes/Almere.zip",
+      "https://dataportaal.pbl.nl/data/Startanalyse_aardgasvrije_buurten/2026/Gemeentedata_op_buurtniveau/Almere.zip",
+      "https://dataportaal.pbl.nl/data/Startanalyse_aardgasvrije_buurten/2026/Gemeentedata_op_gebouwniveau/GM0034.zip",
     ]);
   });
 
+  // A year with one package keeps the plain button: no kind label beside it.
+  it("labels package kinds only where a year offers more than one", () => {
+    useVariant("2025");
+    renderInfo();
+
+    expect(screen.queryByText("Buurt")).toBeNull();
+    expect(screen.queryByText("Gebouw")).toBeNull();
+  });
+
   /**
-   * Ameland has a 2026 package but no 2025 one, so the comparison variant must
-   * show one live button beside one disabled one. Collapsing that to "no package
-   * for this gemeente" would hide a download that exists.
+   * Ameland has no buurt package in either year, but does have a 2026 gebouw
+   * package, so the comparison variant must show one live button beside two
+   * disabled ones. Collapsing that to "no package for this gemeente" would hide a
+   * download that exists.
    */
-  it("disables only the year a gemeente is missing from", () => {
+  it("disables only the packages a gemeente is missing from", () => {
     useVariant("2025_2026");
     render(() => (
       <FeatureInfo
@@ -242,15 +259,21 @@ describe("FeatureInfo gemeente datapakket", () => {
       />
     ));
 
-    // Only 2026 resolves to a link...
+    // Only the 2026 gebouw package resolves to a link...
     const hrefs = gemeenteLinks().map((a) => a.getAttribute("href"));
     expect(hrefs).toEqual([
-      "https://dataportaal.pbl.nl/Startanalyse_aardgasvrije_buurten/2026/Gemeentes/Ameland.zip",
+      "https://dataportaal.pbl.nl/data/Startanalyse_aardgasvrije_buurten/2026/Gemeentedata_op_gebouwniveau/GM0060.zip",
     ]);
-    // ...and 2025 is present but rendered as unavailable rather than dropped.
+    // ...and the buurt packages are present but rendered as unavailable rather
+    // than dropped.
     expect(yearLabel("ASA2025")).toBeTruthy();
     expect(
       screen.getByLabelText("Geen datapakket ASA2025 beschikbaar voor deze gemeente"),
+    ).toBeTruthy();
+    expect(
+      screen.getByLabelText(
+        "Geen datapakket ASA2026 op buurtniveau beschikbaar voor deze gemeente",
+      ),
     ).toBeTruthy();
   });
 

@@ -17,7 +17,9 @@ import { resolveTemplate, renderTemplate } from "@/layers";
 import { DOWNLOADS, downloadUrl } from "@/lib/downloads";
 import {
   gemeenteCodeOf,
-  gemeenteDownloadUrl,
+  gemeentePackages,
+  type GemeentePackage,
+  type GemeentePackageKind,
   type GemeenteYear,
 } from "@/lib/gemeente-downloads";
 import { chromeIconColor } from "@/config/map-config";
@@ -173,9 +175,11 @@ function PblSummary(props: PblSummaryProps): JSX.Element {
  * startanalyse2026's archives, and only that project declares variants — without
  * it they would appear in any project whose layer sets `featureinfo.pbl`.
  *
- * The gemeente package beside them DOES vary: PBL publishes one per model year at
- * a different URL, so the active variant decides which year(s) are offered and
- * each button names its year. See VARIANT_YEARS and `gemeenteDownloadUrl`.
+ * The gemeente packages beside them DO vary: PBL publishes them per model year at
+ * different URLs -- one (buurt tables) for 2025, two (buurt tables and a large
+ * per-gebouw GIS package) for 2026 -- so the active variant decides which year(s)
+ * are offered and each button names its year. See VARIANT_YEARS and
+ * `gemeentePackages`.
  */
 interface DownloadsSectionProps {
   /** The clicked feature's CBS buurt code, or null when it has none. */
@@ -196,17 +200,29 @@ const VARIANT_YEARS: Readonly<Record<string, readonly GemeenteYear[]>> = {
   "2025_2026": ["2025", "2026"],
 };
 
+/**
+ * Per package kind: the label shown beside its button when a year offers more
+ * than one, its icon, and the wording for its title/aria-label.
+ */
+const PACKAGE_UI: Readonly<
+  Record<GemeentePackageKind, { label: string; icon: string; level: string; detail: string }>
+> = {
+  buurt: { label: "Buurt", icon: "download", level: "op buurtniveau", detail: "CSV-tabellen" },
+  gebouw: { label: "Gebouw", icon: "domain", level: "op gebouwniveau", detail: "groot bestand" },
+};
+
 function DownloadsSection(props: DownloadsSectionProps): JSX.Element {
   /** Which years to offer, from the active variant. */
   const years = (): readonly GemeenteYear[] => VARIANT_YEARS[variantId() ?? ""] ?? [];
 
   /**
-   * The clicked feature's gemeente package for one year, or null when PBL
-   * publishes none — Ameland has a 2026 package but no 2025 one.
+   * The clicked feature's gemeente packages for one year. Without a usable buurt
+   * code every package is offered but unlinked, so the row keeps its shape.
    */
-  const gemeenteUrl = (year: GemeenteYear) => {
+  const packagesFor = (year: GemeenteYear): GemeentePackage[] => {
     const code = props.buurtCode;
-    return code ? gemeenteDownloadUrl(gemeenteCodeOf(code), year) : null;
+    // An unknown code yields the year's packages with every url null.
+    return gemeentePackages(code ? gemeenteCodeOf(code) : "", year);
   };
 
   return (
@@ -264,37 +280,55 @@ function DownloadsSection(props: DownloadsSectionProps): JSX.Element {
                 // labels would leave them indistinguishable to a screen reader.
                 <span class="inline-flex items-center gap-1">
                   <span class="text-xs font-medium text-gray-600">ASA{year}</span>
-                  <Show
-                    when={gemeenteUrl(year)}
-                    fallback={
-                      // No package for this gemeente in this year (PBL publishes
-                      // no 2025 one for Ameland), or the feature carries no usable
-                      // buurt code. Shown greyed rather than hidden, so the row
-                      // keeps its height.
-                      <span
-                        title={`Geen datapakket ASA${year} beschikbaar voor deze gemeente`}
-                        aria-label={`Geen datapakket ASA${year} beschikbaar voor deze gemeente`}
-                        class="inline-flex cursor-not-allowed items-center text-gray-300"
-                      >
-                        <Icon name="download" size={28} />
-                      </span>
-                    }
-                  >
-                    {(url) => (
-                      <a
-                        href={url()}
-                        // Same reason as the archive links above: the parent frame's
-                        // CSP blocks navigating the frame itself to the data host.
-                        target="_blank"
-                        rel="noreferrer"
-                        title={`Datapakket ASA${year} van deze gemeente downloaden (ZIP)`}
-                        aria-label={`Datapakket ASA${year} van deze gemeente downloaden (ZIP)`}
-                        class="inline-flex items-center rounded transition-opacity hover:opacity-70"
-                      >
-                        <Icon name="download" size={28} color={chromeIconColor()} />
-                      </a>
-                    )}
-                  </Show>
+                  <For each={packagesFor(year)}>
+                    {(pkg) => {
+                      const ui = PACKAGE_UI[pkg.kind];
+                      // A year offering one package keeps the plain wording; with
+                      // two, each button says which one it is, in text and in its
+                      // title/aria-label alike.
+                      const several = () => packagesFor(year).length > 1;
+                      const level = () => (several() ? ` ${ui.level}` : "");
+                      return (
+                        <span class="inline-flex items-center gap-0.5">
+                          <Show when={several()}>
+                            <span class="ml-1 text-xs text-gray-500">{ui.label}</span>
+                          </Show>
+                          <Show
+                            when={pkg.url}
+                            fallback={
+                              // No such package for this gemeente in this year
+                              // (PBL publishes no buurt tables for Ameland), or the
+                              // feature carries no usable buurt code. Shown greyed
+                              // rather than hidden, so the row keeps its height.
+                              <span
+                                title={`Geen datapakket ASA${year}${level()} beschikbaar voor deze gemeente`}
+                                aria-label={`Geen datapakket ASA${year}${level()} beschikbaar voor deze gemeente`}
+                                class="inline-flex cursor-not-allowed items-center text-gray-300"
+                              >
+                                <Icon name={ui.icon} size={28} />
+                              </span>
+                            }
+                          >
+                            {(url) => (
+                              <a
+                                href={url()}
+                                // Same reason as the archive links above: the parent
+                                // frame's CSP blocks navigating the frame itself to
+                                // the data host.
+                                target="_blank"
+                                rel="noreferrer"
+                                title={`Datapakket ASA${year}${level()} van deze gemeente downloaden (ZIP${several() ? `, ${ui.detail}` : ""})`}
+                                aria-label={`Datapakket ASA${year}${level()} van deze gemeente downloaden (ZIP${several() ? `, ${ui.detail}` : ""})`}
+                                class="inline-flex items-center rounded transition-opacity hover:opacity-70"
+                              >
+                                <Icon name={ui.icon} size={28} color={chromeIconColor()} />
+                              </a>
+                            )}
+                          </Show>
+                        </span>
+                      );
+                    }}
+                  </For>
                 </span>
               )}
             </For>
