@@ -57,8 +57,10 @@ from urllib.parse import urlparse
 
 YEARS = ("2025", "2026")
 
-# Which archive each pmtiles source belongs to. LNGA09-11 ship in the archive
-# but no layer config references them, so they get no QGIS layers.
+# Which archive each pmtiles source belongs to. The sensitivity runs differ per
+# year -- 2025 has LNGA01-11, 2026 LNGA03-14 -- so the map covers the union. A
+# run that ships in the archive but no layer config references gets no QGIS
+# layers (2025's LNGA09-11).
 ARCHIVE_OF_SOURCE = {
     "stratLN.pmtiles": "stratLN",
     "strat1.pmtiles": "strat1",
@@ -69,7 +71,7 @@ ARCHIVE_OF_SOURCE = {
     # (the live app fetches it by that name); the download archive is ref23.
     "ref19.pmtiles": "ref23",
     "ref30.pmtiles": "ref30",
-    **{f"LNGA{i:02d}.pmtiles": "LNGA" for i in range(1, 12)},
+    **{f"LNGA{i:02d}.pmtiles": "LNGA" for i in range(1, 15)},
 }
 
 # Group label per archive, matching the navigation tree the app shows.
@@ -684,6 +686,61 @@ def prune_tree(node: object, keep: dict[str, str]) -> object | None:
     return None
 
 
+def navigation_tree(navigation: list, layers: list[tuple[str, dict]], verbose: bool) -> list:
+    """The navigation tree for one archive, leaves naming project layer ids.
+
+    `layers` pairs each project layer id with its config layer. Shared with
+    build-arcgis-maps.py, so the QGIS and ArcGIS trees cannot drift apart.
+    """
+    # Carried from `layers` rather than parsed back out of the layer id: the
+    # id's internal structure is the target format's business, not a lookup key.
+    by_config_id = {str(layer["id"]): lid for lid, layer in layers}
+    pruned = prune_tree(navigation, by_config_id) or []
+    # Rewrite leaf ids from config id to project layer id.
+    def relabel(nodes):
+        for n in nodes:
+            if "children" in n:
+                relabel(n["children"])
+            else:
+                n["layer"] = by_config_id[n["layer"]]
+    relabel(pruned)
+
+    # Pruning "Kernkaarten" can orphan a layer that the navigation tree lists
+    # only there -- LNGA08 is one. The data is in the archive, so dropping it
+    # from the tree would hide a layer rather than de-duplicate one. Anything
+    # left unreachable is appended so every layer stays selectable.
+    def reachable(nodes, seen):
+        for n in nodes:
+            if "children" in n:
+                reachable(n["children"], seen)
+            else:
+                seen.add(n["layer"])
+        return seen
+
+    seen = reachable(pruned, set())
+    orphans = [(lid, lyr) for lid, lyr in layers if lid not in seen]
+    if orphans:
+        extra = [{"label": (lyr.get("name") or lid).strip(), "layer": lid} for lid, lyr in orphans]
+        if is_single_group(pruned):
+            pruned[0]["children"].extend(extra)
+        else:
+            pruned.extend(extra)
+        if verbose:
+            for lid, lyr in orphans:
+                print(f"    kept {lid} ({lyr.get('name', '').strip()}) "
+                      f"-- listed only under an excluded group")
+    return pruned
+
+
+def is_single_group(nodes: list) -> bool:
+    """Whether the tree is one navigation group, used directly as the root.
+
+    Wrapping it in the archive's own group would just repeat the same label
+    twice; anything else gets that wrapper.
+    """
+    return len(nodes) == 1 and "children" in nodes[0]
+
+
 def build_tree(parent: ET.Element, nodes: list, ids: dict[str, str]) -> None:
     """Emit the tree: groups checked and open, every layer present but off.
 
@@ -795,7 +852,11 @@ def build_project(
         if gpkg is None:
             continue
         if not (layer.get("geostyler") or {}).get("rules"):
-            skipped.append(f"{layer['id']} ({layer.get('name', '').strip()}): no style")
+            # Not a failure, so not counted against --allow-missing: a layer
+            # with no style is one the app never paints -- `buurt_klik` is the
+            # invisible click target behind the feature-info panel.
+            if verbose:
+                print(f"    left out {layer['id']} ({layer.get('name', '').strip()}): no style")
             continue
         # QGIS 3.42 discards a layer id shorter than 11 characters and mints a
         # UUID in its place, orphaning every layer-tree-layer that references
@@ -817,51 +878,9 @@ def build_project(
     for layer_id, layer, gpkg in pending:
         build_maplayer(projectlayers, layer, gpkg, layer_id)
 
-    # Carried from `pending` rather than parsed back out of the layer id: the
-    # id's internal structure is QGIS's business, not a lookup key of ours.
-    by_config_id = {str(layer["id"]): lid for lid, layer, _ in pending}
-    pruned = prune_tree(navigation, by_config_id) or []
-    # Rewrite leaf ids from config id to project layer id.
-    def relabel(nodes):
-        for n in nodes:
-            if "children" in n:
-                relabel(n["children"])
-            else:
-                n["layer"] = by_config_id[n["layer"]]
-    relabel(pruned)
+    pruned = navigation_tree(navigation, [(lid, lyr) for lid, lyr, _ in pending], verbose)
 
-    # Pruning "Kernkaarten" can orphan a layer that the navigation tree lists
-    # only there -- LNGA08 is one. The data is in the archive, so dropping it
-    # from the tree would hide a layer rather than de-duplicate one. Anything
-    # left unreachable is appended so every layer stays selectable.
-    def reachable(nodes, seen):
-        for n in nodes:
-            if "children" in n:
-                reachable(n["children"], seen)
-            else:
-                seen.add(n["layer"])
-        return seen
-
-    orphans = [lid for lid in kept if lid not in reachable(pruned, set())]
-    if orphans:
-        by_id = {lid: lyr for lid, lyr, _ in pending}
-        extra = [
-            {"label": (by_id[lid].get("name") or lid).strip(), "layer": lid}
-            for lid in orphans
-        ]
-        if len(pruned) == 1 and "children" in pruned[0]:
-            pruned[0]["children"].extend(extra)
-        else:
-            pruned.extend(extra)
-        if verbose:
-            for lid in orphans:
-                print(f"    kept {lid} ({by_id[lid].get('name', '').strip()}) "
-                      f"-- listed only under an excluded group")
-
-    # A single top-level group whose only child is the archive's own navigation
-    # group would just repeat the same label twice, so in that case the
-    # navigation group is used directly.
-    if len(pruned) == 1 and "children" in pruned[0]:
+    if is_single_group(pruned):
         build_tree(tree_root, pruned, kept)
     else:
         archive_group = ET.SubElement(
