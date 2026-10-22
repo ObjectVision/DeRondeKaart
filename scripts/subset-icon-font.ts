@@ -51,6 +51,8 @@ const RUNTIME_ICON_NAMES = [
   "circle", // on-map state (sidebar), layer on neither map
   "content_copy",
   "database", // metainfo fragment, "Databronnen" heading
+  "domain", // featureinfo, gemeente package op gebouwniveau (PACKAGE_UI)
+  "download", // featureinfo, gemeente package op buurtniveau (PACKAGE_UI)
   "edit", // annotation description
   "edit_off",
   "help", // metainfo fragment, "Aannames en Onzekerheden" heading
