@@ -332,9 +332,16 @@
         "expanded": true,
         "children": [
           {
+            "id": "stijgingspercentage_weg_limburg",
+            "color": "#7A5C3E",
+            "label": "weg",
+            "a": false,
+            "b": false
+          },
+          {
             "id": "stijgingspercentage_lb_2026",
             "color": "#7A5C3E",
-            "label": "Stijgingspercentage",
+            "label": "vlak",
             "a": false,
             "b": false
           }
