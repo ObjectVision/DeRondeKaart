@@ -1512,6 +1512,147 @@
       "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/fysiotherapeut_lb_m5.cog.tif"
     },
     {
+      "id": "basisschool",
+      "name": "basisschool",
+      "description": "Locaties van basisscholen in de regio.",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "point",
+      "sourceLayer": "vrz_locaties_2026",
+      "style": {
+        "color": [
+          136,
+          86,
+          167,
+          150
+        ],
+        "opacity": 0.85,
+        "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "basisschool",
+        "rules": [
+          {
+            "name": "basisschool",
+            "filter": [
+              "==",
+              "type",
+              28
+            ],
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/school.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#8C54D6",
+                "opacity": 0.85
+              }
+            ]
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
+      },
+      "beforeid": "foreground-layers"
+    },
+    {
+      "id": "kinderdagverblijf",
+      "name": "kinderdagverblijf",
+      "description": "Locaties van kinderdagverblijven in de regio.",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "point",
+      "sourceLayer": "vrz_locaties_2026",
+      "style": {
+        "color": [
+          136,
+          86,
+          167,
+          150
+        ],
+        "opacity": 0.85,
+        "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "kinderdagverblijf",
+        "rules": [
+          {
+            "name": "kinderdagverblijf",
+            "filter": [
+              "==",
+              "type",
+              29
+            ],
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/child_care.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#8C54D6",
+                "opacity": 0.85
+              }
+            ]
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
+      },
+      "beforeid": "foreground-layers"
+    },
+    {
+      "id": "bso",
+      "name": "buitenschoolse opvang",
+      "description": "Locaties van buitenschoolse opvang (bso) in de regio.",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "point",
+      "sourceLayer": "vrz_locaties_2026",
+      "style": {
+        "color": [
+          136,
+          86,
+          167,
+          150
+        ],
+        "opacity": 0.85,
+        "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "buitenschoolse opvang",
+        "rules": [
+          {
+            "name": "buitenschoolse opvang",
+            "filter": [
+              "==",
+              "type",
+              30
+            ],
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/toys.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#8C54D6",
+                "opacity": 0.85
+              }
+            ]
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ postcode ]] [[ plaats ]]</div>"
+      },
+      "beforeid": "foreground-layers"
+    },
+    {
       "id": "WZW5",
       "name": "WZW5 test",
       "source": "https://tiles.mapgallery.io/woonzorgwijzer5/v1/public/layers/HGJGD/{z}/{x}/{y}.pbf",

@@ -356,6 +356,49 @@
     "expanded": false,
     "children": [
       {
+        "label": "algemeen",
+        "icon": "storefront",
+        "color": "#8C54D6",
+        "expanded": true,
+        "children": [
+          {
+            "id": "ov",
+            "color": "#8C54D6",
+            "label": "Openbaar vervoer",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "supermarkt",
+            "color": "#8C54D6",
+            "label": "Supermarkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "basisschool",
+            "color": "#8C54D6",
+            "label": "Basisschool",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kinderdagverblijf",
+            "color": "#8C54D6",
+            "label": "Kinderdagverblijf",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bso",
+            "color": "#8C54D6",
+            "label": "Buitenschoolse opvang",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
         "label": "zorgvoorzieningen",
         "icon": "storefront",
         "color": "#8C54D6",
