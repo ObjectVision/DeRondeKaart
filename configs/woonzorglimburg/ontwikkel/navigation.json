@@ -365,6 +365,28 @@
         ]
       },
       {
+        "label": "woonzorglocaties",
+        "icon": "storefront",
+        "color": "#8C54D6",
+        "expanded": true,
+        "children": [
+          {
+            "id": "zorg_ontmoeting_lb_2026",
+            "color": "#8C54D6",
+            "label": "Ontmoeting",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "zorg_ouderenzorg_lb_2026",
+            "color": "#8C54D6",
+            "label": "Ouderenzorg",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
         "label": "loopafstanden",
         "icon": "storefront",
         "color": "#8C54D6",
