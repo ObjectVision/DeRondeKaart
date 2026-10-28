@@ -1653,6 +1653,95 @@
       "beforeid": "foreground-layers"
     },
     {
+      "id": "zorg_ontmoeting_lb_2026",
+      "name": "ontmoeting",
+      "description": "Ontmoetingsruimten in Limburg (2026).",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/zorg_voorzieningen_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "point",
+      "sourceLayer": "zorg_ontmoetingsruimte_lb_2026",
+      "style": {
+        "color": [
+          136,
+          86,
+          167,
+          150
+        ],
+        "opacity": 0.85,
+        "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "ontmoeting",
+        "rules": [
+          {
+            "name": "ontmoeting",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/groups_2.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#8C54D6",
+                "opacity": 0.85
+              }
+            ]
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ type ]]<br/>[[ straat ]] [[ huisnummer ]][[ toevoeging ]]<br/>[[ pc6 ]] [[ gemeente ]]</div>"
+      },
+      "beforeid": "foreground-layers"
+    },
+    {
+      "id": "zorg_ouderenzorg_lb_2026",
+      "name": "ouderenzorg",
+      "description": "Ouderenzorglocaties in Limburg (2026) met toewijzing.",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/zorg_voorzieningen_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "point",
+      "sourceLayer": "zorgvoorziening_lb_2026",
+      "style": {
+        "color": [
+          136,
+          86,
+          167,
+          150
+        ],
+        "opacity": 0.85,
+        "lineWidth": 1
+      },
+      "geostyler": {
+        "name": "ouderenzorg",
+        "rules": [
+          {
+            "name": "ouderenzorg",
+            "filter": [
+              "==",
+              "toewijzing",
+              "J"
+            ],
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/elderly.svg",
+                "width": 24,
+                "height": 24,
+                "size": 24,
+                "color": "#8C54D6",
+                "opacity": 0.85
+              }
+            ]
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b><br/>[[ zorgaanbieder ]]<br/>[[ straat ]] [[ huisnummer ]][[ toevoeging ]]<br/>[[ pc6 ]]<br/>Intramuraal 2026: [[ intramuraal_2026 ]] / 2030: [[ intramuraal_2030 ]]<br/>[[ toelichting_2 ]]</div>"
+      },
+      "beforeid": "foreground-layers"
+    },
+    {
       "id": "WZW5",
       "name": "WZW5 test",
       "source": "https://tiles.mapgallery.io/woonzorgwijzer5/v1/public/layers/HGJGD/{z}/{x}/{y}.pbf",
