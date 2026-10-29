@@ -48,8 +48,15 @@ interface UseUrlCommandsOptions extends MapSidePair<MapSide> {
    * level (filter.json `name`, case-insensitive), valued by CBS code or display
    * label (null/"" clears the level). Awaited so the selection + fly-to settle
    * before an `open-circular` snapshots the preview.
+   *
+   * A level may carry an ARRAY of codes/labels to select several areas at once
+   * (the landing page's multi-select gebiedsfilter). A bare string stays
+   * equivalent to a one-element array, so existing hosts are unaffected, and an
+   * empty array clears the level exactly as `null` does.
    */
-  onSetFilter?: (filter: Record<string, string | null>) => void | Promise<void>;
+  onSetFilter?: (
+    filter: Record<string, string | string[] | null>,
+  ) => void | Promise<void>;
   /**
    * A `set-variant` message or a `variant` URL param asked for a different
    * config variant. Awaited so any layer commands that follow resolve against
@@ -350,11 +357,12 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
 
   // Listen for postMessage from parent iframe
   onMount(() => {
-    // A `filter` field is a plain object of level→(code|label|null). Any other
-    // shape is ignored.
+    // A `filter` field is a plain object of level→(code|label|array|null). Any
+    // other shape is ignored. The guard checks the ENVELOPE, not the values: a
+    // level's value may itself be an array (multi-select).
     async function applyFilter(filter: unknown) {
       if (filter && typeof filter === "object" && !Array.isArray(filter)) {
-        await options.onSetFilter?.(filter as Record<string, string | null>);
+        await options.onSetFilter?.(filter as Record<string, string | string[] | null>);
       }
     }
 

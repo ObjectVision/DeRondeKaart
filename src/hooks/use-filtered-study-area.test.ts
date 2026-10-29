@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createRoot } from "solid-js";
-import type { Feature, Polygon } from "geojson";
+import type { Feature, MultiPolygon, Polygon } from "geojson";
 
 import { useFilteredStudyAreaLayers, type FilteredStudyArea } from "@/hooks/use-filtered-study-area";
 import type { MapViewHandle } from "@/components/map/map-view-config";
@@ -53,6 +53,26 @@ const GEBIED: Feature<Polygon> = {
 
 const SELECTION: FilteredStudyArea = { area: [GEBIED] };
 
+/** A second, disjoint gebied — e.g. the next gemeente along. */
+const GEBIED_2: Feature<Polygon> = {
+  type: "Feature",
+  geometry: { type: "Polygon", coordinates: [[[7, 51], [8, 51], [8, 52], [7, 51]]] },
+  properties: {},
+};
+
+/** A gebied that is itself a MultiPolygon (an exclave, an island). */
+const GEBIED_MULTI: Feature<MultiPolygon> = {
+  type: "Feature",
+  geometry: {
+    type: "MultiPolygon",
+    coordinates: [
+      [[[5, 53], [6, 53], [6, 54], [5, 53]]],
+      [[[9, 53], [10, 53], [10, 54], [9, 53]]],
+    ],
+  },
+  properties: {},
+};
+
 /**
  * Run the hook with `data` and read what it put on the map.
  *
@@ -95,6 +115,34 @@ describe("useFilteredStudyAreaLayers", () => {
 
   it("feeds the selected geometry into the source", () => {
     expect(draw(SELECTION).features("filtered-study-area")).toHaveLength(1);
+  });
+
+  /**
+   * Several gemeenten / wijken / buurten can be selected at once (the landing
+   * page's multi-select gebiedsfilter), and useFilteredStudyArea collects one
+   * feature per matching table row. So the overlay must carry them all: a
+   * FeatureCollection of N outlines, not just the first.
+   */
+  it("draws one outline per selected gebied", () => {
+    const m = draw({ area: [GEBIED, GEBIED_2] });
+
+    expect(m.features("filtered-study-area")).toHaveLength(2);
+    // Still one source and one layer — the areas travel as features, not as
+    // extra layers, so the legend and the anchor bands are untouched.
+    expect(m.sourceIds()).toEqual(["filtered-study-area"]);
+    expect(m.layerIds()).toEqual(["filtered-study-area-line"]);
+  });
+
+  it("keeps a MultiPolygon gebied intact alongside simple ones", () => {
+    const features = draw({ area: [GEBIED, GEBIED_MULTI] }).features(
+      "filtered-study-area",
+    ) as Feature<Polygon | MultiPolygon>[];
+
+    expect(features).toHaveLength(2);
+    expect(features.map((f) => f.geometry.type)).toEqual([
+      "Polygon",
+      "MultiPolygon",
+    ]);
   });
 
   // Clearing the filter must leave nothing behind; the layer stays on the style

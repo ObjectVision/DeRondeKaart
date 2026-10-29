@@ -79,11 +79,18 @@ only job is to answer clicks. Absent from the legend and navigation, added by
 
 ## Filtering and selection
 
-**Gebiedsfilter** (area filter) — the cascading region filter: pick a
-municipality, then a district, then a neighbourhood, each narrowing the next.
+**Gebiedsfilter** (area filter) — the cascading region filter: pick
+municipalities, then districts, then neighbourhoods, each narrowing the next.
 Configured in `filter.json`, where the levels are project-defined rather than
 fixed. Named `areaFilter` in code, but *gebiedsfilter* is the word used in
 comments and in conversation, so both appear. `src/layers/area-filter.ts`.
+
+Every level holds a **set** of codes, not one: several areas can be selected at
+the same level, and the filter then means *AND across levels, OR within a
+level*. A host `filter` message may carry a single code/label or an array of
+them per level (`src/hooks/use-host-filter.ts`); the landing page's selector
+sends arrays. The sidebar's own dropdowns (`FilterSection`, shown only when
+`map.json` sets `filterSection`) remain single-select.
 
 **Combination** (Dutch: *Combinaties*) — a layer the user builds in-session by
 scoring how many chosen classes each grid cell passes. Never in `layers.json`,
