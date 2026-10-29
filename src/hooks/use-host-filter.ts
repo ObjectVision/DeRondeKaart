@@ -19,23 +19,28 @@ export interface UseHostFilterOptions {
 
 export function useHostFilter(
   options: UseHostFilterOptions,
-): (filter: Record<string, string | null>) => void {
+): (filter: Record<string, string | string[] | null>) => void {
   // A host `filter` message that arrives before the gebiedsfilter options have
   // finished loading (entries still empty) is stashed here and flushed once the
   // options are ready — see the effect below.
-  let pendingFilter: Record<string, string | null> | null = null;
+  let pendingFilter: Record<string, string | string[] | null> | null = null;
 
-  // Set the gebiedsfilter by level name → CBS code or display label. Resolves
-  // against the loaded filter options and builds the end state coarse→fine,
-  // then commits it in ONE applySelections call (cascade pruning + fly-to
-  // included). Unknown levels/values are warned and skipped.
+  // Set the gebiedsfilter by level name → CBS code(s) or display label(s).
+  // Resolves against the loaded filter options and builds the end state
+  // coarse→fine, then commits it in ONE applySelections call (cascade pruning
+  // + fly-to included). Unknown levels/values are warned and skipped.
+  //
+  // A level's value may be a single code/label or an ARRAY of them; the array
+  // selects several areas at that level (OR within a level, per
+  // areaFilterExpression). A bare string behaves as a one-element array, which
+  // is what keeps the Power BI visual's existing messages working unchanged.
   //
   // The single commit is load-bearing, not a tidy-up: setValue rebuilds from the
   // hook's current `selections`, so calling it once per level in this
   // synchronous pass made every call discard the previous one's result. Last
   // write won — which is why unpicking Buurt then re-sending {Gemeente, Wijk}
   // re-flew to the still-present Buurt instead of zooming out to Wijk.
-  function setFilterFromHost(filter: Record<string, string | null>) {
+  function setFilterFromHost(filter: Record<string, string | string[] | null>) {
     const af = options.areaFilter;
     if (af.entries().length === 0) {
       // Options not loaded yet (they resolve async after mount, and in embed
@@ -65,8 +70,14 @@ export function useHostFilter(
       );
       if (match === undefined) continue;
 
-      const value = filter[match];
-      if (value === null || value === "") {
+      // One value or many: normalise to a list, dropping the empty strings a
+      // host may send for "no selection" alongside real codes.
+      const raw = filter[match];
+      const values = (Array.isArray(raw) ? raw : [raw]).filter(
+        (value): value is string => typeof value === "string" && value !== "",
+      );
+
+      if (values.length === 0) {
         selectedAfter.set(entry.key, new Set());
         // Clearing a level cascades to every finer one (same as setValue's prune).
         const idx = af.entries().indexOf(entry);
@@ -76,17 +87,28 @@ export function useHostFilter(
         continue;
       }
 
+      // Options are read ONCE for the level, not per value: resolving against
+      // `selectedAfter` is what narrows this level by the ancestors already
+      // decided in this same pass, and that narrowing must not shift as this
+      // level's own codes accumulate.
       const opts = af.optionsFor(entry, selectedAfter);
-      const resolved =
-        opts.find((o) => o.code === value) ??
-        opts.find((o) => o.label.toLowerCase() === value.toLowerCase());
-      if (!resolved) {
-        console.warn(
-          `filter: value "${value}" not found for level "${entry.name}" (skipped)`,
-        );
-        continue;
+      const codes = new Set<string>();
+      for (const value of values) {
+        const resolved =
+          opts.find((o) => o.code === value) ??
+          opts.find((o) => o.label.toLowerCase() === value.toLowerCase());
+        if (!resolved) {
+          console.warn(
+            `filter: value "${value}" not found for level "${entry.name}" (skipped)`,
+          );
+          continue;
+        }
+        codes.add(resolved.code);
       }
-      selectedAfter.set(entry.key, new Set([resolved.code]));
+      // Every value was unresolvable: leave the level as it was rather than
+      // clearing it, so a typo cannot silently widen the map to everything.
+      if (codes.size === 0) continue;
+      selectedAfter.set(entry.key, codes);
     }
 
     // One commit, one fly-to, both computed from the true end state.
