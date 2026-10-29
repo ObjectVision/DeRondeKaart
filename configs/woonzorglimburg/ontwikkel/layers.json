@@ -2499,9 +2499,8 @@
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#EBECF0",
-                "opacity": 0.5,
-                "outlineColor": "#183A59",
+                "color": "#183A59",
+                "opacity": 0.35,
                 "outlineWidth": 0
               }
             ]
@@ -2517,9 +2516,7 @@
               {
                 "kind": "Fill",
                 "color": "#00000000",
-                "outlineColor": "#00498D",
-                "outlineOpacity": 1,
-                "outlineWidth": 2
+                "outlineWidth": 0
               }
             ]
           },
@@ -2534,9 +2531,7 @@
               {
                 "kind": "Fill",
                 "color": "#00000000",
-                "outlineColor": "#00498D",
-                "outlineOpacity": 1,
-                "outlineWidth": 2
+                "outlineWidth": 0
               }
             ]
           },
@@ -2550,11 +2545,13 @@
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#d7e5e5",
-                "opacity": 0.7,
-                "outlineColor": "#00498D",
-                "outlineOpacity": 1,
-                "outlineWidth": 2
+                "hatch": {
+                  "color": "#00498D",
+                  "background": "#ffffff"
+                },
+                "color": "#ffffff",
+                "opacity": 0.85,
+                "outlineWidth": 0
               }
             ]
           },
@@ -2569,11 +2566,61 @@
               {
                 "kind": "Fill",
                 "color": "#00000000",
-                "outlineColor": "#00498D",
-                "outlineOpacity": 1,
-                "outlineWidth": 2
+                "outlineWidth": 0
               }
             ]
+          },
+          {
+            "name": "Noord-Limburg grens",
+            "filter": [
+              "==",
+              "id",
+              2
+            ],
+            "type": "line",
+            "paint": {
+              "line-color": "#00498D",
+              "line-width": 2.5
+            }
+          },
+          {
+            "name": "Roermond grens",
+            "filter": [
+              "==",
+              "id",
+              3
+            ],
+            "type": "line",
+            "paint": {
+              "line-color": "#00498D",
+              "line-width": 2.5
+            }
+          },
+          {
+            "name": "Midden-Limburg grens",
+            "filter": [
+              "==",
+              "id",
+              4
+            ],
+            "type": "line",
+            "paint": {
+              "line-color": "#00498D",
+              "line-width": 2.5
+            }
+          },
+          {
+            "name": "Zuid-Limburg grens",
+            "filter": [
+              "==",
+              "id",
+              5
+            ],
+            "type": "line",
+            "paint": {
+              "line-color": "#00498D",
+              "line-width": 2.5
+            }
           }
         ]
       },
