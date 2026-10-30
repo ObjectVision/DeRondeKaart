@@ -5538,6 +5538,558 @@
       "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/bomen_rule_3_30_300_classified_buurt_2026.cog.tif"
     },
     {
+      "id": "bomen_rule_3_2026",
+      "name": "3 bomen regel",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_3_30_300_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "3 bomen regel",
+        "rules": [
+          {
+            "name": "zeer slecht",
+            "filter": [
+              "==",
+              "rule_3",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#AD2822",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "slecht",
+            "filter": [
+              "==",
+              "rule_3",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E94D2C",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "matig",
+            "filter": [
+              "==",
+              "rule_3",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F7B12F",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "neutraal",
+            "filter": [
+              "==",
+              "rule_3",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FBE307",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "goed",
+            "filter": [
+              "==",
+              "rule_3",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#BBC505",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "zeer goed",
+            "filter": [
+              "==",
+              "rule_3",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3A7E32",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "uitstekend",
+            "filter": [
+              "==",
+              "rule_3",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3A5732",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>3 bomen regel: [[ rule_3 ]]</b></div><div>[[ niveau ]] [[ statcode ]]</div>"
+      },
+      "sourceLayer": "bomen"
+    },
+    {
+      "id": "bomen_rule_30_2026",
+      "name": "30% bladerdek",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_3_30_300_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "30% bladerdek",
+        "rules": [
+          {
+            "name": "zeer slecht",
+            "filter": [
+              "==",
+              "rule_30",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#AD2822",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "slecht",
+            "filter": [
+              "==",
+              "rule_30",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E94D2C",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "matig",
+            "filter": [
+              "==",
+              "rule_30",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F7B12F",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "neutraal",
+            "filter": [
+              "==",
+              "rule_30",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FBE307",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "goed",
+            "filter": [
+              "==",
+              "rule_30",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#BBC505",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "zeer goed",
+            "filter": [
+              "==",
+              "rule_30",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3A7E32",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "uitstekend",
+            "filter": [
+              "==",
+              "rule_30",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3A5732",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>30% bladerdek: [[ rule_30 ]]</b></div><div>[[ niveau ]] [[ statcode ]]</div>"
+      },
+      "sourceLayer": "bomen"
+    },
+    {
+      "id": "bomen_rule_300_2026",
+      "name": "300 meter van groen",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_3_30_300_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "300 meter van groen",
+        "rules": [
+          {
+            "name": "zeer slecht",
+            "filter": [
+              "==",
+              "rule_300",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#AD2822",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "slecht",
+            "filter": [
+              "==",
+              "rule_300",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E94D2C",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "matig",
+            "filter": [
+              "==",
+              "rule_300",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F7B12F",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "neutraal",
+            "filter": [
+              "==",
+              "rule_300",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FBE307",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "goed",
+            "filter": [
+              "==",
+              "rule_300",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#BBC505",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "zeer goed",
+            "filter": [
+              "==",
+              "rule_300",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3A7E32",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "uitstekend",
+            "filter": [
+              "==",
+              "rule_300",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3A5732",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>300 meter van groen: [[ rule_300 ]]</b></div><div>[[ niveau ]] [[ statcode ]]</div>"
+      },
+      "sourceLayer": "bomen"
+    },
+    {
+      "id": "bomen_rule_3_30_300_classified_2026",
+      "name": "3-30-300 vuistregel",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_3_30_300_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "geostyler": {
+        "name": "3-30-300 vuistregel",
+        "rules": [
+          {
+            "name": "zeer slecht",
+            "filter": [
+              "==",
+              "rule_3_30_300_classified",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#AD2822",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "slecht",
+            "filter": [
+              "==",
+              "rule_3_30_300_classified",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E94D2C",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "matig",
+            "filter": [
+              "==",
+              "rule_3_30_300_classified",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F7B12F",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "neutraal",
+            "filter": [
+              "==",
+              "rule_3_30_300_classified",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FBE307",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "goed",
+            "filter": [
+              "==",
+              "rule_3_30_300_classified",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#BBC505",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "zeer goed",
+            "filter": [
+              "==",
+              "rule_3_30_300_classified",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3A7E32",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "uitstekend",
+            "filter": [
+              "==",
+              "rule_3_30_300_classified",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3A5732",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>3-30-300 vuistregel: [[ rule_3_30_300_classified ]]</b></div><div>[[ niveau ]] [[ statcode ]]</div>"
+      },
+      "sourceLayer": "bomen"
+    },
+    {
       "id": "bouwjaar_lb_2026",
       "name": "bouwjaar",
       "source": "https://data.woonzorglimburg.nl/pmtiles/bouwjaar_lb_2026.pmtiles",
