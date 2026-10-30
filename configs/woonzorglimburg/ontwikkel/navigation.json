@@ -464,112 +464,32 @@
         "expanded": true,
         "children": [
           {
-            "label": "gemeente",
-            "icon": "forest",
+            "id": "bomen_rule_3_2026",
             "color": "#54B6C0",
-            "expanded": false,
-            "children": [
-              {
-                "id": "bomen_rule_3_gemeente_2026",
-                "color": "#54B6C0",
-                "label": "3 bomen",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "bomen_rule_30_gemeente_2026",
-                "color": "#54B6C0",
-                "label": "30% bladerdek",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "bomen_rule_300_gemeente_2026",
-                "color": "#54B6C0",
-                "label": "300 meter van groen",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "bomen_rule_3_30_300_classified_gemeente_2026",
-                "color": "#54B6C0",
-                "label": "3-30-300 vuistregels",
-                "a": false,
-                "b": false
-              }
-            ]
+            "label": "3 bomen",
+            "a": false,
+            "b": false
           },
           {
-            "label": "wijk",
-            "icon": "forest",
+            "id": "bomen_rule_30_2026",
             "color": "#54B6C0",
-            "expanded": false,
-            "children": [
-              {
-                "id": "bomen_rule_3_wijk_2026",
-                "color": "#54B6C0",
-                "label": "3 bomen",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "bomen_rule_30_wijk_2026",
-                "color": "#54B6C0",
-                "label": "30% bladerdek",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "bomen_rule_300_wijk_2026",
-                "color": "#54B6C0",
-                "label": "300 meter van groen",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "bomen_rule_3_30_300_classified_wijk_2026",
-                "color": "#54B6C0",
-                "label": "3-30-300 vuistregels",
-                "a": false,
-                "b": false
-              }
-            ]
+            "label": "30% bladerdek",
+            "a": false,
+            "b": false
           },
           {
-            "label": "buurt",
-            "icon": "forest",
+            "id": "bomen_rule_300_2026",
             "color": "#54B6C0",
-            "expanded": false,
-            "children": [
-              {
-                "id": "bomen_rule_3_buurt_2026",
-                "color": "#54B6C0",
-                "label": "3 bomen",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "bomen_rule_30_buurt_2026",
-                "color": "#54B6C0",
-                "label": "30% bladerdek",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "bomen_rule_300_buurt_2026",
-                "color": "#54B6C0",
-                "label": "300 meter van groen",
-                "a": false,
-                "b": false
-              },
-              {
-                "id": "bomen_rule_3_30_300_classified_buurt_2026",
-                "color": "#54B6C0",
-                "label": "3-30-300 vuistregels",
-                "a": false,
-                "b": false
-              }
-            ]
+            "label": "300 meter van groen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bomen_rule_3_30_300_classified_2026",
+            "color": "#54B6C0",
+            "label": "3-30-300 vuistregels",
+            "a": false,
+            "b": false
           }
         ]
       },
