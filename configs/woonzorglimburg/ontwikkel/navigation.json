@@ -90,6 +90,12 @@
             "b": false
           },
           {
+            "id": "dichtheid_bevolking_2026",
+            "label": "dichtheid",
+            "a": false,
+            "b": false
+          },
+          {
             "id": "oosr_2",
             "label": "mantelzorg (OOSR)",
             "a": false,
