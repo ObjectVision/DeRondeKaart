@@ -3682,6 +3682,76 @@
       "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/won_aanpasbaar_m5.cog.tif"
     },
     {
+      "id": "geschiktheid_2026",
+      "name": "Geschiktheid 2026",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/geschiktheid_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "geschiktheid",
+      "geostyler": {
+        "name": "Geschiktheid",
+        "rules": [
+          {
+            "name": "ongeschikt",
+            "filter": [
+              "==",
+              "attr",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ED464B",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "aanpasbaar",
+            "filter": [
+              "==",
+              "attr",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#37AAEA",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "geschikt",
+            "filter": [
+              "==",
+              "attr",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#37EA69",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Geschiktheid: klasse [[ attr ]]</b></div>"
+      }
+    },
+    {
       "id": "cbsgemeente2026",
       "name": "CBS Gemeente 2026",
       "source": "https://data.woonzorglimburg.nl/pmtiles/cbsgemeente2026.pmtiles",

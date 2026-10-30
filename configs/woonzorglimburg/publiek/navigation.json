@@ -156,23 +156,9 @@
         "expanded": true,
         "children": [
           {
-            "id": "aandeel_geschikt_2024",
+            "id": "geschiktheid_2026",
             "color": "#8C54D6",
-            "label": "Nultrede",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "aandeel_ongeschikt_2024",
-            "color": "#8C54D6",
-            "label": "Ongeschikt",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "aandeel_aanpasbaar_2024",
-            "color": "#8C54D6",
-            "label": "Aanpasbaar",
+            "label": "geschiktheid",
             "a": false,
             "b": false
           }
