@@ -3704,7 +3704,20 @@
                 "color": "#ED464B",
                 "outlineColor": "black",
                 "outlineWidth": 0,
-                "outlineOpacity": 0.2
+                "outlineOpacity": 0.2,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#ED464B",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -3721,7 +3734,20 @@
                 "color": "#37AAEA",
                 "outlineColor": "black",
                 "outlineWidth": 0,
-                "outlineOpacity": 0.2
+                "outlineOpacity": 0.2,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#37AAEA",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -3738,7 +3764,20 @@
                 "color": "#37EA69",
                 "outlineColor": "black",
                 "outlineWidth": 0,
-                "outlineOpacity": 0.2
+                "outlineOpacity": 0.2,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#37EA69",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           }
@@ -6854,7 +6893,20 @@
               {
                 "kind": "Fill",
                 "color": "#a50026",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#a50026",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -6869,7 +6921,20 @@
               {
                 "kind": "Fill",
                 "color": "#d73027",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#d73027",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -6884,7 +6949,20 @@
               {
                 "kind": "Fill",
                 "color": "#f46d43",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#f46d43",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -6899,7 +6977,20 @@
               {
                 "kind": "Fill",
                 "color": "#fdae61",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#fdae61",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -6914,7 +7005,20 @@
               {
                 "kind": "Fill",
                 "color": "#fee08b",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#fee08b",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -6929,7 +7033,20 @@
               {
                 "kind": "Fill",
                 "color": "#d9ef8b",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#d9ef8b",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -6944,7 +7061,20 @@
               {
                 "kind": "Fill",
                 "color": "#a6d96a",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#a6d96a",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -6959,7 +7089,20 @@
               {
                 "kind": "Fill",
                 "color": "#66bd63",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#66bd63",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -6974,7 +7117,20 @@
               {
                 "kind": "Fill",
                 "color": "#1a9850",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#1a9850",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -6989,7 +7145,20 @@
               {
                 "kind": "Fill",
                 "color": "#006837",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#006837",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           }
@@ -7024,7 +7193,20 @@
               {
                 "kind": "Fill",
                 "color": "#1A9850",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#1A9850",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -7039,7 +7221,20 @@
               {
                 "kind": "Fill",
                 "color": "#A6D96A",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#A6D96A",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -7054,7 +7249,20 @@
               {
                 "kind": "Fill",
                 "color": "#6464FF",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#6464FF",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -7069,7 +7277,20 @@
               {
                 "kind": "Fill",
                 "color": "#FFFF00",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#FFFF00",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -7084,7 +7305,20 @@
               {
                 "kind": "Fill",
                 "color": "#FF3232",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#FF3232",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           }
@@ -7119,7 +7353,20 @@
               {
                 "kind": "Fill",
                 "color": "#1A9641",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#1A9641",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -7134,7 +7381,20 @@
               {
                 "kind": "Fill",
                 "color": "#76A813",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#76A813",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -7149,7 +7409,20 @@
               {
                 "kind": "Fill",
                 "color": "#AEC400",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#AEC400",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -7164,7 +7437,20 @@
               {
                 "kind": "Fill",
                 "color": "#F7E600",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#F7E600",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -7179,7 +7465,20 @@
               {
                 "kind": "Fill",
                 "color": "#FDB400",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#FDB400",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -7194,7 +7493,20 @@
               {
                 "kind": "Fill",
                 "color": "#F75F0C",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#F75F0C",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -7209,7 +7521,20 @@
               {
                 "kind": "Fill",
                 "color": "#C50007",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#C50007",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           },
@@ -7224,7 +7549,20 @@
               {
                 "kind": "Fill",
                 "color": "#969696",
-                "outlineWidth": 0
+                "outlineWidth": 0,
+                "paint": {
+                  "fill-outline-color": [
+                    "step",
+                    [
+                      "zoom"
+                    ],
+                    "transparent",
+                    11,
+                    "#969696",
+                    14,
+                    "transparent"
+                  ]
+                }
               }
             ]
           }
