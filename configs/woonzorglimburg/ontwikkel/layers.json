@@ -7955,6 +7955,136 @@
       "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/aandeel_j75_plus_m5_%YEAR%.cog.tif"
     },
     {
+      "id": "dichtheid_bevolking_2026",
+      "name": "Bevolkingsdichtheid",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "%YEAR%_bevolkingsdichtheid_m5",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2025,
+        "end": 2045,
+        "step": 5
+      },
+      "geostyler": {
+        "name": "Bevolkingsdichtheid",
+        "rules": [
+          {
+            "name": "5 - 10",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFCC",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 - 20",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFEDA0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 - 30",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FED976",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 - 50",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEB24C",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "50 - 75",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FD8D3C",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "75 - 125",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FC4E2A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "125 of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E31A1C",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Bevolkingsdichtheid: klasse [[ class ]]</b></div>"
+      }
+    },
+    {
       "id": "oosr_2",
       "name": "OOSR",
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",

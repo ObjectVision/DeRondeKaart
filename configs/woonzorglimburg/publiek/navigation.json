@@ -74,6 +74,12 @@
             "label": "aandeel 75 jaar en ouder",
             "a": false,
             "b": false
+          },
+          {
+            "id": "dichtheid_bevolking_2026",
+            "label": "dichtheid",
+            "a": false,
+            "b": false
           }
         ]
       },
