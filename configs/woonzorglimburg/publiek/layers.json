@@ -1514,6 +1514,11 @@
     {
       "id": "basisschool",
       "name": "basisschool",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/basisschool_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/basisschool_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/basisschool_aannames_en_onzekerheden.html"
+      },
       "description": "Locaties van basisscholen in de regio.",
       "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
       "format": "pmtiles",
@@ -1561,6 +1566,11 @@
     {
       "id": "kinderdagverblijf",
       "name": "kinderdagverblijf",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/kinderdagverblijf_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/kinderdagverblijf_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/kinderdagverblijf_aannames_en_onzekerheden.html"
+      },
       "description": "Locaties van kinderdagverblijven in de regio.",
       "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
       "format": "pmtiles",
@@ -1608,6 +1618,11 @@
     {
       "id": "bso",
       "name": "buitenschoolse opvang",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/bso_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/bso_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/bso_aannames_en_onzekerheden.html"
+      },
       "description": "Locaties van buitenschoolse opvang (bso) in de regio.",
       "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
       "format": "pmtiles",
@@ -1655,6 +1670,11 @@
     {
       "id": "zorg_ontmoeting_lb_2026",
       "name": "ontmoeting",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/zorg_ontmoeting_lb_2026_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/zorg_ontmoeting_lb_2026_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/zorg_ontmoeting_lb_2026_aannames_en_onzekerheden.html"
+      },
       "description": "Ontmoetingsruimten in Limburg (2026).",
       "source": "https://data.woonzorglimburg.nl/pmtiles/zorg_voorzieningen_lb_2026.pmtiles",
       "format": "pmtiles",
@@ -1697,6 +1717,11 @@
     {
       "id": "zorg_ouderenzorg_lb_2026",
       "name": "ouderenzorg",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/zorg_ouderenzorg_lb_2026_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/zorg_ouderenzorg_lb_2026_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/zorg_ouderenzorg_lb_2026_aannames_en_onzekerheden.html"
+      },
       "description": "Ouderenzorglocaties in Limburg (2026) met toewijzing.",
       "source": "https://data.woonzorglimburg.nl/pmtiles/zorg_voorzieningen_lb_2026.pmtiles",
       "format": "pmtiles",
@@ -3678,6 +3703,11 @@
     {
       "id": "geschiktheid_2026",
       "name": "Geschiktheid 2026",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/geschiktheid_2026_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/geschiktheid_2026_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/geschiktheid_2026_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/geschiktheid_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -5540,6 +5570,11 @@
     {
       "id": "bomen_rule_3_2026",
       "name": "3 bomen regel",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/bomen_rule_3_2026_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/bomen_rule_3_2026_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/bomen_rule_3_2026_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_3_30_300_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -5678,6 +5713,11 @@
     {
       "id": "bomen_rule_30_2026",
       "name": "30% bladerdek",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/bomen_rule_30_2026_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/bomen_rule_30_2026_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/bomen_rule_30_2026_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_3_30_300_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -5816,6 +5856,11 @@
     {
       "id": "bomen_rule_300_2026",
       "name": "300 meter van groen",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/bomen_rule_300_2026_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/bomen_rule_300_2026_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/bomen_rule_300_2026_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_3_30_300_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -5954,6 +5999,11 @@
     {
       "id": "bomen_rule_3_30_300_classified_2026",
       "name": "3-30-300 vuistregel",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/bomen_rule_3_30_300_classified_2026_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/bomen_rule_3_30_300_classified_2026_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/bomen_rule_3_30_300_classified_2026_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/bomen_3_30_300_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -6552,6 +6602,11 @@
     {
       "id": "energielabel",
       "name": "energielabel",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/energielabel_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/energielabel_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/energielabel_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.startanalyse2026.nl/pmtiles/basis/energielabel.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "energielabel",
@@ -7582,6 +7637,11 @@
     {
       "id": "dichtheid_bevolking_2026",
       "name": "Bevolkingsdichtheid",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/dichtheid_bevolking_2026_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/dichtheid_bevolking_2026_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/dichtheid_bevolking_2026_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -7813,6 +7873,11 @@
     {
       "id": "stijgingspercentage_lb_2026",
       "name": "Stijgingspercentage vlak",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_lb_2026_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_lb_2026_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_lb_2026_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/stijgingspercentage_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -7918,6 +7983,11 @@
     {
       "id": "stijgingspercentage_weg_limburg",
       "name": "Stijgingspercentage weg",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_weg_limburg_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_weg_limburg_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_weg_limburg_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/stijgingspercentage_weg_limburg.pmtiles",
       "format": "pmtiles",
       "geometryType": "line",
