@@ -17,6 +17,9 @@
       }
     ]
   },
+  "configSources": [
+    "https://raw.githubusercontent.com/ObjectVision/test_remote_rondekaart_config/"
+  ],
   "basemap": "grijs",
   "studyarea": "ber_studiegebied",
   "streetview": true,
