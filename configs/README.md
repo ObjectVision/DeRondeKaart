@@ -284,6 +284,55 @@ link's hash does not re-evaluate them. An override is held to the same rules as
 the root value: speech still needs `text_to_tool`, and both still need their
 `modelUrls`.
 
+## Remote config (`?config=`)
+
+A deployed map can load its config from another https folder instead of its own
+origin — typically a GitHub repository, served by `raw.githubusercontent.com`
+(which sends `Access-Control-Allow-Origin: *`). A project then needs new JSON, not
+a new build:
+
+```
+https://map.derondekaart.nl/?config=https://raw.githubusercontent.com/<org>/<repo>/<branch>[/<subfolder>]&variant=<id>
+```
+
+The folder has the same shape as `configs/<project>/`:
+
+```
+map.json                  required; replaces the built one (variants, studyarea, basemap, …)
+<variant>/layers.json     required, per variant (at the root when map.json has no "variants")
+<variant>/navigation.json
+filter.json, charts.json  optional
+dashboard_*.json          only when map.json enables the dashboard
+```
+
+There is **no fallback** to the built files: a file missing from the remote folder
+behaves as missing (optional ones warn and switch their feature off; `layers.json`
+and `navigation.json` fail loudly).
+
+**The folder must be allowlisted** in `configSources` of the **built** `map.json`:
+
+```json
+"configSources": ["https://raw.githubusercontent.com/ObjectVision/test_remote_rondekaart_config/"]
+```
+
+An entry admits itself and everything under it (`/`-bounded, so `…/repo` does not
+admit `…/repo-evil`); only `https:` folders without query or credentials qualify. A
+`?config=` that does not match is ignored with a console warning and the built
+config opens. The remote map.json's own `configSources` is never read — a config
+cannot authorise itself.
+
+Keep the allowlist to locations whose writers you trust. A config supplies HTML the
+app injects (featureinfo templates, metainfo, attribution), so whoever can publish
+there can run script on the map's origin for anyone who opens such a link — the
+server is unaffected, its visitors are not. See `src/config/config-source.ts`.
+
+Caveats:
+
+- `raw.githubusercontent.com` caches for ~5 minutes; a push shows up with that delay.
+- Data URLs in the remote config must send CORS headers for the map's origin.
+- Share links carry `variant` but not `config`, so a shared link reopens the built
+  config.
+
 ## Adding a new project
 
 1. Create `configs/<project>/`.
