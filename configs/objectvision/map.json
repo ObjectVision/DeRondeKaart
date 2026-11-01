@@ -10,6 +10,10 @@
       {
         "id": "bereikbaarheid_bzk",
         "label": "Elke Regio Telt"
+      },
+      {
+        "id": "windturbinenorm",
+        "label": "Windturbinenorm"
       }
     ]
   },
