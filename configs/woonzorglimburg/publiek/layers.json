@@ -227,6 +227,10 @@
     {
       "id": "loopafstand_ziekenhuis",
       "name": "Loopafstand ziekenhuis",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_ziekenhuis_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_ziekenhuis_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -398,6 +402,10 @@
     {
       "id": "loopafstand_supermarkt",
       "name": "Loopafstand supermarkt",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_supermarkt_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_supermarkt_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -564,6 +572,10 @@
     {
       "id": "loopafstand_dagbesteding",
       "name": "Loopafstand dagbesteding",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_dagbesteding_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_dagbesteding_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -684,6 +696,10 @@
     {
       "id": "ontmoeting",
       "name": "ontmoeting",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/ontmoeting_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/ontmoeting_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "point",
@@ -730,6 +746,10 @@
     {
       "id": "loopafstand_ontmoeting",
       "name": "Loopafstand ontmoeting",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_ontmoeting_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_ontmoeting_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -896,6 +916,10 @@
     {
       "id": "loopafstand_tandarts",
       "name": "Loopafstand tandarts",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_tandarts_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_tandarts_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -1016,6 +1040,10 @@
     {
       "id": "ov",
       "name": "openbaar vervoer",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/ov_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/ov_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "point",
@@ -1062,6 +1090,10 @@
     {
       "id": "loopafstand_ov",
       "name": "Loopafstand openbaar vervoer",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_ov_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_ov_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -1182,6 +1214,10 @@
     {
       "id": "apotheek",
       "name": "apotheek",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/apotheek_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/apotheek_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "point",
@@ -1228,6 +1264,10 @@
     {
       "id": "loopafstand_apotheek",
       "name": "Loopafstand apotheek",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_apotheek_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_apotheek_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -1394,6 +1434,10 @@
     {
       "id": "loopafstand_fysiotherapeut",
       "name": "Loopafstand fysiotherapeut",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_fysiotherapeut_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_fysiotherapeut_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -1906,6 +1950,10 @@
     {
       "id": "veerkracht_limburg",
       "name": "Veerkracht",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/veerkracht_limburg_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/veerkracht_limburg_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/veerkracht_limburg_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -2062,6 +2110,10 @@
     {
       "id": "focus_limburg",
       "name": "Focus",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/focus_limburg_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/focus_limburg_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/veerkracht_limburg_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -2252,6 +2304,10 @@
     {
       "id": "Sociaal_dominante_klasse",
       "name": "Sociaal dominante klasse",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/Sociaal_dominante_klasse_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/Sociaal_dominante_klasse_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/SDKLimburg2026.pmtiles",
       "attributeSource": "https://data.woonzorglimburg.nl/parquet/SDKLimburg2026.parquet",
       "format": "pmtiles",
@@ -3817,6 +3873,10 @@
     {
       "id": "cbsgemeente2026",
       "name": "CBS Gemeente 2026",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/cbsgemeente2026_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/cbsgemeente2026_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/cbsgemeente2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "line",
@@ -3845,6 +3905,10 @@
     {
       "id": "cbsbuurt2026",
       "name": "CBS Buurt 2026",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/cbsbuurt2026_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/cbsbuurt2026_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/cbsbuurt2026.pmtiles",
       "attributeSource": "https://data.woonzorglimburg.nl/parquet/cbsbuurt2026.parquet",
       "format": "pmtiles",
@@ -3874,6 +3938,10 @@
     {
       "id": "cbswijk2026",
       "name": "CBS Wijk 2026",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/cbswijk2026_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/cbswijk2026_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/cbswijk2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "line",
@@ -6142,6 +6210,10 @@
     {
       "id": "bouwjaar_lb_2026",
       "name": "bouwjaar",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/bouwjaar_lb_2026_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/bouwjaar_lb_2026_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/bouwjaar_lb_2026.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "bouwjaar_lb_2026",
@@ -6442,6 +6514,10 @@
     {
       "id": "pandtype_lb_2026",
       "name": "pandtype",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/pandtype_lb_2026_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/pandtype_lb_2026_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/pandtype_lb_2026.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "pandtype_lb_2026",
@@ -6982,6 +7058,10 @@
     {
       "id": "aandeel_j18_29",
       "name": "Aandeel 18-29 jaar",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_j18_29_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/aandeel_j18_29_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -7113,6 +7193,10 @@
     {
       "id": "aandeel_j30_44",
       "name": "Aandeel 30-44 jaar",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_j30_44_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/aandeel_j30_44_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -7244,6 +7328,10 @@
     {
       "id": "aandeel_j45_66",
       "name": "Aandeel 45-66 jaar",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_j45_66_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/aandeel_j45_66_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -7375,6 +7463,10 @@
     {
       "id": "aandeel_j67_74",
       "name": "Aandeel 67-74 jaar",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_j67_74_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/aandeel_j67_74_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -7506,6 +7598,10 @@
     {
       "id": "aandeel_j75_plus",
       "name": "Aandeel 75 jaar en ouder",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_j75_plus_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/aandeel_j75_plus_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -7772,6 +7868,10 @@
     {
       "id": "oosr_2",
       "name": "OOSR",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/oosr_2_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/oosr_2_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
