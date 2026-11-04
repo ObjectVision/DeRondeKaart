@@ -132,6 +132,26 @@ describe('map.json variants', () => {
     expect(config.variants?.items[0].label).toBe("First");
   });
 
+  it("keeps valid hosts lowercased and drops invalid ones and repeats", async () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson({
+      variants: {
+        items: [
+          { id: "a", hosts: ["Kaart.Example.NL", "not a host", 42, "kaart.example.nl"] },
+          { id: "b", hosts: ["kaart.example.nl", "b.example.nl"] },
+          { id: "c", hosts: "c.example.nl" },
+        ],
+      },
+    });
+    const config = await loadMapConfig();
+    const [a, b, c] = config.variants!.items;
+    expect(a.hosts).toEqual(["kaart.example.nl"]);
+    // Already claimed by "a": first one wins, so the host stays unambiguous.
+    expect(b.hosts).toEqual(["b.example.nl"]);
+    expect(c.hosts).toBeUndefined();
+    expect(console.warn).toHaveBeenCalled();
+  });
+
   it.each([null, 42, "2026", [], { items: "no" }, { items: [] }])(
     "ignores the malformed block %j",
     async (variants) => {

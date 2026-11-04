@@ -135,6 +135,13 @@ in that position registers itself with `registerVariantScopedCache`
 (`src/config/variant-scope.ts`) so the switch clears it. Caches keyed by URL do
 not, because a URL means the same document under either variant.
 
+**Variant host** — an extra domain served by the same map site that opens its own
+variant, e.g. `wonenenzorgopdekaart.derondekaart.nl`. Declared as `hosts` on the
+variant item in `map.json`; consulted only when the URL has no `?variant=`, and
+the address bar keeps the domain (no redirect). Not to be confused with a
+**Host** below, which is an embedding page. `bootVariantId` in
+`src/config/variant.ts`.
+
 ## Embedding and collaboration
 
 **Host** — a page embedding the map in an iframe and driving it over

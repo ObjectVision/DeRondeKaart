@@ -76,8 +76,8 @@ export function isVariantId(id: string): boolean {
  * Install the variants from map.json and pick the starting one. Called once at
  * boot, before anything fetches a per-variant config.
  *
- * Resolution order: `?variant=` in the URL, then `variants.default`, then the
- * first item. An unknown id in the URL warns and falls back rather than leaving
+ * Resolution order: `?variant=` in the URL, then a variant whose `hosts` lists
+ * this hostname, then `variants.default`, then the first item. An unknown id in the URL warns and falls back rather than leaving
  * the app pointed at a directory that does not exist.
  */
 export function initVariants(variants: VariantsConfig | undefined): void {
@@ -97,7 +97,8 @@ export function initVariants(variants: VariantsConfig | undefined): void {
 
 /**
  * The variant a page load starts in: `?variant=` when it names a declared
- * variant, otherwise `variants.default`, otherwise the first item.
+ * variant, otherwise the variant whose `hosts` lists this page's hostname,
+ * otherwise `variants.default`, otherwise the first item.
  *
  * Separate from {@link initVariants} because map.json needs the answer while it
  * is still being parsed — a variant may override boot-time feature flags (see
@@ -108,6 +109,11 @@ export function initVariants(variants: VariantsConfig | undefined): void {
 export function bootVariantId(variants: VariantsConfig): string {
   const requested = new URLSearchParams(window.location.search).get(VARIANT_PARAM);
   if (requested && variants.items.some((item) => item.id === requested)) return requested;
+  // A variant host: an extra domain served by this same site that opens its
+  // own variant while the address bar keeps that domain.
+  const host = window.location.hostname.toLowerCase();
+  const byHost = variants.items.find((item) => item.hosts?.includes(host));
+  if (byHost) return byHost.id;
   return variants.default ?? variants.items[0].id;
 }
 

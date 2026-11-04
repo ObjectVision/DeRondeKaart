@@ -284,6 +284,31 @@ link's hash does not re-evaluate them. An override is held to the same rules as
 the root value: speech still needs `text_to_tool`, and both still need their
 `modelUrls`.
 
+### Host per variant
+
+A variant may list `hosts`: extra domains, served by the **same** map site, that
+open that variant while the address bar keeps the domain (no redirect):
+
+```json
+{ "id": "wonenenzorgopdekaart", "label": "Wonen en zorg op de kaart",
+  "hosts": ["wonenenzorgopdekaart.derondekaart.nl"] }
+```
+
+The variant a page opens in is `?variant=`, else the variant listing this
+hostname, else `default`, else the first item. The other variants stay reachable
+through the switcher and `?variant=`. A hostname claimed by two variants warns and
+goes to the first.
+
+The config is only half of it; per domain:
+
+1. A DNS A (and AAAA) record pointing at the map server.
+2. The domain added to the map site's `server_name` and certificate —
+   `setup_map_application.sh --extra-host <domain>`, or by hand on a live site
+   (`server_name` in both blocks, then
+   `certbot --nginx --expand --cert-name <host> -d <host> -d <domain>`).
+3. Every data host that allows CORS for named origins only (not `*`) must also
+   allow `https://<domain>`, or that variant's layers stay blank there.
+
 ## Remote config (`?config=`)
 
 A deployed map can load its config from another https folder instead of its own

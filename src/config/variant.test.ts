@@ -83,6 +83,31 @@ describe("config variants", () => {
       expect(variantId()).toBe("2025");
     });
 
+    // jsdom serves the page from "localhost", so that is the host under test.
+    const BY_HOST: VariantsConfig = {
+      default: "2025",
+      items: [TWO.items[0], { ...TWO.items[1], hosts: ["localhost"] }],
+    };
+
+    it("opens the variant whose hosts list this hostname", () => {
+      initVariants(BY_HOST);
+      expect(variantId()).toBe("2026");
+    });
+
+    it("lets the URL parameter beat the hostname", () => {
+      withSearch("variant=2025");
+      initVariants(BY_HOST);
+      expect(variantId()).toBe("2025");
+    });
+
+    it("uses the default when no variant lists this hostname", () => {
+      initVariants({
+        default: "2025",
+        items: [TWO.items[0], { ...TWO.items[1], hosts: ["elders.example.nl"] }],
+      });
+      expect(variantId()).toBe("2025");
+    });
+
     it("treats an empty items list as no variants at all", () => {
       initVariants({ items: [] });
       expect(variantId()).toBeNull();

@@ -164,6 +164,13 @@ export interface VariantItem {
    */
   textToTool?: boolean;
   speechToText?: boolean;
+  /**
+   * Hostnames that open this variant when the URL names none (`hosts` in
+   * map.json, lowercased). Lets an extra domain served by the same site — e.g.
+   * `wonenenzorgopdekaart.derondekaart.nl` — land on its own variant while the
+   * address bar keeps that domain. `?variant=` still wins. See `bootVariantId`.
+   */
+  hosts?: string[];
 }
 
 /**
@@ -689,6 +696,8 @@ function validateVariants(value: unknown): VariantsConfig | null {
     const speechToText = variantFlag(overrides.speech_to_text, id, "speech_to_text");
     if (textToTool !== undefined) item.textToTool = textToTool;
     if (speechToText !== undefined) item.speechToText = speechToText;
+    const hosts = variantHosts(overrides.hosts, id, items);
+    if (hosts.length > 0) item.hosts = hosts;
     items.push(item);
   }
 
@@ -709,6 +718,36 @@ function validateVariants(value: unknown): VariantsConfig | null {
   }
 
   return { default: def, items };
+}
+
+const HOSTNAME_RE = /^(?=.{1,253}$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/;
+
+/**
+ * One variant's `hosts`: valid hostnames, lowercased. An entry another variant
+ * already claimed is dropped with a warning — first one wins, so a hostname can
+ * never be ambiguous about which variant it opens.
+ */
+function variantHosts(value: unknown, id: string, earlier: readonly VariantItem[]): string[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) {
+    console.warn(`map.json: variant "${id}" has invalid "hosts" ${JSON.stringify(value)}; ignoring`);
+    return [];
+  }
+  const out: string[] = [];
+  for (const raw of value) {
+    const host = typeof raw === "string" ? raw.trim().toLowerCase() : "";
+    if (!HOSTNAME_RE.test(host)) {
+      console.warn(`map.json: variant "${id}" has invalid host ${JSON.stringify(raw)}; skipping`);
+      continue;
+    }
+    const owner = earlier.find((item) => item.hosts?.includes(host));
+    if (owner) {
+      console.warn(`map.json: host "${host}" already opens variant "${owner.id}"; skipping`);
+      continue;
+    }
+    if (!out.includes(host)) out.push(host);
+  }
+  return out;
 }
 
 /**
