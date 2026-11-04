@@ -33,10 +33,11 @@ Usage: $0 [options]
 Options:
 $(print_kv "--slug NAME"        "instance id, namespaces all paths (e.g. woonzorglimburg_map)")
 $(print_kv "--host HOST"        "hostname (e.g. map.woonzorglimburg.nl)")
+$(print_kv "--extra-host HOST"  "extra hostname served by this same site (no redirect); repeatable")
 $(print_kv "--repo URL"         "git remote of the Vite/SolidJS source repo")
 $(print_kv "--branch NAME"      "git branch to deploy (default: main)")
 $(print_kv "--config-project S" "config overlay to build (configs/<S>/ over public/); blank = defaults")
-$(print_kv "--node-version N"   "Node.js major version to install if missing (default: 20)")
+$(print_kv "--node-version N"   "Node.js major version to install, or upgrade to if older (default: 24)")
 $(print_kv "--frame-ancestors V" "CSP frame-ancestors value; blank = embeddable anywhere (default: blank)")
 $(print_kv "--csp-enforce"      "enforce the CSP (default: report-only — validate the console first)")
 $(print_kv "--csp-report-only"  "ship CSP as Report-Only (default)")
@@ -54,6 +55,10 @@ EOF
 }
 
 SLUG=""; HOST=""; REPO=""; BRANCH=""; NODE_VERSION=""; FRAME_ANCESTORS=""
+# Extra names for the SAME site and certificate — unlike the landing page's
+# --alias, which 301s. A map variant can claim one via `hosts` in map.json
+# (configs/README.md, "Host per variant"), so the address bar keeps that name.
+EXTRA_HOSTS=()
 # CSP starts in report-only mode; --csp-enforce flips it once validated.
 CSP_REPORT_ONLY=1
 SECRET=""; EMAIL=""; NO_TLS=0; FRAME_SET=0; COLLAB_PORT=""; COLLAB_SET=0
@@ -68,6 +73,8 @@ while [ $# -gt 0 ]; do
     --slug=*)           SLUG="${1#*=}"; shift ;;
     --host)             HOST="$2"; shift 2 ;;
     --host=*)           HOST="${1#*=}"; shift ;;
+    --extra-host)       EXTRA_HOSTS+=("$2"); shift 2 ;;
+    --extra-host=*)     EXTRA_HOSTS+=("${1#*=}"); shift ;;
     --repo)             REPO="$2"; shift 2 ;;
     --repo=*)           REPO="${1#*=}"; shift ;;
     --branch)           BRANCH="$2"; shift 2 ;;
@@ -107,7 +114,8 @@ ask SLUG "Instance slug" ""
 validate_slug "$SLUG"
 ask HOST "Hostname" ""
 validate_host "$HOST"
-ask REPO         "Git repository URL (Vite/SolidJS source)" ""
+for _h in "${EXTRA_HOSTS[@]}"; do validate_host "$_h"; done
+ask REPO        "Git repository URL (Vite/SolidJS source)" ""
 ask BRANCH       "Git branch"                             "main"
 # config-project: blank means build the default configs from public/. A value
 # selects configs/<value>/ to overlay (VITE_CONFIG_PROJECT at build time).
@@ -115,7 +123,7 @@ if [ "$CONFIG_PROJECT_SET" != "1" ] && [ "$ASSUME_YES" != "1" ]; then
   ask CONFIG_PROJECT "Config project overlay (blank = public/ defaults)" " "
   CONFIG_PROJECT="${CONFIG_PROJECT# }"
 fi
-ask NODE_VERSION "Node.js major version"                  "20"
+ask NODE_VERSION "Node.js major version"                  "24"
 # frame-ancestors: blank means "no CSP frame header" = embeddable anywhere.
 if [ "$FRAME_SET" != "1" ] && [ "$ASSUME_YES" != "1" ]; then
   ask FRAME_ANCESTORS "CSP frame-ancestors (blank = embeddable anywhere)" " "
@@ -157,7 +165,8 @@ echo
 log "Plan"
 info "slug            : $SLUG"
 info "host            : $HOST"
-info "repo / branch   : $REPO ($BRANCH)"
+info "extra hosts     : ${EXTRA_HOSTS[*]:-(none)}"
+info "repo / branch  : $REPO ($BRANCH)"
 info "config project  : ${CONFIG_PROJECT:-<public/ defaults>}"
 info "webroot         : $WEBROOT"
 info "repo dir        : $REPO_DIR"
@@ -175,17 +184,7 @@ confirm "Proceed?" || die "Aborted."
 ensure_base_stack
 
 # --- 2. Node.js ---
-install_node() {
-  if command -v node >/dev/null 2>&1; then
-    ok "Node.js already installed: $(node -v)"
-    return
-  fi
-  log "Installing Node.js ${NODE_VERSION} LTS"
-  curl -fsSL "https://deb.nodesource.com/setup_${NODE_VERSION}.x" | sudo -E bash -
-  ensure_packages nodejs
-  ok "Installed Node.js $(node -v), npm $(npm -v)"
-}
-install_node
+ensure_node "$NODE_VERSION"
 
 # --- 3. directories ---
 log "Creating directories"
@@ -431,7 +430,7 @@ nginx_write_site "$SLUG" <<EOF
 server {
     listen 80;
     listen [::]:80;
-    server_name $HOST;
+    server_name $HOST${EXTRA_HOSTS[*]:+ ${EXTRA_HOSTS[*]}};
 
     root $WEBROOT;
     index index.html;
@@ -552,10 +551,10 @@ if [ "$NO_TLS" = "1" ]; then
 else
   ensure_hsts_snippet
   ensure_tls_hardening_snippet
-  tls_obtain "$EMAIL" "$HOST" || true
+  tls_obtain "$EMAIL" "$HOST" "${EXTRA_HOSTS[@]}" || true
   nginx_post_tls "$SLUG" "$HOST"
   ensure_security_txt "$WEBROOT" "https://$HOST"
-  check_aaaa "$HOST"
+  check_aaaa "$HOST" "${EXTRA_HOSTS[@]}"
   nginx_test_reload
 fi
 

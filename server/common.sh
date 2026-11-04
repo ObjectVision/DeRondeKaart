@@ -165,6 +165,29 @@ ensure_certbot() {
   ensure_packages certbot python3-certbot-nginx
 }
 
+# ensure_node <major>
+# Installs Node.js <major> from NodeSource when node is missing OR older than
+# <major> — a host provisioned on an older line is moved forward rather than
+# left on it, since "already installed" used to strand servers on an EOL Node.
+# A newer node is left alone. Native addons (better-sqlite3) are ABI-bound:
+# after an upgrade they need `npm ci`/`npm rebuild`, which every deploy runs.
+ensure_node() {
+  local want="$1" have=""
+  if command -v node >/dev/null 2>&1; then
+    have="$(node -p 'process.versions.node.split(".")[0]')"
+    if [ "$have" -ge "$want" ]; then
+      ok "Node.js already installed: $(node -v)"
+      return
+    fi
+    log "Upgrading Node.js $(node -v) -> ${want} LTS"
+  else
+    log "Installing Node.js ${want} LTS"
+  fi
+  curl -fsSL "https://deb.nodesource.com/setup_${want}.x" | sudo -E bash -
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs
+  ok "Installed Node.js $(node -v), npm $(npm -v)"
+}
+
 # ---------------------------------------------------------------------------
 # File writing (system paths, owned by root)
 # ---------------------------------------------------------------------------

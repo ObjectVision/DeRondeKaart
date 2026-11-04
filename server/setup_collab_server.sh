@@ -39,7 +39,7 @@ $(print_kv "--slug NAME"      "instance id, namespaces all paths (e.g. woonzorgl
 $(print_kv "--port N"         "localhost port the server listens on (default: 5174)")
 $(print_kv "--repo URL"       "git remote of the map repo (contains collab-server/)")
 $(print_kv "--branch NAME"    "git branch to deploy (default: main)")
-$(print_kv "--node-version N" "Node.js major version to install if missing (default: 20)")
+$(print_kv "--node-version N" "Node.js major version to install, or upgrade to if older (default: 24)")
 $(print_kv "--secret HEX"     "GitHub webhook HMAC secret (default: generated)")
 $(print_kv "-y, --yes"        "non-interactive: accept all defaults")
 $(print_kv "-h, --help"       "show this help")
@@ -77,7 +77,7 @@ ask PORT         "Listen port (127.0.0.1)"           "5174"
 [[ "$PORT" =~ ^[0-9]+$ ]] || die "Invalid port '$PORT'."
 ask REPO         "Git repository URL (map repo)"     ""
 ask BRANCH       "Git branch"                        "main"
-ask NODE_VERSION "Node.js major version"             "20"
+ask NODE_VERSION "Node.js major version"             "24"
 ask_secret SECRET "GitHub webhook secret (HMAC)"
 
 REPO_DIR="/srv/$SLUG"
@@ -107,17 +107,9 @@ ensure_base_stack
 ensure_packages build-essential python3
 
 # --- 2. Node.js ---
-install_node() {
-  if command -v node >/dev/null 2>&1; then
-    ok "Node.js already installed: $(node -v)"
-    return
-  fi
-  log "Installing Node.js ${NODE_VERSION} LTS"
-  curl -fsSL "https://deb.nodesource.com/setup_${NODE_VERSION}.x" | sudo -E bash -
-  ensure_packages nodejs
-  ok "Installed Node.js $(node -v), npm $(npm -v)"
-}
-install_node
+# better-sqlite3 is compiled against the running Node's ABI, so after an
+# upgrade here the `npm ci` of step 4 (and of every deploy) rebuilds it.
+ensure_node "$NODE_VERSION"
 
 # --- 3. directories ---
 log "Creating directories"

@@ -73,9 +73,10 @@ Shared, installed once: nginx, git, **Node.js**, the webhook daemon on
 |---|---|---|
 | `--slug NAME` | Instance slug | *(required)* |
 | `--host HOST` | Hostname | *(required)* |
+| `--extra-host HOST` | Extra hostname served by the same site and certificate (not a redirect); repeatable. Pair with `hosts` on a variant in map.json to open that variant there (see [configs/README.md](../configs/README.md#host-per-variant)) | *(none)* |
 | `--repo URL` | Git remote of the Vite/SolidJS source | *(required)* |
 | `--branch NAME` | Git branch to deploy | `main` |
-| `--node-version N` | Node.js major version to install if missing | `20` |
+| `--node-version N` | Node.js major version to install, or upgrade to if older | `24` |
 | `--frame-ancestors V` | CSP `frame-ancestors` value | *(blank — embeddable anywhere)* |
 | `--collab-port N` | Proxy `/collab` to a collab server on `127.0.0.1:N` (see [setup_collab_server.md](setup_collab_server.md)) | *(blank — collaboration off)* |
 | `--config-project S` | Config overlay to build (`configs/<S>/` over `public/`) | *(blank — `public/` defaults)* |

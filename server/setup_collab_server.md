@@ -47,7 +47,7 @@ Shared, installed once: nginx, git, **Node.js**, `build-essential`/`python3`
 | `--port N` | Listen port on 127.0.0.1 | `5174` |
 | `--repo URL` | Git remote of the map repo | *(required)* |
 | `--branch NAME` | Git branch to deploy | `main` |
-| `--node-version N` | Node.js major version to install if missing | `20` |
+| `--node-version N` | Node.js major version to install, or upgrade to if older | `24` |
 | `--secret HEX` | GitHub webhook HMAC secret | *generated* |
 
 ---
