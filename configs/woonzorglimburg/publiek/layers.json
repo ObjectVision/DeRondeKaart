@@ -7056,6 +7056,426 @@
       "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/aandeel_j0_17_m5_%YEAR%.cog.tif"
     },
     {
+      "id": "aandeel_alleen",
+      "name": "Aandeel alleenstaand (2025)",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "2025_aandeel_alleen_m5",
+      "geostyler": {
+        "name": "Aandeel alleenstaand (2025)",
+        "rules": [
+          {
+            "name": "0%",
+            "filter": [
+              "==",
+              "class",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EDEDED",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "0-10%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4D849",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10-20%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A2BC4B",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20-30%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#659F4E",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30-40%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#258350",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40-50%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1A5D56",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "50-60%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#143658",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#070E3D",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandeel alleenstaand (2025): klasse [[ class ]]</b></div>"
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/aandeel_alleen_m5_2025.cog.tif"
+    },
+    {
+      "id": "aandeel_meerpmk",
+      "name": "Aandeel meerpersoons met kinderen (2025)",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "2025_aandeel_meerpmk_m5",
+      "geostyler": {
+        "name": "Aandeel meerpersoons met kinderen (2025)",
+        "rules": [
+          {
+            "name": "0%",
+            "filter": [
+              "==",
+              "class",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EDEDED",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "0-10%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4D849",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10-20%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A2BC4B",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20-30%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#659F4E",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30-40%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#258350",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40-50%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1A5D56",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "50-60%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#143658",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#070E3D",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandeel meerpersoons met kinderen (2025): klasse [[ class ]]</b></div>"
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/aandeel_meerpmk_m5_2025.cog.tif"
+    },
+    {
+      "id": "aandeel_meerpzk",
+      "name": "Aandeel meerpersoons zonder kinderen (2025)",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "2025_aandeel_meerpzk_m5",
+      "geostyler": {
+        "name": "Aandeel meerpersoons zonder kinderen (2025)",
+        "rules": [
+          {
+            "name": "0%",
+            "filter": [
+              "==",
+              "class",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EDEDED",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "0-10%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4D849",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10-20%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A2BC4B",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20-30%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#659F4E",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30-40%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#258350",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40-50%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1A5D56",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "50-60%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#143658",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#070E3D",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Aandeel meerpersoons zonder kinderen (2025): klasse [[ class ]]</b></div>"
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/aandeel_meerpzk_m5_2025.cog.tif"
+    },
+    {
       "id": "aandeel_j18_29",
       "name": "Aandeel 18-29 jaar",
       "meta": {
