@@ -2312,29 +2312,6 @@
       "attributeSource": "https://data.woonzorglimburg.nl/parquet/SDKLimburg2026.parquet",
       "format": "pmtiles",
       "geometryType": "polygon",
-      "statistics": [
-        {
-          "field": "data",
-          "stat": "count",
-          "label": "Gebieden",
-          "icon": "grid_view",
-          "color": "#1c5cab"
-        },
-        {
-          "field": "data",
-          "stat": "mean",
-          "label": "Gem. klasse",
-          "icon": "diversity_3",
-          "color": "#F97316"
-        },
-        {
-          "field": "data",
-          "stat": "variance",
-          "label": "Spreiding",
-          "icon": "monitoring",
-          "color": "#1baf7a"
-        }
-      ],
       "geostyler": {
         "name": "",
         "rules": [

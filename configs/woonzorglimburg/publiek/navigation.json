@@ -176,21 +176,6 @@
         ]
       },
       {
-        "label": "geschiktheid",
-        "icon": "apartment",
-        "color": "#2D6CDF",
-        "expanded": true,
-        "children": [
-          {
-            "id": "geschiktheid_2026",
-            "color": "#8C54D6",
-            "label": "geschiktheid",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
         "label": "woningbouw",
         "icon": "foundation",
         "color": "#C80000",
@@ -401,20 +386,6 @@
             "b": false
           },
           {
-            "id": "loopafstand_dagbesteding",
-            "color": "#8C54D6",
-            "label": "Dagbesteding",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "loopafstand_fysiotherapeut",
-            "color": "#8C54D6",
-            "label": "Fysiotherapeut",
-            "a": false,
-            "b": false
-          },
-          {
             "id": "loopafstand_huisarts",
             "color": "#8C54D6",
             "label": "Huisarts",
@@ -439,20 +410,6 @@
             "id": "loopafstand_supermarkt",
             "color": "#8C54D6",
             "label": "Supermarkt",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "loopafstand_tandarts",
-            "color": "#8C54D6",
-            "label": "Tandarts",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "loopafstand_ziekenhuis",
-            "color": "#8C54D6",
-            "label": "Ziekenhuis",
             "a": false,
             "b": false
           }
