@@ -51,6 +51,12 @@ transform and shape with a reference COG. Run it pairwise across a set and the
 whole set is proven to be co-registered; that check belongs here in the pipeline
 rather than in the browser, where a misalignment is invisible.
 
+A pinned zoom fixes resolution and origin, but the *extent* still follows the
+input: a source that reaches further west lands on a wider grid and fails the
+size check. Pass ``--like`` with a COG from the existing set to warp onto its
+exact CRS, transform, shape and overview count instead (source cells outside
+it are dropped) — the same approach as ``convert-geojson-to-cog-10m.py``.
+
 Usage:
     # Default: -> tif/afstanden/huisarts_lb_m5.cog.tif at zoom 14
     python3 convert-tif-to-cog-10m.py tif/afstanden/huisarts_lb_m5.tif
@@ -58,6 +64,11 @@ Usage:
     # Assert a second raster lands on the same grid as the first
     python3 convert-tif-to-cog-10m.py tif/geschiktheid/won_aanpasbaar_m5.tif \\
         --expect-grid tif/afstanden/huisarts_lb_m5.cog.tif
+
+    # Source with a different extent: force the existing cog/comparison grid
+    python3 convert-tif-to-cog-10m.py tif/2025/aandeel_alleen_m5.tif \\
+        tif/comparison/aandeel_alleen_m5_2025.cog.tif \\
+        --like tif/huisarts_lb_m5.cog.tif --expect-grid tif/huisarts_lb_m5.cog.tif
 
     # Finer grid (zoom 15 ~ 3.00 m ground at this latitude)
     python3 convert-tif-to-cog-10m.py input.tif --zoom 15
@@ -73,6 +84,8 @@ from pathlib import Path
 import numpy as np
 import rasterio
 import rasterio.warp
+from rasterio.enums import Resampling
+from rasterio.vrt import WarpedVRT
 from rio_cogeo.cogeo import cog_translate, cog_validate
 from rio_cogeo.profiles import cog_profiles
 
@@ -154,6 +167,7 @@ def convert(
     zoom: int,
     resampling: str,
     nodata: int | None,
+    like: Path | None = None,
 ) -> None:
     print(f"Reading  {input_path}")
     with rasterio.open(input_path) as src:
@@ -211,25 +225,56 @@ def convert(
         + (f" (~{metres:.2f} m ground at {centre_lat:.2f} N)" if centre_lat else "")
     )
 
-    # "deflate" profile: tiled, internally-overviewed, lossless compression.
-    #
-    # `zoom_level` is the reason this script exists — without it the strategy
-    # picks a level per input and rasters stop sharing a grid. `nodata` makes
-    # the warp fill reprojection padding with the sentinel, so it renders
-    # transparent rather than as class 0.
-    cog_translate(
-        input_path,
-        output_path,
-        cog_profiles.get("deflate"),
-        web_optimized=True,
-        zoom_level=zoom,
-        zoom_level_strategy="auto",
-        resampling=resampling,
-        overview_resampling=resampling,
-        nodata=nodata,
-        forward_band_tags=True,
-        quiet=False,
-    )
+    if like is not None:
+        # Warp straight onto the reference's CRS, transform and shape, so the
+        # output matches it by construction even when this input covers a
+        # different extent. Source cells outside the reference are dropped.
+        with rasterio.open(like) as ref:
+            grid = {
+                "crs": ref.crs,
+                "transform": ref.transform,
+                "width": ref.width,
+                "height": ref.height,
+            }
+            overview_level = len(ref.overviews(1))
+        print(f"  grid taken from {like.name} ({grid['width']}x{grid['height']})")
+        with rasterio.open(input_path) as src, WarpedVRT(
+            src,
+            resampling=Resampling[resampling],
+            src_nodata=nodata,
+            nodata=nodata,
+            **grid,
+        ) as vrt:
+            cog_translate(
+                vrt,
+                output_path,
+                cog_profiles.get("deflate"),
+                overview_level=overview_level,
+                overview_resampling=resampling,
+                nodata=nodata,
+                forward_band_tags=True,
+                quiet=False,
+            )
+    else:
+        # "deflate" profile: tiled, internally-overviewed, lossless compression.
+        #
+        # `zoom_level` is the reason this script exists — without it the
+        # strategy picks a level per input and rasters stop sharing a grid.
+        # `nodata` makes the warp fill reprojection padding with the sentinel,
+        # so it renders transparent rather than as class 0.
+        cog_translate(
+            input_path,
+            output_path,
+            cog_profiles.get("deflate"),
+            web_optimized=True,
+            zoom_level=zoom,
+            zoom_level_strategy="auto",
+            resampling=resampling,
+            overview_resampling=resampling,
+            nodata=nodata,
+            forward_band_tags=True,
+            quiet=False,
+        )
 
     print("Validating COG…")
     is_valid, errors, warnings = cog_validate(output_path)
@@ -305,10 +350,24 @@ def main(argv: list[str]) -> int:
             "this reference COG; exits 2 if it does not"
         ),
     )
+    parser.add_argument(
+        "--like",
+        type=Path,
+        default=None,
+        metavar="PATH",
+        help=(
+            "warp onto this reference COG's CRS, transform, size and overview "
+            "count instead of deriving the grid from the input's extent "
+            "(overrides --zoom)"
+        ),
+    )
     args = parser.parse_args(argv[1:])
 
     if not args.input.exists():
         print(f"error: {args.input} not found", file=sys.stderr)
+        return 1
+    if args.like is not None and not args.like.exists():
+        print(f"error: --like {args.like} not found", file=sys.stderr)
         return 1
 
     output_path = args.output or args.input.with_suffix(".cog.tif")
@@ -320,6 +379,7 @@ def main(argv: list[str]) -> int:
         zoom=args.zoom,
         resampling=args.resampling,
         nodata=args.nodata,
+        like=args.like,
     )
 
     if args.expect_grid is not None:

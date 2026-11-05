@@ -102,6 +102,32 @@
             "b": false
           }
         ]
+      },
+      {
+        "label": "huishoudens",
+        "icon": "monitoring",
+        "color": "#3E74A7",
+        "expanded": true,
+        "children": [
+          {
+            "id": "aandeel_alleen",
+            "label": "alleenstaand",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "aandeel_meerpmk",
+            "label": "meerpersoons met kinderen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "aandeel_meerpzk",
+            "label": "meerpersoons zonder kinderen",
+            "a": false,
+            "b": false
+          }
+        ]
       }
     ]
   },
