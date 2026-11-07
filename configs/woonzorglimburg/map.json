@@ -47,6 +47,7 @@
   },
   "combinations": true,
   "annotations": true,
+  "layerInfoButton": "checked",
   "clickMarker": {
     "icon": "location_on",
     "enabled": false,
