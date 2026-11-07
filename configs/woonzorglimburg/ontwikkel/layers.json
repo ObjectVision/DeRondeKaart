@@ -2306,7 +2306,7 @@
       "name": "Sociaal dominante klasse",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/Sociaal_dominante_klasse_toelichting.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/Sociaal_dominante_klasse_aannames_en_onzekerheden.html"
+        "bronnen": "https://data.woonzorglimburg.nl/meta/Sociaal_dominante_klasse_bronnen.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/SDKLimburg2026.pmtiles",
       "attributeSource": "https://data.woonzorglimburg.nl/parquet/SDKLimburg2026.parquet",
@@ -7547,7 +7547,7 @@
       "name": "bouwjaar",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/bouwjaar_lb_2026_toelichting.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/bouwjaar_lb_2026_aannames_en_onzekerheden.html"
+        "bronnen": "https://data.woonzorglimburg.nl/meta/bouwjaar_lb_2026_bronnen.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/bouwjaar_lb_2026.pmtiles",
       "format": "pmtiles",
@@ -7851,7 +7851,7 @@
       "name": "pandtype",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/pandtype_lb_2026_toelichting.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/pandtype_lb_2026_aannames_en_onzekerheden.html"
+        "bronnen": "https://data.woonzorglimburg.nl/meta/pandtype_lb_2026_bronnen.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/pandtype_lb_2026.pmtiles",
       "format": "pmtiles",
@@ -8393,6 +8393,10 @@
     {
       "id": "aandeel_alleen",
       "name": "Aandeel alleenstaand (2025)",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_alleen_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/aandeel_alleen_bronnen.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -8533,6 +8537,10 @@
     {
       "id": "aandeel_meerpmk",
       "name": "Aandeel meerpersoons met kinderen (2025)",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_meerpmk_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/aandeel_meerpmk_bronnen.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -8673,6 +8681,10 @@
     {
       "id": "aandeel_meerpzk",
       "name": "Aandeel meerpersoons zonder kinderen (2025)",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_meerpzk_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/aandeel_meerpzk_bronnen.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -8815,7 +8827,7 @@
       "name": "Aandeel 18-29 jaar",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_j18_29_toelichting.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/aandeel_j18_29_aannames_en_onzekerheden.html"
+        "bronnen": "https://data.woonzorglimburg.nl/meta/aandeel_j18_29_bronnen.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
@@ -8950,7 +8962,7 @@
       "name": "Aandeel 30-44 jaar",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_j30_44_toelichting.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/aandeel_j30_44_aannames_en_onzekerheden.html"
+        "bronnen": "https://data.woonzorglimburg.nl/meta/aandeel_j30_44_bronnen.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
@@ -9085,7 +9097,7 @@
       "name": "Aandeel 45-66 jaar",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_j45_66_toelichting.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/aandeel_j45_66_aannames_en_onzekerheden.html"
+        "bronnen": "https://data.woonzorglimburg.nl/meta/aandeel_j45_66_bronnen.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
@@ -9220,7 +9232,7 @@
       "name": "Aandeel 67-74 jaar",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_j67_74_toelichting.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/aandeel_j67_74_aannames_en_onzekerheden.html"
+        "bronnen": "https://data.woonzorglimburg.nl/meta/aandeel_j67_74_bronnen.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
@@ -9355,7 +9367,7 @@
       "name": "Aandeel 75 jaar en ouder",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/aandeel_j75_plus_toelichting.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/aandeel_j75_plus_aannames_en_onzekerheden.html"
+        "bronnen": "https://data.woonzorglimburg.nl/meta/aandeel_j75_plus_bronnen.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
@@ -9625,7 +9637,7 @@
       "name": "OOSR",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/oosr_2_toelichting.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/oosr_2_aannames_en_onzekerheden.html"
+        "bronnen": "https://data.woonzorglimburg.nl/meta/oosr_2_bronnen.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
@@ -10117,7 +10129,11 @@
     {
       "id": "woningbouw_projectvlakken",
       "name": "projectvlakken",
-      "meta": "https://data.woonzorglimburg.nl/meta/woningbouwkaart.html",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/woningbouw_projectvlakken_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/woningbouw_projectvlakken_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/woningbouw_projectvlakken_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
       "format": "pmtiles",
       "geometryType": "polygon",
@@ -10157,7 +10173,11 @@
     {
       "id": "woningbouw_hard",
       "name": "harde plannen",
-      "meta": "https://data.woonzorglimburg.nl/meta/woningbouwkaart.html",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/woningbouw_hard_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/woningbouw_hard_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/woningbouw_hard_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
       "format": "pmtiles",
       "geometryType": "point",
@@ -10519,7 +10539,11 @@
     {
       "id": "woningbouw_zacht",
       "name": "zachte plannen",
-      "meta": "https://data.woonzorglimburg.nl/meta/woningbouwkaart.html",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/woningbouw_zacht_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/woningbouw_zacht_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/woningbouw_zacht_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
       "format": "pmtiles",
       "geometryType": "point",
