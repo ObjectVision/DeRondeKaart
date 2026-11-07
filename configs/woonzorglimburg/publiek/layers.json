@@ -229,6 +229,7 @@
       "name": "Loopafstand ziekenhuis",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_ziekenhuis_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/loopafstand_ziekenhuis_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_ziekenhuis_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
@@ -404,6 +405,7 @@
       "name": "Loopafstand supermarkt",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_supermarkt_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/loopafstand_supermarkt_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_supermarkt_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
@@ -574,6 +576,7 @@
       "name": "Loopafstand dagbesteding",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_dagbesteding_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/loopafstand_dagbesteding_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_dagbesteding_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
@@ -748,6 +751,7 @@
       "name": "Loopafstand ontmoeting",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_ontmoeting_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/loopafstand_ontmoeting_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_ontmoeting_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
@@ -918,6 +922,7 @@
       "name": "Loopafstand tandarts",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_tandarts_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/loopafstand_tandarts_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_tandarts_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
@@ -1042,6 +1047,7 @@
       "name": "openbaar vervoer",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/ov_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/ov_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/ov_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
@@ -1092,6 +1098,7 @@
       "name": "Loopafstand openbaar vervoer",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_ov_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/loopafstand_ov_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_ov_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
@@ -1266,6 +1273,7 @@
       "name": "Loopafstand apotheek",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_apotheek_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/loopafstand_apotheek_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_apotheek_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
@@ -1436,6 +1444,7 @@
       "name": "Loopafstand fysiotherapeut",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/loopafstand_fysiotherapeut_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/loopafstand_fysiotherapeut_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/loopafstand_fysiotherapeut_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/loopafstand_lb_2026.pmtiles",
