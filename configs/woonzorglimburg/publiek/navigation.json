@@ -322,6 +322,28 @@
         ]
       },
       {
+        "label": "zorgvoorziening",
+        "icon": "storefront",
+        "color": "#8C54D6",
+        "expanded": true,
+        "children": [
+          {
+            "id": "huisarts",
+            "color": "#8C54D6",
+            "label": "Huisarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "apotheek",
+            "color": "#8C54D6",
+            "label": "Apotheek",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
         "label": "ontmoeting",
         "icon": "storefront",
         "color": "#8C54D6",
