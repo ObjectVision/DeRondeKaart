@@ -118,7 +118,6 @@ than the Details popup. Its tiles carry only `pc6` and `row`; everything shown c
 row of a parquet sidecar, read over HTTP range requests:
 
 ```json
-"idProperty": "row",
 "featureinfo": {
   "locationinfo": {
     "source": "https://data.woonzorglimburg.nl/parquet/pc6_locatieinfo_2026.parquet?v=…",
@@ -133,8 +132,10 @@ row of a parquet sidecar, read over HTTP range requests:
   parquet are a matched pair**: rebuild, upload and version-stamp them together. `keyField`
   is the guard — when the row's value differs from the feature's, the window shows an error
   instead of another area's data.
-- `idProperty` must be set: neither `row` nor `pc6` is an id the loader guesses, and without
-  an id nothing highlights.
+- Unlike `buurt_klik`, `pc6_klik` is deliberately **not** `highlightable`: the clicked
+  postcode gets no outline, so the pick layer stays silent. For debugging, add
+  `"highlightable": true, "idProperty": "row"` locally — the id is needed because neither
+  `row` nor `pc6` is one the loader guesses.
 - Precedence: `pbl` › `locationinfo` › `template`/`templateUrl`. Other projects are
   untouched; startanalyse2026's `buurt_klik` keeps its PBL summary.
 - The template format (tabs, `[[ field | format ]]`, pie/distance/sparkline widgets) and the
