@@ -111,6 +111,35 @@ outline is refused with a warning, since it would paint nothing.
 `pickLayer` is unrelated to the dashboard's selection layer below, though one layer can serve
 both — that additionally needs `compareSelectable`.
 
+### Location info: `featureinfo.locationinfo`
+
+woonzorglimburg's pick layer `pc6_klik` answers with the "Locatie informatie" window rather
+than the Details popup. Its tiles carry only `pc6` and `row`; everything shown comes from one
+row of a parquet sidecar, read over HTTP range requests:
+
+```json
+"idProperty": "row",
+"featureinfo": {
+  "locationinfo": {
+    "source": "https://data.woonzorglimburg.nl/parquet/pc6_locatieinfo_2026.parquet?v=…",
+    "rowField": "row",
+    "keyField": "pc6",
+    "templateUrl": "https://data.woonzorglimburg.nl/meta/locatieinfo/locatie-informatie.html?v=…"
+  }
+}
+```
+
+- `rowField` (default `row`) is the 0-based row index in `source`. **The PMTiles and the
+  parquet are a matched pair**: rebuild, upload and version-stamp them together. `keyField`
+  is the guard — when the row's value differs from the feature's, the window shows an error
+  instead of another area's data.
+- `idProperty` must be set: neither `row` nor `pc6` is an id the loader guesses, and without
+  an id nothing highlights.
+- Precedence: `pbl` › `locationinfo` › `template`/`templateUrl`. Other projects are
+  untouched; startanalyse2026's `buurt_klik` keeps its PBL summary.
+- The template format (tabs, `[[ field | format ]]`, pie/distance/sparkline widgets) and the
+  build steps are in [`data/locatieinfo/README.md`](../data/locatieinfo/README.md).
+
 ## `map.json`: the location search
 
 The `mapControls` block decides whether the search box appears and which geocoder answers it:

@@ -274,6 +274,35 @@ export interface FeatureInfoConfig {
    * this flag restores the table without recovering any data.
    */
   pbl?: boolean;
+  /**
+   * Answer the click with the "Locatie informatie" window instead of the
+   * Details popup: the clicked feature names one row of a parquet sidecar, and
+   * that row fills a tabbed HTML template.
+   *
+   * Takes precedence over `template`/`templateUrl`; `pbl` takes precedence over
+   * this. See LocationInfoConfig.
+   */
+  locationinfo?: LocationInfoConfig;
+}
+
+/**
+ * Where a location-info click finds its data. The tiles carry only a row index
+ * (and optionally a key), so the vector archive stays small while the parquet
+ * holds every attribute; the app reads that single row over HTTP range requests.
+ */
+export interface LocationInfoConfig {
+  /** Parquet with one row per feature. Geometry columns, if any, are skipped. */
+  source: string;
+  /** Feature property holding the 0-based row index into `source`. Default `"row"`. */
+  rowField?: string;
+  /**
+   * Property present on both the feature and the row. When set and the two
+   * differ, the tiles and the parquet were not built together, and the window
+   * shows an error rather than another feature's data.
+   */
+  keyField?: string;
+  /** HTML template: `data-tab` sections, `[[ field | format ]]` placeholders and widgets. */
+  templateUrl: string;
 }
 
 /**

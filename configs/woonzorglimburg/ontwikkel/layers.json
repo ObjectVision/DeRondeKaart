@@ -1,6 +1,32 @@
 {
   "layers": [
     {
+      "id": "pc6_klik",
+      "name": "Locatie informatie",
+      "description": "Onzichtbare postcode-6-vlakken: een klik op de kaart opent de locatie-informatie.",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/pc6_locatieinfo_2026.pmtiles?v=20261108",
+      "format": "pmtiles",
+      "sourceLayer": "pc6_locatieinfo_2026",
+      "geometryType": "polygon",
+      "style": {
+        "color": [0, 0, 0, 255],
+        "opacity": 0
+      },
+      "excludeFromLegend": true,
+      "excludeFromComparison": true,
+      "highlightable": true,
+      "idProperty": "row",
+      "beforeid": "foreground-layers",
+      "featureinfo": {
+        "locationinfo": {
+          "source": "https://data.woonzorglimburg.nl/parquet/pc6_locatieinfo_2026.parquet?v=20261108",
+          "rowField": "row",
+          "keyField": "pc6",
+          "templateUrl": "https://data.woonzorglimburg.nl/meta/locatieinfo/locatie-informatie.html?v=20261108"
+        }
+      }
+    },
+    {
       "id": "huisarts",
       "name": "huisarts",
       "description": "Locaties van huisartsenpraktijken in de regio.",

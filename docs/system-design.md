@@ -481,6 +481,7 @@ from Parquet to PMTiles, and the silence is why it went unnoticed.
 | **Navigation tree** | [use-navigation.ts](../src/hooks/use-navigation.ts), [navigation/](../src/components/ui/navigation/), [Sidebar.tsx](../src/components/ui/sidebar/Sidebar.tsx) | Rendered in the left sidebar; `map.json` `navigation` turns the whole sidebar on |
 | **Legend** | [legend.tsx](../src/components/ui/legend.tsx), [legend-style.ts](../src/lib/legend-style.ts) | Per-layer and per-rule toggles, move between maps, basemap cycling |
 | **Feature info** | [use-feature-pick.ts](../src/hooks/use-feature-pick.ts), [feature-info.tsx](../src/components/ui/feature-info.tsx) | `queryRenderedFeatures` over the clickable layers |
+| **Location info** | [LocationInfoDialog.tsx](../src/components/ui/LocationInfoDialog.tsx), [location-info-template.ts](../src/layers/location-info-template.ts), [parquet-row.ts](../src/layers/parquet-row.ts) | A pick on a `featureinfo.locationinfo` layer: the tile's `row` selects one parquet row (HTTP range reads), which fills a tabbed template with declarative widgets |
 | **Street View** | [street-view.tsx](../src/components/ui/street-view.tsx) | Lazy Google Maps load via `callback=` readiness signal |
 | **Area filter** | [use-area-filter.ts](../src/hooks/use-area-filter.ts), [FilterSection.tsx](../src/components/ui/sidebar/FilterSection.tsx) | Also replaces the study area and flies to the selection |
 | **Box selection** | [use-box-select.ts](../src/hooks/use-box-select.ts) | Scopes statistics only |

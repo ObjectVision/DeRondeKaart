@@ -260,6 +260,7 @@ def convert(
     batch_size: int,
     log=print,
     allow_bool: bool = True,
+    statistics: bool = True,
 ) -> None:
     """Convert one GeoJSON file to GeoArrow-encoded Parquet.
 
@@ -316,11 +317,16 @@ def convert(
     # 1.1's native GeoArrow encoding (separated/interleaved coordinates) instead
     # of WKB. This is what parquet-wasm reads directly for the "parquet" format.
     # row_group_size sets the streaming batch size (passed through to pyarrow).
+    # write_statistics: min/max per column chunk live in the footer, which a
+    # range reader downloads before anything else. Nothing in the app filters on
+    # them, so a wide file read one row at a time (the location-info sidecar)
+    # is better off without — they were most of its ~1 MB footer.
     gdf.to_parquet(
         output_path,
         compression="snappy",
         geometry_encoding="geoarrow",
         row_group_size=batch_size,
+        write_statistics=statistics,
         index=False,
     )
 
@@ -333,6 +339,7 @@ def convert_folder(
     output_dir: Path,
     batch_size: int,
     allow_bool: bool = True,
+    statistics: bool = True,
 ) -> int:
     """Convert every GeoJSON in ``input_dir`` to Parquet in ``output_dir``.
 
@@ -351,7 +358,10 @@ def convert_folder(
     for path in tqdm(files, unit="file", desc="Converting"):
         out = output_dir / (path.stem + ".parquet")
         try:
-            convert(path, out, batch_size, log=tqdm.write, allow_bool=allow_bool)
+            convert(
+                path, out, batch_size, log=tqdm.write, allow_bool=allow_bool,
+                statistics=statistics,
+            )
         except Exception as err:  # keep going through the batch
             failures += 1
             tqdm.write(f"error converting {path.name}: {err}")
@@ -397,6 +407,14 @@ def main(argv: list[str]) -> int:
         action="store_true",
         help="Never narrow 0/1 integer columns to boolean",
     )
+    parser.add_argument(
+        "--no-statistics",
+        action="store_true",
+        help=(
+            "Omit per-column min/max statistics: a smaller footer for files read "
+            "one row at a time (e.g. the location-info sidecar)"
+        ),
+    )
     args = parser.parse_args(argv[1:])
 
     if args.batch_size < 1:
@@ -421,7 +439,8 @@ def main(argv: list[str]) -> int:
         else:
             output_dir = input_path  # write .parquet alongside the inputs
         return convert_folder(
-            input_path, output_dir, args.batch_size, allow_bool=allow_bool
+            input_path, output_dir, args.batch_size, allow_bool=allow_bool,
+            statistics=not args.no_statistics,
         )
 
     # Single-file mode.
@@ -432,7 +451,10 @@ def main(argv: list[str]) -> int:
     else:
         output_path = input_path.with_suffix(".parquet")
 
-    convert(input_path, output_path, args.batch_size, allow_bool=allow_bool)
+    convert(
+        input_path, output_path, args.batch_size, allow_bool=allow_bool,
+        statistics=not args.no_statistics,
+    )
     return 0
 
 

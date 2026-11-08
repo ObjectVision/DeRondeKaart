@@ -1,9 +1,12 @@
-import { For, createUniqueId, type JSX } from "solid-js";
+import { For, Show, createUniqueId, type JSX } from "solid-js";
 import { chromeIconColor } from "@/config/map-config";
+import { Icon } from "@/components/ui/nav-icon";
 
 export interface Tab<Id extends string = string> {
   id: Id;
   label: string;
+  /** Material Symbols glyph before the label. Omitted, the tab is text only. */
+  icon?: string;
 }
 
 export interface TabStripProps<Id extends string = string> {
@@ -124,8 +127,8 @@ export function TabStrip<Id extends string>(props: TabStripProps<Id>): JSX.Eleme
               aria-controls={props.panelId}
               onClick={(e) => props.onSelect(tab.id, e.currentTarget)}
               class={`border-b-2 border-transparent px-2 py-1 text-xs font-semibold uppercase tracking-wide transition-colors ${
-                isActive() ? "" : "text-gray-500 hover:text-gray-700"
-              }`}
+                tab.icon ? "flex items-center gap-1 " : ""
+              }${isActive() ? "" : "text-gray-500 hover:text-gray-700"}`}
               style={
                 isActive()
                   ? {
@@ -135,6 +138,11 @@ export function TabStrip<Id extends string>(props: TabStripProps<Id>): JSX.Eleme
                   : undefined
               }
             >
+              {/* The glyph keeps the chrome colour on inactive tabs too, as in
+                  the location-info design; only the label greys out. */}
+              <Show when={tab.icon}>
+                {(icon) => <Icon name={icon()} size={20} color={chromeIconColor()} />}
+              </Show>
               {tab.label}
             </button>
           );

@@ -226,3 +226,56 @@ describe("layers.json meta", () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining("onzin"));
   });
 });
+
+describe("layers.json featureinfo", () => {
+  async function loadFresh(layers: unknown[]) {
+    vi.resetModules();
+    stubLayersJson(layers);
+    const { loadLayerConfigs: load } = await import("@/layers/config");
+    return load();
+  }
+
+  /**
+   * Only `locationinfo` is validated. Everything else must come through exactly
+   * as written: startanalyse2026's `buurt_klik` answers with `{ pbl: true }`, and
+   * every other project uses inline templates — a validator that reshaped them
+   * would change what a click shows there.
+   */
+  it("passes templates and the PBL flag through unchanged", async () => {
+    const pbl = { pbl: true };
+    const inline = { template: "<b>[[ naam ]]</b>" };
+    const configs = await loadFresh([
+      { ...BASE, id: "pbl", featureinfo: pbl },
+      { ...BASE, id: "inline", featureinfo: inline },
+      { ...BASE, id: "geen" },
+    ]);
+    const byId = new Map(configs.map((c) => [c.id, c]));
+    expect(byId.get("pbl")?.featureinfo).toEqual(pbl);
+    expect(byId.get("inline")?.featureinfo).toEqual(inline);
+    expect(byId.get("geen")?.featureinfo).toBeUndefined();
+  });
+
+  it("keeps a complete locationinfo and drops an incomplete one with a warning", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const locationinfo = {
+      source: "https://example.test/pc6.parquet",
+      rowField: "row",
+      keyField: "pc6",
+      templateUrl: "https://example.test/locatie.html",
+    };
+    const configs = await loadFresh([
+      { ...BASE, id: "goed", featureinfo: { locationinfo } },
+      { ...BASE, id: "zonder_template", featureinfo: { locationinfo: { source: "x.parquet" } } },
+      {
+        ...BASE,
+        id: "met_template",
+        featureinfo: { template: "<b>x</b>", locationinfo: { source: "", templateUrl: "t.html" } },
+      },
+    ]);
+    const byId = new Map(configs.map((c) => [c.id, c]));
+    expect(byId.get("goed")?.featureinfo).toEqual({ locationinfo });
+    expect(byId.get("zonder_template")?.featureinfo).toBeUndefined();
+    expect(byId.get("met_template")?.featureinfo).toEqual({ template: "<b>x</b>" });
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('"featureinfo.locationinfo"'));
+  });
+});

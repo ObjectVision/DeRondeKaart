@@ -18,6 +18,7 @@
   },
   "studyarea": "studiegebied_limburg",
   "streetview": true,
+  "pickLayer": "pc6_klik",
   "searchbar": false,
   "navigation": true,
   "filterSection": false,

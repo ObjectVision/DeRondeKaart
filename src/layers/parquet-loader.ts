@@ -15,7 +15,7 @@ import { loadTableCached } from "./table-cache";
 // failure the memo is reset so a later load can retry (mirrors table-cache).
 let parquetInit: Promise<unknown> | null = null;
 
-function ensureParquetWasmInit(): Promise<unknown> {
+export function ensureParquetWasmInit(): Promise<unknown> {
   return (parquetInit ??= initParquet().catch((err) => {
     parquetInit = null;
     throw err;
