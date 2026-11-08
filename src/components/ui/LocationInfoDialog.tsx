@@ -209,12 +209,16 @@ export function LocationInfoDialog(props: LocationInfoDialogProps): JSX.Element 
             </div>
             <Show when={props.streetView}>
               {(sv) => (
-                <div class="relative flex min-h-48 w-full overflow-hidden rounded-[2px] bg-[#e5e3df] shadow-[0_15px_35px_rgba(0,0,0,0.25),0_5px_15px_rgba(0,0,0,0.2)] sm:w-[70%]">
+                // Grid, not flex: StreetView's root holds only absolutely
+                // positioned content, so as a flex item it shrinks to zero width
+                // and the panorama renders into nothing. A grid item stretches
+                // to the cell in both directions.
+                <div class="relative grid min-h-48 w-full overflow-hidden rounded-[2px] bg-[#e5e3df] shadow-[0_15px_35px_rgba(0,0,0,0.25),0_5px_15px_rgba(0,0,0,0.2)] sm:w-[70%]">
                   <StreetView
                     lng={sv().lng}
                     lat={sv().lat}
                     embedded
-                    bodyClass="relative min-h-48 flex-1 overflow-hidden"
+                    bodyClass="relative h-full min-h-48 w-full flex-1 overflow-hidden"
                   />
                 </div>
               )}
