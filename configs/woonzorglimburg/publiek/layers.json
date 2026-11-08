@@ -14,8 +14,6 @@
       },
       "excludeFromLegend": true,
       "excludeFromComparison": true,
-      "highlightable": true,
-      "idProperty": "row",
       "beforeid": "foreground-layers",
       "featureinfo": {
         "locationinfo": {
