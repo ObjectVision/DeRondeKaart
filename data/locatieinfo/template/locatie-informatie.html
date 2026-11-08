@@ -1,0 +1,255 @@
+<!--
+  Locatie informatie — template voor woonzorglimburg (een rij per postcode-6).
+  Zie data/locatieinfo/README.md voor de opbouw, placeholders en widgets.
+  Gepubliceerd als https://data.woonzorglimburg.nl/meta/locatieinfo/locatie-informatie.html
+-->
+
+<div data-locationinfo="general">
+  <div class="grid w-full grid-cols-[6.5rem_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
+    <div class="text-gray-400">adres:</div>
+    <div class="font-semibold text-gray-900">[[ pc6 | postcode ]] [[ woonplaats ]]</div>
+
+    <div class="text-gray-400">postcode:</div>
+    <div class="font-semibold text-gray-900">[[ pc6 | postcode ]]</div>
+
+    <div class="col-span-2 h-3"></div>
+
+    <div class="text-gray-400">CBS buurt:</div>
+    <div class="font-semibold text-gray-900">[[ buurt ]]</div>
+
+    <div class="text-gray-400">CBS wijk:</div>
+    <div class="font-semibold text-gray-900">[[ wijk ]]</div>
+
+    <div class="col-span-2 h-3"></div>
+
+    <div class="text-gray-400">woonplaats:</div>
+    <div class="font-semibold text-gray-900">[[ woonplaats ]]</div>
+
+    <div class="text-gray-400">gemeente:</div>
+    <div class="font-semibold text-gray-900">[[ gemeente ]]</div>
+  </div>
+</div>
+
+<section data-tab="gebouw" data-label="Gebouw" data-icon="home_work">
+  <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <section class="rounded-2xl border border-gray-200 p-4">
+      <h3 class="mb-3 flex items-center gap-2">
+        <span aria-hidden="true" class="material-symbols-outlined select-none leading-none text-[20px]" style="color: rgb(62,116,167)">apartment</span>
+        <span class="text-base font-semibold" style="color: rgb(62,116,167)">Pandkenmerken postcode [[ pc6 ]]</span>
+      </h3>
+      <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm text-gray-600">
+        <div class="text-gray-400">meest voorkomend bouwjaar:</div>
+        <div class="font-semibold text-gray-900">[[ bouwjaar ]]</div>
+
+        <div class="text-gray-400">meest voorkomend woningtype:</div>
+        <div class="font-semibold text-gray-900">[[ woningtype ]]</div>
+      </div>
+    </section>
+
+    <section class="rounded-2xl border border-gray-200 p-4">
+      <h3 class="mb-3 flex items-center gap-2">
+        <span aria-hidden="true" class="material-symbols-outlined select-none leading-none text-[20px]" style="color: rgb(62,116,167)">gite</span>
+        <span class="text-base font-semibold" style="color: rgb(62,116,167)">Geschiktheid woningen postcode [[ pc6 ]]</span>
+      </h3>
+      <div class="flex flex-col items-center gap-6 sm:flex-row">
+        <div data-pie data-pie-label="Geschiktheid" class="h-36 w-36 shrink-0 rounded-full border border-gray-100 shadow-inner">
+          <i data-slice="geschikt_pct" data-color="rgb(161,176,121)" data-name="Nultrede"></i>
+          <i data-slice="aanpasbaar_pct" data-color="rgb(252,176,110)" data-name="Aanpasbaar"></i>
+          <i data-slice="ongeschikt_pct" data-color="rgb(243,109,159)" data-name="Ongeschikt"></i>
+        </div>
+        <div class="flex w-full flex-col gap-2 text-sm text-gray-600">
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2"><span class="h-3 w-3 shrink-0 rounded-full bg-[rgb(161,176,121)]"></span><span class="text-gray-400">Nultrede</span></div>
+            <span class="font-semibold text-gray-900">[[ geschikt_pct | pct ]]</span>
+          </div>
+          <div class="flex items-center justify-between gap-4 border-t border-gray-100 pt-2">
+            <div class="flex items-center gap-2"><span class="h-3 w-3 shrink-0 rounded-full bg-[rgb(252,176,110)]"></span><span class="text-gray-400">Aanpasbaar</span></div>
+            <span class="font-semibold text-gray-900">[[ aanpasbaar_pct | pct ]]</span>
+          </div>
+          <div class="flex items-center justify-between gap-4 border-t border-gray-100 pt-2">
+            <div class="flex items-center gap-2"><span class="h-3 w-3 shrink-0 rounded-full bg-[rgb(243,109,159)]"></span><span class="text-gray-400">Ongeschikt</span></div>
+            <span class="font-semibold text-gray-900">[[ ongeschikt_pct | pct ]]</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<section data-tab="voorzieningen" data-label="Voorzieningen" data-icon="storefront">
+  <section class="rounded-2xl border border-gray-200 p-4">
+    <h3 class="mb-3 flex items-center gap-2">
+      <span aria-hidden="true" class="material-symbols-outlined select-none leading-none text-[20px]" style="color: rgb(62,116,167)">storefront</span>
+      <span class="text-base font-semibold" style="color: rgb(62,116,167)">Dichtstbijzijnde voorziening (loopafstand)</span>
+    </h3>
+    <div class="overflow-x-auto rounded-xl border border-gray-200">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <th class="px-4 py-2">Type</th>
+            <th class="px-4 py-2">Naam</th>
+            <th class="px-4 py-2">Adres</th>
+            <th class="px-4 py-2 text-right">Loopafstand</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr>
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">local_pharmacy</span> Apotheek</td>
+            <td class="px-4 py-1">[[ apotheek_naam ]]</td>
+            <td class="px-4 py-1">[[ apotheek_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="apotheek_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr class="bg-gray-50/50">
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">groups</span> Dagbesteding</td>
+            <td class="px-4 py-1">[[ dagbesteding_naam ]]</td>
+            <td class="px-4 py-1">[[ dagbesteding_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="dagbesteding_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">assist_walker</span> Fysiotherapeut</td>
+            <td class="px-4 py-1">[[ fysiotherapeut_naam ]]</td>
+            <td class="px-4 py-1">[[ fysiotherapeut_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="fysiotherapeut_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr class="bg-gray-50/50">
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">local_hospital</span> Huisarts</td>
+            <td class="px-4 py-1">[[ huisarts_naam ]]</td>
+            <td class="px-4 py-1">[[ huisarts_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="huisarts_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">diversity_3</span> Ontmoeting</td>
+            <td class="px-4 py-1">[[ ontmoeting_naam ]]</td>
+            <td class="px-4 py-1">[[ ontmoeting_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="ontmoeting_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr class="bg-gray-50/50">
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">directions_bus</span> Openbaar vervoer</td>
+            <td class="px-4 py-1">[[ ov_naam ]]</td>
+            <td class="px-4 py-1">[[ ov_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="ov_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">local_grocery_store</span> Supermarkt</td>
+            <td class="px-4 py-1">[[ supermarkt_naam ]]</td>
+            <td class="px-4 py-1">[[ supermarkt_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="supermarkt_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr class="bg-gray-50/50">
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">dentistry</span> Tandarts</td>
+            <td class="px-4 py-1">[[ tandarts_naam ]]</td>
+            <td class="px-4 py-1">[[ tandarts_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="tandarts_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">health_metrics</span> Ziekenhuis</td>
+            <td class="px-4 py-1">[[ ziekenhuis_naam ]]</td>
+            <td class="px-4 py-1">[[ ziekenhuis_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="ziekenhuis_afstand" data-breaks="500 1000"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-2 text-xs text-gray-400">Loopafstand over het langzaamverkeernetwerk, gemeten vanaf het adres dat het dichtst bij het midden van de postcode ligt.</p>
+  </section>
+</section>
+
+<section data-tab="bewoners" data-label="Bewoners" data-icon="groups">
+  <div class="flex flex-col items-start gap-4 lg:flex-row">
+    <section class="w-full max-w-md shrink-0 rounded-2xl border border-gray-200 p-4">
+      <h3 class="mb-3 flex items-center gap-2">
+        <span aria-hidden="true" class="material-symbols-outlined select-none leading-none text-[20px]" style="color: rgb(62,116,167)">groups</span>
+        <span class="text-base font-semibold" style="color: rgb(62,116,167)">Leeftijdsverdeling bewoners postcode [[ pc6 ]], 2026</span>
+      </h3>
+      <div class="flex flex-col items-center gap-6 sm:flex-row">
+        <div data-pie data-pie-label="Leeftijdsverdeling" class="h-36 w-36 shrink-0 rounded-full border border-gray-100 shadow-inner">
+          <i data-slice="aandeel_0_17_2026" data-color="rgb(0,176,24)" data-name="0-17 jaar"></i>
+          <i data-slice="aandeel_18_29_2026" data-color="rgb(0,88,12)" data-name="18-29 jaar"></i>
+          <i data-slice="aandeel_30_44_2026" data-color="rgb(0,176,176)" data-name="30-44 jaar"></i>
+          <i data-slice="aandeel_45_66_2026" data-color="rgb(0,88,176)" data-name="45-66 jaar"></i>
+          <i data-slice="aandeel_67_74_2026" data-color="rgb(0,0,176)" data-name="67-74 jaar"></i>
+          <i data-slice="aandeel_75_plus_2026" data-color="rgb(176,176,176)" data-name="75 jaar en ouder"></i>
+        </div>
+        <div class="flex w-full flex-col gap-2 text-sm text-gray-600">
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-2"><span class="h-3 w-3 shrink-0 rounded-full bg-[rgb(0,176,24)]"></span><span class="text-gray-400">0-17 jaar</span></div>
+            <span class="font-semibold text-gray-900">[[ aandeel_0_17_2026 | pct ]]</span>
+          </div>
+          <div class="flex items-center justify-between gap-4 border-t border-gray-100 pt-2">
+            <div class="flex items-center gap-2"><span class="h-3 w-3 shrink-0 rounded-full bg-[rgb(0,88,12)]"></span><span class="text-gray-400">18-29 jaar</span></div>
+            <span class="font-semibold text-gray-900">[[ aandeel_18_29_2026 | pct ]]</span>
+          </div>
+          <div class="flex items-center justify-between gap-4 border-t border-gray-100 pt-2">
+            <div class="flex items-center gap-2"><span class="h-3 w-3 shrink-0 rounded-full bg-[rgb(0,176,176)]"></span><span class="text-gray-400">30-44 jaar</span></div>
+            <span class="font-semibold text-gray-900">[[ aandeel_30_44_2026 | pct ]]</span>
+          </div>
+          <div class="flex items-center justify-between gap-4 border-t border-gray-100 pt-2">
+            <div class="flex items-center gap-2"><span class="h-3 w-3 shrink-0 rounded-full bg-[rgb(0,88,176)]"></span><span class="text-gray-400">45-66 jaar</span></div>
+            <span class="font-semibold text-gray-900">[[ aandeel_45_66_2026 | pct ]]</span>
+          </div>
+          <div class="flex items-center justify-between gap-4 border-t border-gray-100 pt-2">
+            <div class="flex items-center gap-2"><span class="h-3 w-3 shrink-0 rounded-full bg-[rgb(0,0,176)]"></span><span class="text-gray-400">67-74 jaar</span></div>
+            <span class="font-semibold text-gray-900">[[ aandeel_67_74_2026 | pct ]]</span>
+          </div>
+          <div class="flex items-center justify-between gap-4 border-t border-gray-100 pt-2">
+            <div class="flex items-center gap-2"><span class="h-3 w-3 shrink-0 rounded-full bg-[rgb(176,176,176)]"></span><span class="text-gray-400">75 jaar en ouder</span></div>
+            <span class="font-semibold text-gray-900">[[ aandeel_75_plus_2026 | pct ]]</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid w-full flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
+      <section class="rounded-2xl border border-gray-200 p-4">
+        <h3 class="mb-3 flex items-center gap-2">
+          <span aria-hidden="true" class="material-symbols-outlined select-none leading-none text-[20px]" style="color: rgb(62,116,167)">diversity_3</span>
+          <span class="text-base font-semibold" style="color: rgb(62,116,167)">Sociaal economisch</span>
+        </h3>
+        <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm text-gray-600">
+          <div class="text-gray-400">dominante klasse:</div>
+          <div class="font-semibold text-gray-900">[[ sociale_klasse ]]</div>
+
+          <div class="col-span-2 h-3"></div>
+
+          <div class="text-gray-400">veerkracht tov NL:</div>
+          <div class="font-semibold text-gray-900">[[ veerkracht ]]</div>
+
+          <div class="text-gray-400">focus tov NL:</div>
+          <div class="font-semibold text-gray-900">[[ focus ]]</div>
+        </div>
+      </section>
+
+      <section class="rounded-2xl border border-gray-200 p-4">
+        <h3 class="mb-3 flex items-center gap-2">
+          <span aria-hidden="true" class="material-symbols-outlined select-none leading-none text-[20px]" style="color: rgb(62,116,167)">volunteer_activism</span>
+          <span class="text-base font-semibold" style="color: rgb(62,116,167)">Mantelzorg</span>
+        </h3>
+        <div class="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm text-gray-600">
+          <div class="text-gray-400">OOSR (2026):</div>
+          <div class="font-semibold text-gray-900">[[ oosr | dec1 ]]</div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <section class="rounded-2xl border border-gray-200 p-4">
+    <h3 class="mb-2 flex items-center gap-2">
+      <span aria-hidden="true" class="material-symbols-outlined select-none leading-none text-[20px]" style="color: rgb(62,116,167)">monitoring</span>
+      <span class="text-base font-semibold" style="color: rgb(62,116,167)">Ontwikkeling aandeel per leeftijdsgroep, 2026 (links) – 2040 (rechts)</span>
+    </h3>
+    <div class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+      <div class="rounded-lg border border-gray-200 px-2 py-1.5" data-sparkline="aandeel_0_17_{year}" data-years="2026-2040" data-color="rgb(0,176,24)" data-label="0-17 jaar"></div>
+      <div class="rounded-lg border border-gray-200 px-2 py-1.5" data-sparkline="aandeel_18_29_{year}" data-years="2026-2040" data-color="rgb(0,88,12)" data-label="18-29 jaar"></div>
+      <div class="rounded-lg border border-gray-200 px-2 py-1.5" data-sparkline="aandeel_30_44_{year}" data-years="2026-2040" data-color="rgb(0,176,176)" data-label="30-44 jaar"></div>
+      <div class="rounded-lg border border-gray-200 px-2 py-1.5" data-sparkline="aandeel_45_66_{year}" data-years="2026-2040" data-color="rgb(0,88,176)" data-label="45-66 jaar"></div>
+      <div class="rounded-lg border border-gray-200 px-2 py-1.5" data-sparkline="aandeel_67_74_{year}" data-years="2026-2040" data-color="rgb(0,0,176)" data-label="67-74 jaar"></div>
+      <div class="rounded-lg border border-gray-200 px-2 py-1.5" data-sparkline="aandeel_75_plus_{year}" data-years="2026-2040" data-color="rgb(176,176,176)" data-label="75 jaar en ouder"></div>
+    </div>
+  </section>
+</section>
+
+<p data-locationinfo="footer" class="mt-2 italic">
+  voor beschrijvingen &amp; bronnen, zie de verschillende kaartlagen en activeer het
+  <span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">info</span>
+  tooltje in de legenda
+</p>

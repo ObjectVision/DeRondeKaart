@@ -106,6 +106,8 @@ import { ShareDialog } from "@/components/share/ShareDialog";
 import { CircularExportView } from "@/components/share/CircularExportView";
 import { legendItemsForEntries } from "@/lib/legend-style";
 import { resultUsesPblSummary } from "@/lib/pbl-summary";
+import { findLocationInfoPick } from "@/lib/location-info";
+import { LocationInfoDialog } from "@/components/ui/LocationInfoDialog";
 import { dismissSplash } from "@/lib/splash";
 
 function applySelectionHighlight(
@@ -282,6 +284,12 @@ function App(rawProps: AppProps): JSX.Element {
     pickB,
     leftEntries: mapLeftLayers.layerEntries,
     rightEntries: mapRightLayers.layerEntries,
+  });
+
+  /** The pick's `locationinfo` layer, when it has one (see LocationInfoDialog). */
+  const locationPick = createMemo(() => {
+    const result = pickResult();
+    return result ? findLocationInfoPick(result, pickEntries()) : null;
   });
 
   createEffect(() => {
@@ -1498,8 +1506,13 @@ function App(rawProps: AppProps): JSX.Element {
           </div>
         </nav>
 
+        {/* A pick on a `locationinfo` layer opens the Locatie informatie window
+            below instead; everything else (inline templates, PBL) keeps this
+            popup. */}
         <Show
-          when={popupPoint() && (pickResult() || (streetview() && streetView()))}
+          when={
+            popupPoint() && (pickResult() || (streetview() && streetView())) && !locationPick()
+          }
         >
           <InfoPopup
             x={popupPoint()!.x}
@@ -1523,6 +1536,17 @@ function App(rawProps: AppProps): JSX.Element {
               {(sv) => <StreetView lng={sv().lng} lat={sv().lat} embedded />}
             </Show>
           </InfoPopup>
+        </Show>
+
+        <Show when={locationPick() ? pickResult() : null}>
+          {(result) => (
+            <LocationInfoDialog
+              result={result()}
+              layerEntries={pickEntries()}
+              streetView={streetview() ? streetView() : null}
+              onClose={closePopup}
+            />
+          )}
         </Show>
 
         <BasemapDialog

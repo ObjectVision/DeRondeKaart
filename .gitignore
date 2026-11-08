@@ -48,6 +48,10 @@ data/**
 !data/meta/template/**
 !data/meta/handmatig/**
 !data/meta/afbeeldingen/**
+# The "Locatie informatie" template is source too: src/index.css scans it with
+# `@source`, so a checkout without it builds an app that renders it unstyled.
+!data/locatieinfo/README.md
+!data/locatieinfo/template/**
 # ...except the dated working copies of somebody's spreadsheet, which the
 # generator skips as well.
 data/meta/metainformatie_concept_*/metadata.xlsx

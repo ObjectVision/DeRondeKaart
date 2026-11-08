@@ -69,6 +69,14 @@ in `__c<index>`.
 `geojson` (in-memory, pushed by an embedding host), or `composite`.
 `docs/system-design.md` §5.
 
+**Location info** (Dutch: *Locatie informatie*) — the modal a click opens when
+it hits a layer whose `featureinfo.locationinfo` is set, instead of the
+*Details* popup. The feature names one row of a parquet sidecar (by `row`), and
+that row fills a tabbed template; other layers hit by the same click get a
+*Kaartlagen* tab. Not to be confused with *Kaartlaag informatie*, which is the
+metainfo window. `src/components/ui/LocationInfoDialog.tsx`,
+`data/locatieinfo/README.md`.
+
 **Study area** (Dutch: *studiegebied*) — the boundary layer naming the region a
 project covers, from `map.json`'s `studyarea`. Loaded outside `useMapLayers` on
 its own channel, so it stays out of the legend, picking and comparison.

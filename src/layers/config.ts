@@ -1,4 +1,4 @@
-import type { LayerConfig, LayerMetaRoutes, LayersFile, LayerFormat, StatisticConfig, TimeseriesConfig } from "./types";
+import type { FeatureInfoConfig, LayerConfig, LayerMetaRoutes, LayersFile, LayerFormat, StatisticConfig, TimeseriesConfig } from "./types";
 import { canHighlight, prefetchIdProperty, HIGHLIGHT_WIDTH } from "./feature-id";
 import { META_ROUTES } from "./meta-routes";
 import { loadConfig, clearConfigCache } from "@/config/load-config";
@@ -83,6 +83,36 @@ function validateMeta(raw: unknown, id: string): string | string[] | LayerMetaRo
   }
 
   return validateMetaPaths(raw, id, `"meta"`);
+}
+
+/**
+ * The click behaviour (see FeatureInfoConfig). Only `locationinfo` is checked:
+ * a config without it is returned as-is, so the inline templates and the PBL
+ * summary keep exactly the shape they always had.
+ */
+function validateFeatureInfo(raw: unknown, id: string): FeatureInfoConfig | undefined {
+  if (raw === undefined || raw === null) return undefined;
+  const info = raw as FeatureInfoConfig;
+  if (info.locationinfo === undefined) return info;
+
+  const loc = info.locationinfo as unknown as Record<string, unknown> | null;
+  const nonEmpty = (v: unknown) => typeof v === "string" && v !== "";
+  const optional = (v: unknown) => v === undefined || nonEmpty(v);
+  if (
+    loc !== null &&
+    typeof loc === "object" &&
+    nonEmpty(loc.source) &&
+    nonEmpty(loc.templateUrl) &&
+    optional(loc.rowField) &&
+    optional(loc.keyField)
+  ) {
+    return info;
+  }
+
+  console.warn(`layers.json: layer "${id}" has invalid "featureinfo.locationinfo"; ignoring`);
+  const rest: FeatureInfoConfig = { ...info };
+  delete rest.locationinfo;
+  return Object.keys(rest).length > 0 ? rest : undefined;
 }
 
 /** Brief plain-text summary of the layer (see LayerConfig.description). */
@@ -464,7 +494,7 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
     ),
     geostyler: (layer.geostyler as LayerConfig["geostyler"]) ?? undefined,
     style: (layer.style as LayerConfig["style"]) ?? {},
-    featureinfo: (layer.featureinfo as LayerConfig["featureinfo"]) ?? undefined,
+    featureinfo: validateFeatureInfo(layer.featureinfo, layer.id as string),
     excludeFromLegend: (layer.excludeFromLegend as boolean) ?? undefined,
     excludeFromPicking: (layer.excludeFromPicking as boolean) ?? undefined,
     highlightable,

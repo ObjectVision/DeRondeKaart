@@ -6,6 +6,13 @@ interface StreetViewProps {
   onClose?: () => void;
   /** Render bare content (no card chrome/header) inside a parent window. */
   embedded?: boolean;
+  /**
+   * Classes for the panorama's box, replacing the default 4:3 sizing. For a
+   * host that sets the height itself — the location-info header matches the
+   * address block beside it. Must keep `relative`: the panorama and the status
+   * overlay are positioned against it.
+   */
+  bodyClass?: string;
 }
 
 /**
@@ -176,7 +183,10 @@ export function StreetView(props: StreetViewProps): JSX.Element {
       {/* Body — 4:3, driven by the width. A fixed height made this a letterbox
           strip inside the popup window. */}
       <div
-        class={`relative aspect-[4/3] overflow-hidden rounded-b-lg ${props.embedded ? "w-full" : "w-72"}`}
+        class={
+          props.bodyClass ??
+          `relative aspect-[4/3] overflow-hidden rounded-b-lg ${props.embedded ? "w-full" : "w-72"}`
+        }
       >
         <div ref={container} class="absolute inset-0" />
         <Show when={status() !== "ok"}>

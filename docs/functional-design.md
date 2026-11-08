@@ -181,6 +181,12 @@ click marker and a Street View panel can accompany it. Picking respects the
 area filter — a filtered-out feature is not drawn and therefore not pickable.
 One pick is active at a time across both maps.
 
+A layer can instead answer with the **Locatie informatie** window
+(`featureinfo.locationinfo`; woonzorglimburg, per postcode-6). It opens as a
+modal: the area's address details beside Street View, then tabs from the
+project's template (Gebouw, Voorzieningen, Bewoners). Any other layers the
+same click hit appear in an extra *Kaartlagen* tab with their usual templates.
+
 **Area filter.** Cascading administrative dropdowns (configured in
 `filter.json`; in the current deployments *Gemeente → Wijk → Buurt*). The
 semantics are fixed: **AND across levels, OR within a level, inapplicable
