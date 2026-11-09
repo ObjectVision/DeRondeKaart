@@ -725,6 +725,7 @@
       "name": "ontmoeting",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/ontmoeting_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/ontmoeting_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/ontmoeting_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
