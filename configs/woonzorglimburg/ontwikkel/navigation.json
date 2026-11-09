@@ -271,6 +271,13 @@
             "label": "zacht",
             "a": false,
             "b": false
+          },
+          {
+            "id": "woningbouw_ouderen",
+            "color": "#C80000",
+            "label": "geschikt voor ouderen",
+            "a": false,
+            "b": false
           }
         ]
       }

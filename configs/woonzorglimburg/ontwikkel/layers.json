@@ -10168,10 +10168,10 @@
         "bronnen": "https://data.woonzorglimburg.nl/meta/woningbouw_projectvlakken_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/woningbouw_projectvlakken_aannames_en_onzekerheden.html"
       },
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_projectvlakken_lb.pmtiles?v=20261109",
       "format": "pmtiles",
       "geometryType": "polygon",
-      "sourceLayer": "woningbouw_vlakken",
+      "sourceLayer": "woningbouw_projectvlakken_lb",
       "style": {},
       "minzoom": 11,
       "geostyler": {
@@ -10200,7 +10200,7 @@
         ]
       },
       "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
+        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente ]]<br/>Status: [[ hard_zacht ]] ([[ status ]])<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
       },
       "beforeid": "foreground-layers"
     },
@@ -10212,10 +10212,10 @@
         "bronnen": "https://data.woonzorglimburg.nl/meta/woningbouw_hard_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/woningbouw_hard_aannames_en_onzekerheden.html"
       },
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_lb.pmtiles?v=20261109",
       "format": "pmtiles",
       "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
+      "sourceLayer": "woningbouw_lb",
       "style": {},
       "geostyler": {
         "name": "harde plannen",
@@ -10229,7 +10229,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Hard"
               ],
@@ -10278,7 +10278,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Hard"
               ],
@@ -10319,7 +10319,7 @@
             }
           },
           {
-            "name": "dure huur",
+            "name": "huur boven betaalbaar",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -10327,7 +10327,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Hard"
               ],
@@ -10335,7 +10335,7 @@
                 ">",
                 [
                   "get",
-                  "dure_huur"
+                  "huur_boven_betaalbaar"
                 ],
                 0
               ]
@@ -10348,7 +10348,7 @@
                 ],
                 [
                   "get",
-                  "dure_huur"
+                  "huur_boven_betaalbaar"
                 ],
                 1,
                 6,
@@ -10376,7 +10376,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Hard"
               ],
@@ -10425,7 +10425,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Hard"
               ],
@@ -10466,7 +10466,7 @@
             }
           },
           {
-            "name": "dure koop",
+            "name": "koop boven betaalbaar",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -10474,7 +10474,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Hard"
               ],
@@ -10482,7 +10482,7 @@
                 ">",
                 [
                   "get",
-                  "dure_koop"
+                  "koop_boven_betaalbaar"
                 ],
                 0
               ]
@@ -10495,7 +10495,7 @@
                 ],
                 [
                   "get",
-                  "dure_koop"
+                  "koop_boven_betaalbaar"
                 ],
                 1,
                 6,
@@ -10523,7 +10523,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Hard"
               ],
@@ -10562,11 +10562,60 @@
               "circle-stroke-width": 1,
               "circle-stroke-color": "#fff"
             }
+          },
+          {
+            "name": "huur/koop onbekend",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Hard"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "huur_koop_onbekend"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "huur_koop_onbekend"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#999999",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
           }
         ]
       },
       "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Sociale huur: [[ sociale_huur ]]<br/>Middenhuur: [[ middenhuur ]]<br/>Dure huur: [[ dure_huur ]]<br/>Huur onbekend: [[ huur_onbekend ]]<br/>Betaalbare koop: [[ betaalbare_koop ]]<br/>Dure koop: [[ dure_koop ]]<br/>Koop onbekend: [[ koop_onbekend ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
+        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente ]]<br/>Status: [[ hard_zacht ]] ([[ status ]])<br/>Sociale huur: [[ sociale_huur ]]<br/>Middenhuur: [[ middenhuur ]]<br/>Huur boven betaalbaar: [[ huur_boven_betaalbaar ]]<br/>Huur onbekend: [[ huur_onbekend ]]<br/>Betaalbare koop: [[ betaalbare_koop ]]<br/>Koop boven betaalbaar: [[ koop_boven_betaalbaar ]]<br/>Koop onbekend: [[ koop_onbekend ]]<br/>Huur/koop onbekend: [[ huur_koop_onbekend ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
       },
       "beforeid": "foreground-layers"
     },
@@ -10578,10 +10627,10 @@
         "bronnen": "https://data.woonzorglimburg.nl/meta/woningbouw_zacht_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/woningbouw_zacht_aannames_en_onzekerheden.html"
       },
-      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_nl_2026.pmtiles?v=20260831",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_lb.pmtiles?v=20261109",
       "format": "pmtiles",
       "geometryType": "point",
-      "sourceLayer": "woningbouw_punten",
+      "sourceLayer": "woningbouw_lb",
       "style": {},
       "geostyler": {
         "name": "zachte plannen",
@@ -10595,7 +10644,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Zacht"
               ],
@@ -10645,7 +10694,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Zacht"
               ],
@@ -10687,7 +10736,7 @@
             }
           },
           {
-            "name": "dure huur",
+            "name": "huur boven betaalbaar",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -10695,7 +10744,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Zacht"
               ],
@@ -10703,7 +10752,7 @@
                 ">",
                 [
                   "get",
-                  "dure_huur"
+                  "huur_boven_betaalbaar"
                 ],
                 0
               ]
@@ -10716,7 +10765,7 @@
                 ],
                 [
                   "get",
-                  "dure_huur"
+                  "huur_boven_betaalbaar"
                 ],
                 1,
                 6,
@@ -10745,7 +10794,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Zacht"
               ],
@@ -10795,7 +10844,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Zacht"
               ],
@@ -10837,7 +10886,7 @@
             }
           },
           {
-            "name": "dure koop",
+            "name": "koop boven betaalbaar",
             "type": "circle",
             "rawFilter": [
               "all",
@@ -10845,7 +10894,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Zacht"
               ],
@@ -10853,7 +10902,7 @@
                 ">",
                 [
                   "get",
-                  "dure_koop"
+                  "koop_boven_betaalbaar"
                 ],
                 0
               ]
@@ -10866,7 +10915,7 @@
                 ],
                 [
                   "get",
-                  "dure_koop"
+                  "koop_boven_betaalbaar"
                 ],
                 1,
                 6,
@@ -10895,7 +10944,7 @@
                 "==",
                 [
                   "get",
-                  "planstatus"
+                  "hard_zacht"
                 ],
                 "Zacht"
               ],
@@ -10935,11 +10984,230 @@
               "circle-stroke-color": "#fff",
               "circle-stroke-opacity": 0.8
             }
+          },
+          {
+            "name": "huur/koop onbekend",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Zacht"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "huur_koop_onbekend"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "huur_koop_onbekend"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#999999",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
           }
         ]
       },
       "featureinfo": {
-        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente_naam ]]<br/>Status: [[ planstatus ]]<br/>Sociale huur: [[ sociale_huur ]]<br/>Middenhuur: [[ middenhuur ]]<br/>Dure huur: [[ dure_huur ]]<br/>Huur onbekend: [[ huur_onbekend ]]<br/>Betaalbare koop: [[ betaalbare_koop ]]<br/>Dure koop: [[ dure_koop ]]<br/>Koop onbekend: [[ koop_onbekend ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
+        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente ]]<br/>Status: [[ hard_zacht ]] ([[ status ]])<br/>Sociale huur: [[ sociale_huur ]]<br/>Middenhuur: [[ middenhuur ]]<br/>Huur boven betaalbaar: [[ huur_boven_betaalbaar ]]<br/>Huur onbekend: [[ huur_onbekend ]]<br/>Betaalbare koop: [[ betaalbare_koop ]]<br/>Koop boven betaalbaar: [[ koop_boven_betaalbaar ]]<br/>Koop onbekend: [[ koop_onbekend ]]<br/>Huur/koop onbekend: [[ huur_koop_onbekend ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
+      },
+      "beforeid": "foreground-layers"
+    },
+    {
+      "id": "woningbouw_ouderen",
+      "name": "geschikt voor ouderen",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_lb.pmtiles?v=20261109",
+      "format": "pmtiles",
+      "geometryType": "point",
+      "sourceLayer": "woningbouw_lb",
+      "style": {},
+      "geostyler": {
+        "name": "geschikt voor ouderen",
+        "rules": [
+          {
+            "name": "nultreden, niet geclusterd",
+            "type": "circle",
+            "rawFilter": [
+              ">",
+              [
+                "get",
+                "nultreden_niet_geclusterd"
+              ],
+              0
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "nultreden_niet_geclusterd"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#1b9e77",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          },
+          {
+            "name": "nultreden geclusterd, zonder zorg",
+            "type": "circle",
+            "rawFilter": [
+              ">",
+              [
+                "get",
+                "nultreden_geclusterd_niet_zorg"
+              ],
+              0
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "nultreden_geclusterd_niet_zorg"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#d95f02",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          },
+          {
+            "name": "nultreden geclusterd, met zorg",
+            "type": "circle",
+            "rawFilter": [
+              ">",
+              [
+                "get",
+                "nultreden_geclusterd_zorg"
+              ],
+              0
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "nultreden_geclusterd_zorg"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#7570b3",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          },
+          {
+            "name": "andere woonvormen ouderen",
+            "type": "circle",
+            "rawFilter": [
+              ">",
+              [
+                "get",
+                "andere_woonvormen_ouderen"
+              ],
+              0
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "andere_woonvormen_ouderen"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#e7298a",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente ]]<br/>Status: [[ hard_zacht ]] ([[ status ]])<br/>Nultreden, niet geclusterd: [[ nultreden_niet_geclusterd ]]<br/>Nultreden geclusterd, zonder zorg: [[ nultreden_geclusterd_niet_zorg ]]<br/>Nultreden geclusterd, met zorg: [[ nultreden_geclusterd_zorg ]]<br/>Andere woonvormen ouderen: [[ andere_woonvormen_ouderen ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
       },
       "beforeid": "foreground-layers"
     }
