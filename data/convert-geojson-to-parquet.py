@@ -206,7 +206,7 @@ def downcast_numeric(gdf: gpd.GeoDataFrame, log=print, allow_bool: bool = True) 
     against float64's 8. Layers with many float64 attribute columns benefit
     most.
     """
-    geom_name = gdf.geometry.name
+    geom_name = gdf.geometry.name if isinstance(gdf, gpd.GeoDataFrame) else None
     changes: list[str] = []
     booled: list[str] = []
 
@@ -270,6 +270,14 @@ def convert(
     log(f"Reading  {input_path}")
     gdf = gpd.read_file(input_path)
 
+    # No feature has geometry: an attribute table (e.g. bevprog_buurt, joined
+    # to tiles by key in the app). Write it as plain Parquet without a geometry
+    # column, rather than dropping every row below.
+    if (gdf.geometry.isna() | gdf.geometry.is_empty).all():
+        convert_attributes(pd.DataFrame(gdf.drop(columns=gdf.geometry.name)),
+                           output_path, batch_size, log, allow_bool, statistics)
+        return
+
     # Drop features with null/empty geometry: they can't be rendered by deck.gl,
     # and their geom_type is NaN (a float) which breaks sorting/orientation below.
     missing = gdf.geometry.isna() | gdf.geometry.is_empty
@@ -332,6 +340,35 @@ def convert(
 
     size = output_path.stat().st_size
     log(f"Wrote {output_path.name} ({size:,} bytes)")
+
+
+def convert_attributes(
+    df: pd.DataFrame,
+    output_path: Path,
+    batch_size: int,
+    log=print,
+    allow_bool: bool = True,
+    statistics: bool = True,
+) -> None:
+    """Write a geometry-less table: same lowercasing and narrowing as convert()."""
+    log(f"  {len(df)} features without geometry -> attribute table")
+    lowered = {c: c.lower() for c in df.columns}
+    if len(set(lowered.values())) < len(lowered):
+        log("  Warning: lowercasing collides; keeping originals")
+    else:
+        df = df.rename(columns=lowered)
+    df = downcast_numeric(df, log=log, allow_bool=allow_bool)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    log(f"Writing  {output_path} (no geometry, batch_size={batch_size:,})")
+    df.to_parquet(
+        output_path,
+        compression="snappy",
+        row_group_size=batch_size,
+        write_statistics=statistics,
+        index=False,
+    )
+    log(f"Wrote {output_path.name} ({output_path.stat().st_size:,} bytes)")
 
 
 def convert_folder(
