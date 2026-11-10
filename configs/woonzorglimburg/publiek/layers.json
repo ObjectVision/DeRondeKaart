@@ -473,7 +473,8 @@
             ]
           }
         ]
-      }
+      },
+      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/tripleA_lb_m5.cog.tif"
     },
     {
       "id": "supermarkt",
