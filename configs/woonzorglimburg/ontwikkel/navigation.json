@@ -479,6 +479,13 @@
             "label": "Ziekenhuis",
             "a": false,
             "b": false
+          },
+          {
+            "id": "loopafstand_tripleA",
+            "color": "#8C54D6",
+            "label": "Triple-A: ontmoeting, supermarkt, huisarts",
+            "a": false,
+            "b": false
           }
         ]
       }

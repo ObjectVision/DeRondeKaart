@@ -374,6 +374,108 @@
       "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/ziekenhuis_lb_m5.cog.tif"
     },
     {
+      "id": "loopafstand_tripleA",
+      "name": "Triple-A: ontmoeting, supermarkt, huisarts",
+      "source": "https://data.woonzorglimburg.nl/pmtiles/tripleA_lb_2026.pmtiles?v=20261110",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "tripleA",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.8
+      },
+      "geostyler": {
+        "name": "Triple-A: ontmoeting, supermarkt, huisarts",
+        "rules": [
+          {
+            "name": "alle drie aanwezig < 500 m",
+            "filter": [
+              "==",
+              "class",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#33A02C",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "alle drie aanwezig < 750 m",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#90D77C",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "2 van de 3 aanwezig < 750 m",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8FD3F2",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "1 van de 3 aanwezig < 750 m",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C9DDEB",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          },
+          {
+            "name": "geen van de drie aanwezig < 750 m",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FCE3D8",
+                "outlineColor": "black",
+                "outlineWidth": 0,
+                "outlineOpacity": 0.2
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "id": "supermarkt",
       "name": "supermarkt",
       "meta": {
