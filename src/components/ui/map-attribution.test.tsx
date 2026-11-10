@@ -159,6 +159,28 @@ describe("MapAttribution first-visit guide", () => {
     expect(attributieShown()).toBe(false);
   });
 
+  it("credits the app itself first, linking to its repo and its license", () => {
+    render(() => <MapAttribution autoOpen />);
+    tab("Attributie").click();
+
+    const heading = [...document.querySelectorAll("h3")].find(
+      (h) => h.textContent?.trim() === "Open source-software",
+    );
+    const first = heading?.nextElementSibling?.querySelector("li");
+    const links = [...(first?.querySelectorAll("a") ?? [])].map((a) => [
+      a.textContent?.trim(),
+      a.getAttribute("href"),
+    ]);
+
+    expect(first?.textContent?.replace(/\s+/g, " ").trim()).toBe(
+      "De Ronde Kaart (AGPL-3.0-or-later)",
+    );
+    expect(links).toEqual([
+      ["De Ronde Kaart", "https://github.com/ObjectVision/DeRondeKaart"],
+      ["AGPL-3.0-or-later", "https://github.com/ObjectVision/DeRondeKaart/blob/main/LICENSE"],
+    ]);
+  });
+
   it("offers the three tabs, with Verschilkaart beside Handleiding", () => {
     render(() => <MapAttribution autoOpen />);
 

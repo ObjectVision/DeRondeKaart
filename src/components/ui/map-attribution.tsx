@@ -93,8 +93,23 @@ const DATA_CREDITS = [
  * Open source software credits (license names verified against the installed
  * packages). Their licenses don't require in-UI attribution — the credits are
  * a courtesy; the license texts ship with the application bundle.
+ *
+ * The app itself leads the list: it is open source too, and this entry is the
+ * window's one link to its source. Its license links to the license text, which
+ * AGPL users are entitled to find from the running application.
  */
-const SOFTWARE_CREDITS = [
+const SOFTWARE_CREDITS: {
+  label: string;
+  license: string;
+  href: string;
+  licenseHref?: string;
+}[] = [
+  {
+    label: "De Ronde Kaart",
+    license: "AGPL-3.0-or-later",
+    href: SOURCE_REPO,
+    licenseHref: `${SOURCE_REPO}/blob/main/LICENSE`,
+  },
   { label: "MapLibre GL JS", license: "BSD-3", href: "https://maplibre.org/" },
   { label: "SolidJS", license: "MIT", href: "https://www.solidjs.com/" },
   { label: "Apache Arrow", license: "Apache-2.0", href: "https://arrow.apache.org/" },
@@ -703,7 +718,9 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
               <h3 class="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500">
                 Kaartgegevens
               </h3>
-              <ul class="flex flex-col gap-0.5">
+              {/* Both sections share one text size and line height; the
+                  dialog's own text-sm is it. */}
+              <ul class="flex flex-col gap-0.5 leading-relaxed">
                 <For each={DATA_CREDITS}>
                   {(c) => (
                     <li>
@@ -725,7 +742,7 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
               {/* Two columns at this width: the list is long and each entry is
                   short, so one column per line would leave most of the row
                   empty. */}
-              <ul class="grid grid-cols-1 gap-x-6 gap-y-0.5 text-xs leading-relaxed sm:grid-cols-2">
+              <ul class="grid grid-cols-1 gap-x-6 gap-y-0.5 leading-relaxed sm:grid-cols-2">
                 <For each={SOFTWARE_CREDITS}>
                   {(c) => (
                     <li>
@@ -737,26 +754,26 @@ export function MapAttribution(props: MapAttributionProps): JSX.Element {
                       >
                         {c.label}
                       </a>{" "}
-                      <span class="text-gray-500">({c.license})</span>
+                      <span class="text-gray-500">
+                        (
+                        <Show when={c.licenseHref} fallback={c.license}>
+                          {(licenseHref) => (
+                            <a
+                              href={licenseHref()}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              class="hover:underline"
+                            >
+                              {c.license}
+                            </a>
+                          )}
+                        </Show>
+                        )
+                      </span>
                     </li>
                   )}
                 </For>
               </ul>
-              <h3 class="mb-1 mt-5 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                Broncode
-              </h3>
-              <p class="text-xs leading-relaxed">
-                <a
-                  href={SOURCE_REPO}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="hover:underline"
-                >
-                  {/* The bare URL, not a friendly label: it doubles as the
-                      address to type when the link cannot be clicked. */}
-                  {SOURCE_REPO}
-                </a>
-              </p>
             </Match>
             </Switch>
           </div>
