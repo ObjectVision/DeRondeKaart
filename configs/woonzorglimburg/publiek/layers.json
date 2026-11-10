@@ -8638,6 +8638,7 @@
       "format": "pmtiles",
       "geometryType": "line",
       "sourceLayer": "stijgingspercentage_weg_limburg",
+      "beforeid": "foreground-layers",
       "geostyler": {
         "name": "Stijgingspercentage weg",
         "rules": [
@@ -8780,6 +8781,38 @@
               {
                 "kind": "Line",
                 "color": "#d53e4f",
+                "width": 2,
+                "paint": {
+                  "line-width": [
+                    "interpolate",
+                    [
+                      "linear"
+                    ],
+                    [
+                      "zoom"
+                    ],
+                    10,
+                    0.5,
+                    14,
+                    2,
+                    17,
+                    5
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "name": "geen gegevens",
+            "filter": [
+              "==",
+              "klasse",
+              255
+            ],
+            "symbolizers": [
+              {
+                "kind": "Line",
+                "color": "#bdbdbd",
                 "width": 2,
                 "paint": {
                   "line-width": [
