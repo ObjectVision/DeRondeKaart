@@ -323,9 +323,13 @@ def run(command: list[str]) -> None:
         raise SystemExit(f"error: {Path(command[1]).name} failed (exit {result.returncode})")
 
 
-def build_cog(staged: Path, output: Path) -> None:
+def build_cog(staged: Path, output: Path, layer: Layer) -> None:
+    # The converter's default nearest overviews keep every 2nd, 4th... cell, which
+    # turns a 25 m mosaic into speckle when zoomed out. Classes take the dominant
+    # class instead, continuous maps the mean; both skip nodata.
+    overviews = "mode" if layer.kind in ("landuse", "binary") else "average"
     output.parent.mkdir(parents=True, exist_ok=True)
-    run([sys.executable, str(TIF_TO_COG), str(staged), str(output)])
+    run([sys.executable, str(TIF_TO_COG), str(staged), str(output), "--overview-resampling", overviews])
 
 
 def build_pmtiles(staged: Path, geojson: Path, output: Path, layer_name: str) -> None:
@@ -370,7 +374,7 @@ def build_one(layer: Layer, scenario: tuple[str, str, str], args: argparse.Names
 
     entry["format"] = "cog"
     entry["file"] = str(cog.relative_to(HERE))
-    build_cog(staged, cog)
+    build_cog(staged, cog, layer)
     return entry
 
 
@@ -511,6 +515,10 @@ def layer_config(layer: Layer, scenario: tuple[str, str, str], built: dict, code
         config["geometryType"] = "polygon"
     config["beforeid"] = "map-layers"
     config["style"] = {"opacity": 0.8}
+    if built["format"] == "cog":
+        # Past the COG's native zoom the map stretches the tiles; show the cells
+        # as hard-edged squares rather than linearly smeared.
+        config["style"]["resampling"] = "nearest"
     if built["format"] == "pmtiles":
         config["featureinfo"] = {"template": f"<div><b>{layer.name}</b><br/>Scenario {label}</div>"}
 

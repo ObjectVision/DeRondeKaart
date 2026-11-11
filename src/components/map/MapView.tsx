@@ -195,6 +195,18 @@ export function MapView(props: MapViewProps): JSX.Element {
       bearing: camera.bearing,
       dragRotate: false,
       pitchWithRotate: false,
+      // `?gestures=cooperative`, for an embedding page that wants the wheel and
+      // one-finger drag for itself: zooming then needs Ctrl/⌘ + scroll and
+      // panning two fingers. Opt-in only. Constructor-only, like
+      // crossSourceCollisions below.
+      cooperativeGestures:
+        new URLSearchParams(window.location.search).get("gestures") === "cooperative",
+      // Dutch help overlay for cooperativeGestures (MapLibre ships English).
+      locale: {
+        "CooperativeGesturesHandler.WindowsHelpText": "Gebruik Ctrl + scroll om in of uit te zoomen",
+        "CooperativeGesturesHandler.MacHelpText": "Gebruik ⌘ + scroll om in of uit te zoomen",
+        "CooperativeGesturesHandler.MobileHelpText": "Gebruik twee vingers om de kaart te verplaatsen",
+      },
       // Run collision detection per source rather than in one global arena,
       // so a layer's icons only thin against their own. Since tileSourceId
       // keys each layer's source on its config id (`pmtiles-source-<id>`),
