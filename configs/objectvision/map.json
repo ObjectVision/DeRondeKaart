@@ -21,6 +21,10 @@
         "hosts": [
           "wonenenzorgopdekaart.derondekaart.nl"
         ]
+      },
+      {
+        "id": "nl2120",
+        "label": "NL2120"
       }
     ]
   },
