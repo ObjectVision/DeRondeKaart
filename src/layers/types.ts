@@ -219,6 +219,12 @@ export interface LayerStyle {
   /** Outline/stroke color; falls back to `color` when omitted (geojson format). */
   lineColor?: [number, number, number] | [number, number, number, number];
   opacity?: number;
+  /**
+   * COG only: how MapLibre scales the tiles, mainly past the COG's native zoom.
+   * Unset keeps MapLibre's "linear", which smears cell edges; "nearest" shows
+   * cells as hard-edged squares.
+   */
+  resampling?: "nearest" | "linear";
   radius?: number;
   lineWidth?: number;
   filled?: boolean;

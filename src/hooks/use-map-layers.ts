@@ -895,7 +895,10 @@ function addCogLayer(config: LayerConfig, getMap: MapAccessor) {
       id: layerId,
       source: sourceId,
       type: "raster",
-      paint: { "raster-opacity": config.style.opacity ?? 1 },
+      paint: {
+        "raster-opacity": config.style.opacity ?? 1,
+        ...(config.style.resampling && { "raster-resampling": config.style.resampling }),
+      },
     };
     // Zoom bounds (composite children): exact cutoff even mid-gesture.
     if (config.minzoom !== undefined) layerSpec.minzoom = config.minzoom;

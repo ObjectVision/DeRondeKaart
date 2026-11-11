@@ -59,6 +59,12 @@ Usage:
     # single-band COG — style value 1 with a GeoStyler rule in layers.json:
     python3 convert-tif-to-cog.py path/to/panden.tif --priority "1"
 
+    # Resampling of the web-optimize warp and of the overviews (both default to
+    # nearest). "mode" keeps classes clean when zoomed out, "average" smooths a
+    # continuous raster; both skip nodata:
+    python3 convert-tif-to-cog.py path/to/landuse.tif --overview-resampling mode
+    python3 convert-tif-to-cog.py path/to/values.tif --overview-resampling average
+
 If you have ``uv`` installed you can run this without managing dependencies:
     uv run convert-tif-to-cog.py path/to/input.tif
 
@@ -102,6 +108,9 @@ import numpy as np
 import rasterio
 from rio_cogeo.cogeo import cog_translate, cog_validate
 from rio_cogeo.profiles import cog_profiles
+
+# Accepted values for --resampling / --overview-resampling (rasterio names).
+RESAMPLING_METHODS = ("nearest", "bilinear", "cubic", "average", "mode", "min", "max", "med")
 
 
 def parse_hex(color: str) -> tuple[int, int, int]:
@@ -312,6 +321,8 @@ def convert(
     web_optimized: bool,
     colors: list[tuple[int, int, int]] | None,
     priority: list[int] | None,
+    resampling: str = "nearest",
+    overview_resampling: str = "nearest",
 ) -> None:
     print(f"Reading  {input_path}")
     with rasterio.open(input_path) as src:
@@ -366,6 +377,8 @@ def convert(
         dst_profile,
         web_optimized=web_optimized,
         nodata=nodata_for_warp,
+        resampling=resampling,
+        overview_resampling=overview_resampling,
         forward_band_tags=True,
         quiet=False,
     )
@@ -462,6 +475,28 @@ def main(argv: list[str]) -> int:
         )
         return 1
 
+    # --resampling / --overview-resampling <alg>: GDAL resampling for the
+    # web-optimize warp and for the overviews. Both default to nearest.
+    resampling: dict[str, str] = {}
+    for name in ("resampling", "overview-resampling"):
+        flag_args = [a for a in flags if a.startswith(f"--{name}")]
+        if not flag_args:
+            continue
+        raw = flag_args[-1]
+        if "=" in raw:
+            raw = raw.split("=", 1)[1]
+        else:
+            i = flags.index(raw)
+            raw = flags[i + 1] if i + 1 < len(flags) else ""
+            args = [a for a in args if a != raw]
+        if raw not in RESAMPLING_METHODS:
+            print(
+                f"error: --{name} expects one of {', '.join(RESAMPLING_METHODS)}, got '{raw}'",
+                file=sys.stderr,
+            )
+            return 1
+        resampling[name] = raw
+
     if len(args) < 1 or len(args) > 2:
         print(__doc__)
         return 2
@@ -482,7 +517,15 @@ def main(argv: list[str]) -> int:
         print(f"error: input not found: {input_path}", file=sys.stderr)
         return 1
 
-    convert(input_path, output_path, web_optimized, colors, priority)
+    convert(
+        input_path,
+        output_path,
+        web_optimized,
+        colors,
+        priority,
+        resampling.get("resampling", "nearest"),
+        resampling.get("overview-resampling", "nearest"),
+    )
     return 0
 
 
