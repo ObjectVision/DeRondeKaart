@@ -1,0 +1,1666 @@
+[
+  {
+    "label": "BAU1",
+    "icon": "map",
+    "color": "#3E74A7",
+    "expanded": true,
+    "children": [
+      {
+        "id": "nl2120_bau1_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar ↔ 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_landgebruik_basisjaar",
+        "right": "nl2120_bau1_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_bau1_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau1_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau1_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau1_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau1_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau1_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau1_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau1_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
+    "label": "BAU2",
+    "icon": "map",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_bau2_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar ↔ 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_landgebruik_basisjaar",
+        "right": "nl2120_bau2_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_bau2_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau2_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau2_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau2_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau2_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau2_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau2_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_bau2_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
+    "label": "NbS genuanceerd",
+    "icon": "map",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_nbsgenuanceerd_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar ↔ 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_landgebruik_basisjaar",
+        "right": "nl2120_nbsgenuanceerd_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
+    "label": "NbS genuanceerder",
+    "icon": "map",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_nbsgenuanceerder_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar ↔ 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_landgebruik_basisjaar",
+        "right": "nl2120_nbsgenuanceerder_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
+    "label": "BAU1 ↔ BAU1",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_bau1_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_landgebruik_basisjaar",
+        "right": "nl2120_bau1_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_bau1_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_landgebruik_2120",
+        "right": "nl2120_bau1_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_bau1_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_nieuwe_natuur",
+        "right": "nl2120_bau1_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_bau1_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_verstedelijking",
+        "right": "nl2120_bau1_verstedelijking"
+      },
+      {
+        "id": "nl2120_bau1_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_waterberging_veen",
+        "right": "nl2120_bau1_waterberging_veen"
+      },
+      {
+        "id": "nl2120_bau1_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_piekbuiberging",
+        "right": "nl2120_bau1_piekbuiberging"
+      },
+      {
+        "id": "nl2120_bau1_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_co2_veenoxidatie",
+        "right": "nl2120_bau1_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_bau1_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_bodemkoolstof",
+        "right": "nl2120_bau1_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_bau1_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_vermeden_sterfte",
+        "right": "nl2120_bau1_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_bau1_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_woningwaarde_groen",
+        "right": "nl2120_bau1_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "BAU1 ↔ BAU2",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_bau1_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_landgebruik_basisjaar",
+        "right": "nl2120_bau2_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_bau1_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_landgebruik_2120",
+        "right": "nl2120_bau2_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_bau1_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_nieuwe_natuur",
+        "right": "nl2120_bau2_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_bau1_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_verstedelijking",
+        "right": "nl2120_bau2_verstedelijking"
+      },
+      {
+        "id": "nl2120_bau1_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_waterberging_veen",
+        "right": "nl2120_bau2_waterberging_veen"
+      },
+      {
+        "id": "nl2120_bau1_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_piekbuiberging",
+        "right": "nl2120_bau2_piekbuiberging"
+      },
+      {
+        "id": "nl2120_bau1_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_co2_veenoxidatie",
+        "right": "nl2120_bau2_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_bau1_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_bodemkoolstof",
+        "right": "nl2120_bau2_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_bau1_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_vermeden_sterfte",
+        "right": "nl2120_bau2_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_bau1_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_woningwaarde_groen",
+        "right": "nl2120_bau2_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "BAU1 ↔ NbS genuanceerd",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_bau1_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_landgebruik_basisjaar",
+        "right": "nl2120_nbsgenuanceerd_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_bau1_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_landgebruik_2120",
+        "right": "nl2120_nbsgenuanceerd_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_bau1_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_nieuwe_natuur",
+        "right": "nl2120_nbsgenuanceerd_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_bau1_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_verstedelijking",
+        "right": "nl2120_nbsgenuanceerd_verstedelijking"
+      },
+      {
+        "id": "nl2120_bau1_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_waterberging_veen",
+        "right": "nl2120_nbsgenuanceerd_waterberging_veen"
+      },
+      {
+        "id": "nl2120_bau1_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_piekbuiberging",
+        "right": "nl2120_nbsgenuanceerd_piekbuiberging"
+      },
+      {
+        "id": "nl2120_bau1_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_co2_veenoxidatie",
+        "right": "nl2120_nbsgenuanceerd_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_bau1_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_bodemkoolstof",
+        "right": "nl2120_nbsgenuanceerd_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_bau1_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_vermeden_sterfte",
+        "right": "nl2120_nbsgenuanceerd_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_bau1_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_woningwaarde_groen",
+        "right": "nl2120_nbsgenuanceerd_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "BAU1 ↔ NbS genuanceerder",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_bau1_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_landgebruik_basisjaar",
+        "right": "nl2120_nbsgenuanceerder_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_bau1_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_landgebruik_2120",
+        "right": "nl2120_nbsgenuanceerder_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_bau1_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_nieuwe_natuur",
+        "right": "nl2120_nbsgenuanceerder_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_bau1_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_verstedelijking",
+        "right": "nl2120_nbsgenuanceerder_verstedelijking"
+      },
+      {
+        "id": "nl2120_bau1_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_waterberging_veen",
+        "right": "nl2120_nbsgenuanceerder_waterberging_veen"
+      },
+      {
+        "id": "nl2120_bau1_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_piekbuiberging",
+        "right": "nl2120_nbsgenuanceerder_piekbuiberging"
+      },
+      {
+        "id": "nl2120_bau1_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_co2_veenoxidatie",
+        "right": "nl2120_nbsgenuanceerder_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_bau1_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_bodemkoolstof",
+        "right": "nl2120_nbsgenuanceerder_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_bau1_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_vermeden_sterfte",
+        "right": "nl2120_nbsgenuanceerder_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_bau1_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau1_woningwaarde_groen",
+        "right": "nl2120_nbsgenuanceerder_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "BAU2 ↔ BAU1",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_bau2_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_landgebruik_basisjaar",
+        "right": "nl2120_bau1_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_bau2_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_landgebruik_2120",
+        "right": "nl2120_bau1_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_bau2_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_nieuwe_natuur",
+        "right": "nl2120_bau1_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_bau2_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_verstedelijking",
+        "right": "nl2120_bau1_verstedelijking"
+      },
+      {
+        "id": "nl2120_bau2_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_waterberging_veen",
+        "right": "nl2120_bau1_waterberging_veen"
+      },
+      {
+        "id": "nl2120_bau2_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_piekbuiberging",
+        "right": "nl2120_bau1_piekbuiberging"
+      },
+      {
+        "id": "nl2120_bau2_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_co2_veenoxidatie",
+        "right": "nl2120_bau1_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_bau2_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_bodemkoolstof",
+        "right": "nl2120_bau1_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_bau2_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_vermeden_sterfte",
+        "right": "nl2120_bau1_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_bau2_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_woningwaarde_groen",
+        "right": "nl2120_bau1_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "BAU2 ↔ BAU2",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_bau2_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_landgebruik_basisjaar",
+        "right": "nl2120_bau2_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_bau2_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_landgebruik_2120",
+        "right": "nl2120_bau2_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_bau2_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_nieuwe_natuur",
+        "right": "nl2120_bau2_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_bau2_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_verstedelijking",
+        "right": "nl2120_bau2_verstedelijking"
+      },
+      {
+        "id": "nl2120_bau2_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_waterberging_veen",
+        "right": "nl2120_bau2_waterberging_veen"
+      },
+      {
+        "id": "nl2120_bau2_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_piekbuiberging",
+        "right": "nl2120_bau2_piekbuiberging"
+      },
+      {
+        "id": "nl2120_bau2_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_co2_veenoxidatie",
+        "right": "nl2120_bau2_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_bau2_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_bodemkoolstof",
+        "right": "nl2120_bau2_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_bau2_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_vermeden_sterfte",
+        "right": "nl2120_bau2_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_bau2_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_woningwaarde_groen",
+        "right": "nl2120_bau2_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "BAU2 ↔ NbS genuanceerd",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_bau2_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_landgebruik_basisjaar",
+        "right": "nl2120_nbsgenuanceerd_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_bau2_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_landgebruik_2120",
+        "right": "nl2120_nbsgenuanceerd_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_bau2_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_nieuwe_natuur",
+        "right": "nl2120_nbsgenuanceerd_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_bau2_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_verstedelijking",
+        "right": "nl2120_nbsgenuanceerd_verstedelijking"
+      },
+      {
+        "id": "nl2120_bau2_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_waterberging_veen",
+        "right": "nl2120_nbsgenuanceerd_waterberging_veen"
+      },
+      {
+        "id": "nl2120_bau2_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_piekbuiberging",
+        "right": "nl2120_nbsgenuanceerd_piekbuiberging"
+      },
+      {
+        "id": "nl2120_bau2_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_co2_veenoxidatie",
+        "right": "nl2120_nbsgenuanceerd_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_bau2_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_bodemkoolstof",
+        "right": "nl2120_nbsgenuanceerd_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_bau2_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_vermeden_sterfte",
+        "right": "nl2120_nbsgenuanceerd_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_bau2_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_woningwaarde_groen",
+        "right": "nl2120_nbsgenuanceerd_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "BAU2 ↔ NbS genuanceerder",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_bau2_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_landgebruik_basisjaar",
+        "right": "nl2120_nbsgenuanceerder_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_bau2_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_landgebruik_2120",
+        "right": "nl2120_nbsgenuanceerder_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_bau2_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_nieuwe_natuur",
+        "right": "nl2120_nbsgenuanceerder_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_bau2_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_verstedelijking",
+        "right": "nl2120_nbsgenuanceerder_verstedelijking"
+      },
+      {
+        "id": "nl2120_bau2_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_waterberging_veen",
+        "right": "nl2120_nbsgenuanceerder_waterberging_veen"
+      },
+      {
+        "id": "nl2120_bau2_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_piekbuiberging",
+        "right": "nl2120_nbsgenuanceerder_piekbuiberging"
+      },
+      {
+        "id": "nl2120_bau2_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_co2_veenoxidatie",
+        "right": "nl2120_nbsgenuanceerder_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_bau2_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_bodemkoolstof",
+        "right": "nl2120_nbsgenuanceerder_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_bau2_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_vermeden_sterfte",
+        "right": "nl2120_nbsgenuanceerder_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_bau2_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_bau2_woningwaarde_groen",
+        "right": "nl2120_nbsgenuanceerder_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "NbS genuanceerd ↔ BAU1",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_nbsgenuanceerd_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_landgebruik_basisjaar",
+        "right": "nl2120_bau1_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_landgebruik_2120",
+        "right": "nl2120_bau1_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_nieuwe_natuur",
+        "right": "nl2120_bau1_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_verstedelijking",
+        "right": "nl2120_bau1_verstedelijking"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_waterberging_veen",
+        "right": "nl2120_bau1_waterberging_veen"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_piekbuiberging",
+        "right": "nl2120_bau1_piekbuiberging"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_co2_veenoxidatie",
+        "right": "nl2120_bau1_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_bodemkoolstof",
+        "right": "nl2120_bau1_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_vermeden_sterfte",
+        "right": "nl2120_bau1_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_woningwaarde_groen",
+        "right": "nl2120_bau1_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "NbS genuanceerd ↔ BAU2",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_nbsgenuanceerd_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_landgebruik_basisjaar",
+        "right": "nl2120_bau2_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_landgebruik_2120",
+        "right": "nl2120_bau2_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_nieuwe_natuur",
+        "right": "nl2120_bau2_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_verstedelijking",
+        "right": "nl2120_bau2_verstedelijking"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_waterberging_veen",
+        "right": "nl2120_bau2_waterberging_veen"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_piekbuiberging",
+        "right": "nl2120_bau2_piekbuiberging"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_co2_veenoxidatie",
+        "right": "nl2120_bau2_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_bodemkoolstof",
+        "right": "nl2120_bau2_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_vermeden_sterfte",
+        "right": "nl2120_bau2_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_woningwaarde_groen",
+        "right": "nl2120_bau2_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "NbS genuanceerd ↔ NbS genuanceerd",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_nbsgenuanceerd_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_landgebruik_basisjaar",
+        "right": "nl2120_nbsgenuanceerd_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_landgebruik_2120",
+        "right": "nl2120_nbsgenuanceerd_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_nieuwe_natuur",
+        "right": "nl2120_nbsgenuanceerd_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_verstedelijking",
+        "right": "nl2120_nbsgenuanceerd_verstedelijking"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_waterberging_veen",
+        "right": "nl2120_nbsgenuanceerd_waterberging_veen"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_piekbuiberging",
+        "right": "nl2120_nbsgenuanceerd_piekbuiberging"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_co2_veenoxidatie",
+        "right": "nl2120_nbsgenuanceerd_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_bodemkoolstof",
+        "right": "nl2120_nbsgenuanceerd_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_vermeden_sterfte",
+        "right": "nl2120_nbsgenuanceerd_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_woningwaarde_groen",
+        "right": "nl2120_nbsgenuanceerd_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "NbS genuanceerd ↔ NbS genuanceerder",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_nbsgenuanceerd_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_landgebruik_basisjaar",
+        "right": "nl2120_nbsgenuanceerder_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_landgebruik_2120",
+        "right": "nl2120_nbsgenuanceerder_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_nieuwe_natuur",
+        "right": "nl2120_nbsgenuanceerder_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_verstedelijking",
+        "right": "nl2120_nbsgenuanceerder_verstedelijking"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_waterberging_veen",
+        "right": "nl2120_nbsgenuanceerder_waterberging_veen"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_piekbuiberging",
+        "right": "nl2120_nbsgenuanceerder_piekbuiberging"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_co2_veenoxidatie",
+        "right": "nl2120_nbsgenuanceerder_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_bodemkoolstof",
+        "right": "nl2120_nbsgenuanceerder_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_vermeden_sterfte",
+        "right": "nl2120_nbsgenuanceerder_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerd_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerd_woningwaarde_groen",
+        "right": "nl2120_nbsgenuanceerder_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "NbS genuanceerder ↔ BAU1",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_nbsgenuanceerder_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_landgebruik_basisjaar",
+        "right": "nl2120_bau1_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_landgebruik_2120",
+        "right": "nl2120_bau1_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_nieuwe_natuur",
+        "right": "nl2120_bau1_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_verstedelijking",
+        "right": "nl2120_bau1_verstedelijking"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_waterberging_veen",
+        "right": "nl2120_bau1_waterberging_veen"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_piekbuiberging",
+        "right": "nl2120_bau1_piekbuiberging"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_co2_veenoxidatie",
+        "right": "nl2120_bau1_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_bodemkoolstof",
+        "right": "nl2120_bau1_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_vermeden_sterfte",
+        "right": "nl2120_bau1_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_woningwaarde_groen",
+        "right": "nl2120_bau1_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "NbS genuanceerder ↔ BAU2",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_nbsgenuanceerder_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_landgebruik_basisjaar",
+        "right": "nl2120_bau2_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_landgebruik_2120",
+        "right": "nl2120_bau2_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_nieuwe_natuur",
+        "right": "nl2120_bau2_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_verstedelijking",
+        "right": "nl2120_bau2_verstedelijking"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_waterberging_veen",
+        "right": "nl2120_bau2_waterberging_veen"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_piekbuiberging",
+        "right": "nl2120_bau2_piekbuiberging"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_co2_veenoxidatie",
+        "right": "nl2120_bau2_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_bodemkoolstof",
+        "right": "nl2120_bau2_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_vermeden_sterfte",
+        "right": "nl2120_bau2_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_woningwaarde_groen",
+        "right": "nl2120_bau2_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "NbS genuanceerder ↔ NbS genuanceerd",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_nbsgenuanceerder_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_landgebruik_basisjaar",
+        "right": "nl2120_nbsgenuanceerd_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_landgebruik_2120",
+        "right": "nl2120_nbsgenuanceerd_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_nieuwe_natuur",
+        "right": "nl2120_nbsgenuanceerd_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_verstedelijking",
+        "right": "nl2120_nbsgenuanceerd_verstedelijking"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_waterberging_veen",
+        "right": "nl2120_nbsgenuanceerd_waterberging_veen"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_piekbuiberging",
+        "right": "nl2120_nbsgenuanceerd_piekbuiberging"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_co2_veenoxidatie",
+        "right": "nl2120_nbsgenuanceerd_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_bodemkoolstof",
+        "right": "nl2120_nbsgenuanceerd_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_vermeden_sterfte",
+        "right": "nl2120_nbsgenuanceerd_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_woningwaarde_groen",
+        "right": "nl2120_nbsgenuanceerd_woningwaarde_groen"
+      }
+    ]
+  },
+  {
+    "label": "NbS genuanceerder ↔ NbS genuanceerder",
+    "icon": "compare",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "nl2120_nbsgenuanceerder_landgebruik_basisjaar",
+        "label": "Landgebruik basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_landgebruik_basisjaar",
+        "right": "nl2120_nbsgenuanceerder_landgebruik_basisjaar"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_landgebruik_2120",
+        "label": "Landgebruik 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_landgebruik_2120",
+        "right": "nl2120_nbsgenuanceerder_landgebruik_2120"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_nieuwe_natuur",
+        "label": "Nieuwe natuur",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_nieuwe_natuur",
+        "right": "nl2120_nbsgenuanceerder_nieuwe_natuur"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_verstedelijking",
+        "label": "Verstedelijking",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_verstedelijking",
+        "right": "nl2120_nbsgenuanceerder_verstedelijking"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_waterberging_veen",
+        "label": "Seizoensberging veen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_waterberging_veen",
+        "right": "nl2120_nbsgenuanceerder_waterberging_veen"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_piekbuiberging",
+        "label": "Piekbuiberging, dekkingsgraad",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_piekbuiberging",
+        "right": "nl2120_nbsgenuanceerder_piekbuiberging"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_co2_veenoxidatie",
+        "label": "CO2-emissie veenoxidatie tot 2120",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_co2_veenoxidatie",
+        "right": "nl2120_nbsgenuanceerder_co2_veenoxidatie"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_bodemkoolstof",
+        "label": "Bodemkoolstof t.o.v. basisjaar",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_bodemkoolstof",
+        "right": "nl2120_nbsgenuanceerder_bodemkoolstof"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_vermeden_sterfte",
+        "label": "Vermeden sterfte door groen",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_vermeden_sterfte",
+        "right": "nl2120_nbsgenuanceerder_vermeden_sterfte"
+      },
+      {
+        "id": "nl2120_nbsgenuanceerder_woningwaarde_groen",
+        "label": "Woningwaarde door groenverandering",
+        "a": false,
+        "b": false,
+        "left": "nl2120_nbsgenuanceerder_woningwaarde_groen",
+        "right": "nl2120_nbsgenuanceerder_woningwaarde_groen"
+      }
+    ]
+  }
+]
