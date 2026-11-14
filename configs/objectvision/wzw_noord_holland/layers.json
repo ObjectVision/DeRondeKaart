@@ -943,7 +943,7 @@
       "beforeid": "map-layers",
       "timeseries": {
         "placeholder": "%YEAR%",
-        "start": 2018,
+        "start": 2020,
         "end": 2029,
         "step": 1
       },
