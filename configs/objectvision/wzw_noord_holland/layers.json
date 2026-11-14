@@ -1,0 +1,1068 @@
+{
+  "layers": [
+    {
+      "id": "wzw5_hgdem",
+      "name": "Dementie, zelfstandig wonend",
+      "subname": "aandeel huishoudens",
+      "description": "De kans op het vóórkomen van 60-plussers met een dementiële aandoening in een zelfstandig huishouden.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGDEM.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "HGDEM_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2018,
+        "end": 2029,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Dementie, zelfstandig wonend</b><table><tr><td>Klasse</td><td>[[ class ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Dementie, zelfstandig wonend",
+        "rules": [
+          {
+            "name": "minder dan 1%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275b5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1,0 - 1,5%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849ebd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1,5 - 2,0%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c6cfbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2,0 - 3,0%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffffbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "3,0 - 4,0%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffba84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "4,0 - 6,0%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ef7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "6% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#d62c21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw5_hglvb",
+      "name": "Licht verstandelijk beperkt",
+      "subname": "aandeel huishoudens",
+      "description": "De kans op het vóórkomen van personen van 18 jaar en ouder met een licht verstandelijke beperking in een zelfstandig huishouden die problemen ervaren in het meekomen in de maatschappij (werk, opleiding, taalvaardigheid, administratie).",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGLVB.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "HGLVB_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2018,
+        "end": 2029,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Licht verstandelijk beperkt</b><table><tr><td>Klasse</td><td>[[ class ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Licht verstandelijk beperkt",
+        "rules": [
+          {
+            "name": "minder dan 2,5%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275b5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2,5 - 10%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849ebd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 - 20%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c6cfbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 - 30%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffffbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 - 40%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffba84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40 - 50%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ef7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "50% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#d62c21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw5_hgvg",
+      "name": "Matig of ernstig verstandelijk beperkt",
+      "subname": "aandeel huishoudens",
+      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder met een diagnose VG (verstandelijk gehandicapt) in een zelfstandig huishouden.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGVG.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "HGVG_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2018,
+        "end": 2029,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Matig of ernstig verstandelijk beperkt</b><table><tr><td>Klasse</td><td>[[ class ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Matig of ernstig verstandelijk beperkt",
+        "rules": [
+          {
+            "name": "minder dan 0,5%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275b5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "0,5 - 0,75%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849ebd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "0,75 - 1,0%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c6cfbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1,0 - 1,5%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffffbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1,5 - 2,0%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffba84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2,0 - 2,5%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ef7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2,5% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#d62c21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw5_hgsom",
+      "name": "Somatische problematiek",
+      "subname": "aandeel huishoudens",
+      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder met een of meer chronische aandoeningen én een mobiliteitsbeperking die lid zijn van een zelfstandig huishouden.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGSOM.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "HGSOM_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2018,
+        "end": 2029,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Somatische problematiek</b><table><tr><td>Klasse</td><td>[[ class ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Somatische problematiek",
+        "rules": [
+          {
+            "name": "minder dan 6%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275b5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "6 - 8%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849ebd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "8 - 10%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c6cfbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 - 12%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffffbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "12 - 14%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffba84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "14 - 16%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ef7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "16% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#d62c21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw5_hgzin",
+      "name": "Zintuigelijke aandoeningen",
+      "subname": "aandeel huishoudens",
+      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder in een zelfstandig huishouden die moeite hebben met of niet kunnen zien of horen.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGZIN.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "HGZIN_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2018,
+        "end": 2029,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Zintuigelijke aandoeningen</b><table><tr><td>Klasse</td><td>[[ class ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Zintuigelijke aandoeningen",
+        "rules": [
+          {
+            "name": "minder dan 8%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275b5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "8 - 10%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849ebd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 - 12%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c6cfbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "12 - 14%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffffbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "14 - 16%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffba84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "16 - 18%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ef7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "18% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#d62c21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw5_hgpsy1",
+      "name": "Angst en stemmingsstoornissen",
+      "subname": "aandeel huishoudens",
+      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder in een zelfstandig huishouden met een groot risico op angst en stemmingsstoornissen.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGPSY1.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "HGPSY1_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2018,
+        "end": 2029,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Angst en stemmingsstoornissen</b><table><tr><td>Klasse</td><td>[[ class ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Angst en stemmingsstoornissen",
+        "rules": [
+          {
+            "name": "minder dan 7%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275b5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "7 - 9%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849ebd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "9 - 11%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c6cfbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "11 - 13%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffffbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "13 - 15%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffba84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 - 17%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ef7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "17% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#d62c21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw5_hgpsy2",
+      "name": "Psychiatrische problematiek",
+      "subname": "aandeel huishoudens",
+      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder in een zelfstandig huishouden met een psychiatrische aandoening.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGPSY2.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "HGPSY2_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2018,
+        "end": 2029,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Psychiatrische problematiek</b><table><tr><td>Klasse</td><td>[[ class ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Psychiatrische problematiek",
+        "rules": [
+          {
+            "name": "minder dan 2%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275b5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2 - 2,5%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849ebd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2,5 - 3,0%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c6cfbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "3,0 - 3,5%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffffbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "3,5 - 4,0%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffba84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "4,0 - 4,5%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ef7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "4,5% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#d62c21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw5_hgjgd",
+      "name": "Jeugdproblematiek",
+      "subname": "aandeel huishoudens",
+      "description": "De kans op het vóórkomen van personen tot en met 18 jaar die volgens de huidige normen/het huidige beleid in aanmerking komen voor een vorm van ambulante jeugdhulpverlening als aandeel van de zelfstandig wonende populatie (alle leeftijden).",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGJGD.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "HGJGD_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2018,
+        "end": 2029,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Jeugdproblematiek</b><table><tr><td>Klasse</td><td>[[ class ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Jeugdproblematiek",
+        "rules": [
+          {
+            "name": "minder dan 1,5%",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275b5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1,5 - 2,0%",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849ebd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2,0 - 2,5%",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c6cfbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2,5 - 3,0%",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffffbd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "3,0 - 3,5%",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffba84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "3,5 - 4,0%",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ef7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "4% of meer",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#d62c21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

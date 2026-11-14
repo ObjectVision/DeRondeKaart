@@ -1,0 +1,58 @@
+[
+  {
+    "label": "Aandoeningen",
+    "icon": "ecg_heart",
+    "color": "#3E74A7",
+    "expanded": true,
+    "children": [
+      {
+        "id": "wzw5_hgdem",
+        "label": "Dementie, zelfstandig wonend",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_hglvb",
+        "label": "Licht verstandelijk beperkt",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_hgvg",
+        "label": "Matig of ernstig verstandelijk beperkt",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_hgsom",
+        "label": "Somatische problematiek",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_hgzin",
+        "label": "Zintuigelijke aandoeningen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_hgpsy1",
+        "label": "Angst en stemmingsstoornissen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_hgpsy2",
+        "label": "Psychiatrische problematiek",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_hgjgd",
+        "label": "Jeugdproblematiek",
+        "a": false,
+        "b": false
+      }
+    ]
+  }
+]
