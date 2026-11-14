@@ -9,14 +9,19 @@
 #   "shapely>=2.0",
 # ]
 # ///
-"""Build the WoonZorgWijzer 5 hoofdgroep PMTiles — one archive per hoofdgroep.
+"""Build the WoonZorgWijzer 5 PMTiles — one archive per group.
 
-``WZW5_EXPORT/wzw5_hg_all/hg_<code>/`` holds, per hoofdgroep, the same classified
-raster for **12 years (2018-2029)** at **three resolutions** (``yr_<year>_m5.tif``,
-``_m10``, ``_m20``) on the national grid. Each is a uint8 class raster (classes
-1-7, nodata 255 by convention) in EPSG:28992.
+Two sets of groups, same shape and same pipeline:
 
-This driver turns each hoofdgroep into ONE archive carrying one vector tile layer
+* **hoofdgroepen (HG)** in ``WZW5_EXPORT/wzw5_hg_all/hg_<code>/`` — 8 groups
+* **subgroepen (SG)** in ``WZW5_EXPORT/wzw5_sg_all/sg_<code>/`` — 9 groups
+
+Each folder holds the same classified raster for **12 years (2018-2029)** at
+**three resolutions** (``yr_<year>_m5.tif``, ``_m10``, ``_m20``) on the national
+grid. Each is a uint8 class raster (classes 1-7, nodata 255 by convention) in
+EPSG:28992.
+
+This driver turns each group into ONE archive carrying one vector tile layer
 per year, so the app animates it with the timeseries slider it already has:
 
     hg_dem/yr_2018_m20.tif ─┐
@@ -45,9 +50,9 @@ which is replicated with a representative-point spatial join (all 342 resolve).
 Steps, each cached — a step is skipped when its output is newer than its inputs, so
 an interrupted run resumes:
 
-1. ``convert-tif-to-geojson.py`` per raster (288 of them: 8 x 12 x 3).
+1. ``convert-tif-to-geojson.py`` per raster (606 of them: 17 groups x 12 x 3).
 2. Clip to the mask (``geopandas.clip``), writing ``<stem>.clip.geojson``.
-3. ``convert-geojson-to-pmtiles.py --spec`` per hoofdgroep, 36 banded sources.
+3. ``convert-geojson-to-pmtiles.py --spec`` per group, 36 banded sources.
 
 The two converters need **different interpreters** and the script finds them itself:
 vectorising needs geopandas/rasterio (pip), the PMTiles step needs the GDAL bindings,
@@ -59,11 +64,17 @@ With ``--upload`` the archives go to the data host behind
 place, as in ``build-bereikbaarheid-pmtiles.py``.
 
 Usage:
-    # Everything: 288 rasters -> 8 archives (hours; resumable)
+    # Everything: 17 groups, 606 rasters -> 17 archives (many hours; resumable)
     python3 build-wzw5-pmtiles.py
 
-    # One hoofdgroep, to check the pipeline end to end first:
+    # One group, to check the pipeline end to end first:
     python3 build-wzw5-pmtiles.py --only dem
+    python3 build-wzw5-pmtiles.py --only sg_dem0
+
+    # Just the subgroepen:
+    python3 build-wzw5-pmtiles.py --only sg_dem0 --only sg_dem1 --only sg_dem3 \
+        --only sg_lvb1 --only sg_lvb2 --only sg_zin1 --only sg_zin2 \
+        --only sg_psy2b --only sg_jgd
 
     # A couple of years while iterating on style:
     python3 build-wzw5-pmtiles.py --only dem --years 2018,2024
@@ -80,12 +91,14 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import NamedTuple
 
 HERE = Path(__file__).resolve().parent
 
 # Source rasters and the GeoDMS project that defines the mask.
 WZW5_EXPORT = Path(r"C:\Users\Cicada\prj\WZW5_export")
-TIF_ROOT = WZW5_EXPORT / "wzw5_hg_all"
+HG_TIF_ROOT = WZW5_EXPORT / "wzw5_hg_all"
+SG_TIF_ROOT = WZW5_EXPORT / "wzw5_sg_all"
 CBS_GPKG = Path(r"C:\SourceData\CBS\2025\cbsgebiedsindelingen2025.gpkg")
 GEMEENTE_LAYER = "gemeente_gegeneraliseerd"
 PROVINCIE_LAYER = "provincie_gegeneraliseerd"
@@ -108,21 +121,66 @@ DEFAULT_IDENTITY = Path.home() / ".ssh" / "<key>"
 # cannot talk to the Windows ssh-agent.
 WINDOWS_OPENSSH = Path(r"C:\Windows\System32\OpenSSH")
 
-# Hoofdgroep: source folder -> archive / source-layer prefix. The prefixes are
-# MapGallery's own (`layername` of layers 342-349, minus the _v3 suffix), so the
-# two systems name the same data the same way.
-HOOFDGROEPEN = {
-    "dem": "HGDEM",
-    "lvb": "HGLVB",
-    "vg": "HGVG",
-    "som": "HGSOM",
-    "zin": "HGZIN",
-    "psy1": "HGPSY1",
-    "psy2": "HGPSY2",
-    "jgd": "HGJGD",
-}
-
 DEFAULT_YEARS = tuple(str(y) for y in range(2018, 2030))
+
+# sg_jgd's 2018 and 2019 rasters are a single empty placeholder, duplicated: both
+# are 243,750,000 nodata cells and share one MD5 (the same file hg_jgd ships, which
+# is why that group is also a 2020 series). MapGallery agrees — layer 358's control
+# says "min": 2020 — so the series starts there and the converter is never handed a
+# raster it must reject.
+JGD_YEARS = tuple(str(y) for y in range(2020, 2030))
+
+
+class Group(NamedTuple):
+    """One source folder and the archive it becomes."""
+
+    root: Path
+    folder: str
+    prefix: str
+    years: tuple[str, ...] = DEFAULT_YEARS
+
+    @property
+    def directory(self) -> Path:
+        return self.root / self.folder
+
+
+def _hg(code: str, prefix: str, years: tuple[str, ...] = DEFAULT_YEARS) -> Group:
+    return Group(HG_TIF_ROOT, f"hg_{code}", prefix, years)
+
+
+def _sg(code: str, prefix: str, years: tuple[str, ...] = DEFAULT_YEARS) -> Group:
+    return Group(SG_TIF_ROOT, f"sg_{code}", prefix, years)
+
+
+# CLI name -> source folder and archive prefix. The prefixes are MapGallery's own
+# (`layername` of layers 342-349 for HG and 350-358 for SG, minus the _v3 suffix),
+# so the two systems name the same data the same way.
+#
+# The HG keys are bare codes and the SG keys carry an `sg_` prefix. That is not
+# cosmetic: `jgd` exists in both sets, and the key is also the work-directory name,
+# so collapsing them would make one group's cache overwrite the other's.
+GROUPS: dict[str, Group] = {
+    # Hoofdgroepen — already built and published; keys unchanged so their cached
+    # GeoJSONs under work/<key>/ stay valid and are never recomputed.
+    "dem": _hg("dem", "HGDEM"),
+    "lvb": _hg("lvb", "HGLVB"),
+    "vg": _hg("vg", "HGVG"),
+    "som": _hg("som", "HGSOM"),
+    "zin": _hg("zin", "HGZIN"),
+    "psy1": _hg("psy1", "HGPSY1"),
+    "psy2": _hg("psy2", "HGPSY2"),
+    "jgd": _hg("jgd", "HGJGD", JGD_YEARS),
+    # Subgroepen
+    "sg_dem0": _sg("dem0", "SGDEM0"),
+    "sg_dem1": _sg("dem1", "SGDEM1"),
+    "sg_dem3": _sg("dem3", "SGDEM3"),
+    "sg_lvb1": _sg("lvb1", "SGLVB1"),
+    "sg_lvb2": _sg("lvb2", "SGLVB2"),
+    "sg_zin1": _sg("zin1", "SGZIN1"),
+    "sg_zin2": _sg("zin2", "SGZIN2"),
+    "sg_psy2b": _sg("psy2b", "SGPSY2B"),
+    "sg_jgd": _sg("jgd", "SGJGD", JGD_YEARS),
+}
 
 # Resolution -> zoom band. A 20 m cell is ~1.7 px at z13 and a 5 m cell ~0.85 px
 # at z14, so each grid takes over where it starts to carry visible detail. The
@@ -324,7 +382,7 @@ def build_mask() -> Path:
 
 
 def source_tif(folder: str, year: str, resolution: str) -> Path:
-    return TIF_ROOT / f"hg_{folder}" / f"yr_{year}_{resolution}.tif"
+    return GROUPS[folder].directory / f"yr_{year}_{resolution}.tif"
 
 
 def vectorize(tif: Path, out: Path, *, interpreter: list[str], simplify: float) -> None:
@@ -388,11 +446,17 @@ def prepare(
     mask_path: Path,
     keep_raw: bool,
 ) -> dict[str, dict[str, dict[str, Path]]]:
-    """Vectorise and clip every raster. Returns {folder: {year: {resolution: path}}}."""
+    """Vectorise and clip every raster. Returns {folder: {year: {resolution: path}}}.
+
+    ``years`` is the run-wide selection; each group narrows it to the years it
+    actually has, so a group whose series starts late (see ``JGD_YEARS``) is never
+    handed a raster the converter would reject.
+    """
     todo = [
         (folder, year, resolution)
         for folder in folders
         for year in years
+        if year in GROUPS[folder].years
         for resolution in RESOLUTION_BANDS
     ]
     results: dict[str, dict[str, dict[str, Path]]] = {}
@@ -404,7 +468,7 @@ def prepare(
         if not tif.is_file():
             raise SystemExit(f"error: raster not found: {tif}")
 
-        stem = f"{HOOFDGROEPEN[folder]}_{year}_{resolution}"
+        stem = f"{GROUPS[folder].prefix}_{year}_{resolution}"
         raw = WORK / folder / f"{stem}.raw.geojson"
         clipped = WORK / folder / f"{stem}.geojson"
         prefix = f"[{index}/{total}] {stem}"
@@ -430,7 +494,7 @@ def prepare(
 
 def archive_spec(folder: str, per_year: dict[str, dict[str, Path]]) -> dict:
     """One source-layer per year, each with the three resolutions as zoom bands."""
-    prefix = HOOFDGROEPEN[folder]
+    prefix = GROUPS[folder].prefix
     spec: dict[str, list[dict]] = {}
     for year in sorted(per_year):
         bands = []
@@ -449,8 +513,8 @@ def build_archive(
     *,
     interpreter: list[str],
 ) -> Path:
-    """Run convert-geojson-to-pmtiles.py over one hoofdgroep's banded sources."""
-    prefix = HOOFDGROEPEN[folder]
+    """Run convert-geojson-to-pmtiles.py over one group's banded sources."""
+    prefix = GROUPS[folder].prefix
     out = PMTILES_OUT / f"{prefix}.pmtiles"
     out.parent.mkdir(parents=True, exist_ok=True)
 
@@ -492,7 +556,7 @@ def build_archive(
             "--max-size", str(MAX_SIZE),
             "--max-features", str(MAX_FEATURES),
             "--name", prefix,
-            "--description", f"WoonZorgWijzer 5 hoofdgroep {prefix} {min(spec)[-4:]}-{max(spec)[-4:]}",
+            "--description", f"WoonZorgWijzer 5 {prefix} {min(spec)[-4:]}-{max(spec)[-4:]}",
         ],
         f"{out.name}",
     )
@@ -565,7 +629,8 @@ def parse_years(value: str) -> list[str]:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Build one PMTiles archive per WZW5 hoofdgroep, with one source-layer "
+            "Build one PMTiles archive per WZW5 group (hoofd- and subgroepen), with "
+            "one source-layer "
             "per year and m20/m10/m5 banded by zoom, clipped to the WZW5 mask."
         ),
     )
@@ -574,8 +639,8 @@ def main(argv: list[str]) -> int:
         action="append",
         metavar="dem",
         help=(
-            "Hoofdgroep to build (repeatable; default: all). One of: "
-            + ", ".join(HOOFDGROEPEN)
+            "Group to build (repeatable; default: all). One of: "
+            + ", ".join(GROUPS)
         ),
     )
     parser.add_argument(
@@ -621,30 +686,38 @@ def main(argv: list[str]) -> int:
         if not script.is_file():
             print(f"error: missing sibling script: {script}", file=sys.stderr)
             return 2
-    if not TIF_ROOT.is_dir():
-        print(f"error: raster root not found: {TIF_ROOT}", file=sys.stderr)
-        return 2
-
     if args.only:
-        unknown = [name for name in args.only if name not in HOOFDGROEPEN]
+        unknown = [name for name in args.only if name not in GROUPS]
         if unknown:
             print(
-                f"error: unknown hoofdgroep(en) {unknown}; expected one of "
-                f"{list(HOOFDGROEPEN)}",
+                f"error: unknown group(s) {unknown}; expected one of "
+                f"{list(GROUPS)}",
                 file=sys.stderr,
             )
             return 2
-        folders = [name for name in HOOFDGROEPEN if name in set(args.only)]
+        folders = [name for name in GROUPS if name in set(args.only)]
     else:
-        folders = list(HOOFDGROEPEN)
+        folders = list(GROUPS)
+
+    # Only the roots this run actually reads, so a missing SG export does not
+    # block an HG-only build (and the reverse).
+    for root in dict.fromkeys(GROUPS[name].root for name in folders):
+        if not root.is_dir():
+            print(f"error: raster root not found: {root}", file=sys.stderr)
+            return 2
 
     started = time.time()
     vector_python, pmtiles_python = resolve_interpreters(need_pmtiles=args.build)
 
+    selected = {name: [y for y in args.years if y in GROUPS[name].years] for name in folders}
+    rasters = sum(len(years) for years in selected.values()) * len(RESOLUTION_BANDS)
     log(
-        f"\n{len(folders)} hoofdgroep(en) x {len(args.years)} year(s) x "
-        f"{len(RESOLUTION_BANDS)} resolution(s)"
+        f"\n{len(folders)} group(s) x up to {len(args.years)} year(s) x "
+        f"{len(RESOLUTION_BANDS)} resolution(s) = {rasters} raster(s)"
     )
+    for name, years in selected.items():
+        if len(years) != len(args.years):
+            log(f"  {GROUPS[name].prefix:<8} {len(years)} year(s): {years[0]}-{years[-1]}")
     for resolution, (lo, hi) in RESOLUTION_BANDS.items():
         log(f"  {resolution:<4} z{lo}-{hi}")
 
