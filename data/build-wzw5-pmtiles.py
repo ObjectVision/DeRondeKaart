@@ -139,6 +139,15 @@ MAXZOOM = 14
 # same ceiling rather than GDAL's 500 kB default, which silently drops features.
 MAX_SIZE = 2_000_000
 
+# GDAL also caps FEATURES per tile at 200 000 and silently truncates past it —
+# "At least one tile exceeded the default maximum number of features per tile
+# (200000) and was truncated", i.e. real data missing with no error. The whole
+# country falls inside ONE tile at z0-4 while an m20 year carries 105-119k
+# polygons, so the default leaves almost no headroom. Raised well clear of it;
+# MAX_SIZE still governs the byte budget, so this does not bloat tiles.
+# No sibling build script sets this because none packs 12 years into one archive.
+MAX_FEATURES = 1_000_000
+
 # Matches the validated default of convert-tif-to-geojson.py.
 DEFAULT_SIMPLIFY = 10.0
 
@@ -329,14 +338,42 @@ def vectorize(tif: Path, out: Path, *, interpreter: list[str], simplify: float) 
 
 
 def clip_to_mask(raw: Path, out: Path, mask_path: Path) -> int:
-    """Clip polygons to the publication mask. Returns the feature count kept."""
+    """Clip polygons to the publication mask. Returns the feature count kept.
+
+    Mapshaper's simplification leaves a handful of self-intersecting rings per
+    raster (3 in 182 329 for HGDEM_2019_m10), and GEOS refuses to intersect
+    those: "TopologyException: unable to assign free hole to a shell". They are
+    repaired with ``make_valid`` first — the standard remedy, and cheap at this
+    count. ``make_valid`` can turn a polygon into a collection (a bow-tie
+    becomes two polygons), so the result is exploded back to polygons only.
+    """
     import geopandas as gpd
+    import shapely
 
     polygons = gpd.read_file(raw)
     mask = gpd.read_file(mask_path).to_crs(polygons.crs)
-    clipped = gpd.clip(polygons, mask.geometry.iloc[0])
-    # clip can leave slivers of the wrong dimension where an edge grazes the mask.
+
+    invalid = ~polygons.geometry.is_valid
+    broken = int(invalid.sum())
+    if broken:
+        polygons.loc[invalid, "geometry"] = polygons.loc[invalid, "geometry"].make_valid()
+        log(f"      repaired {broken} invalid geometr{'y' if broken == 1 else 'ies'}")
+
+    try:
+        clipped = gpd.clip(polygons, mask.geometry.iloc[0])
+    except shapely.errors.GEOSException:
+        # Last resort: snap coordinates to a ~1 mm grid, which collapses the
+        # near-degenerate slivers that survive make_valid. Far below the 5 m
+        # source resolution, so it cannot move a real boundary.
+        log("      clip failed; retrying on a 1e-8 degree precision grid")
+        polygons["geometry"] = shapely.set_precision(polygons.geometry.values, 1e-8)
+        polygons = polygons[~polygons.geometry.is_empty & polygons.geometry.notna()]
+        clipped = gpd.clip(polygons, mask.geometry.iloc[0])
+
+    # clip can leave slivers of the wrong dimension where an edge grazes the
+    # mask, and make_valid can have produced collections.
     clipped = clipped[~clipped.geometry.is_empty & clipped.geometry.notna()]
+    clipped = clipped.explode(index_parts=False)
     clipped = clipped[clipped.geometry.geom_type.isin(("Polygon", "MultiPolygon"))]
     clipped.to_file(out, driver="GeoJSON")
     return len(clipped)
@@ -426,6 +463,23 @@ def build_archive(
     spec_path = WORK / folder / f"{prefix}.spec.json"
     spec_path.write_text(json.dumps(spec, indent=2), encoding="utf-8")
 
+    # The PMTiles driver stages the pyramid through its own `<out>.tmp.mbtiles`
+    # (plus a `.temp.db`) and does not clean them up when the process is killed.
+    # A later attempt then dies in CREATE TABLE: "failed: table metadata". The
+    # converter only unlinks the final output, so clear the driver's leftovers
+    # here — otherwise an interrupted run can never be resumed.
+    for leftover in out.parent.glob(f"{out.name}.tmp.mbtiles*"):
+        try:
+            leftover.unlink()
+            log(f"  {prefix:<8} removed stale {leftover.name}")
+        except OSError as err:
+            # Still held open by a dying process; the build below would fail on
+            # it, so say which file rather than let GDAL report a CREATE TABLE.
+            raise SystemExit(
+                f"error: cannot remove stale {leftover}: {err}\n"
+                "       a previous run may still be exiting — retry shortly."
+            ) from err
+
     log(f"  {prefix:<8} building {out.name} from {len(spec)} year(s), {len(sources)} source(s)…")
     run(
         interpreter
@@ -436,6 +490,7 @@ def build_archive(
             "--minzoom", str(MINZOOM),
             "--maxzoom", str(MAXZOOM),
             "--max-size", str(MAX_SIZE),
+            "--max-features", str(MAX_FEATURES),
             "--name", prefix,
             "--description", f"WoonZorgWijzer 5 hoofdgroep {prefix} {min(spec)[-4:]}-{max(spec)[-4:]}",
         ],
