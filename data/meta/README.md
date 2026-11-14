@@ -25,7 +25,12 @@ exactly as they are served. Publishing is then a plain recursive copy:
 
 ```
 scp -r data/meta/woonzorglimburg/resultaten/* cicada@37.97.169.242:/var/www/woonzorglimburg_data/meta/
+ssh cicada@37.97.169.242 chmod -R a+rX /var/www/woonzorglimburg_data/meta
 ```
+
+The `chmod` is not optional: `scp -r` from Windows creates new directories as
+`drwx------`, and nginx then answers 404 for everything inside them. That is
+how the images under `afbeeldingen/` once sat on the server unreachable.
 
 `/var/www/woonzorglimburg_data` is root-owned, so the directory itself was
 created with `sudo`; the contents belong to `cicada` and need no privileges to
