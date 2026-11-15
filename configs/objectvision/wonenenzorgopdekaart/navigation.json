@@ -1,119 +1,139 @@
 [
   {
-    "label": "Aandoeningen",
-    "icon": "ecg_heart",
+    "label": "WoonZorgwijzer 5.0",
+    "icon": "folder_special",
     "color": "#3E74A7",
     "expanded": true,
     "children": [
       {
-        "id": "wzw5_hgdem",
-        "label": "Dementie, zelfstandig wonend",
-        "a": false,
-        "b": false
+        "label": "Aandeel aandoeningen, hoofdgroep",
+        "icon": "ecg_heart",
+        "color": "#3E74A7",
+        "expanded": true,
+        "children": [
+          {
+            "id": "wzw5_hgdem",
+            "label": "Dementie, zelfstandig wonend",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hglvb",
+            "label": "Licht verstandelijk beperkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hgvg",
+            "label": "Matig of ernstig verstandelijk beperkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hgsom",
+            "label": "Somatische problematiek",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hgzin",
+            "label": "Zintuigelijke aandoeningen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hgpsy1",
+            "label": "Angst en stemmingsstoornissen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hgpsy2",
+            "label": "Psychiatrische problematiek",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hgjgd",
+            "label": "Jeugdproblematiek",
+            "a": false,
+            "b": false
+          }
+        ]
       },
       {
-        "id": "wzw5_hglvb",
-        "label": "Licht verstandelijk beperkt",
-        "a": false,
-        "b": false
+        "label": "Aandeel aandoeningen, subgroep",
+        "icon": "groups",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "wzw5_sgdem0",
+            "label": "Dementie, inclusief intramuraal",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sgdem1",
+            "label": "Dementie, prediagnose",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sgdem3",
+            "label": "Dementie zelfstandig, gediagnosticeerd",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sglvb1",
+            "label": "Licht verstandelijk beperkt (risicogroep)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sglvb2",
+            "label": "Kwetsbare gezinnen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sgzin1",
+            "label": "Blind en slechtziend",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sgzin2",
+            "label": "Doof en slechthorend",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sgpsy2b",
+            "label": "Psychiatrische problematiek, incl. locaties",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sgjgd",
+            "label": "Jeugdproblematiek (aandeel jongeren)",
+            "a": false,
+            "b": false
+          }
+        ]
       },
       {
-        "id": "wzw5_hgvg",
-        "label": "Matig of ernstig verstandelijk beperkt",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_hgsom",
-        "label": "Somatische problematiek",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_hgzin",
-        "label": "Zintuigelijke aandoeningen",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_hgpsy1",
-        "label": "Angst en stemmingsstoornissen",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_hgpsy2",
-        "label": "Psychiatrische problematiek",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_hgjgd",
-        "label": "Jeugdproblematiek",
-        "a": false,
-        "b": false
-      }
-    ]
-  },
-  {
-    "label": "Subgroepen",
-    "icon": "groups",
-    "color": "#3E74A7",
-    "expanded": false,
-    "children": [
-      {
-        "id": "wzw5_sgdem0",
-        "label": "Dementie, inclusief intramuraal",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_sgdem1",
-        "label": "Dementie, prediagnose",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_sgdem3",
-        "label": "Dementie zelfstandig, gediagnosticeerd",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_sglvb1",
-        "label": "Licht verstandelijk beperkt (risicogroep)",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_sglvb2",
-        "label": "Kwetsbare gezinnen",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_sgzin1",
-        "label": "Blind en slechtziend",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_sgzin2",
-        "label": "Doof en slechthorend",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_sgpsy2b",
-        "label": "Psychiatrische problematiek, incl. locaties",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "wzw5_sgjgd",
-        "label": "Jeugdproblematiek (aandeel jongeren)",
-        "a": false,
-        "b": false
+        "label": "Aandeel beperkingen",
+        "icon": "accessible",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "",
+            "label": ""
+          }
+        ]
       }
     ]
   }
