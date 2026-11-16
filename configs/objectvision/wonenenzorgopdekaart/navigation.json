@@ -216,5 +216,67 @@
         ]
       }
     ]
+  },
+  {
+    "label": "Gebiedsindelingen",
+    "icon": "border_all",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "gi_gemeente",
+        "label": "gemeente",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_provincie",
+        "label": "provincie",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_ggd",
+        "label": "GGD regio",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_iza",
+        "label": "integraal zorgakkoord regio",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_jr",
+        "label": "jeugdregio",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_rho",
+        "label": "regionale huisartsenorganisatie (RHO)",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_vtr",
+        "label": "veilig thuis regio",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_wd",
+        "label": "woondealregio",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_zkr",
+        "label": "zorgkantoorregio",
+        "a": false,
+        "b": false
+      }
+    ]
   }
 ]

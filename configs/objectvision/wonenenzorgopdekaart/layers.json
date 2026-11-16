@@ -4183,6 +4183,273 @@
           }
         ]
       }
+    },
+    {
+      "id": "gi_gemeente",
+      "name": "gemeente",
+      "source": "https://data.derondekaart.nl/pmtiles/gebiedsindelingen.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "gemeente",
+      "geometryType": "line",
+      "beforeid": "foreground-layers",
+      "style": {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "lineColor": [
+          165,
+          42,
+          42,
+          255
+        ],
+        "lineWidth": 2,
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b></div>"
+      }
+    },
+    {
+      "id": "gi_provincie",
+      "name": "provincie",
+      "source": "https://data.derondekaart.nl/pmtiles/gebiedsindelingen.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "provincie",
+      "geometryType": "line",
+      "beforeid": "foreground-layers",
+      "style": {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "lineColor": [
+          113,
+          24,
+          68,
+          255
+        ],
+        "lineWidth": 2,
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b></div>"
+      }
+    },
+    {
+      "id": "gi_ggd",
+      "name": "GGD regio",
+      "source": "https://data.derondekaart.nl/pmtiles/gebiedsindelingen.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "ggd",
+      "geometryType": "line",
+      "beforeid": "foreground-layers",
+      "style": {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "lineColor": [
+          0,
+          139,
+          102,
+          255
+        ],
+        "lineWidth": 2,
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b></div>"
+      }
+    },
+    {
+      "id": "gi_iza",
+      "name": "integraal zorgakkoord regio",
+      "source": "https://data.derondekaart.nl/pmtiles/gebiedsindelingen.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "iza",
+      "geometryType": "polygon",
+      "beforeid": "foreground-layers",
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b></div>"
+      },
+      "geostyler": {
+        "name": "integraal zorgakkoord regio",
+        "rules": [
+          {
+            "name": "iza",
+            "filter": [
+              "==",
+              "type",
+              0
+            ],
+            "type": "line",
+            "paint": {
+              "line-color": "#928BC8",
+              "line-width": 2
+            }
+          },
+          {
+            "name": "iza tweede regio",
+            "filter": [
+              "==",
+              "type",
+              1
+            ],
+            "type": "line",
+            "paint": {
+              "line-color": "#FF423F",
+              "line-width": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "gi_jr",
+      "name": "jeugdregio",
+      "source": "https://data.derondekaart.nl/pmtiles/gebiedsindelingen.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "jr",
+      "geometryType": "line",
+      "beforeid": "foreground-layers",
+      "style": {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "lineColor": [
+          124,
+          180,
+          87,
+          255
+        ],
+        "lineWidth": 2,
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b></div>"
+      }
+    },
+    {
+      "id": "gi_rho",
+      "name": "regionale huisartsenorganisatie (RHO)",
+      "source": "https://data.derondekaart.nl/pmtiles/gebiedsindelingen.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "rho",
+      "geometryType": "line",
+      "beforeid": "foreground-layers",
+      "style": {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "lineColor": [
+          89,
+          66,
+          234,
+          255
+        ],
+        "lineWidth": 2,
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b></div>"
+      }
+    },
+    {
+      "id": "gi_vtr",
+      "name": "veilig thuis regio",
+      "source": "https://data.derondekaart.nl/pmtiles/gebiedsindelingen.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "vtr",
+      "geometryType": "line",
+      "beforeid": "foreground-layers",
+      "style": {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "lineColor": [
+          255,
+          183,
+          98,
+          255
+        ],
+        "lineWidth": 2,
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b></div>"
+      }
+    },
+    {
+      "id": "gi_wd",
+      "name": "woondealregio",
+      "source": "https://data.derondekaart.nl/pmtiles/gebiedsindelingen.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "wd",
+      "geometryType": "line",
+      "beforeid": "foreground-layers",
+      "style": {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "lineColor": [
+          113,
+          24,
+          68,
+          255
+        ],
+        "lineWidth": 2,
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b></div>"
+      }
+    },
+    {
+      "id": "gi_zkr",
+      "name": "zorgkantoorregio",
+      "source": "https://data.derondekaart.nl/pmtiles/gebiedsindelingen.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "zkr",
+      "geometryType": "line",
+      "beforeid": "foreground-layers",
+      "style": {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "lineColor": [
+          206,
+          24,
+          23,
+          255
+        ],
+        "lineWidth": 2,
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b></div>"
+      }
     }
   ]
 }
