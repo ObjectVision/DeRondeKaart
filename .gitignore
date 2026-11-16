@@ -45,6 +45,10 @@ data/**
 # moving them here would quietly stop tracking them.
 !data/meta/README.md
 !data/meta/*/metadata.xlsx
+# A project may sit a level deeper (wzw5/wonenenzorgopdekaart/), with a
+# project.json naming the host its documents are published on.
+!data/meta/*/*/metadata.xlsx
+!data/meta/**/project.json
 !data/meta/template/**
 !data/meta/handmatig/**
 !data/meta/afbeeldingen/**
@@ -61,5 +65,6 @@ data/meta/metainformatie_concept_*/metadata.xlsx
 # versioned at all: they are content rather than code, regenerated whenever the
 # spreadsheet changes. Everything needed to rebuild them IS versioned, above.
 data/meta/*/resultaten/
+data/meta/*/*/resultaten/
 # LibreOffice's lock file, recreated every time the spreadsheet is opened.
 .~lock.*#
