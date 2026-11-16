@@ -116,5 +116,97 @@
         "b": false
       }
     ]
+  },
+  {
+    "label": "Aandeel beperkingen",
+    "icon": "accessible",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "wzw5_be_ld1",
+        "label": "daginvulling",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld2",
+        "label": "administratie/financiën",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld3",
+        "label": "contacten/sociaal netwerk",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld4",
+        "label": "medicijngebruik/medische verzorging",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld5",
+        "label": "mobiliteit buitenshuis",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld6",
+        "label": "algemene dagelijkse levensverrichtingen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld7",
+        "label": "mobiliteit in huis",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld8",
+        "label": "veiligheid in huis",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld9",
+        "label": "het huishouden doen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld10",
+        "label": "stemmingen/angsten",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld11",
+        "label": "probleemgedrag/verslaving",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld12",
+        "label": "cognitief functioneren",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld13",
+        "label": "regie",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "wzw5_be_ld14",
+        "label": "alarmering",
+        "a": false,
+        "b": false
+      }
+    ]
   }
 ]

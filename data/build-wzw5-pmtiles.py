@@ -11,10 +11,12 @@
 # ///
 """Build the WoonZorgWijzer 5 PMTiles — one archive per group.
 
-Two sets of groups, same shape and same pipeline:
+Three sets of groups, same shape and same pipeline:
 
 * **hoofdgroepen (HG)** in ``WZW5_EXPORT/wzw5_hg_all/hg_<code>/`` — 8 groups
 * **subgroepen (SG)** in ``WZW5_EXPORT/wzw5_sg_all/sg_<code>/`` — 9 groups
+* **beperkingen (BE)** in ``WZW5_EXPORT/wzw5_be_all/be_ld<n>/`` — 14 groups,
+  the levensdomeinen (daginvulling, mobiliteit, regie, …)
 
 Each folder holds the same classified raster for **12 years (2018-2029)** at
 **three resolutions** (``yr_<year>_m5.tif``, ``_m10``, ``_m20``) on the national
@@ -50,7 +52,8 @@ which is replicated with a representative-point spatial join (all 342 resolve).
 Steps, each cached — a step is skipped when its output is newer than its inputs, so
 an interrupted run resumes:
 
-1. ``convert-tif-to-geojson.py`` per raster (606 of them: 17 groups x 12 x 3).
+1. ``convert-tif-to-geojson.py`` per raster (1,104 of them: 29 full groups x 12
+   years x 3 resolutions, plus the two jgd groups at 10 years each).
 2. Clip to the mask (``geopandas.clip``), writing ``<stem>.clip.geojson``.
 3. ``convert-geojson-to-pmtiles.py --spec`` per group, 36 banded sources.
 
@@ -64,7 +67,7 @@ With ``--upload`` the archives go to the data host behind
 place, as in ``build-bereikbaarheid-pmtiles.py``.
 
 Usage:
-    # Everything: 17 groups, 606 rasters -> 17 archives (many hours; resumable)
+    # Everything: 31 groups, 1,104 rasters -> 31 archives (many hours; resumable)
     python3 build-wzw5-pmtiles.py
 
     # One group, to check the pipeline end to end first:
@@ -75,6 +78,9 @@ Usage:
     python3 build-wzw5-pmtiles.py --only sg_dem0 --only sg_dem1 --only sg_dem3 \
         --only sg_lvb1 --only sg_lvb2 --only sg_zin1 --only sg_zin2 \
         --only sg_psy2b --only sg_jgd
+
+    # Just the beperkingen (--set is the shorthand for a whole set):
+    python3 build-wzw5-pmtiles.py --set be
 
     # A couple of years while iterating on style:
     python3 build-wzw5-pmtiles.py --only dem --years 2018,2024
@@ -99,6 +105,7 @@ HERE = Path(__file__).resolve().parent
 WZW5_EXPORT = Path(r"C:\Users\Cicada\prj\WZW5_export")
 HG_TIF_ROOT = WZW5_EXPORT / "wzw5_hg_all"
 SG_TIF_ROOT = WZW5_EXPORT / "wzw5_sg_all"
+BE_TIF_ROOT = WZW5_EXPORT / "wzw5_be_all"
 CBS_GPKG = Path(r"C:\SourceData\CBS\2025\cbsgebiedsindelingen2025.gpkg")
 GEMEENTE_LAYER = "gemeente_gegeneraliseerd"
 PROVINCIE_LAYER = "provincie_gegeneraliseerd"
@@ -152,6 +159,18 @@ def _sg(code: str, prefix: str, years: tuple[str, ...] = DEFAULT_YEARS) -> Group
     return Group(SG_TIF_ROOT, f"sg_{code}", prefix, years)
 
 
+def _be(code: str) -> Group:
+    """A beperkingen (levensdomein) group.
+
+    Unlike _hg/_sg these need no prefix argument: MapGallery's layername IS the
+    folder name (`be_ld1_v3` -> `be_ld1`), so the archive, its source-layers and
+    the export all end up spelling the group the same way. Lowercase for the
+    same reason — it mirrors the export rather than matching the uppercase
+    HG/SG prefixes.
+    """
+    return Group(BE_TIF_ROOT, code, code)
+
+
 # CLI name -> source folder and archive prefix. The prefixes are MapGallery's own
 # (`layername` of layers 342-349 for HG and 350-358 for SG, minus the _v3 suffix),
 # so the two systems name the same data the same way.
@@ -180,6 +199,31 @@ GROUPS: dict[str, Group] = {
     "sg_zin2": _sg("zin2", "SGZIN2"),
     "sg_psy2b": _sg("psy2b", "SGPSY2B"),
     "sg_jgd": _sg("jgd", "SGJGD", JGD_YEARS),
+    # Beperkingen — the 14 levensdomeinen (layers 359-372). All twelve years are
+    # real data in every group: none ships the empty placeholder that forces the
+    # two jgd groups to start at 2020.
+    "be_ld1": _be("be_ld1"),
+    "be_ld2": _be("be_ld2"),
+    "be_ld3": _be("be_ld3"),
+    "be_ld4": _be("be_ld4"),
+    "be_ld5": _be("be_ld5"),
+    "be_ld6": _be("be_ld6"),
+    "be_ld7": _be("be_ld7"),
+    "be_ld8": _be("be_ld8"),
+    "be_ld9": _be("be_ld9"),
+    "be_ld10": _be("be_ld10"),
+    "be_ld11": _be("be_ld11"),
+    "be_ld12": _be("be_ld12"),
+    "be_ld13": _be("be_ld13"),
+    "be_ld14": _be("be_ld14"),
+}
+
+# Set name -> its groups, derived from the raster root rather than written out,
+# so adding a group to GROUPS puts it in its set automatically. `--set be` saves
+# naming fourteen groups on the command line.
+GROUP_SETS: dict[str, list[str]] = {
+    name: [key for key, group in GROUPS.items() if group.root is root]
+    for name, root in (("hg", HG_TIF_ROOT), ("sg", SG_TIF_ROOT), ("be", BE_TIF_ROOT))
 }
 
 # Resolution -> zoom band. A 20 m cell is ~1.7 px at z13 and a 5 m cell ~0.85 px
@@ -644,6 +688,16 @@ def main(argv: list[str]) -> int:
         ),
     )
     parser.add_argument(
+        "--set",
+        action="append",
+        choices=sorted(GROUP_SETS),
+        dest="sets",
+        help=(
+            "Whole set to build (repeatable), as a shorthand for naming its "
+            "groups: hg (8), sg (9), be (14). Combines with --only."
+        ),
+    )
+    parser.add_argument(
         "--years",
         type=parse_years,
         default=list(DEFAULT_YEARS),
@@ -686,18 +740,19 @@ def main(argv: list[str]) -> int:
         if not script.is_file():
             print(f"error: missing sibling script: {script}", file=sys.stderr)
             return 2
-    if args.only:
-        unknown = [name for name in args.only if name not in GROUPS]
-        if unknown:
-            print(
-                f"error: unknown group(s) {unknown}; expected one of "
-                f"{list(GROUPS)}",
-                file=sys.stderr,
-            )
-            return 2
-        folders = [name for name in GROUPS if name in set(args.only)]
-    else:
-        folders = list(GROUPS)
+    selected: set[str] = set(args.only or ())
+    unknown = sorted(name for name in selected if name not in GROUPS)
+    if unknown:
+        print(
+            f"error: unknown group(s) {unknown}; expected one of {list(GROUPS)}",
+            file=sys.stderr,
+        )
+        return 2
+    for name in args.sets or ():
+        selected.update(GROUP_SETS[name])
+    # Iterate GROUPS, not the selection, so the build order stays declaration
+    # order however the groups were named.
+    folders = [name for name in GROUPS if name in selected] if selected else list(GROUPS)
 
     # Only the roots this run actually reads, so a missing SG export does not
     # block an HG-only build (and the reverse).
