@@ -28,6 +28,7 @@ Run it with `npm run metainfo`, optionally naming a single project:
     python data/meta/genereer_html.py woonzorglimburg
 """
 
+import json
 import re
 import shutil
 import sys
@@ -63,8 +64,14 @@ HANDMATIG_DIR = BASE_DIR / "handmatig"
 # The data host already sends `Access-Control-Allow-Origin: *`, and both app
 # vhosts already list it in their CSP `connect-src`, so fetching these
 # cross-origin needs no server change.
-PUBLIC_BASE = "https://data.woonzorglimburg.nl/meta/"
+#
+# This is the DEFAULT, woonzorglimburg's. A project published elsewhere puts a
+# `project.json` next to its spreadsheet naming its own host (see
+# `stel_project_in`): {"public_base": "...", "upload": "user@host:/path/"}.
+DEFAULT_PUBLIC_BASE = "https://data.woonzorglimburg.nl/meta/"
+DEFAULT_UPLOAD = "wzl-data:/var/www/woonzorglimburg_data/meta/"
 
+PUBLIC_BASE = DEFAULT_PUBLIC_BASE
 FRAGMENT_IMG_BASE = PUBLIC_BASE + "afbeeldingen/"
 
 # The explanatory diagrams are ~1300px PNGs of a few MB each, shown a few
@@ -341,8 +348,32 @@ def lees_templates():
     return templates
 
 
+def stel_project_in(project_dir):
+    """
+    Point PUBLIC_BASE / FRAGMENT_IMG_BASE at this project's host; return its upload target.
+
+    Module globals rather than parameters because every URL helper reads them,
+    and one run renders the projects one after another, never interleaved.
+    """
+    global PUBLIC_BASE, FRAGMENT_IMG_BASE
+    instellingen = {}
+    pad = project_dir / "project.json"
+    if pad.is_file():
+        instellingen = json.loads(pad.read_text(encoding="utf-8"))
+    PUBLIC_BASE = instellingen.get("public_base", DEFAULT_PUBLIC_BASE)
+    if not PUBLIC_BASE.endswith("/"):
+        PUBLIC_BASE += "/"
+    FRAGMENT_IMG_BASE = PUBLIC_BASE + "afbeeldingen/"
+    return instellingen.get("upload", DEFAULT_UPLOAD)
+
+
 def genereer_project(project_dir, templates):
-    """Render every layer of one project's spreadsheet. Returns (written, skipped)."""
+    """Render every layer of one project's spreadsheet. Returns (written, skipped).
+
+    Also writes `resultaten/index.json`: per route, the layer ids that got a
+    fragment. A generator writing layers.json can read it to fill each layer's
+    `meta` with exactly the tabs that exist.
+    """
     wb = openpyxl.load_workbook(project_dir / "metadata.xlsx", data_only=True)
 
     output_dir = project_dir / "resultaten"
@@ -367,6 +398,7 @@ def genereer_project(project_dir, templates):
 
     written = 0
     skipped = 0
+    index = {route: [] for route, _, _ in ROUTES}
 
     for row in df_kaartlaag:
         layer_id = row.get("Naam van de laag", "").strip()
@@ -419,7 +451,12 @@ def genereer_project(project_dir, templates):
             # rewritten after rendering rather than by the template.
             path = output_dir / f"{safe_filename}_{route}.html"
             path.write_text(herschrijf_afbeeldingen(html), encoding="utf-8")
+            index[route].append(safe_filename)
             written += 1
+
+    (output_dir / "index.json").write_text(
+        json.dumps(index, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
 
     return written, skipped
 
@@ -488,10 +525,14 @@ def vind_projecten(gevraagd):
             sys.exit(f"Geen metadata.xlsx gevonden voor: {', '.join(ontbreekt)}")
         return dirs
 
+    # Recursive: a project may sit a level deeper, grouped by family
+    # (`wzw5/wonenenzorgopdekaart/`). Its generated mirror never holds a
+    # spreadsheet, but a staging copy's folder name still rules it out.
     return sorted(
         path.parent
-        for path in BASE_DIR.glob("*/metadata.xlsx")
-        if not path.parent.name.startswith(STAGING_PREFIX)
+        for path in BASE_DIR.glob("**/metadata.xlsx")
+        if not any(part.startswith(STAGING_PREFIX) for part in path.relative_to(BASE_DIR).parts)
+        and "resultaten" not in path.relative_to(BASE_DIR).parts
     )
 
 
@@ -503,22 +544,24 @@ def main():
     templates = lees_templates()
 
     totaal = 0
+    uploads = []
     for project_dir in projecten:
+        uploads.append((project_dir, stel_project_in(project_dir)))
         written, skipped = genereer_project(project_dir, templates)
         output_dir = project_dir / "resultaten"
         kopieer_afbeeldingen(output_dir)
         handmatig = kopieer_handmatig(output_dir)
         totaal += written
         print(
-            f"{project_dir.name}: {written} fragmenten "
+            f"{project_dir.relative_to(BASE_DIR).as_posix()}: {written} fragmenten "
             f"(+{handmatig} handmatig, "
             f"{skipped} kaartlagen zonder beschrijving overgeslagen)"
         )
 
     print(f"Klaar: {totaal} fragmenten.")
     print("Uploaden met (zie README.md):")
-    for project_dir in projecten:
-        print(f"  scp -r {project_dir / 'resultaten'}/* wzl-data:/var/www/woonzorglimburg_data/meta/")
+    for project_dir, upload in uploads:
+        print(f"  scp -r {project_dir / 'resultaten'}/* {upload}")
 
 
 if __name__ == "__main__":

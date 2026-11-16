@@ -4450,6 +4450,4261 @@
       "featureinfo": {
         "template": "<div><b>[[ naam ]]</b></div>"
       }
+    },
+    {
+      "id": "kl_huisarts_lokatie",
+      "name": "huisarts",
+      "description": "Locaties van huisartsen",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_basis.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "huisarts",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ pc_plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_huisarts_lokatie_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_huisarts_lokatie_bronnen.html"
+      },
+      "geostyler": {
+        "name": "huisarts",
+        "rules": [
+          {
+            "name": "huisarts",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/huisarts_schaduw.png",
+                "width": 22,
+                "height": 22,
+                "size": 22
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_ontmoeting_lokatie",
+      "name": "ontmoeting/welzijn",
+      "description": "Locaties van ontmoetingcentra/welzijnsorganisaties",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_basis.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "ontmoeting",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ pc_plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ontmoeting_lokatie_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ontmoeting_lokatie_bronnen.html"
+      },
+      "geostyler": {
+        "name": "ontmoeting/welzijn",
+        "rules": [
+          {
+            "name": "welzijnsorganisatie",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/ontmoeting_schaduw.png",
+                "width": 22,
+                "height": 22,
+                "size": 22
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_ovhaltes_lokatie",
+      "name": "ov halte",
+      "description": "Locaties van ov haltes",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_basis.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "ovhalte",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div>Naam Halte: <b>[[ naam ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ovhaltes_lokatie_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ovhaltes_lokatie_bronnen.html"
+      },
+      "geostyler": {
+        "name": "ov halte",
+        "rules": [
+          {
+            "name": "OV Halte",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/bushalte_shadow.png",
+                "width": 20,
+                "height": 20,
+                "size": 20
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_supermarkt_lokatie",
+      "name": "supermarkt",
+      "description": "Locaties van supermarkten",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_basis.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "supermarkt",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ pc_plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_supermarkt_lokatie_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_supermarkt_lokatie_bronnen.html"
+      },
+      "geostyler": {
+        "name": "supermarkt",
+        "rules": [
+          {
+            "name": "supermarkt",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/supermarkt.png",
+                "width": 22,
+                "height": 22,
+                "size": 22
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_fysio_lokatie",
+      "name": "fysiotherapeut",
+      "description": "Locaties van fysiotherapeuten",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_basis.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "fysio",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ pc_plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_fysio_lokatie_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_fysio_lokatie_bronnen.html"
+      },
+      "geostyler": {
+        "name": "fysiotherapeut",
+        "rules": [
+          {
+            "name": "fysio",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/fysio_schaduw.png",
+                "width": 22,
+                "height": 22,
+                "size": 22
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_ziekenhuis_lokatie",
+      "name": "ziekenhuis",
+      "description": "Locaties van ziekenhuizen",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_basis.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "ziekenhuis",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ pc_plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ziekenhuis_lokatie_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ziekenhuis_lokatie_bronnen.html"
+      },
+      "geostyler": {
+        "name": "ziekenhuis",
+        "rules": [
+          {
+            "name": "ziekenhuis",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/H_schaduw.png",
+                "width": 22,
+                "height": 22,
+                "size": 22
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_zorgvastgoed_lokatie_wz_2025",
+      "name": "WoonZorg",
+      "description": "Zorgvastgoed locatie WoonZorg",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "wz",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <a href = \"[[ paspoort ]]\" target=\"_blank\"><b><u>[[ naam ]]</u></b></a><BR>Adres: <b>[[ adres ]]</b><BR>Postcode: <b>[[ pc6 ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_wz_2025_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_wz_2025_bronnen.html"
+      },
+      "geostyler": {
+        "name": "WoonZorg",
+        "rules": [
+          {
+            "name": "Woon-zorg",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/zorg_schaduw.png",
+                "width": 24,
+                "height": 24,
+                "size": 24
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_zorgvastgoed_lokatie_jz_2025",
+      "name": "JeugdZorg",
+      "description": "Zorgvastgoed locatie Jeugdzorg",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "jz",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <a href = \"[[ paspoort ]]\" target=\"_blank\"><b><u>[[ naam ]]</u></b></a><BR>Adres: <b>[[ adres ]]</b><BR>Postcode: <b>[[ pc6 ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_jz_2025_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_jz_2025_bronnen.html"
+      },
+      "geostyler": {
+        "name": "JeugdZorg",
+        "rules": [
+          {
+            "name": "JeugdZorg",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/dark_green_kruis.png",
+                "width": 20,
+                "height": 20,
+                "size": 20
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_zorgvastgoed_lokatie_vb_2025",
+      "name": "Mensen met verstandelijke beperking",
+      "description": "Zorgvastgoed locatie mensen met een verstandelijke beperking",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "vb",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <a href = \"[[ paspoort ]]\" target=\"_blank\"><b><u>[[ naam ]]</u></b></a><BR>Adres: <b>[[ adres ]]</b><BR>Postcode: <b>[[ pc6 ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_vb_2025_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_vb_2025_bronnen.html"
+      },
+      "geostyler": {
+        "name": "Mensen met verstandelijke beperking",
+        "rules": [
+          {
+            "name": "Verstandelijke beperking",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/orange_dark_simple_huis.png",
+                "width": 20,
+                "height": 20,
+                "size": 20
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_zorgvastgoed_lokatie_zb_2025",
+      "name": "Mensen met lichamelijke beperking",
+      "description": "Zorgvastgoed locatie mensen met een lichamelijke beperking",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "zb",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <a href = \"[[ paspoort ]]\" target=\"_blank\"><b><u>[[ naam ]]</u></b></a><BR>Adres: <b>[[ adres ]]</b><BR>Postcode: <b>[[ pc6 ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_zb_2025_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_zb_2025_bronnen.html"
+      },
+      "geostyler": {
+        "name": "Mensen met lichamelijke beperking",
+        "rules": [
+          {
+            "name": "lichamelijke en zintuigelijke beperking",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/blue_dark_home_simple.png",
+                "width": 20,
+                "height": 20,
+                "size": 20
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_zorgvastgoed_lokatie_re_2025",
+      "name": "Revalidatie",
+      "description": "Zorgvastgoed locatie Revalidatie",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "re",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <a href = \"[[ paspoort ]]\" target=\"_blank\"><b><u>[[ naam ]]</u></b></a><BR>Adres: <b>[[ adres ]]</b><BR>Postcode: <b>[[ pc6 ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_re_2025_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_re_2025_bronnen.html"
+      },
+      "geostyler": {
+        "name": "Revalidatie",
+        "rules": [
+          {
+            "name": "revalidatie",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/sport_schaduw.png",
+                "width": 22,
+                "height": 22,
+                "size": 22
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_zorgvastgoed_lokatie_mo_2025",
+      "name": "Maatschappelijke opvang",
+      "description": "Zorgvastgoed locatie Maatschappelijke opvang",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "mo",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <a href = \"[[ paspoort ]]\" target=\"_blank\"><b><u>[[ naam ]]</u></b></a><BR>Adres: <b>[[ adres ]]</b><BR>Postcode: <b>[[ pc6 ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_mo_2025_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_mo_2025_bronnen.html"
+      },
+      "geostyler": {
+        "name": "Maatschappelijke opvang",
+        "rules": [
+          {
+            "name": "Dak- en thuislozen/ maatschappelijke opvang",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/MFA_schaduw.png",
+                "width": 22,
+                "height": 22,
+                "size": 22
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_zorgvastgoed_lokatie_db_2025",
+      "name": "Dagbesteding",
+      "description": "Zorgvastgoed locatie Dagbesteding",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "db",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <a href = \"[[ paspoort ]]\" target=\"_blank\"><b><u>[[ naam ]]</u></b></a><BR>Adres: <b>[[ adres ]]</b><BR>Postcode: <b>[[ pc6 ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_db_2025_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_db_2025_bronnen.html"
+      },
+      "geostyler": {
+        "name": "Dagbesteding",
+        "rules": [
+          {
+            "name": "dagbesteding & ontmoeting",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/MFA_schaduw.png",
+                "width": 22,
+                "height": 22,
+                "size": 22
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_zorgvastgoed_lokatie_bw_2025",
+      "name": "Beschermd wonen",
+      "description": "Zorgvastgoed locatie Beschermd Wonen",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "bw",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <a href = \"[[ paspoort ]]\" target=\"_blank\"><b><u>[[ naam ]]</u></b></a><BR>Adres: <b>[[ adres ]]</b><BR>Postcode: <b>[[ pc6 ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_bw_2025_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_bw_2025_bronnen.html"
+      },
+      "geostyler": {
+        "name": "Beschermd wonen",
+        "rules": [
+          {
+            "name": "Beschermd wonen",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/dark_green_huis.png",
+                "width": 20,
+                "height": 20,
+                "size": 20
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_zorgvastgoed_lokatie_ov_2025",
+      "name": "Overig",
+      "description": "Zorgvastgoed locatie Overig",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "ov",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div>Naam: <a href = \"[[ paspoort ]]\" target=\"_blank\"><b><u>[[ naam ]]</u></b></a><BR>Adres: <b>[[ adres ]]</b><BR>Postcode: <b>[[ pc6 ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_ov_2025_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_zorgvastgoed_lokatie_ov_2025_bronnen.html"
+      },
+      "geostyler": {
+        "name": "Overig",
+        "rules": [
+          {
+            "name": "overig",
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/kl/grey_empty.png",
+                "width": 20,
+                "height": 20,
+                "size": 20
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_huisarts_afstand",
+      "name": "huisarts",
+      "description": "Locaties van huisartsen",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/woningpand_afstand.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "woningpand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ woonplaats ]]</b><BR><BR>Loopafstand tot dichtsbijzijnde huisarts: <b>[[ afs_huisar ]] meter</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_huisarts_afstand_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_huisarts_afstand_bronnen.html"
+      },
+      "geostyler": {
+        "name": "huisarts",
+        "rules": [
+          {
+            "name": "< 400 meter",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "afs_huisar",
+                0
+              ],
+              [
+                "<=",
+                "afs_huisar",
+                400
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#32FF32",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "400 - 800 meter",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "afs_huisar",
+                400
+              ],
+              [
+                "<=",
+                "afs_huisar",
+                800
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6464FF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "> 800 meter",
+            "filter": [
+              ">",
+              "afs_huisar",
+              800
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF3232",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_ontmoeting_afstand",
+      "name": "ontmoeting/welzijn",
+      "description": "Locaties van ontmoetingcentra/welzijnsorganisaties",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/woningpand_afstand.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "woningpand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ woonplaats ]]</b><BR><BR>Loopafstand tot dichtsbijzijnde ontmoeting/welzijnscentrum: <b>[[ afs_ontmoe ]] meter</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ontmoeting_afstand_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ontmoeting_afstand_bronnen.html"
+      },
+      "geostyler": {
+        "name": "ontmoeting/welzijn",
+        "rules": [
+          {
+            "name": "< 400 meter",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "afs_ontmoe",
+                0
+              ],
+              [
+                "<=",
+                "afs_ontmoe",
+                400
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#32FF32",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "400 - 800 meter",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "afs_ontmoe",
+                400
+              ],
+              [
+                "<=",
+                "afs_ontmoe",
+                800
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6464FF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "> 800 meter",
+            "filter": [
+              ">",
+              "afs_ontmoe",
+              800
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF3232",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_ovhaltes_afstand",
+      "name": "ov halte",
+      "description": "Locaties van ov haltes",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/woningpand_afstand.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "woningpand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ woonplaats ]]</b><BR><BR>Loopafstand tot dichtsbijzijnde ov halte: <b>[[ afs_ov ]] meter</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ovhaltes_afstand_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ovhaltes_afstand_bronnen.html"
+      },
+      "geostyler": {
+        "name": "ov halte",
+        "rules": [
+          {
+            "name": "< 400 meter",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "afs_ov",
+                0
+              ],
+              [
+                "<=",
+                "afs_ov",
+                400
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#32FF32",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "400 - 800 meter",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "afs_ov",
+                400
+              ],
+              [
+                "<=",
+                "afs_ov",
+                800
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6464FF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "> 800 meter",
+            "filter": [
+              ">",
+              "afs_ov",
+              800
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF3232",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_supermarkt_afstand",
+      "name": "supermarkt",
+      "description": "Locaties van supermarkten",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/woningpand_afstand.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "woningpand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ woonplaats ]]</b><BR><BR>Loopafstand tot dichtsbijzijnde supermarkt: <b>[[ afs_super ]] meter</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_supermarkt_afstand_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_supermarkt_afstand_bronnen.html"
+      },
+      "geostyler": {
+        "name": "supermarkt",
+        "rules": [
+          {
+            "name": "< 400 meter",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "afs_super",
+                0
+              ],
+              [
+                "<=",
+                "afs_super",
+                400
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#32FF32",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "400 - 800 meter",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "afs_super",
+                400
+              ],
+              [
+                "<=",
+                "afs_super",
+                800
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6464FF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "> 800 meter",
+            "filter": [
+              ">",
+              "afs_super",
+              800
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF3232",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_fysio_afstand",
+      "name": "fysiotherapeut",
+      "description": "Locaties van fysiotherapeuten",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/woningpand_afstand.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "woningpand",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ woonplaats ]]</b><BR><BR>Loopafstand tot dichtsbijzijnde fysiotherapeut: <b>[[ afs_fysio ]] meter</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_fysio_afstand_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_fysio_afstand_bronnen.html"
+      },
+      "geostyler": {
+        "name": "fysiotherapeut",
+        "rules": [
+          {
+            "name": "< 400 meter",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "afs_fysio",
+                0
+              ],
+              [
+                "<=",
+                "afs_fysio",
+                400
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#32FF32",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "400 - 800 meter",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "afs_fysio",
+                400
+              ],
+              [
+                "<=",
+                "afs_fysio",
+                800
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6464FF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "> 800 meter",
+            "filter": [
+              ">",
+              "afs_fysio",
+              800
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF3232",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_wijkteam_gebied",
+      "name": "Haarlem/Zandvoort",
+      "description": "Verzorgingsgebied Wijkteam Haarlem/Zandvoort",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wijkteam.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "haarlem",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div>Verzorgingsgebied: <b>[[ name ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wijkteam_gebied_toelichting.html"
+      },
+      "geostyler": {
+        "name": "Haarlem/Zandvoort",
+        "rules": [
+          {
+            "name": "wijkteam grens",
+            "type": "line",
+            "paint": {
+              "line-color": "#DE0033",
+              "line-width": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_wijkteam_velsen",
+      "name": "Velsen",
+      "description": "Verzorgingsgebied Wijkteam Velsen",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wijkteam.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "velsen",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.9
+      },
+      "featureinfo": {
+        "template": "<div>Verzorgingsgebied: <b>[[ naam ]]</b></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wijkteam_velsen_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wijkteam_velsen_bronnen.html"
+      },
+      "geostyler": {
+        "name": "Velsen",
+        "rules": [
+          {
+            "name": "wijkteam grens",
+            "type": "line",
+            "paint": {
+              "line-color": "#DE0033",
+              "line-width": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_pand_bouwjaar",
+      "name": "bouwjaar pand",
+      "description": "Bouwjaar pand uit de BAG",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_vbo.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "pand_vbo",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Adres:      </td><td><b>[[ adres ]]      </b></td></tr><tr><td class=\"text-muted\">Woonplaats: </td><td><b>[[ woonplaats ]] </b></td></tr><tr><td class=\"text-muted\">Bouwjaar:   </td><td><b>[[ bouwjaar ]] </b></td></tr></table></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_bouwjaar_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_bouwjaar_bronnen.html"
+      },
+      "geostyler": {
+        "name": "bouwjaar pand",
+        "rules": [
+          {
+            "name": "voor 1950",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "bouwjaar",
+                500
+              ],
+              [
+                "<",
+                "bouwjaar",
+                1950
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B10026",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1950 - 1979",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "bouwjaar",
+                1950
+              ],
+              [
+                "<",
+                "bouwjaar",
+                1980
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FC4E2A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1980 - 1999",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "bouwjaar",
+                1980
+              ],
+              [
+                "<",
+                "bouwjaar",
+                2000
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEB24C",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2000 en later",
+            "filter": [
+              ">=",
+              "bouwjaar",
+              2000
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFB2",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "onbekend",
+            "filter": [
+              "<",
+              "bouwjaar",
+              500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFFE",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_pand_gebruiksdoel",
+      "name": "gebruiksdoel vbo per pand",
+      "description": "Gebruiksdoelen vbo geaggregeerd per pand",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_vbo.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "pand_vbo",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Adres:      </td><td><b>[[ adres ]]      </b></td></tr><tr><td class=\"text-muted\">Woonplaats: </td><td><b>[[ woonplaats ]] </b></td></tr><tr><td></td><td></td></tr><tr><td class=\"text-muted\">Gebruiksdoel : </td><td align=\"left\"><B>${'[[ doel ]]'=== '0' ? 'onbekend' : ''}${'[[ doel ]]'=== '1' ? 'bijeenkomst functie' : ''}${'[[ doel ]]'=== '2' ? 'cel functie' : ''}${'[[ doel ]]'=== '3' ? 'gezondheidszorg functie' : ''}${'[[ doel ]]'=== '4' ? 'industrie functie' : ''}${'[[ doel ]]'=== '5' ? 'kantoor functie' : ''}${'[[ doel ]]'=== '6' ? 'logies functie' : ''}${'[[ doel ]]'=== '7' ? 'onderwijs functie' : ''}${'[[ doel ]]'=== '8' ? 'overige gebruiksfunctie' : ''}${'[[ doel ]]'=== '9' ? 'sport functie' : ''}${'[[ doel ]]'=== '10' ? 'winkel functie' : ''}${'[[ doel ]]'=== '11' ? 'woon functie' : ''}${'[[ doel ]]'=== '12' ? 'meerdere functies in pand' : ''}</B></td></tr></table></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_gebruiksdoel_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_gebruiksdoel_bronnen.html"
+      },
+      "geostyler": {
+        "name": "gebruiksdoel vbo per pand",
+        "rules": [
+          {
+            "name": "bijeenkomst",
+            "filter": [
+              "==",
+              "doel",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A6CEE3",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "cel",
+            "filter": [
+              "==",
+              "doel",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FDBF6F",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "gezondheidszorg",
+            "filter": [
+              "==",
+              "doel",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1F78B4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "industrie",
+            "filter": [
+              "==",
+              "doel",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6A3D9A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "kantoor",
+            "filter": [
+              "==",
+              "doel",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#CAB2D6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "logies",
+            "filter": [
+              "==",
+              "doel",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF7F00",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "onderwijs",
+            "filter": [
+              "==",
+              "doel",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B2DF8A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "overig",
+            "filter": [
+              "==",
+              "doel",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C8C8C8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "sport",
+            "filter": [
+              "==",
+              "doel",
+              9
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#33A02C",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "winkel",
+            "filter": [
+              "==",
+              "doel",
+              10
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FB9A99",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "wonen",
+            "filter": [
+              "==",
+              "doel",
+              11
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E31A1C",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meerdere",
+            "filter": [
+              "==",
+              "doel",
+              12
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFF99",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "onbekend",
+            "filter": [
+              "==",
+              "doel",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFFF",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_pand_woningtype",
+      "name": "woningtype pand",
+      "description": "Woningtype pand uit de BAG",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_vbo.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "pand_vbo",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Adres:      </td><td><b>[[ adres ]]      </b></td></tr><tr><td class=\"text-muted\">Woonplaats: </td><td><b>[[ woonplaats ]] </b></td></tr><tr><td></td><td></td></tr><tr><td class=\"text-muted\">WoningType : </td><td align=\"left\"><B>${'[[ type_geo ]]'=== '0' ? 'geen woonpand' : ''}${'[[ type_geo ]]'=== '1' ? 'vrijstaand' : ''}${'[[ type_geo ]]'=== '2' ? 'twee onder 1 kap' : ''}${'[[ type_geo ]]'=== '3' ? 'hoekwoning' : ''}${'[[ type_geo ]]'=== '4' ? 'tussenwoning' : ''}${'[[ type_geo ]]'=== '5' ? 'meergezinspand' : ''}</B></td></tr></table></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_woningtype_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_woningtype_bronnen.html"
+      },
+      "geostyler": {
+        "name": "woningtype pand",
+        "rules": [
+          {
+            "name": "vrijstaand",
+            "filter": [
+              "==",
+              "type_geo",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1A9850",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "twee onder 1 kap",
+            "filter": [
+              "==",
+              "type_geo",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A6D96A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "hoekwoning",
+            "filter": [
+              "==",
+              "type_geo",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6464FF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "tussenwoning",
+            "filter": [
+              "==",
+              "type_geo",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFF00",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meergezinspand",
+            "filter": [
+              "==",
+              "type_geo",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF3232",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "geen_woonpand",
+            "filter": [
+              "==",
+              "type_geo",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFFE",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_pand_vbo_oppervlakte",
+      "name": "oppervlakte vbo per pand",
+      "description": "Totale gebruiksoppervlake van alle vbo's in een pand",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_vbo.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "pand_vbo",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Adres:      </td><td><b>[[ adres ]]      </b></td></tr><tr><td class=\"text-muted\">Woonplaats: </td><td><b>[[ woonplaats ]] </b></td></tr><tr><td class=\"text-muted\">GebruiksOppervlakte verblijfsobjecten in pand:   </td><td><b>[[ oppervlak ]] m2</b></td></tr></table></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_vbo_oppervlakte_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_vbo_oppervlakte_bronnen.html"
+      },
+      "geostyler": {
+        "name": "oppervlakte vbo per pand",
+        "rules": [
+          {
+            "name": "< 100 m2",
+            "filter": [
+              "<",
+              "oppervlak",
+              100
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFE5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "100 - 124 m2",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "oppervlak",
+                100
+              ],
+              [
+                "<",
+                "oppervlak",
+                125
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D9F0A3",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "125 - 149 m2",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "oppervlak",
+                125
+              ],
+              [
+                "<",
+                "oppervlak",
+                150
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#78C679",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "150 - 199 m2",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "oppervlak",
+                150
+              ],
+              [
+                "<",
+                "oppervlak",
+                200
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#238443",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": ">= 200 m2",
+            "filter": [
+              ">=",
+              "oppervlak",
+              200
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#004529",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_pand_hoogte",
+      "name": "hoog/laagbouw per pand",
+      "description": "Pandhoogte van BAG panden op basis van AHN2/3",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_vbo.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "pand_vbo_2022",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Adres:      </td><td><b>[[ adres ]]      </b></td></tr><tr><td class=\"text-muted\">Woonplaats: </td><td><b>[[ woonplaats ]] </b></td></tr></table><P><BR><span class=\"text-muted\">Geschat aantal verdiepingen:</span> <b>[[ nr_verd ]]</b> <span class=\"text-muted\">(schatting op basis van AHN2/3)</span></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_hoogte_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_hoogte_bronnen.html"
+      },
+      "geostyler": {
+        "name": "hoog/laagbouw per pand",
+        "rules": [
+          {
+            "name": "laagbouw",
+            "filter": [
+              "==",
+              "nr_verd",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E6E6E6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2",
+            "filter": [
+              "==",
+              "nr_verd",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D7D7D7",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "3",
+            "filter": [
+              "==",
+              "nr_verd",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C8C8C8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "middenbouw",
+            "filter": [
+              "==",
+              "nr_verd",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B9B9B9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "5",
+            "filter": [
+              "==",
+              "nr_verd",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#AAAAAA",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "6",
+            "filter": [
+              "==",
+              "nr_verd",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#9B9B9B",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "7 hoogbouw",
+            "filter": [
+              ">=",
+              "nr_verd",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8C8C8C",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Onbekend",
+            "filter": [
+              "==",
+              "nr_verd",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFFF",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_pand_corp_eigenaar",
+      "name": "eigenaar corporatie woningen",
+      "description": "Eigenaar corporatie woningen per pand",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_overig.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "pand_corop",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div>ï»¿<table><tr><td class=\"text-muted\">Adres:      </td><td><b>[[ adres ]]      </b></td></tr><tr><td class=\"text-muted\">Woonplaats: </td><td><b>[[ woonplaats ]] </b></td></tr><tr><td></td><td></td></tr><tr><td class=\"text-muted\">Eigenaar : </td><td align=\"left\"><B>${'[[ eig ]]'=== '0' ? 'Overig' : ''}${'[[ eig ]]'=== '1' ? 'Brederode Wonen' : ''}${'[[ eig ]]'=== '2' ? 'Elan Wonen' : ''}${'[[ eig ]]'=== '3' ? 'PrÃ© Wonen' : ''}${'[[ eig ]]'=== '4' ? 'Velison Wonen' : ''}${'[[ eig ]]'=== '5' ? 'Woningbedrijf Velsen' : ''}${'[[ eig ]]'=== '6' ? 'WOONopMAAT' : ''}${'[[ eig ]]'=== '7' ? 'WoonZorg Nederland' : ''}${'[[ eig ]]'=== '8' ? 'Ymere' : ''}${'[[ eig ]]'=== '9' ? 'Woonstichting de Key' : ''}${'[[ eig ]]'=== '99' ? 'Meerdere' : ''}</B></td></tr></table></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_corp_eigenaar_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_corp_eigenaar_bronnen.html"
+      },
+      "geostyler": {
+        "name": "eigenaar corporatie woningen",
+        "rules": [
+          {
+            "name": "Brederode",
+            "filter": [
+              "==",
+              "eig",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E41A1C",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Elan wonen",
+            "filter": [
+              "==",
+              "eig",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFF00",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Pre Wonen",
+            "filter": [
+              "==",
+              "eig",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#377EB8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Velison Wonen",
+            "filter": [
+              "==",
+              "eig",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4DAF4A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Woningbedrijf Velsen",
+            "filter": [
+              "==",
+              "eig",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#984EA3",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "WOONopMAAT",
+            "filter": [
+              "==",
+              "eig",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF7F00",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "WoonZorg Nederland",
+            "filter": [
+              "==",
+              "eig",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#DDDD39",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Ymere",
+            "filter": [
+              "==",
+              "eig",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF66CC",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Woonstichting de Key",
+            "filter": [
+              "==",
+              "eig",
+              9
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6CBEEA",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Meerdere",
+            "filter": [
+              "==",
+              "eig",
+              99
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#999999",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_pand_el",
+      "name": "energielabels",
+      "description": "Dominant energielabel per pand, 2019",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_overig.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "pand_el",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.95
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Dominant energielabel in pand: </td><td align=\"left\"><B>${'[[ el ]]'===  '5' ? 'A++++' : ''}${'[[ el ]]'===  '4' ? 'A++' : ''}${'[[ el ]]'===  '3' ? 'A' : ''}${'[[ el ]]'===  '6' ? 'B' : ''}${'[[ el ]]'===  '7' ? 'C' : ''}${'[[ el ]]'===  '8' ? 'D' : ''}${'[[ el ]]'===  '9' ? 'E' : ''}${'[[ el ]]'=== '10' ? 'F' : ''}${'[[ el ]]'=== '11' ? 'G' : ''}${'[[ el ]]'===  '1' ? 'Onbekend' : ''}${'[[ el ]]'===  '2' ? 'Onbekend' : ''}</B></td></tr></table></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_el_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_pand_el_bronnen.html"
+      },
+      "geostyler": {
+        "name": "energielabels",
+        "rules": [
+          {
+            "name": "A++++",
+            "filter": [
+              "==",
+              "el",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#18852C",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "A++",
+            "filter": [
+              "==",
+              "el",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#15862C",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "A",
+            "filter": [
+              "==",
+              "el",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#14862E",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "B",
+            "filter": [
+              "==",
+              "el",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4F9E29",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "C",
+            "filter": [
+              "==",
+              "el",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A6B60D",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "D",
+            "filter": [
+              "==",
+              "el",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEE600",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "E",
+            "filter": [
+              "==",
+              "el",
+              9
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E99F02",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "F",
+            "filter": [
+              "==",
+              "el",
+              10
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E7511D",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "G",
+            "filter": [
+              "==",
+              "el",
+              11
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D62A20",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "onbekend",
+            "filter": [
+              "<",
+              "el",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFFE",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_koop_vector",
+      "name": "koop",
+      "description": "Aandeel koop woningen op totale woningvoorraad",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/koophuur.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "koop_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2022,
+        "end": 2024,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Bouwblok bevat volgende postcodes: </td><td><b>[[ pc ]]</b></td></tr></table></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_koop_vector_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_koop_vector_bronnen.html"
+      },
+      "geostyler": {
+        "name": "koop",
+        "rules": [
+          {
+            "name": "tot 25%",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D7F0B2",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25% tot 40%",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C1D699",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ACBF81",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60% tot 75%",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#98A86A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "75% tot 85%",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#829154",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "85% tot 95%",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#707D41",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 95%",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#606B31",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_huur_vector",
+      "name": "huur",
+      "description": "Aandeel huur woningen op totale woningvoorraad",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/koophuur.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "huur_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2022,
+        "end": 2024,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Bouwblok bevat volgende postcodes: </td><td><b>[[ pc ]]</b></td></tr></table></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_huur_vector_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_huur_vector_bronnen.html"
+      },
+      "geostyler": {
+        "name": "huur",
+        "rules": [
+          {
+            "name": "tot 10%",
+            "filter": [
+              "==",
+              "score",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFEBCD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10% tot 20%",
+            "filter": [
+              "==",
+              "score",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FED7AA",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20% tot 35%",
+            "filter": [
+              "==",
+              "score",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEC18A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35% tot 50%",
+            "filter": [
+              "==",
+              "score",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FEAC6B",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "50% tot 70%",
+            "filter": [
+              "==",
+              "score",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FB9C51",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "70% tot 90%",
+            "filter": [
+              "==",
+              "score",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F68738",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 90%",
+            "filter": [
+              "==",
+              "score",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EF751F",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_wmo_alle",
+      "name": "alle",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "WMO_wmo_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2019,
+        "end": 2025,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.75
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_alle_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_alle_bronnen.html"
+      },
+      "geostyler": {
+        "name": "alle",
+        "rules": [
+          {
+            "name": "5 - 6 per ha",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275B5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "7 - 8 per ha",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849EBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "9 - 10 per ha",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C6CFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "11 - 14 per ha",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 - 19 per ha",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFBA84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 - 34 per ha",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EF7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": ">= 35 per ha",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D62C21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_wmo_hbh",
+      "name": "hulp bij huishouden",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor hulp bij het huishouden",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "WMO_HbH_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2019,
+        "end": 2025,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.75
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_hbh_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_hbh_bronnen.html"
+      },
+      "geostyler": {
+        "name": "hulp bij huishouden",
+        "rules": [
+          {
+            "name": "5 - 6 per ha",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275B5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "7 - 8 per ha",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849EBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "9 - 10 per ha",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C6CFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "11 - 14 per ha",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 - 19 per ha",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFBA84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 - 34 per ha",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EF7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": ">= 35 per ha",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D62C21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_wmo_begeleiding",
+      "name": "begeleiding individueel",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor individuele begeleiding",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "WMO_Begeleiding_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2019,
+        "end": 2025,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.75
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_begeleiding_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_begeleiding_bronnen.html"
+      },
+      "geostyler": {
+        "name": "begeleiding individueel",
+        "rules": [
+          {
+            "name": "5 - 6 per ha",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275B5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "7 - 8 per ha",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849EBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "9 - 10 per ha",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C6CFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "11 - 14 per ha",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 - 19 per ha",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFBA84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 - 34 per ha",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EF7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": ">= 35 per ha",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D62C21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_wmo_dagbesteding",
+      "name": "begeleiding groep",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor groepsbegeleiding (dagbesteding)",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "WMO_Dagbesteding_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2019,
+        "end": 2025,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.75
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_dagbesteding_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_dagbesteding_bronnen.html"
+      },
+      "geostyler": {
+        "name": "begeleiding groep",
+        "rules": [
+          {
+            "name": "5 - 6 per ha",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275B5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "7 - 8 per ha",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849EBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "9 - 10 per ha",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C6CFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "11 - 14 per ha",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 - 19 per ha",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFBA84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 - 34 per ha",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EF7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": ">= 35 per ha",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D62C21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_wmo_vervoer",
+      "name": "vervoer",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor vervoer",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "WMO_Vervoer_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2019,
+        "end": 2025,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.75
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_vervoer_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_vervoer_bronnen.html"
+      },
+      "geostyler": {
+        "name": "vervoer",
+        "rules": [
+          {
+            "name": "5 - 6 per ha",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275B5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "7 - 8 per ha",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849EBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "9 - 10 per ha",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C6CFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "11 - 14 per ha",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 - 19 per ha",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFBA84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 - 34 per ha",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EF7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": ">= 35 per ha",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D62C21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_wmo_rolstoel",
+      "name": "rolstoel",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor een rolstoel",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "WMO_Rolstoel_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2019,
+        "end": 2024,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.75
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_rolstoel_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_rolstoel_bronnen.html"
+      },
+      "geostyler": {
+        "name": "rolstoel",
+        "rules": [
+          {
+            "name": "5 - 6 per ha",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275B5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "7 - 8 per ha",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849EBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "9 - 10 per ha",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C6CFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "11 - 14 per ha",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 - 19 per ha",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFBA84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 - 34 per ha",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EF7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": ">= 35 per ha",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D62C21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_wmo_bwonen",
+      "name": "beschermd wonen",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor beschermd wonen",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "WMO_BeschermdWonen_%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2019,
+        "end": 2025,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.75
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_bwonen_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_wmo_bwonen_bronnen.html"
+      },
+      "geostyler": {
+        "name": "beschermd wonen",
+        "rules": [
+          {
+            "name": "5 - 6 per ha",
+            "filter": [
+              "==",
+              "class",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4275B5",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "7 - 8 per ha",
+            "filter": [
+              "==",
+              "class",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#849EBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "9 - 10 per ha",
+            "filter": [
+              "==",
+              "class",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C6CFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "11 - 14 per ha",
+            "filter": [
+              "==",
+              "class",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFFFBD",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 - 19 per ha",
+            "filter": [
+              "==",
+              "class",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFBA84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 - 34 per ha",
+            "filter": [
+              "==",
+              "class",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#EF7552",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": ">= 35 per ha",
+            "filter": [
+              "==",
+              "class",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D62C21",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_buurt_wmo_totaal",
+      "name": "alle",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening, per buurt, 2020",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "buurt",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.7
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Buurt:     </td><td><b>[[ buurt ]]</b></td></tr><tr><td class=\"text-muted\">Gemeente: </td><td><b>[[ gemeente ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td colspan = \"2\"> <I>Aantal WMO clienten</I></td></tr><tr><td class=\"text-muted\">Alle:                    </td><td align=\"right\"><b>[[ nrwmo ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td class=\"text-muted\">Hulp bij Huishouden:     </td><td align=\"right\"><b>[[ nrwmo_hbh ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Individueel: </td><td align=\"right\"><b>[[ nrwmo_bege ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Groep:       </td><td align=\"right\"><b>[[ nrwmo_dagb ]]</b></td></tr><tr><td class=\"text-muted\">Vervoer:                 </td><td align=\"right\"><b>[[ nrwmo_verv ]]</b></td></tr><tr><td class=\"text-muted\">Rolstoel:                </td><td align=\"right\"><b>[[ nrwmo_rols ]]</b></td></tr><tr><td class=\"text-muted\">Beschermd Wonen:         </td><td align=\"right\"><b>[[ nrwmo_bwon ]]</b></td></tr></table><BR><I> De som van de WMO clienten naar type voorziening hoeft net gelijk zijn aan het aantal bij Alle, omdat dezelfde persoon meerdere types kan ontvangen</I></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_totaal_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_totaal_bronnen.html"
+      },
+      "geostyler": {
+        "name": "alle",
+        "rules": [
+          {
+            "name": "1 - 29",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo",
+                0
+              ],
+              [
+                "<",
+                "nrwmo",
+                30
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4EFF7",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 - 74",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo",
+                29
+              ],
+              [
+                "<",
+                "nrwmo",
+                75
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C8DCF0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "75 - 124",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo",
+                74
+              ],
+              [
+                "<",
+                "nrwmo",
+                125
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#73B3D8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "125 - 199",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo",
+                124
+              ],
+              [
+                "<",
+                "nrwmo",
+                200
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2879B9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "200 of meer",
+            "filter": [
+              ">",
+              "nrwmo",
+              199
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#08306B",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_buurt_wmo_hbh",
+      "name": "hulp bij huishouden",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor hulp bij huishouden, per buurt, 2020",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "buurt",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.7
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Buurt:     </td><td><b>[[ buurt ]]</b></td></tr><tr><td class=\"text-muted\">Gemeente: </td><td><b>[[ gemeente ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td colspan = \"2\"> <I>Aantal WMO clienten</I></td></tr><tr><td class=\"text-muted\">Alle:                    </td><td align=\"right\"><b>[[ nrwmo ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td class=\"text-muted\">Hulp bij Huishouden:     </td><td align=\"right\"><b>[[ nrwmo_hbh ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Individueel: </td><td align=\"right\"><b>[[ nrwmo_bege ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Groep:       </td><td align=\"right\"><b>[[ nrwmo_dagb ]]</b></td></tr><tr><td class=\"text-muted\">Vervoer:                 </td><td align=\"right\"><b>[[ nrwmo_verv ]]</b></td></tr><tr><td class=\"text-muted\">Rolstoel:                </td><td align=\"right\"><b>[[ nrwmo_rols ]]</b></td></tr><tr><td class=\"text-muted\">Beschermd Wonen:         </td><td align=\"right\"><b>[[ nrwmo_bwon ]]</b></td></tr></table><BR><I> De som van de WMO clienten naar type voorziening hoeft net gelijk zijn aan het aantal bij Alle, omdat dezelfde persoon meerdere types kan ontvangen</I></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_hbh_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_hbh_bronnen.html"
+      },
+      "geostyler": {
+        "name": "hulp bij huishouden",
+        "rules": [
+          {
+            "name": "1 - 29",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_hbh",
+                0
+              ],
+              [
+                "<",
+                "nrwmo_hbh",
+                30
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4EFF7",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 - 59",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_hbh",
+                29
+              ],
+              [
+                "<",
+                "nrwmo_hbh",
+                60
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C8DCF0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60 - 89",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_hbh",
+                59
+              ],
+              [
+                "<",
+                "nrwmo_hbh",
+                90
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#73B3D8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "90 - 119",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_hbh",
+                89
+              ],
+              [
+                "<",
+                "nrwmo_hbh",
+                120
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2879B9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "120 of meer",
+            "filter": [
+              ">",
+              "nrwmo_hbh",
+              119
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#08306B",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_buurt_wmo_begeleiding",
+      "name": "begeleiding individueel",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor individuele begeleiding, per buurt, 2020",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "buurt",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.7
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Buurt:     </td><td><b>[[ buurt ]]</b></td></tr><tr><td class=\"text-muted\">Gemeente: </td><td><b>[[ gemeente ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td colspan = \"2\"> <I>Aantal WMO clienten</I></td></tr><tr><td class=\"text-muted\">Alle:                    </td><td align=\"right\"><b>[[ nrwmo ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td class=\"text-muted\">Hulp bij Huishouden:     </td><td align=\"right\"><b>[[ nrwmo_hbh ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Individueel: </td><td align=\"right\"><b>[[ nrwmo_bege ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Groep:       </td><td align=\"right\"><b>[[ nrwmo_dagb ]]</b></td></tr><tr><td class=\"text-muted\">Vervoer:                 </td><td align=\"right\"><b>[[ nrwmo_verv ]]</b></td></tr><tr><td class=\"text-muted\">Rolstoel:                </td><td align=\"right\"><b>[[ nrwmo_rols ]]</b></td></tr><tr><td class=\"text-muted\">Beschermd Wonen:         </td><td align=\"right\"><b>[[ nrwmo_bwon ]]</b></td></tr></table><BR><I> De som van de WMO clienten naar type voorziening hoeft net gelijk zijn aan het aantal bij Alle, omdat dezelfde persoon meerdere types kan ontvangen</I></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_begeleiding_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_begeleiding_bronnen.html"
+      },
+      "geostyler": {
+        "name": "begeleiding individueel",
+        "rules": [
+          {
+            "name": "1 - 4",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_bege",
+                0
+              ],
+              [
+                "<",
+                "nrwmo_bege",
+                5
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4EFF7",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "5 - 11",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_bege",
+                4
+              ],
+              [
+                "<",
+                "nrwmo_bege",
+                12
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C8DCF0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "12 - 24",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_bege",
+                11
+              ],
+              [
+                "<",
+                "nrwmo_bege",
+                25
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#73B3D8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 - 39",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_bege",
+                24
+              ],
+              [
+                "<",
+                "nrwmo_bege",
+                40
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2879B9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40 of meer",
+            "filter": [
+              ">",
+              "nrwmo_bege",
+              39
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#08306B",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_buurt_wmo_dagbesteding",
+      "name": "begeleiding groep",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor groepsbegeleiding(dagbesteding), per buurt, 2020",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "buurt",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.7
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Buurt:     </td><td><b>[[ buurt ]]</b></td></tr><tr><td class=\"text-muted\">Gemeente: </td><td><b>[[ gemeente ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td colspan = \"2\"> <I>Aantal WMO clienten</I></td></tr><tr><td class=\"text-muted\">Alle:                    </td><td align=\"right\"><b>[[ nrwmo ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td class=\"text-muted\">Hulp bij Huishouden:     </td><td align=\"right\"><b>[[ nrwmo_hbh ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Individueel: </td><td align=\"right\"><b>[[ nrwmo_bege ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Groep:       </td><td align=\"right\"><b>[[ nrwmo_dagb ]]</b></td></tr><tr><td class=\"text-muted\">Vervoer:                 </td><td align=\"right\"><b>[[ nrwmo_verv ]]</b></td></tr><tr><td class=\"text-muted\">Rolstoel:                </td><td align=\"right\"><b>[[ nrwmo_rols ]]</b></td></tr><tr><td class=\"text-muted\">Beschermd Wonen:         </td><td align=\"right\"><b>[[ nrwmo_bwon ]]</b></td></tr></table><BR><I> De som van de WMO clienten naar type voorziening hoeft net gelijk zijn aan het aantal bij Alle, omdat dezelfde persoon meerdere types kan ontvangen</I></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_dagbesteding_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_dagbesteding_bronnen.html"
+      },
+      "geostyler": {
+        "name": "begeleiding groep",
+        "rules": [
+          {
+            "name": "1 - 4",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_dagb",
+                0
+              ],
+              [
+                "<",
+                "nrwmo_dagb",
+                5
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4EFF7",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "5 - 9",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_dagb",
+                4
+              ],
+              [
+                "<",
+                "nrwmo_dagb",
+                10
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C8DCF0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 - 14",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_dagb",
+                9
+              ],
+              [
+                "<",
+                "nrwmo_dagb",
+                15
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#73B3D8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 - 19",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_dagb",
+                14
+              ],
+              [
+                "<",
+                "nrwmo_dagb",
+                20
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2879B9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 of meer",
+            "filter": [
+              ">",
+              "nrwmo_dagb",
+              19
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#08306B",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_buurt_wmo_vervoer",
+      "name": "vervoer",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor vervoer, per buurt, 2020",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "buurt",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.7
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Buurt:     </td><td><b>[[ buurt ]]</b></td></tr><tr><td class=\"text-muted\">Gemeente: </td><td><b>[[ gemeente ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td colspan = \"2\"> <I>Aantal WMO clienten</I></td></tr><tr><td class=\"text-muted\">Alle:                    </td><td align=\"right\"><b>[[ nrwmo ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td class=\"text-muted\">Hulp bij Huishouden:     </td><td align=\"right\"><b>[[ nrwmo_hbh ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Individueel: </td><td align=\"right\"><b>[[ nrwmo_bege ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Groep:       </td><td align=\"right\"><b>[[ nrwmo_dagb ]]</b></td></tr><tr><td class=\"text-muted\">Vervoer:                 </td><td align=\"right\"><b>[[ nrwmo_verv ]]</b></td></tr><tr><td class=\"text-muted\">Rolstoel:                </td><td align=\"right\"><b>[[ nrwmo_rols ]]</b></td></tr><tr><td class=\"text-muted\">Beschermd Wonen:         </td><td align=\"right\"><b>[[ nrwmo_bwon ]]</b></td></tr></table><BR><I> De som van de WMO clienten naar type voorziening hoeft net gelijk zijn aan het aantal bij Alle, omdat dezelfde persoon meerdere types kan ontvangen</I></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_vervoer_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_vervoer_bronnen.html"
+      },
+      "geostyler": {
+        "name": "vervoer",
+        "rules": [
+          {
+            "name": "1 - 29",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_verv",
+                0
+              ],
+              [
+                "<",
+                "nrwmo_verv",
+                30
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4EFF7",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 - 59",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_verv",
+                29
+              ],
+              [
+                "<",
+                "nrwmo_verv",
+                60
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C8DCF0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60 - 89",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_verv",
+                59
+              ],
+              [
+                "<",
+                "nrwmo_verv",
+                90
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#73B3D8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "90 - 149",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_verv",
+                89
+              ],
+              [
+                "<",
+                "nrwmo_verv",
+                150
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2879B9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "150 of meer",
+            "filter": [
+              ">",
+              "nrwmo_verv",
+              149
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#08306B",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_buurt_wmo_rolstoel",
+      "name": "rolstoel",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor een rolstoel, per buurt, 2020",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "buurt",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.7
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Buurt:     </td><td><b>[[ buurt ]]</b></td></tr><tr><td class=\"text-muted\">Gemeente: </td><td><b>[[ gemeente ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td colspan = \"2\"> <I>Aantal WMO clienten</I></td></tr><tr><td class=\"text-muted\">Alle:                    </td><td align=\"right\"><b>[[ nrwmo ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td class=\"text-muted\">Hulp bij Huishouden:     </td><td align=\"right\"><b>[[ nrwmo_hbh ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Individueel: </td><td align=\"right\"><b>[[ nrwmo_bege ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Groep:       </td><td align=\"right\"><b>[[ nrwmo_dagb ]]</b></td></tr><tr><td class=\"text-muted\">Vervoer:                 </td><td align=\"right\"><b>[[ nrwmo_verv ]]</b></td></tr><tr><td class=\"text-muted\">Rolstoel:                </td><td align=\"right\"><b>[[ nrwmo_rols ]]</b></td></tr><tr><td class=\"text-muted\">Beschermd Wonen:         </td><td align=\"right\"><b>[[ nrwmo_bwon ]]</b></td></tr></table><BR><I> De som van de WMO clienten naar type voorziening hoeft net gelijk zijn aan het aantal bij Alle, omdat dezelfde persoon meerdere types kan ontvangen</I></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_rolstoel_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_rolstoel_bronnen.html"
+      },
+      "geostyler": {
+        "name": "rolstoel",
+        "rules": [
+          {
+            "name": "1 - 4",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_rols",
+                0
+              ],
+              [
+                "<",
+                "nrwmo_rols",
+                5
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4EFF7",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "5 - 11",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_rols",
+                4
+              ],
+              [
+                "<",
+                "nrwmo_rols",
+                12
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C8DCF0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "12 - 24",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_rols",
+                11
+              ],
+              [
+                "<",
+                "nrwmo_rols",
+                25
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#73B3D8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 - 39",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_rols",
+                24
+              ],
+              [
+                "<",
+                "nrwmo_rols",
+                40
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2879B9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40 of meer",
+            "filter": [
+              ">",
+              "nrwmo_rols",
+              39
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#08306B",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "kl_buurt_wmo_bwonen",
+      "name": "beschermd wonen",
+      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor beschermd wonen, per buurt, 2020",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "buurt",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.7
+      },
+      "featureinfo": {
+        "template": "<div><table><tr><td class=\"text-muted\">Buurt:     </td><td><b>[[ buurt ]]</b></td></tr><tr><td class=\"text-muted\">Gemeente: </td><td><b>[[ gemeente ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td colspan = \"2\"> <I>Aantal WMO clienten</I></td></tr><tr><td class=\"text-muted\">Alle:                    </td><td align=\"right\"><b>[[ nrwmo ]]</b></td></tr><tr><td class=\"text-muted\">&nbsp;</td><td></td></tr><tr><td class=\"text-muted\">Hulp bij Huishouden:     </td><td align=\"right\"><b>[[ nrwmo_hbh ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Individueel: </td><td align=\"right\"><b>[[ nrwmo_bege ]]</b></td></tr><tr><td class=\"text-muted\">Begeleiding Groep:       </td><td align=\"right\"><b>[[ nrwmo_dagb ]]</b></td></tr><tr><td class=\"text-muted\">Vervoer:                 </td><td align=\"right\"><b>[[ nrwmo_verv ]]</b></td></tr><tr><td class=\"text-muted\">Rolstoel:                </td><td align=\"right\"><b>[[ nrwmo_rols ]]</b></td></tr><tr><td class=\"text-muted\">Beschermd Wonen:         </td><td align=\"right\"><b>[[ nrwmo_bwon ]]</b></td></tr></table><BR><I> De som van de WMO clienten naar type voorziening hoeft net gelijk zijn aan het aantal bij Alle, omdat dezelfde persoon meerdere types kan ontvangen</I></div>"
+      },
+      "meta": {
+        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_bwonen_toelichting.html",
+        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_buurt_wmo_bwonen_bronnen.html"
+      },
+      "geostyler": {
+        "name": "beschermd wonen",
+        "rules": [
+          {
+            "name": "1 - 4",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_bwon",
+                0
+              ],
+              [
+                "<",
+                "nrwmo_bwon",
+                5
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E4EFF7",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "5 - 9",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_bwon",
+                4
+              ],
+              [
+                "<",
+                "nrwmo_bwon",
+                10
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C8DCF0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 - 14",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_bwon",
+                9
+              ],
+              [
+                "<",
+                "nrwmo_bwon",
+                15
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#73B3D8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 - 19",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "nrwmo_bwon",
+                14
+              ],
+              [
+                "<",
+                "nrwmo_bwon",
+                20
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2879B9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 of meer",
+            "filter": [
+              ">",
+              "nrwmo_bwon",
+              19
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#08306B",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

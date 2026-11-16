@@ -45,14 +45,38 @@ this script either: it would put Python on the critical path of a JS build.
 
 ## Projects
 
-Each project is a folder here holding a `metadata.xlsx`. `woonzorglimburg` is the
-only one so far. Folders named `metainformatie_concept_*` are dated working
-copies of somebody's spreadsheet and are skipped — they hold a `metadata.xlsx`
-too, and would otherwise generate as if each were a project of its own.
+Each project is a folder here holding a `metadata.xlsx`, at most one level
+deep so a family can be grouped: `woonzorglimburg/` and
+`wzw5/wonenenzorgopdekaart/` (objectvision's wonenenzorgopdekaart variant). Pass
+the relative path to do just one: `python data/meta/genereer_html.py
+wzw5/wonenenzorgopdekaart`. Folders named `metainformatie_concept_*` are dated
+working copies of somebody's spreadsheet and are skipped — they hold a
+`metadata.xlsx` too, and would otherwise generate as if each were a project of
+its own.
 
-The server directory is flat rather than split per project, and two projects
-naming a layer the same would collide there — give the second project its own
-subdirectory before adding it.
+**Where a project is published** is read from a `project.json` beside its
+spreadsheet; without one it is woonzorglimburg's host:
+
+```json
+{
+  "public_base": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/",
+  "upload": "ov-data:/var/www/objectvision_data/meta/wonenenzorgopdekaart/"
+}
+```
+
+`public_base` is what every URL inside the fragments is rooted at, and `upload`
+is only echoed in the `scp` hint the script prints at the end. Each run also
+writes `resultaten/index.json`, listing per tab the layer ids that got a
+fragment, so a script writing layers.json can fill `meta` with exactly the tabs
+that exist (`data/build-kl-layers.py` does).
+
+wonenenzorgopdekaart's spreadsheet was seeded once from the old WZW metainfo
+pages by `data/build-kl-metadata.py`; from then on it is edited like any other.
+
+woonzorglimburg's server directory is flat rather than split per project, and
+two projects naming a layer the same would collide there — which is why a
+second project gets its own `public_base` directory, as wonenenzorgopdekaart
+does.
 
 ## Three fragments per layer, one per tab
 

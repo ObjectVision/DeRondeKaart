@@ -1,5 +1,339 @@
 [
   {
+    "label": "Voorzieningen",
+    "icon": "local_hospital",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Basis",
+        "icon": "storefront",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "kl_huisarts_lokatie",
+            "label": "huisarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_ontmoeting_lokatie",
+            "label": "ontmoeting/welzijn",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_ovhaltes_lokatie",
+            "label": "ov halte",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_supermarkt_lokatie",
+            "label": "supermarkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_fysio_lokatie",
+            "label": "fysiotherapeut",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_ziekenhuis_lokatie",
+            "label": "ziekenhuis",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "WoonZorg",
+        "icon": "elderly",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "kl_zorgvastgoed_lokatie_wz_2025",
+            "label": "WoonZorg",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_zorgvastgoed_lokatie_jz_2025",
+            "label": "JeugdZorg",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_zorgvastgoed_lokatie_vb_2025",
+            "label": "Mensen met verstandelijke beperking",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_zorgvastgoed_lokatie_zb_2025",
+            "label": "Mensen met lichamelijke beperking",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_zorgvastgoed_lokatie_re_2025",
+            "label": "Revalidatie",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_zorgvastgoed_lokatie_mo_2025",
+            "label": "Maatschappelijke opvang",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_zorgvastgoed_lokatie_db_2025",
+            "label": "Dagbesteding",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_zorgvastgoed_lokatie_bw_2025",
+            "label": "Beschermd wonen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_zorgvastgoed_lokatie_ov_2025",
+            "label": "Overig",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Loopafstanden dichtsbijzijnde",
+        "icon": "directions_walk",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "kl_huisarts_afstand",
+            "label": "huisarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_ontmoeting_afstand",
+            "label": "ontmoeting/welzijn",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_ovhaltes_afstand",
+            "label": "ov halte",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_supermarkt_afstand",
+            "label": "supermarkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_fysio_afstand",
+            "label": "fysiotherapeut",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Verzorgingsgebied Sociale Wijkteams",
+        "icon": "border_outer",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "kl_wijkteam_gebied",
+            "label": "Haarlem/Zandvoort",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_wijkteam_velsen",
+            "label": "Velsen",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Vastgoed",
+    "icon": "home_work",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "kl_pand_bouwjaar",
+        "label": "bouwjaar pand",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_pand_gebruiksdoel",
+        "label": "gebruiksdoel vbo per pand",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_pand_woningtype",
+        "label": "woningtype pand",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_pand_vbo_oppervlakte",
+        "label": "oppervlakte vbo per pand",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_pand_hoogte",
+        "label": "hoog/laagbouw per pand",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_pand_corp_eigenaar",
+        "label": "eigenaar corporatie woningen",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_pand_el",
+        "label": "energielabels",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_koop_vector",
+        "label": "koop",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_huur_vector",
+        "label": "huur",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
+    "label": "WMO Cliënten",
+    "icon": "diversity_3",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "kl_wmo_alle",
+        "label": "alle, trend",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_wmo_hbh",
+        "label": "hulp bij huishouden, trend",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_wmo_begeleiding",
+        "label": "begeleiding individueel, trend",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_wmo_dagbesteding",
+        "label": "begeleiding groep, trend",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_wmo_vervoer",
+        "label": "vervoer, trend",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_wmo_rolstoel",
+        "label": "rolstoel, trend",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "kl_wmo_bwonen",
+        "label": "beschermd wonen, trend",
+        "a": false,
+        "b": false
+      },
+      {
+        "label": "Aantallen per buurt",
+        "icon": "grid_view",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "kl_buurt_wmo_totaal",
+            "label": "alle",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_buurt_wmo_hbh",
+            "label": "hulp bij huishouden",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_buurt_wmo_begeleiding",
+            "label": "begeleiding individueel",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_buurt_wmo_dagbesteding",
+            "label": "begeleiding groep",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_buurt_wmo_vervoer",
+            "label": "vervoer",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_buurt_wmo_rolstoel",
+            "label": "rolstoel",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "kl_buurt_wmo_bwonen",
+            "label": "beschermd wonen",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
     "label": "WoonZorgwijzer 5.0",
     "icon": "folder_special",
     "color": "#3E74A7",
