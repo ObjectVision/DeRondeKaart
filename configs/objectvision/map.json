@@ -20,7 +20,8 @@
         "label": "Wonen en zorg op de kaart",
         "hosts": [
           "wonenenzorgopdekaart.derondekaart.nl"
-        ]
+        ],
+        "studyarea": "wzw_studiegebied"
       },
       {
         "id": "nl2120",

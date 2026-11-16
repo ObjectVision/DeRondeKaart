@@ -7,6 +7,7 @@ import {
   variantCacheKey,
   variantId,
   variantsConfig,
+  variantStudyArea,
 } from "./variant";
 import type { VariantsConfig } from "./map-config";
 
@@ -158,5 +159,49 @@ describe("config variants", () => {
       expect(isVariantId("2026")).toBe(true);
       expect(isVariantId("2027")).toBe(false);
     });
+  });
+});
+
+describe("variantStudyArea", () => {
+  const WITH_OVERRIDE: VariantsConfig = {
+    default: "a",
+    items: [
+      { id: "a", label: "A" },
+      { id: "b", label: "B", studyarea: "b_area" },
+    ],
+  };
+
+  beforeEach(() => {
+    window.history.replaceState({}, "", "/");
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    initVariants(undefined);
+    vi.restoreAllMocks();
+  });
+
+  it("returns the root id for a project without variants", () => {
+    initVariants(undefined);
+    expect(variantStudyArea("root_area")).toBe("root_area");
+  });
+
+  it("falls back to the root id for a variant without an override", () => {
+    initVariants(WITH_OVERRIDE);
+    expect(variantStudyArea("root_area")).toBe("root_area");
+  });
+
+  it("follows the active variant across a switch", () => {
+    initVariants(WITH_OVERRIDE);
+    setVariant("b");
+    expect(variantStudyArea("root_area")).toBe("b_area");
+    setVariant("a");
+    expect(variantStudyArea("root_area")).toBe("root_area");
+  });
+
+  it("gives an override even when the root names none", () => {
+    initVariants(WITH_OVERRIDE);
+    setVariant("b");
+    expect(variantStudyArea(undefined)).toBe("b_area");
   });
 });

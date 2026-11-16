@@ -4122,6 +4122,67 @@
           }
         ]
       }
+    },
+    {
+      "id": "wzw_studiegebied",
+      "name": "Studiegebied Wonen en zorg op de kaart",
+      "source": "https://data.derondekaart.nl/pmtiles/wzw_wonenenzorgopdekaart/studyarea_WZWWonenEnZorgOpDeKaart.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "studyarea",
+      "geometryType": "polygon",
+      "beforeid": "studyarea-layers",
+      "excludeFromComparison": true,
+      "excludeFromLegend": true,
+      "excludeFromPicking": true,
+      "geostyler": {
+        "name": "Studiegebied",
+        "rules": [
+          {
+            "name": "outer",
+            "filter": [
+              "==",
+              "id",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#183A59",
+                "opacity": 0.35,
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Studiegebied",
+            "filter": [
+              "==",
+              "id",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#00000000",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Studiegebied grens",
+            "filter": [
+              "==",
+              "id",
+              2
+            ],
+            "type": "line",
+            "paint": {
+              "line-color": "#00498D",
+              "line-width": 2.5
+            }
+          }
+        ]
+      }
     }
   ]
 }

@@ -295,14 +295,15 @@ automatically** — necessary because layer ids are reused between variants, so 
 link without it would reopen the same ids against a different year's data.
 
 Switching removes every layer the user added from both maps. The basemap, the
-`studyarea` layer, the `pickLayer` and the current view all survive. That the
+`studyarea` layer (unless the variant names its own, below), the `pickLayer` and
+the current view all survive. That the
 added layers go is deliberate rather than a limitation: with ids reused across
 variants, keeping them would silently repoint each layer at another year.
 
 ### Per-variant boot flags
 
-A variant item may override `text_to_tool` and `speech_to_text` — the only
-`map.json` keys that can differ per variant:
+A variant item may override `text_to_tool` and `speech_to_text` (and
+`studyarea`, below) — the only `map.json` keys that can differ per variant:
 
 ```json
 { "id": "ontwikkel", "label": "Ontwikkel", "text_to_tool": true, "speech_to_text": true }
@@ -313,6 +314,20 @@ page **opens** in (`?variant=`, else `default`). A later `set-variant` or a shar
 link's hash does not re-evaluate them. An override is held to the same rules as
 the root value: speech still needs `text_to_tool`, and both still need their
 `modelUrls`.
+
+### Study area per variant
+
+A variant item may name its own `studyarea`: the id of a layer in **that**
+variant's `layers.json`. Variants without one use the root `studyarea`:
+
+```json
+{ "id": "wonenenzorgopdekaart", "label": "Wonen en zorg op de kaart",
+  "studyarea": "wzw_studiegebied" }
+```
+
+Unlike the boot flags this one is **runtime**: it follows the active variant, so
+a `set-variant` swaps the mask. An id the active variant's `layers.json` lacks
+only warns in the console and shows no mask.
 
 ### Host per variant
 

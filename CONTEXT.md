@@ -78,8 +78,10 @@ metainfo window. `src/components/ui/LocationInfoDialog.tsx`,
 `data/locatieinfo/README.md`.
 
 **Study area** (Dutch: *studiegebied*) — the boundary layer naming the region a
-project covers, from `map.json`'s `studyarea`. Loaded outside `useMapLayers` on
-its own channel, so it stays out of the legend, picking and comparison.
+project covers, from `map.json`'s `studyarea`. A *variant* may name its own
+(`studyarea` on the variant item), which then follows the active variant.
+Loaded outside `useMapLayers` on its own channel, so it stays out of the legend,
+picking and comparison.
 
 **Pick layer** — an invisible layer, named by `map.json`'s `pickLayer`, whose
 only job is to answer clicks. Absent from the legend and navigation, added by

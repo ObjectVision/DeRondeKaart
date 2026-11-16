@@ -7,7 +7,7 @@ import {
   standaloneDashboardEnabled,
   toInitialViewState,
 } from '@/config/map-config'
-import { initVariants, setConfigBase } from '@/config/variant'
+import { initVariants, setConfigBase, variantStudyArea } from '@/config/variant'
 import { requestedConfigBase, resolveConfigBase } from '@/config/config-source'
 import { dismissSplash } from '@/lib/splash'
 
@@ -58,7 +58,7 @@ async function bootstrap() {
       <App
         embedCircular={embedCircular}
         initialViewState={toInitialViewState(mapConfig)}
-        studyAreaId={mapConfig.studyarea}
+        studyAreaId={variantStudyArea(mapConfig.studyarea)}
         pickLayerId={mapConfig.pickLayer}
         pickLayerRightId={mapConfig.pickLayerRight}
         streetviewEnabled={mapConfig.streetview ?? false}

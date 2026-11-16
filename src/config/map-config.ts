@@ -171,6 +171,15 @@ export interface VariantItem {
    * address bar keeps that domain. `?variant=` still wins. See `bootVariantId`.
    */
   hosts?: string[];
+  /**
+   * Override of map.json's `studyarea` for this variant: the id of a layer in
+   * THIS variant's layers.json. Undefined = the root value applies.
+   *
+   * Runtime, unlike `textToTool`: the study area follows the ACTIVE variant
+   * (see `variantStudyArea`), because each variant's layers.json is its own
+   * and a switch refetches it.
+   */
+  studyarea?: string;
 }
 
 /**
@@ -698,6 +707,13 @@ function validateVariants(value: unknown): VariantsConfig | null {
     if (speechToText !== undefined) item.speechToText = speechToText;
     const hosts = variantHosts(overrides.hosts, id, items);
     if (hosts.length > 0) item.hosts = hosts;
+    if (typeof overrides.studyarea === "string" && overrides.studyarea.length > 0) {
+      item.studyarea = overrides.studyarea;
+    } else if (overrides.studyarea !== undefined) {
+      console.warn(
+        `map.json: variant "${id}" has invalid "studyarea" ${JSON.stringify(overrides.studyarea)}; ignoring`,
+      );
+    }
     items.push(item);
   }
 

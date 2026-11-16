@@ -147,3 +147,48 @@ it("styles both variants identically", async () => {
 
   expect(rendered[0]).toBe(rendered[1]);
 });
+
+/**
+ * objectvision's wonenenzorgopdekaart study area reuses the woonzorglimburg
+ * look: the same dark mask outside, a clear inside, and a 2.5px navy border
+ * drawn as a real line.
+ */
+describe("study area styling (objectvision/wonenenzorgopdekaart)", () => {
+  async function wzwDefs() {
+    const raw = JSON.parse(
+      readFileSync("configs/objectvision/wonenenzorgopdekaart/layers.json", "utf8"),
+    );
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: true, statusText: "OK", json: async () => raw })),
+    );
+    const config = (await loadLayerConfigs()).find((c) => c.id === "wzw_studiegebied");
+    if (!config) throw new Error('no layer "wzw_studiegebied"');
+    expect(config.excludeFromLegend).toBe(true);
+    expect(config.excludeFromPicking).toBe(true);
+    expect(config.excludeFromComparison).toBe(true);
+    expect(config.beforeid).toBe("studyarea-layers");
+    return buildNativeLayerDefs(config);
+  }
+
+  it("matches the woonzorglimburg mask, fill and border", async () => {
+    const defs = await wzwDefs();
+    const outer = defs.find((d) => d.ruleName === "outer");
+    expect(outer?.type).toBe("fill");
+    expect(outer?.paint["fill-color"]).toBe("#183A59");
+    expect(outer?.paint["fill-opacity"]).toBe(0.35);
+    expect(outer?.filter).toEqual(["==", ["get", "id"], 1]);
+
+    const inside = defs.find((d) => d.ruleName === "Studiegebied");
+    expect(inside?.paint["fill-color"]).toBe("#00000000");
+    expect(inside?.paint["fill-outline-color"]).toBe("transparent");
+
+    const border = defs.find((d) => d.ruleName === "Studiegebied grens");
+    expect(border?.type).toBe("line");
+    expect(border?.paint["line-color"]).toBe(NAVY);
+    expect(border?.paint["line-width"]).toBe(2.5);
+    expect(border?.filter).toEqual(["==", ["get", "id"], 2]);
+    // Border last, so no fill paints over it.
+    expect(defs.at(-1)?.ruleName).toBe("Studiegebied grens");
+  });
+});

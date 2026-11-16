@@ -545,3 +545,33 @@ describe("map.json filterSection", () => {
     expect((await loadMapConfig()).filterSection).toBe(true);
   });
 });
+
+/**
+ * A variant may name its own `studyarea` — objectvision's variants each have
+ * their own layers.json, so one root id cannot fit all of them. Parsed onto the
+ * variant item; `variantStudyArea` picks it for the active variant at runtime.
+ */
+describe("map.json per-variant studyarea", () => {
+  function projectWith(item: Record<string, unknown>) {
+    return {
+      studyarea: "root_area",
+      variants: { default: "a", items: [{ id: "a" }, { id: "b", ...item }] },
+    };
+  }
+
+  it("keeps a variant's studyarea override on its item", async () => {
+    stubMapJson(projectWith({ studyarea: "b_area" }));
+    const config = await loadMapConfig();
+    expect(config.studyarea).toBe("root_area");
+    expect(config.variants?.items[1]).toMatchObject({ studyarea: "b_area" });
+    expect(config.variants?.items[0]).not.toHaveProperty("studyarea");
+  });
+
+  it("warns about and ignores an invalid override", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson(projectWith({ studyarea: "" }));
+    const config = await loadMapConfig();
+    expect(config.variants?.items[1]).not.toHaveProperty("studyarea");
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('invalid "studyarea"'));
+  });
+});

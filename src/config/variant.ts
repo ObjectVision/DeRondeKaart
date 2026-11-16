@@ -67,6 +67,16 @@ export function variantsConfig(): VariantsConfig | null {
   return config;
 }
 
+/**
+ * The study area layer id for the ACTIVE variant: its own `studyarea` override,
+ * else `rootId` (map.json's root `studyarea`). Reactive — it reads `variantId()`,
+ * so a variant switch hands the study area hook the new variant's id.
+ */
+export function variantStudyArea(rootId: string | undefined): string | undefined {
+  const id = variantId();
+  return config?.items.find((item) => item.id === id)?.studyarea ?? rootId;
+}
+
 /** Whether `id` names a declared variant. */
 export function isVariantId(id: string): boolean {
   return !!config?.items.some((item) => item.id === id);

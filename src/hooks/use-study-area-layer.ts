@@ -1,4 +1,4 @@
-import { createEffect, onCleanup, type Accessor } from "solid-js";
+import { createEffect, onCleanup, untrack, type Accessor } from "solid-js";
 import type { MapViewHandle } from "@/components/map/map-view-config";
 import {
   loadLayerConfigs,
@@ -65,10 +65,14 @@ export function useStudyAreaLayer(
 
   createEffect(() => {
     const id = studyAreaId();
-    if (!id) {
-      remove();
-      return;
-    }
+    // Always clear the previous id's layers first, not only when the id goes
+    // empty: a variant switch can move from one study area id to another, and
+    // overwriting `config` below would lose the handle needed to remove the
+    // old layers — leaving the previous variant's mask on the map.
+    // Untracked: `remove` reads the map handle, and the effect must re-run on
+    // an id change only, not whenever the handle does.
+    untrack(remove);
+    if (!id) return;
 
     let cancelled = false;
 
