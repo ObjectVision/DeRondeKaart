@@ -180,6 +180,16 @@ export interface VariantItem {
    * and a switch refetches it.
    */
   studyarea?: string;
+  /**
+   * Overrides of map.json's `center` / `zoom` for this variant, so a variant
+   * host can open on its own region. Undefined = the root value applies.
+   *
+   * Boot-time, like `textToTool`: the initial view is read once, for the
+   * variant the page OPENS in (`bootVariantId`). A runtime switch leaves the
+   * camera where it is, and a share link's `#zoom=&center=` still wins.
+   */
+  center?: [number, number];
+  zoom?: number;
 }
 
 /**
@@ -713,6 +723,16 @@ function validateVariants(value: unknown): VariantsConfig | null {
       console.warn(
         `map.json: variant "${id}" has invalid "studyarea" ${JSON.stringify(overrides.studyarea)}; ignoring`,
       );
+    }
+    if (overrides.center !== undefined) {
+      const center = validateCenter(overrides.center);
+      if (center) item.center = center;
+      else console.warn(`map.json: variant "${id}" has invalid "center" ${JSON.stringify(overrides.center)}; ignoring`);
+    }
+    if (overrides.zoom !== undefined) {
+      const zoom = validateZoom(overrides.zoom);
+      if (zoom !== null) item.zoom = zoom;
+      else console.warn(`map.json: variant "${id}" has invalid "zoom" ${JSON.stringify(overrides.zoom)}; ignoring`);
     }
     items.push(item);
   }
@@ -1294,8 +1314,9 @@ function buildMapConfig(data: Record<string, unknown>): MapConfig {
   layerInfoButtonValue = infoButton;
 
   return {
-    center: center ?? DEFAULT_MAP_CONFIG.center,
-    zoom: zoom ?? DEFAULT_MAP_CONFIG.zoom,
+    // The opening variant's view, if it names one (see VariantItem.center).
+    center: bootVariant?.center ?? center ?? DEFAULT_MAP_CONFIG.center,
+    zoom: bootVariant?.zoom ?? zoom ?? DEFAULT_MAP_CONFIG.zoom,
     variants: variants ?? undefined,
     configSources,
     studyarea,

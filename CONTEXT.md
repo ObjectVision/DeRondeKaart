@@ -135,8 +135,8 @@ configuration is public. See `configs/README.md`.)
 a reload: model years (2025 / 2026 / a comparison of the two) for startanalyse2026,
 `publiek` / `ontwikkel` (public / staging) for woonzorglimburg. Only `layers.json`
 and `navigation.json` differ per variant; the rest stay shared, except that a
-variant may override the boot flags `text_to_tool` / `speech_to_text` for the
-variant a page opens in. `src/config/variant.ts` and `configs/README.md`.
+variant may override the boot flags `text_to_tool` / `speech_to_text` and the
+initial `center` / `zoom` for the variant a page opens in. `src/config/variant.ts` and `configs/README.md`.
 
 The hazard to know: **layer ids are reused between variants**. Anything keyed by
 id holds a value that is *wrong*, not merely stale, once the variant changes, and

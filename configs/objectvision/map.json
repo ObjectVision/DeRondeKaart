@@ -21,7 +21,12 @@
         "hosts": [
           "wonenenzorgopdekaart.derondekaart.nl"
         ],
-        "studyarea": "wzw_studiegebied"
+        "studyarea": "wzw_studiegebied",
+        "center": [
+          4.61479,
+          52.41961
+        ],
+        "zoom": 11.05
       },
       {
         "id": "nl2120",

@@ -302,8 +302,9 @@ variants, keeping them would silently repoint each layer at another year.
 
 ### Per-variant boot flags
 
-A variant item may override `text_to_tool` and `speech_to_text` (and
-`studyarea`, below) — the only `map.json` keys that can differ per variant:
+A variant item may override `text_to_tool`, `speech_to_text`, `center` and
+`zoom` (and `studyarea`, below) — the only `map.json` keys that can differ per
+variant:
 
 ```json
 { "id": "ontwikkel", "label": "Ontwikkel", "text_to_tool": true, "speech_to_text": true }
@@ -314,6 +315,17 @@ page **opens** in (`?variant=`, else `default`). A later `set-variant` or a shar
 link's hash does not re-evaluate them. An override is held to the same rules as
 the root value: speech still needs `text_to_tool`, and both still need their
 `modelUrls`.
+
+`center` / `zoom` set the view a page opens on, so a variant host lands on its
+own region (objectvision's `wonenenzorgopdekaart` opens over Kennemerland):
+
+```json
+{ "id": "wonenenzorgopdekaart", "center": [4.61479, 52.41961], "zoom": 11.05 }
+```
+
+Either may be given alone; the other then comes from the root. Like the flags
+they apply to the opening variant only — a later switch leaves the camera where
+it is — and a share link's `#zoom=&center=` still wins over both.
 
 ### Study area per variant
 

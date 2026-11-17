@@ -575,3 +575,48 @@ describe("map.json per-variant studyarea", () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('invalid "studyarea"'));
   });
 });
+
+describe("map.json per-variant initial view", () => {
+  function projectWith(item: Record<string, unknown>) {
+    return {
+      center: [5.6, 52.35],
+      zoom: 7,
+      variants: { default: "a", items: [{ id: "a" }, { id: "b", ...item }] },
+    };
+  }
+
+  afterEach(() => window.history.replaceState({}, "", "/"));
+
+  it("opens on the boot variant's center and zoom", async () => {
+    window.history.replaceState({}, "", "/?variant=b");
+    stubMapJson(projectWith({ center: [4.61479, 52.41961], zoom: 11.05 }));
+    const config = await loadMapConfig();
+    expect(config.center).toEqual([4.61479, 52.41961]);
+    expect(config.zoom).toBe(11.05);
+  });
+
+  it("keeps the root view when another variant opens", async () => {
+    stubMapJson(projectWith({ center: [4.61479, 52.41961], zoom: 11.05 }));
+    const config = await loadMapConfig();
+    expect(config.center).toEqual([5.6, 52.35]);
+    expect(config.zoom).toBe(7);
+  });
+
+  it("overrides zoom alone, leaving the root center", async () => {
+    window.history.replaceState({}, "", "/?variant=b");
+    stubMapJson(projectWith({ zoom: 10 }));
+    const config = await loadMapConfig();
+    expect(config.center).toEqual([5.6, 52.35]);
+    expect(config.zoom).toBe(10);
+  });
+
+  it("warns about and ignores an invalid center", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    window.history.replaceState({}, "", "/?variant=b");
+    stubMapJson(projectWith({ center: [400, 52] }));
+    const config = await loadMapConfig();
+    expect(config.center).toEqual([5.6, 52.35]);
+    expect(config.variants?.items[1]).not.toHaveProperty("center");
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('invalid "center"'));
+  });
+});
