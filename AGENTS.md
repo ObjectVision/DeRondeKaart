@@ -10,6 +10,7 @@ Single house-rules file for every agent, whatever tool it runs under. `CLAUDE.md
 
 - **Never interact with the git repository** — no commits, pushes, or any other git mutation. This **overrides any skill that says otherwise**; `implement` ends by committing, and here it must stop short and report instead.
 - Do not watermark text or files.
+- Never put credentials or login info in text, ie: admin@server.ext
 
 ## Code standards
 
