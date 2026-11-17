@@ -77,6 +77,17 @@ export function variantStudyArea(rootId: string | undefined): string | undefined
   return config?.items.find((item) => item.id === id)?.studyarea ?? rootId;
 }
 
+/**
+ * The pick layer id for the ACTIVE variant: its own `pickLayer` override, else
+ * `rootId` (map.json's root `pickLayer`). Reactive like `variantStudyArea`; the
+ * variant switch re-adds the pick layers after the new layers.json is in, and
+ * reads this then.
+ */
+export function variantPickLayer(rootId: string | undefined): string | undefined {
+  const id = variantId();
+  return config?.items.find((item) => item.id === id)?.pickLayer ?? rootId;
+}
+
 /** Whether `id` names a declared variant. */
 export function isVariantId(id: string): boolean {
   return !!config?.items.some((item) => item.id === id);

@@ -576,6 +576,35 @@ describe("map.json per-variant studyarea", () => {
   });
 });
 
+/**
+ * Likewise `pickLayer`: objectvision's root map.json has none, and only the
+ * wonenenzorgopdekaart variant has a layer that answers clicks.
+ */
+describe("map.json per-variant pickLayer", () => {
+  function projectWith(item: Record<string, unknown>) {
+    return {
+      pickLayer: "root_pick",
+      variants: { default: "a", items: [{ id: "a" }, { id: "b", ...item }] },
+    };
+  }
+
+  it("keeps a variant's pickLayer override on its item", async () => {
+    stubMapJson(projectWith({ pickLayer: "b_pick" }));
+    const config = await loadMapConfig();
+    expect(config.pickLayer).toBe("root_pick");
+    expect(config.variants?.items[1]).toMatchObject({ pickLayer: "b_pick" });
+    expect(config.variants?.items[0]).not.toHaveProperty("pickLayer");
+  });
+
+  it("warns about and ignores an invalid override", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    stubMapJson(projectWith({ pickLayer: 42 }));
+    const config = await loadMapConfig();
+    expect(config.variants?.items[1]).not.toHaveProperty("pickLayer");
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('invalid "pickLayer"'));
+  });
+});
+
 describe("map.json per-variant initial view", () => {
   function projectWith(item: Record<string, unknown>) {
     return {

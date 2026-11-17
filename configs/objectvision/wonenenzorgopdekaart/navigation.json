@@ -590,6 +590,18 @@
         "b": false
       },
       {
+        "id": "gi_wijk",
+        "label": "wijk",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_buurt",
+        "label": "buurt",
+        "a": false,
+        "b": false
+      },
+      {
         "id": "gi_provincie",
         "label": "provincie",
         "a": false,

@@ -1,0 +1,1255 @@
+<!--
+  Wijk informatie (WoonZorgwijzer 5) — template voor objectvision/wonenenzorgopdekaart
+  (een rij per CBS-wijk 2025). Geport uit data/wzw5_mapgallery/wzw5_wijken_featureinfo.txt;
+  data en build: data/build-wijk-buurt.py, opbouw en placeholders: data/locatieinfo/README.md.
+  Gepubliceerd als https://data.derondekaart.nl/meta/wonenenzorgopdekaart/locatieinfo/wijk-informatie-wzw.html
+-->
+
+<div data-locationinfo="general">
+  <div class="grid w-full grid-cols-[6.5rem_minmax(0,1fr)] gap-x-4 gap-y-1 text-sm">
+    <div class="text-gray-400">CBS wijk:</div>
+    <div class="font-semibold text-gray-900">[[ naam ]]</div>
+
+    <div class="text-gray-400">wijkcode:</div>
+    <div class="font-semibold text-gray-900">[[ code ]]</div>
+
+    <div class="text-gray-400">gemeente:</div>
+    <div class="font-semibold text-gray-900">[[ gemeente ]]</div>
+
+    <div class="text-gray-400">provincie:</div>
+    <div class="font-semibold text-gray-900">[[ prov_naam ]]</div>
+
+    <div class="col-span-2 h-3"></div>
+
+    <div class="col-span-2 flex items-center gap-3 text-xs text-gray-500">
+      <img src="https://woonzorgwijzer.nl/media/files/cbs.png" alt="CBS" class="h-8 w-auto">
+      <span>WoonZorgwijzer 5 &middot; ramingen op CBS wijkindeling 2024 ([[ wijkcode ]])</span>
+    </div>
+  </div>
+</div>
+
+<section data-tab="aandoeningen" data-label="Aandoeningen" data-icon="health_and_safety">
+<section class="rounded-2xl border border-gray-200 p-4">
+  <h3 class="mb-3 flex items-center gap-2">
+    <span aria-hidden="true" class="material-symbols-outlined select-none leading-none text-[20px]" style="color: rgb(62,116,167)">health_and_safety</span>
+    <span class="text-base font-semibold" style="color: rgb(62,116,167)">Personen met een aandoening</span>
+  </h3>
+<details class="mb-3 rounded-xl border border-gray-200 px-3 py-2">
+                    <summary class="cursor-pointer select-none font-semibold"><span class="material-symbols-outlined mr-1 select-none align-middle leading-none text-[20px]" style="color: rgb(62,116,167)" aria-hidden="true">table_view</span>2024 (hoofdgroepen)</summary>
+                    <div>
+                        <p class="mb-1"><strong>Geraamd aantal personen met een aandoening 2024 (hoofdgroepen)</strong></p>
+                        <p class="mb-3 text-xs text-gray-500">Niveau: CBS wijkindeling 2024, [[ wk_naam ]] ([[ gm_naam ]])</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse text-sm [&_td]:border [&_td]:border-gray-200 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-gray-200 [&_th]:px-2 [&_th]:py-1 [&_th]:font-semibold">
+                                <thead class="bg-gray-50 text-gray-600">
+                                    <tr>
+                                        <th></th>
+                                        <th class="text-right tabular-nums">aantal (wijk)</th>
+                                        <th class="text-right tabular-nums">perc. (wijk)</th>
+                                        <th class="text-right tabular-nums">perc. (gemeente)</th>
+                                        <th class="text-right tabular-nums">perc. (provincie)</th>
+                                        <th class="text-right tabular-nums">perc. (landelijk)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>dementie, zelfstandig wonend</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_dem ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_phg_dem ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_phg_dem ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_phg_dem ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_phg_dem ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>licht verstandelijk beperkt</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_lvb ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_phg_lvb ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_phg_lvb ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_phg_lvb ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_phg_lvb ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>matig of ernstig verstandelijk beperkt</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_vg ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_phg_vg ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_phg_vg ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_phg_vg ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_phg_vg ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>somatische problematiek</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_som ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_phg_som ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_phg_som ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_phg_som ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_phg_som ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>zintuiglijke aandoeningen</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_zin ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_phg_zin ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_phg_zin ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_phg_zin ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_phg_zin ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>angst en stemmingsstoornissen</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_psy1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_phg_psy1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_phg_psy1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_phg_psy1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_phg_psy1 ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>psychiatrische problematiek</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_psy2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_phg_psy2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_phg_psy2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_phg_psy2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_phg_psy2 ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>jeugdproblematiek</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_jgd ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_phg_jgd ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_phg_jgd ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_phg_jgd ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_phg_jgd ]]</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div>
+                            <p class="mb-1"><strong>Beschrijving:</strong></p>
+                            <p class="text-gray-500">
+                                Deze tabel geeft een overzicht van het geraamde aantal en aandeel zelfstandig wonende personen van 18 jaar of ouder met een bepaalde aandoening/problematiek in deze wijk per 1-1-2024. Voor de jeugdproblematiek geldt dat het aandeel betrekking heeft op alle zelfstandig wonende inwoners (alle leeftijden). Opgemerkt moet worden dat personen meerdere aandoeningen kunnen hebben. De gemeentelijke, provinciale en landelijke aandelen zijn als referentie toegevoegd.
+                                <br>
+                                <br>
+                                In de rapportage <a target="_blank" href="https://woonzorgwijzer.nl/media/files/WoonZorgwijzer%204_0.pdf">WoonZorgwijzer 4.0</a>
+                                staat omschreven op basis van welke methoden en bronbestanden deze aantallen zijn geraamd. Alle eerder opgestelde rapporten over de WoonZorgwijzer zijn <a target="_blank" href="https://woonzorgwijzer.nl/transparantie.html">hier</a> terug te vinden.
+                            </p>
+                            <br>
+                        </div>
+                    </div>
+                </details>
+                <!-- Tweede details: 2018..2029 -->
+                <details class="mb-3 rounded-xl border border-gray-200 px-3 py-2">
+                    <summary class="cursor-pointer select-none font-semibold"><span class="material-symbols-outlined mr-1 select-none align-middle leading-none text-[20px]" style="color: rgb(62,116,167)" aria-hidden="true">table_view</span>2018 .. 2029 (hoofdgroepen)</summary>
+                    <div>
+                        <p class="mb-1"><strong>Geraamd aantal personen met een aandoening 2018 .. 2029 (hoofdgroepen)</strong></p>
+                        <p class="mb-3 text-xs text-gray-500">Niveau: CBS wijkindeling 2024, [[ wk_naam ]] ([[ gm_naam ]])</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse text-sm [&_td]:border [&_td]:border-gray-200 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-gray-200 [&_th]:px-2 [&_th]:py-1 [&_th]:font-semibold">
+                                <thead class="bg-gray-50 text-gray-600">
+                                    <tr>
+                                        <th></th>
+                                        <th class="text-right tabular-nums">2018</th>
+                                        <th class="text-right tabular-nums">2020</th>
+                                        <th class="text-right tabular-nums">2022</th>
+                                        <th class="text-right tabular-nums">2024</th>
+                                        <th class="text-right tabular-nums">2029</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>dementie, zelfstandig wonend</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2018_wk_nhg_dem ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2020_wk_nhg_dem ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2022_wk_nhg_dem ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_dem ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2029_wk_nhg_dem ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>licht verstandelijk beperkt</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2018_wk_nhg_lvb ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2020_wk_nhg_lvb ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2022_wk_nhg_lvb ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_lvb ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2029_wk_nhg_lvb ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>matig of ernstig verstandelijk beperkt</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2018_wk_nhg_vg ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2020_wk_nhg_vg ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2022_wk_nhg_vg ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_vg ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2029_wk_nhg_vg ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>somatische problematiek</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2018_wk_nhg_som ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2020_wk_nhg_som ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2022_wk_nhg_som ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_som ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2029_wk_nhg_som ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>zintuiglijke aandoeningen</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2018_wk_nhg_zin ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2020_wk_nhg_zin ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2022_wk_nhg_zin ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_zin ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2029_wk_nhg_zin ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>angst en stemmingsstoornissen</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2018_wk_nhg_psy1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2020_wk_nhg_psy1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2022_wk_nhg_psy1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_psy1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2029_wk_nhg_psy1 ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>psychiatrische problematiek</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2018_wk_nhg_psy2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2020_wk_nhg_psy2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2022_wk_nhg_psy2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_psy2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2029_wk_nhg_psy2 ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>jeugdproblematiek</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2018_wk_nhg_jgd ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2020_wk_nhg_jgd ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2022_wk_nhg_jgd ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2024_wk_nhg_jgd ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab1_2029_wk_nhg_jgd ]]</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                       <div>
+                            <p class="mb-1"><strong>Beschrijving:</strong></p>
+                            <p class="text-gray-500">
+                                <br>
+                                Deze tabel geeft een overzicht van het geraamde aantal en aandeel personen van 18 jaar of ouder met een bepaalde aandoening/problematiek in deze wijk per 1-1-2018, 1-1-2020, 1-1-2022, 1-1-2024 en 1-1-2029. Voor de jeugdproblematiek geldt dat het aandeel betrekking heeft op alle zelfstandig wonende inwoners (alle leeftijden). Bij de raming voor 2029 zijn alleen de demografische indicatoren in het model aangepast (leeftijd en huishoudensamenstelling) de overige indicatoren zijn constant gehouden op het niveau van 2024. Opgemerkt moet worden dat personen meerdere aandoeningen kunnen hebben.
+                                <br>
+                                <br>
+                                In de rapportage <a target="_blank" href="https://woonzorgwijzer.nl/media/files/WoonZorgwijzer%204_0.pdf">WoonZorgwijzer 4.0</a>
+                                staat omschreven op basis van welke methoden en bronbestanden deze aantallen zijn geraamd. Bij de 5.0 versie is bij de demografische prognoses een andere methodiek gehanteerd, die in <a target="_blank" href="https://woonzorgwijzer.nl/transparantie.html">dit memo</a> staat omschreven. Ook is bij de 5.0-versie uitgegaan van een andere ontwikkeling van het aantal mensen met angst en stemmingsstoornissen. Ook daarover is <a target="_blank" href="https://woonzorgwijzer.nl/transparantie.html">een memo</a> opgesteld. Alle eerder opgestelde rapporten over de WoonZorgwijzer zijn <a target="_blank" href="https://woonzorgwijzer.nl/transparantie.html">hier</a> terug te vinden.
+                            </p>
+                            <br>
+                </details>
+                <!-- Uitsplitsingen -->
+                <details class="mb-3 rounded-xl border border-gray-200 px-3 py-2">
+                    <summary class="cursor-pointer select-none font-semibold"><span class="material-symbols-outlined mr-1 select-none align-middle leading-none text-[20px]" style="color: rgb(62,116,167)" aria-hidden="true">table_view</span>2024 (uitsplitsingen)</summary>
+                    <div>
+                        <p class="mb-1"><strong>Geraamd aantal personen met een aandoening 2024 (nadere uitsplitsingen)</strong></p>
+                        <p class="mb-3 text-xs text-gray-500">Niveau: CBS wijkindeling 2024, [[ wk_naam ]] ([[ gm_naam ]])</p>
+                        <div class="overflow-x-auto">
+                            <table class="w-full border-collapse text-sm [&_td]:border [&_td]:border-gray-200 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-gray-200 [&_th]:px-2 [&_th]:py-1 [&_th]:font-semibold">
+                                <thead class="bg-gray-50 text-gray-600">
+                                    <tr>
+                                        <th></th>
+                                        <th class="text-right tabular-nums">aantal (wijk)</th>
+                                        <th class="text-right tabular-nums">perc. (wijk)</th>
+                                        <th class="text-right tabular-nums">perc. (gemeente)</th>
+                                        <th class="text-right tabular-nums">perc. (provincie)</th>
+                                        <th class="text-right tabular-nums">perc. (landelijk)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>dementie, inclusief intramuraal</td>
+                                        <td class="text-right tabular-nums">[[ tab3_2024_wk_nsg_dem0 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_psg_dem0 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_psg_dem0 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_psg_dem0 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_psg_dem0 ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>dementie, prediagnose</td>
+                                        <td class="text-right tabular-nums">[[ tab3_2024_wk_nsg_dem1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_psg_dem1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_psg_dem1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_psg_dem1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_psg_dem1 ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>dementie, zelfstandig gediagnosticeerd</td>
+                                        <td class="text-right tabular-nums">[[ tab3_2024_wk_nsg_dem3 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_psg_dem3 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_psg_dem3 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_psg_dem3 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_psg_dem3 ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>licht verstandelijk beperkt (risicogroep)</td>
+                                        <td class="text-right tabular-nums">[[ tab3_2024_wk_nsg_lvb1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_psg_lvb1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_psg_lvb1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_psg_lvb1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_psg_lvb1 ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>kwetsbare gezinnen</td>
+                                        <td class="text-right tabular-nums">[[ tab3_2024_wk_nsg_lvb2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_psg_lvb2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_psg_lvb2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_psg_lvb2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_psg_lvb2 ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>blind en slechtziend</td>
+                                        <td class="text-right tabular-nums">[[ tab3_2024_wk_nsg_zin1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_psg_zin1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_psg_zin1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_psg_zin1 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_psg_zin1 ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>doof en slechthorend</td>
+                                        <td class="text-right tabular-nums">[[ tab3_2024_wk_nsg_zin2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_psg_zin2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_psg_zin2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_psg_zin2 ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_psg_zin2 ]]</td>
+                                    </tr>
+                                    <tr>
+                                        <td>psychiatrische problematiek, incl. locaties</td>
+                                        <td class="text-right tabular-nums">[[ tab3_2024_wk_nsg_psy2b ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_psg_psy2b ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_psg_psy2b ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_psg_psy2b ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_psg_psy2b ]]</td>
+                                    </tr>
+                                     <tr>
+                                        <td>jeugdproblematiek (aandeel jongeren)</td>
+                                        <td class="text-right tabular-nums">[[ tab3_2024_wk_nsg_jgd ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_wk_psg_jgd ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_gem_psg_jgd ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_prov_psg_jgd ]]</td>
+                                        <td class="text-right tabular-nums">[[ tab2_2024_nl_psg_jgd ]]</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                          <div>
+                            <p class="mb-1"><strong>Beschrijving:</strong></p>
+                            <p class="text-gray-500">
+                            Deze tabel geeft een overzicht van het geraamde aantal en aandeel personen van 18 jaar of ouder met een bepaalde aandoening/problematiek in deze wijk per 1-1-2024. Voor de jeugdproblematiek geldt dat het aandeel berekend is op basis van het aantal zelfstandig wonende personen tot 19 jaar. Opgemerkt moet worden dat personen meerdere aandoeningen kunnen hebben. De gemeentelijke, provinciale en landelijke aandelen zijn als referentie toegevoegd.
+                                <br>
+                                <br>
+                                In de rapportage <a target="_blank" href="https://woonzorgwijzer.nl/media/files/WoonZorgwijzer%204_0.pdf">WoonZorgwijzer 4.0</a>
+                                staat omschreven op basis van welke methoden en bronbestanden deze aantallen zijn geraamd. Alle eerder opgestelde rapporten over de WoonZorgwijzer zijn <a target="_blank" href="https://woonzorgwijzer.nl/transparantie.html">hier</a> terug te vinden.
+                            </p>
+                            <br>
+                    </div>
+                </details>
+</section>
+</section>
+
+<section data-tab="levensdomeinen" data-label="Levensdomeinen" data-icon="accessibility_new">
+<section class="rounded-2xl border border-gray-200 p-4">
+  <h3 class="mb-3 flex items-center gap-2">
+    <span aria-hidden="true" class="material-symbols-outlined select-none leading-none text-[20px]" style="color: rgb(62,116,167)">accessibility_new</span>
+    <span class="text-base font-semibold" style="color: rgb(62,116,167)">Personen beperkt op een bepaald levensdomein</span>
+  </h3>
+<details class="mb-3 rounded-xl border border-gray-200 px-3 py-2">
+                    <summary class="cursor-pointer select-none font-semibold"><span class="material-symbols-outlined mr-1 select-none align-middle leading-none text-[20px]" style="color: rgb(62,116,167)" aria-hidden="true">table_view</span>2024</summary>
+                    <div>
+                        <p class="mb-1"><strong>Geraamd aantal personen met een beperking per levensdomein 2024</strong></p>
+                        <p class="mb-3 text-xs text-gray-500">Niveau: CBS wijkindeling 2024, [[ wk_naam ]] ([[ gm_naam ]])</p>
+<div class="overflow-x-auto">
+    <table class="w-full border-collapse text-sm [&_td]:border [&_td]:border-gray-200 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-gray-200 [&_th]:px-2 [&_th]:py-1 [&_th]:font-semibold">
+        <thead class="bg-gray-50 text-gray-600">
+            <tr>
+                <th></th>
+                <th class="text-right tabular-nums">aantal (wijk)</th>
+                <th class="text-right tabular-nums">perc. (wijk)</th>
+                <th class="text-right tabular-nums">perc. (gemeente)</th>
+                <th class="text-right tabular-nums">perc. (provincie)</th>
+                <th class="text-right tabular-nums">perc. (landelijk)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>daginvulling</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld1_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld1 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld1 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld1 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld1 ]]</td>
+            </tr>
+            <tr>
+                <td>administratie/financiën</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld2_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld2 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld2 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld2 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld2 ]]</td>
+            </tr>
+            <tr>
+                <td>contacten/sociaal netwerk</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld3_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld3 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld3 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld3 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld3 ]]</td>
+            </tr>
+            <tr>
+                <td>medicijngebruik/medische verzorging</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld4_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld4 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld4 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld4 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld4 ]]</td>
+            </tr>
+            <tr>
+                <td>mobiliteit buitenshuis</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld5_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld5 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld5 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld5 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld5 ]]</td>
+            </tr>
+            <tr>
+                <td>algemene dagelijkse levensverrichtingen</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld6_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld6 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld6 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld6 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld6 ]]</td>
+            </tr>
+            <tr>
+                <td>mobiliteit in huis</td>
+                 <td class="text-right tabular-nums">[[ tab1_2024_wk_ld7_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld7 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld7 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld7 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld7 ]]</td>
+            </tr>
+            <tr>
+                <td>veiligheid in huis</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld8_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld8 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld8 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld8 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld8 ]]</td>
+            </tr>
+            <tr>
+                <td>het huishouden doen</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld9_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld9 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld9 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld9 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld9 ]]</td>
+            </tr>
+            <tr>
+                <td>stemmingen/angsten</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld10_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld10 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld10 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld10 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld10 ]]</td>
+            </tr>
+            <tr>
+                <td>probleemgedrag/verslaving</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld11_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld11 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld11 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld11 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld11 ]]</td>
+            </tr>
+            <tr>
+                <td>cognitief functioneren</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld12_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld12 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld12 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld12 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld12 ]]</td>
+            </tr>
+            <tr>
+                <td>regie</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld13_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld13 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld13 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld13 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld13 ]]</td>
+            </tr>
+            <tr>
+                <td>alarmering</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld14_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_wk_p_ld14 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_gem_p_ld14 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_prov_p_ld14 ]]</td>
+                <td class="text-right tabular-nums">[[ tab2_2024_nl_p_ld14 ]]</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+                        <div>
+                            <p class="mb-1"><strong>Beschrijving:</strong></p>
+                            <p class="text-gray-500">
+                                Deze tabel geeft een overzicht van het geraamde aantal en aandeel personen van 18 jaar of ouder in deze wijk dat mogelijk beperkingen ervaart op het betreffende levensdomein per 1-1-2024. De gemeentelijke, provinciale en landelijke aandelen zijn als referentie toegevoegd. 
+                                <br>
+                                Het voorkomen personen met beperkingen is afgeleid uit het voorkomen van specifieke groepen met aandoeningen. Hierbij is rekening gehouden met de overlap tussen de verschillende groepen om dubbeltellingen te voorkomen.
+                                <br>
+                                <br>
+                                In de rapportage <a target="_blank" href="https://woonzorgwijzer.nl/media/files/WoonZorgwijzer%204_0.pdf">WoonZorgwijzer 4.0</a>
+                                staat omschreven op basis van welke methoden en bronbestanden de aantallen zijn geraamd. Ook is hierin een nadere omschrijving te vinden van de per groep beleefde beperkingen.
+                            </p>
+                            <br>
+                        </div>
+                    </div>
+                </details>
+                <!-- Tweede details: 2018..2029 -->
+                <details class="mb-3 rounded-xl border border-gray-200 px-3 py-2">
+                    <summary class="cursor-pointer select-none font-semibold"><span class="material-symbols-outlined mr-1 select-none align-middle leading-none text-[20px]" style="color: rgb(62,116,167)" aria-hidden="true">table_view</span>2018 .. 2029</summary>
+                    <div>
+                        <p class="mb-1"><strong>Geraamd aantal personen met een beperkingen per levensdomein 2018 .. 2029</strong></p>
+                        <p class="mb-3 text-xs text-gray-500">Niveau: CBS wijkindeling 2024, [[ wk_naam ]] ([[ gm_naam ]])</p>
+                       <div class="overflow-x-auto">
+    <table class="w-full border-collapse text-sm [&_td]:border [&_td]:border-gray-200 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-gray-200 [&_th]:px-2 [&_th]:py-1 [&_th]:font-semibold">
+        <thead class="bg-gray-50 text-gray-600">
+            <tr>
+                <th></th>
+                <th class="text-right tabular-nums">2018</th>
+                <th class="text-right tabular-nums">2020</th>
+                <th class="text-right tabular-nums">2022</th>
+                <th class="text-right tabular-nums">2024</th>
+                <th class="text-right tabular-nums">2029</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>daginvulling</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld1_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld1_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld1_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld1_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld1_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>administratie/financiën</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld2_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld2_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld2_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld2_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld2_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>contacten/sociaal netwerk</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld3_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld3_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld3_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld3_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld3_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>medicijngebruik/medische verzorging</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld4_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld4_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld4_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld4_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld4_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>mobiliteit buitenshuis</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld5_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld5_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld5_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld5_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld5_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>algemene dagelijkse levensverrichtingen</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld6_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld6_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld6_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld6_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld6_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>mobiliteit in huis</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld7_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld7_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld7_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld7_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld7_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>veiligheid in huis</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld8_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld8_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld8_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld8_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld8_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>het huishouden doen</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld9_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld9_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld9_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld9_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld9_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>stemmingen/angsten</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld10_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld10_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld10_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld10_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld10_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>probleemgedrag/verslaving</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld11_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld11_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld11_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld11_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld11_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>cognitief functioneren</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld12_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld12_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld12_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld12_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld12_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>regie</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld13_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld13_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld13_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld13_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld13_totaal ]]</td>
+            </tr>
+            <tr>
+                <td>alarmering</td>
+                <td class="text-right tabular-nums">[[ tab1_2018_wk_ld14_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2020_wk_ld14_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2022_wk_ld14_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2024_wk_ld14_totaal ]]</td>
+                <td class="text-right tabular-nums">[[ tab1_2029_wk_ld14_totaal ]]</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+                       <div>
+                            <p class="mb-1"><strong>Beschrijving:</strong></p>
+                            <p class="text-gray-500">
+                                Deze tabel geeft een overzicht van het geraamde aantal en aandeel personen van 19 jaar of ouder in deze wijk dat mogelijk beperkingen ervaart op het betreffende levensdomein per 1-1-2018, 1-1-2020, 1-1-2022, 1-1-2024 en 1-1-2029.
+                                <br>
+                                Het voorkomen personen met beperkingen is afgeleid uit het voorkomen van specifieke groepen met aandoeningen. Hierbij is rekening gehouden met de overlap tussen de verschillende groepen om dubbeltellingen te voorkomen.
+                                <br>
+                                <br>
+                                In de rapportage <a target="_blank" href="https://woonzorgwijzer.nl/media/files/WoonZorgwijzer%204_0.pdf">WoonZorgwijzer 4.0</a>
+                                staat omschreven op basis van welke methoden en bronbestanden de aantallen zijn geraamd. Ook is hierin een nadere omschrijving te vinden van de per groep beleefde beperkingen.
+                            </p>
+                            <br>
+                </details>
+</section>
+</section>
+
+<section data-tab="per-aandoening" data-label="Per aandoening" data-icon="table_view">
+<section class="rounded-2xl border border-gray-200 p-4">
+  <h3 class="mb-3 flex items-center gap-2">
+    <span aria-hidden="true" class="material-symbols-outlined select-none leading-none text-[20px]" style="color: rgb(62,116,167)">table_view</span>
+    <span class="text-base font-semibold" style="color: rgb(62,116,167)">Personen beperkt op een bepaald levensdomein, naar type aandoening (2024)</span>
+  </h3>
+<details class="mb-3 rounded-xl border border-gray-200 px-3 py-2">
+                    <summary class="cursor-pointer select-none font-semibold"><span class="material-symbols-outlined mr-1 select-none align-middle leading-none text-[20px]" style="color: rgb(62,116,167)" aria-hidden="true">table_view</span>Sociale redzaamheid</summary>
+                    <div>
+                        <p class="mb-1"><strong>Geraamd aantal personen beperkt op levensdomein: Sociale redzaamheid</strong></p>
+                        <p class="mb-3 text-xs text-gray-500">Niveau: CBS wijkindeling 2024, [[ wk_naam ]] ([[ gm_naam ]])</p>
+<div class="overflow-x-auto">
+                            <table class="w-full border-collapse text-sm [&_td]:border [&_td]:border-gray-200 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-gray-200 [&_th]:px-2 [&_th]:py-1 [&_th]:font-semibold">
+                                <thead class="bg-gray-50 text-gray-600">
+    <tr>
+      <th rowspan="2"></th>
+<th colspan="3" class="text-center">sociale redzaamheid</th>    </tr>
+    <tr>
+      <th>daginvulling</th>
+      <th>administratie / financiën</th>
+      <th>contacten / sociaal netwerk</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>dementie, zelfstandig wonend</td>
+      <td>[[ tab4_2024_wk_ld1_hgdem ]]</td>
+      <td>[[ tab4_2024_wk_ld2_hgdem ]]</td>
+      <td>[[ tab4_2024_wk_ld3_hgdem ]]</td>
+    </tr>
+    <tr>
+      <td>licht verstandelijk beperkt</td>
+      <td>[[ tab4_2024_wk_ld1_hglvb ]]</td>
+      <td>[[ tab4_2024_wk_ld2_hglvb ]]</td>
+      <td>[[ tab4_2024_wk_ld3_hglvb ]]</td>
+    </tr>
+    <tr>
+      <td>matig of ernstig verstandelijk beperkt</td>
+      <td>[[ tab4_2024_wk_ld1_hgvg ]]</td>
+      <td>[[ tab4_2024_wk_ld2_hgvg ]]</td>
+      <td>[[ tab4_2024_wk_ld3_hgvg ]]</td>
+    </tr>
+    <tr>
+      <td>somatische problematiek</td>
+      <td>[[ tab4_2024_wk_ld1_hgsom ]]</td>
+      <td>[[ tab4_2024_wk_ld2_hgsom ]]</td>
+      <td>[[ tab4_2024_wk_ld3_hgsom ]]</td>
+    </tr>
+    <tr>
+      <td>zintuiglijke aandoeningen</td>
+      <td>[[ tab4_2024_wk_ld1_hgzin ]]</td>
+      <td>[[ tab4_2024_wk_ld2_hgzin ]]</td>
+      <td>[[ tab4_2024_wk_ld3_hgzin ]]</td>
+    </tr>
+    <tr>
+      <td>angst en stemmingsstoornissen</td>
+      <td>[[ tab4_2024_wk_ld1_hgpsy1 ]]</td>
+      <td>[[ tab4_2024_wk_ld2_hgpsy1 ]]</td>
+      <td>[[ tab4_2024_wk_ld3_hgpsy1 ]]</td>
+    </tr>
+    <tr>
+      <td>psychiatrische problematiek</td>
+      <td>[[ tab4_2024_wk_ld1_hgpsy2 ]]</td>
+      <td>[[ tab4_2024_wk_ld2_hgpsy2 ]]</td>
+      <td>[[ tab4_2024_wk_ld3_hgpsy2 ]]</td>
+    </tr>
+    <tr>
+      <td>totaal</td>
+      <td>[[ tab1_2024_wk_ld1_totaal ]]</td>
+      <td>[[ tab1_2024_wk_ld2_totaal ]]</td>
+      <td>[[ tab1_2024_wk_ld3_totaal ]]</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+                       <div>
+                            <p class="mb-1"><strong>Beschrijving:</strong></p>
+                            <p class="text-gray-500">
+        De tabel toont het geraamd aantal personen met een bepaalde aandoening per 1-1-2024 dat mogelijk beperkingen ervaart op de levensdomeinen:
+    </p>
+<ul class="text-gray-500">        
+<li>Daginvulling: werk, vrijwilligerswerk, georganiseerde dagbesteding.</li>
+        <li>Administratie / financiën: bankzaken, aangaan van contracten, uitgaven, verzekeringen, formulieren.</li>
+        <li>Contacten / sociaal netwerk: maken en onderhouden van contacten met vrienden, familie, buren, kennissen.</li>
+    </ul>
+<br>
+    <p class="text-gray-500">
+        Het voorkomen van personen met beperkingen is afgeleid uit het voorkomen van specifieke groepen met aandoeningen. Hierbij is rekening gehouden met de overlap tussen de verschillende groepen om dubbeltellingen te voorkomen. Door deze overlap tellen de aantallen per aandoening niet op tot het totaal.
+    </p>
+    <p class="text-gray-500">
+        In de rapportage <a target="_blank" href="https://woonzorgwijzer.nl/media/files/WoonZorgwijzer%204_0.pdf">WoonZorgwijzer 4.0</a> staat omschreven op basis van welke methoden en bronbestanden deze aantallen zijn geraamd. Alle eerder opgestelde rapporten over de WoonZorgwijzer zijn hier terug te vinden.
+                            </p>
+                            <br>
+                        </div>
+                    </div>
+                </details>
+                <!-- Tweede details: 2018..2029 -->
+                  <details class="mb-3 rounded-xl border border-gray-200 px-3 py-2">
+                    <summary class="cursor-pointer select-none font-semibold"><span class="material-symbols-outlined mr-1 select-none align-middle leading-none text-[20px]" style="color: rgb(62,116,167)" aria-hidden="true">table_view</span>Lichamelijk functioneren</summary>
+                    <div>
+                        <p class="mb-1"><strong>Geraamd aantal personen beperkt op levensdomein: Lichamelijk functioneren</strong></p>
+                        <p class="mb-3 text-xs text-gray-500">Niveau: CBS wijkindeling 2024, [[ wk_naam ]] ([[ gm_naam ]])</p>
+<div class="overflow-x-auto">
+                            <table class="w-full border-collapse text-sm [&_td]:border [&_td]:border-gray-200 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-gray-200 [&_th]:px-2 [&_th]:py-1 [&_th]:font-semibold">
+                                <thead class="bg-gray-50 text-gray-600">
+          <tr>
+            <th rowspan="2"></th>
+            <th colspan="2" class="text-center">lichamelijk functioneren</th>
+          </tr>
+          <tr>
+            <th>medicijngebruik / medische verzorging</th>
+            <th>mobiliteit buitenshuis</th>
+          </tr>
+        </thead>
+        <tbody>
+   <tr>
+      <td>dementie, zelfstandig wonend</td>
+      <td>[[ tab4_2024_wk_ld4_hgdem ]]</td>
+      <td>[[ tab4_2024_wk_ld5_hgdem ]]</td>
+    </tr>
+    <tr>
+      <td>licht verstandelijk beperkt</td>
+      <td>[[ tab4_2024_wk_ld4_hglvb ]]</td>
+      <td>[[ tab4_2024_wk_ld5_hglvb ]]</td>
+    </tr>
+    <tr>
+      <td>matig of ernstig verstandelijk beperkt</td>
+      <td>[[ tab4_2024_wk_ld4_hgvg ]]</td>
+      <td>[[ tab4_2024_wk_ld5_hgvg ]]</td>
+    </tr>
+    <tr>
+      <td>somatische problematiek</td>
+      <td>[[ tab4_2024_wk_ld4_hgsom ]]</td>
+      <td>[[ tab4_2024_wk_ld5_hgsom ]]</td>
+    </tr>
+    <tr>
+      <td>zintuiglijke aandoeningen</td>
+      <td>[[ tab4_2024_wk_ld4_hgzin ]]</td>
+      <td>[[ tab4_2024_wk_ld5_hgzin ]]</td>
+    </tr>
+    <tr>
+      <td>angst en stemmingsstoornissen</td>
+      <td>[[ tab4_2024_wk_ld4_hgpsy1 ]]</td>
+      <td>[[ tab4_2024_wk_ld5_hgpsy1 ]]</td>
+    </tr>
+    <tr>
+      <td>psychiatrische problematiek</td>
+      <td>[[ tab4_2024_wk_ld4_hgpsy2 ]]</td>
+      <td>[[ tab4_2024_wk_ld5_hgpsy2 ]]</td>
+    </tr>
+    <tr>
+      <td>totaal</td>
+      <td>[[ tab1_2024_wk_ld4_totaal ]]</td>
+      <td>[[ tab1_2024_wk_ld5_totaal ]]</td>
+          </tr>
+        </tbody>
+    </table>
+</div>
+                       <div>
+                            <p class="mb-1"><strong>Beschrijving:</strong></p>
+                            <p class="text-gray-500">
+        De tabel toont het geraamd aantal personen met een bepaalde aandoening per 1-1-2024 dat mogelijk beperkingen ervaart op de levensdomeinen:
+    </p>
+    <ul class="text-gray-500">
+        <li>Medicijngebruik/medische verzorging: tijdig en juist gebruik medicijnen, alert en tijdig opmerken/ingrijpen bij verslechtering gezondheid. </li>
+        <li>Mobiliteit buitenshuis: moeite hebben om zich (veilig) buitenshuis te verplaatsen. </li>
+    </ul>
+<br>
+    <p class="text-gray-500">
+        Het voorkomen van personen met beperkingen is afgeleid uit het voorkomen van specifieke groepen met aandoeningen. Hierbij is rekening gehouden met de overlap tussen de verschillende groepen om dubbeltellingen te voorkomen. Door deze overlap tellen de aantallen per aandoening niet op tot het totaal.
+    </p>
+    <p class="text-gray-500">
+        In de rapportage <a target="_blank" href="https://woonzorgwijzer.nl/media/files/WoonZorgwijzer%204_0.pdf">WoonZorgwijzer 4.0</a> staat omschreven op basis van welke methoden en bronbestanden deze aantallen zijn geraamd. Alle eerder opgestelde rapporten over de WoonZorgwijzer zijn hier terug te vinden.
+                            </p>
+                            <br>
+                        </div>
+                    </div>
+                </details>
+                        <details class="mb-3 rounded-xl border border-gray-200 px-3 py-2">
+                    <summary class="cursor-pointer select-none font-semibold"><span class="material-symbols-outlined mr-1 select-none align-middle leading-none text-[20px]" style="color: rgb(62,116,167)" aria-hidden="true">table_view</span>Algemene dagelijkse levensverrichtingen</summary>
+                    <div>
+                        <p class="mb-1"><strong>Geraamd aantal personen beperkt op levensdomein: Algemene dagelijkse levensverrichtingen</strong></p>
+                        <p class="mb-3 text-xs text-gray-500">Niveau: CBS wijkindeling 2024, [[ wk_naam ]] ([[ gm_naam ]])</p>
+<div class="overflow-x-auto">
+                            <table class="w-full border-collapse text-sm [&_td]:border [&_td]:border-gray-200 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-gray-200 [&_th]:px-2 [&_th]:py-1 [&_th]:font-semibold">
+                               <thead class="bg-gray-50 text-gray-600">
+          <tr>
+            <th></th>
+            <th class="text-center">algemene dagelijkse levensverrichtingen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+     <td>dementie, zelfstandig wonend</td>
+      <td>[[ tab4_2024_wk_ld6_hgdem ]]</td>
+    </tr>
+    <tr>
+      <td>licht verstandelijk beperkt</td>
+      <td>[[ tab4_2024_wk_ld6_hglvb ]]</td>
+    </tr>
+    <tr>
+      <td>matig of ernstig verstandelijk beperkt</td>
+      <td>[[ tab4_2024_wk_ld6_hgvg ]]</td>
+    </tr>
+    <tr>
+      <td>somatische problematiek</td>
+      <td>[[ tab4_2024_wk_ld6_hgsom ]]</td>
+    </tr>
+    <tr>
+      <td>zintuiglijke aandoeningen</td>
+      <td>[[ tab4_2024_wk_ld6_hgzin ]]</td>
+    </tr>
+    <tr>
+      <td>angst en stemmingsstoornissen</td>
+      <td>[[ tab4_2024_wk_ld6_hgpsy1 ]]</td>
+    </tr>
+    <tr>
+      <td>psychiatrische problematiek</td>
+      <td>[[ tab4_2024_wk_ld6_hgpsy2 ]]</td>
+    </tr>
+    <tr>
+      <td>totaal</td>
+      <td>[[ tab1_2024_wk_ld6_totaal ]]</td>
+          </tr>
+        </tbody>
+    </table>
+</div>
+                       <div>
+                            <p class="mb-1"><strong>Beschrijving:</strong></p>
+                            <p class="text-gray-500">
+        De tabel toont het geraamd aantal personen met een bepaalde aandoening per 1-1-2024 dat mogelijk beperkingen ervaart op de levensdomeinen:
+    </p>
+    <ul class="text-gray-500">
+        <li>Algemene dagelijkse levensverrichtingen: ondersteuning bij zaken als opstaan, aankleden, wassen, tandenpoetsen, toiletbezoek, eten en drinken.</li>
+    </ul>
+<br>
+    <p class="text-gray-500">
+        Het voorkomen van personen met beperkingen is afgeleid uit het voorkomen van specifieke groepen met aandoeningen. Hierbij is rekening gehouden met de overlap tussen de verschillende groepen om dubbeltellingen te voorkomen. Door deze overlap tellen de aantallen per aandoening niet op tot het totaal.
+    </p>
+    <p class="text-gray-500">
+        In de rapportage <a target="_blank" href="https://woonzorgwijzer.nl/media/files/WoonZorgwijzer%204_0.pdf">WoonZorgwijzer 4.0</a> staat omschreven op basis van welke methoden en bronbestanden deze aantallen zijn geraamd. Alle eerder opgestelde rapporten over de WoonZorgwijzer zijn hier terug te vinden.
+                            </p>
+                            <br>
+                        </div>
+                    </div>
+                </details>
+                <details class="mb-3 rounded-xl border border-gray-200 px-3 py-2">
+                    <summary class="cursor-pointer select-none font-semibold"><span class="material-symbols-outlined mr-1 select-none align-middle leading-none text-[20px]" style="color: rgb(62,116,167)" aria-hidden="true">table_view</span>Woonsituatie</summary>
+                    <div>
+                        <p class="mb-1"><strong>Geraamd aantal personen beperkt op levensdomein: Woonsituatie</strong></p>
+                        <p class="mb-3 text-xs text-gray-500">Niveau: CBS wijkindeling 2024, [[ wk_naam ]] ([[ gm_naam ]])</p>
+<div class="overflow-x-auto">
+                                <table class="w-full border-collapse text-sm [&_td]:border [&_td]:border-gray-200 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-gray-200 [&_th]:px-2 [&_th]:py-1 [&_th]:font-semibold">
+      <thead>
+        <tr>
+          <th rowspan="2"></th>
+          <th colspan="3" class="text-center">woonsituatie</th>
+        </tr>
+        <tr>
+          <th>mobiliteit in huis</th>
+          <th>veiligheid in huis</th>
+          <th>het huishouden doen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+      <td>dementie, zelfstandig wonend</td>
+      <td>[[ tab4_2024_wk_ld7_hgdem ]]</td>
+      <td>[[ tab4_2024_wk_ld8_hgdem ]]</td>
+      <td>[[ tab4_2024_wk_ld9_hgdem ]]</td>
+    </tr>
+    <tr>
+      <td>licht verstandelijk beperkt</td>
+      <td>[[ tab4_2024_wk_ld7_hglvb ]]</td>
+      <td>[[ tab4_2024_wk_ld8_hglvb ]]</td>
+      <td>[[ tab4_2024_wk_ld9_hglvb ]]</td>
+    </tr>
+    <tr>
+      <td>matig of ernstig verstandelijk beperkt</td>
+      <td>[[ tab4_2024_wk_ld7_hgvg ]]</td>
+      <td>[[ tab4_2024_wk_ld8_hgvg ]]</td>
+      <td>[[ tab4_2024_wk_ld9_hgvg ]]</td>
+    </tr>
+    <tr>
+      <td>somatische problematiek</td>
+      <td>[[ tab4_2024_wk_ld7_hgsom ]]</td>
+      <td>[[ tab4_2024_wk_ld8_hgsom ]]</td>
+      <td>[[ tab4_2024_wk_ld9_hgsom ]]</td>
+    </tr>
+    <tr>
+      <td>zintuiglijke aandoeningen</td>
+      <td>[[ tab4_2024_wk_ld7_hgzin ]]</td>
+      <td>[[ tab4_2024_wk_ld8_hgzin ]]</td>
+      <td>[[ tab4_2024_wk_ld9_hgzin ]]</td>
+    </tr>
+    <tr>
+      <td>angst en stemmingsstoornissen</td>
+      <td>[[ tab4_2024_wk_ld7_hgpsy1 ]]</td>
+      <td>[[ tab4_2024_wk_ld8_hgpsy1 ]]</td>
+      <td>[[ tab4_2024_wk_ld9_hgpsy1 ]]</td>
+    </tr>
+    <tr>
+      <td>psychiatrische problematiek</td>
+      <td>[[ tab4_2024_wk_ld7_hgpsy2 ]]</td>
+      <td>[[ tab4_2024_wk_ld8_hgpsy2 ]]</td>
+      <td>[[ tab4_2024_wk_ld9_hgpsy2 ]]</td>
+    </tr>
+    <tr>
+      <td>totaal</td>
+      <td>[[ tab1_2024_wk_ld7_totaal ]]</td>
+      <td>[[ tab1_2024_wk_ld8_totaal ]]</td>
+      <td>[[ tab1_2024_wk_ld9_totaal ]]</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+                       <div>
+                            <p class="mb-1"><strong>Beschrijving:</strong></p>
+                            <p class="text-gray-500">
+        De tabel toont het geraamd aantal personen met een bepaalde aandoening per 1-1-2024 dat mogelijk beperkingen ervaart op de levensdomeinen:
+    </p>
+    <ul class="text-gray-500">
+        <li>Mobiliteit in huis: moeite hebben om zich binnenshuis te verplaatsen.</li>
+        <li>Veiligheid in huis: ondersteuning op het gebied van fysieke en sociale veiligheid in huis (valgevaar, brand, letsel, binnenlaten criminelen/oplichters).</li>
+        <li>Het huishouden doen: moeite hebben om zelfstandig het huishouden te doen (boodschappen doen, opruimen en schoonmaken, maaltijd bereiden, afwassen, de was doen). </li>
+    </ul>
+<br>
+    <p class="text-gray-500">
+        Het voorkomen van personen met beperkingen is afgeleid uit het voorkomen van specifieke groepen met aandoeningen. Hierbij is rekening gehouden met de overlap tussen de verschillende groepen om dubbeltellingen te voorkomen. Door deze overlap tellen de aantallen per aandoening niet op tot het totaal.
+    </p>
+    <p class="text-gray-500">
+        In de rapportage <a target="_blank" href="https://woonzorgwijzer.nl/media/files/WoonZorgwijzer%204_0.pdf">WoonZorgwijzer 4.0</a> staat omschreven op basis van welke methoden en bronbestanden deze aantallen zijn geraamd. Alle eerder opgestelde rapporten over de WoonZorgwijzer zijn hier terug te vinden.
+                            </p>
+                            <br>
+                        </div>
+                    </div>
+                </details>
+                <!-- Tweede details: 2018..2029 -->
+                  <details class="mb-3 rounded-xl border border-gray-200 px-3 py-2">
+                    <summary class="cursor-pointer select-none font-semibold"><span class="material-symbols-outlined mr-1 select-none align-middle leading-none text-[20px]" style="color: rgb(62,116,167)" aria-hidden="true">table_view</span>Psychisch functioneren</summary>
+                    <div>
+                        <p class="mb-1"><strong>Geraamd aantal personen beperkt op levensdomein: Psychisch functioneren</strong></p>
+                        <p class="mb-3 text-xs text-gray-500">Niveau: CBS wijkindeling 2024, [[ wk_naam ]] ([[ gm_naam ]])</p>
+<div class="overflow-x-auto">
+                            <table class="w-full border-collapse text-sm [&_td]:border [&_td]:border-gray-200 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-gray-200 [&_th]:px-2 [&_th]:py-1 [&_th]:font-semibold">
+      <thead>
+        <tr>
+          <th rowspan="2"></th>
+          <th colspan="3" class="text-center">psychisch functioneren</th>
+        </tr>
+        <tr>
+          <th>stemmingen / angsten</th>
+          <th>probleemgedrag / verslaving</th>
+          <th>cognitief functioneren</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+       <td>dementie, zelfstandig wonend</td>
+      <td>[[ tab4_2024_wk_ld10_hgdem ]]</td>
+      <td>[[ tab4_2024_wk_ld11_hgdem ]]</td>
+      <td>[[ tab4_2024_wk_ld12_hgdem ]]</td>
+    </tr>
+    <tr>
+      <td>licht verstandelijk beperkt</td>
+      <td>[[ tab4_2024_wk_ld10_hglvb ]]</td>
+      <td>[[ tab4_2024_wk_ld11_hglvb ]]</td>
+      <td>[[ tab4_2024_wk_ld12_hglvb ]]</td>
+    </tr>
+    <tr>
+      <td>matig of ernstig verstandelijk beperkt</td>
+      <td>[[ tab4_2024_wk_ld10_hgvg ]]</td>
+      <td>[[ tab4_2024_wk_ld11_hgvg ]]</td>
+      <td>[[ tab4_2024_wk_ld12_hgvg ]]</td>
+    </tr>
+    <tr>
+      <td>somatische problematiek</td>
+      <td>[[ tab4_2024_wk_ld10_hgsom ]]</td>
+      <td>[[ tab4_2024_wk_ld11_hgsom ]]</td>
+      <td>[[ tab4_2024_wk_ld12_hgsom ]]</td>
+    </tr>
+    <tr>
+      <td>zintuiglijke aandoeningen</td>
+      <td>[[ tab4_2024_wk_ld10_hgzin ]]</td>
+      <td>[[ tab4_2024_wk_ld11_hgzin ]]</td>
+      <td>[[ tab4_2024_wk_ld12_hgzin ]]</td>
+    </tr>
+    <tr>
+      <td>angst en stemmingsstoornissen</td>
+      <td>[[ tab4_2024_wk_ld10_hgpsy1 ]]</td>
+      <td>[[ tab4_2024_wk_ld11_hgpsy1 ]]</td>
+      <td>[[ tab4_2024_wk_ld12_hgpsy1 ]]</td>
+    </tr>
+    <tr>
+      <td>psychiatrische problematiek</td>
+      <td>[[ tab4_2024_wk_ld10_hgpsy2 ]]</td>
+      <td>[[ tab4_2024_wk_ld11_hgpsy2 ]]</td>
+      <td>[[ tab4_2024_wk_ld12_hgpsy2 ]]</td>
+    </tr>
+    <tr>
+      <td>totaal</td>
+      <td>[[ tab1_2024_wk_ld10_totaal ]]</td>
+      <td>[[ tab1_2024_wk_ld11_totaal ]]</td>
+      <td>[[ tab1_2024_wk_ld12_totaal ]]</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+                       <div>
+                            <p class="mb-1"><strong>Beschrijving:</strong></p>
+                            <p class="text-gray-500">
+        De tabel toont het geraamd aantal personen met een bepaalde aandoening per 1-1-2024 dat mogelijk beperkingen ervaart op de levensdomeinen:
+    </p>
+    <ul class="text-gray-500">
+        <li>Stemmingen/angsten: beperkt in het functioneren door stemmingen (depressie) en/of angsten.</li>
+        <li>Probleemgedrag/verslaving: grensoverschrijdend gedrag zoals agressie, overlast en/of seksueel ontremd gedrag.</li>
+        <li>Cognitief functioneren: beperkingen in het cognitief functioneren (denken, geheugen, begrijpen, concentratie, relaties leggen oorzaak en gevolg, oriëntatie, lezen, schrijven, rekenen).</li>
+    </ul>
+<br>
+    <p class="text-gray-500">
+        Het voorkomen van personen met beperkingen is afgeleid uit het voorkomen van specifieke groepen met aandoeningen. Hierbij is rekening gehouden met de overlap tussen de verschillende groepen om dubbeltellingen te voorkomen. Door deze overlap tellen de aantallen per aandoening niet op tot het totaal.
+    </p>
+    <p class="text-gray-500">
+        In de rapportage <a target="_blank" href="https://woonzorgwijzer.nl/media/files/WoonZorgwijzer%204_0.pdf">WoonZorgwijzer 4.0</a> staat omschreven op basis van welke methoden en bronbestanden deze aantallen zijn geraamd. Alle eerder opgestelde rapporten over de WoonZorgwijzer zijn hier terug te vinden.
+                            </p>
+                            <br>
+                        </div>
+                    </div>
+                </details>
+                        <details class="mb-3 rounded-xl border border-gray-200 px-3 py-2">
+                    <summary class="cursor-pointer select-none font-semibold"><span class="material-symbols-outlined mr-1 select-none align-middle leading-none text-[20px]" style="color: rgb(62,116,167)" aria-hidden="true">table_view</span>Regie</summary>
+                    <div>
+                        <p class="mb-1"><strong>Geraamd aantal personen beperkt op levensdomein: Regie</strong></p>
+                        <p class="mb-3 text-xs text-gray-500">Niveau: CBS wijkindeling 2024, [[ wk_naam ]] ([[ gm_naam ]])</p>
+<div class="overflow-x-auto">
+                           <table class="w-full border-collapse text-sm [&_td]:border [&_td]:border-gray-200 [&_td]:px-2 [&_td]:py-1 [&_th]:border [&_th]:border-gray-200 [&_th]:px-2 [&_th]:py-1 [&_th]:font-semibold">
+      <thead>
+        <tr>
+          <th rowspan="2"></th>
+          <th colspan="2" class="text-center">regie</th>
+        </tr>
+        <tr>
+          <th>regie</th>
+          <th>alarmering</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+        <td>dementie, zelfstandig wonend</td>
+      <td>[[ tab4_2024_wk_ld13_hgdem ]]</td>
+      <td>[[ tab4_2024_wk_ld14_hgdem ]]</td>
+    </tr>
+    <tr>
+      <td>licht verstandelijk beperkt</td>
+      <td>[[ tab4_2024_wk_ld13_hglvb ]]</td>
+      <td>[[ tab4_2024_wk_ld14_hglvb ]]</td>
+    </tr>
+    <tr>
+      <td>matig of ernstig verstandelijk beperkt</td>
+      <td>[[ tab4_2024_wk_ld13_hgvg ]]</td>
+      <td>[[ tab4_2024_wk_ld14_hgvg ]]</td>
+    </tr>
+    <tr>
+      <td>somatische problematiek</td>
+      <td>[[ tab4_2024_wk_ld13_hgsom ]]</td>
+      <td>[[ tab4_2024_wk_ld14_hgsom ]]</td>
+    </tr>
+    <tr>
+      <td>zintuiglijke aandoeningen</td>
+      <td>[[ tab4_2024_wk_ld13_hgzin ]]</td>
+      <td>[[ tab4_2024_wk_ld14_hgzin ]]</td>
+    </tr>
+    <tr>
+      <td>angst en stemmingsstoornissen</td>
+      <td>[[ tab4_2024_wk_ld13_hgpsy1 ]]</td>
+      <td>[[ tab4_2024_wk_ld14_hgpsy1 ]]</td>
+    </tr>
+    <tr>
+      <td>psychiatrische problematiek</td>
+      <td>[[ tab4_2024_wk_ld13_hgpsy2 ]]</td>
+      <td>[[ tab4_2024_wk_ld14_hgpsy2 ]]</td>
+    </tr>
+    <tr>
+      <td>totaal</td>
+      <td>[[ tab1_2024_wk_ld13_totaal ]]</td>
+      <td>[[ tab1_2024_wk_ld14_totaal ]]</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+                       <div>
+                            <p class="mb-1"><strong>Beschrijving:</strong></p>
+                            <p class="text-gray-500">
+        De tabel toont het geraamd aantal personen met een bepaalde aandoening per 1-1-2024 dat mogelijk beperkingen ervaart op de levensdomeinen:
+    </p>
+    <ul class="text-gray-500">
+        <li>Regie: ondersteuning op het gebied van regievoering over het eigen leven (beslissingen nemen, planning maken, initiatief nemen, beslissen wanneer wat moet gebeuren).</li>
+        <li>Alarmering: moeite hebben om zelf (tijdig) hulp in te roepen als het niet goed gaat.</li>
+    </ul>
+<br>
+    <p class="text-gray-500">
+        Het voorkomen van personen met beperkingen is afgeleid uit het voorkomen van specifieke groepen met aandoeningen. Hierbij is rekening gehouden met de overlap tussen de verschillende groepen om dubbeltellingen te voorkomen. Door deze overlap tellen de aantallen per aandoening niet op tot het totaal.
+    </p>
+    <p class="text-gray-500">
+        In de rapportage <a target="_blank" href="https://woonzorgwijzer.nl/media/files/WoonZorgwijzer%204_0.pdf">WoonZorgwijzer 4.0</a> staat omschreven op basis van welke methoden en bronbestanden deze aantallen zijn geraamd. Alle eerder opgestelde rapporten over de WoonZorgwijzer zijn hier terug te vinden.
+                            </p>
+                            <br>
+                        </div>
+                    </div>
+                </details>
+</section>
+</section>
+
+<section data-tab="voorzieningen" data-label="Voorzieningen" data-icon="storefront">
+  <section class="rounded-2xl border border-gray-200 p-4">
+    <h3 class="mb-3 flex items-center gap-2">
+      <span aria-hidden="true" class="material-symbols-outlined select-none leading-none text-[20px]" style="color: rgb(62,116,167)">storefront</span>
+      <span class="text-base font-semibold" style="color: rgb(62,116,167)">Dichtstbijzijnde voorziening (loopafstand)</span>
+    </h3>
+    <div class="overflow-x-auto rounded-xl border border-gray-200">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-gray-50 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <th class="px-4 py-2">Type</th>
+            <th class="px-4 py-2">Naam</th>
+            <th class="px-4 py-2">Adres</th>
+            <th class="px-4 py-2 text-right">Loopafstand</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100">
+          <tr>
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">local_pharmacy</span> Apotheek</td>
+            <td class="px-4 py-1">[[ apotheek_naam ]]</td>
+            <td class="px-4 py-1">[[ apotheek_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="apotheek_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr class="bg-gray-50/50">
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">groups</span> Dagbesteding</td>
+            <td class="px-4 py-1">[[ dagbesteding_naam ]]</td>
+            <td class="px-4 py-1">[[ dagbesteding_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="dagbesteding_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">assist_walker</span> Fysiotherapeut</td>
+            <td class="px-4 py-1">[[ fysiotherapeut_naam ]]</td>
+            <td class="px-4 py-1">[[ fysiotherapeut_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="fysiotherapeut_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr class="bg-gray-50/50">
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">local_hospital</span> Huisarts</td>
+            <td class="px-4 py-1">[[ huisarts_naam ]]</td>
+            <td class="px-4 py-1">[[ huisarts_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="huisarts_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">diversity_3</span> Ontmoeting</td>
+            <td class="px-4 py-1">[[ ontmoeting_naam ]]</td>
+            <td class="px-4 py-1">[[ ontmoeting_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="ontmoeting_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr class="bg-gray-50/50">
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">directions_bus</span> Openbaar vervoer</td>
+            <td class="px-4 py-1">[[ ov_naam ]]</td>
+            <td class="px-4 py-1">[[ ov_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="ov_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">local_grocery_store</span> Supermarkt</td>
+            <td class="px-4 py-1">[[ supermarkt_naam ]]</td>
+            <td class="px-4 py-1">[[ supermarkt_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="supermarkt_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr class="bg-gray-50/50">
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">dentistry</span> Tandarts</td>
+            <td class="px-4 py-1">[[ tandarts_naam ]]</td>
+            <td class="px-4 py-1">[[ tandarts_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="tandarts_afstand" data-breaks="500 1000"></td>
+          </tr>
+          <tr>
+            <td class="px-4 py-1"><span aria-hidden="true" class="material-symbols-outlined align-middle leading-none text-[20px]" style="color: rgb(62,116,167)">health_metrics</span> Ziekenhuis</td>
+            <td class="px-4 py-1">[[ ziekenhuis_naam ]]</td>
+            <td class="px-4 py-1">[[ ziekenhuis_adres ]]</td>
+            <td class="whitespace-nowrap px-4 py-1 text-right font-semibold" data-distance="ziekenhuis_afstand" data-breaks="500 1000"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-2 text-xs text-gray-400">Loopafstand over het langzaamverkeernetwerk, gemeten vanaf het adres dat het dichtst bij het midden van de wijk ligt.</p>
+  </section>
+</section>
+
+<section data-tab="downloads" data-label="Downloads" data-icon="download">
+<section class="rounded-2xl border border-gray-200 p-4">
+  <h3 class="mb-3 flex items-center gap-2">
+    <span aria-hidden="true" class="material-symbols-outlined select-none leading-none text-[20px]" style="color: rgb(62,116,167)">download</span>
+    <span class="text-base font-semibold" style="color: rgb(62,116,167)">Downloads</span>
+  </h3>
+<div class="flex flex-wrap items-center gap-2">
+            <p class="mb-2 w-full text-sm text-gray-600">Provincie, gemeente of wijk data in .csv formaat:</p>
+            <a href="https://woonzorgwijzer.nl/data/[[ prov ]].csv" class="inline-block rounded-lg px-3 py-1.5 text-sm font-medium text-white no-underline" style="background: rgb(62,116,167)" role="button" target="_blank">[[ prov_naam ]]</a>
+            <a href="https://woonzorgwijzer.nl/data/[[ gm_code ]].csv" class="inline-block rounded-lg px-3 py-1.5 text-sm font-medium text-white no-underline" style="background: rgb(62,116,167)" role="button" target="_blank">[[ gm_naam ]]</a>
+            <a href="https://woonzorgwijzer.nl/data/[[ gm_code ]]-buurten.csv" class="inline-block rounded-lg px-3 py-1.5 text-sm font-medium text-white no-underline" style="background: rgb(62,116,167)" role="button" target="_blank">Buurten</a>
+            <a href="https://woonzorgwijzer.nl/media/files/codeboek-wzw-tabellen.xlsx" class="inline-block rounded-lg px-3 py-1.5 text-sm font-medium text-white no-underline" style="background: rgb(62,116,167)" role="button" target="_blank">Codeboek</a>
+        </div>
+</section>
+</section>
+
+<p data-locationinfo="footer" class="mt-2 italic">
+  Bron: <a href="https://woonzorgwijzer.nl" target="_blank" rel="noopener">WoonZorgwijzer 5</a> (ramingen op CBS wijkindeling 2024; wijken waarvan de code in 2025 veranderde tonen &ndash;). Voorzieningen: dichtstbijzijnde over het loopnetwerk, vanaf het midden van de wijk.
+</p>

@@ -7,6 +7,7 @@ import {
   variantCacheKey,
   variantId,
   variantsConfig,
+  variantPickLayer,
   variantStudyArea,
 } from "./variant";
 import type { VariantsConfig } from "./map-config";
@@ -203,5 +204,39 @@ describe("variantStudyArea", () => {
     initVariants(WITH_OVERRIDE);
     setVariant("b");
     expect(variantStudyArea(undefined)).toBe("b_area");
+  });
+});
+
+describe("variantPickLayer", () => {
+  const WITH_OVERRIDE: VariantsConfig = {
+    default: "a",
+    items: [
+      { id: "a", label: "A" },
+      { id: "b", label: "B", pickLayer: "b_pick" },
+    ],
+  };
+
+  beforeEach(() => {
+    window.history.replaceState({}, "", "/");
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    initVariants(undefined);
+    vi.restoreAllMocks();
+  });
+
+  it("returns the root id for a project without variants", () => {
+    initVariants(undefined);
+    expect(variantPickLayer("root_pick")).toBe("root_pick");
+  });
+
+  it("follows the active variant across a switch", () => {
+    initVariants(WITH_OVERRIDE);
+    expect(variantPickLayer(undefined)).toBeUndefined();
+    setVariant("b");
+    expect(variantPickLayer(undefined)).toBe("b_pick");
+    setVariant("a");
+    expect(variantPickLayer("root_pick")).toBe("root_pick");
   });
 });

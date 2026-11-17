@@ -22,6 +22,7 @@
           "wonenenzorgopdekaart.derondekaart.nl"
         ],
         "studyarea": "wzw_studiegebied",
+        "pickLayer": "wijk_klik",
         "center": [
           4.61479,
           52.41961

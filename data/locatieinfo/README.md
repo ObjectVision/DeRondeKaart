@@ -71,3 +71,29 @@ template is uploaded.
 Upload to `/var/www/woonzorglimburg_data/{parquet,pmtiles,meta/locatieinfo}/` on the
 data host, back up what is replaced, and bump the `?v=` stamps in both variants'
 `layers.json`.
+
+## Wijk informatie (objectvision, wonenenzorgopdekaart)
+
+A second user of the same window: a click on a CBS wijk in the
+`wonenenzorgopdekaart` variant (pick layer `wijk_klik`, set per variant in
+`configs/objectvision/map.json`) opens the WoonZorgwijzer 5 wijk tables plus the
+nearest voorzieningen.
+
+| File | Built from | Holds |
+|---|---|---|
+| `pmtiles/wonenenzorgopdekaart/wijk.pmtiles` | `cbsgebiedsindelingen2025.gpkg`, generalised z0-11 / full detail z12-14 | layer `wijk`: `code`, `naam`, `gm_code`, `gemeente`, `row` |
+| `parquet/wonenenzorgopdekaart/wijk_informatie_2026.parquet` | WZW5 wijken tiles (MapGallery) + GeoDMS `locatieinfo_wijk_nl_geojson/export` | one row per wijk, same order |
+| `meta/wonenenzorgopdekaart/locatieinfo/wijk-informatie-wzw.html` | `template/wijk-informatie-wzw.html` here | the window's layout |
+
+One script builds all three, plus `buurt.pmtiles` for the boundary layer, and
+publishes them to the objectvision data host with `--upload`:
+
+```bash
+python data/build-wijk-buurt.py [--upload] [--no-info] [--refetch]
+```
+
+The template was ported from MapGallery's `data/wzw5_mapgallery/wzw5_wijken_featureinfo.txt`.
+Its WZW values are WZW's own display strings (already rounded, Dutch decimal
+comma), so they use the default `text` format rather than `int`/`pct`. WZW is
+on the 2024 wijkindeling: a wijk whose code changed in 2025 shows `–` for those
+tables. The script prints how many.

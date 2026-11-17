@@ -4213,6 +4213,90 @@
       }
     },
     {
+      "id": "gi_wijk",
+      "name": "wijk",
+      "description": "CBS wijken 2025: gegeneraliseerd tot zoomniveau 11, daarna de niet-gegeneraliseerde grenzen.",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wijk.pmtiles?v=20261117",
+      "format": "pmtiles",
+      "sourceLayer": "wijk",
+      "geometryType": "line",
+      "beforeid": "foreground-layers",
+      "style": {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "lineColor": [
+          70,
+          121,
+          170,
+          255
+        ],
+        "lineWidth": 1.2,
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b> ([[ code ]])<br>[[ gemeente ]]</div>"
+      }
+    },
+    {
+      "id": "gi_buurt",
+      "name": "buurt",
+      "description": "CBS buurten 2025: gegeneraliseerd tot zoomniveau 11, daarna de niet-gegeneraliseerde grenzen.",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/buurt.pmtiles?v=20261117",
+      "format": "pmtiles",
+      "sourceLayer": "buurt",
+      "geometryType": "line",
+      "beforeid": "foreground-layers",
+      "style": {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "lineColor": [
+          110,
+          110,
+          110,
+          255
+        ],
+        "lineWidth": 0.8,
+        "opacity": 1.0
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ naam ]]</b> ([[ code ]])<br>[[ gemeente ]]</div>"
+      }
+    },
+    {
+      "id": "wijk_klik",
+      "name": "Wijk informatie",
+      "description": "Onzichtbare CBS-wijkvlakken: een klik op de kaart opent de wijkinformatie (WoonZorgwijzer 5 en voorzieningen).",
+      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wijk.pmtiles?v=20261117",
+      "format": "pmtiles",
+      "sourceLayer": "wijk",
+      "geometryType": "polygon",
+      "style": {
+        "color": [0, 0, 0, 255],
+        "opacity": 0
+      },
+      "excludeFromLegend": true,
+      "excludeFromComparison": true,
+      "highlightable": true,
+      "idProperty": "row",
+      "beforeid": "foreground-layers",
+      "featureinfo": {
+        "locationinfo": {
+          "source": "https://data.derondekaart.nl/parquet/wonenenzorgopdekaart/wijk_informatie_2026.parquet?v=20261117",
+          "rowField": "row",
+          "keyField": "code",
+          "templateUrl": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/locatieinfo/wijk-informatie-wzw.html?v=20261117"
+        }
+      }
+    },
+    {
       "id": "gi_provincie",
       "name": "provincie",
       "source": "https://data.derondekaart.nl/pmtiles/gebiedsindelingen.pmtiles",

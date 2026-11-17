@@ -341,6 +341,19 @@ Unlike the boot flags this one is **runtime**: it follows the active variant, so
 a `set-variant` swaps the mask. An id the active variant's `layers.json` lacks
 only warns in the console and shows no mask.
 
+### Pick layer per variant
+
+A variant item may likewise name its own `pickLayer`, overriding the root one.
+It is also **runtime**: a switch removes the old variant's pick layer with
+everything else and adds this variant's once its `layers.json` is in.
+objectvision has no root `pickLayer`, so only `wonenenzorgopdekaart` answers clicks
+on empty map, with its wijk-informatie window (`wijk_klik`, see
+[`data/locatieinfo/README.md`](../data/locatieinfo/README.md)):
+
+```json
+{ "id": "wonenenzorgopdekaart", "studyarea": "wzw_studiegebied", "pickLayer": "wijk_klik" }
+```
+
 ### Host per variant
 
 A variant may list `hosts`: extra domains, served by the **same** map site, that

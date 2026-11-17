@@ -181,6 +181,16 @@ export interface VariantItem {
    */
   studyarea?: string;
   /**
+   * Override of map.json's `pickLayer` for this variant: the id of a layer in
+   * THIS variant's layers.json. Undefined = the root value applies.
+   *
+   * Runtime, like `studyarea`: a variant switch re-adds the pick layers (see
+   * `onResetPickLayer`), and `variantPickLayer` hands them this variant's id.
+   * Lets one variant answer clicks without the root `pickLayer` naming a layer
+   * the other variants lack.
+   */
+  pickLayer?: string;
+  /**
    * Overrides of map.json's `center` / `zoom` for this variant, so a variant
    * host can open on its own region. Undefined = the root value applies.
    *
@@ -717,13 +727,10 @@ function validateVariants(value: unknown): VariantsConfig | null {
     if (speechToText !== undefined) item.speechToText = speechToText;
     const hosts = variantHosts(overrides.hosts, id, items);
     if (hosts.length > 0) item.hosts = hosts;
-    if (typeof overrides.studyarea === "string" && overrides.studyarea.length > 0) {
-      item.studyarea = overrides.studyarea;
-    } else if (overrides.studyarea !== undefined) {
-      console.warn(
-        `map.json: variant "${id}" has invalid "studyarea" ${JSON.stringify(overrides.studyarea)}; ignoring`,
-      );
-    }
+    const studyarea = variantLayerId(overrides.studyarea, id, "studyarea");
+    if (studyarea !== undefined) item.studyarea = studyarea;
+    const pickLayer = variantLayerId(overrides.pickLayer, id, "pickLayer");
+    if (pickLayer !== undefined) item.pickLayer = pickLayer;
     if (overrides.center !== undefined) {
       const center = validateCenter(overrides.center);
       if (center) item.center = center;
@@ -794,6 +801,17 @@ function variantHosts(value: unknown, id: string, earlier: readonly VariantItem[
 function variantFlag(value: unknown, id: string, key: string): boolean | undefined {
   if (value === undefined) return undefined;
   if (typeof value === "boolean") return value;
+  console.warn(`map.json: variant "${id}" has invalid "${key}" ${JSON.stringify(value)}; ignoring`);
+  return undefined;
+}
+
+/**
+ * One variant's override of a layer id (`studyarea`, `pickLayer`): a non-empty
+ * string, or undefined when absent. Anything else is warned about and ignored.
+ */
+function variantLayerId(value: unknown, id: string, key: string): string | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value === "string" && value.length > 0) return value;
   console.warn(`map.json: variant "${id}" has invalid "${key}" ${JSON.stringify(value)}; ignoring`);
   return undefined;
 }
