@@ -11350,7 +11350,6 @@
     {
       "id": "lbm_klasse",
       "name": "Leefbaarometerklasse",
-      "description": "De Leefbaarometerklassen zoals de Leefbaarometer (leefbaarometer.nl) ze toont, op het CBS 100 m-grid, 2015-2024. Een gemiddeld gebied in Nederland scoort in 2024 ‘goed’, dus (lichter) groene gebieden kunnen nog onder het landelijk gemiddelde liggen.",
       "source": "https://data.woonzorglimburg.nl/pmtiles/leefbaarometer_2026.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -11574,7 +11573,6 @@
     {
       "id": "lbm_overlast_onveiligheid",
       "name": "Dimensiescore: overlast en onveiligheid",
-      "description": "De dimensiescore overlast en onveiligheid uit de Leefbaarometer, 2015-2024. Gebaseerd op meldingen van overlast en criminaliteit bij de politie en op oordelen van bewoners over hun buurt uit de Veiligheidsmonitor.",
       "source": "https://data.woonzorglimburg.nl/pmtiles/leefbaarometer_2026.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -11798,7 +11796,6 @@
     {
       "id": "lbm_sociale_samenhang",
       "name": "Dimensiescore: sociale samenhang",
-      "description": "De dimensiescore sociale samenhang uit de Leefbaarometer, 2015-2024: de bijdrage van de sociale samenhang in de buurt aan de leefbaarheid.",
       "source": "https://data.woonzorglimburg.nl/pmtiles/leefbaarometer_2026.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
