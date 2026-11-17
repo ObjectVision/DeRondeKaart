@@ -33,7 +33,7 @@ The `chmod` is not optional: `scp -r` from Windows creates new directories as
 how the images under `afbeeldingen/` once sat on the server unreachable.
 
 `/var/www/woonzorglimburg_data` is root-owned, so the directory itself was
-created with `sudo`; the contents belong to `cicada` and need no privileges to
+created with `sudo`; the contents belong to the deploy user and need no privileges to
 replace. `scp` overwrites and never deletes, so a document dropped from the
 spreadsheet stays on the server until it is removed by hand.
 

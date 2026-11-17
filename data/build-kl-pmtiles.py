@@ -11,7 +11,7 @@
 # ///
 """Build the Kennemerland & IJmond (KL) PMTiles for objectvision/wonenenzorgopdekaart.
 
-The source is the old WZW mirror on ``wzw-legacy``: MapServer config
+The source is the old WZW mirror on ``wzw-legacy`` (an ~/.ssh/config alias): MapServer config
 and data under ``/var/mapserver/kl`` (``kl.map`` -> ``mapfiles/*.map`` -> ``DATA``),
 the symbol PNGs under ``/var/mapserver/symbols``, and the map gallery that groups
 the layers in ``/var/mapgallery/kl/1.json``. Three of its groups are ported here —
@@ -78,7 +78,6 @@ GEOJSON_TO_PMTILES = HERE / "convert-geojson-to-pmtiles.py"
 OSGEO4W_PYTHON = Path(r"C:\OSGeo4W\bin\python-qgis.bat")
 WINDOWS_OPENSSH = Path(r"C:\Windows\System32\OpenSSH")
 DEFAULT_REMOTE = "ov-data:/var/www/objectvision_data/pmtiles/wonenenzorgopdekaart"
-DEFAULT_IDENTITY = Path.home() / ".ssh" / "<key>"
 
 ASSUME_CRS = "EPSG:28992"
 MAX_SIZE = 2_000_000
@@ -359,10 +358,10 @@ def resolve_ssh_tool(name: str) -> str:
     return found
 
 
-def upload(files: list[Path], remote: str, identity: Path) -> None:
+def upload(files: list[Path], remote: str, identity: Path | None) -> None:
     """Stage on the host, then mv into place, so no half-written archive is served."""
     ssh, scp = resolve_ssh_tool("ssh"), resolve_ssh_tool("scp")
-    key = ["-i", str(identity)] if identity.is_file() else []
+    key = ["-i", str(identity)] if identity else []
     host, _, path = remote.partition(":")
     path = path.rstrip("/")
     staging = f"{path}/.staging-{time.strftime('%Y%m%d-%H%M%S')}"
@@ -391,7 +390,7 @@ def main(argv: list[str]) -> int:
                         help="Build just this archive (repeatable)")
     parser.add_argument("--upload", action="store_true", help="Publish the archives afterwards")
     parser.add_argument("--remote", default=DEFAULT_REMOTE)
-    parser.add_argument("--identity", type=Path, default=DEFAULT_IDENTITY)
+    parser.add_argument("--identity", type=Path, default=None, help="ssh private key (default: whatever ~/.ssh/config gives the host)")
     args = parser.parse_args(argv[1:])
 
     if not SRC.is_dir():

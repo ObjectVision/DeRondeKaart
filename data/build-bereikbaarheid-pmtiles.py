@@ -74,7 +74,6 @@ GEOJSON_TO_PMTILES = HERE / "convert-geojson-to-pmtiles.py"
 
 # The data host behind https://data.derondekaart.nl/pmtiles/.
 DEFAULT_REMOTE = "ov-data:/var/www/objectvision_data/pmtiles/bereikbaarheid_bzk"
-DEFAULT_IDENTITY = Path.home() / ".ssh" / "<key>"
 
 # Windows ships OpenSSH here; preferred over the Git-for-Windows build.
 WINDOWS_OPENSSH = Path(r"C:\Windows\System32\OpenSSH")
@@ -298,14 +297,14 @@ def resolve_ssh_tool(name: str) -> str:
     return found
 
 
-def upload(files: list[Path], remote: str, identity: Path) -> None:
+def upload(files: list[Path], remote: str, identity: Path | None) -> None:
     """Copy archives to the data host via a staging folder, then mv into place."""
     ssh = resolve_ssh_tool("ssh")
     scp = resolve_ssh_tool("scp")
-    key = ["-i", str(identity)] if identity.is_file() else []
+    key = ["-i", str(identity)] if identity else []
     host, sep, path = remote.partition(":")
     if not sep or not path:
-        raise SystemExit(f"error: --remote must look like user@host:/path, got {remote!r}")
+        raise SystemExit(f"error: --remote must look like host:/path, got {remote!r}")
     path = path.rstrip("/")
     staging = f"{path}/.staging-{time.strftime('%Y%m%d-%H%M%S')}"
 
@@ -337,8 +336,8 @@ def main(argv: list[str]) -> int:
     )
     parser.add_argument("--jobs", type=int, default=8, help="Parallel grid conversions (default: 8)")
     parser.add_argument("--upload", action="store_true", help="Publish the archives when built")
-    parser.add_argument("--remote", default=DEFAULT_REMOTE, metavar="USER@HOST:/PATH")
-    parser.add_argument("--identity", default=str(DEFAULT_IDENTITY), metavar="KEYFILE")
+    parser.add_argument("--remote", default=DEFAULT_REMOTE, metavar="HOST:/PATH")
+    parser.add_argument("--identity", type=Path, default=None, metavar="KEYFILE", help="ssh private key (default: whatever ~/.ssh/config gives the host)")
     args = parser.parse_args(argv[1:])
 
     wanted = set(args.only)
@@ -380,7 +379,7 @@ def main(argv: list[str]) -> int:
     print(f"\nDone in {time.time() - started:.0f}s — {len(built)} archive(s), {total:,} bytes in {PMTILES_OUT}")
 
     if args.upload:
-        upload(built, args.remote, Path(args.identity))
+        upload(built, args.remote, args.identity)
     return 0
 
 

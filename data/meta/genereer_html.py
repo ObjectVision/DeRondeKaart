@@ -67,7 +67,7 @@ HANDMATIG_DIR = BASE_DIR / "handmatig"
 #
 # This is the DEFAULT, woonzorglimburg's. A project published elsewhere puts a
 # `project.json` next to its spreadsheet naming its own host (see
-# `stel_project_in`): {"public_base": "...", "upload": "user@host:/path/"}.
+# `stel_project_in`): {"public_base": "...", "upload": "host-alias:/path/"}.
 DEFAULT_PUBLIC_BASE = "https://data.woonzorglimburg.nl/meta/"
 DEFAULT_UPLOAD = "wzl-data:/var/www/woonzorglimburg_data/meta/"
 

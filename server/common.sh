@@ -7,7 +7,7 @@
 #   setup_fileserver.sh     (geospatial file server)
 #   setup_map_application.sh (SolidJS/Vite SPA)
 #
-# These scripts are meant to be run ON the target server (e.g. wzl-data)
+# These scripts are meant to be run ON the target server (e.g. the wzl-data host)
 # by a user with passwordless sudo. Everything is namespaced by an instance SLUG so
 # that any number of landing pages, file servers and map apps can coexist on one host.
 #

@@ -1,7 +1,7 @@
 # northwake — server provisioning
 
 Automated, **multi-instance** provisioning for the three services that run on the
-production VM (`wzl-data`):
+production VM (the `wzl-data` host — see [SSH host aliases](#ssh-host-aliases)):
 
 | Service | Script | Description doc |
 |---|---|---|
@@ -91,7 +91,7 @@ Shared infrastructure is installed once and reused by every instance:
 ## Running
 
 Copy this `server/` directory to the target host and run a script there as a user
-with passwordless sudo (e.g. `cicada`). Each script either **prompts** for the
+with passwordless sudo (the deploy user). Each script either **prompts** for the
 values it needs, or takes them as **flags** — any value passed as a flag is not
 prompted for. `-y`/`--yes` runs fully non-interactively using defaults.
 
@@ -121,6 +121,29 @@ Each script prints its own `--help`.
 Re-running a script is safe (idempotent): it updates the repo, rebuilds, rewrites
 the nginx site (backing up the old one), refreshes the webhook entry, and renews
 the certificate.
+
+## SSH host aliases
+
+Nothing in this repo names a server address or login. Scripts and docs use
+`~/.ssh/config` aliases, and each operator maps them locally:
+
+| Alias | Serves |
+|---|---|
+| `wzl-data` | production VM: woonzorglimburg map, landing and `data.woonzorglimburg.nl` |
+| `ov-data` | `data.derondekaart.nl` (objectvision config, NL2120) |
+| `sa-data` | `data.startanalyse2026.nl` |
+| `wzw-legacy` | the old WZW MapServer mirror (read-only source for `data/build-kl-pmtiles.py`) |
+
+```
+Host wzl-data
+    HostName <server address>
+    User <deploy user>
+    IdentityFile ~/.ssh/<your key>
+```
+
+Upload scripts take `--remote <alias>:/path`. Their `--identity` is optional, and
+without it the key comes from the `Host` block. Ask a maintainer for the real
+values; never commit them.
 
 ## Security posture
 

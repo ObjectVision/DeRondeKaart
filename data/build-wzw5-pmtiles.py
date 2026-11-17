@@ -102,7 +102,7 @@ from typing import NamedTuple
 HERE = Path(__file__).resolve().parent
 
 # Source rasters and the GeoDMS project that defines the mask.
-WZW5_EXPORT = Path(r"C:\Users\Cicada\prj\WZW5_export")
+WZW5_EXPORT = Path.home() / "prj" / "WZW5_export"
 HG_TIF_ROOT = WZW5_EXPORT / "wzw5_hg_all"
 SG_TIF_ROOT = WZW5_EXPORT / "wzw5_sg_all"
 BE_TIF_ROOT = WZW5_EXPORT / "wzw5_be_all"
@@ -122,7 +122,6 @@ OSGEO4W_PYTHON = Path(r"C:\OSGeo4W\bin\python-qgis.bat")
 
 # The data host behind https://data.derondekaart.nl/pmtiles/.
 DEFAULT_REMOTE = "ov-data:/var/www/objectvision_data/pmtiles/woonzorgwijzer"
-DEFAULT_IDENTITY = Path.home() / ".ssh" / "<key>"
 
 # Windows ships OpenSSH here; preferred over the Git-for-Windows build, which
 # cannot talk to the Windows ssh-agent.
@@ -621,7 +620,7 @@ def resolve_ssh_tool(name: str) -> str:
     return found
 
 
-def upload(files: list[Path], remote: str, identity: Path) -> None:
+def upload(files: list[Path], remote: str, identity: Path | None) -> None:
     """Copy archives to the data host via a staging folder, then mv into place.
 
     scp writes straight into the destination file, so copying over a live archive
@@ -629,12 +628,10 @@ def upload(files: list[Path], remote: str, identity: Path) -> None:
     """
     ssh = resolve_ssh_tool("ssh")
     scp = resolve_ssh_tool("scp")
-    key = ["-i", str(identity)] if identity.is_file() else []
-    if not key:
-        log(f"warning: identity {identity} not found — relying on ssh-agent/config")
+    key = ["-i", str(identity)] if identity else []
     host, sep, path = remote.partition(":")
     if not sep or not path:
-        raise SystemExit(f"error: --remote must look like user@host:/path, got {remote!r}")
+        raise SystemExit(f"error: --remote must look like host:/path, got {remote!r}")
     path = path.rstrip("/")
     staging = f"{path}/.staging-{time.strftime('%Y%m%d-%H%M%S')}"
 
@@ -731,8 +728,8 @@ def main(argv: list[str]) -> int:
     parser.add_argument(
         "--identity",
         type=Path,
-        default=DEFAULT_IDENTITY,
-        help=f"ssh private key (default: {DEFAULT_IDENTITY})",
+        default=None,
+        help="ssh private key (default: whatever ~/.ssh/config gives the host)",
     )
     args = parser.parse_args(argv[1:])
 
