@@ -17,6 +17,7 @@ import { chromeIconColor, chromeIconSize } from "@/config/map-config";
 import {
   COMBINATION_STRATEGY,
   defaultScoreClasses,
+  initialStep,
   isFilterLayerId,
   type LayerConfig,
   type ScoreClass,
@@ -137,7 +138,7 @@ function stepForLayer(
   stepFor: (layerId: string) => number | undefined,
 ): number | undefined {
   if (!layer.timeseries) return undefined;
-  return stepFor(layer.id) ?? layer.timeseries.start;
+  return stepFor(layer.id) ?? initialStep(layer.timeseries);
 }
 
 /**

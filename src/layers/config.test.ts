@@ -279,3 +279,42 @@ describe("layers.json featureinfo", () => {
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('"featureinfo.locationinfo"'));
   });
 });
+
+/**
+ * `timeseries.initial` picks the step a layer opens on. A bad value must not
+ * cost the layer its slider: it is dropped on its own, with a warning, and the
+ * layer opens on `start` as it did before the field existed.
+ */
+describe("layers.json timeseries initial", () => {
+  const SERIES = { ...BASE, sourceLayer: "Y%YEAR%" };
+  const TS = { placeholder: "%YEAR%", start: 2015, end: 2024, step: 1 };
+
+  async function loadFresh(layers: unknown[]) {
+    vi.resetModules();
+    stubLayersJson(layers);
+    const { loadLayerConfigs: load } = await import("@/layers/config");
+    return load();
+  }
+
+  it("keeps a valid initial step and drops out-of-range or off-grid ones", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const configs = await loadFresh([
+      { ...SERIES, id: "geldig", timeseries: { ...TS, initial: 2024 } },
+      { ...SERIES, id: "zonder", timeseries: TS },
+      { ...SERIES, id: "te_laat", timeseries: { ...TS, initial: 2030 } },
+      { ...SERIES, id: "naast_raster", timeseries: { ...TS, step: 5, end: 2025, initial: 2017 } },
+      { ...SERIES, id: "geen_getal", timeseries: { ...TS, initial: "2024" } },
+    ]);
+    const byId = new Map(configs.map((config) => [config.id, config]));
+
+    expect(byId.get("geldig")?.timeseries?.initial).toBe(2024);
+    expect(byId.get("zonder")?.timeseries).toBeDefined();
+    expect(byId.get("zonder")?.timeseries?.initial).toBeUndefined();
+    for (const id of ["te_laat", "naast_raster", "geen_getal"]) {
+      // The timeseries itself survives; only the bad initial step is gone.
+      expect(byId.get(id)?.timeseries?.start).toBe(2015);
+      expect(byId.get(id)?.timeseries?.initial).toBeUndefined();
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining(`"${id}"`));
+    }
+  });
+});

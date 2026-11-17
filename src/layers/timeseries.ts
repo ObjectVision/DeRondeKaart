@@ -1,4 +1,15 @@
-import type { LayerConfig } from "@/layers/types";
+import type { LayerConfig, TimeseriesConfig } from "@/layers/types";
+
+/**
+ * The step a timeseries layer shows before anyone has moved its slider:
+ * `initial` when the config names one, otherwise `start`.
+ *
+ * Every "not stepped yet" fallback goes through here, so the first render,
+ * the slider, playback and combinations all agree on where the layer opens.
+ */
+export function initialStep(ts: TimeseriesConfig): number {
+  return ts.initial ?? ts.start;
+}
 
 /**
  * Substitute a timeseries layer's placeholder into one of its templated fields.
@@ -20,7 +31,7 @@ function substituteStep(template: string, placeholder: string, step: number): st
  * next combination at a different step.
  *
  * `step` is what the legend currently shows for this layer; `undefined` (the
- * layer has never been stepped) falls back to the configured start, the same
+ * layer has never been stepped) falls back to `initialStep`, the same
  * default the slider and `advanceStep` use.
  */
 export function filterRasterForStep(
@@ -33,5 +44,5 @@ export function filterRasterForStep(
   const ts = config.timeseries;
   if (!ts) return template;
 
-  return substituteStep(template, ts.placeholder, step ?? ts.start);
+  return substituteStep(template, ts.placeholder, step ?? initialStep(ts));
 }

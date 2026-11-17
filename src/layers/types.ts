@@ -320,12 +320,19 @@ export interface LocationInfoConfig {
 export interface TimeseriesConfig {
   /** Token in `sourceLayer` replaced by the current step. Default "%YEAR%". */
   placeholder: string;
-  /** First step, and the value the layer starts on. */
+  /** First step. Also the value the layer opens on unless `initial` is set. */
   start: number;
   /** Last step (inclusive). Playback loops back to `start` after it. */
   end: number;
   /** Increment between steps. Must be > 0. */
   step: number;
+  /**
+   * Step the layer opens on, e.g. the latest year of a series that starts in
+   * the past. Must lie on the `start`/`step` grid within `[start, end]`; the
+   * validator drops it otherwise. Absent means `start` — read it through
+   * `initialStep`, never directly.
+   */
+  initial?: number;
   /** Milliseconds per step while playing. Default 1000. */
   intervalMs: number;
 }

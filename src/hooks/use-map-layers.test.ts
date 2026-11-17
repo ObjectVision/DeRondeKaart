@@ -145,6 +145,23 @@ describe("useMapLayers", () => {
     });
   });
 
+  it("plays a timeseries on from its initial step, looping back to start", async () => {
+    // The Leefbaarometer opens on its latest year (2024 of 2015-2024): the first
+    // play press must step from there, not from 2015 as if never configured.
+    await withLayers(async (layers) => {
+      await layers.addLayer(
+        config("lbm", {
+          sourceLayer: "Y%YEAR%",
+          timeseries: { placeholder: "%YEAR%", start: 2015, end: 2024, step: 1, intervalMs: 1000, initial: 2023 },
+        }),
+      );
+      layers.advanceStep("lbm");
+      expect(layers.layerSteps().get("lbm")).toBe(2024);
+      layers.advanceStep("lbm");
+      expect(layers.layerSteps().get("lbm")).toBe(2015);
+    });
+  });
+
   it("keeps the entry when the map has mounted but its style has not", async () => {
     // Regression: moving a layer to the right map mounts that MapView
     // synchronously, so the accessor yields a live-but-unloaded map. Without a

@@ -8,7 +8,7 @@ import { useRowDrag } from "@/components/ui/use-row-drag";
 import { foregroundRank } from "@/components/map/map-view-config";
 import { ruleSwatchSpec, styleSwatchSpec } from "@/lib/legend-style";
 import { Swatch } from "@/components/ui/swatch";
-import { compositeLegendRules, isFilterLayerId } from "@/layers";
+import { compositeLegendRules, initialStep, isFilterLayerId } from "@/layers";
 import type { GeoStylerRule } from "@/layers";
 
 /** One class row in the legend, from either a layer's own rules or a composite's children. */
@@ -485,7 +485,7 @@ function LayerList(props: LayerListProps): JSX.Element {
                   <Show when={config.timeseries && isVisible()}>
                     <TimeseriesControl
                       config={config}
-                      step={props.layerSteps.get(config.id) ?? config.timeseries!.start}
+                      step={props.layerSteps.get(config.id) ?? initialStep(config.timeseries!)}
                       playing={props.playingIds.has(config.id)}
                       onTogglePlay={props.onTogglePlay}
                       onSetStep={props.onSetStep}

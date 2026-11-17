@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { filterRasterForStep } from "@/layers/timeseries";
+import { filterRasterForStep, initialStep } from "@/layers/timeseries";
 import type { LayerConfig, TimeseriesConfig } from "@/layers/types";
 
 const TIMESERIES: TimeseriesConfig = {
@@ -59,6 +59,16 @@ describe("filterRasterForStep", () => {
     );
   });
 
+  it("falls back to the configured initial step when there is one", () => {
+    const config = layer({
+      timeseries: { ...TIMESERIES, initial: 2045 },
+      filterRaster: "https://example.test/aandeel_j0_17_m5_%YEAR%.cog.tif",
+    });
+    expect(filterRasterForStep(config, undefined)).toBe(
+      "https://example.test/aandeel_j0_17_m5_2045.cog.tif",
+    );
+  });
+
   it("replaces every occurrence of the placeholder", () => {
     const config = layer({
       timeseries: TIMESERIES,
@@ -77,5 +87,20 @@ describe("filterRasterForStep", () => {
     expect(filterRasterForStep(config, 2030)).toBe(
       "https://example.test/aandeel_2030.cog.tif",
     );
+  });
+});
+
+/**
+ * Where a timeseries layer opens. A series that starts in the past (the
+ * Leefbaarometer runs 2015-2024) should open on its latest year, so `initial`
+ * overrides `start` — and every "not stepped yet" fallback reads it from here.
+ */
+describe("initialStep", () => {
+  it("is the start when no initial step is configured", () => {
+    expect(initialStep(TIMESERIES)).toBe(2025);
+  });
+
+  it("is the initial step when one is configured", () => {
+    expect(initialStep({ ...TIMESERIES, initial: 2040 })).toBe(2040);
   });
 });

@@ -21,6 +21,7 @@ import {
   areaFilterExpression,
   iconSpriteId,
   isHighlightLayerId,
+  initialStep,
 } from "@/layers";
 import { getIconFromRule } from "@/layers/geostyler";
 import { loadIconBitmap } from "@/layers/icon-sprite";
@@ -443,7 +444,7 @@ export function useMapLayers(getMap: MapAccessor): UseMapLayersResult {
     const entry = layerEntries().find((e) => e.config.id === layerId);
     const ts = entry?.config.timeseries;
     if (!entry || !ts) return;
-    const current = layerSteps().get(layerId) ?? ts.start;
+    const current = layerSteps().get(layerId) ?? initialStep(ts);
     const next = current + ts.step > ts.end ? ts.start : current + ts.step;
     setLayerStep(layerId, next);
   }
@@ -606,10 +607,10 @@ export function addMvtLayer(
   if (!styleReady(map)) return;
 
   // A timeseries layer's configured `sourceLayer` is a template — resolve it to
-  // the start step before the first addLayer, or MapLibre would be handed the
+  // its initial step before the first addLayer, or MapLibre would be handed the
   // literal placeholder and render nothing.
   if (config.timeseries && config.sourceLayer?.includes(config.timeseries.placeholder)) {
-    config.sourceLayer = timeseriesSourceLayer(config, config.timeseries.start);
+    config.sourceLayer = timeseriesSourceLayer(config, initialStep(config.timeseries));
   }
 
   const beforeId = anchorForConfig(config);

@@ -24,7 +24,33 @@
             "b": false
           }
         ]
-      }
+      },
+    {
+      "label": "Leefbaarometer",
+      "icon": "sentiment_satisfied",
+      "color": "#5E7658",
+      "expanded": true,
+      "children": [
+        {
+          "id": "lbm_klasse",
+          "label": "leefbaarometerklasse",
+          "a": false,
+          "b": false
+        },
+        {
+          "id": "lbm_overlast_onveiligheid",
+          "label": "dimensiescore: overlast en onveiligheid",
+          "a": false,
+          "b": false
+        },
+        {
+          "id": "lbm_sociale_samenhang",
+          "label": "dimensiescore: sociale samenhang",
+          "a": false,
+          "b": false
+        }
+      ]
+    }
     ]
   },
   {

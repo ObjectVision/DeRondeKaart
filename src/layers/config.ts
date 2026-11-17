@@ -334,7 +334,7 @@ function validateTimeseries(
   }
 
   const ts = raw as Record<string, unknown>;
-  const num = (key: "start" | "end" | "step" | "intervalMs") => {
+  const num = (key: "start" | "end" | "step" | "intervalMs" | "initial") => {
     const value = ts[key];
     return typeof value === "number" && Number.isFinite(value) ? value : undefined;
   };
@@ -358,7 +358,29 @@ function validateTimeseries(
   const rawInterval = num("intervalMs");
   const intervalMs = rawInterval !== undefined && rawInterval > 0 ? rawInterval : DEFAULT_TIMESERIES_INTERVAL_MS;
 
-  return { placeholder, start, end, step, intervalMs };
+  const result: TimeseriesConfig = { placeholder, start, end, step, intervalMs };
+
+  // `initial` only picks where the layer opens, so a bad one is dropped on its
+  // own (the layer opens on `start`) rather than taking the timeseries with it.
+  if (ts.initial !== undefined) {
+    const initial = num("initial");
+    // Tolerate float drift on fractional steps; an off-grid value would put the
+    // slider between two steps and resolve a sourceLayer that doesn't exist.
+    const offset = initial === undefined ? NaN : (initial - start) / step;
+    if (initial === undefined || initial < start || initial > end) {
+      console.warn(
+        `layers.json: layer "${id}" timeseries "initial" must be a number within ${start}-${end}; opening on ${start}`,
+      );
+    } else if (Math.abs(offset - Math.round(offset)) > 1e-9) {
+      console.warn(
+        `layers.json: layer "${id}" timeseries "initial" ${initial} is not on the step grid; opening on ${start}`,
+      );
+    } else {
+      result.initial = initial;
+    }
+  }
+
+  return result;
 }
 
 /** Validate one inline child of a "composite" entry. Returns null to drop the child. */

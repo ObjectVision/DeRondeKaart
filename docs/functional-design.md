@@ -166,7 +166,9 @@ can:
 - **Reorder** layers by dragging, within the z-band the configuration assigned.
 - **Move a layer to the other map** in comparison mode (§9).
 - **Play or scrub a timeseries** — a play/pause control and year slider appear
-  under a timeseries layer's name.
+  under a timeseries layer's name. The layer opens on its first year, or on the
+  year its configuration names as `initial` (the Leefbaarometer opens on its
+  latest year, 2024).
 - **Open the metainfo dialog** from the ⓘ button (§4).
 - **Switch the basemap** (vector cartography ↔ aerial photo) from the
   *Referentielagen* dialog.

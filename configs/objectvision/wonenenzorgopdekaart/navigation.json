@@ -552,6 +552,32 @@
     ]
   },
   {
+    "label": "Leefbaarometer",
+    "icon": "sentiment_satisfied",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "lbm_klasse",
+        "label": "leefbaarometerklasse",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "lbm_overlast_onveiligheid",
+        "label": "dimensiescore: overlast en onveiligheid",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "lbm_sociale_samenhang",
+        "label": "dimensiescore: sociale samenhang",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
     "label": "Gebiedsindelingen",
     "icon": "border_all",
     "color": "#3E74A7",

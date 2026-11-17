@@ -8705,6 +8705,681 @@
           }
         ]
       }
+    },
+    {
+      "id": "lbm_klasse",
+      "name": "Leefbaarometerklasse",
+      "description": "De Leefbaarometerklassen zoals de Leefbaarometer (leefbaarometer.nl) ze toont, op het CBS 100 m-grid, 2015-2024. Een gemiddeld gebied in Nederland scoort in 2024 ‘goed’, dus (lichter) groene gebieden kunnen nog onder het landelijk gemiddelde liggen.",
+      "source": "https://data.derondekaart.nl/pmtiles/leefbaarometer_2026.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2015,
+        "end": 2024,
+        "step": 1,
+        "initial": 2024
+      },
+      "excludeFromPicking": true,
+      "style": {
+        "opacity": 0.8
+      },
+      "geostyler": {
+        "name": "Leefbaarometerklasse",
+        "rules": [
+          {
+            "name": "Zeer onvoldoende",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "lbm",
+                0
+              ],
+              [
+                "<=",
+                "lbm",
+                3.67650467504069
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#CF783F",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Ruim onvoldoende",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "lbm",
+                3.67650467504069
+              ],
+              [
+                "<=",
+                "lbm",
+                3.74777500781709
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D7995E",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Onvoldoende",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "lbm",
+                3.74777500781709
+              ],
+              [
+                "<=",
+                "lbm",
+                3.82041005109484
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E0B881",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Zwak",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "lbm",
+                3.82041005109484
+              ],
+              [
+                "<=",
+                "lbm",
+                3.93821512641056
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FBF2C4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Voldoende",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "lbm",
+                3.93821512641056
+              ],
+              [
+                "<=",
+                "lbm",
+                3.99927591923257
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D0D2A6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Ruim voldoende",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "lbm",
+                3.99927591923257
+              ],
+              [
+                "<=",
+                "lbm",
+                4.11240504355092
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A7B38A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Goed",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "lbm",
+                4.11240504355092
+              ],
+              [
+                "<=",
+                "lbm",
+                4.1918359254207
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#819470",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Zeer goed",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "lbm",
+                4.1918359254207
+              ],
+              [
+                "<=",
+                "lbm",
+                4.27022228378731
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5E7658",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Uitstekend",
+            "filter": [
+              ">",
+              "lbm",
+              4.27022228378731
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3C5941",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "lbm_overlast_onveiligheid",
+      "name": "Dimensiescore: overlast en onveiligheid",
+      "description": "De dimensiescore overlast en onveiligheid uit de Leefbaarometer, 2015-2024. Gebaseerd op meldingen van overlast en criminaliteit bij de politie en op oordelen van bewoners over hun buurt uit de Veiligheidsmonitor.",
+      "source": "https://data.derondekaart.nl/pmtiles/leefbaarometer_2026.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2015,
+        "end": 2024,
+        "step": 1,
+        "initial": 2024
+      },
+      "excludeFromPicking": true,
+      "style": {
+        "opacity": 0.8
+      },
+      "geostyler": {
+        "name": "Dimensiescore: overlast en onveiligheid",
+        "rules": [
+          {
+            "name": "Zeer grote negatieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "onv",
+                -99999
+              ],
+              [
+                "<=",
+                "onv",
+                -0.23518051833113
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D66982",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Grote negatieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "onv",
+                -0.23518051833113
+              ],
+              [
+                "<=",
+                "onv",
+                -0.156791132617261
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#DD899A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Negatieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "onv",
+                -0.156791132617261
+              ],
+              [
+                "<=",
+                "onv",
+                -0.0783939878322828
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E5A9B4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Kleine negatieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "onv",
+                -0.0783939878322828
+              ],
+              [
+                "<=",
+                "onv",
+                -0.0391971327205338
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F3C9D1",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Geen afwijking",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "onv",
+                -0.0391971327205338
+              ],
+              [
+                "<=",
+                "onv",
+                0.0391958566279209
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8FCE3",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Kleine positieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "onv",
+                0.0391958566279209
+              ],
+              [
+                "<=",
+                "onv",
+                0.0783907625984641
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D6DDAF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Positieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "onv",
+                0.0783907625984641
+              ],
+              [
+                "<=",
+                "onv",
+                0.156783500197888
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B5BE7E",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Grote positieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "onv",
+                0.156783500197888
+              ],
+              [
+                "<=",
+                "onv",
+                0.235176696766338
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#96A04A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Zeer grote positieve bijdrage",
+            "filter": [
+              ">",
+              "onv",
+              0.235176696766338
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#798233",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "lbm_sociale_samenhang",
+      "name": "Dimensiescore: sociale samenhang",
+      "description": "De dimensiescore sociale samenhang uit de Leefbaarometer, 2015-2024: de bijdrage van de sociale samenhang in de buurt aan de leefbaarheid.",
+      "source": "https://data.derondekaart.nl/pmtiles/leefbaarometer_2026.pmtiles",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2015,
+        "end": 2024,
+        "step": 1,
+        "initial": 2024
+      },
+      "excludeFromPicking": true,
+      "style": {
+        "opacity": 0.8
+      },
+      "geostyler": {
+        "name": "Dimensiescore: sociale samenhang",
+        "rules": [
+          {
+            "name": "Zeer grote negatieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "soc",
+                -99999
+              ],
+              [
+                "<=",
+                "soc",
+                -0.23518051833113
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D66982",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Grote negatieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "soc",
+                -0.23518051833113
+              ],
+              [
+                "<=",
+                "soc",
+                -0.156791132617261
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#DD899A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Negatieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "soc",
+                -0.156791132617261
+              ],
+              [
+                "<=",
+                "soc",
+                -0.0783939878322828
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#E5A9B4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Kleine negatieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "soc",
+                -0.0783939878322828
+              ],
+              [
+                "<=",
+                "soc",
+                -0.0391971327205338
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F3C9D1",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Geen afwijking",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "soc",
+                -0.0391971327205338
+              ],
+              [
+                "<=",
+                "soc",
+                0.0391958566279209
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8FCE3",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Kleine positieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "soc",
+                0.0391958566279209
+              ],
+              [
+                "<=",
+                "soc",
+                0.0783907625984641
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#D6DDAF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Positieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "soc",
+                0.0783907625984641
+              ],
+              [
+                "<=",
+                "soc",
+                0.156783500197888
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#B5BE7E",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Grote positieve bijdrage",
+            "filter": [
+              "&&",
+              [
+                ">",
+                "soc",
+                0.156783500197888
+              ],
+              [
+                "<=",
+                "soc",
+                0.235176696766338
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#96A04A",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "Zeer grote positieve bijdrage",
+            "filter": [
+              ">",
+              "soc",
+              0.235176696766338
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#798233",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
     }
   ]
 }

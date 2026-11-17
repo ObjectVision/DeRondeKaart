@@ -30,7 +30,7 @@ export {
 } from "./area-filter";
 export type { AreaFilterEntry } from "./area-filter";
 export { computeScoreGrid, scoreHistogram, NODATA } from "./filter-raster";
-export { filterRasterForStep } from "./timeseries";
+export { filterRasterForStep, initialStep } from "./timeseries";
 export type { ScoreGrid, ScoreInput } from "./filter-raster";
 export {
   registerScoreProtocol,
