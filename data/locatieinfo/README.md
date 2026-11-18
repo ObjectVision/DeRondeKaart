@@ -97,3 +97,10 @@ Its WZW values are WZW's own display strings (already rounded, Dutch decimal
 comma), so they use the default `text` format rather than `int`/`pct`. WZW is
 on the 2024 wijkindeling: a wijk whose code changed in 2025 shows `–` for those
 tables. The script prints how many.
+
+The three files cover all of the Netherlands, so the seven `wzw_*` variants
+(Noord-Holland, Gelderland, Drenthe, Noord-Brabant, Zuid-Holland, Zeeland,
+Hengelo) reuse the same `wijk_klik` layer at the same URLs. After a rebuild, bump
+the `?v=` stamp in all eight `layers.json` files. Their study-area masks are
+built separately by `data/build-wzw-studyareas.py`, which also prints the
+`center` / `zoom` set for each variant in `map.json`.

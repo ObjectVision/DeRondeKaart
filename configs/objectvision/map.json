@@ -35,7 +35,80 @@
       },
       {
         "id": "wzw_noord_holland",
-        "label": "WoonZorgWijzer Noord-Holland"
+        "label": "WoonZorgWijzer Noord-Holland",
+        "studyarea": "wzw_studiegebied",
+        "pickLayer": "wijk_klik",
+        "center": [
+          4.9115,
+          52.67847
+        ],
+        "zoom": 8.15
+      },
+      {
+        "id": "wzw_gelderland",
+        "label": "WoonZorgWijzer Gelderland",
+        "studyarea": "wzw_studiegebied",
+        "pickLayer": "wijk_klik",
+        "center": [
+          5.9135,
+          52.12181
+        ],
+        "zoom": 8.55
+      },
+      {
+        "id": "wzw_drenthe",
+        "label": "WoonZorgWijzer Drenthe",
+        "studyarea": "wzw_studiegebied",
+        "pickLayer": "wijk_klik",
+        "center": [
+          6.6065,
+          52.90901
+        ],
+        "zoom": 8.95
+      },
+      {
+        "id": "wzw_noord_brabant",
+        "label": "WoonZorgWijzer Noord-Brabant",
+        "studyarea": "wzw_studiegebied",
+        "pickLayer": "wijk_klik",
+        "center": [
+          5.119,
+          51.52702
+        ],
+        "zoom": 8.7
+      },
+      {
+        "id": "wzw_zuid_holland",
+        "label": "WoonZorgWijzer Zuid-Holland",
+        "studyarea": "wzw_studiegebied",
+        "pickLayer": "wijk_klik",
+        "center": [
+          4.435,
+          51.99276
+        ],
+        "zoom": 8.8
+      },
+      {
+        "id": "wzw_zeeland",
+        "label": "WoonZorgWijzer Zeeland",
+        "studyarea": "wzw_studiegebied",
+        "pickLayer": "wijk_klik",
+        "center": [
+          3.817,
+          51.47985
+        ],
+        "zoom": 9.1
+      },
+      {
+        "id": "wzw_hengelo",
+        "label": "WoonZorgWijzer Hengelo",
+        "studyarea": "wzw_studiegebied",
+        "pickLayer": "wijk_klik",
+        "center": [
+          6.777,
+          52.25254
+        ],
+        "zoom": 11.25
       }
     ]
   },
