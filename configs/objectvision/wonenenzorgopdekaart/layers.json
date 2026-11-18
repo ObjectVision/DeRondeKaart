@@ -4292,7 +4292,7 @@
           "source": "https://data.derondekaart.nl/parquet/wonenenzorgopdekaart/wijk_informatie_2026.parquet?v=20261117",
           "rowField": "row",
           "keyField": "code",
-          "templateUrl": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/locatieinfo/wijk-informatie-wzw.html?v=20261117"
+          "templateUrl": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/locatieinfo/wijk-informatie-wzw.html?v=20261118"
         }
       }
     },
