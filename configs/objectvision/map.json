@@ -39,8 +39,8 @@
         "studyarea": "wzw_studiegebied",
         "pickLayer": "wijk_klik",
         "center": [
-          4.9115,
-          52.67847
+          4.91132,
+          52.67861
         ],
         "zoom": 8.15
       },
@@ -50,8 +50,8 @@
         "studyarea": "wzw_studiegebied",
         "pickLayer": "wijk_klik",
         "center": [
-          5.9135,
-          52.12181
+          5.91338,
+          52.12166
         ],
         "zoom": 8.55
       },
@@ -61,8 +61,8 @@
         "studyarea": "wzw_studiegebied",
         "pickLayer": "wijk_klik",
         "center": [
-          6.6065,
-          52.90901
+          6.60628,
+          52.90905
         ],
         "zoom": 8.95
       },
@@ -72,8 +72,8 @@
         "studyarea": "wzw_studiegebied",
         "pickLayer": "wijk_klik",
         "center": [
-          5.119,
-          51.52702
+          5.11914,
+          51.52678
         ],
         "zoom": 8.7
       },
@@ -83,8 +83,8 @@
         "studyarea": "wzw_studiegebied",
         "pickLayer": "wijk_klik",
         "center": [
-          4.435,
-          51.99276
+          4.43497,
+          51.99263
         ],
         "zoom": 8.8
       },
@@ -94,8 +94,8 @@
         "studyarea": "wzw_studiegebied",
         "pickLayer": "wijk_klik",
         "center": [
-          3.817,
-          51.47985
+          3.81711,
+          51.48013
         ],
         "zoom": 9.1
       },
@@ -105,8 +105,8 @@
         "studyarea": "wzw_studiegebied",
         "pickLayer": "wijk_klik",
         "center": [
-          6.777,
-          52.25254
+          6.77721,
+          52.25237
         ],
         "zoom": 11.25
       }
