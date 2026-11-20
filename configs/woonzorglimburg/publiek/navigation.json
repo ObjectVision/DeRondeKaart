@@ -252,27 +252,6 @@
         "expanded": true,
         "children": [
           {
-            "id": "bomen_rule_3_2026",
-            "color": "#54B6C0",
-            "label": "3 bomen",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "bomen_rule_30_2026",
-            "color": "#54B6C0",
-            "label": "30% bladerdek",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "bomen_rule_300_2026",
-            "color": "#54B6C0",
-            "label": "300 meter van groen",
-            "a": false,
-            "b": false
-          },
-          {
             "id": "bomen_rule_3_30_300_classified_2026",
             "color": "#54B6C0",
             "label": "3-30-300 vuistregels",
