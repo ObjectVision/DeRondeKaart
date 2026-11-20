@@ -60,6 +60,8 @@ App tests are co-located `src/**/*.test.ts(x)` under jsdom via `vitest.config.ts
 
 `.agents/skills/<name>/SKILL.md` — **edit the `.agents/` copy**. `ask-matt` routes between them.
 
+Follow guidelines in the modern-web-guidance skill .agents/skills/modern-web-guidance/SKILL.md
+
 | Reach for | When |
 |---|---|
 | `implement` · `tdd` · `prototype` · `scaffold-exercises` | Building: from a spec, test-first, throwaway, or exercise stubs |

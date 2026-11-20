@@ -60,7 +60,7 @@
     "expanded": false,
     "children": [
       {
-        "label": "demografie personen",
+        "label": "leeftijdsgroepen",
         "icon": "monitoring",
         "color": "#3E74A7",
         "expanded": true,
@@ -103,7 +103,7 @@
           },
           {
             "id": "dichtheid_bevolking_2026",
-            "label": "dichtheid",
+            "label": "alle",
             "a": false,
             "b": false
           }
@@ -355,7 +355,7 @@
         ]
       },
       {
-        "label": "zorgvoorziening",
+        "label": "zorg",
         "icon": "storefront",
         "color": "#8C54D6",
         "expanded": true,
