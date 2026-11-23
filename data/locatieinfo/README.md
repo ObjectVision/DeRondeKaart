@@ -173,9 +173,10 @@ slope per ~25 m piece, z13–14). The app shows it as one composite layer,
 carry `klasse` and the popup text `omschrijving`. The vlak raster comes from the
 published comparison COG unless `--tif` names a fresh `AHN2Stijgingspercentage.py`
 output. A composite cannot carry `filterRaster`, so the layer is not offered in
-Combinaties.
+Combinaties. Its metainfo is the `relief` row of
+`data/meta/woonzorglimburg/metadata.xlsx` (`npm run metainfo`).
 
 ```sh
 python data/build-wzl-relief.py                    # build
-python data/build-wzl-relief.py --upload --config  # publish archive + meta, rewrite layer + Omgeving nav
+python data/build-wzl-relief.py --upload --config  # publish archive, rewrite layer + Omgeving nav
 ```

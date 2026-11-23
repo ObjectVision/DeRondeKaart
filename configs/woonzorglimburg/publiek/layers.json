@@ -1356,6 +1356,7 @@
       "name": "apotheek",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/apotheek_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/apotheek_bronnen.html",
         "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/apotheek_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/vrz_locaties_2026.pmtiles",
@@ -3993,8 +3994,7 @@
       "id": "cbsgemeente2026",
       "name": "CBS Gemeente 2026",
       "meta": {
-        "toelichting": "https://data.woonzorglimburg.nl/meta/cbsgemeente2026_toelichting.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/cbsgemeente2026_aannames_en_onzekerheden.html"
+        "toelichting": "https://data.woonzorglimburg.nl/meta/cbsgemeente2026_toelichting.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/cbsgemeente2026.pmtiles",
       "format": "pmtiles",
@@ -6635,7 +6635,8 @@
       "name": "pandtype",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/pandtype_lb_2026_toelichting.html",
-        "bronnen": "https://data.woonzorglimburg.nl/meta/pandtype_lb_2026_bronnen.html"
+        "bronnen": "https://data.woonzorglimburg.nl/meta/pandtype_lb_2026_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/pandtype_lb_2026_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/pandtype_lb_2026.pmtiles",
       "format": "pmtiles",
@@ -8421,7 +8422,8 @@
       "name": "OOSR",
       "meta": {
         "toelichting": "https://data.woonzorglimburg.nl/meta/oosr_2_toelichting.html",
-        "bronnen": "https://data.woonzorglimburg.nl/meta/oosr_2_bronnen.html"
+        "bronnen": "https://data.woonzorglimburg.nl/meta/oosr_2_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/oosr_2_aannames_en_onzekerheden.html"
       },
       "source": "https://data.woonzorglimburg.nl/pmtiles/infact_prognose_lb_2026.pmtiles",
       "format": "pmtiles",
@@ -8526,9 +8528,9 @@
       "name": "Stijgingspercentage",
       "subname": "reliëf",
       "meta": {
-        "toelichting": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_2026_toelichting.html",
-        "bronnen": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_2026_bronnen.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_2026_aannames_en_onzekerheden.html"
+        "toelichting": "https://data.woonzorglimburg.nl/meta/relief_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/relief_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/relief_aannames_en_onzekerheden.html"
       },
       "format": "composite",
       "geometryType": "polygon",
@@ -9921,6 +9923,10 @@
     {
       "id": "woningbouw_ouderen",
       "name": "geschikt voor ouderen",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/woningbouw_ouderen_toelichting.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/woningbouw_ouderen_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/woningbouw_lb.pmtiles?v=20261109",
       "format": "pmtiles",
       "geometryType": "point",
@@ -10091,6 +10097,11 @@
     {
       "id": "lbm_klasse",
       "name": "Leefbaarometerklasse",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/lbm_klasse_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/lbm_klasse_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/lbm_klasse_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/leefbaarometer_2026.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -10314,6 +10325,11 @@
     {
       "id": "lbm_overlast_onveiligheid",
       "name": "Dimensiescore: overlast en onveiligheid",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/lbm_overlast_onveiligheid_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/lbm_overlast_onveiligheid_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/lbm_overlast_onveiligheid_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/leefbaarometer_2026.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -10537,6 +10553,11 @@
     {
       "id": "lbm_sociale_samenhang",
       "name": "Dimensiescore: sociale samenhang",
+      "meta": {
+        "toelichting": "https://data.woonzorglimburg.nl/meta/lbm_sociale_samenhang_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/lbm_sociale_samenhang_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/lbm_sociale_samenhang_aannames_en_onzekerheden.html"
+      },
       "source": "https://data.woonzorglimburg.nl/pmtiles/leefbaarometer_2026.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",

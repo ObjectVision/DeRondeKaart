@@ -25,7 +25,9 @@ Steps, each cached:
 1. Vlak raster (``--tif`` or the COG) -> 30 m RD tif -> ``convert-tif-to-geojson.py``.
 2. Label vlak and weg (``klasse``, ``omschrijving``; weg keeps name/fclass/stijging_pct).
 3. ``convert-geojson-to-pmtiles.py --spec`` -> ``data/pmtiles/woonzorglimburg/stijgingspercentage_2026.pmtiles``.
-4. ``--upload`` the archive to wzl-data ``pmtiles/`` and the combined meta to ``meta/``.
+4. ``--upload`` the archive to wzl-data ``pmtiles/``. The metainfo is the spreadsheet
+   row ``relief`` in ``meta/woonzorglimburg/metadata.xlsx``, published by
+   ``meta/genereer_html.py``.
 5. ``--config``: replace the two old layers with the composite in publiek and
    ontwikkel, and flatten Omgeving's navigation (idempotent).
 
@@ -77,9 +79,9 @@ NODATA = 255
 
 NAME = "stijgingspercentage_2026"
 OUT_DIR = HERE / "pmtiles" / "woonzorglimburg"
-META_DIR = HERE / "meta" / "woonzorglimburg" / "resultaten"
+META_INDEX = HERE / "meta" / "woonzorglimburg" / "resultaten" / "index.json"
+META_ID = "relief"  # the layer's row in metadata.xlsx
 REMOTE_PMTILES = "wzl-data:/var/www/woonzorglimburg_data/pmtiles"
-REMOTE_META = "wzl-data:/var/www/woonzorglimburg_data/meta"
 URL = "https://data.woonzorglimburg.nl/pmtiles/{name}.pmtiles?v={stamp}"
 META_URL = "https://data.woonzorglimburg.nl/meta/{name}_{part}.html"
 META_PARTS = ("toelichting", "bronnen", "aannames_en_onzekerheden")
@@ -254,6 +256,16 @@ def line_rule(name: str, value: int, color: str) -> dict:
     }
 
 
+def meta() -> dict:
+    """The tabs genereer_html.py wrote for the ``relief`` row (all three if not generated yet)."""
+    index = json.loads(META_INDEX.read_text(encoding="utf-8")) if META_INDEX.is_file() else None
+    return {
+        part: META_URL.format(name=META_ID, part=part)
+        for part in META_PARTS
+        if index is None or META_ID in index.get(part, [])
+    }
+
+
 def layer_entry(stamp: str) -> dict:
     source = URL.format(name=NAME, stamp=stamp)
     legend = fill_rules()
@@ -267,7 +279,7 @@ def layer_entry(stamp: str) -> dict:
         "id": LAYER_ID,
         "name": "Stijgingspercentage",
         "subname": "reliëf",
-        "meta": {part: META_URL.format(name=NAME, part=part) for part in META_PARTS},
+        "meta": meta(),
         "format": "composite",
         "geometryType": "polygon",
         "geostyler": {"name": "Stijgingspercentage", "rules": legend},
@@ -339,7 +351,7 @@ def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(description="Build the woonzorglimburg reliëf PMTiles and config.")
     parser.add_argument("--tif", type=Path, help="the AHN script's classified tif (default: the published COG)")
     parser.add_argument("--no-build", action="store_true", help="skip the build steps")
-    parser.add_argument("--upload", action="store_true", help="publish the archive and meta to wzl-data")
+    parser.add_argument("--upload", action="store_true", help="publish the archive to wzl-data")
     parser.add_argument("--config", action="store_true", help="write layers.json and navigation.json")
     parser.add_argument("--stamp", default=time.strftime("%Y%m%d"), help="?v= cache stamp in the layer URL")
     args = parser.parse_args(argv[1:])
@@ -353,7 +365,6 @@ def main(argv: list[str]) -> int:
         archive = build(helpers)
         if args.upload:
             helpers.upload([archive], REMOTE_PMTILES)
-            helpers.upload([META_DIR / f"{NAME}_{part}.html" for part in META_PARTS], REMOTE_META)
 
     if args.config:
         entry = layer_entry(args.stamp)
