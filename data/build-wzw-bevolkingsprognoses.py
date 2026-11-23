@@ -160,19 +160,24 @@ def missing_resolutions(region: Region) -> list[str]:
 
 # --- GeoDMS ----------------------------------------------------------------
 
-def run_geodms(region: Region, resolutions: list[str], exe: Path) -> None:
+def run_geodms_item(item: str, what: str, exe: Path) -> None:
+    """Calculate one GeoDMS item of ``stam.dms``; GeoDmsRun exits 0 on some
+    errors, so its log is scanned for [E]/[F] lines too."""
     env = {**os.environ, "MSYS_NO_PATHCONV": "1"}
+    print(f"  {what} GeoDMS …", flush=True)
+    started = time.time()
+    result = subprocess.run([str(exe), str(GEODMS_CFG), item], env=env, capture_output=True, text=True, check=False)
+    log = (result.stdout + result.stderr).splitlines()
+    errors = [line for line in log if line.startswith(("[E]", "[F]"))]
+    if result.returncode != 0 or errors:
+        sys.stderr.write("\n".join((errors or log)[-20:]) + "\n")
+        raise SystemExit(f"error: GeoDMS failed on {item} (exit {result.returncode})")
+    print(f"  {what} GeoDMS done in {time.time() - started:.0f}s", flush=True)
+
+
+def run_geodms(region: Region, resolutions: list[str], exe: Path) -> None:
     for res in resolutions:
-        item = GEODMS_ITEM.format(region=region.geodms, res=res)
-        print(f"  {region.code} GeoDMS {res} …", flush=True)
-        started = time.time()
-        result = subprocess.run([str(exe), str(GEODMS_CFG), item], env=env, capture_output=True, text=True, check=False)
-        log = (result.stdout + result.stderr).splitlines()
-        errors = [line for line in log if line.startswith(("[E]", "[F]"))]
-        if result.returncode != 0 or errors:
-            sys.stderr.write("\n".join((errors or log)[-20:]) + "\n")
-            raise SystemExit(f"error: GeoDMS failed on {item} (exit {result.returncode})")
-        print(f"  {region.code} GeoDMS {res} done in {time.time() - started:.0f}s", flush=True)
+        run_geodms_item(GEODMS_ITEM.format(region=region.geodms, res=res), f"{region.code} {res}", exe)
 
 
 # --- PMTiles ---------------------------------------------------------------

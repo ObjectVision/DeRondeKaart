@@ -125,3 +125,18 @@ python data/build-wzw-bevolkingsprognoses.py --no-build --config   # rewrite bev
 navigation group from the MapGallery collections, and stamps `?v=` with today's
 date (`--stamp` to override) — so rerun it after every upload. MapGallery
 layers that filter on the wrong field are corrected in `FIELD_FIXES`.
+
+## Dominante sociaal economische klasse (wzw_*)
+
+`data/build-wzw-sociale-klasse.py` builds MapGallery layer 435 from GeoDMS item
+`/Brondata/CBS_100m_vector_grid/data/Y2026/SDK/dominante_sociale_klasse` into one
+archive, `pmtiles/woonzorgwijzer/dominante_sociale_klasse.pmtiles` (layer `DSK`,
+m20 z5–8, m10 z9–10, m5 z11–15), shared by Zuid-Holland, Noord-Brabant,
+Gelderland, Zeeland and Drenthe. It adds a `klasse` property with the class name
+for the click popup, and stops if a class is missing from an export: GeoDMS
+writes the index into the classes present, so a gap would shift the legend.
+
+```sh
+python data/build-wzw-sociale-klasse.py --geodms           # regenerate exports, build
+python data/build-wzw-sociale-klasse.py --upload --config  # publish, rewrite layer + nav group
+```

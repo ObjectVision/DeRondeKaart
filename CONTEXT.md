@@ -74,6 +74,10 @@ by `data/build-wzw-bevolkingsprognoses.py`: one PMTiles archive per region and
 kind (`percentage`, `absoluut`, `huishoudens`), one source layer `Y<year>` per
 step. Ids start with `bevprog_`.
 
+**Dominante sociale klasse** — the WZW layer `wzw_dominante_sociale_klasse`: per
+100 m cell the SCP social class most present there (12 classes), one national
+archive built by `data/build-wzw-sociale-klasse.py`.
+
 **Format** — how a layer's data arrives: `mvt`, `pmtiles`, `cog`, `flatgeobuf`,
 `geojson` (in-memory, pushed by an embedding host), or `composite`.
 `docs/system-design.md` §5.

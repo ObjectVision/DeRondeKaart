@@ -7520,6 +7520,208 @@
       }
     },
     {
+      "id": "wzw_dominante_sociale_klasse",
+      "name": "Dominante sociaal economische klasse",
+      "subname": "sociaal economisch",
+      "description": "Sociale gebiedstypering 2024, dominante klasse Het SCP onderscheidt in de studie: Eigentijdse ongelijkheid: De postindustriële klassenstructuur op basis van vier typen kapitaal, Verschil in Nederland 2024 verschillende sociale klassen. In de kaart staat aangegeven welke van deze klassen naar verwachting in het betreffende gebied het meest voorkomt cq. welke groep dominant is:",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/dominante_sociale_klasse.pmtiles?v=20261123",
+      "format": "pmtiles",
+      "sourceLayer": "DSK",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Dominante sociaal economische klasse</b><table><tr><td>Klasse</td><td>[[ klasse ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Dominante sociaal economische klasse",
+        "rules": [
+          {
+            "name": "werkende bovenlaag",
+            "filter": [
+              "==",
+              "data",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#1229DE",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "jonge kansrijken",
+            "filter": [
+              "==",
+              "data",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A7FF74",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "rentenierende bovenlaag",
+            "filter": [
+              "==",
+              "data",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8304A7",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "werkende middengroep",
+            "filter": [
+              "==",
+              "data",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#02A883",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "laagopgeleid gepensioneerd",
+            "filter": [
+              "==",
+              "data",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F4B1E0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "onzekere werkenden",
+            "filter": [
+              "==",
+              "data",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFB62B",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "precariaat",
+            "filter": [
+              "==",
+              "data",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#BD0100",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "gemengd bovenlaag",
+            "filter": [
+              "==",
+              "data",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#002471",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "gemengd middengroep",
+            "filter": [
+              "==",
+              "data",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#66CDA6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "jonge kansrijken en onzekere werkenden",
+            "filter": [
+              "==",
+              "data",
+              9
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#BDD39B",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "onzekere werkenden en precariaat",
+            "filter": [
+              "==",
+              "data",
+              10
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#DC6E20",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "gemengde welvaart",
+            "filter": [
+              "==",
+              "data",
+              11
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#488F57",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "id": "wzw_studiegebied",
       "name": "Studiegebied WoonZorgwijzer Zuid-Holland",
       "source": "https://data.derondekaart.nl/pmtiles/studyareas/studyarea_WZWZuidHolland.pmtiles?v=20261118",
