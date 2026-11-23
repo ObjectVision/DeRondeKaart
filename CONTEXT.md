@@ -65,6 +65,15 @@ one legend entry can be backed by several archives. Children are never layer
 entries: they exist only as native sources on the map. Their synthesized ids end
 in `__c<index>`.
 
+**Timeseries** — a layer config with a `timeseries` block (`placeholder`,
+`start`, `end`, `step`) whose `source` / `sourceLayer` hold the placeholder, so
+a year slider swaps which step is drawn. One layer entry, many steps.
+
+**Bevolkingsprognose** (population forecast) — the WZW timeseries layers built
+by `data/build-wzw-bevolkingsprognoses.py`: one PMTiles archive per region and
+kind (`percentage`, `absoluut`, `huishoudens`), one source layer `Y<year>` per
+step. Ids start with `bevprog_`.
+
 **Format** — how a layer's data arrives: `mvt`, `pmtiles`, `cog`, `flatgeobuf`,
 `geojson` (in-memory, pushed by an embedding host), or `composite`.
 `docs/system-design.md` §5.

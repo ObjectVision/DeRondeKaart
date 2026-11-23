@@ -218,6 +218,128 @@
     ]
   },
   {
+    "label": "Bevolkingsprognoses",
+    "icon": "monitoring",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Aandeel naar leeftijdsklasse",
+        "icon": "percent",
+        "color": "#3E74A7",
+        "expanded": true,
+        "children": [
+          {
+            "id": "bevprog_percentage_p_lft00_17",
+            "label": "0 - 17 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_percentage_p_lft18_29",
+            "label": "18 - 29 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_percentage_p_lft30_44",
+            "label": "30 - 44 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_percentage_p_lft45_66",
+            "label": "45 - 66 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_percentage_p_lft67_75",
+            "label": "67 - 74 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_percentage_p_lft67_plus",
+            "label": "67 plussers",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_percentage_p_lft75_plus",
+            "label": "75 plussers",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Aantal naar leeftijdsklasse",
+        "icon": "groups",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "bevprog_absoluut_lft00_17",
+            "label": "0 - 17 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_absoluut_lft18_29",
+            "label": "18 - 29 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_absoluut_lft30_44",
+            "label": "30 - 44 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_absoluut_lft45_66",
+            "label": "45 - 66 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_absoluut_lft67_75",
+            "label": "67 - 74 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_absoluut_lft67_plus",
+            "label": "67 plussers",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_absoluut_lft75_plus",
+            "label": "75 plussers",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Mantelzorg",
+        "icon": "volunteer_activism",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "bevprog_huishoudens_oosr",
+            "label": "Oldest Old Support Ratio (OOSR)",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
     "label": "Gebiedsindelingen",
     "icon": "border_all",
     "color": "#3E74A7",

@@ -104,3 +104,24 @@ Hengelo) reuse the same `wijk_klik` layer at the same URLs. After a rebuild, bum
 the `?v=` stamp in all eight `layers.json` files. Their study-area masks are
 built separately by `data/build-wzw-studyareas.py`, which also prints the
 `center` / `zoom` set for each variant in `map.json`.
+
+## Bevolkingsprognoses (wzw_*)
+
+Not location info, but built next to it. `data/build-wzw-bevolkingsprognoses.py`
+turns the GeoDMS exports of `/Brondata/CBS_100m_vector_grid/data/Y2026/bevolkingsprognoses`
+(WoonZorgwijzer_clientside_rendering `cfg/stam.dms`) into three PMTiles archives
+per region — `bevprog_<rg>_{percentage,absoluut,huishoudens}.pmtiles`, one layer
+`Y<year>` each, resolutions banded by zoom (m500 z5–8, m200 z9–10, m10 z11–12,
+m5 z13–15) — for Noord-Holland, Zuid-Holland, Zeeland, Noord-Brabant and
+Gelderland (Gelderland's source stops at 2040).
+
+```sh
+python data/build-wzw-bevolkingsprognoses.py --geodms   # export missing geojsons, then build
+python data/build-wzw-bevolkingsprognoses.py --upload   # publish to ov-data
+python data/build-wzw-bevolkingsprognoses.py --no-build --config   # rewrite bevprog_* layers + nav group
+```
+
+`--config` regenerates every `bevprog_*` layer and the "Bevolkingsprognoses"
+navigation group from the MapGallery collections, and stamps `?v=` with today's
+date (`--stamp` to override) — so rerun it after every upload. MapGallery
+layers that filter on the wrong field are corrected in `FIELD_FIXES`.

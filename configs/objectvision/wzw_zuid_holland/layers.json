@@ -4124,6 +4124,3402 @@
       }
     },
     {
+      "id": "bevprog_huishoudens_inw",
+      "name": "inwoners per hectare",
+      "subname": "bevolkingsdichtheid",
+      "description": "Deze kaart toont het aantal inwoners per hectare in 2024.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_huishoudens.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y2024",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>inwoners per hectare</b> (bevolkingsdichtheid)<table><tr><td>Klasse</td><td>[[ inw ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "inwoners per hectare",
+        "rules": [
+          {
+            "name": "minder dan 20",
+            "filter": [
+              "==",
+              "inw",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#BCE3F8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 40",
+            "filter": [
+              "==",
+              "inw",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A7CBDF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40 tot 60",
+            "filter": [
+              "==",
+              "inw",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8DB4CE",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60 tot 80",
+            "filter": [
+              "==",
+              "inw",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#739CB6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "80 tot 100",
+            "filter": [
+              "==",
+              "inw",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5985A2",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "100 tot 120",
+            "filter": [
+              "==",
+              "inw",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5985A2",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "120 tot 140",
+            "filter": [
+              "==",
+              "inw",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#2B5479",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "140 of meer",
+            "filter": [
+              "==",
+              "inw",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#123B66",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_percentage_p_lft00_17",
+      "name": "0 - 17 jarigen",
+      "subname": "aandeel naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_percentage.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>0 - 17 jarigen</b> (aandeel naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lft00_17 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "0 - 17 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lft00_17",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c2fe7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lft00_17",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9e26c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lft00_17",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8fc55d",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lft00_17",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#75a84e",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lft00_17",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5b8c3f",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lft00_17",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#416f30",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lft00_17",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#275221",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lft00_17",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#0d3512",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_percentage_p_lft18_29",
+      "name": "18 - 29 jarigen",
+      "subname": "aandeel naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_percentage.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>18 - 29 jarigen</b> (aandeel naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lft18_29 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "18 - 29 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lft18_29",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c2fe7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lft18_29",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9e26c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lft18_29",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8fc55d",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lft18_29",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#75a84e",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lft18_29",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5b8c3f",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lft18_29",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#416f30",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lft18_29",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#275221",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lft18_29",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#0d3512",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_percentage_p_lft30_44",
+      "name": "30 - 44 jarigen",
+      "subname": "aandeel naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_percentage.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>30 - 44 jarigen</b> (aandeel naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lft30_44 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "30 - 44 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lft30_44",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c2fe7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lft30_44",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9e26c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lft30_44",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8fc55d",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lft30_44",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#75a84e",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lft30_44",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5b8c3f",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lft30_44",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#416f30",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lft30_44",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#275221",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lft30_44",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#0d3512",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_percentage_p_lft45_66",
+      "name": "45 - 66 jarigen",
+      "subname": "aandeel naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_percentage.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>45 - 66 jarigen</b> (aandeel naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lft45_66 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "45 - 66 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lft45_66",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c2fe7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lft45_66",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9e26c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lft45_66",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8fc55d",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lft45_66",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#75a84e",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lft45_66",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5b8c3f",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lft45_66",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#416f30",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lft45_66",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#275221",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lft45_66",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#0d3512",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_percentage_p_lft67_75",
+      "name": "67 - 74 jarigen",
+      "subname": "aandeel naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_percentage.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>67 - 74 jarigen</b> (aandeel naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lft67_75 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "67 - 74 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lft67_75",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c2fe7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lft67_75",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9e26c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lft67_75",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8fc55d",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lft67_75",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#75a84e",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lft67_75",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5b8c3f",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lft67_75",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#416f30",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lft67_75",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#275221",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lft67_75",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#0d3512",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_percentage_p_lft67_plus",
+      "name": "67 plussers",
+      "subname": "aandeel naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_percentage.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>67 plussers</b> (aandeel naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lft67_plus ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "67 plussers",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lft67_plus",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c2fe7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lft67_plus",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9e26c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lft67_plus",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8fc55d",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lft67_plus",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#75a84e",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lft67_plus",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5b8c3f",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lft67_plus",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#416f30",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lft67_plus",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#275221",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lft67_plus",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#0d3512",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_percentage_p_lft75_plus",
+      "name": "75 plussers",
+      "subname": "aandeel naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_percentage.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>75 plussers</b> (aandeel naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lft75_plus ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "75 plussers",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lft75_plus",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c2fe7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lft75_plus",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9e26c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lft75_plus",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8fc55d",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lft75_plus",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#75a84e",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lft75_plus",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5b8c3f",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lft75_plus",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#416f30",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lft75_plus",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#275221",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lft75_plus",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#0d3512",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_absoluut_lft00_17",
+      "name": "0 - 17 jarigen",
+      "subname": "aantal naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_absoluut.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>0 - 17 jarigen</b> (aantal naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ lft00_17 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "0 - 17 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 5",
+            "filter": [
+              "==",
+              "lft00_17",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#caedfb",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "5 tot 10",
+            "filter": [
+              "==",
+              "lft00_17",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9d0e4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15",
+            "filter": [
+              "==",
+              "lft00_17",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#87b3cc",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20",
+            "filter": [
+              "==",
+              "lft00_17",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6596b4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25",
+            "filter": [
+              "==",
+              "lft00_17",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#44799c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30",
+            "filter": [
+              "==",
+              "lft00_17",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#225c84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 30",
+            "filter": [
+              "==",
+              "lft00_17",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#003e6c",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_absoluut_lft18_29",
+      "name": "18 - 29 jarigen",
+      "subname": "aantal naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_absoluut.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>18 - 29 jarigen</b> (aantal naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ lft18_29 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "18 - 29 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 5",
+            "filter": [
+              "==",
+              "lft18_29",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#caedfb",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "5 tot 10",
+            "filter": [
+              "==",
+              "lft18_29",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9d0e4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15",
+            "filter": [
+              "==",
+              "lft18_29",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#87b3cc",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20",
+            "filter": [
+              "==",
+              "lft18_29",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6596b4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25",
+            "filter": [
+              "==",
+              "lft18_29",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#44799c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30",
+            "filter": [
+              "==",
+              "lft18_29",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#225c84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 30",
+            "filter": [
+              "==",
+              "lft18_29",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#003e6c",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_absoluut_lft30_44",
+      "name": "30 - 44 jarigen",
+      "subname": "aantal naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_absoluut.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>30 - 44 jarigen</b> (aantal naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ lft30_44 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "30 - 44 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 5",
+            "filter": [
+              "==",
+              "lft30_44",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#caedfb",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "5 tot 10",
+            "filter": [
+              "==",
+              "lft30_44",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9d0e4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15",
+            "filter": [
+              "==",
+              "lft30_44",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#87b3cc",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20",
+            "filter": [
+              "==",
+              "lft30_44",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6596b4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25",
+            "filter": [
+              "==",
+              "lft30_44",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#44799c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30",
+            "filter": [
+              "==",
+              "lft30_44",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#225c84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 30",
+            "filter": [
+              "==",
+              "lft30_44",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#003e6c",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_absoluut_lft45_66",
+      "name": "45 - 66 jarigen",
+      "subname": "aantal naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_absoluut.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>45 - 66 jarigen</b> (aantal naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ lft45_66 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "45 - 66 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 5",
+            "filter": [
+              "==",
+              "lft45_66",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#caedfb",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "5 tot 10",
+            "filter": [
+              "==",
+              "lft45_66",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9d0e4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15",
+            "filter": [
+              "==",
+              "lft45_66",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#87b3cc",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20",
+            "filter": [
+              "==",
+              "lft45_66",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6596b4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25",
+            "filter": [
+              "==",
+              "lft45_66",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#44799c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30",
+            "filter": [
+              "==",
+              "lft45_66",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#225c84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 30",
+            "filter": [
+              "==",
+              "lft45_66",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#003e6c",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_absoluut_lft67_75",
+      "name": "67 - 74 jarigen",
+      "subname": "aantal naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_absoluut.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>67 - 74 jarigen</b> (aantal naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ lft67_75 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "67 - 74 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 5",
+            "filter": [
+              "==",
+              "lft67_75",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#caedfb",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "5 tot 10",
+            "filter": [
+              "==",
+              "lft67_75",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9d0e4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15",
+            "filter": [
+              "==",
+              "lft67_75",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#87b3cc",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20",
+            "filter": [
+              "==",
+              "lft67_75",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6596b4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25",
+            "filter": [
+              "==",
+              "lft67_75",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#44799c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30",
+            "filter": [
+              "==",
+              "lft67_75",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#225c84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 30",
+            "filter": [
+              "==",
+              "lft67_75",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#003e6c",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_absoluut_lft67_plus",
+      "name": "67 plussers",
+      "subname": "aantal naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_absoluut.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>67 plussers</b> (aantal naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ lft67_plus ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "67 plussers",
+        "rules": [
+          {
+            "name": "0 tot 5",
+            "filter": [
+              "==",
+              "lft67_plus",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#caedfb",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "5 tot 10",
+            "filter": [
+              "==",
+              "lft67_plus",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9d0e4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15",
+            "filter": [
+              "==",
+              "lft67_plus",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#87b3cc",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20",
+            "filter": [
+              "==",
+              "lft67_plus",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6596b4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25",
+            "filter": [
+              "==",
+              "lft67_plus",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#44799c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30",
+            "filter": [
+              "==",
+              "lft67_plus",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#225c84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 30",
+            "filter": [
+              "==",
+              "lft67_plus",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#003e6c",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_absoluut_lft75_plus",
+      "name": "75 plussers",
+      "subname": "aantal naar leeftijdsklasse",
+      "description": "Het aandeel [of aantal] geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_absoluut.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>75 plussers</b> (aantal naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ lft75_plus ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "75 plussers",
+        "rules": [
+          {
+            "name": "0 tot 5",
+            "filter": [
+              "==",
+              "lft75_plus",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#caedfb",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "5 tot 10",
+            "filter": [
+              "==",
+              "lft75_plus",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#a9d0e4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15",
+            "filter": [
+              "==",
+              "lft75_plus",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#87b3cc",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20",
+            "filter": [
+              "==",
+              "lft75_plus",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#6596b4",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25",
+            "filter": [
+              "==",
+              "lft75_plus",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#44799c",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30",
+            "filter": [
+              "==",
+              "lft75_plus",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#225c84",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 30",
+            "filter": [
+              "==",
+              "lft75_plus",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#003e6c",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_huishoudens_p_lfthh18_29",
+      "name": "18 - 29 jarigen",
+      "subname": "aandeel huishoudens naar leeftijdsklasse",
+      "description": "Het aandeel geprognotiseerde huishoudens in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal huishoudens in de leeftijdsgroep te delen door het totaal aantal huishoudens.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_huishoudens.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>18 - 29 jarigen</b> (aandeel huishoudens naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lfthh18_29 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "18 - 29 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lfthh18_29",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#f2ceef",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lfthh18_29",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#dbb4d8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lfthh18_29",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c49ac0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lfthh18_29",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ad7fa9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lfthh18_29",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#966591",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lfthh18_29",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#7f4a7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lfthh18_29",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#683062",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lfthh18_29",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#51154a",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_huishoudens_p_lfthh30_44",
+      "name": "30 - 44 jarigen",
+      "subname": "aandeel huishoudens naar leeftijdsklasse",
+      "description": "Het aandeel geprognotiseerde huishoudens in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal huishoudens in de leeftijdsgroep te delen door het totaal aantal huishoudens.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_huishoudens.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>30 - 44 jarigen</b> (aandeel huishoudens naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lfthh30_44 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "30 - 44 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lfthh30_44",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#f2ceef",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lfthh30_44",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#dbb4d8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lfthh30_44",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c49ac0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lfthh30_44",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ad7fa9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lfthh30_44",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#966591",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lfthh30_44",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#7f4a7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lfthh30_44",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#683062",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lfthh30_44",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#51154a",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_huishoudens_p_lfthh45_66",
+      "name": "45 - 66 jarigen",
+      "subname": "aandeel huishoudens naar leeftijdsklasse",
+      "description": "Het aandeel geprognotiseerde huishoudens in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal huishoudens in de leeftijdsgroep te delen door het totaal aantal huishoudens.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_huishoudens.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>45 - 66 jarigen</b> (aandeel huishoudens naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lfthh45_66 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "45 - 66 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lfthh45_66",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#f2ceef",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lfthh45_66",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#dbb4d8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lfthh45_66",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c49ac0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lfthh45_66",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ad7fa9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lfthh45_66",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#966591",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lfthh45_66",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#7f4a7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lfthh45_66",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#683062",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lfthh45_66",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#51154a",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_huishoudens_p_lfthh67_74",
+      "name": "67 - 74 jarigen",
+      "subname": "aandeel huishoudens naar leeftijdsklasse",
+      "description": "Het aandeel geprognotiseerde huishoudens in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal huishoudens in de leeftijdsgroep te delen door het totaal aantal huishoudens.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_huishoudens.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>67 - 74 jarigen</b> (aandeel huishoudens naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lfthh67_74 ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "67 - 74 jarigen",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lfthh67_74",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#f2ceef",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lfthh67_74",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#dbb4d8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lfthh67_74",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c49ac0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lfthh67_74",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ad7fa9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lfthh67_74",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#966591",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lfthh67_74",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#7f4a7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lfthh67_74",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#683062",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lfthh67_74",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#51154a",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_huishoudens_p_lfthh67_plus",
+      "name": "67 plussers",
+      "subname": "aandeel huishoudens naar leeftijdsklasse",
+      "description": "Het aandeel geprognotiseerde huishoudens in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal huishoudens in de leeftijdsgroep te delen door het totaal aantal huishoudens.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_huishoudens.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>67 plussers</b> (aandeel huishoudens naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lfthh67_plus ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "67 plussers",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lfthh67_plus",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#f2ceef",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lfthh67_plus",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#dbb4d8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lfthh67_plus",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c49ac0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lfthh67_plus",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ad7fa9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lfthh67_plus",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#966591",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lfthh67_plus",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#7f4a7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lfthh67_plus",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#683062",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lfthh67_plus",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#51154a",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_huishoudens_p_lfthh75_plus",
+      "name": "75 plussers",
+      "subname": "aandeel huishoudens naar leeftijdsklasse",
+      "description": "Het aandeel geprognotiseerde huishoudens in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal huishoudens in de leeftijdsgroep te delen door het totaal aantal huishoudens.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_huishoudens.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>75 plussers</b> (aandeel huishoudens naar leeftijdsklasse)<table><tr><td>Klasse</td><td>[[ p_lfthh75_plus ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "75 plussers",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_lfthh75_plus",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#f2ceef",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 15%",
+            "filter": [
+              "==",
+              "p_lfthh75_plus",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#dbb4d8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "15 tot 20%",
+            "filter": [
+              "==",
+              "p_lfthh75_plus",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c49ac0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 25%",
+            "filter": [
+              "==",
+              "p_lfthh75_plus",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ad7fa9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "25 tot 30%",
+            "filter": [
+              "==",
+              "p_lfthh75_plus",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#966591",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 35%",
+            "filter": [
+              "==",
+              "p_lfthh75_plus",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#7f4a7a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "35 tot 40%",
+            "filter": [
+              "==",
+              "p_lfthh75_plus",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#683062",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% of meer",
+            "filter": [
+              "==",
+              "p_lfthh75_plus",
+              7
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#51154a",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_huishoudens_p_alleen",
+      "name": "alleenstaand",
+      "subname": "aandeel huishoudens naar samenstelling",
+      "description": "Het aandeel geprognotiseerde huishoudens met een bepaalde samenstelling per gebied. Dit aandeel is berekend door het aantal huishoudens met deze samenstelling te delen door het totaal aantal huishoudens.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_huishoudens.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>alleenstaand</b> (aandeel huishoudens naar samenstelling)<table><tr><td>Klasse</td><td>[[ p_alleen ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "alleenstaand",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_alleen",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffe07d",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 20%",
+            "filter": [
+              "==",
+              "p_alleen",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#dfc369",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 30%",
+            "filter": [
+              "==",
+              "p_alleen",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#bfa554",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 40%",
+            "filter": [
+              "==",
+              "p_alleen",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#9f883f",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40 tot 50%",
+            "filter": [
+              "==",
+              "p_alleen",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#7f6a2a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "50 tot 60%",
+            "filter": [
+              "==",
+              "p_alleen",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5f4d15",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60% of meer",
+            "filter": [
+              "==",
+              "p_alleen",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3e2f00",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_huishoudens_p_meerpzk",
+      "name": "meerpersoons zonder kinderen",
+      "subname": "aandeel huishoudens naar samenstelling",
+      "description": "Het aandeel geprognotiseerde huishoudens met een bepaalde samenstelling per gebied. Dit aandeel is berekend door het aantal huishoudens met deze samenstelling te delen door het totaal aantal huishoudens.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_huishoudens.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>meerpersoons zonder kinderen</b> (aandeel huishoudens naar samenstelling)<table><tr><td>Klasse</td><td>[[ p_meerpzk ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "meerpersoons zonder kinderen",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_meerpzk",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffe07d",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 20%",
+            "filter": [
+              "==",
+              "p_meerpzk",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#dfc369",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 30%",
+            "filter": [
+              "==",
+              "p_meerpzk",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#bfa554",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 40%",
+            "filter": [
+              "==",
+              "p_meerpzk",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#9f883f",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40 tot 50%",
+            "filter": [
+              "==",
+              "p_meerpzk",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#7f6a2a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "50 tot 60%",
+            "filter": [
+              "==",
+              "p_meerpzk",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5f4d15",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60% of meer",
+            "filter": [
+              "==",
+              "p_meerpzk",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3e2f00",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "bevprog_huishoudens_p_meerpmk",
+      "name": "meerpersoons met kinderen",
+      "subname": "aandeel huishoudens naar samenstelling",
+      "description": "Het aandeel geprognotiseerde huishoudens met een bepaalde samenstelling per gebied. Dit aandeel is berekend door het aantal huishoudens met deze samenstelling te delen door het totaal aantal huishoudens.",
+      "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_zh_huishoudens.pmtiles?v=20261122",
+      "format": "pmtiles",
+      "sourceLayer": "Y%YEAR%",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "timeseries": {
+        "placeholder": "%YEAR%",
+        "start": 2024,
+        "end": 2045,
+        "step": 1
+      },
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>meerpersoons met kinderen</b> (aandeel huishoudens naar samenstelling)<table><tr><td>Klasse</td><td>[[ p_meerpmk ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "meerpersoons met kinderen",
+        "rules": [
+          {
+            "name": "0 tot 10%",
+            "filter": [
+              "==",
+              "p_meerpmk",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffe07d",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10 tot 20%",
+            "filter": [
+              "==",
+              "p_meerpmk",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#dfc369",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20 tot 30%",
+            "filter": [
+              "==",
+              "p_meerpmk",
+              2
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#bfa554",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "30 tot 40%",
+            "filter": [
+              "==",
+              "p_meerpmk",
+              3
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#9f883f",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40 tot 50%",
+            "filter": [
+              "==",
+              "p_meerpmk",
+              4
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#7f6a2a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "50 tot 60%",
+            "filter": [
+              "==",
+              "p_meerpmk",
+              5
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#5f4d15",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60% of meer",
+            "filter": [
+              "==",
+              "p_meerpmk",
+              6
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#3e2f00",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "id": "wzw_studiegebied",
       "name": "Studiegebied WoonZorgwijzer Zuid-Holland",
       "source": "https://data.derondekaart.nl/pmtiles/studyareas/studyarea_WZWZuidHolland.pmtiles?v=20261118",
