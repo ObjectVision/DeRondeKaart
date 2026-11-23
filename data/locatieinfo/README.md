@@ -162,3 +162,20 @@ the walking-network analysis and takes long.
 python data/build-wzw-voorzieningen.py --geodms           # regenerate exports, build
 python data/build-wzw-voorzieningen.py --upload --config  # publish, rewrite layers + nav group
 ```
+
+## Reliëf (woonzorglimburg)
+
+`data/build-wzl-relief.py` merges the two AHN slope layers of
+`data/special_layers/` into one archive, `pmtiles/stijgingspercentage_2026.pmtiles`
+on wzl-data: layer `vlak` (terrain slope, 30 m cells, z5–12) and layer `weg` (road
+slope per ~25 m piece, z13–14). The app shows it as one composite layer,
+`stijgingspercentage_2026`, that swaps polygons for lines at zoom 13. Both layers
+carry `klasse` and the popup text `omschrijving`. The vlak raster comes from the
+published comparison COG unless `--tif` names a fresh `AHN2Stijgingspercentage.py`
+output. A composite cannot carry `filterRaster`, so the layer is not offered in
+Combinaties.
+
+```sh
+python data/build-wzl-relief.py                    # build
+python data/build-wzl-relief.py --upload --config  # publish archive + meta, rewrite layer + Omgeving nav
+```

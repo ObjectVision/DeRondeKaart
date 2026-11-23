@@ -98,6 +98,9 @@ If you have ``uv`` installed you can run this without managing dependencies:
 
 Then tile it:
     python3 ../convert-geojson-to-pmtiles.py stijgingspercentage_weg_limburg.geojson
+
+For woonzorglimburg, ``../build-wzl-relief.py`` tiles this together with the
+sibling layer into one archive (terrain up to zoom 12, roads from zoom 13).
 """
 from __future__ import annotations
 

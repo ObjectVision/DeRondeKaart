@@ -82,6 +82,11 @@ archive built by `data/build-wzw-sociale-klasse.py`.
 one amenity type each, and *loopafstanden*, walking distance per 100 m cell to
 the nearest one. Built by `data/build-wzw-voorzieningen.py`.
 
+**Reliëf** (stijgingspercentage) — woonzorglimburg's slope layer
+`stijgingspercentage_2026`: a composite showing terrain slope (*vlak*) below
+zoom 13 and road slope (*weg*) from zoom 13, both from AHN4. Built by
+`data/build-wzl-relief.py`.
+
 **Format** — how a layer's data arrives: `mvt`, `pmtiles`, `cog`, `flatgeobuf`,
 `geojson` (in-memory, pushed by an embedding host), or `composite`.
 `docs/system-design.md` §5.

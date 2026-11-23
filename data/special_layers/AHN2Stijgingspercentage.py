@@ -114,6 +114,9 @@ The GeoTIFF is an intermediate, not something the app fetches. Convert it onward
 
     python3 ../convert-tif-to-geojson.py stijgingspercentage_lb.tif
     python3 ../convert-geojson-to-pmtiles.py stijgingspercentage_lb.geojson
+
+For woonzorglimburg, ``../build-wzl-relief.py`` tiles this together with the
+sibling layer into one archive (terrain up to zoom 12, roads from zoom 13).
 """
 from __future__ import annotations
 

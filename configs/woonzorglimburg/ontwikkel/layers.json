@@ -9,7 +9,12 @@
       "sourceLayer": "pc6_locatieinfo_2026",
       "geometryType": "polygon",
       "style": {
-        "color": [0, 0, 0, 255],
+        "color": [
+          0,
+          0,
+          0,
+          255
+        ],
         "opacity": 0
       },
       "excludeFromLegend": true,
@@ -9875,17 +9880,16 @@
       "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/oosr_2_m5_%YEAR%.cog.tif"
     },
     {
-      "id": "stijgingspercentage_lb_2026",
-      "name": "Stijgingspercentage vlak",
+      "id": "stijgingspercentage_2026",
+      "name": "Stijgingspercentage",
+      "subname": "reliëf",
       "meta": {
-        "toelichting": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_lb_2026_toelichting.html",
-        "bronnen": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_lb_2026_bronnen.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_lb_2026_aannames_en_onzekerheden.html"
+        "toelichting": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_2026_toelichting.html",
+        "bronnen": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_2026_bronnen.html",
+        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_2026_aannames_en_onzekerheden.html"
       },
-      "source": "https://data.woonzorglimburg.nl/pmtiles/stijgingspercentage_lb_2026.pmtiles",
-      "format": "pmtiles",
+      "format": "composite",
       "geometryType": "polygon",
-      "sourceLayer": "stijgingspercentage",
       "geostyler": {
         "name": "Stijgingspercentage",
         "rules": [
@@ -9893,7 +9897,7 @@
             "name": "0% tot 2%",
             "filter": [
               "==",
-              "class",
+              "klasse",
               1
             ],
             "symbolizers": [
@@ -9901,8 +9905,7 @@
                 "kind": "Fill",
                 "color": "#99d594",
                 "outlineColor": "#99d594",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
+                "outlineWidth": 0
               }
             ]
           },
@@ -9910,7 +9913,7 @@
             "name": "2% tot 4%",
             "filter": [
               "==",
-              "class",
+              "klasse",
               2
             ],
             "symbolizers": [
@@ -9918,8 +9921,7 @@
                 "kind": "Fill",
                 "color": "#e6f598",
                 "outlineColor": "#e6f598",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
+                "outlineWidth": 0
               }
             ]
           },
@@ -9927,7 +9929,7 @@
             "name": "4% tot 8%",
             "filter": [
               "==",
-              "class",
+              "klasse",
               3
             ],
             "symbolizers": [
@@ -9935,8 +9937,7 @@
                 "kind": "Fill",
                 "color": "#fee08b",
                 "outlineColor": "#fee08b",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
+                "outlineWidth": 0
               }
             ]
           },
@@ -9944,7 +9945,7 @@
             "name": "8% tot 12%",
             "filter": [
               "==",
-              "class",
+              "klasse",
               4
             ],
             "symbolizers": [
@@ -9952,8 +9953,7 @@
                 "kind": "Fill",
                 "color": "#fc8d59",
                 "outlineColor": "#fc8d59",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
+                "outlineWidth": 0
               }
             ]
           },
@@ -9961,7 +9961,7 @@
             "name": "12% of meer",
             "filter": [
               "==",
-              "class",
+              "klasse",
               5
             ],
             "symbolizers": [
@@ -9969,194 +9969,7 @@
                 "kind": "Fill",
                 "color": "#d53e4f",
                 "outlineColor": "#d53e4f",
-                "outlineWidth": 0,
-                "outlineOpacity": 0.2
-              }
-            ]
-          }
-        ]
-      },
-      "style": {
-        "opacity": 0.8
-      },
-      "featureinfo": {
-        "template": "<div><b>Stijgingspercentage klasse: [[ class ]]</b></div>"
-      },
-      "filterRaster": "https://data.woonzorglimburg.nl/cog/comparison/stijgingspercentage_lb_2026.cog.tif"
-    },
-    {
-      "id": "stijgingspercentage_weg_limburg",
-      "name": "Stijgingspercentage weg",
-      "meta": {
-        "toelichting": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_weg_limburg_toelichting.html",
-        "bronnen": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_weg_limburg_bronnen.html",
-        "aannames_en_onzekerheden": "https://data.woonzorglimburg.nl/meta/stijgingspercentage_weg_limburg_aannames_en_onzekerheden.html"
-      },
-      "source": "https://data.woonzorglimburg.nl/pmtiles/stijgingspercentage_weg_limburg.pmtiles",
-      "format": "pmtiles",
-      "geometryType": "line",
-      "sourceLayer": "stijgingspercentage_weg_limburg",
-      "beforeid": "foreground-layers",
-      "geostyler": {
-        "name": "Stijgingspercentage weg",
-        "rules": [
-          {
-            "name": "0% tot 2%",
-            "filter": [
-              "==",
-              "klasse",
-              1
-            ],
-            "symbolizers": [
-              {
-                "kind": "Line",
-                "color": "#99d594",
-                "width": 2,
-                "paint": {
-                  "line-width": [
-                    "interpolate",
-                    [
-                      "linear"
-                    ],
-                    [
-                      "zoom"
-                    ],
-                    10,
-                    0.5,
-                    14,
-                    2,
-                    17,
-                    5
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "name": "2% tot 4%",
-            "filter": [
-              "==",
-              "klasse",
-              2
-            ],
-            "symbolizers": [
-              {
-                "kind": "Line",
-                "color": "#e6f598",
-                "width": 2,
-                "paint": {
-                  "line-width": [
-                    "interpolate",
-                    [
-                      "linear"
-                    ],
-                    [
-                      "zoom"
-                    ],
-                    10,
-                    0.5,
-                    14,
-                    2,
-                    17,
-                    5
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "name": "4% tot 8%",
-            "filter": [
-              "==",
-              "klasse",
-              3
-            ],
-            "symbolizers": [
-              {
-                "kind": "Line",
-                "color": "#fee08b",
-                "width": 2,
-                "paint": {
-                  "line-width": [
-                    "interpolate",
-                    [
-                      "linear"
-                    ],
-                    [
-                      "zoom"
-                    ],
-                    10,
-                    0.5,
-                    14,
-                    2,
-                    17,
-                    5
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "name": "8% tot 12%",
-            "filter": [
-              "==",
-              "klasse",
-              4
-            ],
-            "symbolizers": [
-              {
-                "kind": "Line",
-                "color": "#fc8d59",
-                "width": 2,
-                "paint": {
-                  "line-width": [
-                    "interpolate",
-                    [
-                      "linear"
-                    ],
-                    [
-                      "zoom"
-                    ],
-                    10,
-                    0.5,
-                    14,
-                    2,
-                    17,
-                    5
-                  ]
-                }
-              }
-            ]
-          },
-          {
-            "name": "12% of meer",
-            "filter": [
-              "==",
-              "klasse",
-              5
-            ],
-            "symbolizers": [
-              {
-                "kind": "Line",
-                "color": "#d53e4f",
-                "width": 2,
-                "paint": {
-                  "line-width": [
-                    "interpolate",
-                    [
-                      "linear"
-                    ],
-                    [
-                      "zoom"
-                    ],
-                    10,
-                    0.5,
-                    14,
-                    2,
-                    17,
-                    5
-                  ]
-                }
+                "outlineWidth": 0
               }
             ]
           },
@@ -10169,37 +9982,323 @@
             ],
             "symbolizers": [
               {
-                "kind": "Line",
+                "kind": "Fill",
                 "color": "#bdbdbd",
-                "width": 2,
-                "paint": {
-                  "line-width": [
-                    "interpolate",
-                    [
-                      "linear"
-                    ],
-                    [
-                      "zoom"
-                    ],
-                    10,
-                    0.5,
-                    14,
-                    2,
-                    17,
-                    5
-                  ]
-                }
+                "outlineColor": "#bdbdbd",
+                "outlineWidth": 0
               }
             ]
           }
         ]
       },
-      "style": {
-        "opacity": 0.9
-      },
       "featureinfo": {
-        "template": "<div><b>[[ name ]]</b> ([[ fclass ]])<br>Stijgingspercentage: [[ stijging_pct ]]% (klasse [[ klasse ]])</div>"
-      }
+        "template": "<div><b>Stijgingspercentage</b><br>[[ omschrijving ]]</div>"
+      },
+      "layers": [
+        {
+          "source": "https://data.woonzorglimburg.nl/pmtiles/stijgingspercentage_2026.pmtiles?v=20261123",
+          "format": "pmtiles",
+          "sourceLayer": "vlak",
+          "geometryType": "polygon",
+          "maxzoom": 13,
+          "style": {
+            "opacity": 0.8
+          },
+          "geostyler": {
+            "name": "Stijgingspercentage terrein",
+            "rules": [
+              {
+                "name": "0% tot 2%",
+                "filter": [
+                  "==",
+                  "klasse",
+                  1
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Fill",
+                    "color": "#99d594",
+                    "outlineColor": "#99d594",
+                    "outlineWidth": 0
+                  }
+                ]
+              },
+              {
+                "name": "2% tot 4%",
+                "filter": [
+                  "==",
+                  "klasse",
+                  2
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Fill",
+                    "color": "#e6f598",
+                    "outlineColor": "#e6f598",
+                    "outlineWidth": 0
+                  }
+                ]
+              },
+              {
+                "name": "4% tot 8%",
+                "filter": [
+                  "==",
+                  "klasse",
+                  3
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Fill",
+                    "color": "#fee08b",
+                    "outlineColor": "#fee08b",
+                    "outlineWidth": 0
+                  }
+                ]
+              },
+              {
+                "name": "8% tot 12%",
+                "filter": [
+                  "==",
+                  "klasse",
+                  4
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Fill",
+                    "color": "#fc8d59",
+                    "outlineColor": "#fc8d59",
+                    "outlineWidth": 0
+                  }
+                ]
+              },
+              {
+                "name": "12% of meer",
+                "filter": [
+                  "==",
+                  "klasse",
+                  5
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Fill",
+                    "color": "#d53e4f",
+                    "outlineColor": "#d53e4f",
+                    "outlineWidth": 0
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "source": "https://data.woonzorglimburg.nl/pmtiles/stijgingspercentage_2026.pmtiles?v=20261123",
+          "format": "pmtiles",
+          "sourceLayer": "weg",
+          "geometryType": "line",
+          "minzoom": 13,
+          "beforeid": "foreground-layers",
+          "style": {
+            "opacity": 0.9
+          },
+          "geostyler": {
+            "name": "Stijgingspercentage weg",
+            "rules": [
+              {
+                "name": "0% tot 2%",
+                "filter": [
+                  "==",
+                  "klasse",
+                  1
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Line",
+                    "color": "#99d594",
+                    "width": 2,
+                    "paint": {
+                      "line-width": [
+                        "interpolate",
+                        [
+                          "linear"
+                        ],
+                        [
+                          "zoom"
+                        ],
+                        10,
+                        0.5,
+                        14,
+                        2,
+                        17,
+                        5
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "2% tot 4%",
+                "filter": [
+                  "==",
+                  "klasse",
+                  2
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Line",
+                    "color": "#e6f598",
+                    "width": 2,
+                    "paint": {
+                      "line-width": [
+                        "interpolate",
+                        [
+                          "linear"
+                        ],
+                        [
+                          "zoom"
+                        ],
+                        10,
+                        0.5,
+                        14,
+                        2,
+                        17,
+                        5
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "4% tot 8%",
+                "filter": [
+                  "==",
+                  "klasse",
+                  3
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Line",
+                    "color": "#fee08b",
+                    "width": 2,
+                    "paint": {
+                      "line-width": [
+                        "interpolate",
+                        [
+                          "linear"
+                        ],
+                        [
+                          "zoom"
+                        ],
+                        10,
+                        0.5,
+                        14,
+                        2,
+                        17,
+                        5
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "8% tot 12%",
+                "filter": [
+                  "==",
+                  "klasse",
+                  4
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Line",
+                    "color": "#fc8d59",
+                    "width": 2,
+                    "paint": {
+                      "line-width": [
+                        "interpolate",
+                        [
+                          "linear"
+                        ],
+                        [
+                          "zoom"
+                        ],
+                        10,
+                        0.5,
+                        14,
+                        2,
+                        17,
+                        5
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "12% of meer",
+                "filter": [
+                  "==",
+                  "klasse",
+                  5
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Line",
+                    "color": "#d53e4f",
+                    "width": 2,
+                    "paint": {
+                      "line-width": [
+                        "interpolate",
+                        [
+                          "linear"
+                        ],
+                        [
+                          "zoom"
+                        ],
+                        10,
+                        0.5,
+                        14,
+                        2,
+                        17,
+                        5
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "geen gegevens",
+                "filter": [
+                  "==",
+                  "klasse",
+                  255
+                ],
+                "symbolizers": [
+                  {
+                    "kind": "Line",
+                    "color": "#bdbdbd",
+                    "width": 2,
+                    "paint": {
+                      "line-width": [
+                        "interpolate",
+                        [
+                          "linear"
+                        ],
+                        [
+                          "zoom"
+                        ],
+                        10,
+                        0.5,
+                        14,
+                        2,
+                        17,
+                        5
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "id": "selectie",

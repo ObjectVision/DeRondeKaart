@@ -1,11 +1,11 @@
 [
-    {
+  {
     "label": "Analyses",
     "icon": "diversity_1",
     "color": "#3E74A7",
     "expanded": false,
     "children": [
-    {
+      {
         "label": "Veerkracht",
         "icon": "monitor_heart",
         "color": "#3DB6B0",
@@ -25,32 +25,32 @@
           }
         ]
       },
-    {
-      "label": "Leefbaarometer",
-      "icon": "sentiment_satisfied",
-      "color": "#5E7658",
-      "expanded": true,
-      "children": [
-        {
-          "id": "lbm_klasse",
-          "label": "leefbaarometerklasse",
-          "a": false,
-          "b": false
-        },
-        {
-          "id": "lbm_overlast_onveiligheid",
-          "label": "dimensiescore: overlast en onveiligheid",
-          "a": false,
-          "b": false
-        },
-        {
-          "id": "lbm_sociale_samenhang",
-          "label": "dimensiescore: sociale samenhang",
-          "a": false,
-          "b": false
-        }
-      ]
-    }
+      {
+        "label": "Leefbaarometer",
+        "icon": "sentiment_satisfied",
+        "color": "#5E7658",
+        "expanded": true,
+        "children": [
+          {
+            "id": "lbm_klasse",
+            "label": "leefbaarometerklasse",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "lbm_overlast_onveiligheid",
+            "label": "dimensiescore: overlast en onveiligheid",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "lbm_sociale_samenhang",
+            "label": "dimensiescore: sociale samenhang",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
     ]
   },
   {
@@ -524,62 +524,18 @@
     "expanded": false,
     "children": [
       {
-        "label": "3-30-300 vuistregel",
-        "icon": "nature_people",
+        "id": "bomen_rule_3_30_300_classified_2026",
         "color": "#54B6C0",
-        "expanded": true,
-        "children": [
-          {
-            "id": "bomen_rule_3_2026",
-            "color": "#54B6C0",
-            "label": "3 bomen",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "bomen_rule_30_2026",
-            "color": "#54B6C0",
-            "label": "30% bladerdek",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "bomen_rule_300_2026",
-            "color": "#54B6C0",
-            "label": "300 meter van groen",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "bomen_rule_3_30_300_classified_2026",
-            "color": "#54B6C0",
-            "label": "3-30-300 vuistregels",
-            "a": false,
-            "b": false
-          }
-        ]
+        "label": "3-30-300 vuistregels",
+        "a": false,
+        "b": false
       },
       {
-        "label": "reliëf",
-        "icon": "landscape",
+        "id": "stijgingspercentage_2026",
         "color": "#7A5C3E",
-        "expanded": true,
-        "children": [
-          {
-            "id": "stijgingspercentage_weg_limburg",
-            "color": "#7A5C3E",
-            "label": "weg",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "stijgingspercentage_lb_2026",
-            "color": "#7A5C3E",
-            "label": "vlak",
-            "a": false,
-            "b": false
-          }
-        ]
+        "label": "reliëf",
+        "a": false,
+        "b": false
       }
     ]
   },
