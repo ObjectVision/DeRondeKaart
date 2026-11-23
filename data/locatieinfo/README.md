@@ -140,3 +140,25 @@ writes the index into the classes present, so a gap would shift the legend.
 python data/build-wzw-sociale-klasse.py --geodms           # regenerate exports, build
 python data/build-wzw-sociale-klasse.py --upload --config  # publish, rewrite layer + nav group
 ```
+
+## Voorzieningen (wzw_*)
+
+`data/build-wzw-voorzieningen.py` builds each variant's MapGallery "voorzieningen"
+bookmark from GeoDMS `…/Y2026/voorzieningen/{vrz_locaties,vrz_loopafstanden}` into
+two archives under `pmtiles/woonzorgwijzer/voorzieningen/`:
+
+- `vrz_locaties.pmtiles` — points (layer `vrz_locaties`), one app layer per
+  voorziening type filtering on `type`, drawn with the MapGallery icons copied to
+  `public/icons/wzw/`.
+- `vrz_loopafstanden.pmtiles` — walking distance in metres per 100 m cell (layer
+  `loopafstanden`; m20 z5–8, m10 z9–10, m5 z11–15), plus the two triple A
+  combinations.
+
+Noord-Brabant has 17 layers, the other five variants 10. ZH's DUO onderwijs
+layers are not included (not in GeoDMS). Regenerating `vrz_loopafstanden` reruns
+the walking-network analysis and takes long.
+
+```sh
+python data/build-wzw-voorzieningen.py --geodms           # regenerate exports, build
+python data/build-wzw-voorzieningen.py --upload --config  # publish, rewrite layers + nav group
+```

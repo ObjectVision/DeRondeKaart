@@ -78,6 +78,10 @@ step. Ids start with `bevprog_`.
 100 m cell the SCP social class most present there (12 classes), one national
 archive built by `data/build-wzw-sociale-klasse.py`.
 
+**Voorzieningen** — the WZW amenity layers (`wzw_vrz_*`): *locaties*, points of
+one amenity type each, and *loopafstanden*, walking distance per 100 m cell to
+the nearest one. Built by `data/build-wzw-voorzieningen.py`.
+
 **Format** — how a layer's data arrives: `mvt`, `pmtiles`, `cog`, `flatgeobuf`,
 `geojson` (in-memory, pushed by an embedding host), or `composite`.
 `docs/system-design.md` §5.

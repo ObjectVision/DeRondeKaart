@@ -4326,6 +4326,968 @@
       }
     },
     {
+      "id": "wzw_vrz_apotheek",
+      "name": "Apotheek",
+      "subname": "locaties",
+      "description": "Locaties van apotheken in Nederland",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
+      "format": "pmtiles",
+      "sourceLayer": "vrz_locaties",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "featureinfo": {
+        "template": "<div><b>Apotheek</b><BR>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ postcode ]] [[ huisnummer ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "geostyler": {
+        "name": "Apotheek",
+        "rules": [
+          {
+            "name": "Apotheek",
+            "filter": [
+              "==",
+              "type",
+              1
+            ],
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/wzw/apotheek_schaduw.png",
+                "width": 22,
+                "height": 22,
+                "size": 22
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_vrz_huisarts",
+      "name": "Huisarts",
+      "subname": "locaties",
+      "description": "Locaties van huisartsen in Nederland",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
+      "format": "pmtiles",
+      "sourceLayer": "vrz_locaties",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "featureinfo": {
+        "template": "<div><b>Huisarts</b><BR>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ postcode ]] [[ huisnummer ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "geostyler": {
+        "name": "Huisarts",
+        "rules": [
+          {
+            "name": "Huisarts",
+            "filter": [
+              "==",
+              "type",
+              8
+            ],
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/wzw/huisarts_schaduw.png",
+                "width": 22,
+                "height": 22,
+                "size": 22
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_vrz_supermarkt",
+      "name": "Supermarkt",
+      "subname": "locaties",
+      "description": "Locaties van supermarkten in Nederland",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
+      "format": "pmtiles",
+      "sourceLayer": "vrz_locaties",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "featureinfo": {
+        "template": "<div><b>Supermarkt</b><BR>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ postcode ]] [[ huisnummer ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "geostyler": {
+        "name": "Supermarkt",
+        "rules": [
+          {
+            "name": "Supermarkt",
+            "filter": [
+              "==",
+              "type",
+              17
+            ],
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/wzw/supermarkt.png",
+                "width": 22,
+                "height": 22,
+                "size": 22
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_vrz_openbaar_vervoer",
+      "name": "Openbaar vervoer",
+      "subname": "locaties",
+      "description": "Locaties van ov haltes in Nederland",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
+      "format": "pmtiles",
+      "sourceLayer": "vrz_locaties",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "featureinfo": {
+        "template": "<div><b>Openbaar vervoer</b><BR>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ postcode ]] [[ huisnummer ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "geostyler": {
+        "name": "Openbaar vervoer",
+        "rules": [
+          {
+            "name": "Openbaar vervoer",
+            "filter": [
+              "==",
+              "type",
+              0
+            ],
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/wzw/bushalte_shadow.png",
+                "width": 20,
+                "height": 20,
+                "size": 20
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_vrz_loop_apotheek",
+      "name": "Loopafstand apotheek",
+      "subname": "loopafstanden",
+      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
+      "format": "pmtiles",
+      "sourceLayer": "loopafstanden",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Loopafstand apotheek</b><BR>Loopafstand tot dichtstbijzijnde apotheek: <b>[[ apotheek ]] meter</b></div>"
+      },
+      "geostyler": {
+        "name": "Loopafstand apotheek",
+        "rules": [
+          {
+            "name": "minder dan 500",
+            "filter": [
+              "<",
+              "apotheek",
+              500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#61BE7B",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "500 tot 750",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "apotheek",
+                500
+              ],
+              [
+                "<",
+                "apotheek",
+                750
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A0D392",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "750 tot 1000",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "apotheek",
+                750
+              ],
+              [
+                "<",
+                "apotheek",
+                1000
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FDEAB6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1000 tot 1250",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "apotheek",
+                1000
+              ],
+              [
+                "<",
+                "apotheek",
+                1250
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8D8AF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1250 tot 1500",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "apotheek",
+                1250
+              ],
+              [
+                "<",
+                "apotheek",
+                1500
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFAF92",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 1500",
+            "filter": [
+              ">=",
+              "apotheek",
+              1500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF6024",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_vrz_loop_huisarts",
+      "name": "Loopafstand huisarts",
+      "subname": "loopafstanden",
+      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
+      "format": "pmtiles",
+      "sourceLayer": "loopafstanden",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Loopafstand huisarts</b><BR>Loopafstand tot dichtstbijzijnde huisarts: <b>[[ huisarts ]] meter</b></div>"
+      },
+      "geostyler": {
+        "name": "Loopafstand huisarts",
+        "rules": [
+          {
+            "name": "minder dan 500",
+            "filter": [
+              "<",
+              "huisarts",
+              500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#61BE7B",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "500 tot 750",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "huisarts",
+                500
+              ],
+              [
+                "<",
+                "huisarts",
+                750
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A0D392",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "750 tot 1000",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "huisarts",
+                750
+              ],
+              [
+                "<",
+                "huisarts",
+                1000
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FDEAB6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1000 tot 1250",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "huisarts",
+                1000
+              ],
+              [
+                "<",
+                "huisarts",
+                1250
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8D8AF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1250 tot 1500",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "huisarts",
+                1250
+              ],
+              [
+                "<",
+                "huisarts",
+                1500
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFAF92",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 1500",
+            "filter": [
+              ">=",
+              "huisarts",
+              1500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF6024",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_vrz_loop_ov",
+      "name": "Loopafstand ov",
+      "subname": "loopafstanden",
+      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
+      "format": "pmtiles",
+      "sourceLayer": "loopafstanden",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Loopafstand ov</b><BR>Loopafstand tot dichtstbijzijnde ov-halte: <b>[[ ov ]] meter</b></div>"
+      },
+      "geostyler": {
+        "name": "Loopafstand ov",
+        "rules": [
+          {
+            "name": "minder dan 500",
+            "filter": [
+              "<",
+              "ov",
+              500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#61BE7B",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "500 tot 750",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ov",
+                500
+              ],
+              [
+                "<",
+                "ov",
+                750
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A0D392",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "750 tot 1000",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ov",
+                750
+              ],
+              [
+                "<",
+                "ov",
+                1000
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FDEAB6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1000 tot 1250",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ov",
+                1000
+              ],
+              [
+                "<",
+                "ov",
+                1250
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8D8AF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1250 tot 1500",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ov",
+                1250
+              ],
+              [
+                "<",
+                "ov",
+                1500
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFAF92",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 1500",
+            "filter": [
+              ">=",
+              "ov",
+              1500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF6024",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_vrz_loop_supermarkt",
+      "name": "Loopafstand supermarkt",
+      "subname": "loopafstanden",
+      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
+      "format": "pmtiles",
+      "sourceLayer": "loopafstanden",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Loopafstand supermarkt</b><BR>Loopafstand tot dichtstbijzijnde supermarkt: <b>[[ supermarkt ]] meter</b></div>"
+      },
+      "geostyler": {
+        "name": "Loopafstand supermarkt",
+        "rules": [
+          {
+            "name": "minder dan 500",
+            "filter": [
+              "<",
+              "supermarkt",
+              500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#61BE7B",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "500 tot 750",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "supermarkt",
+                500
+              ],
+              [
+                "<",
+                "supermarkt",
+                750
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#A0D392",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "750 tot 1000",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "supermarkt",
+                750
+              ],
+              [
+                "<",
+                "supermarkt",
+                1000
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FDEAB6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1000 tot 1250",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "supermarkt",
+                1000
+              ],
+              [
+                "<",
+                "supermarkt",
+                1250
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8D8AF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1250 tot 1500",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "supermarkt",
+                1250
+              ],
+              [
+                "<",
+                "supermarkt",
+                1500
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFAF92",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 1500",
+            "filter": [
+              ">=",
+              "supermarkt",
+              1500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF6024",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_vrz_loop_aaa_apo_huis_sup",
+      "name": "Triple A: huisarts, apotheek, supermarkt",
+      "subname": "loopafstanden",
+      "description": "De bereikbaarheid van huisarts, apotheek en supermarkt, de kleuren geven aan hoeveel van deze 3 type voorzieningen voorkomen binnen een loopafstand van 500m of 750m.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
+      "format": "pmtiles",
+      "sourceLayer": "loopafstanden",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Triple A: huisarts, apotheek, supermarkt</b><BR><table><tr><td>apotheek</td><td>[[ apotheek ]] m</td></tr><tr><td>huisarts</td><td>[[ huisarts ]] m</td></tr><tr><td>supermarkt</td><td>[[ supermarkt ]] m</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Triple A: huisarts, apotheek, supermarkt",
+        "rules": [
+          {
+            "name": "alle drie aanwezig < 500 m",
+            "filter": [
+              ">=",
+              "aaa_apo_huis_sup",
+              33
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4FA52D",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "alle drie aanwezig < 750 m",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "aaa_apo_huis_sup",
+                30
+              ],
+              [
+                "<",
+                "aaa_apo_huis_sup",
+                33
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8ED973",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2 van de 3 aanwezig < 750 m",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "aaa_apo_huis_sup",
+                20
+              ],
+              [
+                "<",
+                "aaa_apo_huis_sup",
+                30
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#94DCF8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1 van de 3 aanwezig < 750 m",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "aaa_apo_huis_sup",
+                10
+              ],
+              [
+                "<",
+                "aaa_apo_huis_sup",
+                20
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C7E0E9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "geen van de drie aanwezig <750 m",
+            "filter": [
+              "<",
+              "aaa_apo_huis_sup",
+              10
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FBE5D9",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_vrz_loop_aaa_ov_huis_sup",
+      "name": "Triple A: huisarts, ov, supermarkt",
+      "subname": "loopafstanden",
+      "description": "De bereikbaarheid van huisarts, openbaar vervoer en supermarkt, de kleuren geven aan hoeveel van deze 3 type voorzieningen voorkomen binnen een loopafstand van 500m of 750m. Vaak wordt gesteld dat vanuit een woonzorgcomplex voor ouderen de trippel A voorzieningen (huisArts, Apotheek en supermArkt) binnen loopafstand moeten liggen.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
+      "format": "pmtiles",
+      "sourceLayer": "loopafstanden",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Triple A: huisarts, ov, supermarkt</b><BR><table><tr><td>ov-halte</td><td>[[ ov ]] m</td></tr><tr><td>huisarts</td><td>[[ huisarts ]] m</td></tr><tr><td>supermarkt</td><td>[[ supermarkt ]] m</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Triple A: huisarts, ov, supermarkt",
+        "rules": [
+          {
+            "name": "alle drie aanwezig < 500 m",
+            "filter": [
+              ">=",
+              "aaa_ov_huis_sup",
+              33
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#4FA52D",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "alle drie aanwezig < 750 m",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "aaa_ov_huis_sup",
+                30
+              ],
+              [
+                "<",
+                "aaa_ov_huis_sup",
+                33
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#8ED973",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "2 van de 3 aanwezig < 750 m",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "aaa_ov_huis_sup",
+                20
+              ],
+              [
+                "<",
+                "aaa_ov_huis_sup",
+                30
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#94DCF8",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1 van de 3 aanwezig < 750 m",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "aaa_ov_huis_sup",
+                10
+              ],
+              [
+                "<",
+                "aaa_ov_huis_sup",
+                20
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#C7E0E9",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "geen van de drie aanwezig <750 m",
+            "filter": [
+              "<",
+              "aaa_ov_huis_sup",
+              10
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FBE5D9",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
       "id": "wzw_studiegebied",
       "name": "Studiegebied WoonZorgwijzer Drenthe",
       "source": "https://data.derondekaart.nl/pmtiles/studyareas/studyarea_WZWDrenthe.pmtiles?v=20261118",

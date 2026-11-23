@@ -354,6 +354,90 @@
     ]
   },
   {
+    "label": "Voorzieningen",
+    "icon": "storefront",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Locaties",
+        "icon": "location_on",
+        "color": "#3E74A7",
+        "expanded": true,
+        "children": [
+          {
+            "id": "wzw_vrz_apotheek",
+            "label": "Apotheek",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_huisarts",
+            "label": "Huisarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_openbaar_vervoer",
+            "label": "Openbaar vervoer",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_supermarkt",
+            "label": "Supermarkt",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Loopafstanden",
+        "icon": "directions_walk",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "wzw_vrz_loop_apotheek",
+            "label": "Loopafstand apotheek",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_loop_huisarts",
+            "label": "Loopafstand huisarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_loop_ov",
+            "label": "Loopafstand ov",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_loop_supermarkt",
+            "label": "Loopafstand supermarkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_loop_aaa_apo_huis_sup",
+            "label": "Triple A: huisarts, apotheek, supermarkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_loop_aaa_ov_huis_sup",
+            "label": "Triple A: huisarts, ov, supermarkt",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
     "label": "Gebiedsindelingen",
     "icon": "border_all",
     "color": "#3E74A7",
