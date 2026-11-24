@@ -340,6 +340,40 @@
     ]
   },
   {
+    "label": "Woningvoorraad",
+    "icon": "home_work",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Geschiktheid",
+        "icon": "accessible",
+        "color": "#3E74A7",
+        "expanded": true,
+        "children": [
+          {
+            "id": "wzw_geschiktheid_nultrede",
+            "label": "nultrede",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_geschiktheid_aanpasbaar",
+            "label": "aanpasbaar",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_geschiktheid_ongeschikt",
+            "label": "ongeschikt",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
     "label": "Voorzieningen",
     "icon": "storefront",
     "color": "#3E74A7",

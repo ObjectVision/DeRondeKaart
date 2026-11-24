@@ -141,6 +141,25 @@ python data/build-wzw-sociale-klasse.py --geodms           # regenerate exports,
 python data/build-wzw-sociale-klasse.py --upload --config  # publish, rewrite layer + nav group
 ```
 
+## Geschiktheid woningvoorraad (wzw_*)
+
+`data/build-wzw-geschiktheid.py` builds MapGallery layers 439/438/440 (nultrede,
+aanpasbaar, ongeschikt) from the GeoDMS exports in
+`cbs100m_grid_data/2026/geschiktheid/{m20,m10,m5}.geojson` into one archive,
+`pmtiles/woonzorgwijzer/geschiktheid/geschiktheid_2026.pmtiles` (layer
+`geschiktheid`, m20 z5–8, m10 z9–10, m5 z11–15, as `scripts/geschiktheid.sh`).
+The three app layers style that archive on one share each. It adds
+`<field>_pct` properties, whole percentages for the click popup. `--config`
+writes the layers and a "Woningvoorraad" > "Geschiktheid" nav group, before
+"Voorzieningen", into Noord-Holland, Zuid-Holland, Zeeland, Noord-Brabant,
+Gelderland and Rivierenland (which mirrors Gelderland's collection 187). The
+nav labels come from each collection: some say "nultrede", others "nultreden".
+
+```sh
+python data/build-wzw-geschiktheid.py                    # label, build
+python data/build-wzw-geschiktheid.py --upload --config  # publish, rewrite layers + nav group
+```
+
 ## Voorzieningen (wzw_*)
 
 `data/build-wzw-voorzieningen.py` builds each variant's MapGallery "voorzieningen"

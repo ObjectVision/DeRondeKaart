@@ -79,6 +79,12 @@ step. Ids start with `bevprog_`.
 100 m cell the SCP social class most present there (12 classes), one national
 archive built by `data/build-wzw-sociale-klasse.py`.
 
+**Geschiktheid** (dwelling suitability) — the WZW layers `wzw_geschiktheid_*`
+under "Woningvoorraad": per 100 m cell the share of dwellings that is
+*nultrede* (step-free), *aanpasbaar* (adaptable) or *ongeschikt* (unsuitable)
+for someone with limited mobility. Three layers on one national archive, built
+by `data/build-wzw-geschiktheid.py`.
+
 **Voorzieningen** — the WZW amenity layers (`wzw_vrz_*`): *locaties*, points of
 one amenity type each, and *loopafstanden*, walking distance per 100 m cell to
 the nearest one. Built by `data/build-wzw-voorzieningen.py`.
