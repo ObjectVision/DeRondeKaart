@@ -113,6 +113,9 @@
       {
         "id": "wzw_rivierenland",
         "label": "WoonZorgWijzer Rivierenland",
+        "hosts": [
+          "rivierenland.derondekaart.nl"
+        ],
         "studyarea": "wzw_studiegebied",
         "pickLayer": "wijk_klik",
         "center": [
