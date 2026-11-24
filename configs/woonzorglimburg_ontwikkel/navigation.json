@@ -60,21 +60,7 @@
     "expanded": false,
     "children": [
       {
-        "label": "Sociaal economisch",
-        "icon": "trending_up",
-        "color": "#22A06B",
-        "expanded": true,
-        "children": [
-          {
-            "id": "Sociaal_dominante_klasse",
-            "label": "sociaal dominante klasse",
-            "a": false,
-            "b": false
-          }
-        ]
-      },
-      {
-        "label": "Verdeling",
+        "label": "leeftijdsgroepen",
         "icon": "monitoring",
         "color": "#3E74A7",
         "expanded": true,
@@ -117,13 +103,7 @@
           },
           {
             "id": "dichtheid_bevolking_2026",
-            "label": "dichtheid",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "oosr_2",
-            "label": "mantelzorg (OOSR)",
+            "label": "alle",
             "a": false,
             "b": false
           }
@@ -154,6 +134,34 @@
             "b": false
           }
         ]
+      },
+      {
+        "label": "mantelzorg",
+        "icon": "monitoring",
+        "color": "#3E74A7",
+        "expanded": true,
+        "children": [
+          {
+            "id": "oosr_2",
+            "label": "mantelzorg (OOSR)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Sociaal economisch",
+        "icon": "trending_up",
+        "color": "#22A06B",
+        "expanded": true,
+        "children": [
+          {
+            "id": "Sociaal_dominante_klasse",
+            "label": "sociaal dominante klasse",
+            "a": false,
+            "b": false
+          }
+        ]
       }
     ]
   },
@@ -164,7 +172,7 @@
     "expanded": false,
     "children": [
       {
-        "label": "pandkenmerken",
+        "label": "kenmerken",
         "icon": "apartment",
         "color": "#2D6CDF",
         "expanded": true,
@@ -310,6 +318,28 @@
     ]
   },
   {
+    "label": "Omgeving",
+    "icon": "nature_people",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "bomen_rule_3_30_300_classified_2026",
+        "color": "#54B6C0",
+        "label": "3-30-300 vuistregels",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "stijgingspercentage_2026",
+        "color": "#7A5C3E",
+        "label": "reliëf",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
     "label": "Voorzieningen",
     "icon": "storefront",
     "color": "#3E74A7",
@@ -359,11 +389,18 @@
         ]
       },
       {
-        "label": "zorgvoorzieningen",
+        "label": "zorg",
         "icon": "storefront",
         "color": "#8C54D6",
         "expanded": true,
         "children": [
+          {
+            "id": "huisarts",
+            "color": "#8C54D6",
+            "label": "Huisarts",
+            "a": false,
+            "b": false
+          },
           {
             "id": "apotheek",
             "color": "#8C54D6",
@@ -386,20 +423,6 @@
             "b": false
           },
           {
-            "id": "huisarts",
-            "color": "#8C54D6",
-            "label": "Huisarts",
-            "a": false,
-            "b": false
-          },
-          {
-            "id": "ontmoeting",
-            "color": "#8C54D6",
-            "label": "Ontmoeting",
-            "a": false,
-            "b": false
-          },
-          {
             "id": "tandarts",
             "color": "#8C54D6",
             "label": "Tandarts",
@@ -410,6 +433,21 @@
             "id": "ziekenhuis",
             "color": "#8C54D6",
             "label": "Ziekenhuis",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "ontmoeting",
+        "icon": "storefront",
+        "color": "#8C54D6",
+        "expanded": true,
+        "children": [
+          {
+            "id": "ontmoeting",
+            "color": "#8C54D6",
+            "label": "Ontmoeting",
             "a": false,
             "b": false
           }
@@ -514,28 +552,6 @@
             "b": false
           }
         ]
-      }
-    ]
-  },
-  {
-    "label": "Omgeving",
-    "icon": "nature_people",
-    "color": "#3E74A7",
-    "expanded": false,
-    "children": [
-      {
-        "id": "bomen_rule_3_30_300_classified_2026",
-        "color": "#54B6C0",
-        "label": "3-30-300 vuistregels",
-        "a": false,
-        "b": false
-      },
-      {
-        "id": "stijgingspercentage_2026",
-        "color": "#7A5C3E",
-        "label": "reliëf",
-        "a": false,
-        "b": false
       }
     ]
   },
