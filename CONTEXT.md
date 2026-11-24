@@ -148,14 +148,13 @@ replaces files whole rather than merging.
 A project is also how a **protected staging deployment** is built. Reach for a
 project, not a variant, whenever the two sets of content must not be equally
 public — a variant cannot be access-controlled, because everything in a build is
-served from one origin under paths anyone can request. (woonzorglimburg used to
-work this way, with a separate `woonzorglimburg_dev` project behind basic auth;
-it now ships staging as its `ontwikkel` variant, accepting that the staging
-configuration is public. See `configs/README.md`.)
+served from one origin under paths anyone can request. woonzorglimburg's staging
+works this way: the `woonzorglimburg_ontwikkel` project, served behind basic auth.
+See `configs/README.md`.
 
 **Variant** — several datasets shipped in one build and switched at runtime without
-a reload: model years (2025 / 2026 / a comparison of the two) for startanalyse2026,
-`publiek` / `ontwikkel` (public / staging) for woonzorglimburg. Only `layers.json`
+a reload: model years (2025 / 2026 / a comparison of the two) for startanalyse2026;
+woonzorglimburg declares a single one, `versie_1_0`. Only `layers.json`
 and `navigation.json` differ per variant; the rest stay shared, except that a
 variant may override the boot flags `text_to_tool` / `speech_to_text` and the
 initial `center` / `zoom` for the variant a page opens in. `src/config/variant.ts` and `configs/README.md`.

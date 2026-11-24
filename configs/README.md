@@ -437,21 +437,23 @@ Caveats:
 
 ## Existing projects
 
-- `woonzorglimburg/` — the Limburg deployment (`map.woonzorglimburg.nl`), with two
-  [variants](#config-variants-multiple-datasets-in-one-build):
-  - `publiek` (default) — what the public landing (woonzorglimburg.nl) embeds.
-  - `ontwikkel` — staging, embedded by the ontwikkel landing (its host name is
-    deliberately not documented). Config changes are tried here first and copied
-    into `publiek/` once approved. Also turns on `text_to_tool` / `speech_to_text`.
+- `woonzorglimburg/` — the public Limburg deployment (`map.woonzorglimburg.nl`),
+  embedded by woonzorglimburg.nl. One
+  [variant](#config-variants-multiple-datasets-in-one-build), `versie_1_0`, whose
+  `layers.json` and `navigation.json` live under `versie_1_0/`. Old links naming
+  `publiek` or `ontwikkel` fall back to it.
+- `woonzorglimburg_ontwikkel/` — staging (`ontwikkel.woonzorglimburg.nl`), a
+  separate project served behind basic auth. Flat (no variants); turns on
+  `text_to_tool` / `speech_to_text`. Config changes are tried here first and
+  copied into `woonzorglimburg/versie_1_0/` once approved. Its `filter.json`,
+  `charts.json` and `dashboard_complementary.json` are copies of woonzorglimburg's
+  — projects do not inherit from each other, so change both together.
 
-  Shares `map.json`, `filter.json`, `charts.json` and `dashboard_complementary.json`;
-  `layers.json` and `navigation.json` live under `publiek/` and `ontwikkel/`.
-
-  **Staging is public.** Until September 2026 staging was a separate project
-  (`woonzorglimburg_dev`, `map.dev.woonzorglimburg.nl`) behind basic auth, because a
-  variant cannot be access-controlled: `map.woonzorglimburg.nl/ontwikkel/layers.json`
-  and `?variant=ontwikkel` are open to anyone. That was traded for one build and one
-  site. Anything that must stay private needs a separate project again, not a variant.
+  **Why a project, not a variant.** A variant cannot be access-controlled: every
+  variant's `layers.json` is served from the same origin to anyone. From September
+  to November 2026 staging was the public `ontwikkel` variant of `woonzorglimburg`;
+  it moved back to its own project so its configuration needs the password.
+  Its data on `dataontwikkel.woonzorglimburg.nl` is still public.
 - `startanalyse2026/` — the national Startanalyse viewer. Shares `map.json`, `filter.json`
   and `charts.json`, and ships `layers.json` + `navigation.json` per model year under
   `2025/`, `2026/` and `2025_2026/` (see [Config variants](#config-variants-multiple-datasets-in-one-build)).

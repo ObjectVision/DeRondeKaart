@@ -28,8 +28,8 @@ Steps, each cached:
 4. ``--upload`` the archive to wzl-data ``pmtiles/``. The metainfo is the spreadsheet
    row ``relief`` in ``meta/woonzorglimburg/metadata.xlsx``, published by
    ``meta/genereer_html.py``.
-5. ``--config``: replace the two old layers with the composite in publiek and
-   ontwikkel, and flatten Omgeving's navigation (idempotent).
+5. ``--config``: replace the two old layers with the composite in woonzorglimburg
+   (versie_1_0) and woonzorglimburg_ontwikkel, and flatten Omgeving's navigation (idempotent).
 
 Usage:
     python data/build-wzl-relief.py                    # build
@@ -89,8 +89,10 @@ META_PARTS = ("toelichting", "bronnen", "aannames_en_onzekerheden")
 CUTOVER = 13  # vlak below, weg from here
 BANDS = {"vlak": (VLAK, 5, CUTOVER - 1), "weg": (WEG, CUTOVER, 14)}
 
-CONFIGS = REPO / "configs" / "woonzorglimburg"
-VARIANTS = ["publiek", "ontwikkel"]
+CONFIGS = REPO / "configs"
+# Folders holding a layers.json + navigation.json: the public project's one
+# variant, and the separate (basic-auth) staging project.
+VARIANTS = ["woonzorglimburg/versie_1_0", "woonzorglimburg_ontwikkel"]
 OLD_VLAK, OLD_WEG = "stijgingspercentage_lb_2026", "stijgingspercentage_weg_limburg"
 LAYER_ID = NAME
 RULE_3_30_300 = "bomen_rule_3_30_300_classified_2026"

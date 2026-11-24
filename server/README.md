@@ -40,19 +40,23 @@ hook id "deploy-<slug>"             entry in /etc/webhook/hooks.json (landing + 
 /etc/nginx/.htpasswd-<slug>         basic-auth users       (map, --auth-user only)
 ```
 
-The map app runs as **one instance** for this project, serving both config
-variants; the two landing pages each embed their own:
+The map app runs as **two instances** of the same repo and branch, each building
+its own config project; the two landing pages each embed their own:
 
 | slug | host | builds / branch | embeds |
 |---|---|---|---|
-| `woonzorglimburg_map` | `map.woonzorglimburg.nl` | `configs/woonzorglimburg/` (variants `publiek`, `ontwikkel`), `main` | — |
-| `woonzorglimburg_landing_publiek` | `woonzorglimburg.nl` | landing repo `main` | map, `?variant=publiek` |
-| `woonzorglimburg_landing_ontwikkel` | *(not documented; see the nginx site on the server)* | landing repo `ontwikkel` | map, `?variant=ontwikkel` |
+| `woonzorglimburg_map` | `map.woonzorglimburg.nl` | `configs/woonzorglimburg/` (one variant, `versie_1_0`), `main` | — |
+| `woonzorglimburg_ontwikkel` | `ontwikkel.woonzorglimburg.nl` | `configs/woonzorglimburg_ontwikkel/`, `main`; basic auth (user `woonzorglimburg`), noindex | — |
+| `woonzorglimburg_landing_publiek` | `woonzorglimburg.nl` | landing repo `main` | map (`?variant=publiek` now falls back to `versie_1_0`) |
+| `woonzorglimburg_landing_ontwikkel` | *(not documented; see the nginx site on the server)* | landing repo `ontwikkel` | must embed `ontwikkel.woonzorglimburg.nl` |
 
-All are public: the staging (`ontwikkel`) variant is served by the same site as
-`publiek`, so it cannot be put behind basic auth — see `configs/README.md`.
-Until September 2026 staging was a separate, password-protected map instance
-(`woonzorglimburg_map_dev`, `map.dev.woonzorglimburg.nl`).
+Staging is a separate project behind basic auth at server level, so its site,
+assets and every config JSON need the password. Its data on
+`dataontwikkel.woonzorglimburg.nl` is **not** gated (CORS-limited to the
+ontwikkel origin only): a browser does not send the map's credentials to another
+host. From September to November 2026 staging was instead a public `ontwikkel`
+variant of `woonzorglimburg`; before that, a gated `woonzorglimburg_map_dev`
+instance on `map.dev.woonzorglimburg.nl`.
 
 The ontwikkel landing's host name is deliberately kept out of this repository.
 

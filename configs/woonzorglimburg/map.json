@@ -5,15 +5,9 @@
   ],
   "zoom": 8,
   "variants": {
-    "default": "publiek",
+    "default": "versie_1_0",
     "items": [
-      { "id": "publiek", "label": "Publiek" },
-      {
-        "id": "ontwikkel",
-        "label": "Ontwikkel",
-        "text_to_tool": true,
-        "speech_to_text": true
-      }
+      { "id": "versie_1_0", "label": "Versie 1.0" }
     ]
   },
   "studyarea": "studiegebied_limburg",

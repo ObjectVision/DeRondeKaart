@@ -49,6 +49,12 @@ Shared, installed once: nginx, git, **Node.js**, the webhook daemon on
   auto-deploy — the HMAC signature and branch-ref check remain its authentication.
   Note a gated instance returns 401 to an iframe until the viewer has authenticated
   once in that browser, so embedding works but is not anonymous.
+  A re-run **without** `--auth-password` keeps the existing user file, so
+  re-provisioning never resets a rotated password; with it, the file is rewritten.
+  **Rotating the password**: re-run setup with a new `--auth-password`, or replace
+  it in place — `openssl passwd` prompts twice without echo, and nginx reads the
+  file per request, so no reload:
+  `printf '%s:%s\n' <user> "$(openssl passwd -apr1)" | sudo tee /etc/nginx/.htpasswd-<slug> >/dev/null`
 - **Deploy resilience** — the deploy script backgrounds the work with `setsid -f`
   so the webhook answers within GitHub's 10 s timeout. A **non-blocking** `tsc -b`
   logs type errors without aborting; only a genuine `vite build` failure aborts,
@@ -81,7 +87,7 @@ Shared, installed once: nginx, git, **Node.js**, the webhook daemon on
 | `--collab-port N` | Proxy `/collab` to a collab server on `127.0.0.1:N` (see [setup_collab_server.md](setup_collab_server.md)) | *(blank — collaboration off)* |
 | `--config-project S` | Config overlay to build (`configs/<S>/` over `public/`) | *(blank — `public/` defaults)* |
 | `--auth-user NAME` | HTTP basic-auth user; blank leaves the site public | *(blank — no auth)* |
-| `--auth-password PW` | Basic-auth password | *generated* |
+| `--auth-password PW` | Basic-auth password; replaces an existing user file | *generated on first run, kept on re-runs* |
 | `--auth-realm TEXT` | Browser prompt text | `<slug> (restricted)` |
 | `--noindex` | Send `X-Robots-Tag: noindex, nofollow` | off |
 | `--secret HEX` | GitHub webhook HMAC secret | *generated* |
@@ -160,8 +166,8 @@ place ahead of the first rebuild that carries genericized defaults.
   --email eoudejans@objectvision.nl
 
 # A password-protected instance (same repo and branch, different overlay) — for
-# content that must not be public, which a variant cannot provide. Not in use for
-# woonzorglimburg since its staging became the `ontwikkel` variant.
+# content that must not be public, which a variant cannot provide. woonzorglimburg
+# runs its staging this way as `woonzorglimburg_ontwikkel` (see server/README.md).
 ./setup_map_application.sh -y   --slug <project>_map_dev --host map.dev.<domain>   --repo git@github.com:ObjectVision/northwake.git   --branch main   --config-project <project>_dev   --auth-user ontwikkelaar --auth-realm "De Ronde kaart — dev" --noindex   --email eoudejans@objectvision.nl
 
 # A second map app, framing locked to one parent site

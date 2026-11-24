@@ -22,18 +22,20 @@ import type { LayerConfig } from "@/layers/types";
  *    pale colour as the inside, so contrast drops instead of rising; that is
  *    the bug this styling fixes, and a light value reads as plausible in review.
  *
- * Both variants are asserted: they are maintained as identical, and a drift
- * between them would mean the public site and staging disagree visually.
+ * Both projects are asserted: the public one (its single variant) and the
+ * staging project are maintained as identical, and a drift between them would
+ * mean the public site and staging disagree visually.
  */
 
-const VARIANTS = ["publiek", "ontwikkel"] as const;
+/** Config folders holding a layers.json, relative to `configs/`. */
+const VARIANTS = ["woonzorglimburg/versie_1_0", "woonzorglimburg_ontwikkel"] as const;
 const STUDY_AREA_ID = "studiegebied_limburg";
 const NAVY = "#00498D";
 
 /** Serve one variant's real layers.json to the loader. */
 function stubVariant(variant: string) {
   const raw = JSON.parse(
-    readFileSync(`configs/woonzorglimburg/${variant}/layers.json`, "utf8"),
+    readFileSync(`configs/${variant}/layers.json`, "utf8"),
   );
   vi.stubGlobal(
     "fetch",

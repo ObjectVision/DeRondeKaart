@@ -65,7 +65,7 @@ SECRET=""; EMAIL=""; NO_TLS=0; FRAME_SET=0; COLLAB_PORT=""; COLLAB_SET=0
 CONFIG_PROJECT=""; CONFIG_PROJECT_SET=0
 # Basic auth is off unless --auth-user names a user. A dev/staging instance sets
 # it; the public instance leaves it blank and its vhost is unchanged.
-AUTH_USER=""; AUTH_USER_SET=0; AUTH_PASSWORD=""; AUTH_REALM=""; NOINDEX=0
+AUTH_USER=""; AUTH_USER_SET=0; AUTH_PASSWORD=""; AUTH_PASSWORD_SET=0; AUTH_REALM=""; NOINDEX=0
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -91,8 +91,8 @@ while [ $# -gt 0 ]; do
     --collab-port=*)    COLLAB_PORT="${1#*=}"; COLLAB_SET=1; shift ;;
     --auth-user)        AUTH_USER="$2"; AUTH_USER_SET=1; shift 2 ;;
     --auth-user=*)      AUTH_USER="${1#*=}"; AUTH_USER_SET=1; shift ;;
-    --auth-password)    AUTH_PASSWORD="$2"; shift 2 ;;
-    --auth-password=*)  AUTH_PASSWORD="${1#*=}"; shift ;;
+    --auth-password)    AUTH_PASSWORD="$2"; AUTH_PASSWORD_SET=1; shift 2 ;;
+    --auth-password=*)  AUTH_PASSWORD="${1#*=}"; AUTH_PASSWORD_SET=1; shift ;;
     --auth-realm)       AUTH_REALM="$2"; shift 2 ;;
     --auth-realm=*)     AUTH_REALM="${1#*=}"; shift ;;
     --noindex)          NOINDEX=1; shift ;;
@@ -144,10 +144,17 @@ if [ "$AUTH_USER_SET" != "1" ] && [ "$ASSUME_YES" != "1" ]; then
   ask AUTH_USER "HTTP basic-auth user (blank = public, no auth)" " "
   AUTH_USER="${AUTH_USER# }"
 fi
+# A re-run without --auth-password keeps the user file already on the server, so
+# re-provisioning (new overlay, new flags) never silently resets a password that
+# was rotated by hand. Pass --auth-password to replace it.
+AUTH_KEEP=0
+if [ -n "$AUTH_USER" ] && [ "$AUTH_PASSWORD_SET" != "1" ] && sudo test -s "/etc/nginx/.htpasswd-$SLUG"; then
+  AUTH_KEEP=1
+fi
 if [ -n "$AUTH_USER" ]; then
   # Generated rather than prompted-with-a-default so a password is never echoed
   # back as a visible default; it is printed once in the summary at the end.
-  [ -n "$AUTH_PASSWORD" ] || AUTH_PASSWORD="$(openssl rand -base64 18)"
+  [ "$AUTH_KEEP" = 1 ] || [ -n "$AUTH_PASSWORD" ] || AUTH_PASSWORD="$(openssl rand -base64 18)"
   [ -n "$AUTH_REALM" ] || AUTH_REALM="$SLUG (restricted)"
 fi
 ask_secret SECRET "GitHub webhook secret (HMAC)"
@@ -538,7 +545,9 @@ $NOINDEX_HEADER
 EOF
 # Must exist before the reload: nginx -t fails on a missing auth_basic_user_file,
 # and a failed -t blocks the reload for every site on this host, not just this one.
-if [ -n "$AUTH_USER" ]; then
+if [ "$AUTH_KEEP" = 1 ]; then
+  ok "Basic-auth file kept (/etc/nginx/.htpasswd-$SLUG; pass --auth-password to replace)"
+elif [ -n "$AUTH_USER" ]; then
   ensure_htpasswd "$SLUG" "$AUTH_USER" "$AUTH_PASSWORD"
 fi
 
@@ -567,7 +576,11 @@ echo
 if [ -n "$AUTH_USER" ]; then
   log "This instance is behind HTTP basic auth — share these out of band:"
   info "Username     : $AUTH_USER"
-  info "Password     : $AUTH_PASSWORD"
+  if [ "$AUTH_KEEP" = 1 ]; then
+    info "Password     : (unchanged — existing user file kept)"
+  else
+    info "Password     : $AUTH_PASSWORD"
+  fi
   info "User file    : /etc/nginx/.htpasswd-$SLUG"
   echo
 fi
