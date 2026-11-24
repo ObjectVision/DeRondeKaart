@@ -560,7 +560,10 @@ if [ "$NO_TLS" = "1" ]; then
 else
   ensure_hsts_snippet
   ensure_tls_hardening_snippet
-  tls_obtain "$EMAIL" "$HOST" "${EXTRA_HOSTS[@]}" || true
+  # A failure here is fatal: the site file was rewritten HTTP-only above, so
+  # carrying on would report success while every host has lost HTTPS.
+  tls_obtain "$EMAIL" "$HOST" "${EXTRA_HOSTS[@]}" \
+    || die "certbot failed — the site now serves HTTP only. Fix the cause and re-run."
   nginx_post_tls "$SLUG" "$HOST"
   ensure_security_txt "$WEBROOT" "https://$HOST"
   check_aaaa "$HOST" "${EXTRA_HOSTS[@]}"

@@ -561,7 +561,12 @@ tls_obtain() {
   local h
   for h in "${hosts[@]}"; do dflags+=(-d "$h"); done
   log "Requesting/renewing Let's Encrypt certificate for: ${hosts[*]}"
+  # --cert-name + --expand: on a re-run that adds a host (e.g. a new
+  # --extra-host), certbot otherwise refuses to change the existing
+  # certificate's domain set non-interactively. The site file was just rewritten
+  # HTTP-only, so that refusal left every name of the site without HTTPS.
   if sudo certbot --nginx --non-interactive --agree-tos --redirect \
+        --cert-name "${hosts[0]}" --expand \
         -m "$email" --no-eff-email "${dflags[@]}"; then
     ok "TLS configured for ${hosts[*]}"
   else

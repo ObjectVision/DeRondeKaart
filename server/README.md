@@ -134,7 +134,7 @@ Nothing in this repo names a server address or login. Scripts and docs use
 | Alias | Serves |
 |---|---|
 | `wzl-data` | production VM: woonzorglimburg map, landing and `data.woonzorglimburg.nl` |
-| `ov-data` | `data.derondekaart.nl` (objectvision config, NL2120) |
+| `ov-data` | `data.derondekaart.nl` (objectvision config, NL2120); `dataov2120.derondekaart.nl` (file server `ov2120_data`, on the 2 TB block-storage disk) |
 | `sa-data` | `data.startanalyse2026.nl` |
 | `wzw-legacy` | the old WZW MapServer mirror (read-only source for `data/build-kl-pmtiles.py`) |
 
@@ -144,6 +144,14 @@ Host wzl-data
     User <deploy user>
     IdentityFile ~/.ssh/<your key>
 ```
+
+On `ov-data`, the `ov2120_data` file server's data directory `/var/www/ov2120_data`
+is its own disk (ext4, label `ov2120_data`), mounted from `/etc/fstab` by UUID
+with `nofail`. That way a detached volume doesn't block boot, but nginx then
+serves an empty directory, which returns 404s. Provisioned with
+`setup_fileserver.sh --slug ov2120_data --host dataov2120.derondekaart.nl
+--data-dir /var/www/ov2120_data --cors-origin '*'` after the mount. Mount first,
+or the script creates the directory on the root disk.
 
 Upload scripts take `--remote <alias>:/path`. Their `--identity` is optional, and
 without it the key comes from the `Host` block. Ask a maintainer for the real

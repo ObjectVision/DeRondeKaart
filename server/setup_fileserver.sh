@@ -221,7 +221,7 @@ if [ "$NO_TLS" = "1" ]; then
 else
   ensure_hsts_snippet
   ensure_tls_hardening_snippet
-  tls_obtain "$EMAIL" "$HOST" || true
+  tls_obtain "$EMAIL" "$HOST" \n    || die "certbot failed — the site now serves HTTP only. Fix the cause and re-run."
   nginx_post_tls "$SLUG" "$HOST"
   ensure_security_txt "$DATA_DIR" "https://$HOST"
   check_aaaa "$HOST"

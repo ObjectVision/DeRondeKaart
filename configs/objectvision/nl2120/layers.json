@@ -3,7 +3,7 @@
     {
       "id": "nl2120_bau1_landgebruik_basisjaar",
       "name": "Landgebruik basisjaar (BAU1)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/basisjaar/landgebruik_basisjaar.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/basisjaar/landgebruik_basisjaar.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -621,7 +621,7 @@
     {
       "id": "nl2120_bau1_landgebruik_2120",
       "name": "Landgebruik 2120 (BAU1)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau1/landgebruik_2120.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau1/landgebruik_2120.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -1239,7 +1239,7 @@
     {
       "id": "nl2120_bau1_nieuwe_natuur",
       "name": "Nieuwe natuur (BAU1)",
-      "source": "https://data.derondekaart.nl/pmtiles/nl2120/bau1/nieuwe_natuur.pmtiles?v=20261110",
+      "source": "https://dataov2120.derondekaart.nl/pmtiles/nl2120/bau1/nieuwe_natuur.pmtiles?v=20261110",
       "format": "pmtiles",
       "sourceLayer": "nieuwe_natuur",
       "geometryType": "polygon",
@@ -1273,7 +1273,7 @@
     {
       "id": "nl2120_bau1_verstedelijking",
       "name": "Verstedelijking (BAU1)",
-      "source": "https://data.derondekaart.nl/pmtiles/nl2120/bau1/verstedelijking.pmtiles?v=20261110",
+      "source": "https://dataov2120.derondekaart.nl/pmtiles/nl2120/bau1/verstedelijking.pmtiles?v=20261110",
       "format": "pmtiles",
       "sourceLayer": "verstedelijking",
       "geometryType": "polygon",
@@ -1307,7 +1307,7 @@
     {
       "id": "nl2120_bau1_waterberging_veen",
       "name": "Seizoensberging veen (BAU1)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau1/waterberging_veen.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau1/waterberging_veen.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -1337,7 +1337,7 @@
     {
       "id": "nl2120_bau1_piekbuiberging",
       "name": "Piekbuiberging, dekkingsgraad (BAU1)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau1/piekbuiberging.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau1/piekbuiberging.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -1477,7 +1477,7 @@
     {
       "id": "nl2120_bau1_co2_veenoxidatie",
       "name": "CO2-emissie veenoxidatie tot 2120 (BAU1)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau1/co2_veenoxidatie.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau1/co2_veenoxidatie.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -1617,7 +1617,7 @@
     {
       "id": "nl2120_bau1_bodemkoolstof",
       "name": "Bodemkoolstof t.o.v. basisjaar (BAU1)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau1/bodemkoolstof.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau1/bodemkoolstof.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -1793,7 +1793,7 @@
     {
       "id": "nl2120_bau1_vermeden_sterfte",
       "name": "Vermeden sterfte door groen (BAU1)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau1/vermeden_sterfte.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau1/vermeden_sterfte.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -1969,7 +1969,7 @@
     {
       "id": "nl2120_bau1_woningwaarde_groen",
       "name": "Woningwaarde door groenverandering (BAU1)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau1/woningwaarde_groen.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau1/woningwaarde_groen.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -2145,7 +2145,7 @@
     {
       "id": "nl2120_bau2_landgebruik_basisjaar",
       "name": "Landgebruik basisjaar (BAU2)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/basisjaar/landgebruik_basisjaar.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/basisjaar/landgebruik_basisjaar.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -2763,7 +2763,7 @@
     {
       "id": "nl2120_bau2_landgebruik_2120",
       "name": "Landgebruik 2120 (BAU2)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau2/landgebruik_2120.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau2/landgebruik_2120.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -3381,7 +3381,7 @@
     {
       "id": "nl2120_bau2_nieuwe_natuur",
       "name": "Nieuwe natuur (BAU2)",
-      "source": "https://data.derondekaart.nl/pmtiles/nl2120/bau2/nieuwe_natuur.pmtiles?v=20261110",
+      "source": "https://dataov2120.derondekaart.nl/pmtiles/nl2120/bau2/nieuwe_natuur.pmtiles?v=20261110",
       "format": "pmtiles",
       "sourceLayer": "nieuwe_natuur",
       "geometryType": "polygon",
@@ -3415,7 +3415,7 @@
     {
       "id": "nl2120_bau2_verstedelijking",
       "name": "Verstedelijking (BAU2)",
-      "source": "https://data.derondekaart.nl/pmtiles/nl2120/bau2/verstedelijking.pmtiles?v=20261110",
+      "source": "https://dataov2120.derondekaart.nl/pmtiles/nl2120/bau2/verstedelijking.pmtiles?v=20261110",
       "format": "pmtiles",
       "sourceLayer": "verstedelijking",
       "geometryType": "polygon",
@@ -3449,7 +3449,7 @@
     {
       "id": "nl2120_bau2_waterberging_veen",
       "name": "Seizoensberging veen (BAU2)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau2/waterberging_veen.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau2/waterberging_veen.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -3479,7 +3479,7 @@
     {
       "id": "nl2120_bau2_piekbuiberging",
       "name": "Piekbuiberging, dekkingsgraad (BAU2)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau2/piekbuiberging.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau2/piekbuiberging.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -3619,7 +3619,7 @@
     {
       "id": "nl2120_bau2_co2_veenoxidatie",
       "name": "CO2-emissie veenoxidatie tot 2120 (BAU2)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau2/co2_veenoxidatie.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau2/co2_veenoxidatie.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -3759,7 +3759,7 @@
     {
       "id": "nl2120_bau2_bodemkoolstof",
       "name": "Bodemkoolstof t.o.v. basisjaar (BAU2)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau2/bodemkoolstof.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau2/bodemkoolstof.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -3935,7 +3935,7 @@
     {
       "id": "nl2120_bau2_vermeden_sterfte",
       "name": "Vermeden sterfte door groen (BAU2)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau2/vermeden_sterfte.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau2/vermeden_sterfte.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -4111,7 +4111,7 @@
     {
       "id": "nl2120_bau2_woningwaarde_groen",
       "name": "Woningwaarde door groenverandering (BAU2)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/bau2/woningwaarde_groen.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/bau2/woningwaarde_groen.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -4287,7 +4287,7 @@
     {
       "id": "nl2120_nbsgenuanceerd_landgebruik_basisjaar",
       "name": "Landgebruik basisjaar (NbS genuanceerd)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/basisjaar/landgebruik_basisjaar.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/basisjaar/landgebruik_basisjaar.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -4905,7 +4905,7 @@
     {
       "id": "nl2120_nbsgenuanceerd_landgebruik_2120",
       "name": "Landgebruik 2120 (NbS genuanceerd)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/nbsgenuanceerd/landgebruik_2120.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/nbsgenuanceerd/landgebruik_2120.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -5523,7 +5523,7 @@
     {
       "id": "nl2120_nbsgenuanceerd_nieuwe_natuur",
       "name": "Nieuwe natuur (NbS genuanceerd)",
-      "source": "https://data.derondekaart.nl/pmtiles/nl2120/nbsgenuanceerd/nieuwe_natuur.pmtiles?v=20261110",
+      "source": "https://dataov2120.derondekaart.nl/pmtiles/nl2120/nbsgenuanceerd/nieuwe_natuur.pmtiles?v=20261110",
       "format": "pmtiles",
       "sourceLayer": "nieuwe_natuur",
       "geometryType": "polygon",
@@ -5557,7 +5557,7 @@
     {
       "id": "nl2120_nbsgenuanceerd_verstedelijking",
       "name": "Verstedelijking (NbS genuanceerd)",
-      "source": "https://data.derondekaart.nl/pmtiles/nl2120/nbsgenuanceerd/verstedelijking.pmtiles?v=20261110",
+      "source": "https://dataov2120.derondekaart.nl/pmtiles/nl2120/nbsgenuanceerd/verstedelijking.pmtiles?v=20261110",
       "format": "pmtiles",
       "sourceLayer": "verstedelijking",
       "geometryType": "polygon",
@@ -5591,7 +5591,7 @@
     {
       "id": "nl2120_nbsgenuanceerd_waterberging_veen",
       "name": "Seizoensberging veen (NbS genuanceerd)",
-      "source": "https://data.derondekaart.nl/pmtiles/nl2120/nbsgenuanceerd/waterberging_veen.pmtiles?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/pmtiles/nl2120/nbsgenuanceerd/waterberging_veen.pmtiles?v=20261111",
       "format": "pmtiles",
       "sourceLayer": "waterberging_veen",
       "geometryType": "polygon",
@@ -5625,7 +5625,7 @@
     {
       "id": "nl2120_nbsgenuanceerd_piekbuiberging",
       "name": "Piekbuiberging, dekkingsgraad (NbS genuanceerd)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/nbsgenuanceerd/piekbuiberging.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/nbsgenuanceerd/piekbuiberging.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -5765,7 +5765,7 @@
     {
       "id": "nl2120_nbsgenuanceerd_co2_veenoxidatie",
       "name": "CO2-emissie veenoxidatie tot 2120 (NbS genuanceerd)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/nbsgenuanceerd/co2_veenoxidatie.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/nbsgenuanceerd/co2_veenoxidatie.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -5905,7 +5905,7 @@
     {
       "id": "nl2120_nbsgenuanceerd_bodemkoolstof",
       "name": "Bodemkoolstof t.o.v. basisjaar (NbS genuanceerd)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/nbsgenuanceerd/bodemkoolstof.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/nbsgenuanceerd/bodemkoolstof.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -6081,7 +6081,7 @@
     {
       "id": "nl2120_nbsgenuanceerd_vermeden_sterfte",
       "name": "Vermeden sterfte door groen (NbS genuanceerd)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/nbsgenuanceerd/vermeden_sterfte.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/nbsgenuanceerd/vermeden_sterfte.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -6257,7 +6257,7 @@
     {
       "id": "nl2120_nbsgenuanceerd_woningwaarde_groen",
       "name": "Woningwaarde door groenverandering (NbS genuanceerd)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/nbsgenuanceerd/woningwaarde_groen.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/nbsgenuanceerd/woningwaarde_groen.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -6433,7 +6433,7 @@
     {
       "id": "nl2120_nbsgenuanceerder_landgebruik_basisjaar",
       "name": "Landgebruik basisjaar (NbS genuanceerder)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/basisjaar/landgebruik_basisjaar.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/basisjaar/landgebruik_basisjaar.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -7051,7 +7051,7 @@
     {
       "id": "nl2120_nbsgenuanceerder_landgebruik_2120",
       "name": "Landgebruik 2120 (NbS genuanceerder)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/nbsgenuanceerder/landgebruik_2120.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/nbsgenuanceerder/landgebruik_2120.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -7669,7 +7669,7 @@
     {
       "id": "nl2120_nbsgenuanceerder_nieuwe_natuur",
       "name": "Nieuwe natuur (NbS genuanceerder)",
-      "source": "https://data.derondekaart.nl/pmtiles/nl2120/nbsgenuanceerder/nieuwe_natuur.pmtiles?v=20261110",
+      "source": "https://dataov2120.derondekaart.nl/pmtiles/nl2120/nbsgenuanceerder/nieuwe_natuur.pmtiles?v=20261110",
       "format": "pmtiles",
       "sourceLayer": "nieuwe_natuur",
       "geometryType": "polygon",
@@ -7703,7 +7703,7 @@
     {
       "id": "nl2120_nbsgenuanceerder_verstedelijking",
       "name": "Verstedelijking (NbS genuanceerder)",
-      "source": "https://data.derondekaart.nl/pmtiles/nl2120/nbsgenuanceerder/verstedelijking.pmtiles?v=20261110",
+      "source": "https://dataov2120.derondekaart.nl/pmtiles/nl2120/nbsgenuanceerder/verstedelijking.pmtiles?v=20261110",
       "format": "pmtiles",
       "sourceLayer": "verstedelijking",
       "geometryType": "polygon",
@@ -7737,7 +7737,7 @@
     {
       "id": "nl2120_nbsgenuanceerder_waterberging_veen",
       "name": "Seizoensberging veen (NbS genuanceerder)",
-      "source": "https://data.derondekaart.nl/pmtiles/nl2120/nbsgenuanceerder/waterberging_veen.pmtiles?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/pmtiles/nl2120/nbsgenuanceerder/waterberging_veen.pmtiles?v=20261111",
       "format": "pmtiles",
       "sourceLayer": "waterberging_veen",
       "geometryType": "polygon",
@@ -7771,7 +7771,7 @@
     {
       "id": "nl2120_nbsgenuanceerder_piekbuiberging",
       "name": "Piekbuiberging, dekkingsgraad (NbS genuanceerder)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/nbsgenuanceerder/piekbuiberging.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/nbsgenuanceerder/piekbuiberging.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -7911,7 +7911,7 @@
     {
       "id": "nl2120_nbsgenuanceerder_co2_veenoxidatie",
       "name": "CO2-emissie veenoxidatie tot 2120 (NbS genuanceerder)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/nbsgenuanceerder/co2_veenoxidatie.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/nbsgenuanceerder/co2_veenoxidatie.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -8051,7 +8051,7 @@
     {
       "id": "nl2120_nbsgenuanceerder_bodemkoolstof",
       "name": "Bodemkoolstof t.o.v. basisjaar (NbS genuanceerder)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/nbsgenuanceerder/bodemkoolstof.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/nbsgenuanceerder/bodemkoolstof.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -8227,7 +8227,7 @@
     {
       "id": "nl2120_nbsgenuanceerder_vermeden_sterfte",
       "name": "Vermeden sterfte door groen (NbS genuanceerder)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/nbsgenuanceerder/vermeden_sterfte.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/nbsgenuanceerder/vermeden_sterfte.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {
@@ -8403,7 +8403,7 @@
     {
       "id": "nl2120_nbsgenuanceerder_woningwaarde_groen",
       "name": "Woningwaarde door groenverandering (NbS genuanceerder)",
-      "source": "https://data.derondekaart.nl/cog/nl2120/nbsgenuanceerder/woningwaarde_groen.cog.tif?v=20261111",
+      "source": "https://dataov2120.derondekaart.nl/cog/nl2120/nbsgenuanceerder/woningwaarde_groen.cog.tif?v=20261111",
       "format": "cog",
       "beforeid": "map-layers",
       "style": {

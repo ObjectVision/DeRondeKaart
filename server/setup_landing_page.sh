@@ -361,7 +361,7 @@ if [ "$NO_TLS" = "1" ]; then
 else
   ensure_hsts_snippet
   ensure_tls_hardening_snippet
-  tls_obtain "$EMAIL" "$HOST" "${ALIASES[@]}" || true
+  tls_obtain "$EMAIL" "$HOST" "${ALIASES[@]}" \n    || die "certbot failed — the site now serves HTTP only. Fix the cause and re-run."
   # Adds HSTS to the TLS blocks and collapses the alias's extra redirect hop
   # that certbot's rewrite introduces (see nginx_post_tls in common.sh).
   nginx_post_tls "$SLUG" "$HOST"
