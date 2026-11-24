@@ -66,8 +66,9 @@ entries: they exist only as native sources on the map. Their synthesized ids end
 in `__c<index>`.
 
 **Timeseries** — a layer config with a `timeseries` block (`placeholder`,
-`start`, `end`, `step`) whose `source` / `sourceLayer` hold the placeholder, so
-a year slider swaps which step is drawn. One layer entry, many steps.
+`start`, `end`, `step`) whose `sourceLayer` (vector: one archive, a source
+layer per step) or `source` (COG: one file per step) holds the placeholder, so a
+year slider swaps which step is drawn. One layer entry, many steps.
 
 **Bevolkingsprognose** (population forecast) — the WZW timeseries layers built
 by `data/build-wzw-bevolkingsprognoses.py`: one PMTiles archive per region and

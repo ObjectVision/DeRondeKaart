@@ -318,3 +318,28 @@ describe("layers.json timeseries initial", () => {
     }
   });
 });
+
+/**
+ * A COG has no source layers, so its timeseries steps between files: the
+ * placeholder sits in `source`. A COG series without it would open on the
+ * literal `%YEAR%` URL, so it must be dropped like a vector one without it.
+ */
+describe("layers.json COG timeseries", () => {
+  const TS = { placeholder: "%YEAR%", start: 2040, end: 2120, step: 10 };
+  const COG = { name: "Reeks", format: "cog", style: { opacity: 0.8 } };
+
+  it("accepts the placeholder in a COG's source and drops a COG without it", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    vi.resetModules();
+    stubLayersJson([
+      { ...COG, id: "met", source: "https://example.test/reeks/bau1_%YEAR%.cog.tif", timeseries: TS },
+      { ...COG, id: "zonder", source: "https://example.test/reeks/bau1_2120.cog.tif", timeseries: TS },
+    ]);
+    const { loadLayerConfigs: load } = await import("@/layers/config");
+    const byId = new Map((await load()).map((c) => [c.id, c]));
+
+    expect(byId.get("met")?.timeseries).toMatchObject({ start: 2040, end: 2120, step: 10 });
+    expect(byId.get("zonder")?.timeseries).toBeUndefined();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('"source" does not contain'));
+  });
+});

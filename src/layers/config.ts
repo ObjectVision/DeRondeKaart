@@ -321,6 +321,7 @@ function validateTimeseries(
   raw: unknown,
   id: string,
   sourceLayer: string | undefined,
+  cogSource?: string,
 ): TimeseriesConfig | undefined {
   if (raw === undefined) return undefined;
 
@@ -351,7 +352,13 @@ function validateTimeseries(
     typeof ts.placeholder === "string" && ts.placeholder.length > 0
       ? ts.placeholder
       : DEFAULT_TIMESERIES_PLACEHOLDER;
-  if (!sourceLayer?.includes(placeholder)) {
+  // Vector layers step their `sourceLayer` inside one archive; a COG has no
+  // source layers, so it steps between files and carries the token in `source`.
+  if (cogSource !== undefined) {
+    if (!cogSource.includes(placeholder)) {
+      return drop(`"source" does not contain the placeholder ${placeholder}`);
+    }
+  } else if (!sourceLayer?.includes(placeholder)) {
     return drop(`"sourceLayer" does not contain the placeholder ${placeholder}`);
   }
 
@@ -513,6 +520,7 @@ function validateLayerConfig(layer: Record<string, unknown>, index: number): Lay
       layer.timeseries,
       layer.id as string,
       layer.sourceLayer as string | undefined,
+      layer.format === "cog" ? ((layer.source as string) ?? "") : undefined,
     ),
     geostyler: (layer.geostyler as LayerConfig["geostyler"]) ?? undefined,
     style: (layer.style as LayerConfig["style"]) ?? {},

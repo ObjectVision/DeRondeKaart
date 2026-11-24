@@ -813,6 +813,11 @@ function applyTimeseriesStep(
   const map = getMap();
   if (!map || !config.timeseries) return;
 
+  if (config.format === "cog") {
+    applyCogTimeseriesStep(map, config, value, getMap, hidden.layerHidden);
+    return;
+  }
+
   const nextSourceLayer = timeseriesSourceLayer(config, value);
   if (nextSourceLayer === config.sourceLayer) return;
 
@@ -852,13 +857,71 @@ function applyTimeseriesStep(
   }
 }
 
+/**
+ * The `source` template of a COG timeseries, stashed before the first step
+ * rewrites `config.source` — the COG counterpart of `timeseriesTemplates`.
+ */
+const cogSourceTemplates = new WeakMap<LayerConfig, string>();
+
+/** Substitute the timeseries placeholder in a COG's source URL. */
+function timeseriesCogSource(config: LayerConfig, value: number): string {
+  const ts = config.timeseries;
+  if (!ts) return config.source;
+  let template = cogSourceTemplates.get(config);
+  if (template === undefined) {
+    template = config.source;
+    cogSourceTemplates.set(config, template);
+  }
+  return template.split(ts.placeholder).join(String(value));
+}
+
+/**
+ * Point a COG timeseries at another step's file.
+ *
+ * A raster source cannot change its URL in place, so the layer and source are
+ * removed and re-added — at the layer's own slot in the stack, captured before
+ * the removal, for the same z-order reason as the vector path above.
+ */
+function applyCogTimeseriesStep(
+  map: NonNullable<ReturnType<MapAccessor>>,
+  config: LayerConfig,
+  value: number,
+  getMap: MapAccessor,
+  layerHidden: boolean,
+) {
+  const next = timeseriesCogSource(config, value);
+  if (next === config.source) return;
+
+  const layerId = `cog-layer-${config.id}`;
+  const sourceId = `cog-source-${config.id}`;
+  const styleLayers = map.getStyle()?.layers ?? [];
+  const at = styleLayers.findIndex((l) => l.id === layerId);
+  const successor = at >= 0 ? styleLayers[at + 1]?.id : undefined;
+
+  if (map.getLayer(layerId)) map.removeLayer(layerId);
+  if (map.getSource(sourceId)) map.removeSource(sourceId);
+
+  // Mutated in place, like `sourceLayer`: a basemap swap replays this step.
+  config.source = next;
+  addCogLayer(config, getMap, successor);
+  if (layerHidden && map.getLayer(layerId)) {
+    map.setLayoutProperty(layerId, "visibility", "none");
+  }
+}
+
 /** Add a native MapLibre raster source/layer for a COG. Module-scope. */
-function addCogLayer(config: LayerConfig, getMap: MapAccessor) {
+function addCogLayer(config: LayerConfig, getMap: MapAccessor, beforeOverride?: string) {
   const map = getMap();
   // See addMvtLayer: replayed by syncImperativeLayers once the style is up.
   if (!styleReady(map)) return;
 
-  const beforeId = anchorForConfig(config);
+  // A COG timeseries' configured `source` is a template: resolve it to its
+  // initial step first, or the protocol would fetch the literal placeholder.
+  if (config.timeseries && config.source.includes(config.timeseries.placeholder)) {
+    config.source = timeseriesCogSource(config, initialStep(config.timeseries));
+  }
+
+  const beforeId = beforeOverride ?? anchorForConfig(config);
   const sourceId = `cog-source-${config.id}`;
   const layerId = `cog-layer-${config.id}`;
 

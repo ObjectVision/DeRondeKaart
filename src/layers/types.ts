@@ -312,13 +312,18 @@ export interface LocationInfoConfig {
 }
 
 /**
- * Timeseries playback over a vector-tile archive that holds the same theme at
- * several moments in time, one source layer per step (e.g. `2025_aandeel_…`,
- * `2030_aandeel_…`). The layer's `sourceLayer` carries `placeholder` where the
- * step value goes, and the legend gains a play/pause control plus a slider.
+ * Timeseries playback over the same theme at several moments in time, in one
+ * of two shapes:
+ *
+ * - **Vector** (mvt/pmtiles): one archive, one source layer per step (e.g.
+ *   `2025_aandeel_…`, `2030_aandeel_…`). `sourceLayer` carries `placeholder`.
+ * - **COG**: one file per step. `source` carries `placeholder` (e.g.
+ *   `…/bau1_%YEAR%.cog.tif`), and a step swaps the raster source.
+ *
+ * Either way the legend gains a play/pause control plus a slider.
  */
 export interface TimeseriesConfig {
-  /** Token in `sourceLayer` replaced by the current step. Default "%YEAR%". */
+  /** Token in `sourceLayer` (vector) or `source` (COG) replaced by the current step. Default "%YEAR%". */
   placeholder: string;
   /** First step. Also the value the layer opens on unless `initial` is set. */
   start: number;
@@ -346,8 +351,8 @@ export interface LayerConfig {
   /** For MVT/PMTiles: the source layer name within the tileset to render */
   sourceLayer?: string;
   /**
-   * MVT/PMTiles only: step `sourceLayer` through time. Requires `sourceLayer`
-   * to contain the placeholder token.
+   * Step the layer through time. MVT/PMTiles: `sourceLayer` must contain the
+   * placeholder token. COG: `source` must contain it.
    */
   timeseries?: TimeseriesConfig;
   /** GeoStyler rule-based style (preferred) */

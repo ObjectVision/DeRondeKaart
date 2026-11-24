@@ -162,6 +162,55 @@ describe("useMapLayers", () => {
     });
   });
 
+  it("steps a COG timeseries by swapping its source file in its own slot", async () => {
+    // A COG has no source layers: each step is its own file, so the raster
+    // source is replaced. The swap must keep the layer where it sat in the stack.
+    const sources = new Map<string, { url?: string }>();
+    const order: string[] = ["below", "above"];
+    const map = {
+      style: { _loaded: true },
+      getStyle: () => ({ layers: order.map((id) => ({ id })) }),
+      getSource: (id: string) => sources.get(id),
+      getLayer: (id: string) => (order.includes(id) ? { id } : undefined),
+      addSource: (id: string, spec: { url?: string }) => sources.set(id, spec),
+      removeSource: (id: string) => sources.delete(id),
+      addLayer: (spec: { id: string }, before?: string) => {
+        const at = before ? order.indexOf(before) : -1;
+        order.splice(at >= 0 ? at : order.length, 0, spec.id);
+      },
+      removeLayer: (id: string) => order.splice(order.indexOf(id), 1),
+      moveLayer: () => {},
+      setLayoutProperty: () => {},
+      setPaintProperty: () => {},
+      setFilter: () => {},
+    } as unknown as NonNullable<ReturnType<MapAccessor>>;
+
+    await withLayers(
+      async (layers) => {
+        await layers.addLayer(
+          config("reeks", {
+            format: "cog",
+            source: "https://example.invalid/reeks/bau1_%YEAR%.cog.tif",
+            sourceLayer: undefined,
+            style: { opacity: 0.8 },
+            timeseries: { placeholder: "%YEAR%", start: 2040, end: 2120, step: 10, intervalMs: 1000 },
+          }),
+        );
+        const sourceUrl = () => sources.get("cog-source-reeks")?.url;
+        expect(sourceUrl()).toBe("cog://https://example.invalid/reeks/bau1_2040.cog.tif");
+
+        // Put it between two other layers, then step: it must stay there.
+        order.splice(order.indexOf("cog-layer-reeks"), 1);
+        order.splice(1, 0, "cog-layer-reeks");
+        layers.setLayerStep("reeks", 2070);
+        expect(sourceUrl()).toBe("cog://https://example.invalid/reeks/bau1_2070.cog.tif");
+        expect(order).toEqual(["below", "cog-layer-reeks", "above"]);
+        expect(layers.layerSteps().get("reeks")).toBe(2070);
+      },
+      () => map,
+    );
+  });
+
   it("keeps the entry when the map has mounted but its style has not", async () => {
     // Regression: moving a layer to the right map mounts that MapView
     // synchronously, so the accessor yields a live-but-unloaded map. Without a
