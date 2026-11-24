@@ -109,6 +109,17 @@
           52.25237
         ],
         "zoom": 11.25
+      },
+      {
+        "id": "wzw_rivierenland",
+        "label": "WoonZorgWijzer Rivierenland",
+        "studyarea": "wzw_studiegebied",
+        "pickLayer": "wijk_klik",
+        "center": [
+          5.35257,
+          51.85994
+        ],
+        "zoom": 10.05
       }
     ]
   },

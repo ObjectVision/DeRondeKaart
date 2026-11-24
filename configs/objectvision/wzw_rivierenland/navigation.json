@@ -1,0 +1,514 @@
+[
+  {
+    "label": "WoonZorgwijzer 5.0",
+    "icon": "folder_special",
+    "color": "#3E74A7",
+    "expanded": true,
+    "children": [
+      {
+        "label": "Aandeel aandoeningen, hoofdgroep",
+        "icon": "ecg_heart",
+        "color": "#3E74A7",
+        "expanded": true,
+        "children": [
+          {
+            "id": "wzw5_hgdem",
+            "label": "Dementie, zelfstandig wonend",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hglvb",
+            "label": "Licht verstandelijk beperkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hgvg",
+            "label": "Matig of ernstig verstandelijk beperkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hgsom",
+            "label": "Somatische problematiek",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hgzin",
+            "label": "Zintuigelijke aandoeningen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hgpsy1",
+            "label": "Angst en stemmingsstoornissen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hgpsy2",
+            "label": "Psychiatrische problematiek",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_hgjgd",
+            "label": "Jeugdproblematiek",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Aandeel aandoeningen, subgroep",
+        "icon": "groups",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "wzw5_sgdem0",
+            "label": "Dementie, inclusief intramuraal",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sgdem1",
+            "label": "Dementie, prediagnose",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sgdem3",
+            "label": "Dementie zelfstandig, gediagnosticeerd",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sglvb1",
+            "label": "Licht verstandelijk beperkt (risicogroep)",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sglvb2",
+            "label": "Kwetsbare gezinnen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sgzin1",
+            "label": "Blind en slechtziend",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sgzin2",
+            "label": "Doof en slechthorend",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sgpsy2b",
+            "label": "Psychiatrische problematiek, incl. locaties",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_sgjgd",
+            "label": "Jeugdproblematiek (aandeel jongeren)",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Aandeel beperkingen",
+        "icon": "accessible",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "wzw5_be_ld1",
+            "label": "daginvulling",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld2",
+            "label": "administratie/financiën",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld3",
+            "label": "contacten/sociaal netwerk",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld4",
+            "label": "medicijngebruik/medische verzorging",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld5",
+            "label": "mobiliteit buitenshuis",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld6",
+            "label": "algemene dagelijkse levensverrichtingen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld7",
+            "label": "mobiliteit in huis",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld8",
+            "label": "veiligheid in huis",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld9",
+            "label": "het huishouden doen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld10",
+            "label": "stemmingen/angsten",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld11",
+            "label": "probleemgedrag/verslaving",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld12",
+            "label": "cognitief functioneren",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld13",
+            "label": "regie",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw5_be_ld14",
+            "label": "alarmering",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Bevolkingsprognoses",
+    "icon": "monitoring",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Aandeel naar leeftijdsklasse",
+        "icon": "percent",
+        "color": "#3E74A7",
+        "expanded": true,
+        "children": [
+          {
+            "id": "bevprog_percentage_p_lft00_17",
+            "label": "0 - 17 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_percentage_p_lft18_29",
+            "label": "18 - 29 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_percentage_p_lft30_44",
+            "label": "30 - 44 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_percentage_p_lft45_66",
+            "label": "45 - 66 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_percentage_p_lft67_75",
+            "label": "67 - 74 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_percentage_p_lft67_plus",
+            "label": "67 plussers",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_percentage_p_lft75_plus",
+            "label": "75 plussers",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Aantal naar leeftijdsklasse",
+        "icon": "groups",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "bevprog_absoluut_lft00_17",
+            "label": "0 - 17 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_absoluut_lft18_29",
+            "label": "18 - 29 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_absoluut_lft30_44",
+            "label": "30 - 44 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_absoluut_lft45_66",
+            "label": "45 - 66 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_absoluut_lft67_75",
+            "label": "67 - 74 jarigen",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_absoluut_lft67_plus",
+            "label": "67 plussers",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "bevprog_absoluut_lft75_plus",
+            "label": "75 plussers",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Mantelzorg",
+        "icon": "volunteer_activism",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "bevprog_huishoudens_oosr",
+            "label": "Oldest Old Support Ratio",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Sociaal economisch",
+    "icon": "diversity_3",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "wzw_dominante_sociale_klasse",
+        "label": "Dominante sociaal economische klasse",
+        "a": false,
+        "b": false
+      }
+    ]
+  },
+  {
+    "label": "Voorzieningen",
+    "icon": "storefront",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "label": "Locaties",
+        "icon": "location_on",
+        "color": "#3E74A7",
+        "expanded": true,
+        "children": [
+          {
+            "id": "wzw_vrz_apotheek",
+            "label": "Apotheek",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_huisarts",
+            "label": "Huisarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_supermarkt",
+            "label": "Supermarkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_openbaar_vervoer",
+            "label": "Openbaar vervoer",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Loopafstanden",
+        "icon": "directions_walk",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "wzw_vrz_loop_apotheek",
+            "label": "Loopafstand apotheek",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_loop_huisarts",
+            "label": "Loopafstand huisarts",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_loop_supermarkt",
+            "label": "Loopafstand supermarkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_loop_ov",
+            "label": "Loopafstand ov",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_loop_aaa_apo_huis_sup",
+            "label": "Triple A: huisarts, apotheek, supermarkt",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_vrz_loop_aaa_ov_huis_sup",
+            "label": "Triple A: huisarts, ov, supermarkt",
+            "a": false,
+            "b": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "label": "Gebiedsindelingen",
+    "icon": "border_all",
+    "color": "#3E74A7",
+    "expanded": false,
+    "children": [
+      {
+        "id": "gi_gemeente",
+        "label": "gemeente",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_wijk",
+        "label": "wijk",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_buurt",
+        "label": "buurt",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_provincie",
+        "label": "provincie",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_ggd",
+        "label": "GGD regio",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_iza",
+        "label": "integraal zorgakkoord regio",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_jr",
+        "label": "jeugdregio",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_rho",
+        "label": "regionale huisartsenorganisatie (RHO)",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_vtr",
+        "label": "veilig thuis regio",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_wd",
+        "label": "woondealregio",
+        "a": false,
+        "b": false
+      },
+      {
+        "id": "gi_zkr",
+        "label": "zorgkantoorregio",
+        "a": false,
+        "b": false
+      }
+    ]
+  }
+]
