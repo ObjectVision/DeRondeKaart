@@ -8,7 +8,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_hgdem_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van 60-plussers met een dementiële aandoening in een zelfstandig huishouden.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGDEM.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "HGDEM_%YEAR%",
@@ -145,7 +144,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_hglvb_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van personen van 18 jaar en ouder met een licht verstandelijke beperking in een zelfstandig huishouden die problemen ervaren in het meekomen in de maatschappij (werk, opleiding, taalvaardigheid, administratie).",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGLVB.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "HGLVB_%YEAR%",
@@ -282,7 +280,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_hgvg_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder met een diagnose VG (verstandelijk gehandicapt) in een zelfstandig huishouden.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGVG.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "HGVG_%YEAR%",
@@ -419,7 +416,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_hgsom_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder met een of meer chronische aandoeningen én een mobiliteitsbeperking die lid zijn van een zelfstandig huishouden.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGSOM.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "HGSOM_%YEAR%",
@@ -556,7 +552,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_hgzin_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder in een zelfstandig huishouden die moeite hebben met of niet kunnen zien of horen.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGZIN.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "HGZIN_%YEAR%",
@@ -693,7 +688,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_hgpsy1_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder in een zelfstandig huishouden met een groot risico op angst en stemmingsstoornissen.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGPSY1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "HGPSY1_%YEAR%",
@@ -830,7 +824,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_hgpsy2_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder in een zelfstandig huishouden met een psychiatrische aandoening.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGPSY2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "HGPSY2_%YEAR%",
@@ -967,7 +960,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_hgjgd_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van personen tot en met 18 jaar die volgens de huidige normen/het huidige beleid in aanmerking komen voor een vorm van ambulante jeugdhulpverlening als aandeel van de zelfstandig wonende populatie (alle leeftijden).",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/HGJGD.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "HGJGD_%YEAR%",
@@ -1104,7 +1096,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_sgdem0_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van 60-plussers met dementie, zowel zelfstandig wonend als in een instelling.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/SGDEM0.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "SGDEM0_%YEAR%",
@@ -1241,7 +1232,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_sgdem1_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van 60-plussers in een zelfstandig huishouden met beginnende dementie.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/SGDEM1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "SGDEM1_%YEAR%",
@@ -1378,7 +1368,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_sgdem3_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van 60-plussers in een zelfstandig huishouden met een Wlz-indicatie op basis van een dementiële aandoening.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/SGDEM3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "SGDEM3_%YEAR%",
@@ -1515,7 +1504,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_sglvb1_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van personen van 18 jaar en ouder die als gevolg een laag een IQ risico lopen op problemen in het meekomen in de maatschappij (werk, opleiding, taalvaardigheid, administratie).",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/SGLVB1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "SGLVB1_%YEAR%",
@@ -1652,7 +1640,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_sglvb2_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van zelfstandige huishoudens met kinderen (eenoudergezin, partners met kinderen) behorend tot de 20% laagste inkomensgroep, zonder werk en met een lage opleiding (hoogst voltooide opleiding: basisschool, praktijkschool, mbo1,vmbo basis/kader of mbo2).",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/SGLVB2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "SGLVB2_%YEAR%",
@@ -1789,7 +1776,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_sgzin1_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder in een zelfstandig huishouden die moeite hebben met zien of niet kunnen zien.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/SGZIN1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "SGZIN1_%YEAR%",
@@ -1926,7 +1912,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_sgzin2_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder in een zelfstandig huishouden die moeite hebben met horen of niet kunnen horen.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/SGZIN2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "SGZIN2_%YEAR%",
@@ -2063,7 +2048,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_sgpsy2b_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van personen van 18 jaar of ouder in een zelfstandig huishouden met een psychiatrische aandoening.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/SGPSY2B.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "SGPSY2B_%YEAR%",
@@ -2200,7 +2184,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_sgjgd_bronnen.html"
       },
       "subname": "aandeel huishoudens",
-      "description": "De kans op het vóórkomen van personen tot en met 18 jaar die volgens de huidige normen/ het huidige beleid in aanmerking komen voor een vorm van ambulante jeugdhulpverlening als aandeel van de zelfstandig wonende personen t/m 18 jaar.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/SGJGD.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "SGJGD_%YEAR%",
@@ -2337,7 +2320,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld1_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk beperkingen ervaren op het gebied van daginvulling (werk, vrijwilligerswerk, georganiseerde dagbesteding).",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld1.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld1_%YEAR%",
@@ -2474,7 +2456,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld2_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk beperkingen ervaren op het gebied van administratie (bankzaken, aangaan van contracten, uitgaven, verzekeringen, formulieren).",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld2.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld2_%YEAR%",
@@ -2611,7 +2592,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld3_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk beperkingen ervaren op het gebied van sociale contacten/netwerk (maken en onderhouden van contacten met vrienden, familie, buren, kennissen).",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld3.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld3_%YEAR%",
@@ -2748,7 +2728,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld4_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk beperkingen ervaren op het gebied van medicijngebruik/medische verzorging (tijdig en juist gebruik medicijnen, alert en tijdig opmerken/ingrijpen bij verslechtering gezondheid).",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld4.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld4_%YEAR%",
@@ -2885,7 +2864,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld5_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk beperkingen ervaren bij het zich (veilig) buitenshuis verplaatsen.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld5.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld5_%YEAR%",
@@ -3022,7 +3000,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld6_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk beperkingen ervaren bij zaken als opstaan, aankleden, wassen, tanden poetsen, toiletbezoek, eten en drinken.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld6.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld6_%YEAR%",
@@ -3159,7 +3136,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld7_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk beperkingen ervaren bij het zich binnenshuis te verplaatsen.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld7.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld7_%YEAR%",
@@ -3296,7 +3272,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld8_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk beperkingen ervaren op het gebied van fysieke en sociale veiligheid in huis (valgevaar, brand, letsel, binnenlaten criminelen/oplichters).",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld8.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld8_%YEAR%",
@@ -3433,7 +3408,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld9_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk beperkingen ervaren bij het zelfstandig doen van het huishouden (boodschappen doen, opruimen en schoonmaken, maaltijd bereiden, afwassen, de was doen).",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld9.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld9_%YEAR%",
@@ -3570,7 +3544,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld10_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk in hun functioneren beperkt worden door stemmingen (depressie) en/of angsten.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld10.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld10_%YEAR%",
@@ -3707,7 +3680,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld11_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder met mogelijke beperkingen als gevolg van (eigen) grensoverschrijdend gedrag zoals agressie, overlast en/of seksueel ontremd gedrag.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld11.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld11_%YEAR%",
@@ -3844,7 +3816,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld12_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk beperkingen ervaren in hun cognitief functioneren (denken, geheugen, begrijpen, concentratie, relaties leggen oorzaak en gevolg, oriëntatie, lezen, schrijven, rekenen).",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld12.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld12_%YEAR%",
@@ -3981,7 +3952,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld13_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk beperkingen ervaren op het gebied van regievoering over het eigen leven (beslissingen nemen, planning maken, initiatief nemen, beslissen wanneer wat moet gebeuren).",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld13.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld13_%YEAR%",
@@ -4118,7 +4088,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw5_be_ld14_bronnen.html"
       },
       "subname": "aandeel huishoudens met beperking",
-      "description": "Personen van 18 jaar of ouder die mogelijk beperkt zijn bij het zelf (tijdig) hulp in te roepen als het niet goed gaat.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/be_ld14.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "be_ld14_%YEAR%",
@@ -4255,7 +4224,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_percentage_p_lft00_17_bronnen.html"
       },
       "subname": "aandeel naar leeftijdsklasse",
-      "description": "Het aandeel geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_percentage.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -4407,7 +4375,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_percentage_p_lft18_29_bronnen.html"
       },
       "subname": "aandeel naar leeftijdsklasse",
-      "description": "Het aandeel geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_percentage.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -4559,7 +4526,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_percentage_p_lft30_44_bronnen.html"
       },
       "subname": "aandeel naar leeftijdsklasse",
-      "description": "Het aandeel geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_percentage.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -4711,7 +4677,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_percentage_p_lft45_66_bronnen.html"
       },
       "subname": "aandeel naar leeftijdsklasse",
-      "description": "Het aandeel geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_percentage.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -4863,7 +4828,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_percentage_p_lft67_75_bronnen.html"
       },
       "subname": "aandeel naar leeftijdsklasse",
-      "description": "Het aandeel geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_percentage.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -5015,7 +4979,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_percentage_p_lft67_plus_bronnen.html"
       },
       "subname": "aandeel naar leeftijdsklasse",
-      "description": "Het aandeel geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_percentage.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -5167,7 +5130,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_percentage_p_lft75_plus_bronnen.html"
       },
       "subname": "aandeel naar leeftijdsklasse",
-      "description": "Het aandeel geprognotiseerde personen in de leeftijdsgroep per gebied. Dit aandeel is berekend door het aantal personen in de leeftijdsgroep te delen door het totaal aantal inwoners. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_percentage.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -5319,7 +5281,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_absoluut_lft00_17_bronnen.html"
       },
       "subname": "aantal naar leeftijdsklasse",
-      "description": "Het absolute aantal geprognotiseerde personen in de leeftijdsgroep per gebied. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_absoluut.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -5456,7 +5417,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_absoluut_lft18_29_bronnen.html"
       },
       "subname": "aantal naar leeftijdsklasse",
-      "description": "Het absolute aantal geprognotiseerde personen in de leeftijdsgroep per gebied. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_absoluut.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -5593,7 +5553,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_absoluut_lft30_44_bronnen.html"
       },
       "subname": "aantal naar leeftijdsklasse",
-      "description": "Het absolute aantal geprognotiseerde personen in de leeftijdsgroep per gebied. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_absoluut.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -5730,7 +5689,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_absoluut_lft45_66_bronnen.html"
       },
       "subname": "aantal naar leeftijdsklasse",
-      "description": "Het absolute aantal geprognotiseerde personen in de leeftijdsgroep per gebied. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_absoluut.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -5867,7 +5825,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_absoluut_lft67_75_bronnen.html"
       },
       "subname": "aantal naar leeftijdsklasse",
-      "description": "Het absolute aantal geprognotiseerde personen in de leeftijdsgroep per gebied. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_absoluut.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -6004,7 +5961,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_absoluut_lft67_plus_bronnen.html"
       },
       "subname": "aantal naar leeftijdsklasse",
-      "description": "Het absolute aantal geprognotiseerde personen in de leeftijdsgroep per gebied. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_absoluut.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -6141,7 +6097,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/bevprog_absoluut_lft75_plus_bronnen.html"
       },
       "subname": "aantal naar leeftijdsklasse",
-      "description": "Het absolute aantal geprognotiseerde personen in de leeftijdsgroep per gebied. Om te komen tot een prognose op gebiedsniveau zijn de gemeentelijk aantallen volgens de provinciale prognose verdeeld over de gebieden op basis van het Microprognosemodel van In.Fact.Research. Bij het overzicht van de bronnen vindt een nadere toelichting op beide bronnen.",
       "source": "https://data.derondekaart.nl/pmtiles/bevolkingsprognoses/bevprog_nh_absoluut.pmtiles?v=20261122",
       "format": "pmtiles",
       "sourceLayer": "Y%YEAR%",
@@ -6371,7 +6326,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/gi_wijk_bronnen.html",
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/gi_wijk_aannames_en_onzekerheden.html"
       },
-      "description": "CBS wijken 2025: gegeneraliseerd tot zoomniveau 11, daarna de niet-gegeneraliseerde grenzen.",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wijk.pmtiles?v=20261117",
       "format": "pmtiles",
       "sourceLayer": "wijk",
@@ -6405,7 +6359,6 @@
         "bronnen": "https://data.derondekaart.nl/meta/woonzorgwijzer/gi_buurt_bronnen.html",
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/gi_buurt_aannames_en_onzekerheden.html"
       },
-      "description": "CBS buurten 2025: gegeneraliseerd tot zoomniveau 11, daarna de niet-gegeneraliseerde grenzen.",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/buurt.pmtiles?v=20261117",
       "format": "pmtiles",
       "sourceLayer": "buurt",
@@ -6434,7 +6387,6 @@
     {
       "id": "wijk_klik",
       "name": "Wijk informatie",
-      "description": "Onzichtbare CBS-wijkvlakken: een klik op de kaart opent de wijkinformatie (WoonZorgwijzer 5 en voorzieningen).",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wijk.pmtiles?v=20261117",
       "format": "pmtiles",
       "sourceLayer": "wijk",
@@ -6737,7 +6689,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_vrz_huisarts_aannames_en_onzekerheden.html"
       },
       "subname": "locaties",
-      "description": "Locaties van huisartsen in Nederland",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
       "format": "pmtiles",
       "sourceLayer": "vrz_locaties",
@@ -6778,7 +6729,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_vrz_buurt_en_dorpshuizen_aannames_en_onzekerheden.html"
       },
       "subname": "locaties",
-      "description": "Locaties van buurt- en dorpshuizen in Nederland",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
       "format": "pmtiles",
       "sourceLayer": "vrz_locaties",
@@ -6819,7 +6769,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_vrz_openbaar_vervoer_aannames_en_onzekerheden.html"
       },
       "subname": "locaties",
-      "description": "Locaties van ov haltes in Nederland",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
       "format": "pmtiles",
       "sourceLayer": "vrz_locaties",
@@ -6860,7 +6809,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_vrz_supermarkt_aannames_en_onzekerheden.html"
       },
       "subname": "locaties",
-      "description": "Locaties van supermarkten in Nederland",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
       "format": "pmtiles",
       "sourceLayer": "vrz_locaties",
@@ -6901,7 +6849,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_vrz_fysiotherapeut_aannames_en_onzekerheden.html"
       },
       "subname": "locaties",
-      "description": "Locaties van fysiotherapeuten in Nederland",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
       "format": "pmtiles",
       "sourceLayer": "vrz_locaties",
@@ -6942,7 +6889,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_vrz_ziekenhuis_aannames_en_onzekerheden.html"
       },
       "subname": "locaties",
-      "description": "Locaties van ziekenhuizen in Nederland",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
       "format": "pmtiles",
       "sourceLayer": "vrz_locaties",
@@ -6977,7 +6923,6 @@
     {
       "id": "kl_zorgvastgoed_lokatie_wz_2025",
       "name": "WoonZorg",
-      "description": "Zorgvastgoed locatie WoonZorg",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "wz",
@@ -7014,7 +6959,6 @@
     {
       "id": "kl_zorgvastgoed_lokatie_jz_2025",
       "name": "JeugdZorg",
-      "description": "Zorgvastgoed locatie Jeugdzorg",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "jz",
@@ -7051,7 +6995,6 @@
     {
       "id": "kl_zorgvastgoed_lokatie_vb_2025",
       "name": "Mensen met verstandelijke beperking",
-      "description": "Zorgvastgoed locatie mensen met een verstandelijke beperking",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "vb",
@@ -7088,7 +7031,6 @@
     {
       "id": "kl_zorgvastgoed_lokatie_zb_2025",
       "name": "Mensen met lichamelijke beperking",
-      "description": "Zorgvastgoed locatie mensen met een lichamelijke beperking",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "zb",
@@ -7125,7 +7067,6 @@
     {
       "id": "kl_zorgvastgoed_lokatie_re_2025",
       "name": "Revalidatie",
-      "description": "Zorgvastgoed locatie Revalidatie",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "re",
@@ -7162,7 +7103,6 @@
     {
       "id": "kl_zorgvastgoed_lokatie_mo_2025",
       "name": "Maatschappelijke opvang",
-      "description": "Zorgvastgoed locatie Maatschappelijke opvang",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "mo",
@@ -7199,7 +7139,6 @@
     {
       "id": "kl_zorgvastgoed_lokatie_db_2025",
       "name": "Dagbesteding",
-      "description": "Zorgvastgoed locatie Dagbesteding",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "db",
@@ -7236,7 +7175,6 @@
     {
       "id": "kl_zorgvastgoed_lokatie_bw_2025",
       "name": "Beschermd wonen",
-      "description": "Zorgvastgoed locatie Beschermd Wonen",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "bw",
@@ -7273,7 +7211,6 @@
     {
       "id": "kl_zorgvastgoed_lokatie_ov_2025",
       "name": "Overig",
-      "description": "Zorgvastgoed locatie Overig",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_woonzorg_2025.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "ov",
@@ -7316,7 +7253,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_vrz_loop_huisarts_aannames_en_onzekerheden.html"
       },
       "subname": "loopafstanden",
-      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
       "format": "pmtiles",
       "sourceLayer": "loopafstanden",
@@ -7465,7 +7401,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_vrz_loop_ontmoeting_aannames_en_onzekerheden.html"
       },
       "subname": "loopafstanden",
-      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
       "format": "pmtiles",
       "sourceLayer": "loopafstanden",
@@ -7614,7 +7549,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_vrz_loop_ov_aannames_en_onzekerheden.html"
       },
       "subname": "loopafstanden",
-      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
       "format": "pmtiles",
       "sourceLayer": "loopafstanden",
@@ -7763,7 +7697,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_vrz_loop_supermarkt_aannames_en_onzekerheden.html"
       },
       "subname": "loopafstanden",
-      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
       "format": "pmtiles",
       "sourceLayer": "loopafstanden",
@@ -7912,7 +7845,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_vrz_loop_fysiotherapeut_aannames_en_onzekerheden.html"
       },
       "subname": "loopafstanden",
-      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
       "format": "pmtiles",
       "sourceLayer": "loopafstanden",
@@ -8055,7 +7987,6 @@
     {
       "id": "kl_wijkteam_gebied",
       "name": "Haarlem/Zandvoort",
-      "description": "Verzorgingsgebied Wijkteam Haarlem/Zandvoort",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wijkteam.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "haarlem",
@@ -8087,7 +8018,6 @@
     {
       "id": "kl_wijkteam_velsen",
       "name": "Velsen",
-      "description": "Verzorgingsgebied Wijkteam Velsen",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wijkteam.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "velsen",
@@ -8120,7 +8050,6 @@
     {
       "id": "kl_pand_bouwjaar",
       "name": "bouwjaar pand",
-      "description": "Bouwjaar pand uit de BAG",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_vbo.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "pand_vbo",
@@ -8244,7 +8173,6 @@
     {
       "id": "kl_pand_gebruiksdoel",
       "name": "gebruiksdoel vbo per pand",
-      "description": "Gebruiksdoelen vbo geaggregeerd per pand",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_vbo.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "pand_vbo",
@@ -8464,7 +8392,6 @@
     {
       "id": "kl_pand_woningtype",
       "name": "woningtype pand",
-      "description": "Woningtype pand uit de BAG",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_vbo.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "pand_vbo",
@@ -8579,7 +8506,6 @@
     {
       "id": "kl_pand_vbo_oppervlakte",
       "name": "oppervlakte vbo per pand",
-      "description": "Totale gebruiksoppervlake van alle vbo's in een pand",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_vbo.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "pand_vbo",
@@ -8703,7 +8629,6 @@
     {
       "id": "kl_pand_hoogte",
       "name": "hoog/laagbouw per pand",
-      "description": "Pandhoogte van BAG panden op basis van AHN2/3",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_vbo.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "pand_vbo_2022",
@@ -8848,7 +8773,6 @@
     {
       "id": "kl_pand_corp_eigenaar",
       "name": "eigenaar corporatie woningen",
-      "description": "Eigenaar corporatie woningen per pand",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_overig.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "pand_corop",
@@ -9023,7 +8947,6 @@
     {
       "id": "kl_pand_el",
       "name": "energielabels",
-      "description": "Dominant energielabel per pand, 2019",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/pand_overig.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "pand_el",
@@ -9198,7 +9121,6 @@
     {
       "id": "kl_koop_vector",
       "name": "koop",
-      "description": "Aandeel koop woningen op totale woningvoorraad",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/koophuur.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "koop_%YEAR%",
@@ -9334,7 +9256,6 @@
     {
       "id": "kl_huur_vector",
       "name": "huur",
-      "description": "Aandeel huur woningen op totale woningvoorraad",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/koophuur.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "huur_%YEAR%",
@@ -9476,7 +9397,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_geschiktheid_nultrede_aannames_en_onzekerheden.html"
       },
       "subname": "geschiktheid woningvoorraad",
-      "description": "Deze kaarten tonen de geschiktheid van de woningen voor bewoning door iemand met mobiliteitsbeperkingen. Alle woningen, huur en koop, zijn hierbij ingedeeld in drie categorieën: geschikte woningen, aanpasbare woningen en ongeschikte woningen. Bij geschikte woningen gaat het om woningen zonder traplopen toe- en doorgankelijk zijn (appartementen met lift of op de begane grond en bungalows), bij ongeschikte woningen om woningen die niet toe- en/of doorgankelijk te maken zijn (appartementen zonder lift, woningen boven winkels, kleine eengezinswoningen) en bij aanpasbare woningen om eengezinswoningen met voldoende ruimte voor een traplift.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/geschiktheid/geschiktheid_2026.pmtiles?v=20261124",
       "format": "pmtiles",
       "sourceLayer": "geschiktheid",
@@ -9656,7 +9576,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_geschiktheid_aanpasbaar_aannames_en_onzekerheden.html"
       },
       "subname": "geschiktheid woningvoorraad",
-      "description": "Deze kaarten tonen de geschiktheid van de woningen voor bewoning door iemand met mobiliteitsbeperkingen. Alle woningen, huur en koop, zijn hierbij ingedeeld in drie categorieën: geschikte woningen, aanpasbare woningen en ongeschikte woningen. Bij geschikte woningen gaat het om woningen zonder traplopen toe- en doorgankelijk zijn (appartementen met lift of op de begane grond en bungalows), bij ongeschikte woningen om woningen die niet toe- en/of doorgankelijk te maken zijn (appartementen zonder lift, woningen boven winkels, kleine eengezinswoningen) en bij aanpasbare woningen om eengezinswoningen met voldoende ruimte voor een traplift.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/geschiktheid/geschiktheid_2026.pmtiles?v=20261124",
       "format": "pmtiles",
       "sourceLayer": "geschiktheid",
@@ -9836,7 +9755,6 @@
         "aannames_en_onzekerheden": "https://data.derondekaart.nl/meta/woonzorgwijzer/wzw_geschiktheid_ongeschikt_aannames_en_onzekerheden.html"
       },
       "subname": "geschiktheid woningvoorraad",
-      "description": "Deze kaarten tonen de geschiktheid van de woningen voor bewoning door iemand met mobiliteitsbeperkingen. Alle woningen, huur en koop, zijn hierbij ingedeeld in drie categorieën: geschikte woningen, aanpasbare woningen en ongeschikte woningen. Bij geschikte woningen gaat het om woningen zonder traplopen toe- en doorgankelijk zijn (appartementen met lift of op de begane grond en bungalows), bij ongeschikte woningen om woningen die niet toe- en/of doorgankelijk te maken zijn (appartementen zonder lift, woningen boven winkels, kleine eengezinswoningen) en bij aanpasbare woningen om eengezinswoningen met voldoende ruimte voor een traplift.",
       "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/geschiktheid/geschiktheid_2026.pmtiles?v=20261124",
       "format": "pmtiles",
       "sourceLayer": "geschiktheid",
@@ -11066,7 +10984,6 @@
     {
       "id": "kl_wmo_alle",
       "name": "alle",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "WMO_wmo_%YEAR%",
@@ -11199,7 +11116,6 @@
     {
       "id": "kl_wmo_hbh",
       "name": "hulp bij huishouden",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor hulp bij het huishouden",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "WMO_HbH_%YEAR%",
@@ -11332,7 +11248,6 @@
     {
       "id": "kl_wmo_begeleiding",
       "name": "begeleiding individueel",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor individuele begeleiding",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "WMO_Begeleiding_%YEAR%",
@@ -11465,7 +11380,6 @@
     {
       "id": "kl_wmo_dagbesteding",
       "name": "begeleiding groep",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor groepsbegeleiding (dagbesteding)",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "WMO_Dagbesteding_%YEAR%",
@@ -11598,7 +11512,6 @@
     {
       "id": "kl_wmo_vervoer",
       "name": "vervoer",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor vervoer",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "WMO_Vervoer_%YEAR%",
@@ -11731,7 +11644,6 @@
     {
       "id": "kl_wmo_rolstoel",
       "name": "rolstoel",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor een rolstoel",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "WMO_Rolstoel_%YEAR%",
@@ -11864,7 +11776,6 @@
     {
       "id": "kl_wmo_bwonen",
       "name": "beschermd wonen",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor beschermd wonen",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "WMO_BeschermdWonen_%YEAR%",
@@ -11997,7 +11908,6 @@
     {
       "id": "kl_buurt_wmo_totaal",
       "name": "alle",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening, per buurt, 2020",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "buurt",
@@ -12129,7 +12039,6 @@
     {
       "id": "kl_buurt_wmo_hbh",
       "name": "hulp bij huishouden",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor hulp bij huishouden, per buurt, 2020",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "buurt",
@@ -12261,7 +12170,6 @@
     {
       "id": "kl_buurt_wmo_begeleiding",
       "name": "begeleiding individueel",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor individuele begeleiding, per buurt, 2020",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "buurt",
@@ -12393,7 +12301,6 @@
     {
       "id": "kl_buurt_wmo_dagbesteding",
       "name": "begeleiding groep",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor groepsbegeleiding(dagbesteding), per buurt, 2020",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "buurt",
@@ -12525,7 +12432,6 @@
     {
       "id": "kl_buurt_wmo_vervoer",
       "name": "vervoer",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor vervoer, per buurt, 2020",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "buurt",
@@ -12657,7 +12563,6 @@
     {
       "id": "kl_buurt_wmo_rolstoel",
       "name": "rolstoel",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor een rolstoel, per buurt, 2020",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "buurt",
@@ -12789,7 +12694,6 @@
     {
       "id": "kl_buurt_wmo_bwonen",
       "name": "beschermd wonen",
-      "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening voor beschermd wonen, per buurt, 2020",
       "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/wmo_buurt.pmtiles",
       "format": "pmtiles",
       "sourceLayer": "buurt",
