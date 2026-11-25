@@ -1,4 +1,4 @@
 {
-  "public_base": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/",
-  "upload": "ov-data:/var/www/objectvision_data/meta/wonenenzorgopdekaart/"
+  "public_base": "https://data.derondekaart.nl/meta/woonzorgwijzer/",
+  "upload": "ov-data:/var/www/objectvision_data/meta/woonzorgwijzer/"
 }

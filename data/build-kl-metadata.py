@@ -42,8 +42,8 @@ TEMPLATE = HERE / "meta" / "woonzorglimburg" / "metadata.xlsx"
 PROJECT = HERE / "meta" / "wzw5" / "wonenenzorgopdekaart"
 CACHE = HERE / "kl" / "src" / "meta"
 PROJECT_JSON = {
-    "public_base": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/",
-    "upload": "ov-data:/var/www/objectvision_data/meta/wonenenzorgopdekaart/",
+    "public_base": "https://data.derondekaart.nl/meta/woonzorgwijzer/",
+    "upload": "ov-data:/var/www/objectvision_data/meta/woonzorgwijzer/",
 }
 KEEP_TYPES = {"voorziening_locaties"}
 FIRST_DATA_ROW = 5  # rows 1-4: title, explanation, blank, header

@@ -40,7 +40,7 @@ VARIANT = REPO / "configs" / "objectvision" / "wonenenzorgopdekaart"
 ICON_DIR = REPO / "public" / "icons" / "kl"
 ICON_URL = "/icons/kl/"
 DATA_URL = "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/"
-META_URL = "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/"
+META_URL = "https://data.derondekaart.nl/meta/woonzorgwijzer/"
 # Which meta fragments exist is decided by the spreadsheet; this file is written
 # by data/meta/genereer_html.py next to them and lists the layer ids per route.
 META_INDEX = HERE / "meta" / "wzw5" / "wonenenzorgopdekaart" / "resultaten" / "index.json"

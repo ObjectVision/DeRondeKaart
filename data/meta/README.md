@@ -59,8 +59,8 @@ spreadsheet; without one it is woonzorglimburg's host:
 
 ```json
 {
-  "public_base": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/",
-  "upload": "ov-data:/var/www/objectvision_data/meta/wonenenzorgopdekaart/"
+  "public_base": "https://data.derondekaart.nl/meta/woonzorgwijzer/",
+  "upload": "ov-data:/var/www/objectvision_data/meta/woonzorgwijzer/"
 }
 ```
 
@@ -71,7 +71,17 @@ fragment, so a script writing layers.json can fill `meta` with exactly the tabs
 that exist (`data/build-kl-layers.py` does).
 
 wonenenzorgopdekaart's spreadsheet was seeded once from the old WZW metainfo
-pages by `data/build-kl-metadata.py`; from then on it is edited like any other.
+pages by `data/build-kl-metadata.py`, which covered only its Kennemerland
+(`kl_*`) layers. `data/build-wonenenzorgopdekaart-metadata.py` fills in every
+other layer of that variant's navigation: woonzorglimburg's rows, kaartlaagtypen
+and sources wherever a layer is the same kind (leefbaarometer, woningbouw,
+geschiktheid, voorzieningen, loopafstanden, CBS boundaries, the population
+prognosis), and the MapGallery metadata of the WZW Noord-Holland collection for
+the national details. It regenerates those rows on every run, so change them in
+the script; the `kl_*` rows are kept and may be edited in the spreadsheet. It
+fails if any "Limburg" wording survives into the sheet. After it, run
+`genereer_html.py wzw5/wonenenzorgopdekaart`, upload, and set each layer's `meta`
+in layers.json from `resultaten/index.json`.
 
 woonzorglimburg's server directory is flat rather than split per project, and
 two projects naming a layer the same would collide there — which is why a
