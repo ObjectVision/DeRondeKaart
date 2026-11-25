@@ -9187,6 +9187,1567 @@
       }
     },
     {
+      "id": "wzw_geschiktheid_nultrede",
+      "name": "Nultrede",
+      "subname": "geschiktheid woningvoorraad",
+      "description": "Deze kaarten tonen de geschiktheid van de woningen voor bewoning door iemand met mobiliteitsbeperkingen. Alle woningen, huur en koop, zijn hierbij ingedeeld in drie categorieën: geschikte woningen, aanpasbare woningen en ongeschikte woningen. Bij geschikte woningen gaat het om woningen zonder traplopen toe- en doorgankelijk zijn (appartementen met lift of op de begane grond en bungalows), bij ongeschikte woningen om woningen die niet toe- en/of doorgankelijk te maken zijn (appartementen zonder lift, woningen boven winkels, kleine eengezinswoningen) en bij aanpasbare woningen om eengezinswoningen met voldoende ruimte voor een traplift.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/geschiktheid/geschiktheid_2026.pmtiles?v=20261124",
+      "format": "pmtiles",
+      "sourceLayer": "geschiktheid",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Geschiktheid woningvoorraad</b> (nultrede)<table><tr><td>Nultrede</td><td>[[ nultrede_pct ]]%</td></tr><tr><td>Aanpasbaar</td><td>[[ aanpasbaar_pct ]]%</td></tr><tr><td>Ongeschikt</td><td>[[ ongeschikt_pct ]]%</td></tr><tr><td>Woningen</td><td>[[ nr_woningen ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Nultrede",
+        "rules": [
+          {
+            "name": "tot 10%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "nultrede",
+                0
+              ],
+              [
+                "<",
+                "nultrede",
+                0.1
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#d7f0b2",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10% tot 20%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "nultrede",
+                0.1
+              ],
+              [
+                "<",
+                "nultrede",
+                0.2
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#c1d699",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20% tot 40%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "nultrede",
+                0.2
+              ],
+              [
+                "<",
+                "nultrede",
+                0.4
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#acbf81",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "nultrede",
+                0.4
+              ],
+              [
+                "<",
+                "nultrede",
+                0.6
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#98a86a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60% tot 80%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "nultrede",
+                0.6
+              ],
+              [
+                "<",
+                "nultrede",
+                0.8
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#829154",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "80% tot 90%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "nultrede",
+                0.8
+              ],
+              [
+                "<",
+                "nultrede",
+                0.9
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#707d41",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 90%",
+            "filter": [
+              ">=",
+              "nultrede",
+              0.9
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#606b31",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_geschiktheid_aanpasbaar",
+      "name": "Aanpasbaar",
+      "subname": "geschiktheid woningvoorraad",
+      "description": "Deze kaarten tonen de geschiktheid van de woningen voor bewoning door iemand met mobiliteitsbeperkingen. Alle woningen, huur en koop, zijn hierbij ingedeeld in drie categorieën: geschikte woningen, aanpasbare woningen en ongeschikte woningen. Bij geschikte woningen gaat het om woningen zonder traplopen toe- en doorgankelijk zijn (appartementen met lift of op de begane grond en bungalows), bij ongeschikte woningen om woningen die niet toe- en/of doorgankelijk te maken zijn (appartementen zonder lift, woningen boven winkels, kleine eengezinswoningen) en bij aanpasbare woningen om eengezinswoningen met voldoende ruimte voor een traplift.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/geschiktheid/geschiktheid_2026.pmtiles?v=20261124",
+      "format": "pmtiles",
+      "sourceLayer": "geschiktheid",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Geschiktheid woningvoorraad</b> (aanpasbaar)<table><tr><td>Nultrede</td><td>[[ nultrede_pct ]]%</td></tr><tr><td>Aanpasbaar</td><td>[[ aanpasbaar_pct ]]%</td></tr><tr><td>Ongeschikt</td><td>[[ ongeschikt_pct ]]%</td></tr><tr><td>Woningen</td><td>[[ nr_woningen ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Aanpasbaar",
+        "rules": [
+          {
+            "name": "tot 10%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "aanpasbaar",
+                0
+              ],
+              [
+                "<",
+                "aanpasbaar",
+                0.1
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#feebe2",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10% tot 20%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "aanpasbaar",
+                0.1
+              ],
+              [
+                "<",
+                "aanpasbaar",
+                0.2
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fcc5c0",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20% tot 40%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "aanpasbaar",
+                0.2
+              ],
+              [
+                "<",
+                "aanpasbaar",
+                0.4
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fa9fb6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "aanpasbaar",
+                0.4
+              ],
+              [
+                "<",
+                "aanpasbaar",
+                0.6
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#f768a6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60% tot 80%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "aanpasbaar",
+                0.6
+              ],
+              [
+                "<",
+                "aanpasbaar",
+                0.8
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#dd3497",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "80% tot 90%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "aanpasbaar",
+                0.8
+              ],
+              [
+                "<",
+                "aanpasbaar",
+                0.9
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ae017d",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 90%",
+            "filter": [
+              ">=",
+              "aanpasbaar",
+              0.9
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#7a0177",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_geschiktheid_ongeschikt",
+      "name": "Ongeschikt",
+      "subname": "geschiktheid woningvoorraad",
+      "description": "Deze kaarten tonen de geschiktheid van de woningen voor bewoning door iemand met mobiliteitsbeperkingen. Alle woningen, huur en koop, zijn hierbij ingedeeld in drie categorieën: geschikte woningen, aanpasbare woningen en ongeschikte woningen. Bij geschikte woningen gaat het om woningen zonder traplopen toe- en doorgankelijk zijn (appartementen met lift of op de begane grond en bungalows), bij ongeschikte woningen om woningen die niet toe- en/of doorgankelijk te maken zijn (appartementen zonder lift, woningen boven winkels, kleine eengezinswoningen) en bij aanpasbare woningen om eengezinswoningen met voldoende ruimte voor een traplift.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/geschiktheid/geschiktheid_2026.pmtiles?v=20261124",
+      "format": "pmtiles",
+      "sourceLayer": "geschiktheid",
+      "geometryType": "polygon",
+      "beforeid": "map-layers",
+      "style": {
+        "opacity": 0.8
+      },
+      "featureinfo": {
+        "template": "<div><b>Geschiktheid woningvoorraad</b> (ongeschikt)<table><tr><td>Nultrede</td><td>[[ nultrede_pct ]]%</td></tr><tr><td>Aanpasbaar</td><td>[[ aanpasbaar_pct ]]%</td></tr><tr><td>Ongeschikt</td><td>[[ ongeschikt_pct ]]%</td></tr><tr><td>Woningen</td><td>[[ nr_woningen ]]</td></tr></table></div>"
+      },
+      "geostyler": {
+        "name": "Ongeschikt",
+        "rules": [
+          {
+            "name": "tot 10%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ongeschikt",
+                0
+              ],
+              [
+                "<",
+                "ongeschikt",
+                0.1
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ffebcd",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "10% tot 20%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ongeschikt",
+                0.1
+              ],
+              [
+                "<",
+                "ongeschikt",
+                0.2
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fed7aa",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "20% tot 40%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ongeschikt",
+                0.2
+              ],
+              [
+                "<",
+                "ongeschikt",
+                0.4
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fec18a",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "40% tot 60%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ongeschikt",
+                0.4
+              ],
+              [
+                "<",
+                "ongeschikt",
+                0.6
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#feac6b",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "60% tot 80%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ongeschikt",
+                0.6
+              ],
+              [
+                "<",
+                "ongeschikt",
+                0.8
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#fb9c51",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "80% tot 90%",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ongeschikt",
+                0.8
+              ],
+              [
+                "<",
+                "ongeschikt",
+                0.9
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#f68738",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 90%",
+            "filter": [
+              ">=",
+              "ongeschikt",
+              0.9
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#ef751f",
+                "outlineWidth": 0
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_woningbouw_projectvlakken",
+      "name": "projectvlakken",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/woningbouw/woningbouw_projectvlakken_wzw_2026.pmtiles?v=20261125",
+      "format": "pmtiles",
+      "geometryType": "polygon",
+      "sourceLayer": "woningbouw_projectvlakken_wzw_2026",
+      "style": {},
+      "minzoom": 11,
+      "geostyler": {
+        "name": "projectvlakken",
+        "rules": [
+          {
+            "name": "Plangebied",
+            "type": "fill",
+            "paint": {
+              "fill-color": "rgb(200, 0, 0)",
+              "fill-opacity": 0.2
+            }
+          },
+          {
+            "name": "Plangebied omtrek",
+            "type": "line",
+            "paint": {
+              "line-color": "rgba(255,0,0,1)",
+              "line-dasharray": [
+                2,
+                2
+              ],
+              "line-opacity": 1
+            }
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente ]]<br/>Status: [[ hard_zacht ]] ([[ status ]])<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
+      },
+      "beforeid": "foreground-layers"
+    },
+    {
+      "id": "wzw_woningbouw_hard",
+      "name": "harde plannen",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/woningbouw/woningbouw_wzw_2026.pmtiles?v=20261125",
+      "format": "pmtiles",
+      "geometryType": "point",
+      "sourceLayer": "woningbouw_wzw_2026",
+      "style": {},
+      "geostyler": {
+        "name": "harde plannen",
+        "rules": [
+          {
+            "name": "sociale huur",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Hard"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "sociale_huur"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "sociale_huur"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#e41a1c",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          },
+          {
+            "name": "middenhuur",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Hard"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "middenhuur"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "middenhuur"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#377eb8",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          },
+          {
+            "name": "huur boven betaalbaar",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Hard"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "huur_boven_betaalbaar"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "huur_boven_betaalbaar"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#4daf4a",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          },
+          {
+            "name": "huur onbekend",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Hard"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "huur_onbekend"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "huur_onbekend"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#984ea3",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          },
+          {
+            "name": "betaalbare koop",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Hard"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "betaalbare_koop"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "betaalbare_koop"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#ff7f00",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          },
+          {
+            "name": "koop boven betaalbaar",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Hard"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "koop_boven_betaalbaar"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "koop_boven_betaalbaar"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#ffff33",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#7a7a1f"
+            }
+          },
+          {
+            "name": "koop onbekend",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Hard"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "koop_onbekend"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "koop_onbekend"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#a65628",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          },
+          {
+            "name": "huur/koop onbekend",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Hard"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "huur_koop_onbekend"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "huur_koop_onbekend"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#999999",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente ]]<br/>Status: [[ hard_zacht ]] ([[ status ]])<br/>Sociale huur: [[ sociale_huur ]]<br/>Middenhuur: [[ middenhuur ]]<br/>Huur boven betaalbaar: [[ huur_boven_betaalbaar ]]<br/>Huur onbekend: [[ huur_onbekend ]]<br/>Betaalbare koop: [[ betaalbare_koop ]]<br/>Koop boven betaalbaar: [[ koop_boven_betaalbaar ]]<br/>Koop onbekend: [[ koop_onbekend ]]<br/>Huur/koop onbekend: [[ huur_koop_onbekend ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
+      },
+      "beforeid": "foreground-layers"
+    },
+    {
+      "id": "wzw_woningbouw_zacht",
+      "name": "zachte plannen",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/woningbouw/woningbouw_wzw_2026.pmtiles?v=20261125",
+      "format": "pmtiles",
+      "geometryType": "point",
+      "sourceLayer": "woningbouw_wzw_2026",
+      "style": {},
+      "geostyler": {
+        "name": "zachte plannen",
+        "rules": [
+          {
+            "name": "sociale huur",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Zacht"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "sociale_huur"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "sociale_huur"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#e41a1c",
+              "circle-opacity": 0.55,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8
+            }
+          },
+          {
+            "name": "middenhuur",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Zacht"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "middenhuur"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "middenhuur"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#377eb8",
+              "circle-opacity": 0.55,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8
+            }
+          },
+          {
+            "name": "huur boven betaalbaar",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Zacht"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "huur_boven_betaalbaar"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "huur_boven_betaalbaar"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#4daf4a",
+              "circle-opacity": 0.55,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8
+            }
+          },
+          {
+            "name": "huur onbekend",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Zacht"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "huur_onbekend"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "huur_onbekend"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#984ea3",
+              "circle-opacity": 0.55,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8
+            }
+          },
+          {
+            "name": "betaalbare koop",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Zacht"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "betaalbare_koop"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "betaalbare_koop"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#ff7f00",
+              "circle-opacity": 0.55,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8
+            }
+          },
+          {
+            "name": "koop boven betaalbaar",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Zacht"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "koop_boven_betaalbaar"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "koop_boven_betaalbaar"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#ffff33",
+              "circle-opacity": 0.55,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#7a7a1f",
+              "circle-stroke-opacity": 0.8
+            }
+          },
+          {
+            "name": "koop onbekend",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Zacht"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "koop_onbekend"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "koop_onbekend"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#a65628",
+              "circle-opacity": 0.55,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff",
+              "circle-stroke-opacity": 0.8
+            }
+          },
+          {
+            "name": "huur/koop onbekend",
+            "type": "circle",
+            "rawFilter": [
+              "all",
+              [
+                "==",
+                [
+                  "get",
+                  "hard_zacht"
+                ],
+                "Zacht"
+              ],
+              [
+                ">",
+                [
+                  "get",
+                  "huur_koop_onbekend"
+                ],
+                0
+              ]
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "huur_koop_onbekend"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#999999",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente ]]<br/>Status: [[ hard_zacht ]] ([[ status ]])<br/>Sociale huur: [[ sociale_huur ]]<br/>Middenhuur: [[ middenhuur ]]<br/>Huur boven betaalbaar: [[ huur_boven_betaalbaar ]]<br/>Huur onbekend: [[ huur_onbekend ]]<br/>Betaalbare koop: [[ betaalbare_koop ]]<br/>Koop boven betaalbaar: [[ koop_boven_betaalbaar ]]<br/>Koop onbekend: [[ koop_onbekend ]]<br/>Huur/koop onbekend: [[ huur_koop_onbekend ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
+      },
+      "beforeid": "foreground-layers"
+    },
+    {
+      "id": "wzw_woningbouw_ouderen",
+      "name": "geschikt voor ouderen",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/woningbouw/woningbouw_wzw_2026.pmtiles?v=20261125",
+      "format": "pmtiles",
+      "geometryType": "point",
+      "sourceLayer": "woningbouw_wzw_2026",
+      "style": {},
+      "geostyler": {
+        "name": "geschikt voor ouderen",
+        "rules": [
+          {
+            "name": "nultreden, niet geclusterd",
+            "type": "circle",
+            "rawFilter": [
+              ">",
+              [
+                "get",
+                "nultreden_niet_geclusterd"
+              ],
+              0
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "nultreden_niet_geclusterd"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#1b9e77",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          },
+          {
+            "name": "nultreden geclusterd, zonder zorg",
+            "type": "circle",
+            "rawFilter": [
+              ">",
+              [
+                "get",
+                "nultreden_geclusterd_niet_zorg"
+              ],
+              0
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "nultreden_geclusterd_niet_zorg"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#d95f02",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          },
+          {
+            "name": "nultreden geclusterd, met zorg",
+            "type": "circle",
+            "rawFilter": [
+              ">",
+              [
+                "get",
+                "nultreden_geclusterd_zorg"
+              ],
+              0
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "nultreden_geclusterd_zorg"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#7570b3",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          },
+          {
+            "name": "andere woonvormen ouderen",
+            "type": "circle",
+            "rawFilter": [
+              ">",
+              [
+                "get",
+                "andere_woonvormen_ouderen"
+              ],
+              0
+            ],
+            "paint": {
+              "circle-radius": [
+                "interpolate",
+                [
+                  "linear"
+                ],
+                [
+                  "get",
+                  "andere_woonvormen_ouderen"
+                ],
+                1,
+                6,
+                25,
+                9,
+                100,
+                13,
+                500,
+                19,
+                2000,
+                27
+              ],
+              "circle-color": "#e7298a",
+              "circle-opacity": 1,
+              "circle-stroke-width": 1,
+              "circle-stroke-color": "#fff"
+            }
+          }
+        ]
+      },
+      "featureinfo": {
+        "template": "<div><b>[[ plannaam ]]</b><br/>[[ gemeente ]]<br/>Status: [[ hard_zacht ]] ([[ status ]])<br/>Nultreden, niet geclusterd: [[ nultreden_niet_geclusterd ]]<br/>Nultreden geclusterd, zonder zorg: [[ nultreden_geclusterd_niet_zorg ]]<br/>Nultreden geclusterd, met zorg: [[ nultreden_geclusterd_zorg ]]<br/>Andere woonvormen ouderen: [[ andere_woonvormen_ouderen ]]<br/>Netto plancapaciteit: [[ netto_plancapaciteit ]]<br/>Peilmoment: [[ peilmoment ]]</div>"
+      },
+      "beforeid": "foreground-layers"
+    },
+    {
       "id": "kl_wmo_alle",
       "name": "alle",
       "description": "Aantal cliënten dat gebruik maakt van een WMO voorziening",

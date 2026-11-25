@@ -338,6 +338,64 @@
         "label": "huur",
         "a": false,
         "b": false
+      },
+      {
+        "label": "Mate van geschiktheid",
+        "icon": "accessible",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "wzw_geschiktheid_nultrede",
+            "label": "nultrede",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_geschiktheid_aanpasbaar",
+            "label": "aanpasbaar",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_geschiktheid_ongeschikt",
+            "label": "ongeschikt",
+            "a": false,
+            "b": false
+          }
+        ]
+      },
+      {
+        "label": "Woningbouw",
+        "icon": "foundation",
+        "color": "#3E74A7",
+        "expanded": false,
+        "children": [
+          {
+            "id": "wzw_woningbouw_projectvlakken",
+            "label": "projectvlakken",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_woningbouw_hard",
+            "label": "hard",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_woningbouw_zacht",
+            "label": "zacht",
+            "a": false,
+            "b": false
+          },
+          {
+            "id": "wzw_woningbouw_ouderen",
+            "label": "geschikt voor ouderen",
+            "a": false,
+            "b": false
+          }
+        ]
       }
     ]
   },
