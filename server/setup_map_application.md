@@ -111,7 +111,13 @@ Shared, installed once: nginx, git, **Node.js**, the webhook daemon on
    the HMAC secret** as hook id `deploy-<slug>` (other instances' hooks untouched;
    the daemon is restarted so it re-reads `hooks.json`).
 7. **nginx** — write and enable the SPA server block (fallback, asset caching,
-   `/hooks/` proxy, framing/CORS headers, gzip).
+   `/hooks/` proxy, `/ofm/` OpenFreeMap proxy, framing/CORS headers, gzip).
+   The `/ofm/` proxy is on every instance: the app fetches the basemap through
+   it, because EasyPrivacy blocks `tiles.openfreemap.org/planet` (easylist#26522).
+   It caches in `/var/cache/nginx/ofm`; the zone lives in
+   `/etc/nginx/conf.d/ofm-cache.conf`, which every map instance on the host shares.
+   It strips `Authorization`, so basic-auth credentials never reach OpenFreeMap.
+   Check: `curl -sI https://<host>/ofm/planet` shows `X-Cache-Status`.
 8. **TLS** — `certbot --nginx --redirect` for the host, unless `--no-tls`.
 9. **Output** — print the GitHub webhook settings, **including the secret**.
 

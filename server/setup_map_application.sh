@@ -411,7 +411,7 @@ fi
 # would otherwise forward them to OpenFreeMap. ^~ so no regex location can
 # take the request first. The cache zone comes from ensure_ofm_cache.
 OFM_BLOCK="    location ^~ /ofm/ {
-        # Resolved at request time, as /sa-tiles/ below: a DNS blip during a
+        # Resolved at request time, as for /sa-tiles/: a DNS blip during a
         # reload must not fail nginx -t for every site on this host.
         resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;
         set \$ofm_host tiles.openfreemap.org;
