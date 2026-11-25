@@ -233,6 +233,107 @@ describe("useMapLayers", () => {
     });
   });
 
+  describe("replaceLayer", () => {
+    /**
+     * A loaded-style map holding COG layers, with an `idle` event the test fires
+     * by hand — standing in for "every tile in view loaded, fades finished".
+     */
+    function idleMap() {
+      const sources = new Map<string, unknown>();
+      const order: string[] = [];
+      let idleListeners: Array<() => void> = [];
+      const map = {
+        style: { _loaded: true },
+        getStyle: () => ({ layers: order.map((id) => ({ id })) }),
+        getSource: (id: string) => sources.get(id),
+        getLayer: (id: string) => (order.includes(id) ? { id } : undefined),
+        addSource: (id: string, spec: unknown) => sources.set(id, spec),
+        removeSource: (id: string) => sources.delete(id),
+        addLayer: (spec: { id: string }) => order.push(spec.id),
+        removeLayer: (id: string) => order.splice(order.indexOf(id), 1),
+        moveLayer: () => {},
+        setLayoutProperty: () => {},
+        setPaintProperty: () => {},
+        setFilter: () => {},
+        once: (event: string, fn: () => void) => {
+          if (event === "idle") idleListeners.push(fn);
+        },
+        off: (event: string, fn: () => void) => {
+          if (event === "idle") idleListeners = idleListeners.filter((l) => l !== fn);
+        },
+      } as unknown as NonNullable<ReturnType<MapAccessor>>;
+      const emitIdle = async () => {
+        const listeners = idleListeners;
+        idleListeners = [];
+        for (const l of listeners) l();
+        // Let the awaiting replaceLayer calls run their continuation.
+        await new Promise((r) => setTimeout(r, 0));
+      };
+      return { map, order, emitIdle };
+    }
+
+    const cog = (id: string) =>
+      config(id, { format: "cog", source: `https://example.invalid/${id}.cog.tif`, sourceLayer: undefined });
+    const ids = (layers: UseMapLayersResult) => layers.layerEntries().map((e) => e.config.id);
+
+    it("takes the old layer's place and retires it at once without a map", async () => {
+      await withLayers(async (layers) => {
+        await layers.addLayer(config("below"), { atEnd: true });
+        await layers.addLayer(config("old"), { atEnd: true });
+        await layers.addLayer(config("above"), { atEnd: true });
+        await layers.replaceLayer("old", config("new"));
+        expect(ids(layers)).toEqual(["below", "new", "above"]);
+      });
+    });
+
+    it("adds plainly when the layer to replace is not there", async () => {
+      await withLayers(async (layers) => {
+        await layers.replaceLayer("missing", config("new"));
+        expect(ids(layers)).toEqual(["new"]);
+      });
+    });
+
+    it("keeps the old layer underneath until the map is idle", async () => {
+      const { map, order, emitIdle } = idleMap();
+      await withLayers(async (layers) => {
+        await layers.addLayer(cog("old"), { atEnd: true });
+        const done = layers.replaceLayer("old", cog("new"));
+
+        // Both drawn: the new one on top, the old one still showing through.
+        expect(ids(layers)).toEqual(["old", "new"]);
+        expect(order).toEqual(["cog-layer-old", "cog-layer-new"]);
+
+        await emitIdle();
+        await done;
+        expect(ids(layers)).toEqual(["new"]);
+        expect(order).toEqual(["cog-layer-new"]);
+      }, () => map);
+    });
+
+    it("retires a whole chain of quick replaces once the last one is drawn", async () => {
+      const { map, emitIdle } = idleMap();
+      await withLayers(async (layers) => {
+        await layers.addLayer(cog("a"), { atEnd: true });
+        void layers.replaceLayer("a", cog("b"));
+        void layers.replaceLayer("b", cog("c"));
+        expect(ids(layers)).toEqual(["a", "b", "c"]);
+
+        await emitIdle();
+        expect(ids(layers)).toEqual(["c"]);
+      }, () => map);
+    });
+
+    it("removing a pending replacement also removes what it was replacing", async () => {
+      const { map } = idleMap();
+      await withLayers(async (layers) => {
+        await layers.addLayer(cog("old"), { atEnd: true });
+        void layers.replaceLayer("old", cog("new"));
+        layers.removeLayer("new");
+        expect(ids(layers)).toEqual([]);
+      }, () => map);
+    });
+  });
+
   it("keeps two instances independent, as the two map panes require", async () => {
     await withLayers(async (left) => {
       await withLayers(async (right) => {

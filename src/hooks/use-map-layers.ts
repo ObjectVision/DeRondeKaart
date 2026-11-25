@@ -51,6 +51,32 @@ const registeredCogColorUrls = new Set<string>();
  */
 export const DIMMED_OPACITY = 0.5;
 
+/**
+ * Longest a replaced layer is kept underneath its replacement. A source that
+ * never settles (offline, a 404 tile) must not leave the old layer behind.
+ */
+const REPLACE_IDLE_TIMEOUT_MS = 8000;
+
+/**
+ * Resolve on the map's next `idle` (all tiles in view loaded, all transitions —
+ * raster fade-in included — finished), or after `timeoutMs`, whichever is first.
+ * Resolves at once when there is no map or its style is not up: nothing is drawn
+ * then, so there is nothing to wait for.
+ */
+function whenIdle(getMap: MapAccessor, timeoutMs: number): Promise<void> {
+  const map = getMap();
+  if (!map || !styleReady(map)) return Promise.resolve();
+  return new Promise((resolve) => {
+    const done = () => {
+      clearTimeout(timer);
+      map.off("idle", done);
+      resolve();
+    };
+    const timer = setTimeout(done, timeoutMs);
+    map.once("idle", done);
+  });
+}
+
 
 /**
  * Everything `useMapLayers` hands back. One layer stack per map, so App holds
@@ -63,6 +89,12 @@ export interface UseMapLayersResult {
   layerSteps: Accessor<globalThis.Map<string, number>>;
   playingIds: Accessor<Set<string>>;
   addLayer: (config: LayerConfig, opts?: { atEnd?: boolean }) => Promise<void>;
+  /**
+   * Swap `oldId` for `config` without a gap: the new layer goes in directly
+   * above the old one, and the old one is removed once the map has drawn the
+   * new one. Resolves when the old layer is gone (or a later replace took over).
+   */
+  replaceLayer: (oldId: string, config: LayerConfig) => Promise<void>;
   removeLayer: (layerId: string) => void;
   reorderLayer: (layerId: string, toIndex: number) => void;
   hideLayer: (layerId: string) => void;
@@ -227,8 +259,73 @@ export function useMapLayers(getMap: MapAccessor): UseMapLayersResult {
     }
   }
 
+  /**
+   * Layers kept on the map underneath a replacement until it has drawn, keyed by
+   * the replacement's id. A chain of quick replaces (A→B→C before the map went
+   * idle) hands the whole list on, so A and B both go once C is drawn.
+   */
+  const pendingRetire = new globalThis.Map<string, string[]>();
+
+  /**
+   * Swap one layer for another without the basemap showing through.
+   *
+   * `addLayer` resolves as soon as the native source/layer exist — before a
+   * single tile is loaded — so a host sending `add` + `remove` gets a frame (or,
+   * with raster fade-in, a few hundred ms) with neither layer visible. Here the
+   * new layer goes in directly above the old one, and the old one stays until
+   * the map is idle: every tile in view loaded and every fade finished.
+   */
+  async function replaceLayer(oldId: string, config: LayerConfig) {
+    if (oldId === config.id) return;
+    const prev = layerEntries();
+    const oldIndex = prev.findIndex((e) => e.config.id === oldId);
+    if (oldIndex < 0) {
+      await addLayer(config, { atEnd: true });
+      return;
+    }
+
+    if (!prev.some((e) => e.config.id === config.id)) {
+      // Directly above the old entry, so the legend and the draw order keep
+      // the old layer's place rather than jumping to the top.
+      setLayerEntries((entries) => {
+        const at = entries.findIndex((e) => e.config.id === oldId);
+        return [...entries.slice(0, at + 1), { config }, ...entries.slice(at + 1)];
+      });
+      try {
+        if (config.format === "composite") {
+          addCompositeLayer(config, getMap, compositeHost);
+        } else {
+          dispatchFormatLoad(config, getMap);
+        }
+        restackNativeLayers(layerEntries(), getMap);
+      } catch (err) {
+        console.error(`Failed to load layer "${config.id}":`, err);
+        setLayerEntries((entries) => entries.filter((e) => e.config.id !== config.id));
+        return;
+      }
+    }
+
+    const retire = [oldId, ...(pendingRetire.get(oldId) ?? [])];
+    pendingRetire.delete(oldId);
+    pendingRetire.set(config.id, retire);
+
+    await whenIdle(getMap, REPLACE_IDLE_TIMEOUT_MS);
+
+    // A later replace (or a removal of the new layer) took this list over.
+    if (pendingRetire.get(config.id) !== retire) return;
+    pendingRetire.delete(config.id);
+    for (const id of retire) removeLayer(id);
+  }
+
   function removeLayer(layerId: string) {
     const entry = layerEntries().find((e) => e.config.id === layerId);
+
+    // Layers still waiting underneath this one would otherwise never be retired.
+    const waiting = pendingRetire.get(layerId);
+    if (waiting) {
+      pendingRetire.delete(layerId);
+      for (const id of waiting) removeLayer(id);
+    }
 
     setLayerEntries((prev) => prev.filter((e) => e.config.id !== layerId));
 
@@ -534,6 +631,7 @@ export function useMapLayers(getMap: MapAccessor): UseMapLayersResult {
     layerSteps,
     playingIds,
     addLayer,
+    replaceLayer,
     removeLayer,
     reorderLayer,
     hideLayer,

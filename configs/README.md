@@ -289,6 +289,27 @@ embedding the map in an iframe stays in charge of which dataset is shown.
 mapFrame.contentWindow.postMessage({ type: "set-variant", id: "2026" }, "*");
 ```
 
+`set-variant` clears every layer on both maps. To change only *which* layer is
+shown (another year, another scenario) use `map-command`, which edits the layer
+stack in place:
+
+```js
+mapFrame.contentWindow.postMessage({
+  type: "map-command",
+  commands: [
+    // Swap without a gap: the old layer stays underneath until the new one has
+    // drawn (map idle), then it is removed. Needs `map-ready` v >= 2.
+    { cmd: "replace", map: "a", layer: "nl2120_bau1_landgebruik_2120", replaces: "nl2120_bau1_landgebruik_basisjaar" },
+    { cmd: "add", map: "b", layer: "nl2120_nbsgenuanceerd_landgebruik_2120" },
+    { cmd: "remove", map: "b", layer: "nl2120_bau2_landgebruik_2120" },
+  ],
+}, "*");
+```
+
+A plain `remove` + `add` shows the basemap for a moment: `add` returns before
+any tile has loaded. The map announces itself with `{ type: "map-ready", v }`;
+`v: 2` and up understands `replace`.
+
 A `variant` URL parameter does the same for deep links (`?variant=2026`), and is
 also read from the share-link hash. Share links **carry the active variant
 automatically** — necessary because layer ids are reused between variants, so a

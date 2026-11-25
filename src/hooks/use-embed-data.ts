@@ -118,7 +118,8 @@ export function useEmbedData(options: UseEmbedDataOptions): void {
   createEffect(() => {
     if (!options.ready()) return;
     if (window.parent && window.parent !== window) {
-      window.parent.postMessage({ type: "map-ready", v: 1 }, "*");
+      // v2: map-command understands `replace` (gap-free layer swap).
+      window.parent.postMessage({ type: "map-ready", v: 2 }, "*");
     }
   });
 }

@@ -110,9 +110,15 @@ const ANNOT_ROOM_RE =
  * converted with `sideFromWire` at the point of use and nowhere else.
  */
 interface LayerCommand {
-  cmd: "add" | "remove" | "hide" | "refresh";
+  cmd: "add" | "remove" | "hide" | "replace" | "refresh";
   map?: MapSideWire;
   layer?: string;
+  /**
+   * `replace` only: the layer `layer` takes the place of. It stays on the map
+   * until the new one has drawn, so the swap shows no gap. Host messages only —
+   * share-link hashes never carry it.
+   */
+  replaces?: string;
 }
 
 function parseView(params: URLSearchParams): ViewUpdate {
@@ -215,6 +221,15 @@ export function useUrlCommands(options: UseUrlCommandsOptions): void {
             // emit bottom-up), so append verbatim. Band seeding would re-lift a
             // foreground layer above one the user dragged on top of it.
             if (config) await side.layers.addLayer(config, { atEnd: true });
+            break;
+          case "replace":
+            // Not awaited: it waits for the map to go idle, which must not hold
+            // up the commands after it (typically the other map side's swap).
+            if (typeof command.replaces === "string" && command.replaces.length > 0) {
+              void side.layers.replaceLayer(command.replaces, config);
+            } else {
+              await side.layers.addLayer(config, { atEnd: true });
+            }
             break;
           case "remove":
             if (command.layer) side.layers.removeLayer(command.layer);
