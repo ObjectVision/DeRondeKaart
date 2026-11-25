@@ -26,6 +26,7 @@ import {
   DEFAULT_BASEMAP_ID,
   INITIAL_VIEW_STATE,
   basemapById,
+  ofmProxyUrl,
 } from "./map-view-config";
 import type {
   MapViewHandle,
@@ -231,6 +232,11 @@ export function MapView(props: MapViewProps): JSX.Element {
       //
       // Revisit only alongside re-tiling the archives to deeper maxzooms.
       zoomLevelsToOverscale: undefined,
+      // OpenFreeMap through this origin's /ofm/ proxy — see ofmProxyUrl.
+      transformRequest: (url) => {
+        const proxied = ofmProxyUrl(url);
+        return proxied ? { url: proxied } : undefined;
+      },
       // The default bottom-right attribution control is replaced by the
       // app's own info button (MapAttribution in App.tsx).
       attributionControl: false,

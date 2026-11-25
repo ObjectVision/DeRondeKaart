@@ -398,6 +398,39 @@ else
   SA_TILES_BLOCK="    # No startanalyse tile proxy (only emitted for --config-project startanalyse2026)."
 fi
 
+# OpenFreeMap basemap proxy, every instance. The app rewrites every
+# https://tiles.openfreemap.org/ request (TileJSON, tiles, sprite, glyphs) to
+# /ofm/ on its own origin (ofmProxyUrl in src/components/map/map-view-config.ts).
+# Why: EasyPrivacy added `||tiles.openfreemap.org/planet` (easylist#26522,
+# 2026-11-25) without a domain restriction, so every visitor running uBlock,
+# Brave Shields, AdGuard, ... got an empty basemap. Same-origin also needs no
+# CSP or CORS entry. Mirrors the /ofm Vite dev proxy.
+#
+# Authorization and Cookie are cleared: on a basic-auth instance the browser
+# sends the visitor's credentials with every same-origin request, and nginx
+# would otherwise forward them to OpenFreeMap. ^~ so no regex location can
+# take the request first. The cache zone comes from ensure_ofm_cache.
+OFM_BLOCK="    location ^~ /ofm/ {
+        # Resolved at request time, as /sa-tiles/ below: a DNS blip during a
+        # reload must not fail nginx -t for every site on this host.
+        resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;
+        set \$ofm_host tiles.openfreemap.org;
+        rewrite ^/ofm/(.*)\$ /\$1 break;
+        proxy_pass https://\$ofm_host;
+        proxy_set_header Host tiles.openfreemap.org;
+        proxy_set_header Authorization \"\";
+        proxy_set_header Cookie \"\";
+        proxy_ssl_server_name on;
+        proxy_cache ofm;
+        proxy_cache_lock on;
+        proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+        proxy_cache_valid 200 1h;
+        proxy_cache_valid 404 1m;
+        # No nosniff here: upstream already sends it, and this location's own
+        # add_header drops the server-level one rather than duplicating it.
+        add_header X-Cache-Status \$upstream_cache_status always;
+    }"
+
 # HTTP basic auth for a dev/staging instance.
 #
 # Emitted at SERVER level, not inside `location /`: a location-scoped rule would
@@ -484,6 +517,8 @@ $COLLAB_BLOCK
 
 $SA_TILES_BLOCK
 
+$OFM_BLOCK
+
 $FRAME_HEADER
     add_header X-Content-Type-Options "nosniff" always;
     # no-referrer: scanners (NCSC) advise against strict-origin-when-cross-origin.
@@ -551,6 +586,7 @@ elif [ -n "$AUTH_USER" ]; then
   ensure_htpasswd "$SLUG" "$AUTH_USER" "$AUTH_PASSWORD"
 fi
 
+ensure_ofm_cache
 nginx_enable_site "$SLUG"
 nginx_test_reload
 

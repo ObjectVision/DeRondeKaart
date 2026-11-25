@@ -15,6 +15,7 @@
 #   - nginx, git, curl, jq, rsync, certbot
 #   - the adnanh/webhook daemon on 127.0.0.1:${WEBHOOK_PORT} (-hotreload)
 #   - /etc/nginx/conf.d/geo-mime.conf (geospatial MIME types)
+#   - /etc/nginx/conf.d/ofm-cache.conf (cache zone of the map apps' /ofm/ proxy)
 #
 # Per instance (namespaced by <slug>):
 #   /srv/<slug>                           cloned git repo (landing + map only)
@@ -282,6 +283,25 @@ ensure_htpasswd() {
 # this on hosts whose siblings are all HTTPS-capable.
 HSTS_SNIPPET="/etc/nginx/snippets/hsts.conf"
 HSTS_MAX_AGE="${HSTS_MAX_AGE:-31536000}"
+
+# ---------------------------------------------------------------------------
+# OpenFreeMap proxy cache
+# ---------------------------------------------------------------------------
+# The cache zone behind every map app's `location ^~ /ofm/` (see
+# setup_map_application.sh). proxy_cache_path is only valid in the http context,
+# so it lives in conf.d rather than in a site file; shared by all map apps on the
+# host. Tiles are immutable per release folder (upstream sends max-age=10y), so
+# `inactive` is what evicts an old release once OpenFreeMap moves on.
+OFM_CACHE_CONF="/etc/nginx/conf.d/ofm-cache.conf"
+
+ensure_ofm_cache() {
+  sudo install -d -m 0700 -o www-data -g www-data /var/cache/nginx/ofm
+  write_root_file "$OFM_CACHE_CONF" 0644 <<'EOF'
+# Managed by the northwake server setup scripts — edits will be overwritten.
+proxy_cache_path /var/cache/nginx/ofm levels=1:2 keys_zone=ofm:20m max_size=5g inactive=30d use_temp_path=off;
+EOF
+  ok "OpenFreeMap proxy cache ready ($OFM_CACHE_CONF)"
+}
 
 ensure_hsts_snippet() {
   # Rewritten every run so a changed HSTS_MAX_AGE actually takes effect.

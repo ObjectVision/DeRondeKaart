@@ -67,6 +67,24 @@ export interface ViewStateChangeEvent {
   viewState: ViewState;
 }
 
+/** Where the style files point; never fetched directly (see ofmProxyUrl). */
+const OFM_ORIGIN = "https://tiles.openfreemap.org/";
+
+/**
+ * Route an OpenFreeMap URL through `/ofm/` on the page's own origin, or null
+ * for any other URL. Wired in as MapLibre's `transformRequest`, so it covers
+ * the TileJSON, the tile URLs that TileJSON hands back, the sprite and glyphs.
+ *
+ * Why: EasyPrivacy blocks `||tiles.openfreemap.org/planet` on every site
+ * (easylist#26522, 2026-11-25), so every visitor with an ad blocker got an
+ * empty basemap. The nginx `location ^~ /ofm/` in
+ * server/setup_map_application.sh and the `/ofm` Vite proxy forward it.
+ * The style files keep the upstream URLs, so they stay valid on their own.
+ */
+export function ofmProxyUrl(url: string, origin: string = window.location.origin): string | null {
+  return url.startsWith(OFM_ORIGIN) ? `${origin}/ofm/${url.slice(OFM_ORIGIN.length)}` : null;
+}
+
 /**
  * Selectable background basemaps. Each entry pairs a base style (background +
  * geometry, no labels — rendered under user data) with an optional overlay

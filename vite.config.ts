@@ -165,6 +165,14 @@ export default defineConfig(({ mode }) => {
         // production (server/setup_map_application.sh, gated to that project).
         // Inert for projects that never request /sa-tiles/ (e.g. woonzorglimburg
         // fetches tiles from a CORS-enabled host directly).
+        // OpenFreeMap basemap via this origin — see ofmProxyUrl in
+        // src/components/map/map-view-config.ts. Mirrors the nginx /ofm/ block
+        // every map instance gets; `vite preview` inherits it too.
+        "/ofm": {
+          target: "https://tiles.openfreemap.org",
+          changeOrigin: true,
+          rewrite: (p) => p.replace(/^\/ofm/, ""),
+        },
         "/sa-tiles": {
           target: "https://startanalyse2025.files.mapgallery.io",
           changeOrigin: true,

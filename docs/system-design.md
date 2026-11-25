@@ -73,7 +73,7 @@ Browser features the app needs, and what breaks without each:
 
 | Endpoint | Role |
 |---|---|
-| `tiles.openfreemap.org` | Vector basemap tiles (the unversioned `/planet` TileJSON), **glyph PBFs** (all map label text) and the sprite sheet — used by both basemaps, including "luchtfoto", whose labels are drawn over the PDOK imagery |
+| `tiles.openfreemap.org` | Vector basemap tiles (the unversioned `/planet` TileJSON), **glyph PBFs** (all map label text) and the sprite sheet — used by both basemaps, including "luchtfoto", whose labels are drawn over the PDOK imagery. Never fetched directly: `transformRequest` ([`ofmProxyUrl`](../src/components/map/map-view-config.ts)) routes it through `/ofm/` on the app's own origin, proxied and cached by nginx (`setup_map_application.sh`) and by the Vite dev/preview server. Since 2026-11-25 EasyPrivacy blocks `tiles.openfreemap.org/planet` (easylist#26522), so a direct fetch leaves every ad-blocker user without a basemap. If `/ofm/` is missing on an instance, `/ofm/` falls through to the SPA fallback (HTML), and the basemap stays empty |
 | `service.pdok.nl` | Aerial imagery WMTS behind the "luchtfoto" basemap |
 | `maps.googleapis.com` | Street View panel, loaded lazily via the `callback=` readiness signal ([street-view.tsx](../src/components/ui/street-view.tsx)) |
 | `fonts.gstatic.com` | Material Symbols SVG for a `map.json` `clickMarker.icon` given by name ([map-config.ts](../src/config/map-config.ts)) |
