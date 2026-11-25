@@ -129,7 +129,7 @@
   "configSources": [
     "https://raw.githubusercontent.com/ObjectVision/test_remote_rondekaart_config/"
   ],
-  "basemap": "grijs",
+  "basemap": "grijs-labels",
   "studyarea": "ber_studiegebied",
   "streetview": true,
   "searchbar": false,
