@@ -6503,33 +6503,32 @@
       }
     },
     {
-      "id": "kl_huisarts_lokatie",
-      "name": "huisarts",
-      "description": "Locaties van huisartsen",
-      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_basis.pmtiles",
+      "id": "wzw_vrz_huisarts",
+      "name": "Huisarts",
+      "subname": "locaties",
+      "description": "Locaties van huisartsen in Nederland",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
       "format": "pmtiles",
-      "sourceLayer": "huisarts",
+      "sourceLayer": "vrz_locaties",
       "geometryType": "point",
       "beforeid": "map-layers",
-      "style": {
-        "opacity": 1.0
-      },
       "featureinfo": {
-        "template": "<div>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ pc_plaats ]]</b></div>"
-      },
-      "meta": {
-        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_huisarts_lokatie_toelichting.html",
-        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_huisarts_lokatie_bronnen.html"
+        "template": "<div><b>Huisarts</b><BR>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ postcode ]] [[ huisnummer ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
       },
       "geostyler": {
-        "name": "huisarts",
+        "name": "Huisarts",
         "rules": [
           {
-            "name": "huisarts",
+            "name": "Huisarts",
+            "filter": [
+              "==",
+              "type",
+              8
+            ],
             "symbolizers": [
               {
                 "kind": "Icon",
-                "image": "/icons/kl/huisarts_schaduw.png",
+                "image": "/icons/wzw/huisarts_schaduw.png",
                 "width": 22,
                 "height": 22,
                 "size": 22
@@ -6540,70 +6539,32 @@
       }
     },
     {
-      "id": "kl_ontmoeting_lokatie",
-      "name": "ontmoeting/welzijn",
-      "description": "Locaties van ontmoetingcentra/welzijnsorganisaties",
-      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_basis.pmtiles",
+      "id": "wzw_vrz_buurt_en_dorpshuizen",
+      "name": "Buurt- en dorpshuizen",
+      "subname": "locaties",
+      "description": "Locaties van buurt- en dorpshuizen in Nederland",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
       "format": "pmtiles",
-      "sourceLayer": "ontmoeting",
+      "sourceLayer": "vrz_locaties",
       "geometryType": "point",
       "beforeid": "map-layers",
-      "style": {
-        "opacity": 1.0
-      },
       "featureinfo": {
-        "template": "<div>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ pc_plaats ]]</b></div>"
-      },
-      "meta": {
-        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ontmoeting_lokatie_toelichting.html",
-        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ontmoeting_lokatie_bronnen.html"
+        "template": "<div><b>Buurt- en dorpshuizen</b><BR>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ postcode ]] [[ huisnummer ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
       },
       "geostyler": {
-        "name": "ontmoeting/welzijn",
+        "name": "Buurt- en dorpshuizen",
         "rules": [
           {
-            "name": "welzijnsorganisatie",
+            "name": "buurt- en dorpshuis",
+            "filter": [
+              "==",
+              "type",
+              12
+            ],
             "symbolizers": [
               {
                 "kind": "Icon",
-                "image": "/icons/kl/ontmoeting_schaduw.png",
-                "width": 22,
-                "height": 22,
-                "size": 22
-              }
-            ]
-          }
-        ]
-      }
-    },
-    {
-      "id": "kl_ovhaltes_lokatie",
-      "name": "ov halte",
-      "description": "Locaties van ov haltes",
-      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_basis.pmtiles",
-      "format": "pmtiles",
-      "sourceLayer": "ovhalte",
-      "geometryType": "point",
-      "beforeid": "map-layers",
-      "style": {
-        "opacity": 1.0
-      },
-      "featureinfo": {
-        "template": "<div>Naam Halte: <b>[[ naam ]]</b></div>"
-      },
-      "meta": {
-        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ovhaltes_lokatie_toelichting.html",
-        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ovhaltes_lokatie_bronnen.html"
-      },
-      "geostyler": {
-        "name": "ov halte",
-        "rules": [
-          {
-            "name": "OV Halte",
-            "symbolizers": [
-              {
-                "kind": "Icon",
-                "image": "/icons/kl/bushalte_shadow.png",
+                "image": "/icons/wzw/grey_koffie.png",
                 "width": 20,
                 "height": 20,
                 "size": 20
@@ -6614,33 +6575,68 @@
       }
     },
     {
-      "id": "kl_supermarkt_lokatie",
-      "name": "supermarkt",
-      "description": "Locaties van supermarkten",
-      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_basis.pmtiles",
+      "id": "wzw_vrz_openbaar_vervoer",
+      "name": "Openbaar vervoer",
+      "subname": "locaties",
+      "description": "Locaties van ov haltes in Nederland",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
       "format": "pmtiles",
-      "sourceLayer": "supermarkt",
+      "sourceLayer": "vrz_locaties",
       "geometryType": "point",
       "beforeid": "map-layers",
-      "style": {
-        "opacity": 1.0
-      },
       "featureinfo": {
-        "template": "<div>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ pc_plaats ]]</b></div>"
-      },
-      "meta": {
-        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_supermarkt_lokatie_toelichting.html",
-        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_supermarkt_lokatie_bronnen.html"
+        "template": "<div><b>Openbaar vervoer</b><BR>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ postcode ]] [[ huisnummer ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
       },
       "geostyler": {
-        "name": "supermarkt",
+        "name": "Openbaar vervoer",
         "rules": [
           {
-            "name": "supermarkt",
+            "name": "Openbaar vervoer",
+            "filter": [
+              "==",
+              "type",
+              0
+            ],
             "symbolizers": [
               {
                 "kind": "Icon",
-                "image": "/icons/kl/supermarkt.png",
+                "image": "/icons/wzw/bushalte_shadow.png",
+                "width": 20,
+                "height": 20,
+                "size": 20
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "wzw_vrz_supermarkt",
+      "name": "Supermarkt",
+      "subname": "locaties",
+      "description": "Locaties van supermarkten in Nederland",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
+      "format": "pmtiles",
+      "sourceLayer": "vrz_locaties",
+      "geometryType": "point",
+      "beforeid": "map-layers",
+      "featureinfo": {
+        "template": "<div><b>Supermarkt</b><BR>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ postcode ]] [[ huisnummer ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
+      },
+      "geostyler": {
+        "name": "Supermarkt",
+        "rules": [
+          {
+            "name": "Supermarkt",
+            "filter": [
+              "==",
+              "type",
+              17
+            ],
+            "symbolizers": [
+              {
+                "kind": "Icon",
+                "image": "/icons/wzw/supermarkt.png",
                 "width": 22,
                 "height": 22,
                 "size": 22
@@ -6651,33 +6647,32 @@
       }
     },
     {
-      "id": "kl_fysio_lokatie",
-      "name": "fysiotherapeut",
-      "description": "Locaties van fysiotherapeuten",
-      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_basis.pmtiles",
+      "id": "wzw_vrz_fysiotherapeut",
+      "name": "Fysiotherapeut",
+      "subname": "locaties",
+      "description": "Locaties van fysiotherapeuten in Nederland",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
       "format": "pmtiles",
-      "sourceLayer": "fysio",
+      "sourceLayer": "vrz_locaties",
       "geometryType": "point",
       "beforeid": "map-layers",
-      "style": {
-        "opacity": 1.0
-      },
       "featureinfo": {
-        "template": "<div>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ pc_plaats ]]</b></div>"
-      },
-      "meta": {
-        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_fysio_lokatie_toelichting.html",
-        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_fysio_lokatie_bronnen.html"
+        "template": "<div><b>Fysiotherapeut</b><BR>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ postcode ]] [[ huisnummer ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
       },
       "geostyler": {
-        "name": "fysiotherapeut",
+        "name": "Fysiotherapeut",
         "rules": [
           {
-            "name": "fysio",
+            "name": "fysiotherapeut",
+            "filter": [
+              "==",
+              "type",
+              5
+            ],
             "symbolizers": [
               {
                 "kind": "Icon",
-                "image": "/icons/kl/fysio_schaduw.png",
+                "image": "/icons/wzw/fysio_schaduw.png",
                 "width": 22,
                 "height": 22,
                 "size": 22
@@ -6688,33 +6683,32 @@
       }
     },
     {
-      "id": "kl_ziekenhuis_lokatie",
-      "name": "ziekenhuis",
-      "description": "Locaties van ziekenhuizen",
-      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/voorzieningen_basis.pmtiles",
+      "id": "wzw_vrz_ziekenhuis",
+      "name": "Ziekenhuis",
+      "subname": "locaties",
+      "description": "Locaties van ziekenhuizen in Nederland",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_locaties.pmtiles?v=20261123",
       "format": "pmtiles",
-      "sourceLayer": "ziekenhuis",
+      "sourceLayer": "vrz_locaties",
       "geometryType": "point",
       "beforeid": "map-layers",
-      "style": {
-        "opacity": 1.0
-      },
       "featureinfo": {
-        "template": "<div>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ pc_plaats ]]</b></div>"
-      },
-      "meta": {
-        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ziekenhuis_lokatie_toelichting.html",
-        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ziekenhuis_lokatie_bronnen.html"
+        "template": "<div><b>Ziekenhuis</b><BR>Naam: <b>[[ naam ]]</b><BR>Adres: <b>[[ postcode ]] [[ huisnummer ]]</b><BR>Plaats: <b>[[ plaats ]]</b></div>"
       },
       "geostyler": {
-        "name": "ziekenhuis",
+        "name": "Ziekenhuis",
         "rules": [
           {
-            "name": "ziekenhuis",
+            "name": "Ziekenhuis",
+            "filter": [
+              "==",
+              "type",
+              22
+            ],
             "symbolizers": [
               {
                 "kind": "Icon",
-                "image": "/icons/kl/H_schaduw.png",
+                "image": "/icons/wzw/ziekenhuis.png",
                 "width": 22,
                 "height": 22,
                 "size": 22
@@ -7058,84 +7052,142 @@
       }
     },
     {
-      "id": "kl_huisarts_afstand",
-      "name": "huisarts",
-      "description": "Locaties van huisartsen",
-      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/woningpand_afstand.pmtiles",
+      "id": "wzw_vrz_loop_huisarts",
+      "name": "Loopafstand huisarts",
+      "subname": "loopafstanden",
+      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
       "format": "pmtiles",
-      "sourceLayer": "woningpand",
+      "sourceLayer": "loopafstanden",
       "geometryType": "polygon",
       "beforeid": "map-layers",
       "style": {
-        "opacity": 0.9
+        "opacity": 0.8
       },
       "featureinfo": {
-        "template": "<div>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ woonplaats ]]</b><BR><BR>Loopafstand tot dichtsbijzijnde huisarts: <b>[[ afs_huisar ]] meter</b></div>"
-      },
-      "meta": {
-        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_huisarts_afstand_toelichting.html",
-        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_huisarts_afstand_bronnen.html"
+        "template": "<div><b>Loopafstand huisarts</b><BR>Loopafstand tot dichtstbijzijnde huisarts: <b>[[ huisarts ]] meter</b></div>"
       },
       "geostyler": {
-        "name": "huisarts",
+        "name": "Loopafstand huisarts",
         "rules": [
           {
-            "name": "< 400 meter",
+            "name": "minder dan 500",
             "filter": [
-              "&&",
-              [
-                ">",
-                "afs_huisar",
-                0
-              ],
-              [
-                "<=",
-                "afs_huisar",
-                400
-              ]
+              "<",
+              "huisarts",
+              500
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#32FF32",
+                "color": "#61BE7B",
                 "outlineWidth": 0
               }
             ]
           },
           {
-            "name": "400 - 800 meter",
+            "name": "500 tot 750",
             "filter": [
               "&&",
               [
-                ">",
-                "afs_huisar",
-                400
+                ">=",
+                "huisarts",
+                500
               ],
               [
-                "<=",
-                "afs_huisar",
-                800
+                "<",
+                "huisarts",
+                750
               ]
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#6464FF",
+                "color": "#A0D392",
                 "outlineWidth": 0
               }
             ]
           },
           {
-            "name": "> 800 meter",
+            "name": "750 tot 1000",
             "filter": [
-              ">",
-              "afs_huisar",
-              800
+              "&&",
+              [
+                ">=",
+                "huisarts",
+                750
+              ],
+              [
+                "<",
+                "huisarts",
+                1000
+              ]
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#FF3232",
+                "color": "#FDEAB6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1000 tot 1250",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "huisarts",
+                1000
+              ],
+              [
+                "<",
+                "huisarts",
+                1250
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8D8AF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1250 tot 1500",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "huisarts",
+                1250
+              ],
+              [
+                "<",
+                "huisarts",
+                1500
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFAF92",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 1500",
+            "filter": [
+              ">=",
+              "huisarts",
+              1500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF6024",
                 "outlineWidth": 0
               }
             ]
@@ -7144,84 +7196,142 @@
       }
     },
     {
-      "id": "kl_ontmoeting_afstand",
-      "name": "ontmoeting/welzijn",
-      "description": "Locaties van ontmoetingcentra/welzijnsorganisaties",
-      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/woningpand_afstand.pmtiles",
+      "id": "wzw_vrz_loop_ontmoeting",
+      "name": "Loopafstand ontmoeting",
+      "subname": "loopafstanden",
+      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
       "format": "pmtiles",
-      "sourceLayer": "woningpand",
+      "sourceLayer": "loopafstanden",
       "geometryType": "polygon",
       "beforeid": "map-layers",
       "style": {
-        "opacity": 0.9
+        "opacity": 0.8
       },
       "featureinfo": {
-        "template": "<div>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ woonplaats ]]</b><BR><BR>Loopafstand tot dichtsbijzijnde ontmoeting/welzijnscentrum: <b>[[ afs_ontmoe ]] meter</b></div>"
-      },
-      "meta": {
-        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ontmoeting_afstand_toelichting.html",
-        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ontmoeting_afstand_bronnen.html"
+        "template": "<div><b>Loopafstand ontmoeting</b><BR>Loopafstand tot dichtstbijzijnde ontmoeting: <b>[[ ontmoeting ]] meter</b></div>"
       },
       "geostyler": {
-        "name": "ontmoeting/welzijn",
+        "name": "Loopafstand ontmoeting",
         "rules": [
           {
-            "name": "< 400 meter",
+            "name": "minder dan 500",
             "filter": [
-              "&&",
-              [
-                ">",
-                "afs_ontmoe",
-                0
-              ],
-              [
-                "<=",
-                "afs_ontmoe",
-                400
-              ]
+              "<",
+              "ontmoeting",
+              500
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#32FF32",
+                "color": "#61BE7B",
                 "outlineWidth": 0
               }
             ]
           },
           {
-            "name": "400 - 800 meter",
+            "name": "500 tot 750",
             "filter": [
               "&&",
               [
-                ">",
-                "afs_ontmoe",
-                400
+                ">=",
+                "ontmoeting",
+                500
               ],
               [
-                "<=",
-                "afs_ontmoe",
-                800
+                "<",
+                "ontmoeting",
+                750
               ]
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#6464FF",
+                "color": "#A0D392",
                 "outlineWidth": 0
               }
             ]
           },
           {
-            "name": "> 800 meter",
+            "name": "750 tot 1000",
             "filter": [
-              ">",
-              "afs_ontmoe",
-              800
+              "&&",
+              [
+                ">=",
+                "ontmoeting",
+                750
+              ],
+              [
+                "<",
+                "ontmoeting",
+                1000
+              ]
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#FF3232",
+                "color": "#FDEAB6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1000 tot 1250",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ontmoeting",
+                1000
+              ],
+              [
+                "<",
+                "ontmoeting",
+                1250
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8D8AF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1250 tot 1500",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ontmoeting",
+                1250
+              ],
+              [
+                "<",
+                "ontmoeting",
+                1500
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFAF92",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 1500",
+            "filter": [
+              ">=",
+              "ontmoeting",
+              1500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF6024",
                 "outlineWidth": 0
               }
             ]
@@ -7230,84 +7340,142 @@
       }
     },
     {
-      "id": "kl_ovhaltes_afstand",
-      "name": "ov halte",
-      "description": "Locaties van ov haltes",
-      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/woningpand_afstand.pmtiles",
+      "id": "wzw_vrz_loop_ov",
+      "name": "Loopafstand ov",
+      "subname": "loopafstanden",
+      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
       "format": "pmtiles",
-      "sourceLayer": "woningpand",
+      "sourceLayer": "loopafstanden",
       "geometryType": "polygon",
       "beforeid": "map-layers",
       "style": {
-        "opacity": 0.9
+        "opacity": 0.8
       },
       "featureinfo": {
-        "template": "<div>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ woonplaats ]]</b><BR><BR>Loopafstand tot dichtsbijzijnde ov halte: <b>[[ afs_ov ]] meter</b></div>"
-      },
-      "meta": {
-        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ovhaltes_afstand_toelichting.html",
-        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_ovhaltes_afstand_bronnen.html"
+        "template": "<div><b>Loopafstand ov</b><BR>Loopafstand tot dichtstbijzijnde ov-halte: <b>[[ ov ]] meter</b></div>"
       },
       "geostyler": {
-        "name": "ov halte",
+        "name": "Loopafstand ov",
         "rules": [
           {
-            "name": "< 400 meter",
+            "name": "minder dan 500",
             "filter": [
-              "&&",
-              [
-                ">",
-                "afs_ov",
-                0
-              ],
-              [
-                "<=",
-                "afs_ov",
-                400
-              ]
+              "<",
+              "ov",
+              500
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#32FF32",
+                "color": "#61BE7B",
                 "outlineWidth": 0
               }
             ]
           },
           {
-            "name": "400 - 800 meter",
+            "name": "500 tot 750",
             "filter": [
               "&&",
               [
-                ">",
-                "afs_ov",
-                400
+                ">=",
+                "ov",
+                500
               ],
               [
-                "<=",
-                "afs_ov",
-                800
+                "<",
+                "ov",
+                750
               ]
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#6464FF",
+                "color": "#A0D392",
                 "outlineWidth": 0
               }
             ]
           },
           {
-            "name": "> 800 meter",
+            "name": "750 tot 1000",
             "filter": [
-              ">",
-              "afs_ov",
-              800
+              "&&",
+              [
+                ">=",
+                "ov",
+                750
+              ],
+              [
+                "<",
+                "ov",
+                1000
+              ]
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#FF3232",
+                "color": "#FDEAB6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1000 tot 1250",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ov",
+                1000
+              ],
+              [
+                "<",
+                "ov",
+                1250
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8D8AF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1250 tot 1500",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "ov",
+                1250
+              ],
+              [
+                "<",
+                "ov",
+                1500
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFAF92",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 1500",
+            "filter": [
+              ">=",
+              "ov",
+              1500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF6024",
                 "outlineWidth": 0
               }
             ]
@@ -7316,84 +7484,142 @@
       }
     },
     {
-      "id": "kl_supermarkt_afstand",
-      "name": "supermarkt",
-      "description": "Locaties van supermarkten",
-      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/woningpand_afstand.pmtiles",
+      "id": "wzw_vrz_loop_supermarkt",
+      "name": "Loopafstand supermarkt",
+      "subname": "loopafstanden",
+      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
       "format": "pmtiles",
-      "sourceLayer": "woningpand",
+      "sourceLayer": "loopafstanden",
       "geometryType": "polygon",
       "beforeid": "map-layers",
       "style": {
-        "opacity": 0.9
+        "opacity": 0.8
       },
       "featureinfo": {
-        "template": "<div>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ woonplaats ]]</b><BR><BR>Loopafstand tot dichtsbijzijnde supermarkt: <b>[[ afs_super ]] meter</b></div>"
-      },
-      "meta": {
-        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_supermarkt_afstand_toelichting.html",
-        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_supermarkt_afstand_bronnen.html"
+        "template": "<div><b>Loopafstand supermarkt</b><BR>Loopafstand tot dichtstbijzijnde supermarkt: <b>[[ supermarkt ]] meter</b></div>"
       },
       "geostyler": {
-        "name": "supermarkt",
+        "name": "Loopafstand supermarkt",
         "rules": [
           {
-            "name": "< 400 meter",
+            "name": "minder dan 500",
             "filter": [
-              "&&",
-              [
-                ">",
-                "afs_super",
-                0
-              ],
-              [
-                "<=",
-                "afs_super",
-                400
-              ]
+              "<",
+              "supermarkt",
+              500
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#32FF32",
+                "color": "#61BE7B",
                 "outlineWidth": 0
               }
             ]
           },
           {
-            "name": "400 - 800 meter",
+            "name": "500 tot 750",
             "filter": [
               "&&",
               [
-                ">",
-                "afs_super",
-                400
+                ">=",
+                "supermarkt",
+                500
               ],
               [
-                "<=",
-                "afs_super",
-                800
+                "<",
+                "supermarkt",
+                750
               ]
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#6464FF",
+                "color": "#A0D392",
                 "outlineWidth": 0
               }
             ]
           },
           {
-            "name": "> 800 meter",
+            "name": "750 tot 1000",
             "filter": [
-              ">",
-              "afs_super",
-              800
+              "&&",
+              [
+                ">=",
+                "supermarkt",
+                750
+              ],
+              [
+                "<",
+                "supermarkt",
+                1000
+              ]
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#FF3232",
+                "color": "#FDEAB6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1000 tot 1250",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "supermarkt",
+                1000
+              ],
+              [
+                "<",
+                "supermarkt",
+                1250
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8D8AF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1250 tot 1500",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "supermarkt",
+                1250
+              ],
+              [
+                "<",
+                "supermarkt",
+                1500
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFAF92",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 1500",
+            "filter": [
+              ">=",
+              "supermarkt",
+              1500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF6024",
                 "outlineWidth": 0
               }
             ]
@@ -7402,84 +7628,142 @@
       }
     },
     {
-      "id": "kl_fysio_afstand",
-      "name": "fysiotherapeut",
-      "description": "Locaties van fysiotherapeuten",
-      "source": "https://data.derondekaart.nl/pmtiles/wonenenzorgopdekaart/woningpand_afstand.pmtiles",
+      "id": "wzw_vrz_loop_fysiotherapeut",
+      "name": "Loopafstand fysiotherapeut",
+      "subname": "loopafstanden",
+      "description": "Met behulp van het OpenStreetMap netwerk zijn de loopafstanden berekend van de panden uit de BAG naar de dichtstbijzijnde voorziening van het gekozen type. Bij het voorzieningtype is opvraagbaar wat de bron van de voorzieningenlocaties is. Het is voor ouderen (en sommige andere doelgroepen) belangrijk dat voorzieningen binnen loopafstand liggen. Daarbij wordt vaak gesteld dat 10 tot 20 minuten lopen acceptabel is. Ouderen kunnen in 10 minuten gemiddeld zo'n 675 meter lopen, jongere leeftijden rond de 900 meter.",
+      "source": "https://data.derondekaart.nl/pmtiles/woonzorgwijzer/voorzieningen/vrz_loopafstanden.pmtiles?v=20261123",
       "format": "pmtiles",
-      "sourceLayer": "woningpand",
+      "sourceLayer": "loopafstanden",
       "geometryType": "polygon",
       "beforeid": "map-layers",
       "style": {
-        "opacity": 0.9
+        "opacity": 0.8
       },
       "featureinfo": {
-        "template": "<div>Adres: <b>[[ adres ]]</b><BR>Postcode/Plaats: <b>[[ woonplaats ]]</b><BR><BR>Loopafstand tot dichtsbijzijnde fysiotherapeut: <b>[[ afs_fysio ]] meter</b></div>"
-      },
-      "meta": {
-        "toelichting": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_fysio_afstand_toelichting.html",
-        "bronnen": "https://data.derondekaart.nl/meta/wonenenzorgopdekaart/kl_fysio_afstand_bronnen.html"
+        "template": "<div><b>Loopafstand fysiotherapeut</b><BR>Loopafstand tot dichtstbijzijnde fysiotherapeut: <b>[[ fysiotherapeut ]] meter</b></div>"
       },
       "geostyler": {
-        "name": "fysiotherapeut",
+        "name": "Loopafstand fysiotherapeut",
         "rules": [
           {
-            "name": "< 400 meter",
+            "name": "minder dan 500",
             "filter": [
-              "&&",
-              [
-                ">",
-                "afs_fysio",
-                0
-              ],
-              [
-                "<=",
-                "afs_fysio",
-                400
-              ]
+              "<",
+              "fysiotherapeut",
+              500
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#32FF32",
+                "color": "#61BE7B",
                 "outlineWidth": 0
               }
             ]
           },
           {
-            "name": "400 - 800 meter",
+            "name": "500 tot 750",
             "filter": [
               "&&",
               [
-                ">",
-                "afs_fysio",
-                400
+                ">=",
+                "fysiotherapeut",
+                500
               ],
               [
-                "<=",
-                "afs_fysio",
-                800
+                "<",
+                "fysiotherapeut",
+                750
               ]
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#6464FF",
+                "color": "#A0D392",
                 "outlineWidth": 0
               }
             ]
           },
           {
-            "name": "> 800 meter",
+            "name": "750 tot 1000",
             "filter": [
-              ">",
-              "afs_fysio",
-              800
+              "&&",
+              [
+                ">=",
+                "fysiotherapeut",
+                750
+              ],
+              [
+                "<",
+                "fysiotherapeut",
+                1000
+              ]
             ],
             "symbolizers": [
               {
                 "kind": "Fill",
-                "color": "#FF3232",
+                "color": "#FDEAB6",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1000 tot 1250",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "fysiotherapeut",
+                1000
+              ],
+              [
+                "<",
+                "fysiotherapeut",
+                1250
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#F8D8AF",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "1250 tot 1500",
+            "filter": [
+              "&&",
+              [
+                ">=",
+                "fysiotherapeut",
+                1250
+              ],
+              [
+                "<",
+                "fysiotherapeut",
+                1500
+              ]
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FFAF92",
+                "outlineWidth": 0
+              }
+            ]
+          },
+          {
+            "name": "meer dan 1500",
+            "filter": [
+              ">=",
+              "fysiotherapeut",
+              1500
+            ],
+            "symbolizers": [
+              {
+                "kind": "Fill",
+                "color": "#FF6024",
                 "outlineWidth": 0
               }
             ]

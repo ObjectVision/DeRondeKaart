@@ -120,37 +120,37 @@
         "expanded": false,
         "children": [
           {
-            "id": "kl_huisarts_lokatie",
+            "id": "wzw_vrz_huisarts",
             "label": "huisarts",
             "a": false,
             "b": false
           },
           {
-            "id": "kl_ontmoeting_lokatie",
+            "id": "wzw_vrz_buurt_en_dorpshuizen",
             "label": "ontmoeting/welzijn",
             "a": false,
             "b": false
           },
           {
-            "id": "kl_ovhaltes_lokatie",
+            "id": "wzw_vrz_openbaar_vervoer",
             "label": "ov halte",
             "a": false,
             "b": false
           },
           {
-            "id": "kl_supermarkt_lokatie",
+            "id": "wzw_vrz_supermarkt",
             "label": "supermarkt",
             "a": false,
             "b": false
           },
           {
-            "id": "kl_fysio_lokatie",
+            "id": "wzw_vrz_fysiotherapeut",
             "label": "fysiotherapeut",
             "a": false,
             "b": false
           },
           {
-            "id": "kl_ziekenhuis_lokatie",
+            "id": "wzw_vrz_ziekenhuis",
             "label": "ziekenhuis",
             "a": false,
             "b": false
@@ -226,31 +226,31 @@
         "expanded": false,
         "children": [
           {
-            "id": "kl_huisarts_afstand",
+            "id": "wzw_vrz_loop_huisarts",
             "label": "huisarts",
             "a": false,
             "b": false
           },
           {
-            "id": "kl_ontmoeting_afstand",
+            "id": "wzw_vrz_loop_ontmoeting",
             "label": "ontmoeting/welzijn",
             "a": false,
             "b": false
           },
           {
-            "id": "kl_ovhaltes_afstand",
+            "id": "wzw_vrz_loop_ov",
             "label": "ov halte",
             "a": false,
             "b": false
           },
           {
-            "id": "kl_supermarkt_afstand",
+            "id": "wzw_vrz_loop_supermarkt",
             "label": "supermarkt",
             "a": false,
             "b": false
           },
           {
-            "id": "kl_fysio_afstand",
+            "id": "wzw_vrz_loop_fysiotherapeut",
             "label": "fysiotherapeut",
             "a": false,
             "b": false
