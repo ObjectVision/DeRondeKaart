@@ -25,7 +25,7 @@
           "source": "https://data.woonzorglimburg.nl/parquet/pc6_locatieinfo_2026.parquet?v=20261108",
           "rowField": "row",
           "keyField": "pc6",
-          "templateUrl": "https://data.woonzorglimburg.nl/meta/locatieinfo/locatie-informatie.html?v=20261108"
+          "templateUrl": "https://data.woonzorglimburg.nl/meta/locatieinfo/locatie-informatie.html?v=20261126"
         }
       }
     },
